@@ -1,0 +1,297 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Badge } from '../components/ui/badge';
+import { CountryPicker } from '../components/ui/pickers';
+import { ArrowLeft, Loader2, Plus, Save, Trash2 } from 'lucide-react';
+import { api } from '../lib/api-client';
+import { toast } from 'sonner';
+
+interface ShippingZone {
+  _id: string;
+  name: string;
+  countries: string[];
+  rates: Array<{
+    _id?: string;
+    name: string;
+    price: number;
+    minWeight?: number;
+    maxWeight?: number | null;
+    estimatedDays?: string;
+  }>;
+}
+
+const EMPTY_RATE = { name: '', price: 0, minWeight: 0, maxWeight: null as number | null, estimatedDays: '' };
+
+const ShippingZoneForm: React.FC = () => {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isEdit = Boolean(id);
+
+  const [loading, setLoading] = useState(isEdit);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<{
+    name: string;
+    countries: string[];
+    rates: Array<typeof EMPTY_RATE>;
+  }>({
+    name: '',
+    countries: [],
+    rates: [{ ...EMPTY_RATE }],
+  });
+
+  useEffect(() => {
+    if (!isEdit) return;
+    (async () => {
+      try {
+        setLoading(true);
+        const res = (await api.settings.listShippingZones()) as { data?: ShippingZone[] };
+        const list: ShippingZone[] = res.data || [];
+        const zone = list.find((z) => z._id === id);
+        if (!zone) {
+          toast.error('Shipping zone not found');
+          navigate('/dashboard/settings');
+          return;
+        }
+        setForm({
+          name: zone.name,
+          countries: zone.countries,
+          rates: zone.rates.map((r) => ({
+            name: r.name,
+            price: r.price,
+            minWeight: r.minWeight ?? 0,
+            maxWeight: r.maxWeight ?? null,
+            estimatedDays: r.estimatedDays ?? '',
+          })),
+        });
+      } catch (err) {
+        const e = err as { message?: string };
+        toast.error(e?.message || 'Failed to load zone');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id, isEdit, navigate]);
+
+  const addCountry = (code: string) => {
+    const upper = code.toUpperCase();
+    if (!upper || form.countries.includes(upper)) return;
+    setForm((f) => ({ ...f, countries: [...f.countries, upper] }));
+  };
+  const removeCountry = (code: string) =>
+    setForm((f) => ({ ...f, countries: f.countries.filter((c) => c !== code) }));
+
+  const addRate = () => setForm((f) => ({ ...f, rates: [...f.rates, { ...EMPTY_RATE }] }));
+  const removeRate = (i: number) => setForm((f) => ({ ...f, rates: f.rates.filter((_, j) => j !== i) }));
+  const updateRate = (i: number, patch: Partial<typeof EMPTY_RATE>) =>
+    setForm((f) => ({ ...f, rates: f.rates.map((r, j) => (j === i ? { ...r, ...patch } : r)) }));
+
+  const handleSave = async () => {
+    if (!form.name.trim()) return toast.error('Zone name is required');
+    if (form.countries.length === 0) return toast.error('At least one country is required');
+    if (form.rates.length === 0) return toast.error('At least one rate is required');
+    for (const r of form.rates) {
+      if (!r.name.trim()) return toast.error('Rate name is required');
+      if (r.price < 0) return toast.error('Rate price cannot be negative');
+    }
+    const payload = {
+      name: form.name.trim(),
+      countries: form.countries,
+      rates: form.rates.map((r) => ({
+        name: r.name.trim(),
+        price: Number(r.price),
+        minWeight: r.minWeight === null || r.minWeight === undefined ? undefined : Number(r.minWeight),
+        maxWeight: r.maxWeight === null || (r.maxWeight as unknown as string) === '' ? null : Number(r.maxWeight),
+        estimatedDays: r.estimatedDays || undefined,
+      })),
+    };
+    setSaving(true);
+    try {
+      if (isEdit && id) {
+        await api.settings.updateShippingZone(id, payload);
+        toast.success('Zone updated');
+      } else {
+        await api.settings.createShippingZone(payload);
+        toast.success('Zone created');
+      }
+      navigate('/dashboard/settings?tab=shipping');
+    } catch (err) {
+      const e = err as { message?: string };
+      toast.error(e?.message || 'Failed to save zone');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/settings?tab=shipping')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {isEdit ? 'Edit shipping zone' : 'New shipping zone'}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Per-region rates with optional weight bands.
+            </p>
+          </div>
+        </div>
+        <Button onClick={handleSave} disabled={saving}>
+          {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+          {isEdit ? 'Update zone' : 'Create zone'}
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Zone details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Zone name</Label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="North America"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Countries</Label>
+                <CountryPicker value="" onChange={addCountry} placeholder="Add a country..." />
+                {form.countries.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {form.countries.map((code) => (
+                      <Badge key={code} variant="secondary" className="gap-1 pr-1">
+                        {code}
+                        <button
+                          type="button"
+                          onClick={() => removeCountry(code)}
+                          className="ml-0.5 rounded-sm hover:bg-background/60 p-0.5"
+                          aria-label={`Remove ${code}`}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  Pick one or more countries this zone applies to.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Rates</CardTitle>
+              <Button variant="outline" size="sm" onClick={addRate}>
+                <Plus className="h-3.5 w-3.5 mr-1" />Add rate
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {form.rates.map((rate, i) => (
+                <div key={i} className="border rounded-md p-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase text-muted-foreground">
+                      Rate #{i + 1}
+                    </span>
+                    {form.rates.length > 1 && (
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeRate(i)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Name</Label>
+                      <Input value={rate.name} onChange={(e) => updateRate(i, { name: e.target.value })} placeholder="Standard" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Price ($)</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={rate.price}
+                        onChange={(e) => updateRate(i, { price: parseFloat(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Min weight (kg)</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        value={rate.minWeight}
+                        onChange={(e) => updateRate(i, { minWeight: parseFloat(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Max weight (kg, blank for no cap)</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        value={rate.maxWeight ?? ''}
+                        onChange={(e) => updateRate(i, { maxWeight: e.target.value === '' ? null : parseFloat(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-1 col-span-2">
+                      <Label className="text-xs">Estimated days</Label>
+                      <Input
+                        value={rate.estimatedDays}
+                        onChange={(e) => updateRate(i, { estimatedDays: e.target.value })}
+                        placeholder="3-5"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-1">
+          <Card className="sticky top-4">
+            <CardHeader>
+              <CardTitle className="text-base">Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div>
+                <div className="text-xs text-muted-foreground">Name</div>
+                <div className="font-medium">{form.name || '—'}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Countries</div>
+                <div className="font-medium">{form.countries.length}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Rates</div>
+                <div className="font-medium">{form.rates.length}</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ShippingZoneForm;

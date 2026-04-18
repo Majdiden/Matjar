@@ -1,0 +1,164 @@
+/* Shared styles for printable order documents (invoice, packing slip,
+   refund receipt). Kept plain so the browser's default print dialog is
+   consistent across documents. A4-ish layout with generous margins. */
+
+.document-page {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 40px 48px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: #111;
+  background: #fff;
+}
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  border-bottom: 2px solid #111;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.doc-header-left {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.doc-header-right {
+  text-align: right;
+}
+
+.doc-logo {
+  max-height: 60px;
+  max-width: 120px;
+  object-fit: contain;
+}
+
+.doc-store-name {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.doc-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.doc-muted {
+  color: #555;
+}
+
+.doc-small {
+  font-size: 11px;
+}
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.doc-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+}
+
+.doc-table thead th {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #666;
+  border-bottom: 1px solid #333;
+  padding: 8px 6px;
+}
+
+.doc-table tbody td {
+  padding: 10px 6px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.doc-totals {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 32px;
+}
+
+.doc-totals dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 6px 24px;
+  min-width: 260px;
+}
+
+.doc-totals dt {
+  color: #555;
+}
+
+.doc-totals dd {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.doc-totals .doc-sub-dt,
+.doc-totals .doc-sub-dd {
+  font-size: 11px;
+  color: #777;
+}
+
+.doc-totals .doc-grand {
+  border-top: 2px solid #111;
+  padding-top: 8px;
+  margin-top: 6px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #111;
+}
+
+.doc-refund-amount {
+  text-align: center;
+  padding: 32px 16px;
+  margin-bottom: 24px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.doc-refund-value {
+  font-size: 36px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.doc-footer {
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+  margin-top: 32px;
+}
+
+@media print {
+  .document-page {
+    padding: 20px;
+  }
+  @page {
+    margin: 12mm;
+  }
+}

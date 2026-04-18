@@ -1,0 +1,664 @@
+import React, { useEffect, useState, useMemo } from 'react';
+import { getTenantCurrency, getTenantLocale } from '../../lib/format';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Input } from '../../components/ui/input';
+import { Skeleton } from '../../components/ui/skeleton';
+import { FilterPills } from '../../components/ui/filter-pills';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../../components/ui/dropdown-menu';
+import {
+  ShoppingCart, MoreHorizontal, Eye, DollarSign, Clock, CheckCircle2,
+  Truck, Package as PackageIcon, XCircle, Search, Filter, Download,
+  RefreshCw, GitBranch, LayoutGrid, List, Pin, PinOff, X,
+} from 'lucide-react';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '../../components/ui/table';
+import { api } from '../../lib/api-client';
+import { toast } from 'sonner';
+import { toCSV, downloadCSV } from '../../lib/utils';
+import type { Order, OrderItem, OrderStatus, PaginatedResponse } from '../../types';
+
+// The bulk/full export builders tap into a few "decorated" order fields
+// the backend folds in at read time — customer aggregate, email, etc. We
+// keep the extension narrow and typed so the `get:` accessors stay safe.
+type OrderForExport = Order & {
+  customer?: { name?: string; firstName?: string; lastName?: string; email?: string };
+  customerEmail?: string;
+};
+
+// Parameter bag passed to api.orders.getAll. We re-declare it locally
+// (rather than touching api-client) so callers have a real type to build
+// against without having to widen to any.
+type OrdersListParams = {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+};
+
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(price);
+
+// Stored order numbers already include a leading "#" (e.g. "#1042"), so we
+// strip it before re-prefixing in the UI to avoid rendering "##1042".
+const displayOrderNumber = (orderNumber?: string | null, fallbackId?: string) => {
+  if (orderNumber) return `#${String(orderNumber).replace(/^#+/, '')}`;
+  return fallbackId ? `#${fallbackId.slice(-8)}` : '';
+};
+
+type StatusTab = '' | 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+
+const TAB_DEFS: { id: StatusTab; label: string; icon: React.ElementType }[] = [
+  { id: '', label: 'All Orders', icon: ShoppingCart },
+  { id: 'Pending', label: 'Pending', icon: Clock },
+  { id: 'Processing', label: 'Processing', icon: PackageIcon },
+  { id: 'Shipped', label: 'Shipped', icon: Truck },
+  { id: 'Delivered', label: 'Delivered', icon: CheckCircle2 },
+  { id: 'Cancelled', label: 'Cancelled', icon: XCircle },
+];
+
+const statusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+  switch (status) {
+    case 'Delivered': return 'default';
+    case 'Shipped':
+    case 'Processing': return 'secondary';
+    case 'Pending': return 'outline';
+    case 'Cancelled': return 'destructive';
+    default: return 'outline';
+  }
+};
+
+type ViewMode = 'cards' | 'table';
+const VIEW_PREF_KEY = 'orders.viewMode';
+
+const paymentVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+  switch (status) {
+    case 'Paid': return 'default';
+    case 'Failed':
+    case 'Refunded': return 'destructive';
+    case 'Not Paid': return 'outline';
+    default: return 'secondary';
+  }
+};
+
+export const Orders: React.FC = () => {
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [tab, setTab] = useState<StatusTab>('');
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
+  const [stats, setStats] = useState({ total: 0, pending: 0, revenue: 0, delivered: 0 });
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window === 'undefined') return 'cards';
+    return (localStorage.getItem(VIEW_PREF_KEY) as ViewMode) || 'cards';
+  });
+  const [defaultView, setDefaultView] = useState<ViewMode>(() => {
+    if (typeof window === 'undefined') return 'cards';
+    return (localStorage.getItem(VIEW_PREF_KEY) as ViewMode) || 'cards';
+  });
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const toggleSelectAll = () => {
+    if (selected.size === orders.length) setSelected(new Set());
+    else setSelected(new Set(orders.map((o) => o._id)));
+  };
+
+  const handleBulkStatus = async (status: OrderStatus) => {
+    if (selected.size === 0) return;
+    const ids = [...selected];
+    const results = await Promise.allSettled(ids.map((id) => api.orders.updateStatus(id, status)));
+    const ok = results.filter((r) => r.status === 'fulfilled').length;
+    const failed = results.length - ok;
+    if (ok) toast.success(`${ok} order${ok === 1 ? '' : 's'} marked as ${status}`);
+    if (failed) toast.error(`${failed} failed to update`);
+    setSelected(new Set());
+    loadOrders();
+    loadStats();
+  };
+
+  const handleBulkExport = () => {
+    const all = orders.filter((o) => selected.has(o._id));
+    if (all.length === 0) {
+      toast.message('No orders to export');
+      return;
+    }
+    const csv = toCSV(all as OrderForExport[], [
+      { key: 'orderNumber', label: 'Order #' },
+      { key: 'createdAt', label: 'Date', get: (o: OrderForExport) => o.createdAt ? new Date(o.createdAt).toISOString().slice(0, 10) : '' },
+      { key: 'customer', label: 'Customer', get: (o: OrderForExport) => o.user?.name || 'Guest' },
+      { key: 'customerEmail', label: 'Email', get: (o: OrderForExport) => o.user?.email || '' },
+      { key: 'status', label: 'Status' },
+      { key: 'paymentStatus', label: 'Payment status' },
+      { key: 'totalAmount', label: 'Total', get: (o: OrderForExport) => (o.totalAmount ?? 0).toFixed(2) },
+    ]);
+    downloadCSV(csv, 'orders-selected');
+    toast.success(`Exported ${all.length} order${all.length === 1 ? '' : 's'}`);
+  };
+
+  const setAsDefault = () => {
+    localStorage.setItem(VIEW_PREF_KEY, viewMode);
+    setDefaultView(viewMode);
+    toast.success(`${viewMode === 'cards' ? 'Cards' : 'Table'} view set as default`);
+  };
+
+  // loadOrders / loadStats are stable closures over setters — redeclaring
+  // them on each render would cause the effect to loop. We intentionally
+  // only re-fetch on the paging/filter inputs.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadOrders(); }, [page, tab, search]);
+  useEffect(() => { loadStats(); }, []);
+
+  const loadStats = async () => {
+    try {
+      const res = await api.orders.getAll({ page: 1, limit: 1000 }) as PaginatedResponse<Order>;
+      const all: Order[] = (res.responseObject.orders as Order[] | undefined) || [];
+      setStats({
+        total: res.responseObject.pagination?.total || all.length,
+        pending: all.filter((o) => o.status === 'Pending' || o.status === 'Processing').length,
+        revenue: all.reduce((sum, o) => sum + (o.totalAmount || 0), 0),
+        delivered: all.filter((o) => o.status === 'Delivered').length,
+      });
+    } catch {
+      // Non-fatal — stats surface as zeroes if the endpoint is offline.
+    }
+  };
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      const params: OrdersListParams = { page, limit: 20 };
+      if (tab) params.status = tab;
+      if (search) params.search = search;
+      const response = await api.orders.getAll(params) as PaginatedResponse<Order>;
+      setOrders((response.responseObject.orders as Order[] | undefined) || []);
+      if (response.responseObject.pagination) setPagination(response.responseObject.pagination);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : null;
+      toast.error(msg || 'Failed to load orders');
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+    try {
+      await api.orders.updateStatus(orderId, newStatus);
+      toast.success(`Order updated to ${newStatus}`);
+      setOrders((prev) => prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o)));
+      loadStats();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : null;
+      toast.error(msg || 'Failed to update order status');
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const res = await api.orders.getAll({ page: 1, limit: 5000 }) as PaginatedResponse<Order>;
+      const all: Order[] = (res.responseObject.orders as Order[] | undefined) || [];
+      if (all.length === 0) {
+        toast.message('No orders to export');
+        return;
+      }
+      const csv = toCSV(all as OrderForExport[], [
+        { key: 'orderNumber', label: 'Order #' },
+        { key: 'createdAt', label: 'Date', get: (o: OrderForExport) => o.createdAt ? new Date(o.createdAt).toISOString().slice(0, 10) : '' },
+        { key: 'customer', label: 'Customer', get: (o: OrderForExport) => o.customer?.name || `${o.customer?.firstName || ''} ${o.customer?.lastName || ''}`.trim() || o.customerEmail || 'Guest' },
+        { key: 'customerEmail', label: 'Email', get: (o: OrderForExport) => o.customer?.email || o.customerEmail || '' },
+        { key: 'status', label: 'Status' },
+        { key: 'paymentStatus', label: 'Payment status' },
+        { key: 'paymentMethod', label: 'Payment method' },
+        { key: 'itemCount', label: 'Items', get: (o: OrderForExport) => (o.products || []).reduce((s: number, p: OrderItem) => s + (p.quantity || 0), 0) },
+        { key: 'subtotal', label: 'Subtotal', get: (o: OrderForExport) => (o.subtotal ?? 0).toFixed(2) },
+        { key: 'shippingCost', label: 'Shipping', get: (o: OrderForExport) => (o.shippingCost ?? 0).toFixed(2) },
+        { key: 'tax', label: 'Tax', get: (o: OrderForExport) => (o.tax ?? 0).toFixed(2) },
+        { key: 'discount', label: 'Discount', get: (o: OrderForExport) => (o.discount ?? 0).toFixed(2) },
+        { key: 'totalAmount', label: 'Total', get: (o: OrderForExport) => (o.totalAmount ?? 0).toFixed(2) },
+      ]);
+      downloadCSV(csv, 'orders');
+      toast.success(`Exported ${all.length} order${all.length === 1 ? '' : 's'}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : null;
+      toast.error(msg || 'Export failed');
+    }
+  };
+
+  const statCards = useMemo(
+    () => [
+      { label: 'Total Orders', value: stats.total.toLocaleString(), icon: ShoppingCart, description: 'All time' },
+      { label: 'Pending', value: stats.pending.toLocaleString(), icon: Clock, description: 'Awaiting fulfillment' },
+      { label: 'Delivered', value: stats.delivered.toLocaleString(), icon: CheckCircle2, description: 'Completed orders' },
+      { label: 'Total Revenue', value: formatPrice(stats.revenue), icon: DollarSign, description: 'Gross sales' },
+    ],
+    [stats]
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Track, fulfill, and manage your customer orders
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleExport}>
+          <Download className="h-4 w-4 mr-2" /> Export
+        </Button>
+      </div>
+
+      {/* Stat strip */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {statCards.map((s) => {
+          const Icon = s.icon;
+          return (
+            <Card key={s.label} className="hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-muted-foreground">{s.label}</p>
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <p className="text-2xl font-bold">{s.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{s.description}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Filter pills */}
+      <FilterPills
+        items={TAB_DEFS.map((t) => ({ id: t.id || 'all', label: t.label, icon: t.icon }))}
+        value={tab || 'all'}
+        onChange={(v) => { setTab(v === 'all' ? '' : (v as StatusTab)); setPage(1); }}
+      />
+
+      {/* Search row */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by order # or customer..."
+            className="pl-9"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
+        </div>
+        <Button variant="outline" size="sm">
+          <Filter className="h-4 w-4 mr-2" /> Filter
+        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          <div className="inline-flex rounded-md border bg-background p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode('cards')}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+                viewMode === 'cards' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+              aria-pressed={viewMode === 'cards'}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" /> Cards
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('table')}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+                viewMode === 'table' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+              aria-pressed={viewMode === 'table'}
+            >
+              <List className="h-3.5 w-3.5" /> Table
+            </button>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={setAsDefault}
+            disabled={viewMode === defaultView}
+            title={viewMode === defaultView ? 'This is your default view' : `Set ${viewMode} as default`}
+          >
+            {viewMode === defaultView ? (
+              <><Pin className="h-3.5 w-3.5 mr-1.5" /> Default</>
+            ) : (
+              <><PinOff className="h-3.5 w-3.5 mr-1.5" /> Set default</>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
+          <p className="text-sm font-medium">{selected.size} selected</p>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
+              <X className="h-3.5 w-3.5 mr-1.5" />Clear
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Processing')}>
+              <PackageIcon className="h-3.5 w-3.5 mr-1.5" />Mark as Processing
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Shipped')}>
+              <Truck className="h-3.5 w-3.5 mr-1.5" />Mark as Shipped
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Delivered')}>
+              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />Mark as Delivered
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleBulkExport}>
+              <Download className="h-3.5 w-3.5 mr-1.5" />Export CSV
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Orders list */}
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
+        </div>
+      ) : orders.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold">
+              {tab || search ? 'No orders match your filters' : 'No orders yet'}
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+              {tab || search
+                ? 'Try clearing your filters or searching with a different term.'
+                : "When customers place orders, they'll show up here."}
+            </p>
+          </CardContent>
+        </Card>
+      ) : viewMode === 'table' ? (
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[40px]">
+                  <input
+                    type="checkbox"
+                    checked={selected.size === orders.length && orders.length > 0}
+                    onChange={toggleSelectAll}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                </TableHead>
+                <TableHead className="w-[120px]">Order</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-center">Items</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Payment</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="w-[50px]" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orders.map((order) => (
+                <TableRow
+                  key={order._id}
+                  className={`cursor-pointer ${selected.has(order._id) ? 'bg-primary/5' : ''}`}
+                  onClick={() => navigate(`/dashboard/orders/${order._id}`)}
+                >
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={selected.has(order._id)}
+                      onChange={() => toggleSelect(order._id)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                  </TableCell>
+                  <TableCell className="font-semibold tabular-nums">
+                    <div className="flex items-center gap-2">
+                      <span>{displayOrderNumber(order.orderNumber, order._id)}</span>
+                      {(order.replacementOf || (order.replacementOrders && order.replacementOrders.length > 0)) && (
+                        <span
+                          className="inline-flex items-center gap-1 h-5 px-1.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30"
+                          title={order.replacementOf ? 'Replacement order' : `Has ${order.replacementOrders!.length} replacement(s)`}
+                        >
+                          <GitBranch className="h-3 w-3" />
+                          {order.replacementOf ? 'Replacement' : `${order.replacementOrders!.length}×`}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-sm">{order.user?.name || 'Guest'}</span>
+                      {order.user?.email && (
+                        <span className="text-xs text-muted-foreground">{order.user.email}</span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-center text-sm tabular-nums">
+                    {order.products.length}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={statusVariant(order.status)} className="text-[10px] h-5">
+                      {order.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={paymentVariant(order.paymentStatus)} className="text-[10px] h-5">
+                      {order.paymentStatus}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right font-semibold tabular-nums">
+                    {formatPrice(order.totalAmount)}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/orders/${order._id}`); }}
+                        >
+                          <Eye className="mr-2 h-4 w-4" /> View details
+                        </DropdownMenuItem>
+                        {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel className="text-xs">Update status</DropdownMenuLabel>
+                            {(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] as OrderStatus[])
+                              .filter((s) => s !== order.status)
+                              .map((s) => (
+                                <DropdownMenuItem
+                                  key={s}
+                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(order._id, s); }}
+                                >
+                                  {s}
+                                </DropdownMenuItem>
+                              ))}
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {orders.map((order) => {
+            return (
+              <Card
+                key={order._id}
+                className={`hover:shadow-md transition-shadow cursor-pointer group ${selected.has(order._id) ? 'border-primary/50 bg-primary/5' : ''}`}
+                onClick={() => navigate(`/dashboard/orders/${order._id}`)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(order._id)}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={() => toggleSelect(order._id)}
+                      className="h-4 w-4 rounded border-gray-300 flex-shrink-0"
+                    />
+                    {/* Order icon */}
+                    <div className="hidden sm:flex items-center justify-center w-12 h-12 rounded-lg bg-muted flex-shrink-0">
+                      <ShoppingCart className="h-6 w-6 text-muted-foreground" />
+                    </div>
+
+                    {/* Main info */}
+                    <div className="flex-1 min-w-0">
+                      {(order.replacementOf || (order.replacementOrders && order.replacementOrders.length > 0)) && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/dashboard/orders/${order._id}/lifecycle`);
+                          }}
+                          className="mb-1.5 inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30 dark:hover:bg-indigo-500/20 transition-colors"
+                        >
+                          {order.replacementOf ? (
+                            <>
+                              <RefreshCw className="h-3.5 w-3.5" />
+                              Replacement order
+                            </>
+                          ) : (
+                            <>
+                              <GitBranch className="h-3.5 w-3.5" />
+                              Has {order.replacementOrders!.length} replacement{order.replacementOrders!.length === 1 ? '' : 's'}
+                            </>
+                          )}
+                          <span className="opacity-70">· view timeline</span>
+                        </button>
+                      )}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-foreground">
+                          {displayOrderNumber(order.orderNumber, order._id)}
+                        </p>
+                        <Badge variant={statusVariant(order.status)} className="text-[10px] h-5">
+                          {order.status}
+                        </Badge>
+                        <Badge variant={paymentVariant(order.paymentStatus)} className="text-[10px] h-5">
+                          {order.paymentStatus}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground/80">{order.user?.name || 'Guest'}</span>
+                        {order.user?.email && <span className="hidden md:inline">{order.user.email}</span>}
+                        <span>•</span>
+                        <span>{order.products.length} {order.products.length === 1 ? 'item' : 'items'}</span>
+                        <span>•</span>
+                        <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+
+                    {/* Total */}
+                    <div className="text-right">
+                      <p className="text-lg font-bold tabular-nums">{formatPrice(order.totalAmount)}</p>
+                    </div>
+
+                    {/* Actions */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/orders/${order._id}`); }}
+                        >
+                          <Eye className="mr-2 h-4 w-4" /> View details
+                        </DropdownMenuItem>
+                        {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel className="text-xs">Update status</DropdownMenuLabel>
+                            {(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] as OrderStatus[])
+                              .filter((s) => s !== order.status)
+                              .map((s) => (
+                                <DropdownMenuItem
+                                  key={s}
+                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(order._id, s); }}
+                                >
+                                  {s}
+                                </DropdownMenuItem>
+                              ))}
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {pagination.pages > 1 && !loading && (
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-sm text-muted-foreground">
+            Showing <span className="font-medium text-foreground">{((page - 1) * pagination.limit) + 1}</span>–
+            <span className="font-medium text-foreground">{Math.min(page * pagination.limit, pagination.total)}</span> of{' '}
+            <span className="font-medium text-foreground">{pagination.total}</span>
+          </p>
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+              Previous
+            </Button>
+            {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p}
+                variant={page === p ? 'default' : 'outline'}
+                size="sm"
+                className="w-9"
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= pagination.pages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
