@@ -1,36 +1,18 @@
 import mongoose from "mongoose";
-const mainSchemaName = "TenantUser";
 
-const getATenantUserRepo = async (
-  dbConnection,
-  findQuery = {},
-  selectQuery = {}
-) => {
-  const data = await dbConnection
-    .model(mainSchemaName)
-    .findOne(findQuery)
-    .select(selectQuery)
-    .lean();
-  return data;
+const TenantUser = () => mongoose.model("TenantUser");
+
+const getATenantUserRepo = async (findQuery = {}, selectQuery = {}) => {
+  return await TenantUser().findOne(findQuery).select(selectQuery).lean();
 };
 
-const updateATenantUserRepo = async (
-  dbConnection,
-  findQuery = {},
-  updateQuery = {}
-) => {
-  const data = await dbConnection
-    .model(mainSchemaName)
-    .updateOne(findQuery, updateQuery);
-  return data;
+const updateATenantUserRepo = async (findQuery = {}, updateQuery = {}) => {
+  return await TenantUser().updateOne(findQuery, updateQuery);
 };
 
-const addATenantUserRepo = async (dbConnection, tenantData, session = null) => {
-  const sessionOption = {};
-  if (session) sessionOption.session = session;
-  const data = await dbConnection
-    .model(mainSchemaName)
-    .create([tenantData], sessionOption);
+const addATenantUserRepo = async (tenantData, session = null) => {
+  const options = session ? { session } : {};
+  const data = await TenantUser().create([tenantData], options);
   return data[0];
 };
 

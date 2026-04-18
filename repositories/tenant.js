@@ -1,55 +1,23 @@
 import mongoose from "mongoose";
-const mainSchemaName = "Tenant";
 
-const getTenantsRepo = async (
-  adminDbConnection,
-  selectQuery = {},
-  findQuery = {}
-) => {
-  const data = await adminDbConnection
-    .model(mainSchemaName)
-    .find(findQuery)
-    .select(selectQuery)
-    .lean();
-  return data;
+const Tenant = () => mongoose.model("Tenant");
+
+const getTenantsRepo = async (selectQuery = {}, findQuery = {}) => {
+  return await Tenant().find(findQuery).select(selectQuery).lean();
 };
 
-const getATenantRepo = async (
-  adminDbConnection,
-  selectQuery = {},
-  findQuery = {}
-) => {
-  const data = await adminDbConnection
-    .model(mainSchemaName)
-    .findOne(findQuery)
-    .select(selectQuery)
-    .lean();
-  return data;
+const getATenantRepo = async (selectQuery = {}, findQuery = {}) => {
+  return await Tenant().findOne(findQuery).select(selectQuery).lean();
 };
 
-const addATenantRepo = async (
-  adminDbConnection,
-  tenantData,
-  session = null
-) => {
-  const sessionOption = {};
-  tenantData.dbUri = `mongodb+srv://admin:admin@devdb01.cdzut.mongodb.net/${tenantData.name}?retryWrites=true&w=majority`;
-  if (session) sessionOption.session = session;
-  const data = await adminDbConnection
-    .model(mainSchemaName)
-    .create([tenantData], sessionOption);
+const addATenantRepo = async (tenantData, session = null) => {
+  const options = session ? { session } : {};
+  const data = await Tenant().create([tenantData], options);
   return data[0];
 };
 
-const updateATenantRepo = async (
-  adminDbConnection,
-  findQuery = {},
-  updateQuery = {}
-) => {
-  const data = await adminDbConnection
-    .model(mainSchemaName)
-    .updateOne(findQuery, updateQuery);
-  return data;
+const updateATenantRepo = async (findQuery = {}, updateQuery = {}) => {
+  return await Tenant().updateOne(findQuery, updateQuery);
 };
 
 export { getTenantsRepo, getATenantRepo, addATenantRepo, updateATenantRepo };

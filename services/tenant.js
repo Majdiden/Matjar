@@ -1,50 +1,183 @@
 import mongoose from "mongoose";
-import { addATenantRepo, getATenantRepo } from "../repositories/tenant.js";
+import crypto from "crypto";
+import { addATenantRepo } from "../repositories/tenant.js";
 import { addATenantUserRepo } from "../repositories/tenantUser.js";
 import { addAUserRepo } from "../repositories/user.js";
-import { setCacheConnection } from "../utils/lruCacheManager.js";
-import {
-  initAdminDbConnection,
-  initTenantDbConnection,
-} from "../utils/initDbConnection.js";
+import { generateHash } from "../utils/misc.js";
+import config from "../config/index.js";
+import logger from "../utils/logger.js";
+import { createScopedModels } from "../utils/scopedModel.js";
+import { initializeStoreSetup } from "./storeSetup.js";
+import { enqueueStoreSetup } from "./jobs/index.js";
+import { upsertPlatformSubdomainDomain } from "./domainRegistry.js";
+import { APIError } from "../middlewares/errorHandler.js";
 
-const addATenantService = async (dbConnection, tenantData) => {
-  const session = await dbConnection.startSession();
-  console.log(session);
+const addATenantService = async (tenantData) => {
+  const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const data = await addATenantRepo(dbConnection, { ...tenantData }, session);
+    const hashedPassword = await generateHash(tenantData.password);
+
+    const slug = tenantData.subdomain || tenantData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
+    const Tenant = mongoose.model("Tenant");
+    const isSubdomainAvailable = await Tenant.isSubdomainAvailable(slug);
+    if (!isSubdomainAvailable) {
+      // 409 + APIError so the global error handler doesn't wrap it as a
+      // masked 500. The dashboard relies on the body message to render
+      // an inline form error on the subdomain field.
+      throw new APIError(`Subdomain "${slug}" is already taken`, 409);
+    }
+
+    const fullSubdomain = `${slug}.${config.domainSuffix}`;
+
+    // One-time setup token — gates the unauthenticated /store-setup/status
+    // poll endpoint so a third party who happens to know the tenantId
+    // (or guesses an ObjectId) can't poll/clear another tenant's setup
+    // state. Returned to the client in the register response and never
+    // re-issued.
+    const setupToken = crypto.randomUUID();
+
+    const tenantPayload = {
+      name: tenantData.name,
+      slug,
+      domain: fullSubdomain,
+      email: tenantData.email,
+      subscriptionPlan: tenantData.subscriptionPlan || "trial",
+      setupStatus: {
+        status: "pending",
+        setupToken,
+      },
+      domains: {
+        subdomain: {
+          name: slug,
+          fullDomain: fullSubdomain,
+          isActive: true,
+        },
+        customDomain: { isVerified: false },
+        primaryDomain: "subdomain",
+      },
+      settings: {
+        currency: tenantData.currency || "SDG",
+        timezone: tenantData.timezone || "Africa/Khartoum",
+        language: tenantData.language || "en",
+        activeTheme: tenantData.themeSlug || "modern",
+      },
+    };
+
+    // If a theme was selected, set up themeCustomization
+    if (tenantData.themeSlug) {
+      const Theme = mongoose.model("Theme");
+      const selectedTheme = await Theme.findOne({ slug: tenantData.themeSlug, status: "active" });
+      if (selectedTheme) {
+        tenantPayload.themeCustomization = {
+          themeId: selectedTheme._id,
+          isDraft: false,
+          settings: selectedTheme.settings || {},
+          sections: selectedTheme.sections || [],
+          lastPublishedAt: new Date(),
+          updatedAt: new Date(),
+        };
+        // Increment install count
+        await Theme.findByIdAndUpdate(selectedTheme._id, {
+          $inc: { "statistics.installCount": 1, "statistics.activeInstalls": 1 },
+        });
+      }
+    }
+
+    const data = await addATenantRepo(tenantPayload, session);
     let userData;
+
     if (data._id) {
+      // Register the platform-subdomain row in the Domain registry
+      // inside the same transaction so either both exist or neither
+      // does. The registry is the single source of truth for
+      // hostname → tenant resolution (see services/domainRegistry.js).
+      await upsertPlatformSubdomainDomain(data._id, slug, { session });
+
       userData = await addATenantUserRepo(
-        dbConnection,
-        { id: data._id, email: tenantData.email, name: tenantData.name },
+        {
+          id: data._id,
+          email: tenantData.email,
+          name: tenantData.name,
+          tenantId: data._id,
+        },
         session
       );
-      const tenantDbConnection = await initTenantDbConnection(
-        data.dbUri,
-        data.name
-      );
-      await addAUserRepo(tenantDbConnection, {
-        id: userData._id,
+
+      // Create scoped models for the new tenant and create admin user
+      const models = createScopedModels(mongoose.connection, data._id);
+      await addAUserRepo(models, {
         name: tenantData.name,
         email: tenantData.email,
-        password: tenantData.password,
-        roles: "admin",
+        password: hashedPassword,
+        roles: ["admin"],
       });
+
       await session.commitTransaction();
       await session.endSession();
-      setCacheConnection(data._id.toString(), tenantDbConnection);
+
+      // Trigger store setup asynchronously via the BullMQ queue so a
+      // worker process owns the long-running work. The previous
+      // fire-and-forget `.catch()` on the request thread meant a web
+      // dyno restart mid-setup left the tenant half-built with no
+      // retry path.
+      //
+      // Skipped under NODE_ENV=test because the background work races
+      // with subsequent test cases (auto-setup grabs locks on the
+      // tenants collection well after register returns). Tests that
+      // need post-setup state should drive the setup explicitly.
+      //
+      // If Redis is unreachable (dev laptop without redis running) we
+      // fall back to an in-process invocation so the developer experience
+      // doesn't require standing up the worker stack just to register
+      // a tenant. Production always has Redis — env validation enforces
+      // it — so the fallback is a local-dev convenience, not a silent
+      // downgrade of the production retry contract.
+      if (!config.isTest) {
+        logger.info(`Triggering store setup for: ${data.name}`, { tenantId: data._id.toString() });
+        enqueueStoreSetup(data._id, { source: "register" })
+          .then((job) => {
+            logger.info("Store setup enqueued", {
+              tenantId: data._id.toString(),
+              jobId: job.id,
+            });
+          })
+          .catch((error) => {
+            logger.warn(
+              `Failed to enqueue store setup (${error.message}); running inline as fallback`,
+              { tenantId: data._id.toString() }
+            );
+            initializeStoreSetup(data, models).catch((err) => {
+              logger.error(`Store setup failed for ${data.name}: ${err.message}`, {
+                tenantId: data._id.toString(),
+              });
+            });
+          });
+      }
     }
+
     return {
       success: true,
       statusCode: 201,
-      message: `Tenant added successfully`,
-      responseObject: { tenantId: data._id, userId: userData?._id },
+      message: "Tenant added successfully. Store setup is in progress.",
+      responseObject: {
+        tenantId: data._id,
+        userId: userData?._id,
+        slug: data.slug,
+        subdomain: data.domains.subdomain.fullDomain,
+        domain: data.domain,
+        activeDomain: data.getActiveDomain(),
+        setupInProgress: true,
+        // The dashboard polls /store-setup/status with this token before
+        // the user has a JWT (auto-login happens *after* setup completes).
+        // Treat it like an opaque secret — never log it or expose elsewhere.
+        setupToken,
+      },
     };
   } catch (error) {
     await session.abortTransaction();
-    session.endSession();
+    await session.endSession();
     throw error;
   }
 };

@@ -1,74 +1,90 @@
-import mongoose from "mongoose";
 import tenantSchema from "../schemas/tenant.js";
 import tenantUserSchema from "../schemas/tenantUser.js";
+import subscriptionSchema from "../schemas/subscription.js";
+import domainSchema from "../schemas/domain.js";
+import tenantExportSchema from "../schemas/tenantExport.js";
+import themeSchema from "../schemas/store/theme.js";
 import userSchema from "../schemas/store/user.js";
 import productSchema from "../schemas/store/product.js";
 import categorySchema from "../schemas/store/category.js";
 import orderSchema from "../schemas/store/order.js";
-import inventorySchema from "../schemas/store/inventory.js";
 import cartSchema from "../schemas/store/cart.js";
-import currencySchema from "../schemas/store/currency.js";
-import wishlistSchema from "../schemas/store/wishlist.js";
-import productI18nSchema from "../schemas/store/productI18n.js";
-import reviewSchema from "../schemas/store/review.js";
-import supportTicketSchema from "../schemas/store/supportTicket.js";
 import promotionSchema from "../schemas/store/promotion.js";
+import taxSchema from "../schemas/store/tax.js";
+import shippingSchema from "../schemas/store/shipping.js";
+import discountSchema from "../schemas/discount.js";
+import paymentSchema from "../schemas/store/payment.js";
+import reviewSchema from "../schemas/store/review.js";
+import wishlistSchema from "../schemas/store/wishlist.js";
+import supportTicketSchema from "../schemas/store/supportTicket.js";
+import currencySchema from "../schemas/store/currency.js";
+import productI18nSchema from "../schemas/store/productI18n.js";
 import analyticsSchema from "../schemas/store/analytics.js";
-import subscriptionSchema from "../schemas/subscription.js";
+import webhookSchema from "../schemas/store/webhook.js";
+import refreshTokenSchema from "../schemas/store/refreshToken.js";
+import auditLogSchema from "../schemas/store/auditLog.js";
+import marketSchema from "../schemas/store/market.js";
+import companySchema from "../schemas/store/company.js";
+import customFieldSchema from "../schemas/store/customField.js";
+import assetSchema from "../schemas/store/asset.js";
+import customerSegmentSchema from "../schemas/store/customerSegment.js";
+import themeCustomizationVersionSchema from "../schemas/store/themeCustomizationVersion.js";
+import collectionSchema from "../schemas/store/collection.js";
+import menuSchema from "../schemas/store/menu.js";
+import giftCardSchema from "../schemas/store/giftCard.js";
+import staffInviteSchema from "../schemas/store/staffInvite.js";
+import paymentMethodSchema from "../schemas/store/paymentMethod.js";
+import roleSchema from "../schemas/store/role.js";
+import idempotencyRecordSchema from "../schemas/store/idempotencyRecord.js";
+import notificationSchema from "../schemas/store/notification.js";
+import pageSchema from "../schemas/store/page.js";
 
-const clientOptions = {
-  socketTimeoutMS: 30000,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-};
-mongoose.set("debug", true);
-const initAdminDbConnection = async (DB_URL) => {
-  try {
-    const db = mongoose.createConnection(DB_URL, clientOptions);
-    db.on("error", (error) => {
-      console.log("Admin db error: ", error);
-    });
-    db.once("open", () => {
-      console.log("Admin DB connected successfully");
-    });
-    await db.model("Tenant", tenantSchema);
-    await db.model("TenantUser", tenantUserSchema);
-    await db.model("Subscription", subscriptionSchema);
-    return db;
-  } catch (error) {
-    console.error(error);
-    return error;
-  }
-};
+/**
+ * Register all models on a single shared connection.
+ * Admin models (no tenantId) and tenant-scoped models coexist in the same DB.
+ */
+export function registerAllModels(connection) {
+  // Admin models
+  connection.model("Tenant", tenantSchema);
+  connection.model("TenantUser", tenantUserSchema);
+  connection.model("Subscription", subscriptionSchema);
+  connection.model("Theme", themeSchema);
+  connection.model("Domain", domainSchema);
+  connection.model("TenantExport", tenantExportSchema);
 
-const initTenantDbConnection = async (DB_URL, dbName) => {
-  try {
-    const db = mongoose.createConnection(DB_URL, clientOptions);
-    db.on("error", (error) => {
-      console.log(`Tenant ${dbName} db error: `, error);
-    });
-    db.once("open", () => {
-      console.log(`Tenant connection for ${dbName} MongoDB Connection ok!`);
-    });
-
-    await db.model("User", userSchema);
-    await db.model("Product", productSchema);
-    await db.model("Category", categorySchema);
-    await db.model("Order", orderSchema);
-    await db.model("Inventory", inventorySchema);
-    await db.model("Cart", cartSchema);
-    await db.model("Currency", currencySchema);
-    await db.model("Wishlist", wishlistSchema);
-    await db.model("ProductI18n", productI18nSchema);
-    await db.model("Review", reviewSchema);
-    await db.model("SupportTicket", supportTicketSchema);
-    await db.model("Promotion", promotionSchema);
-    await db.model("Analytics", analyticsSchema);
-    return db;
-  } catch (error) {
-    console.error(error);
-    return error;
-  }
-};
-
-export { initAdminDbConnection, initTenantDbConnection };
+  // Tenant-scoped models
+  connection.model("User", userSchema);
+  connection.model("Product", productSchema);
+  connection.model("Category", categorySchema);
+  connection.model("Order", orderSchema);
+  connection.model("Cart", cartSchema);
+  connection.model("Promotion", promotionSchema);
+  connection.model("Tax", taxSchema);
+  connection.model("Shipping", shippingSchema);
+  connection.model("Discount", discountSchema);
+  connection.model("Payment", paymentSchema);
+  connection.model("Review", reviewSchema);
+  connection.model("Wishlist", wishlistSchema);
+  connection.model("SupportTicket", supportTicketSchema);
+  connection.model("Currency", currencySchema);
+  connection.model("ProductI18n", productI18nSchema);
+  connection.model("Analytics", analyticsSchema);
+  connection.model("Webhook", webhookSchema);
+  connection.model("RefreshToken", refreshTokenSchema);
+  connection.model("AuditLog", auditLogSchema);
+  connection.model("Market", marketSchema);
+  connection.model("Company", companySchema);
+  connection.model("CustomField", customFieldSchema);
+  connection.model("Asset", assetSchema);
+  connection.model("CustomerSegment", customerSegmentSchema);
+  connection.model("ThemeCustomizationVersion", themeCustomizationVersionSchema);
+  connection.model("Collection", collectionSchema);
+  connection.model("Menu", menuSchema);
+  connection.model("GiftCard", giftCardSchema);
+  connection.model("StaffInvite", staffInviteSchema);
+  connection.model("PaymentMethod", paymentMethodSchema);
+  connection.model("Role", roleSchema);
+  connection.model("IdempotencyRecord", idempotencyRecordSchema);
+  connection.model("Notification", notificationSchema);
+  connection.model("Page", pageSchema);
+}
