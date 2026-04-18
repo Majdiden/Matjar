@@ -1,3 +1,6 @@
+:root { --font-en: 'Lora', 'Georgia', serif; --font-ar: 'Tajawal', 'Lora', 'Georgia', serif; --font-app: var(--font-en); }
+html[lang='ar'] { --font-app: var(--font-ar); }
+body { font-family: var(--font-app); }
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

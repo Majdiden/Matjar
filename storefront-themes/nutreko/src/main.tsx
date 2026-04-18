@@ -8,12 +8,20 @@ import { ToastProvider } from '@shared/components/primitives/Toast';
 import { CompareProvider } from '@shared/components/commerce/ProductCompare';
 import { ConfirmProvider } from '@shared/components/primitives/ConfirmDialog';
 import manifest from './theme.manifest';
+import '../../_shared/i18n'
+import { LanguageProvider } from '../../_shared/i18n/LanguageProvider'
+import { registerThemeResources } from '../../_shared/i18n'
+import { themeResources } from './i18n/theme'
+
 import App from './App';
 import './index.css';
+
+registerThemeResources(themeResources)
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
+      <LanguageProvider>
       <StoreProvider>
         <ThemeProvider manifest={manifest}>
           <CartProvider>
@@ -27,6 +35,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           </CartProvider>
         </ThemeProvider>
       </StoreProvider>
+      </LanguageProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

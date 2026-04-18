@@ -1,3 +1,6 @@
+:root { --font-en: 'Inter', system-ui, sans-serif; --font-ar: 'Tajawal', 'Inter', system-ui, sans-serif; --font-app: var(--font-en); }
+html[lang='ar'] { --font-app: var(--font-ar); }
+body { font-family: var(--font-app); }
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

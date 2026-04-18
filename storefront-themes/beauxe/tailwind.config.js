@@ -1,3 +1,4 @@
+const rtl = require('tailwindcss-rtl');
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -13,11 +14,11 @@ export default {
         accent: 'var(--color-accent, #f8e4e4)',
       },
       fontFamily: {
-        sans: ['Playfair Display', 'Georgia', 'serif'],
+        sans: ['var(--font-app)', 'Playfair Display', 'Georgia', 'serif'],
         heading: ['Playfair Display', 'Georgia', 'serif'],
         body: ['Nunito', 'system-ui', 'sans-serif'],
       },
     },
   },
-  plugins: [],
+  plugins: [rtl],
 };

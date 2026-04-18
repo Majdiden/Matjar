@@ -1,3 +1,4 @@
+const rtl = require('tailwindcss-rtl');
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -13,11 +14,11 @@ export default {
         accent: 'var(--color-accent, #f5e6d8)',
       },
       fontFamily: {
-        sans: ['Cormorant Garamond', 'Georgia', 'serif'],
+        sans: ['var(--font-app)', 'Cormorant Garamond', 'Georgia', 'serif'],
         heading: ['Cormorant Garamond', 'Georgia', 'serif'],
         body: ['Inter', 'system-ui', 'sans-serif'],
       },
     },
   },
-  plugins: [],
+  plugins: [rtl],
 };
