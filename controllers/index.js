@@ -1,17 +1,32 @@
-import { loginService } from "../services/auth.js";
 import { addATenantService } from "../services/tenant.js";
-import { getAdminConnection } from "../utils/connectionManager.js";
-
-export const loginController = async (req, res) => {
-  const serviceFnResponse = await loginService(req.body);
-
-  res.status(serviceFnResponse.code).json({ ...serviceFnResponse });
-};
+import {
+  getAUser,
+  getNotificationPreferencesService,
+  updateNotificationPreferencesService,
+} from "../services/user.js";
+import { asyncHandler } from "../middlewares/errorHandler.js";
 
 export const addATenantController = async (req, res) => {
-  const adminConnection = await getAdminConnection();
-  const serviceFnResponse = await addATenantService(adminConnection, req.body);
-  console.log(serviceFnResponse);
-
+  const serviceFnResponse = await addATenantService(req.body);
   res.status(serviceFnResponse.statusCode).json({ ...serviceFnResponse });
 };
+
+export const getUserInfoController = async (req, res) => {
+  const response = await getAUser(req);
+  res.status(response.statusCode).json({ ...response });
+};
+
+export const getNotificationPreferencesController = asyncHandler(async (req, res) => {
+  const result = await getNotificationPreferencesService(req.models, req.user.userId);
+  res.status(result.statusCode).json(result);
+});
+
+export const updateNotificationPreferencesController = asyncHandler(async (req, res) => {
+  const prefs = req.body && typeof req.body === "object" ? req.body : {};
+  const result = await updateNotificationPreferencesService(
+    req.models,
+    req.user.userId,
+    prefs
+  );
+  res.status(result.statusCode).json(result);
+});
