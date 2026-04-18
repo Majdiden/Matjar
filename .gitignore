@@ -33,7 +33,15 @@ schemas/test*.js
 # Uploads directory — runtime-written, should not be committed
 public/uploads/
 
+# Ad-hoc dev harnesses under scripts/ — anything prefixed `test-` is a
+# one-off used to poke a flow locally, not a real test (real tests live
+# under tests/). Keep them out of git so the scripts/ dir stays a
+# curated set of operational tooling.
+scripts/test-*.js
+
 # NOTE: `archive/` is intentionally NOT ignored — it holds historical
 # scratch files, design references, and test outputs that the user
 # wants to keep. Uncomment the next line if you decide to exclude it.
-# archive/
+archive/
+
+docs/
