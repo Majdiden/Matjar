@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: ecommerce-api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - ADMIN_DB_URI=${ADMIN_DB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1h}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN:-7d}
+      - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS:-10}
+      - MAX_TENANT_CONNECTIONS=${MAX_TENANT_CONNECTIONS:-5000}
+      - CONNECTION_CACHE_TTL=${CONNECTION_CACHE_TTL:-3600000}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - ecommerce-network
+    depends_on:
+      - mongodb
+    command: npm start
+
+  # MongoDB for local development (optional)
+  mongodb:
+    image: mongo:6
+    container_name: ecommerce-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?MONGO_ROOT_PASSWORD required}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ecommerce-network
+
+  # Redis for session management and caching
+  redis:
+    image: redis:alpine
+    container_name: ecommerce-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - ecommerce-network
+
+  # MongoDB Express (optional - for database GUI)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: ecommerce-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD:?MONGO_ROOT_PASSWORD required}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:?MONGO_ROOT_PASSWORD required}@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME:-admin}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:?MONGO_EXPRESS_PASSWORD required}
+    networks:
+      - ecommerce-network
+    depends_on:
+      - mongodb
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

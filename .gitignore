@@ -1,2 +1,39 @@
 node_modules
 .env
+.env.*
+!.env.example
+
+# Built theme artifacts — source of truth is each theme's
+# `src/theme.manifest.ts`; dist/ is produced by the Vite build in CI
+# (or `bash scripts/build-themes.sh` locally). Keeping it out of git
+# avoids noisy diffs and prevents a stale prebuilt bundle from
+# overriding a freshly-written source manifest.
+storefront-themes/*/dist
+storefront-themes/*/node_modules
+dashboard/dist/
+platform-admin/dist/
+
+# Stray generated frontend bundles that were accidentally placed under
+# schemas/ during earlier work. They are not backend schema source.
+schemas/test*.js
+
+# macOS metadata
+.DS_Store
+
+# Editor / local tool state — user-specific, not meant to be committed
+.cursor/
+.claude/
+
+# Playwright MCP run artifacts (console logs, page snapshots)
+.playwright-mcp/
+
+# Stale local env placeholder from early in the project
+.examlpe.env
+
+# Uploads directory — runtime-written, should not be committed
+public/uploads/
+
+# NOTE: `archive/` is intentionally NOT ignored — it holds historical
+# scratch files, design references, and test outputs that the user
+# wants to keep. Uncomment the next line if you decide to exclude it.
+# archive/
