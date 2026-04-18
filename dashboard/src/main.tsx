@@ -1,8 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './i18n'
 import './index.css'
 import { initSentry, Sentry } from './sentry'
 import App from './App.tsx'
+import { LanguageProvider } from './i18n/LanguageProvider'
 
 // Sentry must be initialized before the first React render so errors
 // thrown during mount are captured. No-op when VITE_SENTRY_DSN is unset.
@@ -26,6 +28,8 @@ const AppWithBoundary = Sentry.withErrorBoundary(App, {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AppWithBoundary />
+    <LanguageProvider>
+      <AppWithBoundary />
+    </LanguageProvider>
   </StrictMode>,
 )

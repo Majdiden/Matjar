@@ -31,6 +31,7 @@ import {
   Webhook as WebhookIcon, Box as BoxIcon, AlertTriangle as AlertTriangleIcon,
 } from 'lucide-react';
 import { setTenantCurrency, setTenantLocale } from '../lib/format';
+import { useLanguage } from '../i18n/LanguageProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -127,6 +128,7 @@ type SettingsTab = 'general' | 'regional' | 'shipping' | 'tax' | 'currencies' | 
 const VALID_TABS: SettingsTab[] = ['general', 'regional', 'shipping', 'tax', 'currencies', 'markets', 'notifications', 'email-templates'];
 
 export const Settings: React.FC = () => {
+  const { setLang } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [savingGeneral, setSavingGeneral] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -194,6 +196,7 @@ export const Settings: React.FC = () => {
       await api.settings.update(general);
       setTenantCurrency(general.currency);
       setTenantLocale(general.language === 'ar' ? 'ar-SD' : 'en-US');
+      setLang(general.language === 'ar' ? 'ar' : 'en');
       toast.success('Settings saved');
     } catch (err) {
       toast.error(errorMessage(err, 'Failed to save settings'));

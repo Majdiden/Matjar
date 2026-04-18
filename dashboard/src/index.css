@@ -1,6 +1,23 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/ibm-plex-sans-arabic/400.css';
+@import '@fontsource/ibm-plex-sans-arabic/500.css';
+@import '@fontsource/ibm-plex-sans-arabic/600.css';
+@import '@fontsource/ibm-plex-sans-arabic/700.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --font-en: 'Inter', system-ui, sans-serif;
+  --font-ar: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
+  --font-app: var(--font-en);
+}
+html[lang='ar'] { --font-app: var(--font-ar); }
+body { font-family: var(--font-app); }
 
 @layer base {
   :root {

@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import rtl from 'tailwindcss-rtl'
+
 export default {
   darkMode: ["class"],
   content: [
@@ -56,8 +58,11 @@ export default {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		fontFamily: {
+  			sans: ['var(--font-app)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  		},
   	}
   },
-  plugins: [],
+  plugins: [rtl],
 }
