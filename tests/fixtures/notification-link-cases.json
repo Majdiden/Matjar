@@ -1,0 +1,102 @@
+[
+  {
+    "name": "order.created with resourceId → order page",
+    "input": { "type": "order.created", "resourceId": "ord_123" },
+    "expected": "/dashboard/orders/ord_123"
+  },
+  {
+    "name": "order.created without resourceId → orders index",
+    "input": { "type": "order.created" },
+    "expected": "/dashboard/orders"
+  },
+  {
+    "name": "payment.manual_submitted with data.orderId → order page",
+    "input": { "type": "payment.manual_submitted", "data": { "orderId": "ord_42" } },
+    "expected": "/dashboard/orders/ord_42"
+  },
+  {
+    "name": "payment.manual_submitted falls back to resourceId",
+    "input": { "type": "payment.manual_submitted", "resourceId": "ord_99" },
+    "expected": "/dashboard/orders/ord_99"
+  },
+  {
+    "name": "payment.manual_submitted with neither → payments index",
+    "input": { "type": "payment.manual_submitted" },
+    "expected": "/dashboard/payments"
+  },
+  {
+    "name": "payment.failed with data.orderId → order page",
+    "input": { "type": "payment.failed", "data": { "orderId": "ord_7" } },
+    "expected": "/dashboard/orders/ord_7"
+  },
+  {
+    "name": "payment.failed with neither → payments index",
+    "input": { "type": "payment.failed" },
+    "expected": "/dashboard/payments"
+  },
+  {
+    "name": "refund.created with data.orderId → order page",
+    "input": { "type": "refund.created", "data": { "orderId": "ord_200" } },
+    "expected": "/dashboard/orders/ord_200"
+  },
+  {
+    "name": "refund.created falls back to resourceId",
+    "input": { "type": "refund.created", "resourceId": "ord_201" },
+    "expected": "/dashboard/orders/ord_201"
+  },
+  {
+    "name": "refund.created with neither → orders index",
+    "input": { "type": "refund.created" },
+    "expected": "/dashboard/orders"
+  },
+  {
+    "name": "return.requested with resourceId → return page",
+    "input": { "type": "return.requested", "resourceId": "ret_5" },
+    "expected": "/dashboard/returns/ret_5"
+  },
+  {
+    "name": "return.requested without resourceId → orders index",
+    "input": { "type": "return.requested" },
+    "expected": "/dashboard/orders"
+  },
+  {
+    "name": "stock.low with resourceId → product page",
+    "input": { "type": "stock.low", "resourceId": "prod_1" },
+    "expected": "/dashboard/products/prod_1"
+  },
+  {
+    "name": "stock.low without resourceId → inventory index",
+    "input": { "type": "stock.low" },
+    "expected": "/dashboard/inventory"
+  },
+  {
+    "name": "webhook.failed → webhook settings tab",
+    "input": { "type": "webhook.failed" },
+    "expected": "/dashboard/settings?tab=webhooks"
+  },
+  {
+    "name": "domain.verification_failed → domains settings tab",
+    "input": { "type": "domain.verification_failed" },
+    "expected": "/dashboard/settings?tab=domains"
+  },
+  {
+    "name": "staff.invite_accepted → staff page",
+    "input": { "type": "staff.invite_accepted" },
+    "expected": "/dashboard/staff"
+  },
+  {
+    "name": "unknown type → null",
+    "input": { "type": "unknown.event" },
+    "expected": null
+  },
+  {
+    "name": "null input → null",
+    "input": null,
+    "expected": null
+  },
+  {
+    "name": "missing type → null",
+    "input": { "resourceId": "x" },
+    "expected": null
+  }
+]

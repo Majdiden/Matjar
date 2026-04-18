@@ -1,0 +1,58 @@
+Still worth doing later (didn't touch — not in scope of "bug fix")                                                                                  
+  
+  - Storefront UX: when the order API returns the new "discount invalid" 400, the storefront cart page should highlight the field and let the user    
+  remove the code. Currently it'll show as a generic toast.       
+  - Idempotency keys. Two clicks on "Place Order" within the retry window will both succeed (different order numbers, same cart contents). A real fix 
+  is an Idempotency-Key header on the create endpoint with a short-TTL dedupe table. Worth adding before launch.                                      
+  
+  ---                                                                                                                                                 
+  On the inventory/fulfillment architecture question              
+                                                                                                                                                      
+  Short answer: what you have is the pragmatic single-location, no-variant model, and its correct for that scope. It is not the architecture real
+  Shopify-class platforms use. The differences:                                                                                                       
+                                                                  
+  ┌──────────────────┬─────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────┐    
+  │     Concern      │            What you do today            │                         What Shopify/Magento/Centra do                          │ 
+  ├──────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤    
+  │ Inventory source │ Product.stock (a single integer per     │ InventoryLevel rows keyed by (variant, location). A product with 3 sizes × 2    │ 
+  │  of truth        │ product)                                │ warehouses = 6 inventory rows.                                                  │ 
+  ├──────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤    
+  │ Variants         │ None — one SKU per product              │ Variants are first-class. Stock, price, weight, barcode all live on the         │ 
+  │                  │                                         │ variant, not the product.                                                       │    
+  ├──────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤ 
+  │                  │                                         │ Locations are first-class (warehouse, store, dropship partner). Stock can be    │    
+  │ Locations        │ None — one global pool                  │ reserved per location, and orders are routed to the closest fulfillable         │    
+  │                  │                                         │ location.                                                                       │ 
+  ├──────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤    
+  │                  │ A "view" derived from Order.status      │ Fulfillment is a separate entity. One order → many fulfillments (split          │    
+  │ Fulfillment      │ (your controllers/fulfillment.js)       │ shipments), each with its own line items, location, tracking, status. An order  │ 
+  │                  │                                         │ is "Fulfilled" only when all its line items are covered.                        │    
+  ├──────────────────┼─────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤ 
+  │ Reservations     │ Stock decremented immediately at order  │ Stock is reserved at checkout, committed at order placement, deducted at        │
+  │                  │ creation                                │ fulfillment. Allows abandoned-checkout recovery without overselling.            │    
+  └──────────────────┴─────────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
+                                                                                                                                                      
+  Is your current shape a problem?                                                                                                                    
+  
+  For your launch — no. The current model works fine if every store is single-location, single-SKU, and ships every order in one box. That covers     
+  maybe 70% of small DTC shops.                                   
+                                                                                                                                                      
+  It will hit walls when:                                         
+  - Merchants want product variants (most apparel/cosmetics merchants want this immediately)
+  - Merchants want to ship from more than one warehouse                                                                                               
+  - Merchants need to split-ship a backorder (one item ships now, one ships in 2 weeks)
+  - Merchants sell on multiple channels (POS + web + marketplace) and need a single inventory view                                                    
+                                                                                                                                                      
+  My recommendation                                                                                                                                   
+                                                                                                                                                      
+  Don't fix this now. It's a multi-week schema migration. But:                                                                                        
+  1. Hide it behind a service layer so the swap is internal. Right now, controllers reach into Product.stock directly. Wrap stock reads/writes in an  
+  inventoryService so you can later swap the storage without rewriting controllers.                                                                   
+  2. Add a variants array to Product soon — even a minimal [{sku, price, stock, options: {}}] shape — and migrate Product.stock to be a denormalized
+  sum of variant stock. That's a small change that unlocks variants without changing the inventory model yet.                                         
+  3. When you actually need multi-location, introduce InventoryLevel and a Fulfillment model with their own collections, and migrate Order.status →   
+  derived from fulfillment states.                                                                                                                 
+                                                                                                                                                      
+  For now your "fulfillment view derived from order status" is honest — it correctly admits that fulfillment is just a synonym for order status today.
+   The dashboard pages I wired up reflect that, and they'll keep working when you upgrade the data model behind them, as long as the controller       
+  contract stays the same.       
