@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root { --color-primary: #92400e; --color-secondary: #78350f; --color-accent: #d97706; }
+body { font-family: 'Lora', 'Georgia', serif; background: #fffbf5; }
+
+h1, h2, h3, h4, h5, h6 { font-family: 'Caveat', cursive; }

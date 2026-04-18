@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root { --color-primary: #6b7280; --color-secondary: #374151; --color-accent: #d4a76a; }
+body { font-family: 'Inter', system-ui, sans-serif; background: #f9fafb; }
+
+h1, h2, h3, h4, h5, h6 { font-family: 'Cormorant Garamond', 'Georgia', serif; }

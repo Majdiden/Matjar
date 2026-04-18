@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #d4a8b3;
+  --color-secondary: #1d1d3b;
+  --color-accent: #f8e4e4;
+  --color-cream: #faf3ec;
+  --color-pink: #f8e4e4;
+}
+
+body {
+  font-family: 'Nunito', system-ui, sans-serif;
+  background: #fffdfb;
+  color: #1d1d3b;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 500;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+}

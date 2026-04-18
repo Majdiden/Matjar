@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #5eaaa8;
+  --color-secondary: #2c4a4a;
+  --color-accent: #f7c1b7;
+  --color-cream: #fdf6ed;
+  --color-teal: #5eaaa8;
+  --color-pink: #f7c1b7;
+  --color-yellow: #f6dc68;
+}
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: #fdf6ed;
+  color: #2c4a4a;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+}
+
+.font-serif {
+  font-family: 'Fraunces', Georgia, serif;
+}

@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #a3e635;
+  --color-secondary: #0a0a0a;
+  --color-accent: #ff6a13;
+  --color-lime: #a3e635;
+  --color-dark: #0a0a0a;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #ffffff;
+  color: #0a0a0a;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Archivo Black', Inter, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.font-display {
+  font-family: 'Archivo Black', Inter, sans-serif;
+}

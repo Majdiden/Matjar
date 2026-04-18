@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root { --color-primary: #ec4899; --color-secondary: #8b5cf6; --color-accent: #fbbf24; }
+body { font-family: 'Nunito', system-ui, sans-serif; background: #fffbfe; }
+
+h1, h2, h3, h4, h5, h6 { font-family: 'Fredoka', system-ui, sans-serif; }

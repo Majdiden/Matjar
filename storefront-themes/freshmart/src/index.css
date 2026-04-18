@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root { --color-primary: #16a34a; --color-secondary: #15803d; --color-accent: #f59e0b; }
+body { font-family: 'Nunito', system-ui, sans-serif; background: #fafff5; }
+
+h1, h2, h3, h4, h5, h6 { font-family: 'Quicksand', system-ui, sans-serif; }
