@@ -186,10 +186,10 @@ export default function Reviews() {
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t('reviews.list.search_placeholder')}
-            className="pl-9"
+            className="ps-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
@@ -205,13 +205,13 @@ export default function Reviews() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>{t('reviews.action.bulk_clear')}</Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkApprove(true)}>
-              <Check className="h-3.5 w-3.5 mr-1.5" />{t('reviews.action.bulk_approve')}
+              <Check className="h-3.5 w-3.5 me-1.5" />{t('reviews.action.bulk_approve')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkApprove(false)}>
-              <X className="h-3.5 w-3.5 mr-1.5" />{t('reviews.action.bulk_reject')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('reviews.action.bulk_reject')}
             </Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('reviews.action.bulk_delete')}
+              <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('reviews.action.bulk_delete')}
             </Button>
           </div>
         </div>
@@ -248,7 +248,7 @@ export default function Reviews() {
                 <TableHead>{t('reviews.list.column.excerpt')}</TableHead>
                 <TableHead>{t('reviews.list.column.status')}</TableHead>
                 <TableHead>{t('reviews.list.column.date')}</TableHead>
-                <TableHead className="w-[120px] text-right">{t('reviews.list.column.actions')}</TableHead>
+                <TableHead className="w-[120px] text-end">{t('reviews.list.column.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -272,7 +272,7 @@ export default function Reviews() {
                       {review.user ? `${review.user.firstName} ${review.user.lastName}` : t('reviews.meta.anonymous')}
                     </TableCell>
                     <TableCell className="text-sm max-w-[280px] truncate">
-                      {review.title ? <span className="font-medium mr-1">{review.title}</span> : null}
+                      {review.title ? <span className="font-medium me-1">{review.title}</span> : null}
                       <span className="text-muted-foreground">{review.comment}</span>
                     </TableCell>
                     <TableCell>
@@ -345,7 +345,7 @@ export default function Reviews() {
                       <span>{new Date(review.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  <div className="flex gap-1.5 ml-4">
+                  <div className="flex gap-1.5 ms-4">
                     {!review.isApproved && (
                       <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleApprove(review._id)} title={t('reviews.action.approve')}>
                         <Check className="h-4 w-4 text-green-600" />

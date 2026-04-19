@@ -42,7 +42,7 @@ const Layout: React.FC = () => {
             <Link to="/" className="text-2xl font-extrabold tracking-tight">
               <span className="text-[#ec4899]">Kids</span>
               <span className="text-[#8b5cf6]">World</span>
-              <span className="text-[#fbbf24] ml-1 animate-bounce inline-block">★</span>
+              <span className="text-[#fbbf24] ms-1 animate-bounce inline-block">★</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-5">
@@ -82,7 +82,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                 </svg>
                 {cart && cart.itemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-[#fbbf24] text-gray-900 text-[10px] rounded-full flex items-center justify-center font-black">
+                  <span className="absolute -top-2 -end-2 w-5 h-5 bg-[#fbbf24] text-gray-900 text-[10px] rounded-full flex items-center justify-center font-black">
                     {cart.itemCount}
                   </span>
                 )}
@@ -141,7 +141,7 @@ const Layout: React.FC = () => {
           <h2 className="text-lg font-extrabold mb-6">
             <span className="text-[#ec4899]">Kids</span>
             <span className="text-[#8b5cf6]">World</span>
-            <span className="text-[#fbbf24] ml-1">★</span>
+            <span className="text-[#fbbf24] ms-1">★</span>
           </h2>
           <nav className="flex flex-col gap-4">
             <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-bold hover:text-[#ec4899]">

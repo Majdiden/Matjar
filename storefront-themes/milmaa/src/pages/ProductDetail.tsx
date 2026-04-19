@@ -122,13 +122,13 @@ const ProductDetail: React.FC = () => {
             >
               <img src={mainImage} alt={product.name} className="w-full h-full object-cover" />
               {onSale && (
-                <div className="absolute top-6 left-6">
+                <div className="absolute top-6 start-6">
                   <span className="inline-block px-4 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-full text-white" style={{ backgroundColor: PINK }}>
                     -{pct}% SALE
                   </span>
                 </div>
               )}
-              <div className="absolute bottom-6 right-6 w-24 h-24 rounded-full flex items-center justify-center text-center text-[10px] font-bold shadow-lg" style={{ backgroundColor: CREAM, color: DARK_TEAL }}>
+              <div className="absolute bottom-6 end-6 w-24 h-24 rounded-full flex items-center justify-center text-center text-[10px] font-bold shadow-lg" style={{ backgroundColor: CREAM, color: DARK_TEAL }}>
                 {t('theme.product_detail.badge_natural')}
               </div>
             </div>
@@ -250,7 +250,7 @@ const ProductDetail: React.FC = () => {
                 <div className="flex items-center rounded-full bg-white">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="w-11 h-12 text-lg rounded-l-full"
+                    className="w-11 h-12 text-lg rounded-s-full"
                     style={{ color: DARK_TEAL }}
                   >
                     −
@@ -258,7 +258,7 @@ const ProductDetail: React.FC = () => {
                   <span className="w-11 text-center text-sm font-bold" style={{ color: DARK_TEAL }}>{qty}</span>
                   <button
                     onClick={() => setQty(qty + 1)}
-                    className="w-11 h-12 text-lg rounded-r-full"
+                    className="w-11 h-12 text-lg rounded-e-full"
                     style={{ color: DARK_TEAL }}
                   >
                     +

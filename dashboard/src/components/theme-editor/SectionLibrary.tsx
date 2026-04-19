@@ -73,12 +73,12 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
         {/* Search + categories */}
         <div className="px-5 py-3 border-b border-slate-200 space-y-3">
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+            <Search className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search sections…"
-              className="h-9 pl-8 text-sm"
+              className="h-9 ps-8 text-sm"
             />
           </div>
           <div className="flex flex-wrap gap-1">
@@ -124,7 +124,7 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
                         onAddSection(s.type);
                         onClose();
                       }}
-                      className="group relative bg-white border border-slate-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition text-left"
+                      className="group relative bg-white border border-slate-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-md transition text-start"
                     >
                       <div className="h-9 w-9 rounded-md bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center mb-2 transition">
                         <Icon className="h-4 w-4 text-slate-600 group-hover:text-blue-600" />
@@ -135,7 +135,7 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
                           {s.description}
                         </p>
                       )}
-                      <span className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                      <span className="absolute top-2 end-2 opacity-0 group-hover:opacity-100 transition">
                         <Plus className="h-3.5 w-3.5 text-blue-600" />
                       </span>
                     </button>

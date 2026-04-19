@@ -60,7 +60,7 @@ export function FilterPills<T extends string = string>({
             {typeof item.count === 'number' && (
               <span
                 className={cn(
-                  'ml-1 inline-flex items-center justify-center rounded-full px-1.5 h-4 text-[10px] font-semibold tabular-nums',
+                  'ms-1 inline-flex items-center justify-center rounded-full px-1.5 h-4 text-[10px] font-semibold tabular-nums',
                   active ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground',
                 )}
               >

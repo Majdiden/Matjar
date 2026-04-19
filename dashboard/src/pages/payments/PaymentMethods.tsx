@@ -308,7 +308,7 @@ export const PaymentMethods: React.FC = () => {
           </p>
         </div>
         <Button onClick={openChooser}>
-          <Plus className="h-4 w-4 mr-2" /> {t('payments:method.list.add')}
+          <Plus className="h-4 w-4 me-2" /> {t('payments:method.list.add')}
         </Button>
       </div>
 
@@ -392,7 +392,7 @@ export const PaymentMethods: React.FC = () => {
                             type="button"
                             key={p.code}
                             onClick={() => openProvider(m, p)}
-                            className="group relative text-left rounded-lg border p-3 bg-background cursor-pointer transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md hover:border-primary hover:bg-muted/40"
+                            className="group relative text-start rounded-lg border p-3 bg-background cursor-pointer transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md hover:border-primary hover:bg-muted/40"
                           >
                             <div className="flex items-start justify-between gap-2 mb-2">
                               <div className="flex items-center gap-2 min-w-0">
@@ -484,7 +484,7 @@ export const PaymentMethods: React.FC = () => {
           <div className="grid gap-3 py-2">
             <button
               onClick={chooseManual}
-              className="flex items-start gap-3 rounded-lg border p-4 text-left hover:bg-muted/40 transition"
+              className="flex items-start gap-3 rounded-lg border p-4 text-start hover:bg-muted/40 transition"
             >
               <Building2 className="h-6 w-6 text-primary mt-0.5" />
               <div>
@@ -564,9 +564,9 @@ export const PaymentMethods: React.FC = () => {
                     disabled={logoUploading}
                   >
                     {logoUploading ? (
-                      <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />{t('payments:method.form.uploading')}</>
+                      <><Loader2 className="h-3.5 w-3.5 me-2 animate-spin" />{t('payments:method.form.uploading')}</>
                     ) : (
-                      <><Upload className="h-3.5 w-3.5 mr-2" />{providerDraft.logo ? t('payments:method.form.replace_logo') : t('payments:method.form.upload')}</>
+                      <><Upload className="h-3.5 w-3.5 me-2" />{providerDraft.logo ? t('payments:method.form.replace_logo') : t('payments:method.form.upload')}</>
                     )}
                   </Button>
                   {providerDraft.logo && (
@@ -577,7 +577,7 @@ export const PaymentMethods: React.FC = () => {
                       onClick={() => setProviderDraft(d => ({ ...d, logo: '' }))}
                       disabled={logoUploading}
                     >
-                      <X className="h-3.5 w-3.5 mr-1" />{t('payments:method.form.remove_logo')}
+                      <X className="h-3.5 w-3.5 me-1" />{t('payments:method.form.remove_logo')}
                     </Button>
                   )}
                 </div>
@@ -632,14 +632,14 @@ export const PaymentMethods: React.FC = () => {
             <div>
               {!providerDialog.isNew && providerDialog.provider && !SYSTEM_PROVIDER_CODES.has(providerDialog.provider.code) && (
                 <Button variant="ghost" className="text-destructive" onClick={removeProvider} disabled={providerSaving}>
-                  <Trash2 className="h-4 w-4 mr-2" /> {t('common:action.remove')}
+                  <Trash2 className="h-4 w-4 me-2" /> {t('common:action.remove')}
                 </Button>
               )}
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={closeProvider} disabled={providerSaving}>{t('common:action.cancel')}</Button>
               <Button onClick={saveProvider} disabled={providerSaving}>
-                {providerSaving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving')}</> : t('common:action.save')}
+                {providerSaving ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common:state.saving')}</> : t('common:action.save')}
               </Button>
             </div>
           </DialogFooter>

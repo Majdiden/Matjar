@@ -658,7 +658,7 @@ export const OrderDetails: React.FC = () => {
         disabled={!canWriteOrders}
         onClick={() => openAddressDialog(kind)}
       >
-        <Pencil className="h-3.5 w-3.5 mr-1.5" />
+        <Pencil className="h-3.5 w-3.5 me-1.5" />
         Edit
       </Button>
     );
@@ -738,7 +738,7 @@ export const OrderDetails: React.FC = () => {
     return (
       <div className="space-y-6">
         <Button variant="outline" onClick={() => navigate('/dashboard/orders')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />{t('orders:detail.back')}
+          <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" />{t('orders:detail.back')}
         </Button>
         <Card>
           <CardContent className="p-8 text-center">
@@ -820,7 +820,7 @@ export const OrderDetails: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/orders')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />Back
+            <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" />Back
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
@@ -837,7 +837,7 @@ export const OrderDetails: React.FC = () => {
             size="sm"
             onClick={() => window.open(`/dashboard/orders/${order._id}/packing-slip`, '_blank', 'noopener,noreferrer')}
           >
-            <Printer className="h-4 w-4 mr-2" />Print
+            <Printer className="h-4 w-4 me-2" />Print
           </Button>
           <DocumentsMenu order={order} payments={payments} />
         </div>
@@ -956,7 +956,7 @@ export const OrderDetails: React.FC = () => {
               Cancel
             </Button>
             <Button onClick={submitRecordManual} disabled={paymentActionBusy}>
-              {paymentActionBusy && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}
+              {paymentActionBusy && <Loader2 className="h-3 w-3 me-2 animate-spin" />}
               Record payment
             </Button>
           </DialogFooter>
@@ -1082,7 +1082,7 @@ export const OrderDetails: React.FC = () => {
                           )}
                           {item.isPreorder && (
                             <Badge variant="outline" className="h-5 text-[10px] border-amber-500 text-amber-700 dark:text-amber-400">
-                              <Clock className="h-3 w-3 mr-0.5" />
+                              <Clock className="h-3 w-3 me-0.5" />
                               Pre-order
                               {item.preorderExpectedShipDate && (
                                 <> · ships {new Date(item.preorderExpectedShipDate).toLocaleDateString()}</>
@@ -1139,7 +1139,7 @@ export const OrderDetails: React.FC = () => {
               </CardTitle>
               {maxRefundable > 0 && (
                 <Button size="sm" variant="outline" onClick={openRefundDialog}>
-                  <ArrowDownLeft className="h-4 w-4 mr-2" />
+                  <ArrowDownLeft className="h-4 w-4 me-2" />
                   {isManualRefund ? 'Record manual refund' : 'Issue refund'}
                 </Button>
               )}
@@ -1186,7 +1186,7 @@ export const OrderDetails: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-end">
                         <p className={`font-semibold ${p.status === 'refunded' ? 'text-amber-600' : ''}`}>
                           {p.status === 'refunded' ? '−' : ''}{formatPrice(p.amount || 0)}
                         </p>
@@ -1292,27 +1292,27 @@ export const OrderDetails: React.FC = () => {
               ) : customerContext ? (
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                   <dt className="text-muted-foreground">Lifetime orders</dt>
-                  <dd className="text-right font-medium">{customerContext.lifetimeOrderCount}</dd>
+                  <dd className="text-end font-medium">{customerContext.lifetimeOrderCount}</dd>
                   <dt className="text-muted-foreground">Lifetime spend</dt>
-                  <dd className="text-right font-medium">{formatPrice(customerContext.lifetimeSpend)}</dd>
+                  <dd className="text-end font-medium">{formatPrice(customerContext.lifetimeSpend)}</dd>
                   <dt className="text-muted-foreground">Previous refunds</dt>
-                  <dd className="text-right font-medium">{customerContext.previousRefunds}</dd>
+                  <dd className="text-end font-medium">{customerContext.previousRefunds}</dd>
                   <dt className="text-muted-foreground">Previous cancellations</dt>
-                  <dd className="text-right font-medium">{customerContext.previousCancellations}</dd>
+                  <dd className="text-end font-medium">{customerContext.previousCancellations}</dd>
                   <dt className="text-muted-foreground">Last order</dt>
-                  <dd className="text-right">
+                  <dd className="text-end">
                     {customerContext.lastOrderDate
                       ? new Date(customerContext.lastOrderDate).toLocaleDateString()
                       : '—'}
                   </dd>
                   <dt className="text-muted-foreground">Customer since</dt>
-                  <dd className="text-right">
+                  <dd className="text-end">
                     {customerContext.customerSince
                       ? new Date(customerContext.customerSince).toLocaleDateString()
                       : '—'}
                   </dd>
                   <dt className="text-muted-foreground">Marketing consent</dt>
-                  <dd className="text-right">
+                  <dd className="text-end">
                     {customerContext.marketingConsent === true
                       ? 'Yes'
                       : customerContext.marketingConsent === false
@@ -1369,7 +1369,7 @@ export const OrderDetails: React.FC = () => {
                   className="h-7"
                   onClick={() => navigate(`/dashboard/orders/${order._id}/lifecycle`)}
                 >
-                  <GitBranch className="h-3.5 w-3.5 mr-1.5" />
+                  <GitBranch className="h-3.5 w-3.5 me-1.5" />
                   View timeline
                 </Button>
               )}
@@ -1400,7 +1400,7 @@ export const OrderDetails: React.FC = () => {
                           type="button"
                           onClick={() => handleRemoveTag(t)}
                           disabled={tagBusy === t}
-                          className="ml-0.5 rounded-full p-0.5 hover:bg-background/60 disabled:opacity-50"
+                          className="ms-0.5 rounded-full p-0.5 hover:bg-background/60 disabled:opacity-50"
                           aria-label={`Remove tag ${t}`}
                         >
                           {tagBusy === t ? (
@@ -1618,7 +1618,7 @@ export const OrderDetails: React.FC = () => {
               Cancel
             </Button>
             <Button onClick={submitRefund} disabled={refunding}>
-              {refunding && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {refunding && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               {isManualRefund ? 'Record' : 'Refund'}{' '}
               {refundAmount && Number(refundAmount) > 0 ? formatPrice(Number(refundAmount)) : ''}
             </Button>
@@ -1664,7 +1664,7 @@ export const OrderDetails: React.FC = () => {
               Cancel
             </Button>
             <Button onClick={submitReplacement} disabled={creatingReplacement}>
-              {creatingReplacement && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {creatingReplacement && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Create replacement
             </Button>
           </DialogFooter>
@@ -1709,7 +1709,7 @@ export const OrderDetails: React.FC = () => {
               Cancel
             </Button>
             <Button onClick={submitReturn} disabled={creatingReturn}>
-              {creatingReturn && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {creatingReturn && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Request return
             </Button>
           </DialogFooter>
@@ -1764,7 +1764,7 @@ export const OrderDetails: React.FC = () => {
               Cancel
             </Button>
             <Button onClick={submitVerify} disabled={verifying}>
-              {verifying && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {verifying && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Mark as verified
             </Button>
           </DialogFooter>
@@ -1882,7 +1882,7 @@ export const OrderDetails: React.FC = () => {
               Cancel
             </Button>
             <Button onClick={submitAddress} disabled={savingAddress || !canWriteOrders}>
-              {savingAddress && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {savingAddress && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Save changes
             </Button>
           </DialogFooter>
@@ -1915,7 +1915,7 @@ const PaymentFieldInput: React.FC<{
   const label = (
     <Label htmlFor={`pf-${field.name}`}>
       {field.label}
-      {field.required && <span className="text-destructive ml-0.5">*</span>}
+      {field.required && <span className="text-destructive ms-0.5">*</span>}
     </Label>
   );
   if (field.type === 'textarea') {
@@ -2238,7 +2238,7 @@ const ReturnsAndReplacements: React.FC<{
                     )}
                   </div>
                 </div>
-                <ul className="text-sm space-y-0.5 pl-6">
+                <ul className="text-sm space-y-0.5 ps-6">
                   {ret.items.map((it, i) => (
                     <li key={i} className="text-muted-foreground">
                       {lineName(it.orderLineId)}{' '}
@@ -2247,7 +2247,7 @@ const ReturnsAndReplacements: React.FC<{
                   ))}
                 </ul>
                 {ret.reason && (
-                  <p className="text-xs text-muted-foreground pl-6 italic">"{ret.reason}"</p>
+                  <p className="text-xs text-muted-foreground ps-6 italic">"{ret.reason}"</p>
                 )}
               </div>
             ))}
@@ -2368,21 +2368,21 @@ const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order,
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
-          <FileText className="h-4 w-4 mr-2" />
+          <FileText className="h-4 w-4 me-2" />
           Documents
-          <ChevronDown className="h-3 w-3 ml-2" />
+          <ChevronDown className="h-3 w-3 ms-2" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem onClick={() => open(`${base}/invoice`)}>
-          <Receipt className="h-4 w-4 mr-2" /> Invoice
+          <Receipt className="h-4 w-4 me-2" /> Invoice
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => open(`${base}/packing-slip`)}>
-          <Package className="h-4 w-4 mr-2" /> Packing slip
+          <Package className="h-4 w-4 me-2" /> Packing slip
         </DropdownMenuItem>
         {refunds.length === 0 ? (
           <DropdownMenuItem disabled>
-            <ArrowDownLeft className="h-4 w-4 mr-2" /> Refund receipt
+            <ArrowDownLeft className="h-4 w-4 me-2" /> Refund receipt
           </DropdownMenuItem>
         ) : (
           refunds.map((r) => (
@@ -2390,7 +2390,7 @@ const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order,
               key={r._id}
               onClick={() => open(`${base}/refund-receipt/${r._id}`)}
             >
-              <ArrowDownLeft className="h-4 w-4 mr-2" />
+              <ArrowDownLeft className="h-4 w-4 me-2" />
               Refund receipt · {formatRefundLabel(r)}
             </DropdownMenuItem>
           ))
@@ -2450,12 +2450,12 @@ const OrderTimeline: React.FC<{ order: Order }> = ({ order }) => {
         const Icon = meta.icon;
         const isLast = idx === events.length - 1;
         return (
-          <div key={idx} className="relative pl-12 pb-5 last:pb-0">
+          <div key={idx} className="relative ps-12 pb-5 last:pb-0">
             {!isLast && (
-              <span className="absolute left-[17px] top-9 bottom-0 w-px bg-border" aria-hidden />
+              <span className="absolute start-[17px] top-9 bottom-0 w-px bg-border" aria-hidden />
             )}
             <span
-              className={`absolute left-0 top-0 flex h-9 w-9 items-center justify-center rounded-full ${meta.color} text-white shadow-sm ring-4 ring-background`}
+              className={`absolute start-0 top-0 flex h-9 w-9 items-center justify-center rounded-full ${meta.color} text-white shadow-sm ring-4 ring-background`}
             >
               <Icon className="h-4 w-4" />
             </span>
@@ -2478,7 +2478,7 @@ const OrderTimeline: React.FC<{ order: Order }> = ({ order }) => {
       </div>
       {showScrollHint && (
         <div
-          className="pointer-events-none absolute bottom-0 left-0 right-0 flex justify-center pb-1"
+          className="pointer-events-none absolute bottom-0 start-0 end-0 flex justify-center pb-1"
           aria-hidden
         >
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-background/90 border shadow-sm animate-bounce">
@@ -2690,7 +2690,7 @@ const OperationsCard: React.FC<{
       onClick={a.onClick}
       title={a.disabled ? a.disabledReason : undefined}
     >
-      {busy && isPrimary && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}
+      {busy && isPrimary && <Loader2 className="h-3 w-3 me-2 animate-spin" />}
       {a.label}
     </Button>
   );
@@ -2725,9 +2725,9 @@ const OperationsCard: React.FC<{
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" disabled={updatingStatus} className="self-start">
-                    {updatingStatus && <Loader2 className="h-3 w-3 mr-2 animate-spin" />}
+                    {updatingStatus && <Loader2 className="h-3 w-3 me-2 animate-spin" />}
                     Change status
-                    <ChevronDown className="h-3 w-3 ml-2" />
+                    <ChevronDown className="h-3 w-3 ms-2" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
@@ -2796,7 +2796,7 @@ const OperationsCard: React.FC<{
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" disabled={busy} title="More payment actions">
-                    More <ChevronDown className="h-3 w-3 ml-1" />
+                    More <ChevronDown className="h-3 w-3 ms-1" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

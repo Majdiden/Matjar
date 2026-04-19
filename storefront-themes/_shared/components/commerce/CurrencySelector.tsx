@@ -103,7 +103,7 @@ export function CurrencySelector(props: CurrencySelectorProps) {
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 top-full mt-1 z-50 min-w-[200px] bg-white dark:bg-gray-900 border rounded-lg shadow-xl py-1 max-h-72 overflow-y-auto"
+          className="absolute end-0 top-full mt-1 z-50 min-w-[200px] bg-white dark:bg-gray-900 border rounded-lg shadow-xl py-1 max-h-72 overflow-y-auto"
         >
           {markets.map((m) => {
             const isActive =
@@ -117,7 +117,7 @@ export function CurrencySelector(props: CurrencySelectorProps) {
                   role="option"
                   aria-selected={isActive}
                   className={cn(
-                    'w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800',
+                    'w-full text-start px-3 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800',
                     isActive && 'bg-gray-50 dark:bg-gray-800/60 font-semibold'
                   )}
                 >

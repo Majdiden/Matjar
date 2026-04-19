@@ -227,7 +227,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
               {t.label}
               {isActive && (
                 <span
-                  className="absolute left-0 right-0 -bottom-px h-0.5"
+                  className="absolute start-0 end-0 -bottom-px h-0.5"
                   style={{ backgroundColor: 'var(--color-primary)' }}
                 />
               )}
@@ -308,7 +308,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
               className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 pb-8 border-b"
               style={{ borderColor: 'var(--color-border)' }}
             >
-              <div className="text-center md:text-left">
+              <div className="text-center md:text-start">
                 <div className="text-5xl font-black leading-none mb-2" style={{ color: 'var(--color-foreground)' }}>
                   {(product.rating || 0).toFixed(1)}
                 </div>
@@ -334,7 +334,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                           style={{ width: `${pct}%`, backgroundColor: accent }}
                         />
                       </div>
-                      <span className="w-8 text-right" style={{ color: 'var(--color-muted)' }}>{count}</span>
+                      <span className="w-8 text-end" style={{ color: 'var(--color-muted)' }}>{count}</span>
                     </div>
                   );
                 })}
@@ -393,7 +393,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                           </button>
                         );
                       })}
-                      <span className="ml-2 text-xs" style={{ color: 'var(--color-muted)' }}>{reviewRating}/5</span>
+                      <span className="ms-2 text-xs" style={{ color: 'var(--color-muted)' }}>{reviewRating}/5</span>
                     </div>
                   </div>
 

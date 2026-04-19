@@ -487,7 +487,7 @@ export const CollectionForm: React.FC = () => {
             </Button>
           )}
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common.state.saving_ellipsis')}</> : <><Save className="h-4 w-4 mr-2" />{t('common.action.save')}</>}
+            {saving ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common.state.saving_ellipsis')}</> : <><Save className="h-4 w-4 me-2" />{t('common.action.save')}</>}
           </Button>
         </div>
       </div>
@@ -614,7 +614,7 @@ export const CollectionForm: React.FC = () => {
             <div className="flex items-center justify-between">
               <CardTitle>Products</CardTitle>
               <Button size="sm" variant="secondary" onClick={() => setPickerOpen(true)}>
-                <Plus className="h-4 w-4 mr-1" />Add products
+                <Plus className="h-4 w-4 me-1" />Add products
               </Button>
             </div>
           </CardHeader>
@@ -688,7 +688,7 @@ export const CollectionForm: React.FC = () => {
               <CardTitle>Rules</CardTitle>
               {isEdit && (
                 <Button size="sm" variant="outline" onClick={handlePreview}>
-                  <Eye className="h-4 w-4 mr-1" />Preview products
+                  <Eye className="h-4 w-4 me-1" />Preview products
                 </Button>
               )}
             </div>
@@ -761,7 +761,7 @@ export const CollectionForm: React.FC = () => {
             })}
 
             <Button variant="secondary" size="sm" onClick={addRule}>
-              <Plus className="h-4 w-4 mr-1" />Add condition
+              <Plus className="h-4 w-4 me-1" />Add condition
             </Button>
           </CardContent>
         </Card>
@@ -823,9 +823,9 @@ export const CollectionForm: React.FC = () => {
             <DialogTitle>Add products</DialogTitle>
           </DialogHeader>
           <div className="relative mb-3">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              className="pl-8"
+              className="ps-8"
               placeholder="Search products..."
               value={pickerSearch}
               onChange={(e) => setPickerSearch(e.target.value)}

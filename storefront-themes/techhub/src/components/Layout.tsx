@@ -146,7 +146,7 @@ const Layout: React.FC = () => {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
                 </svg>
-                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 text-white text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--color-primary)' }}>0</span>
+                <span className="absolute -top-0.5 -end-0.5 w-5 h-5 text-white text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--color-primary)' }}>0</span>
               </Link>
 
               <button
@@ -159,7 +159,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                 </svg>
                 <span
-                  className="absolute -top-0.5 -right-0.5 w-5 h-5 text-white text-[10px] rounded-full flex items-center justify-center font-bold"
+                  className="absolute -top-0.5 -end-0.5 w-5 h-5 text-white text-[10px] rounded-full flex items-center justify-center font-bold"
                   style={{ backgroundColor: 'var(--color-primary)' }}
                 >
                   {cart?.itemCount || 0}
@@ -171,7 +171,7 @@ const Layout: React.FC = () => {
           {/* Browse-all-collection dropdown */}
           {collectionOpen && (
             <div
-              className="absolute left-0 right-0 border-t shadow-lg"
+              className="absolute start-0 end-0 border-t shadow-lg"
               style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)' }}
             >
               <div className="max-w-7xl mx-auto px-4 py-4 grid grid-cols-2 lg:grid-cols-4 gap-2">

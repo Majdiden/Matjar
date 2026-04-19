@@ -216,7 +216,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
                 >
                   {isPicked && (
                     <span
-                      className="absolute top-0 right-0 w-4 h-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
+                      className="absolute top-0 end-0 w-4 h-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
                       style={{ backgroundColor: accent }}
                     >
                       ✓
@@ -287,7 +287,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
             const labelEl = (
               <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-text, #111827)' }}>
                 {field.label}
-                {field.required && <span className="text-red-600 ml-1">*</span>}
+                {field.required && <span className="text-red-600 ms-1">*</span>}
               </label>
             );
 

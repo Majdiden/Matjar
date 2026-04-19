@@ -52,7 +52,7 @@ export default function ColorPickerPopover({ value, onChange, recentColors = [] 
             className="h-6 w-6 rounded border border-slate-200 shrink-0 shadow-sm"
             style={{ backgroundColor: safeValue }}
           />
-          <span className="flex-1 text-left text-xs font-mono text-slate-700 uppercase">
+          <span className="flex-1 text-start text-xs font-mono text-slate-700 uppercase">
             {safeValue}
           </span>
           <Pipette className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 transition" />
@@ -67,7 +67,7 @@ export default function ColorPickerPopover({ value, onChange, recentColors = [] 
                 type="color"
                 value={safeValue}
                 onChange={(e) => onChange(e.target.value.toUpperCase())}
-                className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer p-0 border-0"
+                className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -start-1/4 cursor-pointer p-0 border-0"
               />
             </label>
             <Input

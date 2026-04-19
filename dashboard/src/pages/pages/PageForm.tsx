@@ -178,8 +178,8 @@ export const PageForm: React.FC = () => {
           )}
           <Button onClick={handleSave} disabled={saving}>
             {saving
-              ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
-              : <><Save className="h-4 w-4 mr-2" />{t('common:action.save')}</>}
+              ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
+              : <><Save className="h-4 w-4 me-2" />{t('common:action.save')}</>}
           </Button>
         </div>
       </div>

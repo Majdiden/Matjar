@@ -142,7 +142,7 @@ export default function ManifestGlobalSettings({
                     type="color"
                     value={value || '#000000'}
                     onChange={(e) => onUpdate('colors', { [key]: e.target.value })}
-                    className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer p-0 border-0"
+                    className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -start-1/4 cursor-pointer p-0 border-0"
                   />
                 </div>
                 <input
@@ -262,7 +262,7 @@ function CollapsibleSection({
         {expanded ? (
           <ChevronDown className="w-4 h-4 text-gray-400" />
         ) : (
-          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <ChevronRight className="w-4 h-4 text-gray-400 rtl:rotate-180" />
         )}
       </button>
       {expanded && <div className="p-4">{children}</div>}

@@ -36,7 +36,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
     <section className="relative overflow-hidden bg-black text-white">
       {/* diagonal lime stripes background */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.08]" aria-hidden>
-        <div className="absolute -top-20 -right-20 w-[600px] h-[600px] rounded-full" style={{ backgroundColor: LIME }} />
+        <div className="absolute -top-20 -end-20 w-[600px] h-[600px] rounded-full" style={{ backgroundColor: LIME }} />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
@@ -99,7 +99,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             ) : (
               <img src="https://placehold.co/800x800/0a0a0a/a3e635?text=SUPPLEMENT" alt="" className="w-full h-full object-contain p-8" />
             )}
-            <div className="absolute top-6 right-6 w-24 h-24 rounded-full flex items-center justify-center text-black font-black text-xs tracking-widest uppercase text-center" style={{ backgroundColor: LIME }}>
+            <div className="absolute top-6 end-6 w-24 h-24 rounded-full flex items-center justify-center text-black font-black text-xs tracking-widest uppercase text-center" style={{ backgroundColor: LIME }}>
               {t('theme.section.nutreko-hero.badge')}
             </div>
           </div>
@@ -260,7 +260,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div className="relative bg-black text-white overflow-hidden border-2 border-black">
-        <div className="absolute inset-y-0 right-0 w-1/3" style={{ backgroundColor: LIME }} />
+        <div className="absolute inset-y-0 end-0 w-1/3" style={{ backgroundColor: LIME }} />
         <div className="relative p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex-1">
             {s.eyebrow && (

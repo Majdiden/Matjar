@@ -85,13 +85,13 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label className="block text-sm font-medium mb-2">
             {label}
-            {props.required && <span className="text-destructive ml-1">*</span>}
+            {props.required && <span className="text-destructive ms-1">*</span>}
           </label>
         )}
         <div className="relative">
           <select
             className={cn(
-              'flex h-10 w-full appearance-none rounded-md border border-input bg-background px-3 py-2 pr-8 text-sm ring-offset-background',
+              'flex h-10 w-full appearance-none rounded-md border border-input bg-background px-3 py-2 pe-8 text-sm ring-offset-background',
               'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
               'disabled:cursor-not-allowed disabled:opacity-50',
               error && 'border-destructive focus:ring-destructive',
@@ -112,7 +112,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50 pointer-events-none" />
+          <ChevronDown className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50 pointer-events-none" />
         </div>
         {error && <p className="text-sm text-destructive mt-1">{error}</p>}
       </div>

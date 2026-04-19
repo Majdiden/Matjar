@@ -59,7 +59,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {cart && cart.itemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 w-4 h-4 bg-[#d4a76a] text-white text-[10px] rounded-full flex items-center justify-center">
+                  <span className="absolute -top-2 -end-2 w-4 h-4 bg-[#d4a76a] text-white text-[10px] rounded-full flex items-center justify-center">
                     {cart.itemCount}
                   </span>
                 )}

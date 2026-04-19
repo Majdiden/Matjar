@@ -48,14 +48,14 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
 
           {/* SALE badge */}
           {onSale && (
-            <div className="absolute top-3 left-3">
+            <div className="absolute top-3 start-3">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase bg-red-500 text-white rounded-full">
                 {t('theme.product_card.sale_badge', { pct })}
               </span>
             </div>
           )}
           {isPreorder && (
-            <div className={`absolute top-3 ${onSale ? 'left-3 mt-8' : 'left-3'}`} style={onSale ? { top: '2.75rem' } : undefined}>
+            <div className={`absolute top-3 ${onSale ? 'start-3 mt-8' : 'start-3'}`} style={onSale ? { top: '2.75rem' } : undefined}>
               <span
                 className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase rounded-full text-white"
                 style={{ backgroundColor: 'var(--color-primary, #111)' }}
@@ -66,7 +66,7 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
           )}
 
           {/* Wishlist / Quick view icons */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute top-3 end-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               type="button"
               aria-label="Wishlist"
@@ -96,7 +96,7 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
           <button
             type="button"
             onClick={(e) => { if (requiresOptions) return; e.preventDefault(); addItem(product._id || product.id, 1); }}
-            className="absolute bottom-0 left-0 right-0 py-3.5 bg-black text-white text-[11px] tracking-[0.22em] uppercase font-semibold translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+            className="absolute bottom-0 start-0 end-0 py-3.5 bg-black text-white text-[11px] tracking-[0.22em] uppercase font-semibold translate-y-full group-hover:translate-y-0 transition-transform duration-300"
           >
             {requiresOptions ? t('theme.product_card.choose_options') : t('theme.product_card.add_to_cart')}
           </button>

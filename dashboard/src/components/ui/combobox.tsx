@@ -69,7 +69,7 @@ export function Combobox({
             className,
           )}
         >
-          <span className={cn('truncate text-left', !selected && 'text-muted-foreground')}>
+          <span className={cn('truncate text-start', !selected && 'text-muted-foreground')}>
             {selected ? selected.label : placeholder}
           </span>
           <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -100,7 +100,7 @@ export function Combobox({
                     setOpen(false);
                   }}
                   className={cn(
-                    'flex w-full items-center justify-between gap-2 px-3 py-2 text-sm text-left hover:bg-muted',
+                    'flex w-full items-center justify-between gap-2 px-3 py-2 text-sm text-start hover:bg-muted',
                     isActive && 'bg-muted/60',
                   )}
                 >

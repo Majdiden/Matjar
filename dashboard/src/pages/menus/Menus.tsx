@@ -123,7 +123,7 @@ export const Menus: React.FC = () => {
           <p className="text-muted-foreground">{t('menus:list.subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/dashboard/menus/new')}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 me-2" />
           {t('menus:list.action.add')}
         </Button>
       </div>
@@ -140,7 +140,7 @@ export const Menus: React.FC = () => {
                 {t('menus:list.empty.hint')}
               </p>
               <Button onClick={() => navigate('/dashboard/menus/new')}>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 me-2" />
                 {t('menus:list.empty.action')}
               </Button>
             </div>
@@ -200,13 +200,13 @@ export const Menus: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => navigate(`/dashboard/menus/${menu._id}/edit`)}>
-                            <Edit className="h-4 w-4 mr-2" />{t('common:action.edit')}
+                            <Edit className="h-4 w-4 me-2" />{t('common:action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDelete(menu)}
                             className="text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />{t('common:action.delete')}
+                            <Trash2 className="h-4 w-4 me-2" />{t('common:action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

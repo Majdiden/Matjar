@@ -71,21 +71,21 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
 
           {/* Sale / pre-order badge */}
           {(onSale || pre.savingsPct > 0) && (
-            <div className="absolute top-4 left-4">
+            <div className="absolute top-4 start-4">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white rounded-full" style={{ backgroundColor: 'var(--color-error)' }}>
                 -{pct}% {pre.mode === 'preorder' ? t('theme.product_card.preorder') : t('theme.product_card.sale')}
               </span>
             </div>
           )}
           {pre.mode === 'preorder' && !onSale && pre.savingsPct === 0 && (
-            <div className="absolute top-4 left-4">
+            <div className="absolute top-4 start-4">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white rounded-full" style={{ backgroundColor: 'var(--color-primary)' }}>
                 {t('theme.product_card.preorder')}
               </span>
             </div>
           )}
           {!onSale && pre.mode === 'buy' && product.isNew && (
-            <div className="absolute top-4 left-4">
+            <div className="absolute top-4 start-4">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white rounded-full" style={{ backgroundColor: 'var(--color-primary)' }}>
                 {t('theme.product_card.new')}
               </span>
@@ -93,7 +93,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
           )}
 
           {/* Hover icons */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition">
+          <div className="absolute top-4 end-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition">
             <button
               type="button"
               aria-label="Wishlist"

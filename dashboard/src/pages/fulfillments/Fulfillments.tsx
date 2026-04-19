@@ -154,10 +154,10 @@ export const Fulfillments: React.FC = () => {
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t('orders:fulfillment.list.search.placeholder')}
-            className="pl-9"
+            className="ps-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
@@ -172,16 +172,16 @@ export const Fulfillments: React.FC = () => {
           <p className="text-sm font-medium">{t('orders:fulfillment.list.bulk.selected', { count: selected.size })}</p>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />{t('orders:fulfillment.list.bulk.clear')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('orders:fulfillment.list.bulk.clear')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('shipped')}>
-              <Truck className="h-3.5 w-3.5 mr-1.5" />{t('orders:fulfillment.list.bulk.mark_shipped')}
+              <Truck className="h-3.5 w-3.5 me-1.5" />{t('orders:fulfillment.list.bulk.mark_shipped')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('delivered')}>
-              <PackageCheck className="h-3.5 w-3.5 mr-1.5" />{t('orders:fulfillment.list.bulk.mark_delivered')}
+              <PackageCheck className="h-3.5 w-3.5 me-1.5" />{t('orders:fulfillment.list.bulk.mark_delivered')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('cancelled')}>
-              <XCircle className="h-3.5 w-3.5 mr-1.5" />{t('orders:fulfillment.list.bulk.cancel')}
+              <XCircle className="h-3.5 w-3.5 me-1.5" />{t('orders:fulfillment.list.bulk.cancel')}
             </Button>
           </div>
         </div>
@@ -222,7 +222,7 @@ export const Fulfillments: React.FC = () => {
                 <TableHead>{t('orders:fulfillment.list.column.tracking')}</TableHead>
                 <TableHead>{t('orders:fulfillment.list.column.carrier')}</TableHead>
                 <TableHead>{t('orders:fulfillment.list.column.date')}</TableHead>
-                <TableHead className="text-right">{t('orders:fulfillment.list.column.actions')}</TableHead>
+                <TableHead className="text-end">{t('orders:fulfillment.list.column.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -261,7 +261,7 @@ export const Fulfillments: React.FC = () => {
                   <TableCell className="text-muted-foreground text-sm">
                     {new Date(f.createdAt).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-end">
                     {f.status !== 'delivered' && f.status !== 'cancelled' && (
                       <Select
                         value={f.status}
@@ -315,11 +315,11 @@ export const Fulfillments: React.FC = () => {
                   <div className="space-y-1 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">{t('orders:fulfillment.list.card.tracking')}</span>
-                      <span className="font-mono truncate ml-2">{f.trackingNumber || '—'}</span>
+                      <span className="font-mono truncate ms-2">{f.trackingNumber || '—'}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">{t('orders:fulfillment.list.card.carrier')}</span>
-                      <span className="truncate ml-2">{f.carrier || '—'}</span>
+                      <span className="truncate ms-2">{f.carrier || '—'}</span>
                     </div>
                   </div>
                   <div className="pt-2 border-t flex items-center justify-between text-xs text-muted-foreground">

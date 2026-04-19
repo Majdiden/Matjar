@@ -156,7 +156,7 @@ export const AuditLogs: React.FC = () => {
                   <TableHead>{t('audit.list.column.resource')}</TableHead>
                   <TableHead>{t('audit.list.column.resource_id')}</TableHead>
                   <TableHead>{t('audit.list.column.ip')}</TableHead>
-                  <TableHead className="text-right">{t('audit.list.column.details')}</TableHead>
+                  <TableHead className="text-end">{t('audit.list.column.details')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -183,8 +183,8 @@ export const AuditLogs: React.FC = () => {
                       {log.resourceId ? log.resourceId.slice(0, 12) + '...' : '-'}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{log.ip || '-'}</TableCell>
-                    <TableCell className="text-right">
-                      <ChevronRight className="h-4 w-4 text-muted-foreground inline" />
+                    <TableCell className="text-end">
+                      <ChevronRight className="h-4 w-4 text-muted-foreground inline rtl:rotate-180" />
                     </TableCell>
                   </TableRow>
                 ))}

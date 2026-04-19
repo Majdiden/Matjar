@@ -34,7 +34,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
               }
             }}
           >
-            <Check className="h-4 w-4 text-primary-foreground hidden peer-checked:block absolute top-0.5 left-0.5" />
+            <Check className="h-4 w-4 text-primary-foreground hidden peer-checked:block absolute top-0.5 start-0.5" />
           </div>
         </div>
         {(label || description) && (

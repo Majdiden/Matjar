@@ -184,9 +184,9 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute start-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          className="pl-8 pr-8"
+          className="ps-8 pe-8"
           placeholder={t('marketing.gift_card.issue_dialog.field.customer.search_placeholder')}
           value={open ? query : label}
           onFocus={() => { setOpen(true); setQuery(''); }}
@@ -197,7 +197,7 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
             type="button"
             aria-label="Clear customer"
             onClick={() => { onChange(''); setSelected(null); setQuery(''); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
@@ -219,7 +219,7 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
                   key={c._id}
                   type="button"
                   onClick={() => { onChange(c._id); setSelected(c); setOpen(false); }}
-                  className="block w-full text-left px-3 py-2 text-sm hover:bg-accent"
+                  className="block w-full text-start px-3 py-2 text-sm hover:bg-accent"
                 >
                   <div className="font-medium">{name || t('marketing.gift_card.issue_dialog.field.customer.no_name')}</div>
                   {c.email && <div className="text-xs text-muted-foreground">{c.email}</div>}
@@ -404,7 +404,7 @@ const GiftCards: React.FC = () => {
           <Gift className="w-6 h-6 text-muted-foreground" />
           <h1 className="text-2xl font-semibold">{t('marketing.gift_card.list.title')}</h1>
           {!loading && (
-            <span className="text-sm text-muted-foreground ml-1">({total})</span>
+            <span className="text-sm text-muted-foreground ms-1">({total})</span>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -418,7 +418,7 @@ const GiftCards: React.FC = () => {
             <span className="font-medium">{featureEnabled ? t('marketing.gift_card.list.feature_on') : t('marketing.gift_card.list.feature_off')}</span>
           </div>
           <Button onClick={() => navigate('/dashboard/gift-cards/new')} disabled={!featureEnabled}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 me-2" />
             {t('marketing.gift_card.list.issue_button')}
           </Button>
         </div>
@@ -438,9 +438,9 @@ const GiftCards: React.FC = () => {
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            className="pl-9"
+            className="ps-9"
             placeholder={t('marketing.gift_card.list.search_placeholder')}
             maxLength={4}
             value={searchLast4}
@@ -457,16 +457,16 @@ const GiftCards: React.FC = () => {
           <p className="text-sm font-medium">{t('marketing.gift_card.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />{t('common:action.cancel')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('common:action.cancel')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkToggle(false)}>
-              <Ban className="h-3.5 w-3.5 mr-1.5" />{t('marketing.gift_card.list.bulk.disable')}
+              <Ban className="h-3.5 w-3.5 me-1.5" />{t('marketing.gift_card.list.bulk.disable')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkToggle(true)}>
-              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />{t('marketing.gift_card.list.bulk.enable')}
+              <CheckCircle2 className="h-3.5 w-3.5 me-1.5" />{t('marketing.gift_card.list.bulk.enable')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleBulkExport}>
-              <Download className="h-3.5 w-3.5 mr-1.5" />{t('marketing.gift_card.list.bulk.export_csv')}
+              <Download className="h-3.5 w-3.5 me-1.5" />{t('marketing.gift_card.list.bulk.export_csv')}
             </Button>
           </div>
         </div>
@@ -610,7 +610,7 @@ const GiftCards: React.FC = () => {
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('marketing.gift_card.list.card_balance_label')}</p>
                       <p className="text-xl font-bold tabular-nums">{formatMoney(card.balance, card.currency)}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-end">
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('marketing.gift_card.list.card_initial_label')}</p>
                       <p className="text-sm text-muted-foreground tabular-nums">{formatMoney(card.initialAmount, card.currency)}</p>
                     </div>
@@ -738,7 +738,7 @@ const GiftCards: React.FC = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIssueOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleIssue} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {saving ? <Loader2 className="w-4 h-4 me-2 animate-spin" /> : null}
               {t('marketing.gift_card.issue_dialog.issue_button')}
             </Button>
           </DialogFooter>

@@ -113,7 +113,7 @@ function ProductCompareDrawer() {
             <table className="w-full min-w-[600px]">
               <thead>
                 <tr>
-                  <th className="text-left p-2 text-sm font-medium text-gray-500 w-32">Product</th>
+                  <th className="text-start p-2 text-sm font-medium text-gray-500 w-32">Product</th>
                   {items.map(p => (
                     <td key={p._id} className="p-2 text-center">
                       <div className="relative inline-block">
@@ -124,7 +124,7 @@ function ProductCompareDrawer() {
                         />
                         <button
                           onClick={() => remove(p._id)}
-                          className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                          className="absolute -top-2 -end-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
                           aria-label="Remove"
                         >
                           &times;

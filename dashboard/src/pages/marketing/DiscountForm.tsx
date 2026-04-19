@@ -408,7 +408,7 @@ export default function DiscountForm() {
           size="icon"
           onClick={() => navigate("/dashboard/marketing/discounts")}
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-2">
@@ -420,7 +420,7 @@ export default function DiscountForm() {
           <p className="text-sm text-muted-foreground">{methodDesc}</p>
         </div>
         <Button type="submit" disabled={saving}>
-          {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+          {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
           {isEditMode ? t('marketing.discount.form.save_button') : t('marketing.discount.form.create_button')}
         </Button>
       </div>
@@ -782,7 +782,7 @@ function PickerField({
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {selected.map((item) => (
-            <Badge key={item._id} variant="secondary" className="text-xs gap-1 pr-1">
+            <Badge key={item._id} variant="secondary" className="text-xs gap-1 pe-1">
               {item.name}
               <button
                 type="button"
@@ -797,12 +797,12 @@ function PickerField({
         </div>
       )}
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <Search className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="pl-8 h-9"
+          className="ps-8 h-9"
         />
       </div>
       {query && (
@@ -815,7 +815,7 @@ function PickerField({
                 key={item._id}
                 type="button"
                 onClick={() => add(item)}
-                className="block w-full text-left px-3 py-1.5 hover:bg-accent focus:bg-accent focus:outline-none"
+                className="block w-full text-start px-3 py-1.5 hover:bg-accent focus:bg-accent focus:outline-none"
               >
                 {item.name}
               </button>

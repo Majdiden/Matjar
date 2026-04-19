@@ -120,7 +120,7 @@ function ProductImage({
         // preorder config but is genuinely out of stock — that is still
         // a valid bucket below.
         return (
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
+          <div className="absolute top-2 start-2 flex flex-col gap-1">
             {discount > 0 && (
               <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
                 -{discount}%
@@ -319,7 +319,7 @@ function ProductActions({
           : pre.ctaLabel}
       </button>
       {pre.lowRemaining && pre.remaining !== null && (
-        <span className="ml-2 text-[10px] font-semibold text-amber-600">
+        <span className="ms-2 text-[10px] font-semibold text-amber-600">
           Only {pre.remaining} left
         </span>
       )}

@@ -39,8 +39,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   return (
     <section className="relative overflow-hidden" style={{ backgroundColor: CREAM }}>
       {/* Pink blob decoration */}
-      <div className="absolute -top-20 -right-20 w-[480px] h-[480px] rounded-full opacity-60" style={{ backgroundColor: PINK }} aria-hidden />
-      <div className="absolute top-40 left-20 w-32 h-32 rounded-full opacity-50" style={{ backgroundColor: YELLOW }} aria-hidden />
+      <div className="absolute -top-20 -end-20 w-[480px] h-[480px] rounded-full opacity-60" style={{ backgroundColor: PINK }} aria-hidden />
+      <div className="absolute top-40 start-20 w-32 h-32 rounded-full opacity-50" style={{ backgroundColor: YELLOW }} aria-hidden />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <div>
@@ -87,7 +87,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
               <img src="https://placehold.co/800x1000/f6dc68/2c4a4a?text=Milmaa+Milk" alt="" className="w-full h-full object-cover" />
             )}
             {/* Floating badge */}
-            <div className="absolute top-6 right-6 w-24 h-24 rounded-full flex items-center justify-center text-center text-xs font-bold shadow-lg" style={{ backgroundColor: PINK, color: DARK_TEAL }}>
+            <div className="absolute top-6 end-6 w-24 h-24 rounded-full flex items-center justify-center text-center text-xs font-bold shadow-lg" style={{ backgroundColor: PINK, color: DARK_TEAL }}>
               100%<br />NATURAL
             </div>
           </div>
@@ -224,7 +224,7 @@ const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
               <img src="https://placehold.co/600x600/f7c1b7/2c4a4a?text=Why+Milmaa" alt="" className="w-full h-full object-cover" />
             )}
           </div>
-          <div className="absolute -bottom-4 -right-4 w-28 h-28 rounded-full flex items-center justify-center text-center font-bold text-xs shadow-lg" style={{ backgroundColor: YELLOW, color: DARK_TEAL }}>
+          <div className="absolute -bottom-4 -end-4 w-28 h-28 rounded-full flex items-center justify-center text-center font-bold text-xs shadow-lg" style={{ backgroundColor: YELLOW, color: DARK_TEAL }}>
             CERTIFIED<br />ORGANIC
           </div>
         </div>

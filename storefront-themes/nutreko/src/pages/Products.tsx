@@ -80,7 +80,7 @@ const Products: React.FC = () => {
                 <li>
                   <button
                     onClick={() => setParam('category', '')}
-                    className={`text-left w-full uppercase tracking-wider text-[12px] ${selectedCategory === '' ? 'font-black' : 'font-bold opacity-70 hover:opacity-100'}`}
+                    className={`text-start w-full uppercase tracking-wider text-[12px] ${selectedCategory === '' ? 'font-black' : 'font-bold opacity-70 hover:opacity-100'}`}
                   >
                     {t('theme.products.all_products')}
                   </button>
@@ -89,7 +89,7 @@ const Products: React.FC = () => {
                   <li key={cat._id}>
                     <button
                       onClick={() => setParam('category', cat.slug)}
-                      className={`text-left w-full uppercase tracking-wider text-[12px] ${selectedCategory === cat.slug ? 'font-black' : 'font-bold opacity-70 hover:opacity-100'}`}
+                      className={`text-start w-full uppercase tracking-wider text-[12px] ${selectedCategory === cat.slug ? 'font-black' : 'font-bold opacity-70 hover:opacity-100'}`}
                     >
                       {cat.name}
                     </button>
@@ -169,7 +169,7 @@ const Products: React.FC = () => {
               <select
                 value={sort}
                 onChange={(e) => setParam('sort', e.target.value)}
-                className="text-sm border-2 border-black bg-white px-4 py-2 pr-8 font-bold uppercase focus:outline-none"
+                className="text-sm border-2 border-black bg-white px-4 py-2 pe-8 font-bold uppercase focus:outline-none"
               >
                 <option value="newest">{t('theme.products.sort_newest')}</option>
                 <option value="price-asc">{t('theme.products.sort_price_asc')}</option>

@@ -578,7 +578,7 @@ export default function VisualEditor() {
             layout. We render `null` rather than `hidden` to drop the DOM
             cost (Canvas subscribes to drag events) while collapsed. */}
         {leftSidebarOpen && (
-        <aside className="w-72 shrink-0 bg-white border-r border-slate-200 flex flex-col">
+        <aside className="w-72 shrink-0 bg-white border-e border-slate-200 flex flex-col">
           <div className="px-3 py-2.5 border-b border-slate-200 flex items-center justify-between">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               {t('themes:editor.sections_panel.title')}
@@ -620,7 +620,7 @@ export default function VisualEditor() {
             edit colors/typography/layout/manifest-level settings and
             custom CSS without having to click on a section first. */}
         {rightSidebarOpen && (
-        <aside className="w-80 shrink-0 bg-white border-l border-slate-200 flex flex-col">
+        <aside className="w-80 shrink-0 bg-white border-s border-slate-200 flex flex-col">
           <div className="border-b border-slate-200 flex">
             {([
               { id: 'theme' as const, label: t('themes:editor.right_panel.tab.theme'), icon: Settings2, disabled: false },

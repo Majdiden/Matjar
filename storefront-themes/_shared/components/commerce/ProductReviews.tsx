@@ -144,7 +144,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
     <div className={className}>
       {/* Rating summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 pb-8 border-b border-current/10">
-        <div className="text-center md:text-left">
+        <div className="text-center md:text-start">
           <div className="text-5xl font-bold leading-none mb-2">{avgRating.toFixed(1)}</div>
           <Stars rating={avgRating} size="md" color={accentColor} />
           <p className="text-xs opacity-60 mt-2">
@@ -165,7 +165,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
                     style={{ width: `${pct}%`, backgroundColor: accentColor }}
                   />
                 </div>
-                <span className="w-8 opacity-60 text-right">{count}</span>
+                <span className="w-8 opacity-60 text-end">{count}</span>
               </div>
             );
           })}
@@ -215,7 +215,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
                     </button>
                   );
                 })}
-                <span className="ml-2 text-xs opacity-60">{rating}/5</span>
+                <span className="ms-2 text-xs opacity-60">{rating}/5</span>
               </div>
             </div>
 

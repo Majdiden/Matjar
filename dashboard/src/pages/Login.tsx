@@ -113,7 +113,7 @@ export const Login: React.FC = () => {
               onClick={() => { setStep('credentials'); setError(''); }}
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" /> {t('auth.pick_store.back_to_sign_in')}
+              <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" /> {t('auth.pick_store.back_to_sign_in')}
             </button>
           </div>
         </header>
@@ -143,7 +143,7 @@ export const Login: React.FC = () => {
                   key={s.id}
                   onClick={() => pickStore(s.id)}
                   disabled={isLoading}
-                  className="group relative text-left p-6 border rounded-2xl bg-card hover:border-foreground/30 hover:shadow-lg transition-all disabled:opacity-50 disabled:pointer-events-none"
+                  className="group relative text-start p-6 border rounded-2xl bg-card hover:border-foreground/30 hover:shadow-lg transition-all disabled:opacity-50 disabled:pointer-events-none"
                 >
                   <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white text-xl font-semibold mb-4">
                     {s.name.charAt(0).toUpperCase()}
@@ -152,10 +152,10 @@ export const Login: React.FC = () => {
                   <div className="text-sm text-muted-foreground truncate mt-1">{s.domain}</div>
                   <div className="mt-4 inline-flex items-center text-sm font-medium text-foreground/80 group-hover:text-foreground">
                     {t('auth.pick_store.open_store')}
-                    <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="h-4 w-4 ms-1 transition-transform group-hover:translate-x-0.5 rtl:rotate-180" />
                   </div>
                   {isLoading && (
-                    <Loader2 className="absolute top-4 right-4 h-4 w-4 animate-spin text-muted-foreground" />
+                    <Loader2 className="absolute top-4 end-4 h-4 w-4 animate-spin text-muted-foreground" />
                   )}
                 </button>
               ))}
@@ -284,9 +284,9 @@ export const Login: React.FC = () => {
 
                 <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
                   {isLoading ? (
-                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.login.submitting')}</>
+                    <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.login.submitting')}</>
                   ) : (
-                    <>{t('auth.login.submit')} <ArrowRight className="ml-2 h-4 w-4" /></>
+                    <>{t('auth.login.submit')} <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" /></>
                   )}
                 </Button>
               </form>

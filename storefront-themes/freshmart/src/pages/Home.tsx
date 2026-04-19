@@ -101,8 +101,8 @@ const Home: React.FC = () => {
       {/* Hero */}
       {heroEnabled && (
       <section className="relative bg-gradient-to-br from-[#16a34a] via-[#15803d] to-[#166534] py-20 md:py-28 px-4 overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#f59e0b]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+        <div className="absolute top-0 end-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute bottom-0 start-0 w-72 h-72 bg-[#f59e0b]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 relative z-10">
           <div className="flex-1 text-white">
             <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-sm font-medium mb-4 backdrop-blur-sm">
@@ -120,7 +120,7 @@ const Home: React.FC = () => {
                 className="inline-flex items-center gap-2 bg-[#f59e0b] text-white px-8 py-3.5 rounded-full font-bold hover:bg-[#d97706] transition shadow-lg"
               >
                 {hero.primary_button_text || t('theme.hero.primary_cta')}
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
@@ -188,7 +188,7 @@ const Home: React.FC = () => {
       {dealsEnabled !== false && (
         <section className="bg-gradient-to-r from-[#f59e0b] to-[#dc2626] py-10 px-4">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-white">
-            <div className="flex-1 text-center md:text-left">
+            <div className="flex-1 text-center md:text-start">
               <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-bold mb-2 backdrop-blur-sm">
                 {deals.badge_label || t('theme.section.weekly_deals.badge')}
               </span>
@@ -222,7 +222,7 @@ const Home: React.FC = () => {
             </div>
             <Link to={feat.view_all_url || '/products'} className="text-[#16a34a] font-semibold text-sm hover:underline flex items-center gap-1">
               {feat.view_all_text || t('theme.section.featured_products.view_all')}
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </Link>
@@ -282,7 +282,7 @@ const Home: React.FC = () => {
             </div>
             <Link to={arrivals.view_all_url || '/products?sort=newest'} className="text-[#16a34a] font-semibold text-sm hover:underline flex items-center gap-1">
               {arrivals.view_all_text || t('theme.section.new_arrivals.view_all')}
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </Link>

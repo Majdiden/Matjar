@@ -116,7 +116,7 @@ export default function Analytics() {
           <DropdownMenuTrigger asChild>
             <Button variant="outline">
               {t(`analytics.range.${period as typeof PERIOD_VALUES[number]}`)}
-              <ChevronDown className="h-4 w-4 ml-2" />
+              <ChevronDown className="h-4 w-4 ms-2" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -207,8 +207,8 @@ export default function Analytics() {
                 <TableRow>
                   <TableHead className="w-12">{t('analytics.column.rank')}</TableHead>
                   <TableHead>{t('analytics.column.product')}</TableHead>
-                  <TableHead className="text-right">{t('analytics.column.units_sold')}</TableHead>
-                  <TableHead className="text-right">{t('analytics.column.revenue')}</TableHead>
+                  <TableHead className="text-end">{t('analytics.column.units_sold')}</TableHead>
+                  <TableHead className="text-end">{t('analytics.column.revenue')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -216,10 +216,10 @@ export default function Analytics() {
                   <TableRow key={product._id}>
                     <TableCell className="text-muted-foreground font-medium">{i + 1}</TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-end">
                       <Badge variant="secondary">{product.totalSold}</Badge>
                     </TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="text-end font-medium">
                       {formatCurrency(product.totalRevenue || 0)}
                     </TableCell>
                   </TableRow>

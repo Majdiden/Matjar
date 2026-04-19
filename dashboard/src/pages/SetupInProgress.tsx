@@ -392,13 +392,13 @@ export default function SetupInProgress() {
     // countdown slot floats below, both absolutely positioned so they
     // can't push the title off center.
     <div className="relative w-full flex items-center justify-center text-center px-6 py-12">
-      <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2">
+      <div className="absolute bottom-full mb-2 start-1/2 -translate-x-1/2">
         <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-600 onb-check-pop">
           <Check className="h-10 w-10" />
         </div>
       </div>
       <AnimatedTitle text={t('errors:setup.store_ready')} />
-      <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 h-8 flex items-center justify-center whitespace-nowrap">
+      <div className="absolute top-full mt-1 start-1/2 -translate-x-1/2 h-8 flex items-center justify-center whitespace-nowrap">
         {countdownStarted && (
           <p className="onb-fade text-lg text-muted-foreground">
             {t('errors:setup.redirecting_in')}{' '}

@@ -118,7 +118,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               <li key={item._id} style={{ borderColor: 'var(--color-border)' }}>
                 <Link
                   to={item.to}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] transition hover:pl-5"
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] transition hover:ps-5"
                   style={{ color: 'var(--color-foreground)' }}
                 >
                   <span className="h-1 w-1 rounded-full" style={{ backgroundColor: 'var(--color-muted)' }} />

@@ -150,7 +150,7 @@ export const Dashboard: React.FC = () => {
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link to="/dashboard/domains">
-                {t('dashboard:domain_banner.manage')} <ArrowRight className="ms-2 h-4 w-4" />
+                {t('dashboard:domain_banner.manage')} <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
               </Link>
             </Button>
           </CardContent>

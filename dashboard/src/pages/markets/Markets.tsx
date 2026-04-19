@@ -130,7 +130,7 @@ export const Markets: React.FC = () => {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 me-2" />
               {t('marketing.market.list.add_button')}
             </Button>
           </DialogTrigger>
@@ -183,7 +183,7 @@ export const Markets: React.FC = () => {
             <h3 className="text-lg font-semibold">{t('marketing.market.list.empty_title')}</h3>
             <p className="text-sm text-muted-foreground mb-4">{t('marketing.market.list.empty_subtitle')}</p>
             <Button onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 me-2" />
               {t('marketing.market.list.create_first_button')}
             </Button>
           </CardContent>

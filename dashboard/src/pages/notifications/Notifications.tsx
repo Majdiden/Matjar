@@ -126,7 +126,7 @@ export default function Notifications() {
             {refreshing ? t('notifications.action.refreshing') : t('notifications.action.refresh')}
           </Button>
           <Button onClick={() => void markAllRead()} disabled={unreadCount === 0}>
-            <CheckCheck className="mr-2 h-4 w-4" />
+            <CheckCheck className="me-2 h-4 w-4" />
             {t('notifications.action.mark_all_read')}
           </Button>
         </div>
@@ -175,7 +175,7 @@ export default function Notifications() {
                     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
                     <button
                       type="button"
-                      className="min-w-0 flex-1 text-left"
+                      className="min-w-0 flex-1 text-start"
                       onClick={() => handleOpen(n)}
                     >
                       <div className="flex flex-wrap items-center gap-2">

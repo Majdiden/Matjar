@@ -167,10 +167,10 @@ export default function Inventory() {
       <div className="flex items-center gap-3">
         {tab === 'all' && (
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('inventory.list.search_placeholder')}
-              className="pl-9"
+              className="ps-9"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             />
@@ -186,10 +186,10 @@ export default function Inventory() {
           <p className="text-sm font-medium">{t('inventory.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />{t('common:action.cancel')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('common:action.cancel')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleBulkExport}>
-              <Download className="h-3.5 w-3.5 mr-1.5" />{t('inventory.action.export_csv')}
+              <Download className="h-3.5 w-3.5 me-1.5" />{t('inventory.action.export_csv')}
             </Button>
           </div>
         </div>
@@ -225,11 +225,11 @@ export default function Inventory() {
                         />
                       </TableHead>
                       <TableHead>{t('inventory.column.product')}</TableHead>
-                      <TableHead className="text-right">{t('inventory.column.price')}</TableHead>
-                      <TableHead className="text-right">{t('inventory.column.stock')}</TableHead>
+                      <TableHead className="text-end">{t('inventory.column.price')}</TableHead>
+                      <TableHead className="text-end">{t('inventory.column.stock')}</TableHead>
                       <TableHead>{t('inventory.column.status')}</TableHead>
                       <TableHead>{t('inventory.column.last_updated')}</TableHead>
-                      <TableHead className="text-right">{t('inventory.column.actions')}</TableHead>
+                      <TableHead className="text-end">{t('inventory.column.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -249,15 +249,15 @@ export default function Inventory() {
                         <TableCell className="font-medium">
                           {item.product?.name || 'Unknown'}
                           {hasVariants && (
-                            <span className="ml-2 text-xs text-muted-foreground">
+                            <span className="ms-2 text-xs text-muted-foreground">
                               {variantCount === 1
                                 ? t('inventory.variant_count', { count: variantCount })
                                 : t('inventory.variant_count_plural', { count: variantCount })}
                             </span>
                           )}
                         </TableCell>
-                        <TableCell className="text-right">{formatPrice(item.product?.price || 0)}</TableCell>
-                        <TableCell className="text-right font-mono">{item.stock}</TableCell>
+                        <TableCell className="text-end">{formatPrice(item.product?.price || 0)}</TableCell>
+                        <TableCell className="text-end font-mono">{item.stock}</TableCell>
                         <TableCell>
                           <Badge variant={stockVariant(item.stock, item.lowStockThreshold)}>
                             {stockLabel(item.stock, item.lowStockThreshold)}
@@ -266,7 +266,7 @@ export default function Inventory() {
                         <TableCell className="text-muted-foreground text-sm">
                           {new Date(item.updatedAt).toLocaleDateString()}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-end">
                           {hasVariants ? (
                             <Button
                               variant="outline"
@@ -336,7 +336,7 @@ export default function Inventory() {
                               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('inventory.card_on_hand_label')}</p>
                               <p className="text-xl font-bold tabular-nums">{item.stock}</p>
                             </div>
-                            <div className="text-right">
+                            <div className="text-end">
                               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('inventory.card_price_label')}</p>
                               <p className="text-sm text-muted-foreground tabular-nums">{formatPrice(item.product?.price || 0)}</p>
                             </div>

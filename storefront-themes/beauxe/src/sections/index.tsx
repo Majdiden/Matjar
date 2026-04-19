@@ -24,7 +24,7 @@ const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
     <div className="text-white text-[11px] tracking-[0.2em] py-2.5 text-center" style={{ backgroundColor: NAVY }}>
       {s.text || t('theme.section.top_bar.text')}
       {s.link_text && (
-        <Link to={s.link_url || '/products'} className="ml-3 underline hover:text-[var(--color-primary)]">
+        <Link to={s.link_url || '/products'} className="ms-3 underline hover:text-[var(--color-primary)]">
           {s.link_text}
         </Link>
       )}
@@ -41,7 +41,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
     <section className="relative overflow-hidden" style={{ backgroundColor: BLUSH }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         {/* Text */}
-        <div className="relative z-10 text-center md:text-left">
+        <div className="relative z-10 text-center md:text-start">
           {s.eyebrow && (
             <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-5" style={{ color: PINK }}>
               {s.eyebrow}
@@ -92,7 +92,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             )}
           </div>
           {/* Decorative product badges */}
-          <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full flex items-center justify-center text-center text-[10px] font-bold leading-tight uppercase tracking-wider shadow-lg" style={{ backgroundColor: NAVY, color: 'white' }}>
+          <div className="absolute -top-4 -end-4 w-24 h-24 rounded-full flex items-center justify-center text-center text-[10px] font-bold leading-tight uppercase tracking-wider shadow-lg" style={{ backgroundColor: NAVY, color: 'white' }}>
             Clean<br />Beauty<br />2024
           </div>
         </div>
@@ -128,7 +128,7 @@ const FeatureStripSection: React.FC<SectionComponentProps> = ({ section }) => {
         {items.map((b) => {
           const bs = b.settings || {};
           return (
-            <div key={b.id} className="flex items-center gap-4 text-center md:text-left justify-center md:justify-start">
+            <div key={b.id} className="flex items-center gap-4 text-center md:text-start justify-center md:justify-start">
               <svg className="w-7 h-7 shrink-0" fill="none" stroke={PINK} viewBox="0 0 24 24" strokeWidth={1.8}>
                 {iconFor(bs.icon)}
               </svg>

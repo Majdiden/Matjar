@@ -94,7 +94,7 @@ export default function SectionList({ sections, onReorder, onToggle, onEdit, onA
             `}
                     >
                         {/* Drag Handle */}
-                        <div className="p-3 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 border-r border-gray-100">
+                        <div className="p-3 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 border-e border-gray-100">
                             <GripVertical className="w-4 h-4" />
                         </div>
 
@@ -110,7 +110,7 @@ export default function SectionList({ sections, onReorder, onToggle, onEdit, onA
                         </div>
 
                         {/* Actions */}
-                        <div className="p-2 border-l border-gray-100">
+                        <div className="p-2 border-s border-gray-100">
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();

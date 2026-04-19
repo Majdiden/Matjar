@@ -137,7 +137,7 @@ export default function ManifestSectionEditor({
   const Icon = meta.icon;
 
   return (
-    <aside className="h-full flex flex-col bg-white border-l border-slate-200">
+    <aside className="h-full flex flex-col bg-white border-s border-slate-200">
       {/* Sticky header */}
       <div className="shrink-0 px-4 py-3 border-b border-slate-200 bg-white">
         <div className="flex items-start gap-2.5">
@@ -240,12 +240,12 @@ export default function ManifestSectionEditor({
                         <GripVertical className="h-3 w-3 text-slate-300 shrink-0" />
                         <button
                           onClick={() => setExpandedBlock(isExpanded ? null : block.id)}
-                          className="flex-1 flex items-center gap-1.5 text-left min-w-0"
+                          className="flex-1 flex items-center gap-1.5 text-start min-w-0"
                         >
                           {isExpanded ? (
                             <ChevronDown className="h-3 w-3 text-slate-400 shrink-0" />
                           ) : (
-                            <ChevronRight className="h-3 w-3 text-slate-400 shrink-0" />
+                            <ChevronRight className="h-3 w-3 text-slate-400 shrink-0 rtl:rotate-180" />
                           )}
                           <span className="text-xs font-medium text-slate-700 truncate">
                             {String(blockTitle)}

@@ -180,7 +180,7 @@ export const ProductForm: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/products')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />{t('common.action.back')}
+            <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" />{t('common.action.back')}
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{isEditMode ? t('products.form.title.edit') : t('products.form.title.create')}</h1>
@@ -190,7 +190,7 @@ export const ProductForm: React.FC = () => {
           </div>
         </div>
         <Button onClick={() => handleSubmit()} disabled={saving}>
-          {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+          {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
           {isEditMode ? t('products.form.action.update') : t('products.form.action.create')}
         </Button>
       </div>
@@ -247,7 +247,7 @@ export const ProductForm: React.FC = () => {
                         {formData.category
                           ? categories.find(c => c._id === formData.category)?.name || t('products.form.field.category.placeholder')
                           : t('products.form.field.category.placeholder')}
-                        <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
+                        <ChevronDown className="h-4 w-4 ms-2 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-full">

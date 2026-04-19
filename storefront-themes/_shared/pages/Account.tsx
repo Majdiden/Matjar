@@ -657,7 +657,7 @@ const AddressesTab: React.FC<{
                 {a.label || 'Address'}
                 {a.isDefault && (
                   <span
-                    className="ml-2 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                    className="ms-2 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full"
                     style={{ backgroundColor: `${accent}15`, color: accent }}
                   >
                     Default

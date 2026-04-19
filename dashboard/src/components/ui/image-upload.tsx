@@ -274,7 +274,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                       handleRemove(index);
                     }}
                   >
-                    <X className="h-4 w-4 mr-1" />
+                    <X className="h-4 w-4 me-1" />
                     Remove
                   </Button>
                 </div>

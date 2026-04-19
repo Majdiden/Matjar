@@ -143,7 +143,7 @@ export const Companies: React.FC = () => {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 me-2" />
               {t('companies.action.add_company')}
             </Button>
           </DialogTrigger>
@@ -207,7 +207,7 @@ export const Companies: React.FC = () => {
               <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold">{t('companies.list.empty.title')}</h3>
               <p className="text-sm text-muted-foreground mb-4">{t('companies.list.empty.description')}</p>
-              <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />{t('companies.action.add_company')}</Button>
+              <Button onClick={openCreate}><Plus className="h-4 w-4 me-2" />{t('companies.action.add_company')}</Button>
             </div>
           ) : (
             <Table>
@@ -218,7 +218,7 @@ export const Companies: React.FC = () => {
                   <TableHead>{t('companies.list.column.payment_terms')}</TableHead>
                   <TableHead>{t('companies.list.column.credit_limit')}</TableHead>
                   <TableHead>{t('companies.list.column.balance')}</TableHead>
-                  <TableHead className="text-right">{t('companies.list.column.actions')}</TableHead>
+                  <TableHead className="text-end">{t('companies.list.column.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -243,7 +243,7 @@ export const Companies: React.FC = () => {
                     </TableCell>
                     <TableCell>{company.paymentTerms?.creditLimit ? formatCurrency(company.paymentTerms.creditLimit) : '-'}</TableCell>
                     <TableCell>{company.paymentTerms?.currentBalance != null ? formatCurrency(company.paymentTerms.currentBalance) : '-'}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-end">
                       <div className="flex justify-end gap-1">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(company)}>
                           <Pencil className="h-3.5 w-3.5" />

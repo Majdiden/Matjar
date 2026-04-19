@@ -179,7 +179,7 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
                 {t('products.variants.option_axes_label')}
               </Label>
               <Button type="button" variant="ghost" size="sm" onClick={addOption}>
-                <Plus className="h-3.5 w-3.5 mr-1" /> {t('products.variants.add_option')}
+                <Plus className="h-3.5 w-3.5 me-1" /> {t('products.variants.add_option')}
               </Button>
             </div>
             {options.length === 0 && (
@@ -213,7 +213,7 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
               disabled={generatedRows.length === 0}
               onClick={generateMatrix}
             >
-              <RefreshCw className="h-3.5 w-3.5 mr-1" />
+              <RefreshCw className="h-3.5 w-3.5 me-1" />
               {variants.length ? t('products.variants.refresh') : t('products.variants.generate')}
             </Button>
           </div>
@@ -233,10 +233,10 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40 text-xs text-muted-foreground">
                     <tr>
-                      <th className="p-2 text-left font-medium">{t('products.variants.column.variant')}</th>
-                      <th className="p-2 text-left font-medium">{t('products.variants.column.sku')}</th>
-                      <th className="p-2 text-left font-medium">{t('products.variants.column.price')}</th>
-                      <th className="p-2 text-left font-medium">{t('products.variants.column.stock')}</th>
+                      <th className="p-2 text-start font-medium">{t('products.variants.column.variant')}</th>
+                      <th className="p-2 text-start font-medium">{t('products.variants.column.sku')}</th>
+                      <th className="p-2 text-start font-medium">{t('products.variants.column.price')}</th>
+                      <th className="p-2 text-start font-medium">{t('products.variants.column.stock')}</th>
                       <th className="w-10" />
                     </tr>
                   </thead>
@@ -284,7 +284,7 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
                             className="h-8 text-xs w-20"
                           />
                         </td>
-                        <td className="p-2 text-right">
+                        <td className="p-2 text-end">
                           <Button
                             type="button"
                             variant="ghost"

@@ -262,7 +262,7 @@ const StateNodeView: React.FC<StateNodeViewProps> = ({
           'relative inline-flex h-14 min-w-[120px] items-center gap-2 rounded-lg border-2 px-3 shadow-sm transition ' +
           nodeClass +
           (isHere ? ' ring-4 ring-primary/25' : '') +
-          (node.isDivergence ? ' pr-5' : '')
+          (node.isDivergence ? ' pe-5' : '')
         }
       >
         <Icon className="h-4 w-4 shrink-0" />
@@ -284,7 +284,7 @@ const StateNodeView: React.FC<StateNodeViewProps> = ({
       </div>
       {node.isDivergence && (
         <div
-          className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-indigo-500 text-white shadow"
+          className="absolute -end-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-indigo-500 text-white shadow"
           title="Replacement created from here"
         >
           <GitBranch className="h-3 w-3" />
@@ -674,7 +674,7 @@ const OrderLifecycle: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate(`/dashboard/orders/${id}`)}>
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
           </Button>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
@@ -706,7 +706,7 @@ const OrderLifecycle: React.FC = () => {
         >
           {connectors.paths.length > 0 && (
             <svg
-              className="pointer-events-none absolute left-0 top-0 z-20"
+              className="pointer-events-none absolute start-0 top-0 z-20"
               width={connectors.width}
               height={connectors.height}
               style={{ overflow: 'visible' }}

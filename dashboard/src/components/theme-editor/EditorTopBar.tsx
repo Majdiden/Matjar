@@ -157,7 +157,7 @@ export default function EditorTopBar({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onBack}>
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>{t('themes:editor.topbar.back')}</TooltipContent>
@@ -305,12 +305,12 @@ export default function EditorTopBar({
           >
             {saving ? (
               <>
-                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                <Loader2 className="h-4 w-4 me-1.5 animate-spin" />
                 {t('themes:editor.topbar.publishing')}
               </>
             ) : hasChanges ? (
               <>
-                <Check className="h-4 w-4 mr-1.5" />
+                <Check className="h-4 w-4 me-1.5" />
                 {t('themes:editor.topbar.publish_changes')}
               </>
             ) : (
@@ -364,9 +364,9 @@ export default function EditorTopBar({
                     disabled={rollingBack !== null}
                   >
                     {rollingBack === v.version ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 me-2 animate-spin" />
                     ) : (
-                      <RotateCw className="h-4 w-4 mr-2" />
+                      <RotateCw className="h-4 w-4 me-2" />
                     )}
                     {t('themes:editor.version_history.restore')}
                   </Button>
@@ -414,7 +414,7 @@ function SaveIndicator({ status }: { status: 'idle' | 'saving' | 'saved' }) {
   const { t } = useTranslation(['themes']);
   if (status === 'idle') return null;
   return (
-    <span className="text-[11px] text-slate-400 flex items-center gap-1 ml-1">
+    <span className="text-[11px] text-slate-400 flex items-center gap-1 ms-1">
       {status === 'saving' ? (
         <>
           <Loader2 className="h-3 w-3 animate-spin" />

@@ -79,7 +79,7 @@ export const ForgotPassword: React.FC = () => {
               to="/login"
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" /> {t('auth.forgot.back_to_sign_in')}
+              <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" /> {t('auth.forgot.back_to_sign_in')}
             </Link>
           </div>
         ) : (
@@ -116,7 +116,7 @@ export const ForgotPassword: React.FC = () => {
 
               <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
                 {isLoading ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.forgot.submitting')}</>
+                  <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.forgot.submitting')}</>
                 ) : (
                   <>{t('auth.forgot.submit')}</>
                 )}
@@ -125,7 +125,7 @@ export const ForgotPassword: React.FC = () => {
 
             <div className="text-sm text-muted-foreground">
               <Link to="/login" className="inline-flex items-center hover:text-foreground">
-                <ArrowLeft className="h-4 w-4 mr-1" /> {t('auth.forgot.back_to_sign_in')}
+                <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" /> {t('auth.forgot.back_to_sign_in')}
               </Link>
             </div>
           </>

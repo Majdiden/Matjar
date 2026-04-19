@@ -232,7 +232,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
       <div className="flex items-center gap-2 mb-2">
         {hasChildren && (
           <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setExpanded(e => !e)}>
-            {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3 rtl:rotate-180" />}
           </Button>
         )}
         {!hasChildren && <span className="w-5" />}
@@ -291,7 +291,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
 
       {/* URL / Resource fields */}
       {needsUrl && (
-        <div className="ml-7 mt-1">
+        <div className="ms-7 mt-1">
           <Input
             className="h-7 text-xs"
             placeholder={item.type === 'external' ? 'https://example.com' : '/path-or-url'}
@@ -301,7 +301,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
         </div>
       )}
       {needsResource && (
-        <div className="ml-7 mt-1">
+        <div className="ms-7 mt-1">
           <ResourcePicker type={item.type} value={item.resourceId} onChange={id => onChange(index, { resourceId: id })} />
         </div>
       )}
@@ -315,7 +315,7 @@ const PreviewTree: React.FC<{ items: MenuItem[]; depth?: number }> = ({ items, d
   const { t } = useTranslation(['menus']);
   if (!items || items.length === 0) return null;
   return (
-    <ul className={depth === 0 ? 'space-y-1' : 'ml-4 mt-1 space-y-0.5 border-l pl-3'}>
+    <ul className={depth === 0 ? 'space-y-1' : 'ms-4 mt-1 space-y-0.5 border-s ps-3'}>
       {items.map((item, i) => (
         <li key={i}>
           <div className="flex items-center gap-1 text-sm py-0.5">
@@ -551,13 +551,13 @@ export const MenuForm: React.FC = () => {
         <div className="flex gap-2">
           {!isNew && (
             <Button variant="destructive" onClick={handleDelete} disabled={saving}>
-              <Trash2 className="h-4 w-4 mr-2" />{t('common:action.delete')}
+              <Trash2 className="h-4 w-4 me-2" />{t('common:action.delete')}
             </Button>
           )}
           <Button onClick={handleSave} disabled={saving}>
             {saving
-              ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
-              : <><Save className="h-4 w-4 mr-2" />{t('common:action.save')}</>}
+              ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
+              : <><Save className="h-4 w-4 me-2" />{t('common:action.save')}</>}
           </Button>
         </div>
       </div>
@@ -615,7 +615,7 @@ export const MenuForm: React.FC = () => {
               <div className="flex items-center justify-between">
                 <CardTitle>{t('menus:form.section.items.title')}</CardTitle>
                 <Button size="sm" variant="outline" onClick={addTopLevel}>
-                  <Plus className="h-4 w-4 mr-1" />{t('menus:form.items.add')}
+                  <Plus className="h-4 w-4 me-1" />{t('menus:form.items.add')}
                 </Button>
               </div>
             </CardHeader>
@@ -642,7 +642,7 @@ export const MenuForm: React.FC = () => {
                     />
                   ))}
                   <Button variant="outline" size="sm" className="w-full mt-2" onClick={addTopLevel}>
-                    <Plus className="h-4 w-4 mr-1" />{t('menus:form.items.add_top_level')}
+                    <Plus className="h-4 w-4 me-1" />{t('menus:form.items.add_top_level')}
                   </Button>
                 </div>
               )}

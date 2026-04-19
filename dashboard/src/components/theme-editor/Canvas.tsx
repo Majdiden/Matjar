@@ -315,18 +315,18 @@ function SectionRow({
             <DropdownMenuItem onClick={onToggle}>
               {section.enabled ? (
                 <>
-                  <EyeOff className="h-3.5 w-3.5 mr-2" />
+                  <EyeOff className="h-3.5 w-3.5 me-2" />
                   Hide section
                 </>
               ) : (
                 <>
-                  <Eye className="h-3.5 w-3.5 mr-2" />
+                  <Eye className="h-3.5 w-3.5 me-2" />
                   Show section
                 </>
               )}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onDuplicate}>
-              <Copy className="h-3.5 w-3.5 mr-2" />
+              <Copy className="h-3.5 w-3.5 me-2" />
               Duplicate
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -341,7 +341,7 @@ function SectionRow({
               }}
               className="text-red-600 focus:text-red-600"
             >
-              <Trash2 className="h-3.5 w-3.5 mr-2" />
+              <Trash2 className="h-3.5 w-3.5 me-2" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -66,14 +66,14 @@ export const MilmaaProductCard: React.FC<Props> = ({ product, onQuickView }) => 
 
           {/* Sale badge */}
           {onSale && (
-            <div className="absolute top-4 left-4">
+            <div className="absolute top-4 start-4">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase rounded-full bg-white" style={{ color: fg }}>
                 {t('theme.product_card.sale')}
               </span>
             </div>
           )}
           {isPreorder && (
-            <div className="absolute top-4 left-4" style={onSale ? { top: '2.75rem' } : undefined}>
+            <div className="absolute top-4 start-4" style={onSale ? { top: '2.75rem' } : undefined}>
               <span
                 className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase rounded-full"
                 style={{ backgroundColor: fg, color: bg }}
@@ -84,7 +84,7 @@ export const MilmaaProductCard: React.FC<Props> = ({ product, onQuickView }) => 
           )}
 
           {/* Hover icons */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition">
+          <div className="absolute top-4 end-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition">
             <button
               type="button"
               aria-label="Wishlist"

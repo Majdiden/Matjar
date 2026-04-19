@@ -395,7 +395,7 @@ export const Register: React.FC = () => {
                 style={{ animationDelay: `${buttonDelay}ms` }}
               >
                 <Button size="lg" onClick={next} className="h-12 px-8 text-base">
-                  {t('common:action.get_started')} <ChevronRight className="ml-2 h-4 w-4" />
+                  {t('common:action.get_started')} <ChevronRight className="ms-2 h-4 w-4 rtl:rotate-180" />
                 </Button>
               </div>
               <div
@@ -442,10 +442,10 @@ export const Register: React.FC = () => {
                   <Input id="password" type={showPassword ? 'text' : 'password'}
                     placeholder={t('auth.field.password.placeholder_register')} minLength={8}
                     value={form.password}
-                    onChange={e => update('password', e.target.value)} className="pr-10"
+                    onChange={e => update('password', e.target.value)} className="pe-10"
                     aria-invalid={!!fieldErrors.password} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
+                    className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -526,7 +526,7 @@ export const Register: React.FC = () => {
                     key={id}
                     type="button"
                     onClick={() => update('niche', id)}
-                    className={`text-left p-4 rounded-xl border transition-all flex items-center gap-3 ${
+                    className={`text-start p-4 rounded-xl border transition-all flex items-center gap-3 ${
                       selected
                         ? 'border-foreground bg-accent'
                         : 'border-border hover:border-foreground/30 hover:bg-accent/50'
@@ -577,12 +577,12 @@ export const Register: React.FC = () => {
                       key={theme._id}
                       type="button"
                       onClick={() => update('themeSlug', theme.slug)}
-                      className={`relative text-left rounded-xl overflow-hidden border-2 transition-all ${
+                      className={`relative text-start rounded-xl overflow-hidden border-2 transition-all ${
                         selected ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-foreground/20'
                       }`}
                     >
                       {selected && (
-                        <div className="absolute top-2 right-2 z-10 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                        <div className="absolute top-2 end-2 z-10 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
                           <Check className="h-3.5 w-3.5" />
                         </div>
                       )}
@@ -609,20 +609,20 @@ export const Register: React.FC = () => {
         {step !== 'welcome' && (
           <div className="mt-12 flex items-center justify-between">
             <Button variant="ghost" onClick={back} disabled={submitting}>
-              <ChevronLeft className="mr-1 h-4 w-4" /> {t('common:action.back')}
+              <ChevronLeft className="me-1 h-4 w-4 rtl:rotate-180" /> {t('common:action.back')}
             </Button>
 
             {step === 'theme' ? (
               <Button size="lg" onClick={submit} disabled={submitting || !canAdvance()} className="h-12 px-8">
                 {submitting ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.register.creating')}</>
+                  <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.register.creating')}</>
                 ) : (
                   <>{t('auth.register.launch')}</>
                 )}
               </Button>
             ) : (
               <Button size="lg" onClick={next} disabled={!canAdvance()} className="h-12 px-8">
-                {t('common:action.continue')} <ChevronRight className="ml-2 h-4 w-4" />
+                {t('common:action.continue')} <ChevronRight className="ms-2 h-4 w-4 rtl:rotate-180" />
               </Button>
             )}
           </div>

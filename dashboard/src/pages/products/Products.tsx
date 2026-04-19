@@ -216,11 +216,11 @@ export const Products: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />{t('common.action.export')}
+            <Download className="h-4 w-4 me-2" />{t('common.action.export')}
           </Button>
           <Button asChild>
             <Link to="/dashboard/products/new">
-              <Plus className="h-4 w-4 mr-2" />{t('products.list.new_product')}
+              <Plus className="h-4 w-4 me-2" />{t('products.list.new_product')}
             </Link>
           </Button>
         </div>
@@ -254,16 +254,16 @@ export const Products: React.FC = () => {
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t('products.list.search_placeholder')}
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-            className="pl-9"
+            className="ps-9"
           />
         </div>
         <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" />{t('products.list.more_filters')}
+          <Filter className="h-4 w-4 me-2" />{t('products.list.more_filters')}
         </Button>
         <div className="ml-auto">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
@@ -277,7 +277,7 @@ export const Products: React.FC = () => {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>{t('products.bulk.clear')}</Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('common.action.delete')}
+              <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('common.action.delete')}
             </Button>
           </div>
         </div>
@@ -303,7 +303,7 @@ export const Products: React.FC = () => {
             {!searchTerm && (
               <Button asChild size="lg">
                 <Link to="/dashboard/products/new">
-                  <Plus className="h-4 w-4 mr-2" />{t('products.list.empty.action')}
+                  <Plus className="h-4 w-4 me-2" />{t('products.list.empty.action')}
                 </Link>
               </Button>
             )}
@@ -326,7 +326,7 @@ export const Products: React.FC = () => {
                 <TableHead>{t('products.list.column.sku')}</TableHead>
                 <TableHead>{t('products.list.column.category')}</TableHead>
                 <TableHead>{t('products.list.column.status')}</TableHead>
-                <TableHead className="text-right">{t('products.list.column.price')}</TableHead>
+                <TableHead className="text-end">{t('products.list.column.price')}</TableHead>
                 <TableHead>{t('products.list.column.stock')}</TableHead>
                 <TableHead className="w-[50px]" />
               </TableRow>
@@ -388,7 +388,7 @@ export const Products: React.FC = () => {
                         {product.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right font-semibold tabular-nums">
+                    <TableCell className="text-end font-semibold tabular-nums">
                       {formatPrice(product.price)}
                       {product.compareAtPrice && product.compareAtPrice > product.price && (
                         <div className="text-xs text-muted-foreground line-through font-normal">
@@ -410,13 +410,13 @@ export const Products: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/products/${product._id}/edit`); }}>
-                            <Edit className="mr-2 h-4 w-4" />{t('common.action.edit')}
+                            <Edit className="me-2 h-4 w-4" />{t('common.action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
                             onClick={(e) => { e.stopPropagation(); handleDelete(product._id, product.name); }}
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />{t('common.action.delete')}
+                            <Trash2 className="me-2 h-4 w-4" />{t('common.action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -499,7 +499,7 @@ export const Products: React.FC = () => {
                 </div>
 
                 {/* Price */}
-                <div className="text-right hidden sm:block">
+                <div className="text-end hidden sm:block">
                   <p className="font-semibold">{formatPrice(product.price)}</p>
                   {product.compareAtPrice && product.compareAtPrice > product.price && (
                     <p className="text-xs text-muted-foreground line-through">
@@ -524,13 +524,13 @@ export const Products: React.FC = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/products/${product._id}/edit`); }}>
-                      <Edit className="mr-2 h-4 w-4" />{t('common.action.edit')}
+                      <Edit className="me-2 h-4 w-4" />{t('common.action.edit')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive"
                       onClick={(e) => { e.stopPropagation(); handleDelete(product._id, product.name); }}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />{t('common.action.delete')}
+                      <Trash2 className="me-2 h-4 w-4" />{t('common.action.delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

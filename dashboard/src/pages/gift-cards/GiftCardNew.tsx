@@ -154,9 +154,9 @@ const CustomerSelect: React.FC<CustomerSelectProps> = ({ value, onChange }) => {
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute start-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          className="pl-8 pr-8"
+          className="ps-8 pe-8"
           placeholder={t('marketing.gift_card.issue_dialog.field.customer.search_placeholder')}
           value={open ? query : label}
           onFocus={() => { setOpen(true); setQuery(''); }}
@@ -167,7 +167,7 @@ const CustomerSelect: React.FC<CustomerSelectProps> = ({ value, onChange }) => {
             type="button"
             aria-label="Clear customer"
             onClick={() => { onChange('', null); setSelected(null); setQuery(''); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
@@ -189,7 +189,7 @@ const CustomerSelect: React.FC<CustomerSelectProps> = ({ value, onChange }) => {
                   key={c._id}
                   type="button"
                   onClick={() => { onChange(c._id, c); setSelected(c); setOpen(false); }}
-                  className="block w-full text-left px-3 py-2 text-sm hover:bg-accent"
+                  className="block w-full text-start px-3 py-2 text-sm hover:bg-accent"
                 >
                   <div className="font-medium">{name || t('marketing.gift_card.issue_dialog.field.customer.no_name')}</div>
                   {c.email && <div className="text-xs text-muted-foreground">{c.email}</div>}
@@ -280,7 +280,7 @@ const GiftCardNew: React.FC = () => {
     <div className="p-6 space-y-6 max-w-2xl">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/gift-cards')}>
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
         </Button>
         <div className="flex items-center gap-2">
           <Gift className="w-6 h-6 text-muted-foreground" />
@@ -398,7 +398,7 @@ const GiftCardNew: React.FC = () => {
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => navigate('/dashboard/gift-cards')}>{t('common:action.cancel')}</Button>
             <Button onClick={handleIssue} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {saving ? <Loader2 className="w-4 h-4 me-2 animate-spin" /> : null}
               {t('marketing.gift_card.issue_dialog.issue_button')}
             </Button>
           </div>

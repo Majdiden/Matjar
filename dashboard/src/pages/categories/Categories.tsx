@@ -209,7 +209,7 @@ export const Categories: React.FC = () => {
           </p>
         </div>
         <Button onClick={openAddDialog} className="shadow-sm">
-          <Plus className="h-4 w-4 mr-2" /> {t('products.categories.list.new_category')}
+          <Plus className="h-4 w-4 me-2" /> {t('products.categories.list.new_category')}
         </Button>
       </div>
 
@@ -222,10 +222,10 @@ export const Categories: React.FC = () => {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder={t('products.categories.list.search_placeholder')}
-          className="pl-9 h-10"
+          className="ps-9 h-10"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -236,10 +236,10 @@ export const Categories: React.FC = () => {
           <p className="text-sm font-medium">{t('products.categories.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />{t('common.action.close')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('common.action.close')}
             </Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('common.action.delete')}
+              <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('common.action.delete')}
             </Button>
           </div>
         </div>
@@ -264,7 +264,7 @@ export const Categories: React.FC = () => {
             </p>
             {!search && (
               <Button onClick={openAddDialog}>
-                <Plus className="h-4 w-4 mr-2" /> {t('products.categories.list.empty.action')}
+                <Plus className="h-4 w-4 me-2" /> {t('products.categories.list.empty.action')}
               </Button>
             )}
           </CardContent>
@@ -288,7 +288,7 @@ export const Categories: React.FC = () => {
             >
               {/* Image / icon header */}
               <div className="relative h-32 bg-muted overflow-hidden">
-                <div className="absolute top-2 left-2 z-10">
+                <div className="absolute top-2 start-2 z-10">
                   <input
                     type="checkbox"
                     checked={selected.has(category._id)}
@@ -308,7 +308,7 @@ export const Categories: React.FC = () => {
                   </div>
                 )}
                 {/* Action menu */}
-                <div className="absolute top-2 right-2">
+                <div className="absolute top-2 end-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -321,20 +321,20 @@ export const Categories: React.FC = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => openEditDialog(category)}>
-                        <Edit className="mr-2 h-4 w-4" /> {t('common.action.edit')}
+                        <Edit className="me-2 h-4 w-4" /> {t('common.action.edit')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDelete(category._id, category.name)}
                         className="text-destructive focus:text-destructive"
                       >
-                        <Trash2 className="mr-2 h-4 w-4" /> {t('common.action.delete')}
+                        <Trash2 className="me-2 h-4 w-4" /> {t('common.action.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
                 {/* Product count badge */}
                 {typeof category.productCount === 'number' && (
-                  <div className="absolute bottom-2 left-2">
+                  <div className="absolute bottom-2 start-2">
                     <Badge variant="secondary" className="shadow-sm">
                       {t(`products.categories.list.product_count_${category.productCount === 1 ? 'one' : 'other'}`, { count: category.productCount })}
                     </Badge>
@@ -413,9 +413,9 @@ export const Categories: React.FC = () => {
               </Button>
               <Button type="submit" disabled={saving}>
                 {saving ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t('common.state.saving_ellipsis')}</>
+                  <><Loader2 className="h-4 w-4 me-2 animate-spin" /> {t('common.state.saving_ellipsis')}</>
                 ) : (
-                  <><Save className="h-4 w-4 mr-2" /> {editingCategory ? t('common.action.update') : t('common.action.create')}</>
+                  <><Save className="h-4 w-4 me-2" /> {editingCategory ? t('common.action.update') : t('common.action.create')}</>
                 )}
               </Button>
             </DialogFooter>

@@ -32,7 +32,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label className="block text-sm font-medium mb-2">
             {label}
-            {props.required && <span className="text-destructive ml-1">*</span>}
+            {props.required && <span className="text-destructive ms-1">*</span>}
           </label>
         )}
         {input}

@@ -156,7 +156,7 @@ export const Themes: React.FC = () => {
         </div>
         <Button variant="outline" asChild>
           <a href="/" target="_blank" rel="noreferrer">
-            <ExternalLink className="h-4 w-4 mr-2" />
+            <ExternalLink className="h-4 w-4 me-2" />
             {t('themes:list.view_live_store')}
           </a>
         </Button>
@@ -165,7 +165,7 @@ export const Themes: React.FC = () => {
       {/* Active theme hero */}
       {activeTheme && (
         <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/5 via-background to-background">
-          <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+          <div className="absolute -top-20 -end-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
           <div className="relative grid lg:grid-cols-[1.1fr,1fr] gap-8 p-6 lg:p-8">
             {/* Screenshot */}
             <div className="relative aspect-[16/10] rounded-xl overflow-hidden border bg-muted shadow-2xl shadow-primary/10">
@@ -180,9 +180,9 @@ export const Themes: React.FC = () => {
                   <Palette className="h-20 w-20 text-primary/30" />
                 </div>
               )}
-              <div className="absolute top-3 left-3">
+              <div className="absolute top-3 start-3">
                 <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white border-0 shadow-lg">
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  <CheckCircle2 className="h-3 w-3 me-1" />
                   {t('themes:list.badge.live')}
                 </Badge>
               </div>
@@ -254,12 +254,12 @@ export const Themes: React.FC = () => {
                   onClick={() => navigate('/dashboard/themes/editor')}
                   className="shadow-lg shadow-primary/20"
                 >
-                  <Palette className="h-4 w-4 mr-2" />
+                  <Palette className="h-4 w-4 me-2" />
                   {t('themes:list.action.customize')}
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <a href="/" target="_blank" rel="noreferrer">
-                    <Eye className="h-4 w-4 mr-2" />
+                    <Eye className="h-4 w-4 me-2" />
                     {t('themes:list.action.preview')}
                   </a>
                 </Button>
@@ -280,12 +280,12 @@ export const Themes: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t('themes:list.search_placeholder')}
-                className="pl-9"
+                className="ps-9"
               />
             </div>
           </div>
@@ -349,9 +349,9 @@ export const Themes: React.FC = () => {
 
                   {/* Status badge */}
                   {isActive && (
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 start-3">
                       <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white border-0 shadow">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        <CheckCircle2 className="h-3 w-3 me-1" />
                         {t('themes:list.badge.active')}
                       </Badge>
                     </div>
@@ -365,7 +365,7 @@ export const Themes: React.FC = () => {
                         variant="secondary"
                         onClick={() => navigate('/dashboard/themes/editor')}
                       >
-                        <Palette className="h-4 w-4 mr-1.5" />
+                        <Palette className="h-4 w-4 me-1.5" />
                         {t('themes:list.action.customize')}
                       </Button>
                     ) : (
@@ -376,9 +376,9 @@ export const Themes: React.FC = () => {
                         disabled={isLoading}
                       >
                         {isLoading ? (
-                          <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                          <Loader2 className="h-4 w-4 me-1.5 animate-spin" />
                         ) : (
-                          <Download className="h-4 w-4 mr-1.5" />
+                          <Download className="h-4 w-4 me-1.5" />
                         )}
                         {t('themes:list.action.activate')}
                       </Button>
@@ -428,7 +428,7 @@ export const Themes: React.FC = () => {
                         className="flex-1"
                         onClick={() => navigate('/dashboard/themes/editor')}
                       >
-                        <Palette className="h-4 w-4 mr-1.5" />
+                        <Palette className="h-4 w-4 me-1.5" />
                         {t('themes:list.action.customize')}
                       </Button>
                     ) : (
@@ -440,9 +440,9 @@ export const Themes: React.FC = () => {
                           disabled={isLoading}
                         >
                           {isLoading ? (
-                            <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                            <Loader2 className="h-4 w-4 me-1.5 animate-spin" />
                           ) : (
-                            <Download className="h-4 w-4 mr-1.5" />
+                            <Download className="h-4 w-4 me-1.5" />
                           )}
                           {t('themes:list.action.activate')}
                         </Button>

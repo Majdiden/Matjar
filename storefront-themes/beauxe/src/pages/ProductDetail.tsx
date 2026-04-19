@@ -132,7 +132,7 @@ const ProductDetail: React.FC = () => {
             >
               <img src={mainImage} alt={product.name} className="w-full h-full object-cover" />
               {onSale && (
-                <div className="absolute top-6 left-6">
+                <div className="absolute top-6 start-6">
                   <span className="inline-block px-4 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-full text-white" style={{ backgroundColor: 'var(--color-error)' }}>
                     {t('theme.product_detail.sale_badge', { pct })}
                   </span>

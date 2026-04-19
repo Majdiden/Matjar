@@ -307,10 +307,10 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
         <div className="mb-8 border rounded-2xl bg-white shadow-sm p-6">
           <div className="flex items-center justify-between relative">
             {/* baseline */}
-            <div className="absolute left-0 right-0 top-4 h-0.5 bg-gray-200" />
+            <div className="absolute start-0 end-0 top-4 h-0.5 bg-gray-200" />
             {/* filled track */}
             <div
-              className="absolute left-0 top-4 h-0.5 transition-all"
+              className="absolute start-0 top-4 h-0.5 transition-all"
               style={{
                 width: currentStepIdx >= 0
                   ? `${(currentStepIdx / (PROGRESS_STEPS.length - 1)) * 100}%`
@@ -531,12 +531,12 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
               {history.map((entry, idx) => {
                 const isLatest = idx === 0;
                 return (
-                  <li key={idx} className="relative pl-6">
+                  <li key={idx} className="relative ps-6">
                     {idx < history.length - 1 && (
-                      <span className="absolute left-[7px] top-3 bottom-[-22px] w-px bg-gray-200" />
+                      <span className="absolute start-[7px] top-3 bottom-[-22px] w-px bg-gray-200" />
                     )}
                     <span
-                      className="absolute left-0 top-1 w-3.5 h-3.5 rounded-full ring-4 ring-white"
+                      className="absolute start-0 top-1 w-3.5 h-3.5 rounded-full ring-4 ring-white"
                       style={{ backgroundColor: isLatest ? accent : '#cbd5e1' }}
                     />
                     <p className={`text-sm font-medium ${isLatest ? '' : 'text-gray-700'}`}>

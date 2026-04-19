@@ -80,7 +80,7 @@ const CategoryPage: React.FC = () => {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="text-sm border-2 border-black bg-white px-4 py-2 pr-8 font-bold uppercase focus:outline-none"
+                className="text-sm border-2 border-black bg-white px-4 py-2 pe-8 font-bold uppercase focus:outline-none"
               >
                 <option value="newest">{t('theme.products.sort_newest')}</option>
                 <option value="price-asc">{t('theme.products.sort_price_asc')}</option>

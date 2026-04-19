@@ -238,7 +238,7 @@ export const Subscriptions: React.FC = () => {
             return (
               <Card key={plan.id} className={plan.recommended ? 'border-primary shadow-lg relative' : ''}>
                 {plan.recommended && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <div className="absolute -top-3 start-1/2 -translate-x-1/2">
                     <Badge className="bg-primary">{t('subscriptions.badge.recommended')}</Badge>
                   </div>
                 )}
@@ -269,7 +269,7 @@ export const Subscriptions: React.FC = () => {
                       onClick={() => setUpgradeDialog({ open: true, plan })}
                     >
                       {plan.price > currentPlan.price ? t('subscriptions.action.upgrade') : t('subscriptions.action.switch')}
-                      <ArrowUpRight className="h-4 w-4 ml-1" />
+                      <ArrowUpRight className="h-4 w-4 ms-1" />
                     </Button>
                   )}
                 </CardFooter>
@@ -309,7 +309,7 @@ export const Subscriptions: React.FC = () => {
             </Button>
             <Button onClick={handleUpgrade} disabled={upgrading}>
               {upgrading
-                ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.processing')}</>
+                ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common:state.processing')}</>
                 : t('subscriptions.action.confirm_change')
               }
             </Button>

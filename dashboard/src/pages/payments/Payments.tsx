@@ -191,17 +191,17 @@ export const Payments: React.FC = () => {
       {/* Search */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t('payments:list.search.placeholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && loadPayments()}
-            className="pl-9"
+            className="ps-9"
           />
         </div>
         <Button variant="outline" onClick={loadPayments}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="h-4 w-4 me-2" />
           {t('common:action.refresh')}
         </Button>
       </div>
@@ -350,7 +350,7 @@ export const Payments: React.FC = () => {
             </Button>
             <Button variant="destructive" onClick={handleRefund} disabled={refunding}>
               {refunding
-                ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('payments:refund.form.processing')}</>
+                ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('payments:refund.form.processing')}</>
                 : t('payments:refund.form.submit')}
             </Button>
           </DialogFooter>

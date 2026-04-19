@@ -202,7 +202,7 @@ const GiftCardDetail: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/gift-cards')}>
-          <ArrowLeft className="w-4 h-4 mr-1" />
+          <ArrowLeft className="w-4 h-4 me-1 rtl:rotate-180" />
           {t('marketing.gift_card.detail.back_link')}
         </Button>
         <h1 className="text-xl font-semibold font-mono">
@@ -370,11 +370,11 @@ const GiftCardDetail: React.FC = () => {
                 disabled={actionLoading || card.status === 'expired' || card.status === 'redeemed'}
               >
                 {actionLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 me-2 animate-spin" />
                 ) : card.status === 'disabled' ? (
-                  <CheckCircle className="w-4 h-4 mr-2 text-green-600" />
+                  <CheckCircle className="w-4 h-4 me-2 text-green-600" />
                 ) : (
-                  <Ban className="w-4 h-4 mr-2 text-red-600" />
+                  <Ban className="w-4 h-4 me-2 text-red-600" />
                 )}
                 {card.status === 'disabled' ? t('marketing.gift_card.detail.action.enable') : t('marketing.gift_card.detail.action.disable')}
               </Button>
@@ -385,7 +385,7 @@ const GiftCardDetail: React.FC = () => {
                 onClick={() => { setAdjustSign(1); setAdjustOpen(true); }}
                 disabled={actionLoading || card.status === 'disabled' || card.status === 'expired'}
               >
-                <PlusCircle className="w-4 h-4 mr-2 text-blue-600" />
+                <PlusCircle className="w-4 h-4 me-2 text-blue-600" />
                 {t('marketing.gift_card.detail.action.adjust')}
               </Button>
 
@@ -395,7 +395,7 @@ const GiftCardDetail: React.FC = () => {
                 onClick={() => setRefundOpen(true)}
                 disabled={actionLoading || card.status === 'disabled' || card.status === 'expired'}
               >
-                <RefreshCw className="w-4 h-4 mr-2 text-purple-600" />
+                <RefreshCw className="w-4 h-4 me-2 text-purple-600" />
                 {t('marketing.gift_card.detail.action.refund')}
               </Button>
             </CardContent>
@@ -452,7 +452,7 @@ const GiftCardDetail: React.FC = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setAdjustOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleAdjust} disabled={actionLoading}>
-              {actionLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {actionLoading && <Loader2 className="w-4 h-4 me-2 animate-spin" />}
               {t('marketing.gift_card.adjust_dialog.apply_button')}
             </Button>
           </DialogFooter>
@@ -492,7 +492,7 @@ const GiftCardDetail: React.FC = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setRefundOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleRefund} disabled={actionLoading}>
-              {actionLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {actionLoading && <Loader2 className="w-4 h-4 me-2 animate-spin" />}
               {t('marketing.gift_card.refund_dialog.refund_button')}
             </Button>
           </DialogFooter>

@@ -182,7 +182,7 @@ export const Collections: React.FC = () => {
           <p className="text-muted-foreground">{t('products.collections.list.subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/dashboard/collections/new')}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 me-2" />
           {t('products.collections.list.new_collection')}
         </Button>
       </div>
@@ -191,10 +191,10 @@ export const Collections: React.FC = () => {
       <div className="flex flex-wrap gap-3 items-center">
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('products.collections.list.search_placeholder')}
-              className="pl-8 w-60"
+              className="ps-8 w-60"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -230,16 +230,16 @@ export const Collections: React.FC = () => {
           <p className="text-sm font-medium">{t('products.collections.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />{t('products.collections.bulk.clear')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('products.collections.bulk.clear')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkPublish(true)}>
-              <Eye className="h-3.5 w-3.5 mr-1.5" />{t('products.collections.bulk.publish')}
+              <Eye className="h-3.5 w-3.5 me-1.5" />{t('products.collections.bulk.publish')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkPublish(false)}>
-              <EyeOff className="h-3.5 w-3.5 mr-1.5" />{t('products.collections.bulk.unpublish')}
+              <EyeOff className="h-3.5 w-3.5 me-1.5" />{t('products.collections.bulk.unpublish')}
             </Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('products.collections.bulk.delete')}
+              <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('products.collections.bulk.delete')}
             </Button>
           </div>
         </div>
@@ -258,7 +258,7 @@ export const Collections: React.FC = () => {
                 {t('products.collections.list.empty.description')}
               </p>
               <Button onClick={() => navigate('/dashboard/collections/new')}>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 me-2" />
                 {t('products.collections.list.empty.action')}
               </Button>
             </div>
@@ -331,13 +331,13 @@ export const Collections: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => navigate(`/dashboard/collections/${col._id}/edit`)}>
-                            <Edit className="h-4 w-4 mr-2" />{t('common.action.edit')}
+                            <Edit className="h-4 w-4 me-2" />{t('common.action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDelete(col)}
                             className="text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />{t('common.action.delete')}
+                            <Trash2 className="h-4 w-4 me-2" />{t('common.action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

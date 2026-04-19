@@ -201,7 +201,7 @@ export const AcceptInvite: React.FC = () => {
               />
             </div>
             <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {submitting && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               {t('staff.accept_invite.submit')}
             </Button>
           </form>

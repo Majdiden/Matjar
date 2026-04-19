@@ -110,7 +110,7 @@ export function Reviews(props: ReviewsProps) {
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <span className="w-10 text-right text-gray-500 text-xs">{count}</span>
+                <span className="w-10 text-end text-gray-500 text-xs">{count}</span>
               </div>
             );
           })}

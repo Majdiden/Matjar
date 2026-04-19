@@ -245,7 +245,7 @@ export default function Customers() {
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => setSelectedCustomer(null)}>
-            <ChevronLeft className="h-4 w-4 mr-1" /> {t('customers.detail.back')}
+            <ChevronLeft className="h-4 w-4 me-1 rtl:rotate-180" /> {t('customers.detail.back')}
           </Button>
         </div>
 
@@ -356,7 +356,7 @@ export default function Customers() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" /> {t('common:action.export')}
+            <Download className="h-4 w-4 me-2" /> {t('common:action.export')}
           </Button>
         </div>
       </div>
@@ -390,16 +390,16 @@ export default function Customers() {
       {/* Search + filter row */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t('customers.list.search_placeholder')}
-            className="pl-9"
+            className="ps-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
         <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" /> {t('common:action.filter')}
+          <Filter className="h-4 w-4 me-2" /> {t('common:action.filter')}
         </Button>
         <div className="ml-auto">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
@@ -412,16 +412,16 @@ export default function Customers() {
           <p className="text-sm font-medium">{t('customers.bulk.selected', { count: selected.size })}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />{t('customers.bulk.clear')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('customers.bulk.clear')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkActivate(true)}>
-              <UserCheck className="h-3.5 w-3.5 mr-1.5" />{t('customers.bulk.activate')}
+              <UserCheck className="h-3.5 w-3.5 me-1.5" />{t('customers.bulk.activate')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkActivate(false)}>
-              <UserX className="h-3.5 w-3.5 mr-1.5" />{t('customers.bulk.deactivate')}
+              <UserX className="h-3.5 w-3.5 me-1.5" />{t('customers.bulk.deactivate')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleBulkExport}>
-              <Download className="h-3.5 w-3.5 mr-1.5" />{t('customers.bulk.export')}
+              <Download className="h-3.5 w-3.5 me-1.5" />{t('customers.bulk.export')}
             </Button>
           </div>
         </div>
@@ -585,7 +585,7 @@ export default function Customers() {
                       </div>
                     </div>
 
-                    <div className="hidden md:flex flex-col items-end text-right">
+                    <div className="hidden md:flex flex-col items-end text-end">
                       <span className="text-xs text-muted-foreground">{t('customers.list.column.joined')}</span>
                       <span className="text-sm font-medium">
                         {new Date(c.createdAt).toLocaleDateString()}

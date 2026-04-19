@@ -73,7 +73,7 @@ Accordion.Trigger = function AccordionTrigger({
     <button
       onClick={() => toggle(id)}
       className={cn(
-        'flex w-full items-center justify-between py-4 text-left font-medium transition-colors hover:text-gray-600',
+        'flex w-full items-center justify-between py-4 text-start font-medium transition-colors hover:text-gray-600',
         className
       )}
       aria-expanded={isOpen}

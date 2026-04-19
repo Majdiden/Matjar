@@ -16,15 +16,15 @@ interface DrawerProps {
 
 const slideClasses: Record<DrawerSide, { open: string; container: string }> = {
   right: {
-    container: 'right-0 top-0 h-full',
+    container: 'end-0 top-0 h-full',
     open: 'translate-x-0',
   },
   left: {
-    container: 'left-0 top-0 h-full',
+    container: 'start-0 top-0 h-full',
     open: 'translate-x-0',
   },
   bottom: {
-    container: 'bottom-0 left-0 w-full',
+    container: 'bottom-0 start-0 w-full',
     open: 'translate-y-0',
   },
 };

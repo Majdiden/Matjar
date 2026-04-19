@@ -139,7 +139,7 @@ const ShippingZoneForm: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/settings?tab=shipping')}>
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
           </Button>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
@@ -151,7 +151,7 @@ const ShippingZoneForm: React.FC = () => {
           </div>
         </div>
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+          {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
           {isEdit ? 'Update zone' : 'Create zone'}
         </Button>
       </div>
@@ -177,12 +177,12 @@ const ShippingZoneForm: React.FC = () => {
                 {form.countries.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {form.countries.map((code) => (
-                      <Badge key={code} variant="secondary" className="gap-1 pr-1">
+                      <Badge key={code} variant="secondary" className="gap-1 pe-1">
                         {code}
                         <button
                           type="button"
                           onClick={() => removeCountry(code)}
-                          className="ml-0.5 rounded-sm hover:bg-background/60 p-0.5"
+                          className="ms-0.5 rounded-sm hover:bg-background/60 p-0.5"
                           aria-label={`Remove ${code}`}
                         >
                           <Trash2 className="h-3 w-3" />
@@ -202,7 +202,7 @@ const ShippingZoneForm: React.FC = () => {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Rates</CardTitle>
               <Button variant="outline" size="sm" onClick={addRate}>
-                <Plus className="h-3.5 w-3.5 mr-1" />Add rate
+                <Plus className="h-3.5 w-3.5 me-1" />Add rate
               </Button>
             </CardHeader>
             <CardContent className="space-y-3">

@@ -104,11 +104,11 @@ const CustomerSegments: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={loadSegments} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 me-2 ${loading ? 'animate-spin' : ''}`} />
             {t('common:action.refresh')}
           </Button>
           <Button size="sm" onClick={() => navigate('/dashboard/customers/segments/new')}>
-            <Plus className="h-4 w-4 mr-2" /> {t('segment.list.new_segment')}
+            <Plus className="h-4 w-4 me-2" /> {t('segment.list.new_segment')}
           </Button>
         </div>
       </div>
@@ -126,7 +126,7 @@ const CustomerSegments: React.FC = () => {
               {t('segment.list.empty.description')}
             </p>
             <Button onClick={() => navigate('/dashboard/customers/segments/new')}>
-              <Plus className="h-4 w-4 mr-2" /> {t('segment.list.new_segment')}
+              <Plus className="h-4 w-4 me-2" /> {t('segment.list.new_segment')}
             </Button>
           </CardContent>
         </Card>
@@ -170,7 +170,7 @@ const CustomerSegments: React.FC = () => {
                     size="sm"
                     onClick={() => navigate(`/dashboard/customers/segments/${seg._id}/edit`)}
                   >
-                    <Pencil className="h-4 w-4 mr-1" /> {t('common:action.edit')}
+                    <Pencil className="h-4 w-4 me-1" /> {t('common:action.edit')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -178,7 +178,7 @@ const CustomerSegments: React.FC = () => {
                     className="text-destructive hover:text-destructive"
                     onClick={() => remove(seg)}
                   >
-                    <Trash2 className="h-4 w-4 mr-1" /> {t('common:action.delete')}
+                    <Trash2 className="h-4 w-4 me-1" /> {t('common:action.delete')}
                   </Button>
                 </div>
               </CardContent>

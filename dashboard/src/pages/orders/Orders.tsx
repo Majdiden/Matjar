@@ -268,7 +268,7 @@ export const Orders: React.FC = () => {
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleExport}>
-          <Download className="h-4 w-4 mr-2" /> {t('common:action.export')}
+          <Download className="h-4 w-4 me-2" /> {t('common:action.export')}
         </Button>
       </div>
 
@@ -301,16 +301,16 @@ export const Orders: React.FC = () => {
       {/* Search row */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t('orders:list.search.placeholder')}
-            className="pl-9"
+            className="ps-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
         <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" /> {t('common:action.filter')}
+          <Filter className="h-4 w-4 me-2" /> {t('common:action.filter')}
         </Button>
         <div className="ml-auto flex items-center gap-2">
           <div className="inline-flex rounded-md border bg-background p-0.5">
@@ -343,9 +343,9 @@ export const Orders: React.FC = () => {
             title={viewMode === defaultView ? t('orders:list.view.is_default') : t('orders:list.view.set_as', { mode: viewMode })}
           >
             {viewMode === defaultView ? (
-              <><Pin className="h-3.5 w-3.5 mr-1.5" /> {t('orders:list.view.default')}</>
+              <><Pin className="h-3.5 w-3.5 me-1.5" /> {t('orders:list.view.default')}</>
             ) : (
-              <><PinOff className="h-3.5 w-3.5 mr-1.5" /> {t('orders:list.view.set_default')}</>
+              <><PinOff className="h-3.5 w-3.5 me-1.5" /> {t('orders:list.view.set_default')}</>
             )}
           </Button>
         </div>
@@ -357,19 +357,19 @@ export const Orders: React.FC = () => {
           <p className="text-sm font-medium">{t('orders:list.bulk.selected', { count: selected.size })}</p>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.clear')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('orders:list.bulk.clear')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Processing')}>
-              <PackageIcon className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.mark_processing')}
+              <PackageIcon className="h-3.5 w-3.5 me-1.5" />{t('orders:list.bulk.mark_processing')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Shipped')}>
-              <Truck className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.mark_shipped')}
+              <Truck className="h-3.5 w-3.5 me-1.5" />{t('orders:list.bulk.mark_shipped')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Delivered')}>
-              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.mark_delivered')}
+              <CheckCircle2 className="h-3.5 w-3.5 me-1.5" />{t('orders:list.bulk.mark_delivered')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleBulkExport}>
-              <Download className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.export_csv')}
+              <Download className="h-3.5 w-3.5 me-1.5" />{t('orders:list.bulk.export_csv')}
             </Button>
           </div>
         </div>
@@ -413,7 +413,7 @@ export const Orders: React.FC = () => {
                 <TableHead className="text-center">{t('orders:list.column.items')}</TableHead>
                 <TableHead>{t('orders:list.column.status')}</TableHead>
                 <TableHead>{t('orders:list.column.payment')}</TableHead>
-                <TableHead className="text-right">{t('orders:list.column.total')}</TableHead>
+                <TableHead className="text-end">{t('orders:list.column.total')}</TableHead>
                 <TableHead className="w-[50px]" />
               </TableRow>
             </TableHeader>
@@ -470,7 +470,7 @@ export const Orders: React.FC = () => {
                       {order.paymentStatus}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right font-semibold tabular-nums">
+                  <TableCell className="text-end font-semibold tabular-nums">
                     {formatPrice(order.totalAmount)}
                   </TableCell>
                   <TableCell>
@@ -485,7 +485,7 @@ export const Orders: React.FC = () => {
                         <DropdownMenuItem
                           onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/orders/${order._id}`); }}
                         >
-                          <Eye className="mr-2 h-4 w-4" /> {t('orders:list.dropdown.view_details')}
+                          <Eye className="me-2 h-4 w-4" /> {t('orders:list.dropdown.view_details')}
                         </DropdownMenuItem>
                         {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
                           <>
@@ -583,7 +583,7 @@ export const Orders: React.FC = () => {
                     </div>
 
                     {/* Total */}
-                    <div className="text-right">
+                    <div className="text-end">
                       <p className="text-lg font-bold tabular-nums">{formatPrice(order.totalAmount)}</p>
                     </div>
 
@@ -603,7 +603,7 @@ export const Orders: React.FC = () => {
                         <DropdownMenuItem
                           onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/orders/${order._id}`); }}
                         >
-                          <Eye className="mr-2 h-4 w-4" /> {t('orders:list.dropdown.view_details')}
+                          <Eye className="me-2 h-4 w-4" /> {t('orders:list.dropdown.view_details')}
                         </DropdownMenuItem>
                         {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
                           <>

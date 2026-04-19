@@ -76,7 +76,7 @@ const Layout: React.FC = () => {
                 </svg>
                 {cart && cart.itemCount > 0 && (
                   <span
-                    className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full text-white text-[10px] font-bold flex items-center justify-center px-1"
+                    className="absolute -top-0.5 -end-0.5 min-w-[18px] h-[18px] rounded-full text-white text-[10px] font-bold flex items-center justify-center px-1"
                     style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
                   >
                     {cart.itemCount > 99 ? '99+' : cart.itemCount}

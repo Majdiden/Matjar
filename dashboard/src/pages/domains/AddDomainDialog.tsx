@@ -346,9 +346,9 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
                 disabled={!isValidLookingHostname || submitting}
               >
                 {submitting ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-4 w-4 me-2 animate-spin" />
                 ) : (
-                  <ArrowRight className="h-4 w-4 mr-2" />
+                  <ArrowRight className="h-4 w-4 me-2 rtl:rotate-180" />
                 )}
                 {t('domains:add.action.continue')}
               </Button>
@@ -357,14 +357,14 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
           {step === 'verify' && (
             <>
               <Button variant="outline" onClick={() => setStep('input')}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" />
                 {t('domains:add.action.back')}
               </Button>
               <Button onClick={submitVerify} disabled={verifying}>
                 {verifying ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-4 w-4 me-2 animate-spin" />
                 ) : (
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  <CheckCircle2 className="h-4 w-4 me-2" />
                 )}
                 {t('domains:add.action.verify')}
               </Button>

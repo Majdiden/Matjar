@@ -37,7 +37,7 @@ export default function ThemeEditorLayout({
                         className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
                         title="Exit to Themes"
                     >
-                        <ArrowLeft className="w-5 h-5" />
+                        <ArrowLeft className="w-5 h-5 rtl:rotate-180" />
                     </button>
                     <div>
                         <h1 className="font-semibold text-gray-900">Theme Customizer</h1>
@@ -99,7 +99,7 @@ export default function ThemeEditorLayout({
 
             <div className="flex-1 flex overflow-hidden">
                 {/* Sidebar */}
-                <aside className="w-[320px] bg-white border-r border-gray-200 flex flex-col shrink-0 z-10 shadow-sm">
+                <aside className="w-[320px] bg-white border-e border-gray-200 flex flex-col shrink-0 z-10 shadow-sm">
                     {sidebar}
                 </aside>
 

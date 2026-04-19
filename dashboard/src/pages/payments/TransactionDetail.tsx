@@ -167,7 +167,7 @@ export const TransactionDetail: React.FC = () => {
     return (
       <div className="space-y-4">
         <Button variant="outline" onClick={() => navigate('/dashboard/payments')}>
-          <ArrowLeft className="h-4 w-4 mr-2" /> {t('payments:transaction.list.back_action')}
+          <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" /> {t('payments:transaction.list.back_action')}
         </Button>
         <p className="text-muted-foreground">{t('payments:transaction.list.not_found')}</p>
       </div>
@@ -199,7 +199,7 @@ export const TransactionDetail: React.FC = () => {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/payments')}>
-            <ArrowLeft className="h-4 w-4 mr-2" /> {t('payments:transaction.list.back')}
+            <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" /> {t('payments:transaction.list.back')}
           </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
@@ -218,7 +218,7 @@ export const TransactionDetail: React.FC = () => {
           {order._id && (
             <Button asChild variant="outline" size="sm">
               <Link to={`/dashboard/orders/${order._id}`}>
-                <ExternalLink className="h-4 w-4 mr-2" /> {t('payments:transaction.detail.view_order')}
+                <ExternalLink className="h-4 w-4 me-2" /> {t('payments:transaction.detail.view_order')}
               </Link>
             </Button>
           )}
@@ -531,7 +531,7 @@ const DetailRow: React.FC<{ label: string; value?: string | number; mono?: boole
   <div className="flex items-start justify-between gap-3">
     <span className="text-muted-foreground text-xs uppercase tracking-wide">{label}</span>
     <span
-      className={`text-right break-all ${mono ? 'font-mono text-xs' : 'text-sm font-medium'}`}
+      className={`text-end break-all ${mono ? 'font-mono text-xs' : 'text-sm font-medium'}`}
     >
       {value || '—'}
     </span>

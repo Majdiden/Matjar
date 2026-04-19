@@ -83,7 +83,7 @@ const Home: React.FC = () => {
           <svg className="absolute bottom-10 end-10 w-24 h-24" viewBox="0 0 24 24" fill="white" aria-hidden="true">
             <path d="M4 19.5A2.5 2.5 0 016.5 17H20V2H6.5A2.5 2.5 0 004 4.5v15z" />
           </svg>
-          <svg className="absolute top-1/2 left-1/4 w-16 h-16" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+          <svg className="absolute top-1/2 start-1/4 w-16 h-16" viewBox="0 0 24 24" fill="white" aria-hidden="true">
             <path d="M4 19.5A2.5 2.5 0 016.5 17H20V2H6.5A2.5 2.5 0 004 4.5v15z" />
           </svg>
         </div>

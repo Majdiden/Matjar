@@ -305,8 +305,8 @@ export const Settings: React.FC = () => {
           <div className="flex justify-end">
             <Button onClick={handleSaveGeneral} disabled={savingGeneral}>
               {savingGeneral
-                ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                : <Save className="mr-2 h-4 w-4" />}
+                ? <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                : <Save className="me-2 h-4 w-4" />}
               {savingGeneral ? t('settings.button.saving') : t('settings.button.save_changes')}
             </Button>
           </div>
@@ -352,7 +352,7 @@ export const Settings: React.FC = () => {
           </Card>
           <div className="flex justify-end">
             <Button onClick={handleSaveGeneral} disabled={savingGeneral}>
-              {savingGeneral ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {savingGeneral ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <Save className="me-2 h-4 w-4" />}
               {savingGeneral ? t('settings.button.saving') : t('settings.button.save_changes')}
             </Button>
           </div>
@@ -373,7 +373,7 @@ export const Settings: React.FC = () => {
                   <button
                     key={mode}
                     onClick={() => setShippingType(mode)}
-                    className={`rounded-lg border p-4 text-left transition ${
+                    className={`rounded-lg border p-4 text-start transition ${
                       shippingType === mode
                         ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
                         : 'border-border hover:border-primary/40'
@@ -497,7 +497,7 @@ const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
           </CardDescription>
         </div>
         <Button onClick={openCreate} disabled={disabled}>
-          <Plus className="h-4 w-4 mr-2" />{t('settings.button.add_zone')}
+          <Plus className="h-4 w-4 me-2" />{t('settings.button.add_zone')}
         </Button>
       </CardHeader>
       <CardContent>
@@ -717,7 +717,7 @@ const TaxPanel: React.FC = () => {
             <CardDescription>{t('settings.section.tax_rates.description')}</CardDescription>
           </div>
           <Button onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-2" />{t('settings.button.add_rate')}
+            <Plus className="h-4 w-4 me-2" />{t('settings.button.add_rate')}
           </Button>
         </CardHeader>
         <CardContent>
@@ -790,7 +790,7 @@ const TaxPanel: React.FC = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : null}
               {editingId ? t('common:action.update') : t('common:action.create')}
             </Button>
           </DialogFooter>
@@ -888,7 +888,7 @@ const CurrenciesPanel: React.FC = () => {
           <div className="flex items-center justify-between">
             <Label>{t('settings.field.currencies.exchange_rates.label')}</Label>
             <Button variant="ghost" size="sm" onClick={addRow}>
-              <Plus className="h-3.5 w-3.5 mr-1" />{t('settings.button.add_currency')}
+              <Plus className="h-3.5 w-3.5 me-1" />{t('settings.button.add_currency')}
             </Button>
           </div>
           {draftRates.length === 0 ? (
@@ -928,7 +928,7 @@ const CurrenciesPanel: React.FC = () => {
 
         <div className="flex justify-end">
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
             {t('settings.button.save_currencies')}
           </Button>
         </div>
@@ -1105,7 +1105,7 @@ const MarketsPanel: React.FC = () => {
             </CardDescription>
           </div>
           <Button onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-2" />{t('settings.button.add_market')}
+            <Plus className="h-4 w-4 me-2" />{t('settings.button.add_market')}
           </Button>
         </CardHeader>
         <CardContent>
@@ -1210,7 +1210,7 @@ const MarketsPanel: React.FC = () => {
               <div className="flex items-center justify-between">
                 <Label>{t('settings.field.markets.countries.label')}</Label>
                 <Button variant="ghost" size="sm" onClick={addCountryRow}>
-                  <Plus className="h-3.5 w-3.5 mr-1" />{t('settings.button.add_country')}
+                  <Plus className="h-3.5 w-3.5 me-1" />{t('settings.button.add_country')}
                 </Button>
               </div>
               {form.countries.length === 0 ? (
@@ -1278,7 +1278,7 @@ const MarketsPanel: React.FC = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : null}
               {editingId ? t('common:action.update') : t('common:action.create')}
             </Button>
           </DialogFooter>
@@ -1391,7 +1391,7 @@ const NotificationsPanel: React.FC = () => {
                   }`}
                 >
                   {s}
-                  {!isEnabled && <span className="ml-1 text-[10px] opacity-70">{t('settings.email_template.off_badge')}</span>}
+                  {!isEnabled && <span className="ms-1 text-[10px] opacity-70">{t('settings.email_template.off_badge')}</span>}
                 </button>
               );
             })}
@@ -1427,7 +1427,7 @@ const NotificationsPanel: React.FC = () => {
 
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+          {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
           {t('settings.button.save_notifications')}
         </Button>
       </div>

@@ -265,7 +265,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
               >
                 {t.label}
                 {t.count !== undefined && t.count > 0 && (
-                  <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                  <span className="ms-2 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                     {t.count}
                   </span>
                 )}
@@ -309,7 +309,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
             <div>
               {/* Rating summary */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 pb-8 border-b">
-                <div className="text-center md:text-left">
+                <div className="text-center md:text-start">
                   <div className="text-5xl font-bold leading-none mb-2">
                     {(product.rating || 0).toFixed(1)}
                   </div>
@@ -332,7 +332,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                             style={{ width: `${pct}%`, backgroundColor: accent }}
                           />
                         </div>
-                        <span className="w-8 text-gray-500 text-right">{count}</span>
+                        <span className="w-8 text-gray-500 text-end">{count}</span>
                       </div>
                     );
                   })}
@@ -387,7 +387,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                             </button>
                           );
                         })}
-                        <span className="ml-2 text-xs text-gray-500">{reviewRating}/5</span>
+                        <span className="ms-2 text-xs text-gray-500">{reviewRating}/5</span>
                       </div>
                     </div>
 
@@ -527,7 +527,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                             onChange={(e) =>
                               setBundleSelection({ ...bundleSelection, [item._id]: e.target.checked })
                             }
-                            className="absolute top-2 left-2 w-4 h-4"
+                            className="absolute top-2 start-2 w-4 h-4"
                             style={{ accentColor: accent as string }}
                           />
                         )}
@@ -556,7 +556,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
             </div>
 
             {/* Bundle CTA */}
-            <div className="lg:col-span-1 lg:border-l lg:pl-6">
+            <div className="lg:col-span-1 lg:border-s lg:ps-6">
               <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">{t('bundle.addon_total')}</p>
               <p className="text-2xl font-bold mb-3">{formatPrice(bundleTotal)}</p>
               <p className="text-xs text-gray-500 mb-4">

@@ -264,7 +264,7 @@ export const Domains: React.FC = () => {
           disabled={!domainInfo?.canUseCustomDomain}
           size="lg"
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 me-2" />
           {t('domains:list.action.connect')}
         </Button>
       </div>
@@ -303,7 +303,7 @@ export const Domains: React.FC = () => {
           </div>
           {customDomains.length > 0 && domainInfo?.canUseCustomDomain && (
             <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              <Plus className="h-3.5 w-3.5 me-1.5" />
               {t('domains:list.custom.add_another')}
             </Button>
           )}
@@ -393,7 +393,7 @@ export const Domains: React.FC = () => {
               disabled={actionLoading === 'subdomain'}
             >
               {actionLoading === 'subdomain' && (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-4 w-4 me-2 animate-spin" />
               )}
               {t('common:action.save')}
             </Button>
@@ -438,14 +438,14 @@ function PrimaryDomainHero({
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Button variant="outline" size="sm" onClick={() => onCopy(hostname)}>
-              <Copy className="h-3.5 w-3.5 mr-1.5" />
+              <Copy className="h-3.5 w-3.5 me-1.5" />
               {t('domains:list.hero.copy')}
             </Button>
             <Button
               size="sm"
               onClick={() => window.open(`https://${hostname}`, '_blank')}
             >
-              <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+              <ExternalLink className="h-3.5 w-3.5 me-1.5" />
               {t('domains:list.hero.visit')}
             </Button>
           </div>
@@ -495,7 +495,7 @@ function PlatformSubdomainCard({
             </CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={onRename}>
-            <Pencil className="h-3.5 w-3.5 mr-1.5" />
+            <Pencil className="h-3.5 w-3.5 me-1.5" />
             {t('domains:list.platform.rename')}
           </Button>
         </div>
@@ -535,9 +535,9 @@ function PlatformSubdomainCard({
               disabled={loading}
             >
               {loading ? (
-                <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                <Loader2 className="h-3 w-3 me-1.5 animate-spin" />
               ) : (
-                <Star className="h-3 w-3 mr-1.5" />
+                <Star className="h-3 w-3 me-1.5" />
               )}
               {t('domains:list.platform.use_as_main')}
             </Button>
@@ -780,9 +780,9 @@ function CustomDomainCard({
               size="sm"
             >
               {isBusy('recheck') ? (
-                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 me-1.5 animate-spin" />
               ) : (
-                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                <RefreshCw className="h-3.5 w-3.5 me-1.5" />
               )}
               {t('domains:dns.check_now')}
             </Button>
@@ -798,9 +798,9 @@ function CustomDomainCard({
               size="sm"
             >
               {isBusy('retry') || isBusy('recheck') ? (
-                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 me-1.5 animate-spin" />
               ) : (
-                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                <RefreshCw className="h-3.5 w-3.5 me-1.5" />
               )}
               {t('domains:dns.recheck')}
             </Button>
@@ -814,9 +814,9 @@ function CustomDomainCard({
               disabled={isBusy('primary')}
             >
               {isBusy('primary') ? (
-                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 me-1.5 animate-spin" />
               ) : (
-                <Star className="h-3.5 w-3.5 mr-1.5" />
+                <Star className="h-3.5 w-3.5 me-1.5" />
               )}
               {t('domains:list.custom.use_as_main')}
             </Button>
@@ -828,7 +828,7 @@ function CustomDomainCard({
               size="sm"
               onClick={() => window.open(`https://${row.hostname}`, '_blank')}
             >
-              <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+              <ExternalLink className="h-3.5 w-3.5 me-1.5" />
               {t('domains:list.custom.visit')}
             </Button>
           )}
@@ -843,9 +843,9 @@ function CustomDomainCard({
             className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
           >
             {isBusy('remove') ? (
-              <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 me-1.5 animate-spin" />
             ) : (
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+              <Trash2 className="h-3.5 w-3.5 me-1.5" />
             )}
             {t('domains:list.custom.remove')}
           </Button>
@@ -1038,7 +1038,7 @@ function DnsMismatchBlock({
             onCopy(row.dns!.expectedTarget!, t('domains:toast.target_copied'))
           }
         >
-          <Copy className="h-3.5 w-3.5 mr-1.5" />
+          <Copy className="h-3.5 w-3.5 me-1.5" />
           {t('domains:dns.copy_target')}
         </Button>
       )}
@@ -1153,7 +1153,7 @@ function CustomDomainEmptyState({
         </div>
         {canAdd && (
           <Button onClick={onAdd}>
-            <Plus className="h-4 w-4 mr-1.5" />
+            <Plus className="h-4 w-4 me-1.5" />
             {t('domains:list.empty.action')}
           </Button>
         )}

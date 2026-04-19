@@ -93,7 +93,7 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
               step={setting.step || 1}
               className="flex-1 h-1.5 bg-slate-200 rounded-full appearance-none cursor-pointer accent-blue-600"
             />
-            <span className="text-xs text-slate-600 font-mono w-14 text-right tabular-nums">
+            <span className="text-xs text-slate-600 font-mono w-14 text-end tabular-nums">
               {currentValue}
               {setting.unit || ''}
             </span>
@@ -121,7 +121,7 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
             <select
               value={currentValue || ''}
               onChange={(e) => onChange(e.target.value)}
-              className="flex h-9 w-full appearance-none rounded-md border border-slate-200 bg-white px-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+              className="flex h-9 w-full appearance-none rounded-md border border-slate-200 bg-white px-3 pe-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
             >
               {(setting.options || []).map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -129,7 +129,7 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <ChevronDown className="absolute end-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
         </FieldWrapper>
       );
@@ -152,13 +152,13 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
       return (
         <FieldWrapper label={setting.label} info={setting.info}>
           <div className="relative">
-            <Link2 className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+            <Link2 className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
             <Input
               type="text"
               value={currentValue}
               onChange={(e) => onChange(e.target.value)}
               placeholder="/products"
-              className="h-9 pl-8 text-sm"
+              className="h-9 ps-8 text-sm"
             />
           </div>
         </FieldWrapper>
@@ -234,7 +234,7 @@ function ImageInput({ value, onChange }: { value: string; onChange: (v: string) 
           </div>
           <button
             onClick={() => onChange('')}
-            className="absolute top-1.5 right-1.5 h-6 w-6 rounded-full bg-white/90 hover:bg-white shadow-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+            className="absolute top-1.5 end-1.5 h-6 w-6 rounded-full bg-white/90 hover:bg-white shadow-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
           >
             <X className="h-3 w-3 text-slate-600" />
           </button>
@@ -252,14 +252,14 @@ function ImageInput({ value, onChange }: { value: string; onChange: (v: string) 
   return (
     <div className="space-y-1.5">
       <div className="relative">
-        <ImageIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+        <ImageIcon className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
         <Input
           type="text"
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           onBlur={() => setEditing(false)}
           placeholder="https://example.com/image.jpg"
-          className="h-9 pl-8 text-sm"
+          className="h-9 ps-8 text-sm"
           autoFocus={editing}
         />
       </div>

@@ -178,7 +178,7 @@ export const CustomFields: React.FC = () => {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 me-2" />
               Add Field
             </Button>
           </DialogTrigger>
@@ -263,7 +263,7 @@ export const CustomFields: React.FC = () => {
               <FileCode className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold">No custom fields</h3>
               <p className="text-sm text-muted-foreground mb-4">Add metafields to extend your data model.</p>
-              <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Field</Button>
+              <Button onClick={openCreate}><Plus className="h-4 w-4 me-2" />Add Field</Button>
             </div>
           ) : (
             <Table>
@@ -273,7 +273,7 @@ export const CustomFields: React.FC = () => {
                   <TableHead>Namespace / Key</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Value</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-end">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -291,7 +291,7 @@ export const CustomFields: React.FC = () => {
                     <TableCell className="max-w-[200px] truncate text-sm text-muted-foreground">
                       {truncateValue(field.value)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-end">
                       <div className="flex justify-end gap-1">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(field)}>
                           <Pencil className="h-3.5 w-3.5" />

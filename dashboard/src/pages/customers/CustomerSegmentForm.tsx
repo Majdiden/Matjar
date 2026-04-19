@@ -211,7 +211,7 @@ const CustomerSegmentForm: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/customers/segments')}>
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
           </Button>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
@@ -223,7 +223,7 @@ const CustomerSegmentForm: React.FC = () => {
           </div>
         </div>
         <Button onClick={save} disabled={saving}>
-          {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+          {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
           {isEdit ? t('segment.form.action.save_changes') : t('segment.form.action.create_segment')}
         </Button>
       </div>
@@ -379,7 +379,7 @@ const CustomerSegmentForm: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <Button variant="outline" size="sm" onClick={runPreview} disabled={previewLoading} className="w-full">
-                {previewLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
+                {previewLoading ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Eye className="h-4 w-4 me-2" />}
                 {t('segment.form.preview.run')}
               </Button>
               {preview ? (
@@ -392,10 +392,10 @@ const CustomerSegmentForm: React.FC = () => {
                       <table className="w-full text-xs">
                         <thead className="bg-muted/50 sticky top-0">
                           <tr>
-                            <th className="text-left p-2">{t('segment.form.preview.column.name')}</th>
-                            <th className="text-left p-2">{t('segment.form.preview.column.email')}</th>
-                            <th className="text-right p-2">{t('segment.form.preview.column.orders')}</th>
-                            <th className="text-right p-2">{t('segment.form.preview.column.spent')}</th>
+                            <th className="text-start p-2">{t('segment.form.preview.column.name')}</th>
+                            <th className="text-start p-2">{t('segment.form.preview.column.email')}</th>
+                            <th className="text-end p-2">{t('segment.form.preview.column.orders')}</th>
+                            <th className="text-end p-2">{t('segment.form.preview.column.spent')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -403,8 +403,8 @@ const CustomerSegmentForm: React.FC = () => {
                             <tr key={u._id} className="border-t">
                               <td className="p-2 truncate max-w-[120px]">{u.name || '—'}</td>
                               <td className="p-2 truncate max-w-[180px]">{u.email}</td>
-                              <td className="p-2 text-right">{u.orderCount}</td>
-                              <td className="p-2 text-right">{formatMoney(u.totalSpent)}</td>
+                              <td className="p-2 text-end">{u.orderCount}</td>
+                              <td className="p-2 text-end">{formatMoney(u.totalSpent)}</td>
                             </tr>
                           ))}
                         </tbody>

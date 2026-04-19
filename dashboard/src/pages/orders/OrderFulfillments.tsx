@@ -169,7 +169,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
         </CardTitle>
         {totalRemaining > 0 && !showForm && (
           <Button size="sm" onClick={startNew}>
-            <Plus className="h-3.5 w-3.5 mr-1" />{t('orders:fulfillment.card.new_shipment')}
+            <Plus className="h-3.5 w-3.5 me-1" />{t('orders:fulfillment.card.new_shipment')}
           </Button>
         )}
       </CardHeader>
@@ -210,7 +210,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
                     )}
                   </div>
                 </div>
-                <ul className="text-sm space-y-0.5 pl-6">
+                <ul className="text-sm space-y-0.5 ps-6">
                   {f.items.map((it, i) => (
                     <li key={i} className="text-muted-foreground">
                       {lineName(it.orderLineId)} <span className="text-foreground">× {it.quantity}</span>
@@ -218,7 +218,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
                   ))}
                 </ul>
                 {(f.trackingNumber || f.trackingCarrier) && (
-                  <p className="text-xs text-muted-foreground pl-6">
+                  <p className="text-xs text-muted-foreground ps-6">
                     {f.trackingCarrier && <span>{f.trackingCarrier} </span>}
                     {f.trackingNumber && <span className="font-mono">{f.trackingNumber}</span>}
                   </p>
@@ -279,11 +279,11 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
                 </label>
                 <div className="flex gap-2">
                   <Button size="sm" onClick={submit} disabled={creating}>
-                    {creating ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Check className="h-3 w-3 mr-1" />}
+                    {creating ? <Loader2 className="h-3 w-3 me-1 animate-spin" /> : <Check className="h-3 w-3 me-1" />}
                     {t('orders:fulfillment.card.form.create')}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setShowForm(false)}>
-                    <X className="h-3 w-3 mr-1" />{t('common:action.cancel')}
+                    <X className="h-3 w-3 me-1" />{t('common:action.cancel')}
                   </Button>
                 </div>
               </div>

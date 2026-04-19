@@ -191,7 +191,7 @@ export const ResetPassword: React.FC = () => {
 
               <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
                 {isLoading ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.reset.submitting')}</>
+                  <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.reset.submitting')}</>
                 ) : (
                   <>{t('auth.reset.submit')}</>
                 )}
@@ -200,7 +200,7 @@ export const ResetPassword: React.FC = () => {
 
             <div className="text-sm text-muted-foreground">
               <Link to="/login" className="inline-flex items-center hover:text-foreground">
-                <ArrowLeft className="h-4 w-4 mr-1" /> {t('auth.reset.back_to_sign_in')}
+                <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" /> {t('auth.reset.back_to_sign_in')}
               </Link>
             </div>
           </>

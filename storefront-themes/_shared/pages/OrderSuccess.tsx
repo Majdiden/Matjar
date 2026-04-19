@@ -181,7 +181,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
               {placedAt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
-          <div className="text-left sm:text-right">
+          <div className="text-start sm:text-end">
             <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">{t('order.success.order_total')}</p>
             <p className="text-xl font-bold" style={{ color: accent }}>{formatPrice(order.totalAmount)}</p>
           </div>

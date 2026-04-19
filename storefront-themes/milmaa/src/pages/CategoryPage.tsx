@@ -32,7 +32,7 @@ const CategoryPage: React.FC = () => {
     <div style={{ backgroundColor: CREAM }}>
       {/* Title banner */}
       <div className="relative overflow-hidden py-20" style={{ backgroundColor: MUTED }}>
-        <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full opacity-60" style={{ backgroundColor: PINK }} />
+        <div className="absolute -top-16 -end-16 w-64 h-64 rounded-full opacity-60" style={{ backgroundColor: PINK }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <div className="text-[11px] tracking-[0.3em] uppercase mb-3 font-bold opacity-70" style={{ color: DARK_TEAL }}>
             <Link to="/" className="hover:opacity-100">{t('theme.products.breadcrumb_home')}</Link>
@@ -86,7 +86,7 @@ const CategoryPage: React.FC = () => {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="text-sm bg-white rounded-full px-5 py-2.5 pr-8 focus:outline-none font-medium"
+                className="text-sm bg-white rounded-full px-5 py-2.5 pe-8 focus:outline-none font-medium"
                 style={{ color: DARK_TEAL }}
               >
                 <option value="newest">{t('theme.products.sort_newest')}</option>

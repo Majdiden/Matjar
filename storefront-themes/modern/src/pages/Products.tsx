@@ -51,7 +51,7 @@ const Products: React.FC = () => {
         <div className="space-y-1">
           <button
             onClick={() => updateParam('category', '')}
-            className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition ${!category ? 'bg-gray-100 font-medium' : 'hover:bg-gray-50 text-gray-600'}`}
+            className={`block w-full text-start px-3 py-2 rounded-lg text-sm transition ${!category ? 'bg-gray-100 font-medium' : 'hover:bg-gray-50 text-gray-600'}`}
           >
             {t('theme.products.filter_all')}
           </button>
@@ -59,11 +59,11 @@ const Products: React.FC = () => {
             <button
               key={cat._id}
               onClick={() => updateParam('category', cat._id)}
-              className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition ${category === cat._id ? 'bg-gray-100 font-medium' : 'hover:bg-gray-50 text-gray-600'}`}
+              className={`block w-full text-start px-3 py-2 rounded-lg text-sm transition ${category === cat._id ? 'bg-gray-100 font-medium' : 'hover:bg-gray-50 text-gray-600'}`}
             >
               {cat.name}
               {cat.productCount !== undefined && (
-                <span className="text-gray-400 ml-1">({cat.productCount})</span>
+                <span className="text-gray-400 ms-1">({cat.productCount})</span>
               )}
             </button>
           ))}
@@ -152,7 +152,7 @@ const Products: React.FC = () => {
             onSubmit={(e) => { e.preventDefault(); updateParam('search', searchInput); }}
           >
             <div className="relative">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
@@ -160,7 +160,7 @@ const Products: React.FC = () => {
                 placeholder={t('theme.products.search_placeholder')}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full ps-10 pe-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             </div>
           </form>

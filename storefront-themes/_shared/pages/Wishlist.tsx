@@ -126,7 +126,7 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
                     onClick={() => handleRemove(productId)}
                     disabled={busy === productId}
                     aria-label={t('wishlist.remove')}
-                    className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-gray-600 hover:text-red-600 shadow-sm disabled:opacity-50"
+                    className="absolute top-2 end-2 z-20 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-gray-600 hover:text-red-600 shadow-sm disabled:opacity-50"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="6" x2="6" y2="18" />
@@ -159,7 +159,7 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
                   onClick={() => handleRemove(productId)}
                   disabled={busy === productId}
                   aria-label={t('wishlist.remove')}
-                  className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-gray-600 hover:text-red-600 shadow-sm disabled:opacity-50"
+                  className="absolute top-2 end-2 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-gray-600 hover:text-red-600 shadow-sm disabled:opacity-50"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18" />

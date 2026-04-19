@@ -189,7 +189,7 @@ export default function Discounts() {
           <p className="text-muted-foreground">{t('marketing.discount.list.subtitle')}</p>
         </div>
         <Button onClick={openPicker}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 me-2" />
           {t('marketing.discount.list.create_button')}
         </Button>
       </div>
@@ -206,10 +206,10 @@ export default function Discounts() {
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t('marketing.discount.list.search_placeholder')}
-            className="pl-9"
+            className="ps-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
@@ -224,10 +224,10 @@ export default function Discounts() {
           <p className="text-sm font-medium">{t('marketing.discount.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />{t('common:action.cancel')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('common:action.cancel')}
             </Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('common:action.delete')}
+              <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('common:action.delete')}
             </Button>
           </div>
         </div>
@@ -254,7 +254,7 @@ export default function Discounts() {
                 {t('marketing.discount.list.empty_subtitle')}
               </p>
               <Button onClick={openPicker}>
-                <Plus className="h-4 w-4 mr-2" />{t('marketing.discount.list.create_button')}
+                <Plus className="h-4 w-4 me-2" />{t('marketing.discount.list.create_button')}
               </Button>
             </div>
           ) : viewMode === 'table' ? (
@@ -277,7 +277,7 @@ export default function Discounts() {
                   <TableHead>{t('marketing.discount.list.column.combines')}</TableHead>
                   <TableHead>{t('marketing.discount.list.column.status')}</TableHead>
                   <TableHead>{t('marketing.discount.list.column.expires')}</TableHead>
-                  <TableHead className="text-right">{t('marketing.discount.list.column.actions')}</TableHead>
+                  <TableHead className="text-end">{t('marketing.discount.list.column.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -322,7 +322,7 @@ export default function Discounts() {
                       <TableCell className="text-sm text-muted-foreground">
                         {d.expiresAt ? t('marketing.discount.list.expires_on', { date: new Date(d.expiresAt).toLocaleDateString() }) : t('marketing.discount.list.expires_never')}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-end">
                         <div className="flex justify-end gap-1">
                           <Button
                             variant="ghost"
@@ -384,7 +384,7 @@ export default function Discounts() {
                             {d.type === 'percentage' ? `${d.value}%` : `$${d.value}`}
                           </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-end">
                           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('marketing.discount.list.card_uses_label')}</p>
                           <p className="text-sm text-muted-foreground tabular-nums">{usageText}</p>
                         </div>
@@ -454,7 +454,7 @@ export default function Discounts() {
                 key={method}
                 type="button"
                 onClick={() => selectMethod(method)}
-                className="w-full flex items-center gap-3 rounded-lg border border-border p-4 text-left transition hover:border-primary hover:bg-accent/40"
+                className="w-full flex items-center gap-3 rounded-lg border border-border p-4 text-start transition hover:border-primary hover:bg-accent/40"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                   <Icon className="h-5 w-5" />
@@ -463,7 +463,7 @@ export default function Discounts() {
                   <div className="font-medium">{label}</div>
                   <div className="text-sm text-muted-foreground">{description}</div>
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 rtl:rotate-180" />
               </button>
             ))}
           </div>

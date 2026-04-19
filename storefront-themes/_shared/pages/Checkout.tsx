@@ -601,14 +601,14 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                           key={idx}
                           type="button"
                           onClick={() => useSavedAddress(idx)}
-                          className={`text-left p-3 border rounded-lg text-xs transition ${
+                          className={`text-start p-3 border rounded-lg text-xs transition ${
                             isSelected ? 'ring-2' : 'hover:bg-gray-50'
                           }`}
                           style={isSelected ? { borderColor: accent, '--tw-ring-color': accent } as React.CSSProperties : undefined}
                         >
                           <p className="font-semibold text-sm mb-0.5">
                             {a.firstName} {a.lastName}
-                            {a.isDefault && <span className="ml-1 text-[10px] uppercase text-gray-500">(default)</span>}
+                            {a.isDefault && <span className="ms-1 text-[10px] uppercase text-gray-500">(default)</span>}
                           </p>
                           <p className="text-gray-600">{a.addressLine1}</p>
                           <p className="text-gray-600">
@@ -624,7 +624,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                         setSelectedAddressIdx('new');
                         setShipping(blankAddress);
                       }}
-                      className={`text-left p-3 border border-dashed rounded-lg text-xs flex items-center justify-center font-medium ${
+                      className={`text-start p-3 border border-dashed rounded-lg text-xs flex items-center justify-center font-medium ${
                         selectedAddressIdx === 'new' ? 'ring-2' : 'hover:bg-gray-50 text-gray-500'
                       }`}
                       style={selectedAddressIdx === 'new' ? { borderColor: accent, '--tw-ring-color': accent } as React.CSSProperties : undefined}
@@ -909,7 +909,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       alt={item.product?.name}
                       className="w-14 h-14 object-cover rounded border"
                     />
-                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gray-800 text-white text-[10px] flex items-center justify-center font-bold">
+                    <span className="absolute -top-1 -end-1 w-5 h-5 rounded-full bg-gray-800 text-white text-[10px] flex items-center justify-center font-bold">
                       {item.quantity}
                     </span>
                   </div>
@@ -976,7 +976,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 <div className="flex items-center justify-between text-sm">
                   <span>
                     {t('checkout.summary.gift_card_applied', { last4: appliedGiftCard.codeLast4 })}
-                    <span className="text-xs text-gray-500 ml-1">
+                    <span className="text-xs text-gray-500 ms-1">
                       {t('checkout.summary.gift_card_balance', { balance: formatPrice(appliedGiftCard.balance) })}
                     </span>
                   </span>
@@ -1072,7 +1072,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 <span>{formatPrice(summaryTotal)}</span>
               </div>
               {quoteLoading && (
-                <p className="text-[11px] text-gray-400 text-right">{t('checkout.summary.updating')}</p>
+                <p className="text-[11px] text-gray-400 text-end">{t('checkout.summary.updating')}</p>
               )}
             </div>
           </div>

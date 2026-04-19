@@ -32,7 +32,7 @@ export default function GlobalSettings({ settings, onUpdate }: GlobalSettingsPro
                     {expandedSection === 'colors' ? (
                         <ChevronDown className="w-4 h-4 text-gray-400" />
                     ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                        <ChevronRight className="w-4 h-4 text-gray-400 rtl:rotate-180" />
                     )}
                 </button>
 
@@ -49,7 +49,7 @@ export default function GlobalSettings({ settings, onUpdate }: GlobalSettingsPro
                                             type="color"
                                             value={value || '#000000'}
                                             onChange={(e) => onUpdate('colors', { [key]: e.target.value })}
-                                            className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 cursor-pointer p-0 border-0"
+                                            className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -start-1/4 cursor-pointer p-0 border-0"
                                         />
                                     </div>
                                     <input
@@ -78,7 +78,7 @@ export default function GlobalSettings({ settings, onUpdate }: GlobalSettingsPro
                     {expandedSection === 'typography' ? (
                         <ChevronDown className="w-4 h-4 text-gray-400" />
                     ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                        <ChevronRight className="w-4 h-4 text-gray-400 rtl:rotate-180" />
                     )}
                 </button>
 
@@ -139,7 +139,7 @@ export default function GlobalSettings({ settings, onUpdate }: GlobalSettingsPro
                     {expandedSection === 'layout' ? (
                         <ChevronDown className="w-4 h-4 text-gray-400" />
                     ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                        <ChevronRight className="w-4 h-4 text-gray-400 rtl:rotate-180" />
                     )}
                 </button>
 

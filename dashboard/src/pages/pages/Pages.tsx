@@ -81,7 +81,7 @@ export const Pages: React.FC = () => {
           <p className="text-muted-foreground">{t('pages:list.subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/dashboard/pages/new')}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 me-2" />
           {t('pages:list.action.add')}
         </Button>
       </div>
@@ -98,7 +98,7 @@ export const Pages: React.FC = () => {
                 {t('pages:list.empty.hint')}
               </p>
               <Button onClick={() => navigate('/dashboard/pages/new')}>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 me-2" />
                 {t('pages:list.empty.action')}
               </Button>
             </div>
@@ -147,13 +147,13 @@ export const Pages: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => navigate(`/dashboard/pages/${p._id}/edit`)}>
-                            <Edit className="h-4 w-4 mr-2" />{t('common:action.edit')}
+                            <Edit className="h-4 w-4 me-2" />{t('common:action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDelete(p)}
                             className="text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />{t('common:action.delete')}
+                            <Trash2 className="h-4 w-4 me-2" />{t('common:action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

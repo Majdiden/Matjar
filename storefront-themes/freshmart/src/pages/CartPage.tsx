@@ -86,7 +86,7 @@ const CartPage: React.FC = () => {
                 </button>
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-end">
               <p className="font-bold">{formatPrice(item.lineTotal)}</p>
             </div>
           </div>

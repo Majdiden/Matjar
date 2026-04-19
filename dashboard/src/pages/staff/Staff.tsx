@@ -367,7 +367,7 @@ export const Staff: React.FC = () => {
           <p className="text-muted-foreground">{t('staff.list.subtitle')}</p>
         </div>
         <Button onClick={openInviteDialog}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 me-2" />
           {t('staff.invite.button')}
         </Button>
       </div>
@@ -405,10 +405,10 @@ export const Staff: React.FC = () => {
               ) : (
                 <>
                 <div className="relative max-w-md mb-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder={t('staff.list.search_placeholder')}
-                    className="pl-9"
+                    className="ps-9"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
@@ -418,13 +418,13 @@ export const Staff: React.FC = () => {
                     <p className="text-sm font-medium">{t('staff.list.selected_count', { count: selected.size })}</p>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-                        <X className="h-3.5 w-3.5 mr-1.5" />{t('staff.list.bulk_clear')}
+                        <X className="h-3.5 w-3.5 me-1.5" />{t('staff.list.bulk_clear')}
                       </Button>
                       <Button variant="outline" size="sm" onClick={handleBulkExport}>
-                        <Download className="h-3.5 w-3.5 mr-1.5" />{t('staff.list.bulk_export_csv')}
+                        <Download className="h-3.5 w-3.5 me-1.5" />{t('staff.list.bulk_export_csv')}
                       </Button>
                       <Button variant="destructive" size="sm" onClick={handleBulkRemove}>
-                        <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('staff.list.bulk_remove')}
+                        <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('staff.list.bulk_remove')}
                       </Button>
                     </div>
                   </div>
@@ -494,14 +494,14 @@ export const Staff: React.FC = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => openEditDialog(member)}>
-                                <Edit className="h-4 w-4 mr-2" />
+                                <Edit className="h-4 w-4 me-2" />
                                 {t('staff.member.action.edit_roles')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"
                                 onClick={() => handleRemoveStaff(member)}
                               >
-                                <Trash2 className="h-4 w-4 mr-2" />
+                                <Trash2 className="h-4 w-4 me-2" />
                                 {t('staff.member.action.remove')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -570,14 +570,14 @@ export const Staff: React.FC = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleResendInvite(invite)}>
-                                <RefreshCw className="h-4 w-4 mr-2" />
+                                <RefreshCw className="h-4 w-4 me-2" />
                                 {t('staff.invites.action.resend')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"
                                 onClick={() => handleRevokeInvite(invite)}
                               >
-                                <Trash2 className="h-4 w-4 mr-2" />
+                                <Trash2 className="h-4 w-4 me-2" />
                                 {t('staff.invites.action.revoke')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -633,7 +633,7 @@ export const Staff: React.FC = () => {
               {t('common:action.cancel')}
             </Button>
             <Button onClick={submitInvite} disabled={inviteSaving}>
-              {inviteSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {inviteSaving && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               {t('staff.invite.send_button')}
             </Button>
           </DialogFooter>
@@ -690,7 +690,7 @@ export const Staff: React.FC = () => {
               {t('common:action.cancel')}
             </Button>
             <Button onClick={submitEditRoles} disabled={editSaving}>
-              {editSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {editSaving && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               {t('common:action.save')}
             </Button>
           </DialogFooter>

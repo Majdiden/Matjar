@@ -175,7 +175,7 @@ export const Permissions: React.FC = () => {
           </p>
         </div>
         <Button onClick={openAddDialog}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 me-2" />
           {t('staff.role.form.create_button')}
         </Button>
       </div>
@@ -231,12 +231,12 @@ export const Permissions: React.FC = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => openEditDialog(role)}>
-                          <Edit className="h-4 w-4 mr-2" />
+                          <Edit className="h-4 w-4 me-2" />
                           {role.isSystem ? t('common:action.view') : t('common:action.edit')}
                         </DropdownMenuItem>
                         {!role.isSystem && (
                           <DropdownMenuItem onClick={() => handleDelete(role)} className="text-destructive">
-                            <Trash2 className="h-4 w-4 mr-2" />{t('common:action.delete')}
+                            <Trash2 className="h-4 w-4 me-2" />{t('common:action.delete')}
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
@@ -352,8 +352,8 @@ export const Permissions: React.FC = () => {
             {!isSystemRole && (
               <Button onClick={handleSave} disabled={saving}>
                 {saving
-                  ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
-                  : <><Save className="h-4 w-4 mr-2" />{t('staff.role.form.save_button')}</>
+                  ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
+                  : <><Save className="h-4 w-4 me-2" />{t('staff.role.form.save_button')}</>
                 }
               </Button>
             )}

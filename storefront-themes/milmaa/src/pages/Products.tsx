@@ -61,7 +61,7 @@ const Products: React.FC = () => {
     <div style={{ backgroundColor: CREAM }}>
       {/* Title banner */}
       <div className="relative overflow-hidden py-20" style={{ backgroundColor: MUTED }}>
-        <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full opacity-60" style={{ backgroundColor: PINK }} />
+        <div className="absolute -top-16 -end-16 w-64 h-64 rounded-full opacity-60" style={{ backgroundColor: PINK }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <div className="text-[11px] tracking-[0.3em] uppercase mb-3 font-bold opacity-70" style={{ color: DARK_TEAL }}>
             <Link to="/" className="hover:opacity-100">{t('theme.products.breadcrumb_home')}</Link>
@@ -86,7 +86,7 @@ const Products: React.FC = () => {
                 <li>
                   <button
                     onClick={() => setParam('category', '')}
-                    className={`text-left transition ${selectedCategory === '' ? 'font-bold' : 'opacity-70 hover:opacity-100'}`}
+                    className={`text-start transition ${selectedCategory === '' ? 'font-bold' : 'opacity-70 hover:opacity-100'}`}
                     style={{ color: DARK_TEAL }}
                   >
                     {t('theme.products.all_products')}
@@ -96,7 +96,7 @@ const Products: React.FC = () => {
                   <li key={cat._id}>
                     <button
                       onClick={() => setParam('category', cat.slug)}
-                      className={`text-left transition ${selectedCategory === cat.slug ? 'font-bold' : 'opacity-70 hover:opacity-100'}`}
+                      className={`text-start transition ${selectedCategory === cat.slug ? 'font-bold' : 'opacity-70 hover:opacity-100'}`}
                       style={{ color: DARK_TEAL }}
                     >
                       {cat.name}
@@ -151,7 +151,7 @@ const Products: React.FC = () => {
 
             {/* Promo card */}
             <div className="relative overflow-hidden rounded-[32px] p-7 text-white" style={{ backgroundColor: TEAL }}>
-              <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full opacity-30" style={{ backgroundColor: YELLOW }} />
+              <div className="absolute -top-6 -end-6 w-32 h-32 rounded-full opacity-30" style={{ backgroundColor: YELLOW }} />
               <div className="relative">
                 <div className="text-[10px] tracking-[0.3em] uppercase font-bold mb-3 opacity-90">{t('theme.products.promo_eyebrow')}</div>
                 <h4 className="font-serif text-2xl font-bold leading-tight mb-3" style={{ fontFamily: HEADING_FONT }}>
@@ -178,7 +178,7 @@ const Products: React.FC = () => {
               <select
                 value={sort}
                 onChange={(e) => setParam('sort', e.target.value)}
-                className="text-sm bg-white rounded-full px-5 py-2.5 pr-8 focus:outline-none font-medium"
+                className="text-sm bg-white rounded-full px-5 py-2.5 pe-8 focus:outline-none font-medium"
                 style={{ color: DARK_TEAL }}
               >
                 <option value="newest">{t('theme.products.sort_newest')}</option>

@@ -159,7 +159,7 @@ const Products: React.FC = () => {
                   <li key={cat._id}>
                     <button
                       onClick={() => updateParam('category', cat.slug || cat._id)}
-                      className="text-[13px] text-left w-full hover:opacity-80 transition"
+                      className="text-[13px] text-start w-full hover:opacity-80 transition"
                       style={{
                         color: isActive ? 'var(--color-primary)' : 'var(--color-foreground)',
                         fontWeight: isActive ? 700 : 400,
@@ -256,7 +256,7 @@ const Products: React.FC = () => {
           {/* Brand facet */}
           {brandFacets.length > 0 && (
             <FilterCard title={t('theme.products.filter_brand')}>
-              <ul className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              <ul className="space-y-2 max-h-56 overflow-y-auto pe-1">
                 {brandFacets.map(([brand, count]) => (
                   <li key={brand}>
                     <label className="flex items-center justify-between gap-2 text-[13px] cursor-pointer" style={{ color: 'var(--color-foreground)' }}>

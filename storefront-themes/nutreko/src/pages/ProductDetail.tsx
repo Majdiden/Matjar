@@ -117,13 +117,13 @@ const ProductDetail: React.FC = () => {
             <div className="aspect-square border-2 border-black relative overflow-hidden">
               <ImageZoom src={mainImage} alt={product.name} fit="cover" className="w-full h-full" />
               {onSale && (
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-4 start-4">
                   <span className="inline-block px-4 py-2 text-[11px] font-black tracking-wider uppercase text-white" style={{ backgroundColor: ERROR }}>
                     -{pct}% OFF
                   </span>
                 </div>
               )}
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 end-4">
                 {isPreorder ? (
                   <span className="inline-block px-4 py-2 text-[11px] font-black tracking-wider uppercase text-white" style={{ backgroundColor: ORANGE }}>
                     {t('theme.product_detail.pre_order')}
@@ -304,7 +304,7 @@ const ProductDetail: React.FC = () => {
               <button
                 key={k}
                 onClick={() => setTab(k)}
-                className={`flex-1 py-5 text-[11px] tracking-[0.22em] uppercase font-black transition border-r-2 border-black last:border-r-0 ${tab === k ? 'bg-black text-white' : 'hover:bg-[var(--color-primary)]'}`}
+                className={`flex-1 py-5 text-[11px] tracking-[0.22em] uppercase font-black transition border-e-2 border-black last:border-e-0 ${tab === k ? 'bg-black text-white' : 'hover:bg-[var(--color-primary)]'}`}
               >
                 {label}
               </button>

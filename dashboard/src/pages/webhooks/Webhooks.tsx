@@ -200,7 +200,7 @@ export const Webhooks: React.FC = () => {
           <p className="text-muted-foreground">{t('webhooks.list.subtitle')}</p>
         </div>
         <Button onClick={openAddDialog}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 me-2" />
           {t('webhooks.action.add')}
         </Button>
       </div>
@@ -217,7 +217,7 @@ export const Webhooks: React.FC = () => {
                 {t('webhooks.list.empty_description')}
               </p>
               <Button onClick={openAddDialog}>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 me-2" />
                 {t('webhooks.list.add_first')}
               </Button>
             </div>
@@ -288,18 +288,18 @@ export const Webhooks: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => openEditDialog(webhook)}>
-                            <Edit className="h-4 w-4 mr-2" />{t('webhooks.action.edit')}
+                            <Edit className="h-4 w-4 me-2" />{t('webhooks.action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleTest(webhook)}>
-                            <RefreshCw className="h-4 w-4 mr-2" />{t('webhooks.action.send_test')}
+                            <RefreshCw className="h-4 w-4 me-2" />{t('webhooks.action.send_test')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => { navigator.clipboard.writeText(webhook.secret); toast.success(t('webhooks.toast.secret_copied')); }}
                           >
-                            <Copy className="h-4 w-4 mr-2" />{t('webhooks.action.copy_secret')}
+                            <Copy className="h-4 w-4 me-2" />{t('webhooks.action.copy_secret')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDelete(webhook)} className="text-destructive">
-                            <Trash2 className="h-4 w-4 mr-2" />{t('webhooks.action.delete')}
+                            <Trash2 className="h-4 w-4 me-2" />{t('webhooks.action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -391,8 +391,8 @@ export const Webhooks: React.FC = () => {
             </Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving
-                ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
-                : <><Save className="h-4 w-4 mr-2" />{t('webhooks.action.save')}</>
+                ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
+                : <><Save className="h-4 w-4 me-2" />{t('webhooks.action.save')}</>
               }
             </Button>
           </DialogFooter>
