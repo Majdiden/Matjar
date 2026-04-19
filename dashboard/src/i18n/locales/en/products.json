@@ -1,1 +1,597 @@
-{}
+{
+  "products": {
+    "list": {
+      "title": "Products",
+      "subtitle": "Manage your catalog, inventory, and product information",
+      "column": {
+        "product": "Product",
+        "sku": "SKU",
+        "category": "Category",
+        "status": "Status",
+        "price": "Price",
+        "stock": "Stock"
+      },
+      "filter": {
+        "all": "All",
+        "active": "Active",
+        "drafts": "Drafts",
+        "low_stock": "Low Stock",
+        "archived": "Archived"
+      },
+      "new_product": "New Product",
+      "search_placeholder": "Search by name, SKU, tag...",
+      "more_filters": "More Filters",
+      "empty": {
+        "title": "No products yet",
+        "title_search": "No products match",
+        "description": "Add your first product to start selling. You can always edit it later.",
+        "description_search": "Try a different search term or clear filters to see all products.",
+        "action": "Create Your First Product"
+      },
+      "stat": {
+        "total_products": "Total Products",
+        "total_description": "In your catalog",
+        "active": "Active",
+        "active_description": "Live on storefront",
+        "low_stock": "Low Stock",
+        "low_stock_description": "Need restocking",
+        "inventory_value": "Inventory Value",
+        "inventory_value_description": "Total stock value"
+      },
+      "stock_badge": {
+        "out_of_stock": "Out of stock",
+        "in_stock": "{{count}} in stock"
+      },
+      "select_all": "Product",
+      "selected_count": "{{count}} selected"
+    },
+    "bulk": {
+      "clear": "Clear",
+      "delete": "Delete"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Delete \"{{name}}\"?",
+        "description": "This removes the product from your catalog and storefront.",
+        "title_bulk": "Delete {{count}} products?",
+        "description_bulk": "All selected products will be removed from your catalog and storefront."
+      }
+    },
+    "toast": {
+      "deleted": "\"{{name}}\" deleted",
+      "deleted_bulk": "{{count}} products deleted",
+      "delete_failed": "Failed to delete product",
+      "bulk_delete_failed": "Bulk delete failed",
+      "load_failed": "Failed to load products",
+      "created": "Product created",
+      "updated": "Product updated",
+      "save_failed_create": "Failed to create product",
+      "save_failed_update": "Failed to update product",
+      "export_empty": "No products to export",
+      "exported": "Exported {{count}} products",
+      "export_failed": "Export failed",
+      "variants_missing": "Variants are enabled but you have not generated any. Add option values and click Generate."
+    },
+    "form": {
+      "title": {
+        "create": "Add Product",
+        "edit": "Edit Product"
+      },
+      "subtitle": {
+        "create": "Create a new product listing",
+        "edit": "Update product information"
+      },
+      "section": {
+        "basic_info": {
+          "title": "Basic Information"
+        },
+        "pricing": {
+          "title": "Pricing & Inventory"
+        },
+        "images": {
+          "title": "Product Images",
+          "description": "Upload product images. First image will be the main image."
+        },
+        "status": {
+          "title": "Status"
+        },
+        "options": {
+          "title": "Options"
+        },
+        "tags": {
+          "title": "Tags"
+        }
+      },
+      "field": {
+        "name": {
+          "label": "Product Name *",
+          "placeholder": "e.g., Wireless Headphones",
+          "error": {
+            "required": "Required"
+          }
+        },
+        "description": {
+          "label": "Description *",
+          "placeholder": "Describe your product...",
+          "error": {
+            "required": "Required"
+          }
+        },
+        "sku": {
+          "label": "SKU *",
+          "placeholder": "e.g., WH-001",
+          "error": {
+            "required": "Required"
+          }
+        },
+        "slug": {
+          "label": "Slug *",
+          "placeholder": "e.g., wireless-headphones",
+          "error": {
+            "required": "Required"
+          }
+        },
+        "category": {
+          "label": "Category *",
+          "placeholder": "Select category",
+          "error": {
+            "required": "Required"
+          }
+        },
+        "regular_price": {
+          "label": "Regular Price *",
+          "error": {
+            "positive": "Must be > 0"
+          }
+        },
+        "sale_price": {
+          "label": "Sale Price",
+          "error": {
+            "less_than_price": "Must be less than price"
+          }
+        },
+        "stock": {
+          "label": "Stock Quantity *",
+          "error": {
+            "negative": "Cannot be negative"
+          }
+        },
+        "featured": {
+          "label": "Featured Product",
+          "help": "Show in featured sections"
+        },
+        "tags": {
+          "placeholder": "Add a tag..."
+        }
+      },
+      "status": {
+        "draft_help": "Saved but not visible to customers",
+        "active_help": "Visible and available for purchase",
+        "archived_help": "Hidden from store"
+      },
+      "image_upload": {
+        "label": "Upload Images",
+        "description": "Drag & drop or click to upload (JPEG, PNG, WebP)"
+      },
+      "action": {
+        "create": "Create Product",
+        "update": "Update Product"
+      }
+    },
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "variants": {
+      "title": "Variants",
+      "description": "Sell this product in multiple sizes, colours or other configurations.",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "option_axes_label": "Option axes",
+      "add_option": "Add option",
+      "first_option_hint": "Add your first option (e.g. \"Size\") to start building variants.",
+      "option_name_placeholder": "Option name (Color, Size, …)",
+      "add_value_placeholder": "Add value + Enter",
+      "combinations": "{{count}} combinations from your option axes",
+      "add_values_hint": "Add option values to build the variant matrix",
+      "generate": "Generate variants",
+      "refresh": "Refresh matrix",
+      "variants_label": "Variants ({{count}})",
+      "total_stock": "Total stock",
+      "column": {
+        "variant": "Variant",
+        "sku": "SKU",
+        "price": "Price",
+        "stock": "Stock"
+      },
+      "price_inherit_help": "Leave price blank to inherit the product's regular price. Stock here replaces the product-level stock for variant-enabled products."
+    },
+    "preorder": {
+      "title": "Pre-orders",
+      "description": "Allow customers to order this product before it is in stock.",
+      "field": {
+        "expected_ship_date": {
+          "label": "Expected ship date",
+          "help": "Shown to customers on the product page."
+        },
+        "charge_policy": {
+          "label": "Charge policy",
+          "now": "Charge immediately",
+          "on_ship": "Charge when shipped"
+        },
+        "max_units": {
+          "label": "Maximum pre-orders",
+          "placeholder": "Unlimited",
+          "help": "Leave blank for unlimited. {{reserved}} reserved so far."
+        },
+        "max_per_customer": {
+          "label": "Max per customer",
+          "placeholder": "Unlimited"
+        }
+      }
+    },
+    "categories": {
+      "list": {
+        "title": "Categories",
+        "subtitle": "Organize your catalog into shoppable collections",
+        "new_category": "New Category",
+        "search_placeholder": "Search categories...",
+        "empty": {
+          "title": "No categories yet",
+          "title_search": "No categories match",
+          "description": "Group your products into categories to make them easier to discover.",
+          "description_search": "Try a different search term.",
+          "action": "Add your first category"
+        },
+        "select_all": "Select all",
+        "selected_count": "{{count}} selected",
+        "product_count_one": "{{count}} product",
+        "product_count_other": "{{count}} products",
+        "no_description": "No description"
+      },
+      "form": {
+        "title": {
+          "create": "New Category",
+          "edit": "Edit Category"
+        },
+        "subtitle": {
+          "create": "Create a new category to organize your products",
+          "edit": "Update category information"
+        },
+        "field": {
+          "name": {
+            "label": "Category Name",
+            "placeholder": "e.g., Electronics",
+            "error": {
+              "required": "Category name is required"
+            }
+          },
+          "slug": {
+            "label": "Slug",
+            "placeholder": "e.g., electronics",
+            "help_create": "Auto-generated from name",
+            "help_edit": "Slug cannot be changed after creation"
+          },
+          "description": {
+            "label": "Description (Optional)",
+            "placeholder": "Describe this category..."
+          }
+        }
+      },
+      "toast": {
+        "created": "Category created",
+        "updated": "Category updated",
+        "deleted": "Category deleted",
+        "create_failed": "Failed to create category",
+        "update_failed": "Failed to update category",
+        "delete_failed": "Failed to delete category",
+        "load_failed": "Failed to load categories"
+      },
+      "confirm": {
+        "delete": {
+          "title": "Delete \"{{name}}\"?",
+          "description": "Products in this category will become uncategorized. This cannot be undone."
+        },
+        "delete_bulk": {
+          "title": "Delete {{count}} categories?",
+          "description": "Products in these categories will become uncategorized."
+        }
+      },
+      "bulk": {
+        "deleted_count": "{{count}} deleted",
+        "failed_count": "{{count}} failed"
+      }
+    },
+    "collections": {
+      "list": {
+        "title": "Collections",
+        "subtitle": "Curated groups of products — manual or rule-based",
+        "new_collection": "New Collection",
+        "search_placeholder": "Search collections...",
+        "filter": {
+          "all_types": "All types",
+          "manual": "Manual",
+          "smart": "Smart",
+          "all_statuses": "All statuses",
+          "published": "Published",
+          "unpublished": "Unpublished"
+        },
+        "column": {
+          "title": "Title",
+          "handle": "Handle",
+          "type": "Type",
+          "products": "Products",
+          "published": "Published",
+          "updated": "Updated"
+        },
+        "type_badge": {
+          "smart": "Smart",
+          "manual": "Manual"
+        },
+        "published_badge": {
+          "published": "Published",
+          "hidden": "Hidden"
+        },
+        "total": "{{count}} total collections",
+        "empty": {
+          "title": "No collections yet",
+          "description": "Collections let you organize products into groups for your storefront",
+          "action": "Create Collection"
+        },
+        "selected_count": "{{count}} selected"
+      },
+      "bulk": {
+        "clear": "Clear",
+        "publish": "Publish",
+        "unpublish": "Unpublish",
+        "delete": "Delete",
+        "published_count": "{{count}} published",
+        "unpublished_count": "{{count}} unpublished",
+        "deleted_count": "{{count}} deleted",
+        "failed_count": "{{count}} failed"
+      },
+      "confirm": {
+        "delete": {
+          "title": "Delete collection?",
+          "description": "\"{{title}}\" will be permanently removed.",
+          "description_bulk": "This cannot be undone."
+        }
+      },
+      "toast": {
+        "deleted": "Collection deleted",
+        "delete_failed": "Failed to delete collection",
+        "saved": "Collection saved",
+        "created": "Collection created",
+        "save_failed": "Failed to save collection",
+        "load_failed": "Failed to load collection",
+        "order_failed": "Failed to save order",
+        "save_first": "Save the collection first to preview products",
+        "products_added": "{{count}} product(s) added",
+        "products_add_failed": "Failed to add products",
+        "product_remove_failed": "Failed to remove product"
+      },
+      "form": {
+        "title": {
+          "create": "New Collection",
+          "edit": "Edit Collection"
+        },
+        "subtitle": {
+          "manual": "Products added manually",
+          "smart": "Products added automatically by rules"
+        },
+        "section": {
+          "basic_info": "Basic info",
+          "image": "Image",
+          "type": "Collection type",
+          "products": "Products",
+          "rules": "Rules",
+          "visibility": "Visibility",
+          "seo": "SEO"
+        },
+        "field": {
+          "title": {
+            "label": "Title",
+            "placeholder": "e.g. Summer Sale"
+          },
+          "handle": {
+            "label": "Handle (URL slug)",
+            "placeholder": "summer-sale"
+          },
+          "description": {
+            "label": "Description",
+            "placeholder": "Short description..."
+          },
+          "description_html": {
+            "label": "Description HTML",
+            "placeholder": "<p>Rich text HTML...</p>"
+          },
+          "image_url": {
+            "label": "Image URL",
+            "placeholder": "https://..."
+          },
+          "image_alt": {
+            "label": "Alt text",
+            "placeholder": "Describe the image"
+          },
+          "sort_order": {
+            "label": "Sort order"
+          },
+          "meta_title": {
+            "label": "Meta title"
+          },
+          "meta_description": {
+            "label": "Meta description",
+            "placeholder": "Brief description for search engines..."
+          }
+        },
+        "sort_order": {
+          "manual": "Manually",
+          "best_selling": "Best selling",
+          "title_asc": "Title A–Z",
+          "title_desc": "Title Z–A",
+          "price_asc": "Price low to high",
+          "price_desc": "Price high to low",
+          "created_desc": "Newest first",
+          "created_asc": "Oldest first"
+        },
+        "type_label": {
+          "manual": "manual",
+          "smart": "smart",
+          "badge_rule_based": "Rule-based",
+          "badge_curated": "Curated"
+        },
+        "rules": {
+          "match_prefix": "Products must match",
+          "match_all": "ALL",
+          "match_any": "ANY",
+          "match_suffix": "of the conditions",
+          "no_rules": "No rules yet. Add a condition below.",
+          "add_condition": "Add condition",
+          "field": {
+            "title": "Title",
+            "tag": "Tag",
+            "price": "Price",
+            "inventory": "Inventory",
+            "category": "Category"
+          },
+          "operator": {
+            "equals": "is equal to",
+            "not_equals": "is not equal to",
+            "contains": "contains",
+            "starts_with": "starts with",
+            "ends_with": "ends with",
+            "in": "is one of",
+            "greater_than": "is greater than",
+            "less_than": "is less than"
+          },
+          "value_placeholder_number": "0",
+          "value_placeholder_string": "value"
+        },
+        "products": {
+          "add_button": "Add products",
+          "no_products": "No products added yet. Click \"Add products\" to start.",
+          "column": {
+            "product": "Product",
+            "price": "Price",
+            "order": "Order"
+          }
+        },
+        "visibility": {
+          "published": "Published",
+          "hidden": "Hidden from storefront"
+        },
+        "title_required": "Title is required",
+        "rules_required": "All rule values are required"
+      },
+      "picker": {
+        "title": "Add products",
+        "search_placeholder": "Search products...",
+        "no_products": "No products found",
+        "add_button": "Add ({{count}}) products",
+        "add_button_empty": "Add products"
+      },
+      "preview": {
+        "title": "Preview — matching products",
+        "button": "Preview products",
+        "no_products": "No products match the current rules",
+        "column": {
+          "product": "Product",
+          "price": "Price"
+        }
+      }
+    },
+    "custom_fields": {
+      "list": {
+        "title": "Custom Fields",
+        "subtitle": "Manage metafields for products, orders, customers, and more",
+        "all_title": "All Custom Fields",
+        "empty": {
+          "title": "No custom fields",
+          "description": "Add metafields to extend your data model.",
+          "action": "Add Field"
+        },
+        "column": {
+          "resource": "Resource",
+          "namespace_key": "Namespace / Key",
+          "type": "Type",
+          "value": "Value",
+          "actions": "Actions"
+        }
+      },
+      "form": {
+        "title": {
+          "create": "Create Custom Field",
+          "edit": "Edit Custom Field"
+        },
+        "field": {
+          "resource": {
+            "label": "Resource"
+          },
+          "type": {
+            "label": "Type"
+          },
+          "namespace": {
+            "label": "Namespace",
+            "placeholder": "custom"
+          },
+          "key": {
+            "label": "Key",
+            "placeholder": "my_field"
+          },
+          "resource_id": {
+            "label": "Resource ID (optional)",
+            "placeholder": "Leave empty for resource-level defaults"
+          },
+          "value": {
+            "label": "Value"
+          }
+        },
+        "resource": {
+          "product": "Product",
+          "category": "Category",
+          "order": "Order",
+          "customer": "Customer",
+          "store": "Store"
+        },
+        "filter": {
+          "all_resources": "All Resources"
+        },
+        "action": {
+          "update": "Update",
+          "create": "Create"
+        }
+      },
+      "field_type": {
+        "string": "String",
+        "number": "Number",
+        "boolean": "Boolean",
+        "date": "Date",
+        "json": "JSON",
+        "url": "URL",
+        "color": "Color",
+        "richtext": "Rich Text"
+      },
+      "boolean_options": {
+        "true": "True",
+        "false": "False"
+      },
+      "toast": {
+        "created": "Custom field created",
+        "updated": "Custom field updated",
+        "deleted": "Custom field deleted",
+        "save_failed": "Failed to save custom field",
+        "delete_failed": "Failed to delete",
+        "load_failed": "Failed to load custom fields",
+        "required": "Resource and key are required"
+      },
+      "confirm": {
+        "delete": {
+          "title": "Delete custom field?",
+          "description": "This removes the metafield from the resource it's attached to."
+        }
+      },
+      "add_field": "Add Field"
+    }
+  }
+}

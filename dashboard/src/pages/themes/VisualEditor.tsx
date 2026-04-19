@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Plus, Loader2, Settings2, Code, Layers } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
@@ -80,9 +81,9 @@ type RightPanelTab = 'section' | 'theme' | 'css';
 
 /**
  * Friendly labels for the platform template ids. Kept in lockstep
- * with the backend allow-list in services/themeValidator.js. Any
- * key missing here falls back to the raw id so a newly-allow-listed
- * template still appears (un-labelled) without a dashboard deploy.
+ * with the backend allow-list in services/themeValidator.js.
+ * Resolved via i18n in the component — the map is kept as a fallback
+ * for contexts where the hook isn't available.
  */
 const TEMPLATE_LABELS: Record<string, string> = {
   index: 'Home',
@@ -110,6 +111,7 @@ const TEMPLATE_PREVIEW_PATHS: Record<string, string> = {
 export default function VisualEditor() {
   const navigate = useNavigate();
   const confirm = useConfirm();
+  const { t } = useTranslation(['themes', 'common']);
   const [customization, setCustomization] = useState<ThemeCustomization | null>(null);
   const [manifestSchema, setManifestSchema] = useState<ManifestSchema | null>(null);
   const [loading, setLoading] = useState(true);
@@ -205,7 +207,7 @@ export default function VisualEditor() {
       }
     } catch (error) {
       console.error('Failed to load customization:', error);
-      toast.error('Failed to load theme editor.');
+      toast.error(t('themes:editor.toast.error_load'));
     } finally {
       setLoading(false);
     }
@@ -277,10 +279,10 @@ export default function VisualEditor() {
       setCustomization(response.data.customization);
       setHasChanges(true);
       schedulePreviewReload();
-      toast.success('Section added');
+      toast.success(t('themes:editor.toast.section_added'));
     } catch (error) {
       console.error('Failed to add section:', error);
-      toast.error('Failed to add section.');
+      toast.error(t('themes:editor.toast.error_add_section'));
     }
   };
 
@@ -318,7 +320,7 @@ export default function VisualEditor() {
       }
     } catch (error) {
       console.error('Failed to toggle section:', error);
-      toast.error('Failed to toggle section.');
+      toast.error(t('themes:editor.toast.error_toggle_section'));
     }
   };
 
@@ -331,10 +333,10 @@ export default function VisualEditor() {
       setCustomization(response.data.customization);
       setHasChanges(true);
       schedulePreviewReload();
-      toast.success('Section duplicated');
+      toast.success(t('themes:editor.toast.section_duplicated'));
     } catch (error) {
       console.error('Failed to duplicate section:', error);
-      toast.error('Failed to duplicate section.');
+      toast.error(t('themes:editor.toast.error_duplicate'));
     }
   };
 
@@ -350,7 +352,7 @@ export default function VisualEditor() {
       if (selectedSection?.id === sectionId) setSelectedSection(null);
     } catch (error) {
       console.error('Failed to delete section:', error);
-      toast.error('Failed to delete section.');
+      toast.error(t('themes:editor.toast.error_delete'));
     }
   };
 
@@ -400,11 +402,11 @@ export default function VisualEditor() {
         setSaveStatus('saved');
         schedulePreviewReload();
         setTimeout(() => setSaveStatus((s) => (s === 'saved' ? 'idle' : s)), 1500);
-        toast.success('Custom CSS saved');
+        toast.success(t('themes:editor.toast.css_saved'));
       } catch (err: unknown) {
         console.error('Failed to save custom CSS:', err);
         const e = err as { response?: { data?: { message?: string } }; message?: string } | null;
-        const msg = e?.response?.data?.message || e?.message || 'Failed to save custom CSS.';
+        const msg = e?.response?.data?.message || e?.message || t('themes:editor.toast.error_save_css');
         toast.error(msg);
         setSaveStatus('idle');
       }
@@ -443,7 +445,7 @@ export default function VisualEditor() {
       // Don't reset selectedSection from response — local state already has fresh values
     } catch (error) {
       console.error('Failed to save section settings:', error);
-      toast.error('Failed to save settings.');
+      toast.error(t('themes:editor.toast.error_save_section'));
       setSaveStatus('idle');
     }
   };
@@ -458,10 +460,10 @@ export default function VisualEditor() {
       // sections render immediately. Reload key bump triggers an iframe
       // remount in PreviewFrame.
       setPreviewReloadKey((k) => k + 1);
-      toast.success('Theme published');
+      toast.success(t('themes:editor.toast.published'));
     } catch (error) {
       console.error('Failed to publish:', error);
-      toast.error('Failed to publish.');
+      toast.error(t('themes:editor.toast.error_publish'));
     } finally {
       setPublishing(false);
     }
@@ -469,9 +471,9 @@ export default function VisualEditor() {
 
   const handleReset = async () => {
     if (!(await confirm({
-      title: 'Reset to defaults?',
-      description: 'All color, typography, layout, and section customizations will revert to the theme defaults. This cannot be undone.',
-      confirmText: 'Reset',
+      title: t('themes:editor.confirm.reset_title'),
+      description: t('themes:editor.confirm.reset_description'),
+      confirmText: t('themes:editor.confirm.reset_confirm'),
       variant: 'destructive',
     }))) return;
     try {
@@ -481,10 +483,10 @@ export default function VisualEditor() {
       await loadCustomization();
       setSelectedSection(null);
       setPreviewReloadKey((k) => k + 1);
-      toast.success('Reset to defaults');
+      toast.success(t('themes:editor.toast.reset_done'));
     } catch (error) {
       console.error('Failed to reset:', error);
-      toast.error('Failed to reset.');
+      toast.error(t('themes:editor.toast.error_reset'));
     } finally {
       setPublishing(false);
     }
@@ -495,7 +497,7 @@ export default function VisualEditor() {
       <div className="h-screen flex items-center justify-center bg-slate-50">
         <div className="flex items-center gap-2 text-slate-500 text-sm">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Loading editor…
+          {t('themes:editor.loading')}
         </div>
       </div>
     );
@@ -505,12 +507,12 @@ export default function VisualEditor() {
     return (
       <div className="h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <p className="text-slate-600 text-sm">No customization data available</p>
+          <p className="text-slate-600 text-sm">{t('themes:editor.no_data')}</p>
           <button
             onClick={() => navigate('/dashboard/themes')}
             className="mt-3 text-blue-600 hover:underline text-sm"
           >
-            Back to themes
+            {t('themes:editor.back_to_themes')}
           </button>
         </div>
       </div>
@@ -579,14 +581,14 @@ export default function VisualEditor() {
         <aside className="w-72 shrink-0 bg-white border-r border-slate-200 flex flex-col">
           <div className="px-3 py-2.5 border-b border-slate-200 flex items-center justify-between">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Sections
+              {t('themes:editor.sections_panel.title')}
             </h2>
             <button
               onClick={() => setShowSectionLibrary(true)}
               className="flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-700"
             >
               <Plus className="h-3 w-3" />
-              Add
+              {t('themes:editor.sections_panel.add')}
             </button>
           </div>
           <ScrollArea className="flex-1">
@@ -621,17 +623,17 @@ export default function VisualEditor() {
         <aside className="w-80 shrink-0 bg-white border-l border-slate-200 flex flex-col">
           <div className="border-b border-slate-200 flex">
             {([
-              { id: 'theme' as const, label: 'Theme', icon: Settings2, disabled: false },
-              { id: 'section' as const, label: 'Section', icon: Layers, disabled: !selectedSection },
-              { id: 'css' as const, label: 'Custom CSS', icon: Code, disabled: false },
-            ]).map((t) => {
-              const Icon = t.icon;
-              const active = rightPanel === t.id;
-              const disabled = t.disabled;
+              { id: 'theme' as const, label: t('themes:editor.right_panel.tab.theme'), icon: Settings2, disabled: false },
+              { id: 'section' as const, label: t('themes:editor.right_panel.tab.section'), icon: Layers, disabled: !selectedSection },
+              { id: 'css' as const, label: t('themes:editor.right_panel.tab.css'), icon: Code, disabled: false },
+            ]).map((tab) => {
+              const Icon = tab.icon;
+              const active = rightPanel === tab.id;
+              const disabled = tab.disabled;
               return (
                 <button
-                  key={t.id}
-                  onClick={() => !disabled && setRightPanel(t.id)}
+                  key={tab.id}
+                  onClick={() => !disabled && setRightPanel(tab.id)}
                   disabled={disabled}
                   className={
                     'flex-1 px-3 py-2.5 flex items-center justify-center gap-1.5 text-xs font-medium transition-colors ' +
@@ -643,7 +645,7 @@ export default function VisualEditor() {
                   }
                 >
                   <Icon className="w-3.5 h-3.5" />
-                  {t.label}
+                  {tab.label}
                 </button>
               );
             })}

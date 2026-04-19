@@ -1,1 +1,94 @@
-{}
+{
+  "webhooks": {
+    "list": {
+      "title": "خطّافات الويب",
+      "subtitle": "تكوين إشعارات الأحداث للخدمات الخارجية",
+      "empty_title": "لا توجد خطّافات ويب مُهيَّأة",
+      "empty_description": "أنشئ خطّافات ويب لتلقي إشعارات فورية عند وقوع أحداث في متجرك",
+      "add_first": "أضف أول خطّاف ويب",
+      "column": {
+        "endpoint": "نقطة النهاية",
+        "events": "الأحداث",
+        "last_delivery": "آخر تسليم",
+        "status": "الحالة"
+      }
+    },
+    "delivery": {
+      "never": "لم يتم بعد",
+      "status": {
+        "success": "تم بنجاح",
+        "failed": "فشل"
+      }
+    },
+    "form": {
+      "title_create": "إنشاء خطّاف ويب",
+      "title_edit": "تعديل خطّاف الويب",
+      "description": "تهيئة نقطة نهاية لاستقبال إشعارات الأحداث",
+      "field": {
+        "url": {
+          "label": "رابط نقطة النهاية",
+          "placeholder": "https://example.com/webhooks"
+        },
+        "description": {
+          "label": "الوصف (اختياري)",
+          "placeholder": "ما الذي يفعله هذا الخطّاف؟"
+        },
+        "enabled": {
+          "label": "مفعّل"
+        },
+        "events": {
+          "label": "الأحداث ({{count}} محدد)"
+        }
+      },
+      "select_all": "تحديد الكل",
+      "deselect_all": "إلغاء تحديد الكل"
+    },
+    "action": {
+      "add": "إضافة خطّاف ويب",
+      "edit": "تعديل",
+      "send_test": "إرسال اختبار",
+      "copy_secret": "نسخ السر",
+      "delete": "حذف",
+      "save": "حفظ"
+    },
+    "toast": {
+      "created": "تم إنشاء خطّاف الويب",
+      "updated": "تم تحديث خطّاف الويب",
+      "deleted": "تم حذف خطّاف الويب",
+      "enabled": "تم تفعيل خطّاف الويب",
+      "disabled": "تم تعطيل خطّاف الويب",
+      "test_sent": "تم إرسال حدث الاختبار",
+      "secret_copied": "تم نسخ السر",
+      "save_failed": "فشل حفظ خطّاف الويب",
+      "delete_failed": "فشل حذف خطّاف الويب",
+      "toggle_failed": "فشل تغيير حالة خطّاف الويب",
+      "test_failed": "فشل الاختبار",
+      "url_required": "الرابط مطلوب",
+      "event_required": "اختر حدثاً واحداً على الأقل"
+    },
+    "confirm_delete": {
+      "title": "حذف خطّاف الويب؟",
+      "description": "ستتوقف نقطة النهاية {{url}} عن استقبال الأحداث.",
+      "confirm_text": "حذف"
+    },
+    "event": {
+      "order_created": { "label": "إنشاء طلب" },
+      "order_updated": { "label": "تحديث طلب" },
+      "order_cancelled": { "label": "إلغاء طلب" },
+      "order_fulfilled": { "label": "تنفيذ طلب" },
+      "order_refunded": { "label": "استرداد طلب" },
+      "product_created": { "label": "إنشاء منتج" },
+      "product_updated": { "label": "تحديث منتج" },
+      "product_deleted": { "label": "حذف منتج" },
+      "customer_created": { "label": "إنشاء عميل" },
+      "customer_updated": { "label": "تحديث عميل" },
+      "inventory_low_stock": { "label": "مخزون منخفض" },
+      "inventory_updated": { "label": "تحديث المخزون" },
+      "payment_succeeded": { "label": "نجاح الدفع" },
+      "payment_failed": { "label": "فشل الدفع" },
+      "payment_refunded": { "label": "استرداد الدفع" },
+      "theme_published": { "label": "نشر القالب" },
+      "theme_installed": { "label": "تثبيت القالب" }
+    }
+  }
+}

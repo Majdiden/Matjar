@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -24,6 +25,7 @@ interface Market {
 }
 
 export const Markets: React.FC = () => {
+  const { t } = useTranslation(['marketing', 'common']);
   const [markets, setMarkets] = useState<Market[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -48,7 +50,7 @@ export const Markets: React.FC = () => {
       setMarkets(list);
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to load markets');
+      toast.error(e?.message || t('marketing.market.toast.load_failed'));
     } finally {
       setLoading(false);
     }
@@ -73,7 +75,7 @@ export const Markets: React.FC = () => {
 
   const handleSave = async () => {
     if (!form.name || !form.countries) {
-      toast.error('Name and countries are required');
+      toast.error(t('marketing.market.form.validation.name_countries_required'));
       return;
     }
     setSaving(true);
@@ -86,16 +88,16 @@ export const Markets: React.FC = () => {
       };
       if (editingMarket) {
         await api.markets.update(editingMarket._id, data);
-        toast.success('Market updated');
+        toast.success(t('marketing.market.toast.updated'));
       } else {
         await api.markets.create(data);
-        toast.success('Market created');
+        toast.success(t('marketing.market.toast.created'));
       }
       setDialogOpen(false);
       loadMarkets();
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to save market');
+      toast.error(e?.message || t('marketing.market.toast.save_failed'));
     } finally {
       setSaving(false);
     }
@@ -103,18 +105,18 @@ export const Markets: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!(await confirm({
-      title: 'Delete market?',
-      description: 'Customers in this market\'s countries will fall back to your default market.',
-      confirmText: 'Delete',
+      title: t('marketing.market.delete_dialog.title'),
+      description: t('marketing.market.delete_dialog.description'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       await api.markets.delete(id);
-      toast.success('Market deleted');
+      toast.success(t('marketing.market.toast.deleted'));
       setMarkets(prev => prev.filter(m => m._id !== id));
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to delete market');
+      toast.error(e?.message || t('marketing.market.toast.delete_failed'));
     }
   };
 
@@ -122,44 +124,48 @@ export const Markets: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Markets</h1>
-          <p className="text-muted-foreground">Manage geographic markets, currencies, and pricing adjustments</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('marketing.market.list.title')}</h1>
+          <p className="text-muted-foreground">{t('marketing.market.list.subtitle')}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Market
+              {t('marketing.market.list.add_button')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingMarket ? 'Edit Market' : 'Create Market'}</DialogTitle>
+              <DialogTitle>{editingMarket ? t('marketing.market.form.edit_title') : t('marketing.market.form.create_title')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>Market Name</Label>
-                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="North America" />
+                <Label>{t('marketing.market.form.field.name.label')}</Label>
+                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('marketing.market.form.field.name.placeholder')} />
               </div>
               <div className="space-y-2">
-                <Label>Countries (comma-separated ISO codes)</Label>
-                <Input value={form.countries} onChange={e => setForm(f => ({ ...f, countries: e.target.value }))} placeholder="US, CA, MX" />
+                <Label>{t('marketing.market.form.field.countries.label')}</Label>
+                <Input value={form.countries} onChange={e => setForm(f => ({ ...f, countries: e.target.value }))} placeholder={t('marketing.market.form.field.countries.placeholder')} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Currency</Label>
-                  <Input value={form.currency} onChange={e => setForm(f => ({ ...f, currency: e.target.value }))} placeholder="USD" />
+                  <Label>{t('marketing.market.form.field.currency.label')}</Label>
+                  <Input value={form.currency} onChange={e => setForm(f => ({ ...f, currency: e.target.value }))} placeholder={t('marketing.market.form.field.currency.placeholder')} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Price Adjustment (%)</Label>
+                  <Label>{t('marketing.market.form.field.price_adjustment.label')}</Label>
                   <Input type="number" value={form.priceAdjustment} onChange={e => setForm(f => ({ ...f, priceAdjustment: Number(e.target.value) }))} />
                 </div>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common:action.cancel')}</Button>
               <Button onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : editingMarket ? 'Update' : 'Create'}
+                {saving
+                  ? t('marketing.market.form.saving_button')
+                  : editingMarket
+                    ? t('marketing.market.form.update_button')
+                    : t('marketing.market.form.create_button')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -174,11 +180,11 @@ export const Markets: React.FC = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Globe2 className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">No markets configured</h3>
-            <p className="text-sm text-muted-foreground mb-4">Create markets to target different geographic regions.</p>
+            <h3 className="text-lg font-semibold">{t('marketing.market.list.empty_title')}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{t('marketing.market.list.empty_subtitle')}</p>
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4 mr-2" />
-              Create First Market
+              {t('marketing.market.list.create_first_button')}
             </Button>
           </CardContent>
         </Card>
@@ -209,12 +215,12 @@ export const Markets: React.FC = () => {
                   ))}
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Currency</span>
+                  <span className="text-muted-foreground">{t('marketing.market.list.card.currency_label')}</span>
                   <span className="font-medium">{market.currency}</span>
                 </div>
                 {market.priceAdjustment !== 0 && market.priceAdjustment != null && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Price Adjustment</span>
+                    <span className="text-muted-foreground">{t('marketing.market.list.card.price_adjustment_label')}</span>
                     <span className="font-medium">{market.priceAdjustment > 0 ? '+' : ''}{market.priceAdjustment}%</span>
                   </div>
                 )}

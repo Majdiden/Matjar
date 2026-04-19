@@ -1,1 +1,211 @@
-{}
+{
+  "staff": {
+    "list": {
+      "title": "الموظفون والفريق",
+      "subtitle": "إدارة أعضاء الفريق والدعوات المعلّقة.",
+      "tab_members": "أعضاء الفريق",
+      "tab_invites": "الدعوات المعلّقة",
+      "card_title": "أعضاء الفريق",
+      "card_description": "المسؤولون والمديرون والموظفون الذين لديهم وصول إلى لوحة التحكم.",
+      "empty_title": "لا يوجد موظفون بعد. ادعُ شخصاً للبدء.",
+      "empty_search": "لا يوجد موظفون يطابقون بحثك.",
+      "search_placeholder": "بحث بالاسم أو البريد الإلكتروني...",
+      "selected_count": "{{count}} محدد",
+      "bulk_export_csv": "تصدير CSV",
+      "bulk_remove": "إزالة",
+      "bulk_clear": "مسح",
+      "column": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "roles": "الأدوار",
+        "last_login": "آخر تسجيل دخول",
+        "status": "الحالة"
+      }
+    },
+    "invite": {
+      "title": "دعوة موظف",
+      "description": "سيتم إرسال رابط الدعوة إليه عبر البريد الإلكتروني. تنتهي صلاحيته خلال 7 أيام.",
+      "button": "دعوة موظف",
+      "field": {
+        "email": {
+          "label": "البريد الإلكتروني",
+          "placeholder": "colleague@example.com"
+        },
+        "role": {
+          "label": "الدور"
+        }
+      },
+      "send_button": "إرسال الدعوة",
+      "toast": {
+        "sent": "تم إرسال الدعوة إلى {{email}}",
+        "resent": "تمت إعادة إرسال الدعوة إلى {{email}}",
+        "revoked": "تم إلغاء الدعوة",
+        "send_failed": "فشل إرسال الدعوة",
+        "resend_failed": "فشل إعادة إرسال الدعوة",
+        "revoke_failed": "فشل إلغاء الدعوة",
+        "email_required": "البريد الإلكتروني مطلوب"
+      },
+      "confirm_revoke": {
+        "title": "إلغاء الدعوة؟",
+        "description": "سيتم إلغاء الدعوة المرسلة إلى {{email}}. لن يتمكن بعد ذلك من قبولها.",
+        "confirm_text": "إلغاء"
+      }
+    },
+    "invites": {
+      "card_title": "الدعوات المعلّقة",
+      "card_description": "الدعوات التي تم إرسالها ولم يتم قبولها بعد.",
+      "empty": "لا توجد دعوات معلّقة.",
+      "column": {
+        "email": "البريد الإلكتروني",
+        "role": "الدور",
+        "invited": "تاريخ الدعوة",
+        "expires": "تاريخ الانتهاء"
+      },
+      "action": {
+        "resend": "إعادة الإرسال",
+        "revoke": "إلغاء"
+      }
+    },
+    "member": {
+      "confirm_remove": {
+        "title": "إزالة الموظف؟",
+        "description": "سيفقد {{name}} وصوله إلى لوحة التحكم. يمكن التراجع عن ذلك بإعادة دعوته.",
+        "confirm_text": "إزالة"
+      },
+      "confirm_bulk_remove": {
+        "title": "إزالة موظف واحد؟",
+        "title_plural": "إزالة {{count}} موظفين؟",
+        "description": "سيفقدون وصولهم إلى لوحة التحكم فوراً.",
+        "confirm_text": "إزالة"
+      },
+      "toast": {
+        "removed": "تمت إزالة {{name}}",
+        "remove_failed": "فشل إزالة الموظف",
+        "bulk_removed": "تمت إزالة {{count}}",
+        "bulk_failed": "فشل {{count}}",
+        "no_export": "لا يوجد موظفون للتصدير",
+        "exported": "تم تصدير {{count}} موظف",
+        "role_required": "يجب تحديد دور واحد على الأقل",
+        "roles_updated": "تم تحديث الأدوار",
+        "roles_update_failed": "فشل تحديث الأدوار"
+      },
+      "action": {
+        "edit_roles": "تعديل الأدوار",
+        "remove": "إزالة"
+      }
+    },
+    "edit_roles": {
+      "title": "تعديل الأدوار — {{name}}",
+      "description": "اختر دوراً واحداً أو أكثر لهذا العضو.",
+      "group_builtin": "الأدوار المدمجة",
+      "group_custom": "الأدوار المخصصة"
+    },
+    "role": {
+      "list": {
+        "title": "الأدوار والصلاحيات",
+        "subtitle": "الأدوار المدمجة للقراءة فقط. تتيح لك الأدوار المخصصة منح مجموعة صلاحيات مخصصة — مثل محاسب يمكنه التحقق من المدفوعات دون تعديل المنتجات.",
+        "column": {
+          "role": "الدور",
+          "description": "الوصف",
+          "permissions": "الصلاحيات",
+          "type": "النوع"
+        },
+        "type_builtin": "مدمج",
+        "type_custom": "مخصص",
+        "all_permissions": "جميع الصلاحيات",
+        "permission_count": "{{count}} صلاحية",
+        "empty": "لا توجد أدوار."
+      },
+      "form": {
+        "title_create": "إنشاء دور",
+        "title_edit": "تعديل الدور",
+        "title_view": "{{name}} (مدمج)",
+        "description_builtin": "الأدوار المدمجة معرّفة في الكود ولا يمكن تعديلها.",
+        "description_edit": "تعديل صلاحيات الدور",
+        "description_create": "تعريف دور جديد بصلاحيات محددة",
+        "field": {
+          "name": {
+            "label": "اسم الدور",
+            "placeholder": "مثال: محاسب"
+          },
+          "description": {
+            "label": "الوصف",
+            "placeholder": "ما الذي يمكن لهذا الدور القيام به؟"
+          },
+          "permissions": {
+            "label": "الصلاحيات"
+          }
+        },
+        "wildcard_notice": "صلاحية شاملة — جميع الصلاحيات ممنوحة.",
+        "close_button": "إغلاق",
+        "save_button": "حفظ الدور",
+        "create_button": "إنشاء دور"
+      },
+      "toast": {
+        "created": "تم إنشاء الدور",
+        "updated": "تم تحديث الدور",
+        "deleted": "تم حذف الدور",
+        "save_failed": "فشل حفظ الدور",
+        "delete_failed": "فشل حذف الدور",
+        "name_required": "اسم الدور مطلوب",
+        "builtin_no_delete": "لا يمكن حذف الأدوار المدمجة",
+        "load_failed": "فشل تحميل الأدوار"
+      },
+      "confirm_delete": {
+        "title": "حذف الدور \"{{name}}\"؟",
+        "description": "سيفقد المستخدمون الذين لديهم هذا الدور الصلاحيات الممنوحة به.",
+        "confirm_text": "حذف"
+      }
+    },
+    "permission": {
+      "group": {
+        "products": { "label": "المنتجات" },
+        "orders": { "label": "الطلبات" },
+        "customers": { "label": "العملاء" },
+        "settings": { "label": "الإعدادات" },
+        "staff": { "label": "الموظفون" },
+        "analytics": { "label": "التحليلات" },
+        "marketing": { "label": "التسويق" },
+        "themes": { "label": "القوالب" },
+        "payments": { "label": "المدفوعات" },
+        "inventory": { "label": "المخزون" }
+      }
+    },
+    "accept_invite": {
+      "verifying": "جارٍ التحقق من دعوتك…",
+      "invalid_title": "الدعوة غير موجودة",
+      "no_token": "لم يتم العثور على رمز الدعوة في الرابط.",
+      "invalid_server": "استجابة دعوة غير صالحة من الخادم.",
+      "expired_fallback": "هذه الدعوة غير صالحة أو انتهت صلاحيتها.",
+      "go_to_login": "الذهاب إلى تسجيل الدخول",
+      "success_title": "تم إنشاء الحساب!",
+      "success_redirect": "جارٍ تحويلك إلى صفحة تسجيل الدخول…",
+      "title": "قبول الدعوة",
+      "description": "لقد تمت دعوتك للانضمام بصفة",
+      "description_suffix": ". أنشئ حسابك للبدء.",
+      "field": {
+        "email": { "label": "البريد الإلكتروني" },
+        "name": {
+          "label": "الاسم الكامل",
+          "placeholder": "مثال: محمد أحمد"
+        },
+        "password": {
+          "label": "كلمة المرور",
+          "placeholder": "8 أحرف على الأقل"
+        },
+        "confirm_password": {
+          "label": "تأكيد كلمة المرور",
+          "placeholder": "أعد كتابة كلمة المرور"
+        }
+      },
+      "submit": "إنشاء حساب",
+      "toast": {
+        "created": "تم إنشاء الحساب! جارٍ التحويل إلى تسجيل الدخول…",
+        "accept_failed": "فشل قبول الدعوة. يرجى المحاولة مرة أخرى.",
+        "name_required": "الاسم مطلوب",
+        "password_short": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        "password_mismatch": "كلمتا المرور غير متطابقتين"
+      }
+    }
+  }
+}

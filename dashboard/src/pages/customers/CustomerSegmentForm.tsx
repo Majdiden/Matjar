@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -110,6 +111,7 @@ const formatMoney = (n: number) =>
   new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(n || 0);
 
 const CustomerSegmentForm: React.FC = () => {
+  const { t } = useTranslation(['customers', 'common']);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
@@ -132,7 +134,7 @@ const CustomerSegmentForm: React.FC = () => {
         const list: RawSegment[] = res.data || res.responseObject || [];
         const seg = list.find((s) => s._id === id);
         if (!seg) {
-          toast.error('Segment not found');
+          toast.error(t('segment.toast.not_found'));
           navigate('/dashboard/customers/segments');
           return;
         }
@@ -142,7 +144,7 @@ const CustomerSegmentForm: React.FC = () => {
           filters: filtersToForm(seg.filters),
         });
       } catch (err) {
-        toast.error(errMsg(err, 'Failed to load segment'));
+        toast.error(errMsg(err, t('segment.toast.segment_load_failed')));
       } finally {
         setLoading(false);
       }
@@ -163,7 +165,7 @@ const CustomerSegmentForm: React.FC = () => {
       const payload = res.data || res.responseObject || {};
       setPreview({ count: payload.count || 0, users: payload.users || [] });
     } catch (err) {
-      toast.error(errMsg(err, 'Preview failed'));
+      toast.error(errMsg(err, t('segment.toast.preview_failed')));
     } finally {
       setPreviewLoading(false);
     }
@@ -171,7 +173,7 @@ const CustomerSegmentForm: React.FC = () => {
 
   const save = async () => {
     if (!form.name.trim()) {
-      toast.error('Segment name is required');
+      toast.error(t('segment.form.field.name.error.required'));
       return;
     }
     try {
@@ -183,14 +185,14 @@ const CustomerSegmentForm: React.FC = () => {
       };
       if (isEdit && id) {
         await api.customerSegments.update(id, payload);
-        toast.success('Segment updated');
+        toast.success(t('segment.toast.updated'));
       } else {
         await api.customerSegments.create(payload);
-        toast.success('Segment created');
+        toast.success(t('segment.toast.created'));
       }
       navigate('/dashboard/customers/segments');
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to save segment'));
+      toast.error(errMsg(err, t('segment.toast.save_failed')));
     } finally {
       setSaving(false);
     }
@@ -213,16 +215,16 @@ const CustomerSegmentForm: React.FC = () => {
           </Button>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              {isEdit ? 'Edit segment' : 'New segment'}
+              {isEdit ? t('segment.form.title_edit') : t('segment.form.title_create')}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Group customers by spend, order history, tags, and marketing consent.
+              {t('segment.form.subtitle')}
             </p>
           </div>
         </div>
         <Button onClick={save} disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-          {isEdit ? 'Save changes' : 'Create segment'}
+          {isEdit ? t('segment.form.action.save_changes') : t('segment.form.action.create_segment')}
         </Button>
       </div>
 
@@ -230,26 +232,26 @@ const CustomerSegmentForm: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Details</CardTitle>
+              <CardTitle className="text-base">{t('segment.form.section.details')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="seg-name">Name *</Label>
+                <Label htmlFor="seg-name">{t('segment.form.field.name.label')} *</Label>
                 <Input
                   id="seg-name"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="VIP customers"
+                  placeholder={t('segment.form.field.name.placeholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="seg-desc">Description</Label>
+                <Label htmlFor="seg-desc">{t('segment.form.field.description.label')}</Label>
                 <Textarea
                   id="seg-desc"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={2}
-                  placeholder="Customers with high lifetime value"
+                  placeholder={t('segment.form.field.description.placeholder')}
                 />
               </div>
             </CardContent>
@@ -257,12 +259,12 @@ const CustomerSegmentForm: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Spend</CardTitle>
+              <CardTitle className="text-base">{t('segment.form.section.spend')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs">Min total spent</Label>
+                  <Label className="text-xs">{t('segment.form.field.total_spent_min.label')}</Label>
                   <Input
                     type="number"
                     min="0"
@@ -272,7 +274,7 @@ const CustomerSegmentForm: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <Label className="text-xs">Max total spent</Label>
+                  <Label className="text-xs">{t('segment.form.field.total_spent_max.label')}</Label>
                   <Input
                     type="number"
                     min="0"
@@ -287,12 +289,12 @@ const CustomerSegmentForm: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Orders</CardTitle>
+              <CardTitle className="text-base">{t('segment.form.section.orders')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs">Min orders</Label>
+                  <Label className="text-xs">{t('segment.form.field.order_count_min.label')}</Label>
                   <Input
                     type="number"
                     min="0"
@@ -301,7 +303,7 @@ const CustomerSegmentForm: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <Label className="text-xs">Max orders</Label>
+                  <Label className="text-xs">{t('segment.form.field.order_count_max.label')}</Label>
                   <Input
                     type="number"
                     min="0"
@@ -310,7 +312,7 @@ const CustomerSegmentForm: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <Label className="text-xs">Last order after</Label>
+                  <Label className="text-xs">{t('segment.form.field.last_order_after.label')}</Label>
                   <Input
                     type="date"
                     value={form.filters.lastOrderAfter}
@@ -318,7 +320,7 @@ const CustomerSegmentForm: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <Label className="text-xs">Last order before</Label>
+                  <Label className="text-xs">{t('segment.form.field.last_order_before.label')}</Label>
                   <Input
                     type="date"
                     value={form.filters.lastOrderBefore}
@@ -331,36 +333,36 @@ const CustomerSegmentForm: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Profile</CardTitle>
+              <CardTitle className="text-base">{t('segment.form.section.profile')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs">Tags (comma separated)</Label>
+                  <Label className="text-xs">{t('segment.form.field.tags.label')}</Label>
                   <Input
                     value={form.filters.tags}
                     onChange={(e) => setFilter('tags', e.target.value)}
-                    placeholder="vip, wholesale"
+                    placeholder={t('segment.form.field.tags.placeholder')}
                   />
                 </div>
                 <div>
-                  <Label className="text-xs">Email contains</Label>
+                  <Label className="text-xs">{t('segment.form.field.email_contains.label')}</Label>
                   <Input
                     value={form.filters.emailContains}
                     onChange={(e) => setFilter('emailContains', e.target.value)}
-                    placeholder="@company.com"
+                    placeholder={t('segment.form.field.email_contains.placeholder')}
                   />
                 </div>
                 <div>
-                  <Label className="text-xs">Marketing consent</Label>
+                  <Label className="text-xs">{t('segment.form.field.marketing_consent.label')}</Label>
                   <select
                     className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
                     value={form.filters.acceptsMarketing}
                     onChange={(e) => setFilter('acceptsMarketing', e.target.value as 'any' | 'true' | 'false')}
                   >
-                    <option value="any">Any</option>
-                    <option value="true">Subscribed</option>
-                    <option value="false">Not subscribed</option>
+                    <option value="any">{t('segment.form.field.marketing_consent.any')}</option>
+                    <option value="true">{t('segment.form.field.marketing_consent.subscribed')}</option>
+                    <option value="false">{t('segment.form.field.marketing_consent.not_subscribed')}</option>
                   </select>
                 </div>
               </div>
@@ -372,28 +374,28 @@ const CustomerSegmentForm: React.FC = () => {
           <Card className="sticky top-4">
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Eye className="h-4 w-4" /> Preview
+                <Eye className="h-4 w-4" /> {t('segment.form.section.preview')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button variant="outline" size="sm" onClick={runPreview} disabled={previewLoading} className="w-full">
                 {previewLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
-                Run preview
+                {t('segment.form.preview.run')}
               </Button>
               {preview ? (
                 <div className="space-y-2">
                   <p className="text-sm">
-                    <strong>{preview.count}</strong> customer{preview.count === 1 ? '' : 's'} match
+                    <strong>{preview.count}</strong> {t('segment.form.preview.match')}
                   </p>
                   {preview.users.length > 0 && (
                     <div className="max-h-96 overflow-y-auto rounded border bg-background">
                       <table className="w-full text-xs">
                         <thead className="bg-muted/50 sticky top-0">
                           <tr>
-                            <th className="text-left p-2">Name</th>
-                            <th className="text-left p-2">Email</th>
-                            <th className="text-right p-2">Orders</th>
-                            <th className="text-right p-2">Spent</th>
+                            <th className="text-left p-2">{t('segment.form.preview.column.name')}</th>
+                            <th className="text-left p-2">{t('segment.form.preview.column.email')}</th>
+                            <th className="text-right p-2">{t('segment.form.preview.column.orders')}</th>
+                            <th className="text-right p-2">{t('segment.form.preview.column.spent')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -412,7 +414,7 @@ const CustomerSegmentForm: React.FC = () => {
                 </div>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Click "Run preview" to see how many customers match these filters before saving.
+                  {t('segment.form.preview.hint')}
                 </p>
               )}
             </CardContent>

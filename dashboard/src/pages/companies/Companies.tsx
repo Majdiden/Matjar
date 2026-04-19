@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -37,6 +38,7 @@ interface Company {
 }
 
 export const Companies: React.FC = () => {
+  const { t } = useTranslation(['companies', 'common']);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -62,7 +64,7 @@ export const Companies: React.FC = () => {
       setCompanies(list);
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to load companies');
+      toast.error(e?.message || t('companies.toast.load_failed'));
     } finally {
       setLoading(false);
     }
@@ -87,7 +89,7 @@ export const Companies: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!form.name) { toast.error('Company name is required'); return; }
+    if (!form.name) { toast.error(t('companies.form.field.name.error.required')); return; }
     setSaving(true);
     try {
       const data = {
@@ -96,16 +98,16 @@ export const Companies: React.FC = () => {
       };
       if (editingId) {
         await api.companies.update(editingId, data);
-        toast.success('Company updated');
+        toast.success(t('companies.toast.updated'));
       } else {
         await api.companies.create(data);
-        toast.success('Company created');
+        toast.success(t('companies.toast.created'));
       }
       setDialogOpen(false);
       loadCompanies();
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to save company');
+      toast.error(e?.message || t('companies.toast.save_failed'));
     } finally {
       setSaving(false);
     }
@@ -113,18 +115,18 @@ export const Companies: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!(await confirm({
-      title: 'Delete company?',
-      description: 'This removes the B2B company account and unlinks its contacts.',
-      confirmText: 'Delete',
+      title: t('companies.confirm.delete_title'),
+      description: t('companies.confirm.delete_description'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       await api.companies.delete(id);
-      toast.success('Company deleted');
+      toast.success(t('companies.toast.deleted'));
       setCompanies(prev => prev.filter(c => c._id !== id));
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to delete company');
+      toast.error(e?.message || t('companies.toast.delete_failed'));
     }
   };
 
@@ -135,48 +137,48 @@ export const Companies: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Companies</h1>
-          <p className="text-muted-foreground">Manage B2B company accounts and payment terms</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('companies.list.title')}</h1>
+          <p className="text-muted-foreground">{t('companies.list.subtitle')}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Company
+              {t('companies.action.add_company')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit Company' : 'Create Company'}</DialogTitle>
+              <DialogTitle>{editingId ? t('companies.form.title_edit') : t('companies.form.title_create')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>Company Name</Label>
-                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Acme Corp" />
+                <Label>{t('companies.form.field.name.label')}</Label>
+                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('companies.form.field.name.placeholder')} />
               </div>
               <div className="space-y-2">
-                <Label>Payment Terms</Label>
+                <Label>{t('companies.form.field.payment_terms.label')}</Label>
                 <Select
                   value={form.paymentType}
                   onChange={e => setForm(f => ({ ...f, paymentType: e.target.value }))}
                   options={[
-                    { value: 'net15', label: 'Net 15' },
-                    { value: 'net30', label: 'Net 30' },
-                    { value: 'net60', label: 'Net 60' },
-                    { value: 'net90', label: 'Net 90' },
-                    { value: 'due_on_receipt', label: 'Due on Receipt' },
+                    { value: 'net15', label: t('companies.form.payment_type.net15') },
+                    { value: 'net30', label: t('companies.form.payment_type.net30') },
+                    { value: 'net60', label: t('companies.form.payment_type.net60') },
+                    { value: 'net90', label: t('companies.form.payment_type.net90') },
+                    { value: 'due_on_receipt', label: t('companies.form.payment_type.due_on_receipt') },
                   ]}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Credit Limit</Label>
-                <Input type="number" value={form.creditLimit} onChange={e => setForm(f => ({ ...f, creditLimit: Number(e.target.value) }))} placeholder="10000" />
+                <Label>{t('companies.form.field.credit_limit.label')}</Label>
+                <Input type="number" value={form.creditLimit} onChange={e => setForm(f => ({ ...f, creditLimit: Number(e.target.value) }))} placeholder={t('companies.form.field.credit_limit.placeholder')} />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common:action.cancel')}</Button>
               <Button onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : editingId ? 'Update' : 'Create'}
+                {saving ? t('common:state.saving_ellipsis') : editingId ? t('common:action.update') : t('common:action.create')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -186,9 +188,9 @@ export const Companies: React.FC = () => {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base">All Companies</CardTitle>
+            <CardTitle className="text-base">{t('companies.list.all')}</CardTitle>
             <Input
-              placeholder="Search companies..."
+              placeholder={t('companies.list.search_placeholder')}
               className="w-64"
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -203,20 +205,20 @@ export const Companies: React.FC = () => {
           ) : companies.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold">No companies</h3>
-              <p className="text-sm text-muted-foreground mb-4">Add B2B company accounts with custom payment terms.</p>
-              <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Company</Button>
+              <h3 className="text-lg font-semibold">{t('companies.list.empty.title')}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{t('companies.list.empty.description')}</p>
+              <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />{t('companies.action.add_company')}</Button>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Contacts</TableHead>
-                  <TableHead>Payment Terms</TableHead>
-                  <TableHead>Credit Limit</TableHead>
-                  <TableHead>Balance</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('companies.list.column.company')}</TableHead>
+                  <TableHead>{t('companies.list.column.contacts')}</TableHead>
+                  <TableHead>{t('companies.list.column.payment_terms')}</TableHead>
+                  <TableHead>{t('companies.list.column.credit_limit')}</TableHead>
+                  <TableHead>{t('companies.list.column.balance')}</TableHead>
+                  <TableHead className="text-right">{t('companies.list.column.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

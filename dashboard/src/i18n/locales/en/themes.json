@@ -1,1 +1,357 @@
-{}
+{
+  "list": {
+    "title": "Themes",
+    "subtitle": "Choose a theme to design your storefront, or customize the one you have.",
+    "view_live_store": "View live store",
+    "current_theme_label": "Current theme",
+    "meta": {
+      "version": "Version",
+      "author": "Author",
+      "rating": "Rating",
+      "installs": "Installs"
+    },
+    "library": {
+      "title": "Theme library",
+      "count_one": "{{count}} theme available",
+      "count_other": "{{count}} themes available"
+    },
+    "search_placeholder": "Search themes…",
+    "filter": {
+      "all": "All themes",
+      "popular": "Most popular",
+      "free": "Free"
+    },
+    "badge": {
+      "live": "Live",
+      "active": "Active"
+    },
+    "empty": {
+      "title": "No themes found",
+      "hint_search": "Try a different search term.",
+      "hint_empty": "Check back later for new themes."
+    },
+    "action": {
+      "customize": "Customize",
+      "preview": "Preview",
+      "activate": "Activate",
+      "install": "Activate",
+      "uninstall": "Uninstall"
+    },
+    "confirm": {
+      "activate_title": "Activate this theme?",
+      "activate_description": "Your current theme will be replaced. Customizations are preserved per-theme.",
+      "activate_confirm": "Activate",
+      "uninstall_title": "Uninstall this theme?",
+      "uninstall_description": "Removes the theme from your installed list. You can reinstall it later.",
+      "uninstall_confirm": "Uninstall"
+    },
+    "toast": {
+      "activated": "Theme activated",
+      "uninstalled": "Theme uninstalled",
+      "error_load": "Failed to load themes",
+      "error_install": "Failed to install theme",
+      "error_uninstall": "Failed to uninstall theme"
+    }
+  },
+  "editor": {
+    "loading": "Loading editor…",
+    "no_data": "No customization data available",
+    "back_to_themes": "Back to themes",
+    "topbar": {
+      "back": "Back to themes",
+      "hide_sections": "Hide sections",
+      "show_sections": "Show sections",
+      "hide_settings": "Hide settings",
+      "show_settings": "Show settings",
+      "reset": "Reset to theme defaults",
+      "version_history": "Version history",
+      "preview": "Preview",
+      "open_preview": "Open preview in new tab",
+      "publish": "Publish",
+      "publish_changes": "Publish changes",
+      "publishing": "Publishing",
+      "unpublished_changes": "Unpublished changes",
+      "page_label": "Page:",
+      "device": {
+        "desktop": "Desktop",
+        "tablet": "Tablet",
+        "mobile": "Mobile"
+      },
+      "save_status": {
+        "saving": "Saving…",
+        "saved": "Saved"
+      }
+    },
+    "sidebar": {
+      "sections": "Sections",
+      "settings": "Settings",
+      "css": "CSS",
+      "theme_settings": "Theme",
+      "section_tab": "Section",
+      "custom_css_tab": "Custom CSS"
+    },
+    "section_library": {
+      "title": "Add a section",
+      "subtitle": "Choose a section type to add to your page.",
+      "search_placeholder": "Search sections…",
+      "empty_title": "No sections found",
+      "empty_hint": "Try a different search or category",
+      "add": "Add",
+      "category": {
+        "all": "All",
+        "content": "Content",
+        "commerce": "Commerce",
+        "marketing": "Marketing",
+        "media": "Media",
+        "layout": "Layout"
+      }
+    },
+    "global_settings": {
+      "title": "Theme Settings",
+      "colors": "Colors",
+      "typography": "Typography",
+      "layout": "Layout",
+      "body_font": "Body Font",
+      "heading_font": "Heading Font",
+      "base_font_size": "Base Font Size",
+      "line_height": "Line Height",
+      "max_content_width": "Max Content Width"
+    },
+    "color_labels": {
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "accent": "Accent",
+      "background": "Background",
+      "foreground": "Text",
+      "muted": "Muted Text",
+      "border": "Border",
+      "error": "Error",
+      "success": "Success"
+    },
+    "section": {
+      "header": {
+        "label": "Header"
+      },
+      "announcement_bar": {
+        "label": "Announcement Bar"
+      },
+      "footer": {
+        "label": "Footer"
+      },
+      "hero": {
+        "label": "Hero Banner"
+      },
+      "banner": {
+        "label": "Promo Banner"
+      },
+      "slideshow": {
+        "label": "Slideshow"
+      },
+      "image_banner": {
+        "label": "Image Banner"
+      },
+      "featured_products": {
+        "label": "Featured Products"
+      },
+      "best_sellers": {
+        "label": "Best Sellers"
+      },
+      "new_arrivals": {
+        "label": "New Arrivals"
+      },
+      "product_grid": {
+        "label": "Product Grid"
+      },
+      "top_rated_carousel": {
+        "label": "Top Rated"
+      },
+      "categories": {
+        "label": "Categories"
+      },
+      "collection_list": {
+        "label": "Collection List"
+      },
+      "product_recommendations": {
+        "label": "You May Also Like"
+      },
+      "newsletter": {
+        "label": "Newsletter"
+      },
+      "newsletter_cta": {
+        "label": "Newsletter Signup"
+      },
+      "testimonials": {
+        "label": "Testimonials"
+      },
+      "brands": {
+        "label": "Brand Logos"
+      },
+      "features": {
+        "label": "Feature Highlights"
+      },
+      "tech_features": {
+        "label": "Feature Badges"
+      },
+      "video": {
+        "label": "Video"
+      },
+      "image_gallery": {
+        "label": "Image Gallery"
+      },
+      "text_block": {
+        "label": "Text Block"
+      },
+      "rich_text": {
+        "label": "Rich Text"
+      },
+      "blog": {
+        "label": "Blog Posts"
+      },
+      "fallback": {
+        "label": "Section"
+      }
+    },
+    "section_editor": {
+      "no_settings": "This section has no editable settings.",
+      "visible": "Visible",
+      "hidden": "Hidden",
+      "items_label": "Items",
+      "add_item": "Add",
+      "settings_title": "Section Settings",
+      "layout": "Layout",
+      "layout_full_width": "Full Width",
+      "layout_contained": "Contained",
+      "layout_grid_2": "2 Columns",
+      "layout_grid_3": "3 Columns",
+      "layout_grid_4": "4 Columns",
+      "heading": "Heading",
+      "heading_placeholder": "Enter heading",
+      "subheading": "Subheading",
+      "subheading_placeholder": "Enter subheading",
+      "button_text": "Button Text",
+      "button_text_placeholder": "Enter button text",
+      "button_link": "Button Link",
+      "background_color": "Background Color",
+      "text_color": "Text Color",
+      "product_limit": "Number of Products",
+      "padding": "Padding",
+      "padding_hint": "CSS padding value (e.g., \"3rem 0\" or \"2rem 1rem\")",
+      "image_url": "Image URL",
+      "save_changes": "Save Changes",
+      "no_changes": "No Changes"
+    },
+    "control": {
+      "text": {
+        "label": "Text"
+      },
+      "textarea": {
+        "label": "Text area"
+      },
+      "number": {
+        "label": "Number"
+      },
+      "color": {
+        "label": "Color"
+      },
+      "image": {
+        "label": "Image",
+        "change": "Change image"
+      },
+      "range": {
+        "label": "Range"
+      },
+      "select": {
+        "label": "Select"
+      },
+      "toggle": {
+        "label": "Toggle"
+      },
+      "url": {
+        "label": "URL"
+      }
+    },
+    "custom_css": {
+      "title": "Custom CSS",
+      "subtitle": "Add custom styles to override theme defaults. Changes apply to your storefront only.",
+      "save": "Save CSS",
+      "reset": "Reset"
+    },
+    "preview": {
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "mobile": "Mobile"
+    },
+    "version_history": {
+      "title": "Version history",
+      "description": "Every publish creates a snapshot. Restoring brings the snapshot into your draft — you'll still need to publish it to make it live.",
+      "loading": "Loading…",
+      "empty": "No published versions yet. Hit Publish to create your first snapshot.",
+      "restore": "Restore",
+      "confirm_title": "Restore version {{version}}?",
+      "confirm_description": "This will overwrite your current draft. Any unsaved changes will be lost.",
+      "confirm_text": "Restore",
+      "toast_restored": "Restored draft to version {{version}}",
+      "toast_error_load": "Failed to load versions",
+      "toast_error_rollback": "Rollback failed"
+    },
+    "section_manager": {
+      "no_sections": "No sections available",
+      "no_sections_hint": "Install a theme to manage its sections",
+      "drag_hint": "Drag sections to reorder them. Toggle visibility using the eye icon.",
+      "saving": "Saving...",
+      "hide_section": "Hide section",
+      "show_section": "Show section",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "tips_title": "Tips",
+      "tips": {
+        "reorder": "Drag sections up or down to change their order on your storefront",
+        "visibility": "Click the eye icon to show/hide sections without deleting them",
+        "drafts": "Changes are saved automatically as drafts",
+        "publish": "Click \"Publish\" to make your changes visible to customers"
+      },
+      "error_reorder": "Failed to save section order. Please try again.",
+      "error_toggle": "Failed to toggle section visibility. Please try again."
+    },
+    "sections_panel": {
+      "title": "Sections",
+      "add": "Add"
+    },
+    "right_panel": {
+      "tab": {
+        "theme": "Theme",
+        "section": "Section",
+        "css": "Custom CSS"
+      }
+    },
+    "toast": {
+      "section_added": "Section added",
+      "section_duplicated": "Section duplicated",
+      "css_saved": "Custom CSS saved",
+      "published": "Theme published",
+      "reset_done": "Reset to defaults",
+      "error_load": "Failed to load theme editor.",
+      "error_add_section": "Failed to add section.",
+      "error_toggle_section": "Failed to toggle section.",
+      "error_duplicate": "Failed to duplicate section.",
+      "error_delete": "Failed to delete section.",
+      "error_save_section": "Failed to save settings.",
+      "error_save_css": "Failed to save custom CSS.",
+      "error_publish": "Failed to publish.",
+      "error_reset": "Failed to reset."
+    },
+    "confirm": {
+      "reset_title": "Reset to defaults?",
+      "reset_description": "All color, typography, layout, and section customizations will revert to the theme defaults. This cannot be undone.",
+      "reset_confirm": "Reset"
+    },
+    "template": {
+      "index": "Home",
+      "product": "Product page",
+      "collection": "Collection / Category",
+      "cart": "Cart",
+      "search": "Search results",
+      "page": "Static pages"
+    }
+  }
+}

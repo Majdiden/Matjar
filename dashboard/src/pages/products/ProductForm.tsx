@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
@@ -33,6 +34,7 @@ interface ProductGetResponse {
 interface ApiErrorLike { message?: string; error?: string }
 
 export const ProductForm: React.FC = () => {
+  const { t } = useTranslation(['products', 'common']);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = Boolean(id);
@@ -80,7 +82,7 @@ export const ProductForm: React.FC = () => {
       }
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to load data');
+      toast.error(e?.message || t('products.toast.load_failed'));
     } finally {
       setLoading(false);
     }
@@ -88,21 +90,21 @@ export const ProductForm: React.FC = () => {
 
   const validateForm = (): boolean => {
     const errors: Partial<Record<keyof ProductFormData, string>> = {};
-    if (!formData.name.trim()) errors.name = 'Required';
-    if (!formData.description.trim()) errors.description = 'Required';
-    if (formData.price <= 0) errors.price = 'Must be > 0';
-    if (formData.salePrice && formData.salePrice >= formData.price) errors.salePrice = 'Must be less than price';
-    if (!formData.sku.trim()) errors.sku = 'Required';
-    if (!formData.slug.trim()) errors.slug = 'Required';
-    if (!formData.category) errors.category = 'Required';
-    if (formData.stock < 0) errors.stock = 'Cannot be negative';
+    if (!formData.name.trim()) errors.name = t('products.form.field.name.error.required');
+    if (!formData.description.trim()) errors.description = t('products.form.field.description.error.required');
+    if (formData.price <= 0) errors.price = t('products.form.field.regular_price.error.positive');
+    if (formData.salePrice && formData.salePrice >= formData.price) errors.salePrice = t('products.form.field.sale_price.error.less_than_price');
+    if (!formData.sku.trim()) errors.sku = t('products.form.field.sku.error.required');
+    if (!formData.slug.trim()) errors.slug = t('products.form.field.slug.error.required');
+    if (!formData.category) errors.category = t('products.form.field.category.error.required');
+    if (formData.stock < 0) errors.stock = t('products.form.field.stock.error.negative');
 
     // When variants are enabled, the matrix is the source of truth for
     // stock — but we still need at least one variant, otherwise the
     // product is unbuyable.
     if (formData.hasVariants) {
       if (!formData.variants || formData.variants.length === 0) {
-        toast.error('Variants are enabled but you have not generated any. Add option values and click Generate.');
+        toast.error(t('products.toast.variants_missing'));
         return false;
       }
     }
@@ -117,15 +119,15 @@ export const ProductForm: React.FC = () => {
       setSaving(true);
       if (isEditMode && id) {
         await api.products.update(id, formData);
-        toast.success('Product updated');
+        toast.success(t('products.toast.updated'));
       } else {
         await api.products.create(formData);
-        toast.success('Product created');
+        toast.success(t('products.toast.created'));
       }
       navigate('/dashboard/products');
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || `Failed to ${isEditMode ? 'update' : 'create'} product`);
+      toast.error(e?.message || t(isEditMode ? 'products.toast.save_failed_update' : 'products.toast.save_failed_create'));
     } finally {
       setSaving(false);
     }
@@ -178,18 +180,18 @@ export const ProductForm: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/products')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />Back
+            <ArrowLeft className="h-4 w-4 mr-2" />{t('common.action.back')}
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{isEditMode ? 'Edit Product' : 'Add Product'}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{isEditMode ? t('products.form.title.edit') : t('products.form.title.create')}</h1>
             <p className="text-muted-foreground text-sm">
-              {isEditMode ? 'Update product information' : 'Create a new product listing'}
+              {isEditMode ? t('products.form.subtitle.edit') : t('products.form.subtitle.create')}
             </p>
           </div>
         </div>
         <Button onClick={() => handleSubmit()} disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-          {isEditMode ? 'Update Product' : 'Create Product'}
+          {isEditMode ? t('products.form.action.update') : t('products.form.action.create')}
         </Button>
       </div>
 
@@ -200,13 +202,13 @@ export const ProductForm: React.FC = () => {
             {/* Basic Info */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Basic Information</CardTitle>
+                <CardTitle className="text-base">{t('products.form.section.basic_info.title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Product Name *</Label>
+                  <Label>{t('products.form.field.name.label')}</Label>
                   <Input
-                    placeholder="e.g., Wireless Headphones"
+                    placeholder={t('products.form.field.name.placeholder')}
                     value={formData.name}
                     onChange={e => handleChange('name', e.target.value)}
                   />
@@ -214,9 +216,9 @@ export const ProductForm: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Description *</Label>
+                  <Label>{t('products.form.field.description.label')}</Label>
                   <Textarea
-                    placeholder="Describe your product..."
+                    placeholder={t('products.form.field.description.placeholder')}
                     value={formData.description}
                     onChange={e => handleChange('description', e.target.value)}
                     rows={5}
@@ -226,25 +228,25 @@ export const ProductForm: React.FC = () => {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>SKU *</Label>
-                    <Input placeholder="e.g., WH-001" value={formData.sku} onChange={e => handleChange('sku', e.target.value)} />
+                    <Label>{t('products.form.field.sku.label')}</Label>
+                    <Input placeholder={t('products.form.field.sku.placeholder')} value={formData.sku} onChange={e => handleChange('sku', e.target.value)} />
                     {formErrors.sku && <p className="text-xs text-destructive">{formErrors.sku}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Slug *</Label>
-                    <Input placeholder="e.g., wireless-headphones" value={formData.slug} onChange={e => handleChange('slug', e.target.value)} />
+                    <Label>{t('products.form.field.slug.label')}</Label>
+                    <Input placeholder={t('products.form.field.slug.placeholder')} value={formData.slug} onChange={e => handleChange('slug', e.target.value)} />
                     {formErrors.slug && <p className="text-xs text-destructive">{formErrors.slug}</p>}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Category *</Label>
+                  <Label>{t('products.form.field.category.label')}</Label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="w-full justify-between">
                         {formData.category
-                          ? categories.find(c => c._id === formData.category)?.name || 'Select category'
-                          : 'Select category'}
+                          ? categories.find(c => c._id === formData.category)?.name || t('products.form.field.category.placeholder')
+                          : t('products.form.field.category.placeholder')}
                         <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -264,24 +266,24 @@ export const ProductForm: React.FC = () => {
             {/* Pricing */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Pricing & Inventory</CardTitle>
+                <CardTitle className="text-base">{t('products.form.section.pricing.title')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
-                    <Label>Regular Price *</Label>
+                    <Label>{t('products.form.field.regular_price.label')}</Label>
                     <Input type="number" step="0.01" min="0" placeholder="0.00" value={formData.price}
                       onChange={e => handleChange('price', parseFloat(e.target.value) || 0)} />
                     {formErrors.price && <p className="text-xs text-destructive">{formErrors.price}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Sale Price</Label>
+                    <Label>{t('products.form.field.sale_price.label')}</Label>
                     <Input type="number" step="0.01" min="0" placeholder="0.00" value={formData.salePrice || ''}
                       onChange={e => handleChange('salePrice', e.target.value ? parseFloat(e.target.value) : undefined)} />
                     {formErrors.salePrice && <p className="text-xs text-destructive">{formErrors.salePrice}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Stock Quantity *</Label>
+                    <Label>{t('products.form.field.stock.label')}</Label>
                     <Input type="number" min="0" placeholder="0" value={formData.stock}
                       onChange={e => handleChange('stock', parseInt(e.target.value) || 0)} />
                     {formErrors.stock && <p className="text-xs text-destructive">{formErrors.stock}</p>}
@@ -315,16 +317,16 @@ export const ProductForm: React.FC = () => {
             {/* Images */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Product Images</CardTitle>
-                <CardDescription>Upload product images. First image will be the main image.</CardDescription>
+                <CardTitle className="text-base">{t('products.form.section.images.title')}</CardTitle>
+                <CardDescription>{t('products.form.section.images.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ImageUpload
                   value={formData.images}
                   onChange={images => handleChange('images', Array.isArray(images) ? images : images ? [images] : [])}
                   multiple maxFiles={10} maxSizeMB={5}
-                  label="Upload Images"
-                  description="Drag & drop or click to upload (JPEG, PNG, WebP)"
+                  label={t('products.form.image_upload.label')}
+                  description={t('products.form.image_upload.description')}
                   accept="image/jpeg,image/png,image/webp"
                 />
               </CardContent>
@@ -336,7 +338,7 @@ export const ProductForm: React.FC = () => {
             {/* Status */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Status</CardTitle>
+                <CardTitle className="text-base">{t('products.form.section.status.title')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <DropdownMenu>
@@ -349,15 +351,15 @@ export const ProductForm: React.FC = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => handleChange('status', 'draft')}>Draft</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleChange('status', 'active')}>Active</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleChange('status', 'archived')}>Archived</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleChange('status', 'draft')}>{t('products.status.draft')}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleChange('status', 'active')}>{t('products.status.active')}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleChange('status', 'archived')}>{t('products.status.archived')}</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <p className="text-xs text-muted-foreground mt-2">
-                  {formData.status === 'draft' && 'Saved but not visible to customers'}
-                  {formData.status === 'active' && 'Visible and available for purchase'}
-                  {formData.status === 'archived' && 'Hidden from store'}
+                  {formData.status === 'draft' && t('products.form.status.draft_help')}
+                  {formData.status === 'active' && t('products.form.status.active_help')}
+                  {formData.status === 'archived' && t('products.form.status.archived_help')}
                 </p>
               </CardContent>
             </Card>
@@ -365,30 +367,30 @@ export const ProductForm: React.FC = () => {
             {/* Options */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Options</CardTitle>
+                <CardTitle className="text-base">{t('products.form.section.options.title')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="featured" className="cursor-pointer">Featured Product</Label>
+                  <Label htmlFor="featured" className="cursor-pointer">{t('products.form.field.featured.label')}</Label>
                   <Switch
                     id="featured"
                     checked={formData.featured}
                     onCheckedChange={checked => handleChange('featured', checked)}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Show in featured sections</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('products.form.field.featured.help')}</p>
               </CardContent>
             </Card>
 
             {/* Tags */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Tags</CardTitle>
+                <CardTitle className="text-base">{t('products.form.section.tags.title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Add a tag..."
+                    placeholder={t('products.form.field.tags.placeholder')}
                     value={tagInput}
                     onChange={e => setTagInput(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}

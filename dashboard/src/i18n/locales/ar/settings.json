@@ -1,1 +1,373 @@
-{}
+{
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "إدارة إعدادات متجرك",
+    "tab": {
+      "general": { "label": "عام" },
+      "regional": { "label": "الإعدادات الإقليمية" },
+      "shipping": { "label": "الشحن" },
+      "tax": { "label": "الضريبة" },
+      "currencies": { "label": "العملات" },
+      "markets": { "label": "الأسواق" },
+      "notifications": { "label": "الإشعارات" },
+      "email_templates": { "label": "رسائل الطلبات" }
+    },
+    "section": {
+      "store_info": {
+        "title": "معلومات المتجر",
+        "description": "التفاصيل الأساسية عن متجرك"
+      },
+      "branding": {
+        "title": "الهوية",
+        "description": "ارفع شعار متجرك وأيقونته"
+      },
+      "regional": {
+        "title": "الإعدادات الإقليمية",
+        "description": "ضبط التفضيلات الإقليمية"
+      },
+      "shipping_mode": {
+        "title": "طريقة الشحن",
+        "description": "كيفية احتساب تكلفة الشحن عند الدفع"
+      },
+      "shipping_zones": {
+        "title": "مناطق الشحن",
+        "description": "تعرفات لكل منطقة مع نطاقات وزن اختيارية. تُستخدم عند تفعيل طريقة الشحن \"حسب المنطقة\"."
+      },
+      "tax_behaviour": {
+        "title": "سلوك الضريبة",
+        "description": "كيفية احتساب الضريبة وعرضها للعملاء"
+      },
+      "tax_rates": {
+        "title": "معدلات الضريبة",
+        "description": "صف واحد لكل (دولة، ولاية) — يختار الدفع أكثر تطابق محدد."
+      },
+      "currencies": {
+        "title": "العملة وأسعار الصرف",
+        "description": "العملة الأساسية وأسعار الصرف المستخدمة لتحويل الأسعار عند طلب سوق أو واجهة متجر عملةً مختلفة. السعر بعملة الوجهة لكل وحدة أساسية (مثال: أساس USD مع EUR=0.92 يعني $1 = €0.92)."
+      },
+      "markets": {
+        "title": "الأسواق",
+        "description": "ربط مجموعات الدول بعملة ولغة وتعديل سعر. يُحدّد الدفع الدولةَ المشحون إليها لاختيار السوق المناسب وحساب السعر المعروض."
+      },
+      "notifications": {
+        "title": "تفضيلات الإشعارات",
+        "description": "اختر كيف تريد أن يتم تنبيهك لكل نوع من الأحداث. تُحفظ التغييرات تلقائياً."
+      },
+      "sender": {
+        "title": "المرسِل",
+        "description": "اسم المرسل وعنوان البريد الإلكتروني المستخدم لرسائل الطلبات التلقائية."
+      },
+      "status_templates": {
+        "title": "قوالب الحالات",
+        "description": "خصّص الرسالة المرسلة عند انتقال الطلب إلى كل حالة. اترك القالب فارغاً للرجوع إلى القالب الافتراضي. يمكنك استخدام العناصر النائبة {{orderNumber}} و{{customerName}} و{{totalAmount}}."
+      }
+    },
+    "field": {
+      "store": {
+        "name": {
+          "label": "اسم المتجر",
+          "placeholder": "متجري الرائع"
+        },
+        "description": {
+          "label": "وصف المتجر",
+          "placeholder": "وصف مختصر لمتجرك"
+        }
+      },
+      "branding": {
+        "logo": {
+          "label": "شعار المتجر",
+          "description": "يُوصى بـ: 500×500 بكسل، PNG شفاف"
+        },
+        "favicon": {
+          "label": "الأيقونة المفضلة",
+          "description": "يُوصى بـ: 64×64 بكسل، PNG أو ICO"
+        }
+      },
+      "regional": {
+        "currency": {
+          "label": "العملة",
+          "help": "عملة العرض الافتراضية للمتجر"
+        },
+        "timezone": {
+          "label": "المنطقة الزمنية",
+          "help": "تُستخدم لطوابع وقت الطلبات والتقارير"
+        },
+        "language": {
+          "label": "اللغة",
+          "help": "لغة واجهة المتجر الافتراضية"
+        }
+      },
+      "shipping": {
+        "flat_rate": {
+          "label": "تعرفة الشحن الثابتة"
+        }
+      },
+      "tax": {
+        "country": {
+          "label": "الدولة"
+        },
+        "state": {
+          "label": "الولاية / المنطقة (اختياري)",
+          "placeholder": "CA"
+        },
+        "rate": {
+          "label": "المعدل (%)",
+          "placeholder": "8.875"
+        },
+        "display_name": {
+          "label": "الاسم المعروض (اختياري)",
+          "placeholder": "ضريبة مبيعات ولاية نيويورك"
+        },
+        "product_class": {
+          "label": "فئة المنتج (اختياري)",
+          "placeholder": "standard",
+          "help": "تقييد هذا المعدل على المنتجات ذات الفئة الضريبية المطابقة."
+        }
+      },
+      "currencies": {
+        "base": {
+          "label": "العملة الأساسية"
+        },
+        "exchange_rates": {
+          "label": "أسعار الصرف"
+        },
+        "rate_placeholder": "0.92"
+      },
+      "markets": {
+        "code": {
+          "label": "الرمز",
+          "placeholder": "eu",
+          "help": "أحرف صغيرة، 2–32 حرفاً. يُستخدم في التحليلات وسجلات الطلبات."
+        },
+        "name": {
+          "label": "الاسم",
+          "placeholder": "الاتحاد الأوروبي"
+        },
+        "currency": {
+          "label": "العملة"
+        },
+        "language": {
+          "label": "اللغة"
+        },
+        "countries": {
+          "label": "الدول"
+        },
+        "price_adjustment": {
+          "label": "تعديل السعر (%)",
+          "placeholder": "0",
+          "help": "يُطبَّق على السعر الأساسي قبل تحويل العملة. القيم الموجبة ترفع السعر (مثال: 10 = +10%)؛ السالبة تخفّضه."
+        },
+        "enabled": {
+          "label": "مفعّل",
+          "description": "إيقاف: تخطّي عند تحديد السوق."
+        },
+        "default": {
+          "label": "افتراضي",
+          "description": "بديل عند عدم تطابق أي دولة."
+        }
+      },
+      "notifications": {
+        "from_name": {
+          "label": "اسم المرسل",
+          "placeholder": "Acme Coffee"
+        },
+        "from_email": {
+          "label": "بريد المرسل",
+          "placeholder": "orders@acme.test"
+        },
+        "subject": {
+          "label": "الموضوع"
+        },
+        "body": {
+          "label": "نص الرسالة"
+        }
+      }
+    },
+    "shipping_mode": {
+      "flat": {
+        "label": "ثابت",
+        "description": "تعرفة واحدة لكل طلب"
+      },
+      "weight": {
+        "label": "حسب الوزن",
+        "description": "تعرفة لكل كيلوغرام"
+      },
+      "zone": {
+        "label": "حسب المنطقة",
+        "description": "مناطق جغرافية مع نطاقات وزن"
+      },
+      "free": {
+        "label": "مجاني",
+        "description": "شحن مجاني للجميع"
+      }
+    },
+    "tax_flag": {
+      "charge_tax": {
+        "label": "تحصيل الضريبة على الطلبات",
+        "description": "عند الإيقاف، تكون جميع الطلبات معفاة من الضريبة بصرف النظر عن المعدلات أدناه."
+      },
+      "include_in_price": {
+        "label": "الأسعار تشمل الضريبة",
+        "description": "التعامل مع أسعار المنتجات باعتبارها شاملة للضريبة (احتساب الضريبة من السعر المعروض بدلاً من إضافتها)."
+      },
+      "tax_shipping": {
+        "label": "تحصيل الضريبة على الشحن",
+        "description": "تطبيق المعدل الضريبي المطابق على تكلفة الشحن إضافةً إلى بنود الطلب."
+      }
+    },
+    "notification_type": {
+      "order_created": {
+        "label": "طلبات جديدة",
+        "description": "يُطلَق عند قيام عميل بتقديم طلب جديد."
+      },
+      "payment_manual_submitted": {
+        "label": "تم إرسال دفعة يدوية",
+        "description": "قدّم عميل إثباتاً لدفعة يدوية / تحويل مصرفي."
+      },
+      "payment_failed": {
+        "label": "فشل الدفع",
+        "description": "فشلت محاولة دفع (تحصيل أو شحن وما إلى ذلك)."
+      },
+      "stock_low": {
+        "label": "مخزون منخفض",
+        "description": "انخفض مخزون منتج إلى ما دون الحد المحدد."
+      },
+      "refund_created": {
+        "label": "تم إنشاء استرداد",
+        "description": "صدر استرداد على طلب ما."
+      },
+      "return_requested": {
+        "label": "طلب إرجاع",
+        "description": "طلب عميل إرجاع طلبه."
+      },
+      "webhook_failed": {
+        "label": "فشل خطّاف الويب",
+        "description": "فشل خطّاف ويب صادر إلى خدمة خارجية بصورة متكررة."
+      },
+      "domain_verification_failed": {
+        "label": "فشل التحقق من النطاق",
+        "description": "فشل التحقق من DNS أو SSL للنطاق المخصص."
+      },
+      "staff_invite_accepted": {
+        "label": "قَبِل موظف الدعوة",
+        "description": "قبل أحد أعضاء الفريق دعوته."
+      }
+    },
+    "notification_channel": {
+      "event": "الحدث",
+      "inbox": "صندوق الوارد",
+      "toast": "إشعار لحظي",
+      "sound": "صوت",
+      "browser": "المتصفح",
+      "email": "البريد الإلكتروني"
+    },
+    "notification_channel_hint": "تُشغّل قناة الصوت نغمة قصيرة عند وصول إشعار مطابق. تعرض قناة المتصفح إشعاراً من نظام التشغيل حتى عندما لا تكون علامة تبويب لوحة التحكم في المقدمة. تُسلّم قناة البريد الإلكتروني رسالةً نصية إلى بريد حسابك مع رابط مباشر إلى السجل ذي الصلة.",
+    "browser_permission": {
+      "not_enabled_title": "إشعارات المتصفح غير مفعّلة",
+      "not_enabled_body": "امنح الإذن حتى يتمكن Matjar من عرض تنبيهات على مستوى نظام التشغيل عندما لا تكون هذه التبويبة في المقدمة.",
+      "request_button": "طلب الإذن",
+      "blocked_title": "إشعارات المتصفح محظورة",
+      "blocked_body": "فعّل الإشعارات لهذا الموقع في إعدادات متصفحك لتلقّي تنبيهات على مستوى نظام التشغيل.",
+      "tooltip_blocked": "إشعارات المتصفح محظورة في إعدادات متصفحك.",
+      "tooltip_grant": "امنح إذن المتصفح أعلاه لتفعيل هذه القناة."
+    },
+    "email_template": {
+      "send_this_email": {
+        "label": "إرسال هذه الرسالة",
+        "description": "تُرسَل تلقائياً عند انتقال الطلب إلى حالة \"{{status}}\"."
+      },
+      "subject_placeholder": "طلبك {{orderNumber}} {{status}}",
+      "body_placeholder": "عزيزي {{customerName}}،\n\nطلبك {{orderNumber}} أصبح الآن {{status}}.\n\nشكراً للتسوق معنا!",
+      "off_badge": "(متوقف)"
+    },
+    "toast": {
+      "settings_saved": "تم حفظ الإعدادات",
+      "settings_save_failed": "فشل حفظ الإعدادات",
+      "settings_load_failed": "فشل تحميل الإعدادات",
+      "shipping_mode_saved": "تم حفظ طريقة الشحن",
+      "shipping_mode_save_failed": "فشل حفظ طريقة الشحن",
+      "shipping_zones_load_failed": "فشل تحميل مناطق الشحن",
+      "zone_deleted": "تم حذف المنطقة",
+      "zone_delete_failed": "فشل حذف المنطقة",
+      "tax_load_failed": "فشل تحميل إعدادات الضريبة",
+      "tax_flag_save_failed": "فشل حفظ إعدادات الضريبة",
+      "tax_rate_updated": "تم تحديث معدل الضريبة",
+      "tax_rate_created": "تم إنشاء معدل الضريبة",
+      "tax_rate_save_failed": "فشل حفظ معدل الضريبة",
+      "tax_rate_deleted": "تم حذف معدل الضريبة",
+      "tax_rate_delete_failed": "فشل حذف معدل الضريبة",
+      "currencies_load_failed": "فشل تحميل العملات",
+      "currencies_saved": "تم حفظ أسعار الصرف",
+      "currencies_save_failed": "فشل حفظ العملات",
+      "markets_load_failed": "فشل تحميل الأسواق",
+      "market_updated": "تم تحديث السوق",
+      "market_created": "تم إنشاء السوق",
+      "market_save_failed": "فشل حفظ السوق",
+      "market_deleted": "تم حذف السوق",
+      "market_delete_failed": "فشل حذف السوق",
+      "notifications_load_failed": "فشل تحميل الإشعارات",
+      "email_templates_saved": "تم حفظ قوالب البريد الإلكتروني",
+      "notifications_save_failed": "فشل حفظ الإشعارات"
+    },
+    "confirm": {
+      "delete_shipping_zone": {
+        "title": "حذف منطقة الشحن؟",
+        "description": "سيرجع العملاء في دولها إلى التعرفة الافتراضية.",
+        "confirm_text": "حذف"
+      },
+      "delete_tax_rate": {
+        "title": "حذف معدل الضريبة؟",
+        "description": "ستنتقل الطلبات المطابقة لدولة/ولاية/فئة هذا المعدل إلى التطابق التالي.",
+        "confirm_text": "حذف"
+      },
+      "delete_market": {
+        "title": "حذف السوق \"{{name}}\"؟",
+        "description": "سينتقل عملاء دوله إلى السوق الافتراضي عند الدفع.",
+        "confirm_text": "حذف"
+      }
+    },
+    "validation": {
+      "country_required": "الدولة مطلوبة",
+      "rate_range": "يجب أن يكون المعدل بين 0 و100%",
+      "invalid_currency_code": "رمز العملة غير صالح: {{code}}",
+      "rate_must_be_positive": "يجب أن يكون سعر الصرف لـ {{code}} قيمةً موجبة",
+      "market_code_invalid": "يجب أن يكون الرمز 2–32 حرفاً، أحرف إنجليزية صغيرة وأرقام وشرطة",
+      "market_name_required": "الاسم مطلوب",
+      "market_currency_invalid": "يجب أن تكون العملة رمزاً من 3 أحرف ISO",
+      "market_country_invalid": "رمز الدولة غير صالح: {{code}}",
+      "market_price_adjustment_range": "يجب أن يكون تعديل السعر بين ‎-95%‎ و‎+500%‎"
+    },
+    "button": {
+      "save_changes": "حفظ التغييرات",
+      "saving": "جاري الحفظ...",
+      "save_shipping_mode": "حفظ طريقة الشحن",
+      "add_zone": "إضافة منطقة",
+      "add_rate": "إضافة معدل",
+      "add_currency": "إضافة عملة",
+      "add_market": "إضافة سوق",
+      "add_country": "إضافة دولة",
+      "save_currencies": "حفظ العملات",
+      "save_notifications": "حفظ الإشعارات"
+    },
+    "empty": {
+      "no_shipping_zones": "لم تُضف أي مناطق شحن بعد.",
+      "no_tax_rates": "لم تُضف أي معدلات ضريبية.",
+      "no_currencies": "لا توجد عملات إضافية بعد.",
+      "no_markets": "جميع العملاء يدفعون بالعملة الأساسية.",
+      "no_countries": "لا توجد دول — سيُحدد هذا السوق فقط عندما يكون هو الافتراضي."
+    },
+    "dialog": {
+      "edit_tax_rate": "تعديل معدل الضريبة",
+      "new_tax_rate": "معدل ضريبة جديد",
+      "edit_market": "تعديل السوق",
+      "new_market": "سوق جديد"
+    },
+    "fx_rates_updated_at": "آخر تحديث {{datetime}}",
+    "shipping_zone_mode_warning": "بدّل طريقة الشحن إلى \"حسب المنطقة\" أعلاه لاستخدام هذه التعرفات عند الدفع.",
+    "zone_rates_badge": "{{count}} تعرفة",
+    "zone_rates_badge_plural": "{{count}} تعرفات",
+    "fx_missing_warning": "لا يوجد سعر صرف لـ {{currency}} → {{base}}. أضفه في تبويب العملات وإلا سيرجع العرض إلى {{base}}.",
+    "market_badge_disabled": "معطّل",
+    "market_badge_default": "افتراضي"
+  }
+}

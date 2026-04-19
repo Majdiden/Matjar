@@ -1,1 +1,67 @@
-{}
+{
+  "audit": {
+    "list": {
+      "title": "Audit Logs",
+      "subtitle": "Track all changes and actions across your store",
+      "card_title": "Activity Log",
+      "empty_title": "No audit logs",
+      "empty_description": "Activity will be recorded here as changes are made.",
+      "column": {
+        "time": "Time",
+        "actor": "Actor",
+        "action": "Action",
+        "resource": "Resource",
+        "resource_id": "Resource ID",
+        "ip": "IP",
+        "details": "Details"
+      }
+    },
+    "detail": {
+      "title": "Audit Log Details",
+      "field": {
+        "action": "Action",
+        "resource": "Resource",
+        "actor": "Actor",
+        "time": "Time",
+        "ip_address": "IP Address",
+        "resource_id": "Resource ID",
+        "changes": "Changes",
+        "user_agent": "User Agent"
+      },
+      "system_actor": "system",
+      "na": "N/A"
+    },
+    "filter": {
+      "all_resources": "All Resources",
+      "all_actions": "All Actions",
+      "resource": {
+        "product": "Product",
+        "order": "Order",
+        "customer": "Customer",
+        "settings": "Settings",
+        "discount": "Discount",
+        "theme": "Theme",
+        "market": "Market"
+      },
+      "action": {
+        "create": "Create",
+        "update": "Update",
+        "delete": "Delete"
+      }
+    },
+    "action": {
+      "create": { "label": "Create" },
+      "update": { "label": "Update" },
+      "delete": { "label": "Delete" },
+      "add": { "label": "Add" },
+      "remove": { "label": "Remove" },
+      "edit": { "label": "Edit" }
+    },
+    "toast": {
+      "load_failed": "Failed to load audit logs"
+    },
+    "pagination": {
+      "page_of": "Page {{page}} of {{total}}"
+    }
+  }
+}

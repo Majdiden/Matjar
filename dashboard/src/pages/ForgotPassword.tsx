@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation, Trans } from 'react-i18next';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -12,12 +13,13 @@ export const ForgotPassword: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { t } = useTranslation(['auth', 'common']);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!email.trim()) {
-      setError('Enter the email you use to sign in.');
+      setError(t('auth.validation.email_required_forgot'));
       return;
     }
     setIsLoading(true);
@@ -31,7 +33,7 @@ export const ForgotPassword: React.FC = () => {
       // The only path into this branch is a validation 400 or an outright
       // transport error — both are safe to surface.
       const e = err as { response?: { data?: { message?: string } }; message?: string };
-      setError(e?.response?.data?.message || e?.message || 'Could not submit request.');
+      setError(e?.response?.data?.message || e?.message || t('auth.toast.forgot_submit_failed'));
     } finally {
       setIsLoading(false);
     }
@@ -53,20 +55,23 @@ export const ForgotPassword: React.FC = () => {
               <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
                 <MailCheck className="h-6 w-6 text-emerald-600" />
               </div>
-              <h1 className="text-2xl font-bold tracking-tight">Check your inbox</h1>
+              <h1 className="text-2xl font-bold tracking-tight">{t('auth.forgot.check_inbox_title')}</h1>
               <p className="text-muted-foreground">
-                If an account exists for <span className="font-medium text-foreground">{email}</span>,
-                a password reset link is on its way. The link expires in 60 minutes.
+                <Trans
+                  i18nKey="auth.forgot.check_inbox_body"
+                  values={{ email }}
+                  components={[<span />, <span className="font-medium text-foreground" />]}
+                />
               </p>
             </div>
             <div className="text-sm text-muted-foreground text-center">
-              Didn't get it? Check your spam folder, then{' '}
+              {t('auth.forgot.no_email')}{' '}
               <button
                 type="button"
                 className="text-foreground font-medium hover:underline"
                 onClick={() => { setSubmitted(false); }}
               >
-                try again
+                {t('auth.forgot.try_again_link')}
               </button>
               .
             </div>
@@ -74,15 +79,15 @@ export const ForgotPassword: React.FC = () => {
               to="/login"
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" /> Back to sign in
+              <ArrowLeft className="h-4 w-4 mr-1" /> {t('auth.forgot.back_to_sign_in')}
             </Link>
           </div>
         ) : (
           <>
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight">Forgot password?</h1>
+              <h1 className="text-3xl font-bold tracking-tight">{t('auth.forgot.title')}</h1>
               <p className="text-muted-foreground">
-                Enter your email and we'll send you a link to choose a new one.
+                {t('auth.forgot.subtitle')}
               </p>
             </div>
 
@@ -95,11 +100,11 @@ export const ForgotPassword: React.FC = () => {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.field.email.label')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.field.email.placeholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
@@ -111,16 +116,16 @@ export const ForgotPassword: React.FC = () => {
 
               <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
                 {isLoading ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...</>
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.forgot.submitting')}</>
                 ) : (
-                  <>Send reset link</>
+                  <>{t('auth.forgot.submit')}</>
                 )}
               </Button>
             </form>
 
             <div className="text-sm text-muted-foreground">
               <Link to="/login" className="inline-flex items-center hover:text-foreground">
-                <ArrowLeft className="h-4 w-4 mr-1" /> Back to sign in
+                <ArrowLeft className="h-4 w-4 mr-1" /> {t('auth.forgot.back_to_sign_in')}
               </Link>
             </div>
           </>

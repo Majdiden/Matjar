@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -33,6 +34,7 @@ const errMsg = (err: unknown, fallback: string): string => {
 };
 
 export const AcceptInvite: React.FC = () => {
+  const { t } = useTranslation(['staff', 'common']);
   const navigate = useNavigate();
   const token = new URLSearchParams(window.location.search).get('token') || '';
 
@@ -46,7 +48,7 @@ export const AcceptInvite: React.FC = () => {
   // Verify the token on mount
   useEffect(() => {
     if (!token) {
-      setTokenState({ status: 'invalid', message: 'No invitation token found in URL.' });
+      setTokenState({ status: 'invalid', message: t('staff.accept_invite.no_token') });
       return;
     }
     (async () => {
@@ -60,31 +62,31 @@ export const AcceptInvite: React.FC = () => {
         if (email && role) {
           setTokenState({ status: 'valid', email, role });
         } else {
-          setTokenState({ status: 'invalid', message: 'Invalid invitation response from server.' });
+          setTokenState({ status: 'invalid', message: t('staff.accept_invite.invalid_server') });
         }
       } catch (err) {
         setTokenState({
           status: 'invalid',
-          message: errMsg(err, 'This invitation is invalid or has expired.'),
+          message: errMsg(err, t('staff.accept_invite.expired_fallback')),
         });
       }
     })();
-  }, [token]);
+  }, [token, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) { toast.error('Name is required'); return; }
-    if (password.length < 8) { toast.error('Password must be at least 8 characters'); return; }
-    if (password !== confirmPassword) { toast.error('Passwords do not match'); return; }
+    if (!name.trim()) { toast.error(t('staff.accept_invite.toast.name_required')); return; }
+    if (password.length < 8) { toast.error(t('staff.accept_invite.toast.password_short')); return; }
+    if (password !== confirmPassword) { toast.error(t('staff.accept_invite.toast.password_mismatch')); return; }
 
     try {
       setSubmitting(true);
       await api.post('/staff/invites/accept', { token, name: name.trim(), password });
       setDone(true);
-      toast.success('Account created! Redirecting to login…');
+      toast.success(t('staff.accept_invite.toast.created'));
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to accept invitation. Please try again.'));
+      toast.error(errMsg(err, t('staff.accept_invite.toast.accept_failed')));
     } finally {
       setSubmitting(false);
     }
@@ -97,7 +99,7 @@ export const AcceptInvite: React.FC = () => {
         <Card className="w-full max-w-md">
           <CardContent className="py-12 flex flex-col items-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="text-muted-foreground">Verifying your invitation…</p>
+            <p className="text-muted-foreground">{t('staff.accept_invite.verifying')}</p>
           </CardContent>
         </Card>
       </div>
@@ -112,11 +114,11 @@ export const AcceptInvite: React.FC = () => {
           <CardContent className="py-12 flex flex-col items-center gap-4 text-center">
             <XCircle className="h-12 w-12 text-destructive" />
             <div>
-              <h2 className="text-lg font-semibold">Invitation not found</h2>
+              <h2 className="text-lg font-semibold">{t('staff.accept_invite.invalid_title')}</h2>
               <p className="text-muted-foreground mt-1">{tokenState.message}</p>
             </div>
             <Button variant="outline" onClick={() => navigate('/login')}>
-              Go to login
+              {t('staff.accept_invite.go_to_login')}
             </Button>
           </CardContent>
         </Card>
@@ -132,8 +134,8 @@ export const AcceptInvite: React.FC = () => {
           <CardContent className="py-12 flex flex-col items-center gap-4 text-center">
             <CheckCircle className="h-12 w-12 text-green-500" />
             <div>
-              <h2 className="text-lg font-semibold">Account created!</h2>
-              <p className="text-muted-foreground mt-1">Redirecting you to the login page…</p>
+              <h2 className="text-lg font-semibold">{t('staff.accept_invite.success_title')}</h2>
+              <p className="text-muted-foreground mt-1">{t('staff.accept_invite.success_redirect')}</p>
             </div>
           </CardContent>
         </Card>
@@ -148,27 +150,27 @@ export const AcceptInvite: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-xl">Accept invitation</CardTitle>
+          <CardTitle className="text-xl">{t('staff.accept_invite.title')}</CardTitle>
           <CardDescription>
-            You have been invited to join as{' '}
+            {t('staff.accept_invite.description')}{' '}
             <Badge variant={role === 'admin' ? 'default' : role === 'manager' ? 'secondary' : 'outline'}>
               {role}
             </Badge>
-            . Create your account to get started.
+            {t('staff.accept_invite.description_suffix')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Email address</Label>
+              <Label>{t('staff.accept_invite.field.email.label')}</Label>
               <Input value={email} disabled className="bg-muted" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="name">Full name</Label>
+              <Label htmlFor="name">{t('staff.accept_invite.field.name.label')}</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="Jane Smith"
+                placeholder={t('staff.accept_invite.field.name.placeholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -176,11 +178,11 @@ export const AcceptInvite: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('staff.accept_invite.field.password.label')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="At least 8 characters"
+                placeholder={t('staff.accept_invite.field.password.placeholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -188,11 +190,11 @@ export const AcceptInvite: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm password</Label>
+              <Label htmlFor="confirm-password">{t('staff.accept_invite.field.confirm_password.label')}</Label>
               <Input
                 id="confirm-password"
                 type="password"
-                placeholder="Repeat your password"
+                placeholder={t('staff.accept_invite.field.confirm_password.placeholder')}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -200,7 +202,7 @@ export const AcceptInvite: React.FC = () => {
             </div>
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Create account
+              {t('staff.accept_invite.submit')}
             </Button>
           </form>
         </CardContent>

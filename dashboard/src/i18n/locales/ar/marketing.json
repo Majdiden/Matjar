@@ -1,1 +1,453 @@
-{}
+{
+  "marketing": {
+    "discount": {
+      "list": {
+        "title": "الخصومات",
+        "subtitle": "إنشاء رموز الخصم وتعديلها ودمجها",
+        "card_title": "جميع الخصومات",
+        "card_title_count": "جميع الخصومات ({{count}})",
+        "empty_title": "لا توجد خصومات",
+        "empty_subtitle": "أنشئ رموز خصم لتقديم العروض الترويجية.",
+        "column": {
+          "code": "الرمز",
+          "applies_to": "ينطبق على",
+          "type": "النوع",
+          "value": "القيمة",
+          "usage": "الاستخدام",
+          "combines": "يُدمج مع",
+          "status": "الحالة",
+          "expires": "تاريخ الانتهاء",
+          "actions": "الإجراءات",
+          "combines_none": "لا شيء"
+        },
+        "filter": {
+          "all": "الكل",
+          "active": "نشط",
+          "inactive": "غير نشط"
+        },
+        "search_placeholder": "ابحث بالرمز أو الوصف...",
+        "create_button": "إنشاء خصم",
+        "expires_never": "بلا تاريخ انتهاء",
+        "expires_on": "ينتهي {{date}}",
+        "selected_count": "{{count}} محدد",
+        "bulk_delete_title": "حذف {{count}} خصم",
+        "bulk_delete_title_plural": "حذف {{count}} خصومات",
+        "bulk_delete_description": "لن يتمكن العملاء من استرداد هذه الرموز بعد الآن.",
+        "delete_title": "حذف هذا الخصم؟",
+        "delete_description": "لن يتمكن العملاء من استرداد هذا الرمز بعد الآن.",
+        "card_value_label": "القيمة",
+        "card_uses_label": "الاستخدامات"
+      },
+      "picker": {
+        "title": "اختر نوع الخصم",
+        "subtitle": "اختر نوع الخصم الذي تريد إنشاءه."
+      },
+      "method": {
+        "amount_off_products": "خصم على المنتجات",
+        "amount_off_products_desc": "خصم على منتجات أو مجموعات منتجات محددة.",
+        "buy_x_get_y": "اشترِ X واحصل على Y",
+        "buy_x_get_y_desc": "منح منتج بسعر مخفض عند شراء منتجات مؤهلة.",
+        "amount_off_order": "خصم على الطلب",
+        "amount_off_order_desc": "خصم على إجمالي مبلغ الطلب.",
+        "free_shipping": "شحن مجاني",
+        "free_shipping_desc": "تقديم شحن مجاني على الطلب."
+      },
+      "form": {
+        "section": {
+          "code": "رمز الخصم",
+          "value": "القيمة",
+          "value_order_desc": "المبلغ الذي سيُخصم من الإجمالي الفرعي للطلب.",
+          "value_products_desc": "المبلغ الذي سيُخصم من كل بند مؤهل.",
+          "applies_to": "ينطبق على",
+          "applies_to_desc": "اختر المنتجات و/أو الفئات التي ينطبق عليها هذا الخصم. اتركهما فارغَين لتطبيقه على جميع البنود.",
+          "shipping_discount": "خصم الشحن",
+          "shipping_discount_desc": "بشكل افتراضي يحصل العملاء على خصم 100٪ على الشحن. قلّل النسبة لخصم جزئي أو اختر خصمًا بمبلغ ثابت.",
+          "customer_buys": "يشتري العميل",
+          "customer_buys_desc": "ما يجب أن يمتلكه العميل في سلته للتأهل.",
+          "customer_gets": "يحصل العميل على",
+          "customer_gets_desc": "ما الذي سيُخصم وبأي مقدار.",
+          "requirements": "الشروط والحدود",
+          "status": "الحالة",
+          "combinations": "التوليفات",
+          "combinations_desc": "يمكن للعملاء تجميع خصمين فقط إذا اختار كلاهما السماح بذلك."
+        },
+        "field": {
+          "code": {
+            "label": "الرمز"
+          },
+          "type": {
+            "label": "النوع"
+          },
+          "value": {
+            "label": "القيمة"
+          },
+          "min_order_amount": {
+            "label": "الحد الأدنى لمبلغ الطلب",
+            "placeholder": "اختياري"
+          },
+          "usage_limit": {
+            "label": "الحد الإجمالي للاستخدام",
+            "placeholder": "غير محدود"
+          },
+          "per_user_limit": {
+            "label": "الحد لكل عميل",
+            "placeholder": "غير محدود"
+          },
+          "expires_at": {
+            "label": "تاريخ الانتهاء"
+          },
+          "is_active": {
+            "label": "نشط",
+            "hint": "لا يمكن تطبيق الخصومات غير النشطة عند إتمام الشراء."
+          },
+          "bxgy_buy_quantity": {
+            "label": "الكمية"
+          },
+          "bxgy_buy_products": {
+            "label": "أي من هذه المنتجات"
+          },
+          "bxgy_buy_categories": {
+            "label": "أو أي منتج في هذه الفئات"
+          },
+          "bxgy_buy_any_hint": "اتركهما فارغَين للسماح بأي منتج في السلة للاحتساب ضمن كمية الشراء.",
+          "bxgy_get_quantity": {
+            "label": "الكمية"
+          },
+          "bxgy_max_uses": {
+            "label": "الحد الأقصى للاستخدام لكل طلب",
+            "placeholder": "غير محدود"
+          },
+          "bxgy_get_products": {
+            "label": "أي من هذه المنتجات"
+          },
+          "bxgy_get_categories": {
+            "label": "أو أي منتج في هذه الفئات"
+          },
+          "bxgy_discount_type": {
+            "label": "بخصم قدره"
+          },
+          "bxgy_free_hint": "استخدم 100٪ للحصول على عنصر مجاني. يُطبَّق الخصم على أرخص الوحدات المؤهلة.",
+          "products_picker": {
+            "label": "المنتجات",
+            "placeholder": "ابحث في المنتجات..."
+          },
+          "categories_picker": {
+            "label": "الفئات",
+            "placeholder": "ابحث في الفئات..."
+          },
+          "combines_with": "يُدمج مع خصومات {{kind}}"
+        },
+        "type_option": {
+          "percentage": "نسبة مئوية (%)",
+          "fixed": "مبلغ ثابت"
+        },
+        "picker_no_matches": "لا توجد نتائج",
+        "create_button": "إنشاء خصم",
+        "save_button": "حفظ التغييرات",
+        "edit_title": "تعديل {{code}}"
+      },
+      "toast": {
+        "created": "تم إنشاء الخصم",
+        "updated": "تم تحديث الخصم",
+        "deleted": "تم حذف الخصم",
+        "delete_failed": "فشل حذف الخصم",
+        "load_failed": "فشل تحميل الخصومات",
+        "save_failed": "فشل حفظ الخصم",
+        "code_required": "رمز الخصم مطلوب",
+        "bulk_deleted": "تم حذف {{count}}",
+        "bulk_failed": "فشل {{count}}",
+        "not_found": "الخصم غير موجود"
+      }
+    },
+    "gift_card": {
+      "list": {
+        "title": "بطاقات الهدايا",
+        "feature_toggle_label": "بطاقات الهدايا",
+        "feature_on": "مفعّل",
+        "feature_off": "معطّل",
+        "issue_button": "إصدار بطاقة هدية",
+        "search_placeholder": "ابحث بآخر 4 أرقام...",
+        "empty_title": "لا توجد بطاقات هدايا",
+        "selected_count": "{{count}} محدد",
+        "column": {
+          "code": "الرمز",
+          "recipient": "المستلم",
+          "initial": "المبلغ الأولي",
+          "balance": "الرصيد",
+          "status": "الحالة",
+          "expires": "تاريخ الانتهاء",
+          "created": "تاريخ الإصدار"
+        },
+        "filter": {
+          "all": "الكل",
+          "active": "نشطة",
+          "redeemed": "مستردة",
+          "expired": "منتهية الصلاحية",
+          "disabled": "معطّلة"
+        },
+        "bulk": {
+          "disable": "تعطيل",
+          "enable": "تفعيل",
+          "export_csv": "تصدير CSV",
+          "no_export": "لا توجد بطاقات هدايا للتصدير"
+        },
+        "tag": {
+          "covers_shipping": "تغطي الشحن",
+          "covers_tax": "تغطي الضريبة"
+        },
+        "card_balance_label": "الرصيد",
+        "card_initial_label": "المبلغ الأولي",
+        "card_expires": "تنتهي {{date}}",
+        "card_created": "صدرت {{date}}"
+      },
+      "issue_dialog": {
+        "title": "إصدار بطاقة هدية",
+        "description": "أنشئ بطاقة هدية مدفوعة مسبقًا. لن يُعرض الرمز إلا مرة واحدة بعد الإصدار.",
+        "field": {
+          "amount": {
+            "label": "المبلغ *"
+          },
+          "currency": {
+            "label": "العملة"
+          },
+          "recipient_name": {
+            "label": "اسم المستلم",
+            "placeholder": "أحمد محمد"
+          },
+          "recipient_email": {
+            "label": "بريد المستلم الإلكتروني",
+            "placeholder": "ahmed@example.com"
+          },
+          "message": {
+            "label": "رسالة (تُعرض على البطاقة)",
+            "placeholder": "كل عام وأنت بخير!"
+          },
+          "note": {
+            "label": "ملاحظة داخلية",
+            "placeholder": "للرجوع الداخلي فقط"
+          },
+          "expires_at": {
+            "label": "تاريخ الانتهاء (اختياري)"
+          },
+          "customer": {
+            "label": "العميل (اختياري — يُرتبط بالحساب)",
+            "search_placeholder": "ابحث بالاسم أو البريد أو الهاتف…",
+            "searching": "جاري البحث…",
+            "no_customers": "لم يُعثر على عملاء.",
+            "no_name": "(بدون اسم)"
+          }
+        },
+        "issue_button": "إصدار البطاقة"
+      },
+      "success_dialog": {
+        "title": "تم إصدار بطاقة الهدية",
+        "description": "انسخ الرمز أدناه. هذه هي المرة الوحيدة التي سيُعرض فيها الرمز الكامل.",
+        "warning": "احفظ هذا الرمز الآن — لا يمكن استرجاعه مجددًا."
+      },
+      "form": {
+        "page_title": "إصدار بطاقة هدية",
+        "card_title": "بطاقة هدية جديدة",
+        "card_description": "أنشئ بطاقة هدية مدفوعة مسبقًا. لن يُعرض الرمز الكامل إلا مرة واحدة بعد الإصدار.",
+        "field": {
+          "cover_shipping": {
+            "label": "تغطية الشحن",
+            "hint": "يمكن تطبيق هذه البطاقة على رسوم الشحن."
+          },
+          "cover_tax": {
+            "label": "تغطية الضريبة",
+            "hint": "يمكن تطبيق هذه البطاقة على الضريبة."
+          }
+        }
+      },
+      "detail": {
+        "back_link": "بطاقات الهدايا",
+        "section": {
+          "overview": "نظرة عامة",
+          "transactions": "سجل المعاملات",
+          "actions": "الإجراءات"
+        },
+        "field": {
+          "balance": "الرصيد",
+          "initial_amount": "المبلغ الأولي",
+          "currency": "العملة",
+          "status": "الحالة",
+          "recipient": "المستلم",
+          "customer_id": "معرّف العميل",
+          "expires": "تاريخ الانتهاء",
+          "issued": "تاريخ الإصدار",
+          "message": "الرسالة",
+          "note": "ملاحظة داخلية",
+          "remaining_balance": "الرصيد المتبقي"
+        },
+        "expires_never": "لا تنتهي",
+        "tx_column": {
+          "type": "النوع",
+          "amount": "المبلغ",
+          "balance_after": "الرصيد بعدها",
+          "order": "الطلب",
+          "note": "الملاحظة",
+          "date": "التاريخ"
+        },
+        "tx_empty": "لا توجد معاملات",
+        "action": {
+          "enable": "تفعيل البطاقة",
+          "disable": "تعطيل البطاقة",
+          "adjust": "تعديل الرصيد",
+          "refund": "استرداد إلى البطاقة"
+        },
+        "not_found": "بطاقة الهدية غير موجودة.",
+        "not_found_back": "العودة إلى القائمة"
+      },
+      "adjust_dialog": {
+        "title": "تعديل الرصيد",
+        "current_balance": "الرصيد الحالي: {{balance}}",
+        "add": "+ إضافة",
+        "subtract": "− طرح",
+        "field": {
+          "amount": {
+            "label": "المبلغ ({{currency}})"
+          },
+          "note": {
+            "label": "ملاحظة (مطلوبة لمسار التدقيق)",
+            "placeholder": "سبب التعديل"
+          }
+        },
+        "apply_button": "تطبيق"
+      },
+      "refund_dialog": {
+        "title": "استرداد إلى بطاقة الهدية",
+        "description": "أضف رصيدًا إلى هذه البطاقة (مثلًا لطلب مُرجَع). الرصيد الحالي: {{balance}}",
+        "field": {
+          "amount": {
+            "label": "مبلغ الاسترداد ({{currency}})"
+          },
+          "note": {
+            "label": "ملاحظة",
+            "placeholder": "سبب الاسترداد"
+          }
+        },
+        "refund_button": "استرداد"
+      },
+      "toast": {
+        "issued": "تم إصدار بطاقة الهدية",
+        "issue_failed": "فشل إصدار بطاقة الهدية",
+        "code_copied": "تم نسخ الرمز إلى الحافظة",
+        "enabled": "تم تفعيل بطاقة الهدية",
+        "disabled": "تم تعطيل بطاقة الهدية",
+        "feature_updated": "{{state}}",
+        "feature_update_failed": "فشل التحديث",
+        "load_failed": "فشل تحميل بطاقة الهدية",
+        "toggle_failed": "فشل {{action}} بطاقة الهدية",
+        "balance_adjusted": "تم تعديل الرصيد",
+        "adjustment_failed": "فشل التعديل",
+        "refund_applied": "تم تطبيق الاسترداد",
+        "refund_failed": "فشل الاسترداد",
+        "amount_invalid": "أدخل مبلغًا صالحًا",
+        "bulk_toggled_enable": "تم تفعيل {{count}} بطاقة هدية",
+        "bulk_toggled_enable_plural": "تم تفعيل {{count}} بطاقات هدايا",
+        "bulk_toggled_disable": "تم تعطيل {{count}} بطاقة هدية",
+        "bulk_toggled_disable_plural": "تم تعطيل {{count}} بطاقات هدايا",
+        "bulk_failed": "فشل {{count}}",
+        "exported": "تم تصدير {{count}} بطاقة هدية",
+        "exported_plural": "تم تصدير {{count}} بطاقات هدايا",
+        "no_export": "لا توجد بطاقات هدايا للتصدير"
+      }
+    },
+    "promotion": {
+      "list": {
+        "title": "العروض الترويجية",
+        "subtitle": "إدارة الحملات الترويجية لمتجرك",
+        "create_button": "إنشاء عرض ترويجي",
+        "empty_title": "لا توجد عروض ترويجية",
+        "empty_subtitle": "أنشئ حملات ترويجية لتعزيز المبيعات.",
+        "column": {
+          "name": "الاسم",
+          "status": "الحالة",
+          "start_date": "تاريخ البدء",
+          "end_date": "تاريخ الانتهاء",
+          "actions": "الإجراءات"
+        }
+      },
+      "form": {
+        "create_title": "إنشاء عرض ترويجي",
+        "edit_title": "تعديل العرض الترويجي",
+        "field": {
+          "name": {
+            "label": "الاسم",
+            "placeholder": "تخفيضات الصيف"
+          },
+          "description": {
+            "label": "الوصف"
+          },
+          "start_date": {
+            "label": "تاريخ البدء"
+          },
+          "end_date": {
+            "label": "تاريخ الانتهاء"
+          },
+          "is_active": {
+            "label": "نشط"
+          }
+        }
+      },
+      "toast": {
+        "created": "تم إنشاء العرض الترويجي",
+        "updated": "تم تحديث العرض الترويجي",
+        "deleted": "تم حذف العرض الترويجي"
+      }
+    },
+    "market": {
+      "list": {
+        "title": "الأسواق",
+        "subtitle": "إدارة الأسواق الجغرافية والعملات وتعديلات الأسعار",
+        "add_button": "إضافة سوق",
+        "empty_title": "لا توجد أسواق مهيأة",
+        "empty_subtitle": "أنشئ أسواقًا لاستهداف مناطق جغرافية مختلفة.",
+        "create_first_button": "إنشاء أول سوق",
+        "card": {
+          "currency_label": "العملة",
+          "price_adjustment_label": "تعديل السعر"
+        }
+      },
+      "form": {
+        "create_title": "إنشاء سوق",
+        "edit_title": "تعديل السوق",
+        "field": {
+          "name": {
+            "label": "اسم السوق",
+            "placeholder": "أمريكا الشمالية"
+          },
+          "countries": {
+            "label": "الدول (رموز ISO مفصولة بفواصل)",
+            "placeholder": "US, CA, MX"
+          },
+          "currency": {
+            "label": "العملة",
+            "placeholder": "USD"
+          },
+          "price_adjustment": {
+            "label": "تعديل السعر (%)"
+          }
+        },
+        "validation": {
+          "name_countries_required": "الاسم والدول مطلوبان"
+        },
+        "saving_button": "جاري الحفظ...",
+        "update_button": "تحديث",
+        "create_button": "إنشاء"
+      },
+      "delete_dialog": {
+        "title": "حذف السوق؟",
+        "description": "سيعود العملاء في دول هذا السوق إلى السوق الافتراضي."
+      },
+      "toast": {
+        "created": "تم إنشاء السوق",
+        "updated": "تم تحديث السوق",
+        "deleted": "تم حذف السوق",
+        "load_failed": "فشل تحميل الأسواق",
+        "save_failed": "فشل حفظ السوق",
+        "delete_failed": "فشل حذف السوق"
+      }
+    }
+  }
+}

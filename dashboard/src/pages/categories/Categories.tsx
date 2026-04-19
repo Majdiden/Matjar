@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -32,6 +33,7 @@ interface CategoryListResponse {
 interface ApiErrorLike { message?: string; error?: string }
 
 export const Categories: React.FC = () => {
+  const { t } = useTranslation(['products', 'common']);
   const [categories, setCategories] = useState<CategoryListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -58,17 +60,17 @@ export const Categories: React.FC = () => {
   const handleBulkDelete = async () => {
     if (selected.size === 0) return;
     if (!(await confirm({
-      title: `Delete ${selected.size} categor${selected.size === 1 ? 'y' : 'ies'}?`,
-      description: 'Products in these categories will become uncategorized.',
-      confirmText: 'Delete',
+      title: t('products.categories.confirm.delete_bulk.title', { count: selected.size }),
+      description: t('products.categories.confirm.delete_bulk.description'),
+      confirmText: t('common.action.delete'),
       variant: 'destructive',
     }))) return;
     const ids = [...selected];
     const results = await Promise.allSettled(ids.map((id) => api.categories.delete(id)));
     const ok = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(`${ok} deleted`);
-    if (failed) toast.error(`${failed} failed`);
+    if (ok) toast.success(t('products.categories.bulk.deleted_count', { count: ok }));
+    if (failed) toast.error(t('products.categories.bulk.failed_count', { count: failed }));
     setSelected(new Set());
     loadCategories();
   };
@@ -91,7 +93,7 @@ export const Categories: React.FC = () => {
       setCategories(response.responseObject.data || []);
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      setError(e?.message || 'Failed to load categories');
+      setError(e?.message || t('products.categories.toast.load_failed'));
       setCategories([]);
     } finally {
       setLoading(false);
@@ -133,7 +135,7 @@ export const Categories: React.FC = () => {
 
   const validateForm = (): boolean => {
     const errors: Partial<Record<keyof CategoryFormData, string>> = {};
-    if (!formData.name.trim()) errors.name = 'Category name is required';
+    if (!formData.name.trim()) errors.name = t('products.categories.form.field.name.error.required');
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -147,16 +149,16 @@ export const Categories: React.FC = () => {
       setError('');
       if (editingCategory) {
         await api.categories.update(editingCategory._id, formData);
-        toast.success('Category updated');
+        toast.success(t('products.categories.toast.updated'));
       } else {
         await api.categories.create(formData);
-        toast.success('Category created');
+        toast.success(t('products.categories.toast.created'));
       }
       await loadCategories();
       closeDialog();
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      const msg = e?.message || `Failed to ${editingCategory ? 'update' : 'create'} category`;
+      const msg = e?.message || t(editingCategory ? 'products.categories.toast.update_failed' : 'products.categories.toast.create_failed');
       setError(msg);
       toast.error(msg);
     } finally {
@@ -166,18 +168,18 @@ export const Categories: React.FC = () => {
 
   const handleDelete = async (id: string, name: string) => {
     if (!(await confirm({
-      title: `Delete "${name}"?`,
-      description: 'Products in this category will become uncategorized. This cannot be undone.',
-      confirmText: 'Delete',
+      title: t('products.categories.confirm.delete.title', { name }),
+      description: t('products.categories.confirm.delete.description'),
+      confirmText: t('common.action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       await api.categories.delete(id);
-      toast.success('Category deleted');
+      toast.success(t('products.categories.toast.deleted'));
       await loadCategories();
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to delete category');
+      toast.error(e?.message || t('products.categories.toast.delete_failed'));
     }
   };
 
@@ -201,13 +203,13 @@ export const Categories: React.FC = () => {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Categories</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('products.categories.list.title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Organize your catalog into shoppable collections
+            {t('products.categories.list.subtitle')}
           </p>
         </div>
         <Button onClick={openAddDialog} className="shadow-sm">
-          <Plus className="h-4 w-4 mr-2" /> New Category
+          <Plus className="h-4 w-4 mr-2" /> {t('products.categories.list.new_category')}
         </Button>
       </div>
 
@@ -222,7 +224,7 @@ export const Categories: React.FC = () => {
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search categories..."
+          placeholder={t('products.categories.list.search_placeholder')}
           className="pl-9 h-10"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -231,13 +233,13 @@ export const Categories: React.FC = () => {
 
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('products.categories.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />Clear
+              <X className="h-3.5 w-3.5 mr-1.5" />{t('common.action.close')}
             </Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />Delete
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('common.action.delete')}
             </Button>
           </div>
         </div>
@@ -253,16 +255,16 @@ export const Categories: React.FC = () => {
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <FolderTree className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold">
-              {search ? 'No categories match' : 'No categories yet'}
+              {search ? t('products.categories.list.empty.title_search') : t('products.categories.list.empty.title')}
             </h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto mb-5">
               {search
-                ? 'Try a different search term.'
-                : 'Group your products into categories to make them easier to discover.'}
+                ? t('products.categories.list.empty.description_search')
+                : t('products.categories.list.empty.description')}
             </p>
             {!search && (
               <Button onClick={openAddDialog}>
-                <Plus className="h-4 w-4 mr-2" /> Add your first category
+                <Plus className="h-4 w-4 mr-2" /> {t('products.categories.list.empty.action')}
               </Button>
             )}
           </CardContent>
@@ -276,7 +278,7 @@ export const Categories: React.FC = () => {
               onChange={toggleSelectAll}
               className="h-4 w-4 rounded border-gray-300"
             />
-            <span>Select all</span>
+            <span>{t('products.categories.list.select_all')}</span>
           </label>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((category) => (
@@ -319,13 +321,13 @@ export const Categories: React.FC = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => openEditDialog(category)}>
-                        <Edit className="mr-2 h-4 w-4" /> Edit
+                        <Edit className="mr-2 h-4 w-4" /> {t('common.action.edit')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDelete(category._id, category.name)}
                         className="text-destructive focus:text-destructive"
                       >
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        <Trash2 className="mr-2 h-4 w-4" /> {t('common.action.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -334,7 +336,7 @@ export const Categories: React.FC = () => {
                 {typeof category.productCount === 'number' && (
                   <div className="absolute bottom-2 left-2">
                     <Badge variant="secondary" className="shadow-sm">
-                      {category.productCount} {category.productCount === 1 ? 'product' : 'products'}
+                      {t(`products.categories.list.product_count_${category.productCount === 1 ? 'one' : 'other'}`, { count: category.productCount })}
                     </Badge>
                   </div>
                 )}
@@ -352,7 +354,7 @@ export const Categories: React.FC = () => {
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground/60 italic mt-2 min-h-[2rem]">
-                    No description
+                    {t('products.categories.list.no_description')}
                   </p>
                 )}
               </CardContent>
@@ -366,19 +368,19 @@ export const Categories: React.FC = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingCategory ? 'Edit Category' : 'New Category'}</DialogTitle>
+            <DialogTitle>{editingCategory ? t('products.categories.form.title.edit') : t('products.categories.form.title.create')}</DialogTitle>
             <DialogDescription>
               {editingCategory
-                ? 'Update category information'
-                : 'Create a new category to organize your products'}
+                ? t('products.categories.form.subtitle.edit')
+                : t('products.categories.form.subtitle.create')}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit}>
             <div className="py-4 space-y-4">
               <Input
-                label="Category Name"
-                placeholder="e.g., Electronics"
+                label={t('products.categories.form.field.name.label')}
+                placeholder={t('products.categories.form.field.name.placeholder')}
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
                 error={formErrors.name}
@@ -386,19 +388,19 @@ export const Categories: React.FC = () => {
               />
               <div>
                 <Input
-                  label="Slug"
-                  placeholder="e.g., electronics"
+                  label={t('products.categories.form.field.slug.label')}
+                  placeholder={t('products.categories.form.field.slug.placeholder')}
                   value={formData.slug}
                   onChange={(e) => handleChange('slug', e.target.value)}
                   disabled={!!editingCategory}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  {editingCategory ? 'Slug cannot be changed after creation' : 'Auto-generated from name'}
+                  {editingCategory ? t('products.categories.form.field.slug.help_edit') : t('products.categories.form.field.slug.help_create')}
                 </p>
               </div>
               <Textarea
-                label="Description (Optional)"
-                placeholder="Describe this category..."
+                label={t('products.categories.form.field.description.label')}
+                placeholder={t('products.categories.form.field.description.placeholder')}
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
                 rows={3}
@@ -407,13 +409,13 @@ export const Categories: React.FC = () => {
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={closeDialog} disabled={saving}>
-                Cancel
+                {t('common.action.cancel')}
               </Button>
               <Button type="submit" disabled={saving}>
                 {saving ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</>
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {t('common.state.saving_ellipsis')}</>
                 ) : (
-                  <><Save className="h-4 w-4 mr-2" /> {editingCategory ? 'Update' : 'Create'}</>
+                  <><Save className="h-4 w-4 mr-2" /> {editingCategory ? t('common.action.update') : t('common.action.create')}</>
                 )}
               </Button>
             </DialogFooter>

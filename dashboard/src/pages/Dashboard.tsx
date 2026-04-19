@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -40,6 +41,7 @@ interface DomainInfoResponse {
 }
 
 export const Dashboard: React.FC = () => {
+  const { t } = useTranslation(['dashboard', 'common']);
   const [stats, setStats] = useState<Stats>({ totalProducts: 0, totalOrders: 0, revenue: 0, totalCustomers: 0 });
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,7 +88,7 @@ export const Dashboard: React.FC = () => {
         setDomainInfo(null);
       }
     } catch {
-      toast.error('Failed to load dashboard data');
+      toast.error(t('dashboard:toast.load_failed'));
     } finally {
       setLoading(false);
     }
@@ -96,10 +98,10 @@ export const Dashboard: React.FC = () => {
     new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(price);
 
   const statCards = [
-    { title: 'Revenue', value: formatPrice(stats.revenue), icon: DollarSign, description: 'Last 30 days' },
-    { title: 'Orders', value: stats.totalOrders, icon: ShoppingCart, description: 'Total orders', href: '/dashboard/orders' },
-    { title: 'Products', value: stats.totalProducts, icon: Package, description: 'Active products', href: '/dashboard/products' },
-    { title: 'Customers', value: stats.totalCustomers, icon: Users, description: 'Registered users', href: '/dashboard/customers' },
+    { title: t('dashboard:metric.revenue'), value: formatPrice(stats.revenue), icon: DollarSign, description: t('dashboard:metric.revenue_description') },
+    { title: t('dashboard:metric.orders'), value: stats.totalOrders, icon: ShoppingCart, description: t('dashboard:metric.orders_description'), href: '/dashboard/orders' },
+    { title: t('dashboard:metric.products'), value: stats.totalProducts, icon: Package, description: t('dashboard:metric.products_description'), href: '/dashboard/products' },
+    { title: t('dashboard:metric.customers'), value: stats.totalCustomers, icon: Users, description: t('dashboard:metric.customers_description'), href: '/dashboard/customers' },
   ];
 
   if (loading) {
@@ -122,13 +124,13 @@ export const Dashboard: React.FC = () => {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Overview of your store performance</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('dashboard:title')}</h1>
+          <p className="text-muted-foreground">{t('dashboard:subtitle')}</p>
         </div>
         <Button asChild>
           <Link to="/dashboard/products/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Product
+            <Plus className="h-4 w-4 me-2" />
+            {t('dashboard:add_product')}
           </Link>
         </Button>
       </div>
@@ -142,13 +144,13 @@ export const Dashboard: React.FC = () => {
                 <Globe className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium">Your store is live at</p>
+                <p className="font-medium">{t('dashboard:domain_banner.live_at')}</p>
                 <p className="text-sm text-muted-foreground">{domainInfo.activeDomain}</p>
               </div>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link to="/dashboard/domains">
-                Manage <ArrowRight className="ml-2 h-4 w-4" />
+                {t('dashboard:domain_banner.manage')} <ArrowRight className="ms-2 h-4 w-4" />
               </Link>
             </Button>
           </CardContent>
@@ -185,16 +187,16 @@ export const Dashboard: React.FC = () => {
         <Card className="md:col-span-4">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-base">Recent Orders</CardTitle>
-              <CardDescription>Latest customer orders</CardDescription>
+              <CardTitle className="text-base">{t('dashboard:section.recent_orders.title')}</CardTitle>
+              <CardDescription>{t('dashboard:section.recent_orders.description')}</CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
-              <Link to="/dashboard/orders">View All</Link>
+              <Link to="/dashboard/orders">{t('dashboard:section.recent_orders.view_all')}</Link>
             </Button>
           </CardHeader>
           <CardContent>
             {recentOrders.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">No orders yet</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t('dashboard:section.recent_orders.empty')}</p>
             ) : (
               <div className="space-y-4">
                 {recentOrders.map(order => (
@@ -205,12 +207,14 @@ export const Dashboard: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-sm font-medium">
-                          {order.user?.name || 'Guest'} <span className="text-muted-foreground font-normal">#{String(order.orderNumber || '').replace(/^#+/, '')}</span>
+                          {order.user?.name || t('dashboard:section.recent_orders.guest')} <span className="text-muted-foreground font-normal">#{String(order.orderNumber || '').replace(/^#+/, '')}</span>
                         </p>
-                        <p className="text-xs text-muted-foreground">{order.products.length} item{order.products.length !== 1 ? 's' : ''}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t('dashboard:section.recent_orders.item_count', { count: order.products.length })}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-end">
                       <p className="text-sm font-medium">{formatPrice(order.totalAmount)}</p>
                       <Badge variant={order.status === 'Delivered' ? 'default' : order.status === 'Cancelled' ? 'destructive' : 'secondary'} className="text-xs">
                         {order.status}
@@ -226,21 +230,21 @@ export const Dashboard: React.FC = () => {
         {/* Quick actions */}
         <Card className="md:col-span-3">
           <CardHeader>
-            <CardTitle className="text-base">Quick Actions</CardTitle>
-            <CardDescription>Common tasks</CardDescription>
+            <CardTitle className="text-base">{t('dashboard:section.quick_actions.title')}</CardTitle>
+            <CardDescription>{t('dashboard:section.quick_actions.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {[
-              { label: 'Add Product', icon: Package, href: '/dashboard/products/new' },
-              { label: 'View Orders', icon: ShoppingCart, href: '/dashboard/orders' },
-              { label: 'Manage Themes', icon: BarChart3, href: '/dashboard/themes' },
-              { label: 'Domain Settings', icon: Globe, href: '/dashboard/domains' },
-              { label: 'Discounts', icon: TrendingUp, href: '/dashboard/marketing/discounts' },
-              { label: 'Store Settings', icon: ArrowUpRight, href: '/dashboard/settings' },
+              { label: t('dashboard:section.quick_actions.add_product'), icon: Package, href: '/dashboard/products/new' },
+              { label: t('dashboard:section.quick_actions.view_orders'), icon: ShoppingCart, href: '/dashboard/orders' },
+              { label: t('dashboard:section.quick_actions.manage_themes'), icon: BarChart3, href: '/dashboard/themes' },
+              { label: t('dashboard:section.quick_actions.domain_settings'), icon: Globe, href: '/dashboard/domains' },
+              { label: t('dashboard:section.quick_actions.discounts'), icon: TrendingUp, href: '/dashboard/marketing/discounts' },
+              { label: t('dashboard:section.quick_actions.store_settings'), icon: ArrowUpRight, href: '/dashboard/settings' },
             ].map(action => (
               <Button key={action.label} variant="ghost" className="w-full justify-start h-10" asChild>
                 <Link to={action.href}>
-                  <action.icon className="mr-3 h-4 w-4" />
+                  <action.icon className="me-3 h-4 w-4" />
                   {action.label}
                 </Link>
               </Button>
@@ -253,14 +257,14 @@ export const Dashboard: React.FC = () => {
       {stats.totalProducts === 0 && (
         <Card className="border-dashed">
           <CardHeader>
-            <CardTitle>Getting Started</CardTitle>
-            <CardDescription>Set up your store in a few steps</CardDescription>
+            <CardTitle>{t('dashboard:section.getting_started.title')}</CardTitle>
+            <CardDescription>{t('dashboard:section.getting_started.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              { step: 1, title: 'Add your first product', desc: 'Start selling by adding products', href: '/dashboard/products/new', label: 'Add Now' },
-              { step: 2, title: 'Customize your theme', desc: 'Make your store look professional', href: '/dashboard/themes', label: 'Browse Themes' },
-              { step: 3, title: 'Set up your domain', desc: 'Use your own domain for better branding', href: '/dashboard/domains', label: 'Configure' },
+              { step: 1, title: t('dashboard:section.getting_started.step1_title'), desc: t('dashboard:section.getting_started.step1_desc'), href: '/dashboard/products/new', label: t('dashboard:section.getting_started.step1_label') },
+              { step: 2, title: t('dashboard:section.getting_started.step2_title'), desc: t('dashboard:section.getting_started.step2_desc'), href: '/dashboard/themes', label: t('dashboard:section.getting_started.step2_label') },
+              { step: 3, title: t('dashboard:section.getting_started.step3_title'), desc: t('dashboard:section.getting_started.step3_desc'), href: '/dashboard/domains', label: t('dashboard:section.getting_started.step3_label') },
             ].map(item => (
               <div key={item.step} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${item.step === 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>

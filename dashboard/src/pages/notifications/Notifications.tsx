@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
   Bell,
@@ -69,6 +70,7 @@ function relativeTime(iso: string): string {
 }
 
 export default function Notifications() {
+  const { t } = useTranslation(['notifications', 'common']);
   const navigate = useNavigate();
   const {
     items,
@@ -112,20 +114,20 @@ export default function Notifications() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Notifications</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('notifications.list.title')}</h1>
           <p className="text-muted-foreground">
-            Review store activity, alerts, and follow-up items.
+            {t('notifications.list.subtitle')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{unreadCount} unread</Badge>
+          <Badge variant="secondary">{t('notifications.badge.unread_count', { count: unreadCount })}</Badge>
           <Badge variant="outline" className="capitalize">{connectionState}</Badge>
           <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
-            {refreshing ? 'Refreshing...' : 'Refresh'}
+            {refreshing ? t('notifications.action.refreshing') : t('notifications.action.refresh')}
           </Button>
           <Button onClick={() => void markAllRead()} disabled={unreadCount === 0}>
             <CheckCheck className="mr-2 h-4 w-4" />
-            Mark all read
+            {t('notifications.action.mark_all_read')}
           </Button>
         </div>
       </div>
@@ -134,7 +136,7 @@ export default function Notifications() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Bell className="h-4 w-4" />
-            All notifications
+            {t('notifications.list.card_title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -147,9 +149,9 @@ export default function Notifications() {
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Bell className="mb-3 h-10 w-10 text-muted-foreground" />
-              <h3 className="font-semibold">No notifications yet</h3>
+              <h3 className="font-semibold">{t('notifications.list.empty')}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                New order, payment, return, stock, domain, and staff updates will appear here.
+                {t('notifications.list.empty_description')}
               </p>
             </div>
           ) : (
@@ -178,7 +180,7 @@ export default function Notifications() {
                     >
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{n.title}</span>
-                        {unread && <Badge className="text-[10px]">Unread</Badge>}
+                        {unread && <Badge className="text-[10px]">{t('notifications.badge.unread')}</Badge>}
                         <Badge variant={severityBadgeVariant(n.severity)} className="text-[10px] capitalize">
                           {n.severity}
                         </Badge>
@@ -191,7 +193,7 @@ export default function Notifications() {
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         <span>{relativeTime(n.createdAt)}</span>
                         <span>{n.type}</span>
-                        {link && <span>Click to open</span>}
+                        {link && <span>{t('notifications.action.click_to_open')}</span>}
                       </div>
                     </button>
                     <div className="flex shrink-0 items-start gap-1">
@@ -201,7 +203,7 @@ export default function Notifications() {
                           size="sm"
                           onClick={() => void markRead(n._id)}
                         >
-                          Mark read
+                          {t('notifications.action.mark_read')}
                         </Button>
                       )}
                       <Button
@@ -211,7 +213,7 @@ export default function Notifications() {
                         onClick={() => void dismiss(n._id)}
                       >
                         <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Dismiss notification</span>
+                        <span className="sr-only">{t('notifications.action.dismiss')}</span>
                       </Button>
                     </div>
                   </div>
@@ -223,7 +225,7 @@ export default function Notifications() {
           {hasMore && (
             <div className="mt-4 flex justify-center">
               <Button variant="outline" onClick={handleLoadMore} disabled={loadingMore}>
-                {loadingMore ? 'Loading...' : 'Load older notifications'}
+                {loadingMore ? t('notifications.action.loading_more') : t('notifications.action.load_more')}
               </Button>
             </div>
           )}

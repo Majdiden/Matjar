@@ -1,1 +1,126 @@
-{}
+{
+  "list": {
+    "title": "Navigation",
+    "subtitle": "Manage header, footer, and mobile menu trees",
+    "column": {
+      "title": "Title",
+      "handle": "Handle",
+      "location": "Location",
+      "items": "Items",
+      "active": "Active",
+      "updated": "Updated"
+    },
+    "empty": {
+      "title": "No menus yet",
+      "hint": "Create navigation menus for your storefront header, footer, or mobile nav.",
+      "action": "Create Your First Menu"
+    },
+    "action": {
+      "add": "Add Menu"
+    },
+    "toast": {
+      "activated": "Menu activated",
+      "deactivated": "Menu deactivated",
+      "deleted": "Menu deleted",
+      "error_toggle": "Failed to toggle menu",
+      "error_delete": "Failed to delete menu"
+    },
+    "confirm": {
+      "delete_title": "Delete menu?",
+      "delete_description": "\"{{title}}\" will be permanently removed.",
+      "delete_confirm": "Delete"
+    }
+  },
+  "form": {
+    "title_new": "New Menu",
+    "title_edit": "Edit: {{title}}",
+    "subtitle": "Configure navigation items and structure",
+    "section": {
+      "settings": {
+        "title": "Settings"
+      },
+      "items": {
+        "title": "Menu Items"
+      },
+      "preview": {
+        "title": "Preview"
+      }
+    },
+    "field": {
+      "title": {
+        "label": "Title",
+        "placeholder": "e.g. Main Menu"
+      },
+      "handle": {
+        "label": "Handle",
+        "placeholder": "main-menu",
+        "hint": "Used in API: /storefront/menus/{{handle}}"
+      },
+      "location": {
+        "label": "Location",
+        "option": {
+          "header": "Header",
+          "footer": "Footer",
+          "mobile": "Mobile",
+          "custom": "Custom"
+        }
+      },
+      "is_active": {
+        "label": "Active"
+      }
+    },
+    "items": {
+      "empty": "No items yet. Click \"Add item\" to start building your menu.",
+      "add": "Add item",
+      "add_top_level": "Add top-level item",
+      "label_placeholder": "Label",
+      "target": {
+        "same_tab": "Same tab",
+        "new_tab": "New tab"
+      },
+      "action": {
+        "move_up": "Move up",
+        "move_down": "Move down",
+        "indent": "Indent (make child)",
+        "outdent": "Outdent (promote)",
+        "add_child": "Add child",
+        "delete": "Delete"
+      }
+    },
+    "preview": {
+      "empty": "Add items to see a preview.",
+      "untitled": "untitled"
+    },
+    "resource_picker": {
+      "loading": "Loading…",
+      "placeholder_collection": "Select collection",
+      "placeholder_product": "Select product",
+      "placeholder_category": "Select category",
+      "placeholder_page": "Select page"
+    },
+    "toast": {
+      "created": "Menu created",
+      "saved": "Menu saved",
+      "deleted": "Menu deleted",
+      "error_load": "Failed to load menu",
+      "error_save": "Failed to save menu",
+      "error_delete": "Failed to delete",
+      "title_required": "Title is required"
+    },
+    "confirm": {
+      "delete_title": "Delete menu?",
+      "delete_description": "\"{{title}}\" will be permanently removed.",
+      "delete_confirm": "Delete"
+    }
+  },
+  "item": {
+    "type": {
+      "link": "Link",
+      "external": "External URL",
+      "collection": "Collection",
+      "product": "Product",
+      "category": "Category",
+      "page": "Page"
+    }
+  }
+}

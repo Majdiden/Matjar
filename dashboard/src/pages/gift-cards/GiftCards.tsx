@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -73,9 +74,6 @@ interface CustomerOption {
   email?: string;
 }
 
-// The api-client returns `unknown`-ish shapes keyed by either `.data` or
-// `.responseObject.data`. These helpers and interfaces narrow the payloads
-// we touch locally without loosening global types.
 interface ApiEnvelope<T> {
   data?: T;
   responseObject?: { data?: T };
@@ -133,6 +131,7 @@ const unwrapCustomerList = (res: unknown): CustomerOption[] => {
 };
 
 const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }> = ({ value, onChange }) => {
+  const { t } = useTranslation(['marketing']);
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState<CustomerOption[]>([]);
@@ -140,7 +139,6 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
   const [selected, setSelected] = useState<CustomerOption | null>(null);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Resolve the selected label when a value is passed in (e.g. restored from form state).
   useEffect(() => {
     if (!value) { setSelected(null); return; }
     if (selected?._id === value) return;
@@ -149,11 +147,10 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
         const res = await api.customers.getById(value);
         const c = unwrapCustomer(res);
         if (c?._id) setSelected(c);
-      } catch { /* ignore — fallback to raw id */ }
+      } catch { /* ignore */ }
     })();
   }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Debounced search.
   useEffect(() => {
     if (!open) return;
     const q = query.trim();
@@ -171,7 +168,6 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
     return () => clearTimeout(handle);
   }, [query, open]);
 
-  // Click-outside to close.
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {
@@ -191,7 +187,7 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           className="pl-8 pr-8"
-          placeholder="Search by name, email, or phone…"
+          placeholder={t('marketing.gift_card.issue_dialog.field.customer.search_placeholder')}
           value={open ? query : label}
           onFocus={() => { setOpen(true); setQuery(''); }}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
@@ -211,10 +207,10 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
         <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md max-h-60 overflow-y-auto">
           {loading ? (
             <div className="px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
-              <Loader2 className="h-3 w-3 animate-spin" /> Searching…
+              <Loader2 className="h-3 w-3 animate-spin" /> {t('marketing.gift_card.issue_dialog.field.customer.searching')}
             </div>
           ) : results.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-muted-foreground">No customers found.</div>
+            <div className="px-3 py-2 text-sm text-muted-foreground">{t('marketing.gift_card.issue_dialog.field.customer.no_customers')}</div>
           ) : (
             results.map((c) => {
               const name = [c.firstName, c.lastName].filter(Boolean).join(' ').trim();
@@ -225,7 +221,7 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
                   onClick={() => { onChange(c._id); setSelected(c); setOpen(false); }}
                   className="block w-full text-left px-3 py-2 text-sm hover:bg-accent"
                 >
-                  <div className="font-medium">{name || '(no name)'}</div>
+                  <div className="font-medium">{name || t('marketing.gift_card.issue_dialog.field.customer.no_name')}</div>
                   {c.email && <div className="text-xs text-muted-foreground">{c.email}</div>}
                 </button>
               );
@@ -238,6 +234,7 @@ const CustomerSelect: React.FC<{ value: string; onChange: (id: string) => void }
 };
 
 const GiftCards: React.FC = () => {
+  const { t } = useTranslation(['marketing', 'common']);
   const navigate = useNavigate();
   const [cards, setCards] = useState<GiftCard[]>([]);
   const [total, setTotal] = useState(0);
@@ -245,20 +242,16 @@ const GiftCards: React.FC = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  // Filters
   const [statusFilter, setStatusFilter] = useState('');
   const [searchLast4, setSearchLast4] = useState('');
 
-  // Issue dialog
   const [issueOpen, setIssueOpen] = useState(false);
   const [form, setForm] = useState<IssueForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
-  // Success dialog (shows plaintext code once)
   const [successOpen, setSuccessOpen] = useState(false);
   const [issuedCode, setIssuedCode] = useState('');
 
-  // Selection
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useViewMode('giftCards.viewMode', 'table');
 
@@ -281,8 +274,10 @@ const GiftCards: React.FC = () => {
     const results = await Promise.allSettled(ids.map((id) => api.post(`/gift-cards/${id}/${action}`)));
     const ok = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(`${ok} gift card${ok === 1 ? '' : 's'} ${enable ? 'enabled' : 'disabled'}`);
-    if (failed) toast.error(`${failed} failed`);
+    if (ok) toast.success(enable
+      ? t('marketing.gift_card.toast.bulk_toggled_enable', { count: ok })
+      : t('marketing.gift_card.toast.bulk_toggled_disable', { count: ok }));
+    if (failed) toast.error(t('marketing.gift_card.toast.bulk_failed', { count: failed }));
     setSelected(new Set());
     loadCards();
   };
@@ -290,7 +285,7 @@ const GiftCards: React.FC = () => {
   const handleBulkExport = () => {
     const all = cards.filter((c) => selected.has(c._id));
     if (all.length === 0) {
-      toast.message('No gift cards to export');
+      toast.message(t('marketing.gift_card.toast.no_export'));
       return;
     }
     const csv = toCSV<GiftCard>(all, [
@@ -304,10 +299,9 @@ const GiftCards: React.FC = () => {
       { key: 'createdAt', label: 'Created', get: (c) => c.createdAt ? new Date(c.createdAt).toISOString().slice(0, 10) : '' },
     ]);
     downloadCSV(csv, 'gift-cards-selected');
-    toast.success(`Exported ${all.length} gift card${all.length === 1 ? '' : 's'}`);
+    toast.success(t('marketing.gift_card.toast.exported', { count: all.length }));
   };
 
-  // Feature toggle (moved here from Settings → General)
   const [featureEnabled, setFeatureEnabled] = useState(true);
   const [togglingFeature, setTogglingFeature] = useState(false);
 
@@ -326,10 +320,10 @@ const GiftCards: React.FC = () => {
     try {
       await api.settings.update({ giftCards: { enabled: v } });
       setFeatureEnabled(v);
-      toast.success(v ? 'Gift cards enabled' : 'Gift cards disabled');
+      toast.success(v ? t('marketing.gift_card.toast.enabled') : t('marketing.gift_card.toast.disabled'));
     } catch (err) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to update');
+      toast.error(e?.message || t('marketing.gift_card.toast.feature_update_failed'));
     } finally {
       setTogglingFeature(false);
     }
@@ -343,7 +337,6 @@ const GiftCards: React.FC = () => {
       if (searchLast4) params.search = searchLast4;
       const qs = new URLSearchParams(params).toString();
       const res = await api.get(`/gift-cards?${qs}`);
-      // api.get returns the raw JSON body ({ success, data: { items, … } }).
       const data = unwrap<GiftCardListResponse>(res) ?? {};
       setCards(data.items ?? []);
       setTotal(data.total ?? 0);
@@ -359,7 +352,7 @@ const GiftCards: React.FC = () => {
 
   const handleIssue = async () => {
     if (!form.initialAmount || isNaN(Number(form.initialAmount))) {
-      toast.error('Enter a valid amount');
+      toast.error(t('marketing.gift_card.toast.amount_invalid'));
       return;
     }
     try {
@@ -377,9 +370,6 @@ const GiftCards: React.FC = () => {
       if (form.customerId) payload.customerId = form.customerId;
 
       const res = await api.post('/gift-cards', payload);
-      // api.post returns the backend JSON body directly, which is
-      // { success, data: card }. Older code paths also returned
-      // { responseObject: { data } } — accept both shapes.
       const card =
         unwrap<IssuedGiftCardResponse>(res)
         ?? (res as { responseObject?: IssuedGiftCardResponse } | undefined)?.responseObject;
@@ -390,7 +380,7 @@ const GiftCards: React.FC = () => {
       loadCards();
     } catch (err) {
       const e = err as ApiErrorLike;
-      toast.error(e?.response?.data?.message ?? 'Failed to issue gift card');
+      toast.error(e?.response?.data?.message ?? t('marketing.gift_card.toast.issue_failed'));
     } finally {
       setSaving(false);
     }
@@ -398,7 +388,7 @@ const GiftCards: React.FC = () => {
 
   const copyCode = () => {
     navigator.clipboard.writeText(issuedCode);
-    toast.success('Code copied to clipboard');
+    toast.success(t('marketing.gift_card.toast.code_copied'));
   };
 
   const formatMoney = (amount: number, currency: string) =>
@@ -412,36 +402,35 @@ const GiftCards: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Gift className="w-6 h-6 text-muted-foreground" />
-          <h1 className="text-2xl font-semibold">Gift Cards</h1>
+          <h1 className="text-2xl font-semibold">{t('marketing.gift_card.list.title')}</h1>
           {!loading && (
             <span className="text-sm text-muted-foreground ml-1">({total})</span>
           )}
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 rounded-full border px-3 h-9 text-sm">
-            <span className="text-muted-foreground">Gift cards</span>
+            <span className="text-muted-foreground">{t('marketing.gift_card.list.feature_toggle_label')}</span>
             <Switch
               checked={featureEnabled}
               onCheckedChange={handleToggleFeature}
               disabled={togglingFeature}
             />
-            <span className="font-medium">{featureEnabled ? 'On' : 'Off'}</span>
+            <span className="font-medium">{featureEnabled ? t('marketing.gift_card.list.feature_on') : t('marketing.gift_card.list.feature_off')}</span>
           </div>
           <Button onClick={() => navigate('/dashboard/gift-cards/new')} disabled={!featureEnabled}>
             <Plus className="w-4 h-4 mr-2" />
-            Issue Gift Card
+            {t('marketing.gift_card.list.issue_button')}
           </Button>
         </div>
       </div>
 
-      {/* Filter pills */}
       <FilterPills
         items={[
-          { id: '', label: 'All', icon: Inbox },
-          { id: 'active', label: 'Active', icon: CheckCircle2 },
-          { id: 'redeemed', label: 'Redeemed', icon: Gift },
-          { id: 'expired', label: 'Expired', icon: Clock },
-          { id: 'disabled', label: 'Disabled', icon: XCircle },
+          { id: '', label: t('marketing.gift_card.list.filter.all'), icon: Inbox },
+          { id: 'active', label: t('marketing.gift_card.list.filter.active'), icon: CheckCircle2 },
+          { id: 'redeemed', label: t('marketing.gift_card.list.filter.redeemed'), icon: Gift },
+          { id: 'expired', label: t('marketing.gift_card.list.filter.expired'), icon: Clock },
+          { id: 'disabled', label: t('marketing.gift_card.list.filter.disabled'), icon: XCircle },
         ]}
         value={statusFilter}
         onChange={(v) => { setStatusFilter(v); setPage(1); }}
@@ -452,7 +441,7 @@ const GiftCards: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search by last 4 digits..."
+            placeholder={t('marketing.gift_card.list.search_placeholder')}
             maxLength={4}
             value={searchLast4}
             onChange={e => { setSearchLast4(e.target.value.replace(/\D/g, '')); setPage(1); }}
@@ -463,28 +452,26 @@ const GiftCards: React.FC = () => {
         </div>
       </div>
 
-      {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('marketing.gift_card.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />Clear
+              <X className="h-3.5 w-3.5 mr-1.5" />{t('common:action.cancel')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkToggle(false)}>
-              <Ban className="h-3.5 w-3.5 mr-1.5" />Disable
+              <Ban className="h-3.5 w-3.5 mr-1.5" />{t('marketing.gift_card.list.bulk.disable')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkToggle(true)}>
-              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />Enable
+              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />{t('marketing.gift_card.list.bulk.enable')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleBulkExport}>
-              <Download className="h-3.5 w-3.5 mr-1.5" />Export CSV
+              <Download className="h-3.5 w-3.5 mr-1.5" />{t('marketing.gift_card.list.bulk.export_csv')}
             </Button>
           </div>
         </div>
       )}
 
-      {/* List */}
       {viewMode === 'table' ? (
         <Card>
           <CardContent className="p-0">
@@ -499,13 +486,13 @@ const GiftCards: React.FC = () => {
                       className="h-4 w-4 rounded border-gray-300"
                     />
                   </TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Recipient</TableHead>
-                  <TableHead>Initial</TableHead>
-                  <TableHead>Balance</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Expires</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead>{t('marketing.gift_card.list.column.code')}</TableHead>
+                  <TableHead>{t('marketing.gift_card.list.column.recipient')}</TableHead>
+                  <TableHead>{t('marketing.gift_card.list.column.initial')}</TableHead>
+                  <TableHead>{t('marketing.gift_card.list.column.balance')}</TableHead>
+                  <TableHead>{t('marketing.gift_card.list.column.status')}</TableHead>
+                  <TableHead>{t('marketing.gift_card.list.column.expires')}</TableHead>
+                  <TableHead>{t('marketing.gift_card.list.column.created')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -520,7 +507,7 @@ const GiftCards: React.FC = () => {
                 ) : cards.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
-                      No gift cards found
+                      {t('marketing.gift_card.list.empty_title')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -543,12 +530,12 @@ const GiftCards: React.FC = () => {
                           <span>••••-••••-••••-{card.codeLast4 ?? '????'}</span>
                           {card.coverShipping && (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-sans font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                              Covers shipping
+                              {t('marketing.gift_card.list.tag.covers_shipping')}
                             </span>
                           )}
                           {card.coverTax && (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-sans font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                              Covers tax
+                              {t('marketing.gift_card.list.tag.covers_tax')}
                             </span>
                           )}
                         </div>
@@ -582,7 +569,7 @@ const GiftCards: React.FC = () => {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <Gift className="h-10 w-10 mb-3" />
-            <p>No gift cards found</p>
+            <p>{t('marketing.gift_card.list.empty_title')}</p>
           </CardContent>
         </Card>
       ) : (
@@ -620,29 +607,29 @@ const GiftCards: React.FC = () => {
                   </div>
                   <div className="flex items-baseline justify-between">
                     <div>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Balance</p>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('marketing.gift_card.list.card_balance_label')}</p>
                       <p className="text-xl font-bold tabular-nums">{formatMoney(card.balance, card.currency)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Initial</p>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('marketing.gift_card.list.card_initial_label')}</p>
                       <p className="text-sm text-muted-foreground tabular-nums">{formatMoney(card.initialAmount, card.currency)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     {card.coverShipping && (
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                        Covers shipping
+                        {t('marketing.gift_card.list.tag.covers_shipping')}
                       </span>
                     )}
                     {card.coverTax && (
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                        Covers tax
+                        {t('marketing.gift_card.list.tag.covers_tax')}
                       </span>
                     )}
                   </div>
                   <div className="pt-2 border-t text-xs text-muted-foreground flex items-center justify-between">
-                    <span>Expires {formatDate(card.expiresAt)}</span>
-                    <span>Created {formatDate(card.createdAt)}</span>
+                    <span>{t('marketing.gift_card.list.card_expires', { date: formatDate(card.expiresAt) })}</span>
+                    <span>{t('marketing.gift_card.list.card_created', { date: formatDate(card.createdAt) })}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -651,15 +638,14 @@ const GiftCards: React.FC = () => {
         </div>
       )}
 
-      {/* Pagination */}
       {pages > 1 && (
         <div className="flex items-center justify-center gap-2">
           <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
-            Previous
+            {t('common:action.previous')}
           </Button>
-          <span className="text-sm text-muted-foreground">Page {page} of {pages}</span>
+          <span className="text-sm text-muted-foreground">{t('common:pagination.page_of', { n: page, total: pages })}</span>
           <Button variant="outline" size="sm" disabled={page >= pages} onClick={() => setPage(p => p + 1)}>
-            Next
+            {t('common:action.next')}
           </Button>
         </div>
       )}
@@ -668,15 +654,15 @@ const GiftCards: React.FC = () => {
       <Dialog open={issueOpen} onOpenChange={setIssueOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Issue Gift Card</DialogTitle>
+            <DialogTitle>{t('marketing.gift_card.issue_dialog.title')}</DialogTitle>
             <DialogDescription>
-              Create a new prepaid gift card. The code will only be shown once after issuance.
+              {t('marketing.gift_card.issue_dialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Amount *</Label>
+                <Label>{t('marketing.gift_card.issue_dialog.field.amount.label')}</Label>
                 <Input
                   type="number"
                   min="0"
@@ -687,7 +673,7 @@ const GiftCards: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Currency</Label>
+                <Label>{t('marketing.gift_card.issue_dialog.field.currency.label')}</Label>
                 <Select value={form.currency} onValueChange={v => setForm(f => ({ ...f, currency: v }))}>
                   <SelectTrigger>
                     <SelectValue />
@@ -701,40 +687,40 @@ const GiftCards: React.FC = () => {
               </div>
             </div>
             <div className="space-y-1">
-              <Label>Recipient Name</Label>
+              <Label>{t('marketing.gift_card.issue_dialog.field.recipient_name.label')}</Label>
               <Input
-                placeholder="Jane Doe"
+                placeholder={t('marketing.gift_card.issue_dialog.field.recipient_name.placeholder')}
                 value={form.recipientName}
                 onChange={e => setForm(f => ({ ...f, recipientName: e.target.value }))}
               />
             </div>
             <div className="space-y-1">
-              <Label>Recipient Email</Label>
+              <Label>{t('marketing.gift_card.issue_dialog.field.recipient_email.label')}</Label>
               <Input
                 type="email"
-                placeholder="jane@example.com"
+                placeholder={t('marketing.gift_card.issue_dialog.field.recipient_email.placeholder')}
                 value={form.recipientEmail}
                 onChange={e => setForm(f => ({ ...f, recipientEmail: e.target.value }))}
               />
             </div>
             <div className="space-y-1">
-              <Label>Message (shown on card)</Label>
+              <Label>{t('marketing.gift_card.issue_dialog.field.message.label')}</Label>
               <Input
-                placeholder="Happy Birthday!"
+                placeholder={t('marketing.gift_card.issue_dialog.field.message.placeholder')}
                 value={form.message}
                 onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
               />
             </div>
             <div className="space-y-1">
-              <Label>Internal Note</Label>
+              <Label>{t('marketing.gift_card.issue_dialog.field.note.label')}</Label>
               <Input
-                placeholder="For internal reference only"
+                placeholder={t('marketing.gift_card.issue_dialog.field.note.placeholder')}
                 value={form.note}
                 onChange={e => setForm(f => ({ ...f, note: e.target.value }))}
               />
             </div>
             <div className="space-y-1">
-              <Label>Expiry Date (optional)</Label>
+              <Label>{t('marketing.gift_card.issue_dialog.field.expires_at.label')}</Label>
               <Input
                 type="date"
                 value={form.expiresAt}
@@ -742,7 +728,7 @@ const GiftCards: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label>Customer (optional — assigns to account)</Label>
+              <Label>{t('marketing.gift_card.issue_dialog.field.customer.label')}</Label>
               <CustomerSelect
                 value={form.customerId}
                 onChange={(id) => setForm(f => ({ ...f, customerId: id }))}
@@ -750,10 +736,10 @@ const GiftCards: React.FC = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIssueOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setIssueOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleIssue} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-              Issue Card
+              {t('marketing.gift_card.issue_dialog.issue_button')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -763,15 +749,15 @@ const GiftCards: React.FC = () => {
       <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-green-700">Gift Card Issued</DialogTitle>
+            <DialogTitle className="text-green-700">{t('marketing.gift_card.success_dialog.title')}</DialogTitle>
             <DialogDescription>
-              Copy the code below. This is the <strong>only time</strong> the full code will be displayed.
+              {t('marketing.gift_card.success_dialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="my-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
             <div className="flex items-center gap-2 text-amber-800 text-sm">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>Save this code now — it cannot be retrieved again.</span>
+              <span>{t('marketing.gift_card.success_dialog.warning')}</span>
             </div>
             <div className="flex items-center gap-2">
               <code className="flex-1 font-mono text-lg font-bold tracking-widest bg-white border rounded px-3 py-2 text-center">
@@ -783,7 +769,7 @@ const GiftCards: React.FC = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={() => setSuccessOpen(false)}>Done</Button>
+            <Button onClick={() => setSuccessOpen(false)}>{t('common:action.done')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

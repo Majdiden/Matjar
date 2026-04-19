@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/auth-context';
 import {
   LayoutDashboard,
@@ -85,124 +86,132 @@ interface NavItem {
 
 interface NavGroup {
   label: string;
+  groupKey: string;
   items: NavItem[];
 }
 
-const navGroups: NavGroup[] = [
+// Nav data uses translation keys; labels are resolved in render.
+const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
   {
-    label: 'Home',
+    label: t('nav:sidebar.home.title'),
+    groupKey: 'home',
     items: [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.read' },
-      { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3, permission: 'analytics.read' },
-      { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
+      { name: t('nav:sidebar.home.dashboard'), href: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.read' },
+      { name: t('nav:sidebar.home.analytics'), href: '/dashboard/analytics', icon: BarChart3, permission: 'analytics.read' },
+      { name: t('nav:sidebar.home.notifications'), href: '/dashboard/notifications', icon: Bell },
     ],
   },
   {
-    label: 'Orders',
+    label: t('nav:sidebar.orders.title'),
+    groupKey: 'orders',
     items: [
       {
-        name: 'Orders',
+        name: t('nav:sidebar.orders.orders'),
         href: '/dashboard/orders',
         icon: ShoppingCart,
         permission: 'orders.read',
         children: [
-          { name: 'All orders', href: '/dashboard/orders', icon: ShoppingCart, permission: 'orders.read' },
+          { name: t('nav:sidebar.orders.all_orders'), href: '/dashboard/orders', icon: ShoppingCart, permission: 'orders.read' },
         ],
       },
-      { name: 'Fulfillments', href: '/dashboard/fulfillments', icon: Truck, permission: ['fulfillments.read', 'fulfillments.write'] },
+      { name: t('nav:sidebar.orders.fulfillments'), href: '/dashboard/fulfillments', icon: Truck, permission: ['fulfillments.read', 'fulfillments.write'] },
       {
-        name: 'Payments',
+        name: t('nav:sidebar.orders.payments'),
         href: '/dashboard/payments',
         icon: CreditCard,
         permission: 'payments.read',
         children: [
-          { name: 'Transactions', href: '/dashboard/payments', icon: CreditCard, permission: 'payments.read' },
-          { name: 'Payment methods', href: '/dashboard/payments/methods', icon: Wallet, permission: 'settings.write' },
+          { name: t('nav:sidebar.orders.transactions'), href: '/dashboard/payments', icon: CreditCard, permission: 'payments.read' },
+          { name: t('nav:sidebar.orders.payment_methods'), href: '/dashboard/payments/methods', icon: Wallet, permission: 'settings.write' },
         ],
       },
     ],
   },
   {
-    label: 'Catalog',
+    label: t('nav:sidebar.catalog.title'),
+    groupKey: 'catalog',
     items: [
       {
-        name: 'Products',
+        name: t('nav:sidebar.catalog.products'),
         href: '/dashboard/products',
         icon: Package,
         permission: 'products.read',
         children: [
-          { name: 'All products', href: '/dashboard/products', icon: Package, permission: 'products.read' },
-          { name: 'Categories', href: '/dashboard/categories', icon: FolderTree, permission: 'products.read' },
-          { name: 'Collections', href: '/dashboard/collections', icon: Layers, permission: 'products.read' },
+          { name: t('nav:sidebar.catalog.all_products'), href: '/dashboard/products', icon: Package, permission: 'products.read' },
+          { name: t('nav:sidebar.catalog.categories'), href: '/dashboard/categories', icon: FolderTree, permission: 'products.read' },
+          { name: t('nav:sidebar.catalog.collections'), href: '/dashboard/collections', icon: Layers, permission: 'products.read' },
         ],
       },
-      { name: 'Inventory', href: '/dashboard/inventory', icon: Warehouse, permission: ['inventory.read', 'inventory.write'] },
+      { name: t('nav:sidebar.catalog.inventory'), href: '/dashboard/inventory', icon: Warehouse, permission: ['inventory.read', 'inventory.write'] },
     ],
   },
   {
-    label: 'Customers',
+    label: t('nav:sidebar.customers.title'),
+    groupKey: 'customers',
     items: [
       {
-        name: 'Customers',
+        name: t('nav:sidebar.customers.customers'),
         href: '/dashboard/customers',
         icon: Users,
         permission: ['customers.read', 'customers.write'],
         children: [
-          { name: 'All Customers', href: '/dashboard/customers', icon: Users, permission: ['customers.read', 'customers.write'] },
-          { name: 'Segments', href: '/dashboard/customers/segments', icon: Users, permission: ['customers.read', 'customers.write'] },
+          { name: t('nav:sidebar.customers.all_customers'), href: '/dashboard/customers', icon: Users, permission: ['customers.read', 'customers.write'] },
+          { name: t('nav:sidebar.customers.segments'), href: '/dashboard/customers/segments', icon: Users, permission: ['customers.read', 'customers.write'] },
         ],
       },
-      { name: 'Reviews', href: '/dashboard/reviews', icon: MessageSquare, permission: ['reviews.read', 'reviews.moderate'] },
+      { name: t('nav:sidebar.customers.reviews'), href: '/dashboard/reviews', icon: MessageSquare, permission: ['reviews.read', 'reviews.moderate'] },
     ],
   },
   {
-    label: 'Marketing',
+    label: t('nav:sidebar.marketing.title'),
+    groupKey: 'marketing',
     items: [
-      { name: 'Discounts', href: '/dashboard/marketing/discounts', icon: Tag, permission: ['discounts.read', 'discounts.write'] },
-      { name: 'Gift Cards', href: '/dashboard/gift-cards', icon: Gift, permission: ['discounts.read', 'discounts.write'] },
+      { name: t('nav:sidebar.marketing.discounts'), href: '/dashboard/marketing/discounts', icon: Tag, permission: ['discounts.read', 'discounts.write'] },
+      { name: t('nav:sidebar.marketing.gift_cards'), href: '/dashboard/gift-cards', icon: Gift, permission: ['discounts.read', 'discounts.write'] },
     ],
   },
   {
-    label: 'Storefront',
+    label: t('nav:sidebar.storefront.title'),
+    groupKey: 'storefront',
     items: [
       {
-        name: 'Themes',
+        name: t('nav:sidebar.storefront.themes'),
         href: '/dashboard/themes',
         icon: Palette,
         permission: ['themes.read', 'themes.write'],
         children: [
-          { name: 'Theme library', href: '/dashboard/themes', icon: Palette, permission: ['themes.read', 'themes.write'] },
-          { name: 'Visual editor', href: '/dashboard/themes/editor', icon: Palette, permission: 'themes.write' },
+          { name: t('nav:sidebar.storefront.theme_library'), href: '/dashboard/themes', icon: Palette, permission: ['themes.read', 'themes.write'] },
+          { name: t('nav:sidebar.storefront.visual_editor'), href: '/dashboard/themes/editor', icon: Palette, permission: 'themes.write' },
         ],
       },
-      { name: 'Navigation', href: '/dashboard/menus', icon: ListTree, permission: ['themes.read', 'themes.write'] },
-      { name: 'Pages', href: '/dashboard/pages', icon: FileText, permission: ['themes.read', 'themes.write'] },
-      { name: 'Domains', href: '/dashboard/domains', icon: Globe, permission: ['domains.read', 'domains.write'] },
+      { name: t('nav:sidebar.storefront.navigation'), href: '/dashboard/menus', icon: ListTree, permission: ['themes.read', 'themes.write'] },
+      { name: t('nav:sidebar.storefront.pages'), href: '/dashboard/pages', icon: FileText, permission: ['themes.read', 'themes.write'] },
+      { name: t('nav:sidebar.storefront.domains'), href: '/dashboard/domains', icon: Globe, permission: ['domains.read', 'domains.write'] },
     ],
   },
   {
-    label: 'Settings',
+    label: t('nav:sidebar.settings.title'),
+    groupKey: 'settings',
     items: [
-      { name: 'Settings', href: '/dashboard/settings', icon: SettingsIcon, permission: ['settings.read', 'settings.write'] },
-      { name: 'Subscription', href: '/dashboard/subscription', icon: Crown, permission: 'settings.read' },
-      { name: 'Custom Fields', href: '/dashboard/custom-fields', icon: FileCode, permission: 'settings.write' },
-      { name: 'Webhooks', href: '/dashboard/webhooks', icon: Webhook, permission: 'settings.write' },
+      { name: t('nav:sidebar.settings.settings'), href: '/dashboard/settings', icon: SettingsIcon, permission: ['settings.read', 'settings.write'] },
+      { name: t('nav:sidebar.settings.subscription'), href: '/dashboard/subscription', icon: Crown, permission: 'settings.read' },
+      { name: t('nav:sidebar.settings.custom_fields'), href: '/dashboard/custom-fields', icon: FileCode, permission: 'settings.write' },
+      { name: t('nav:sidebar.settings.webhooks'), href: '/dashboard/webhooks', icon: Webhook, permission: 'settings.write' },
     ],
   },
   {
-    label: 'Team & Security',
+    label: t('nav:sidebar.team_security.title'),
+    groupKey: 'team_security',
     items: [
-      { name: 'Staff', href: '/dashboard/staff', icon: UserCog, permission: 'team.manage' },
-      { name: 'Permissions', href: '/dashboard/permissions', icon: Key, permission: 'team.manage' },
-      { name: 'Audit Logs', href: '/dashboard/audit-logs', icon: Shield, permission: 'audit.read' },
+      { name: t('nav:sidebar.team_security.staff'), href: '/dashboard/staff', icon: UserCog, permission: 'team.manage' },
+      { name: t('nav:sidebar.team_security.permissions'), href: '/dashboard/permissions', icon: Key, permission: 'team.manage' },
+      { name: t('nav:sidebar.team_security.audit_logs'), href: '/dashboard/audit-logs', icon: Shield, permission: 'audit.read' },
     ],
   },
 ];
 
 const flattenNav = (items: NavItem[]): NavItem[] =>
   items.flatMap((i) => (i.children ? [i, ...i.children] : [i]));
-
-const allNavItems = navGroups.flatMap(g => flattenNav(g.items));
 
 function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
   return (
@@ -219,7 +228,7 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
       <item.icon className="h-4 w-4 shrink-0" />
       <span className="truncate">{item.name}</span>
       {item.badge && (
-        <Badge variant="secondary" className="ml-auto text-xs">
+        <Badge variant="secondary" className="ms-auto text-xs">
           {item.badge}
         </Badge>
       )}
@@ -260,12 +269,12 @@ function NavGroupItem({
         )}
       >
         <item.icon className="h-4 w-4 shrink-0" />
-        <span className="truncate flex-1 text-left">{item.name}</span>
+        <span className="truncate flex-1 text-start">{item.name}</span>
         <ChevronRight
           className={cn('h-3.5 w-3.5 shrink-0 transition-transform', open && 'rotate-90')}
         />
       </CollapsibleTrigger>
-      <CollapsibleContent className="mt-1 space-y-1 pl-7">
+      <CollapsibleContent className="mt-1 space-y-1 ps-7">
         {(item.children || []).map((child) => {
           const isActive =
             pathname === child.href ||
@@ -294,6 +303,9 @@ function NavGroupItem({
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   const { can } = useAuth();
+  const { t } = useTranslation(['nav']);
+
+  const navGroups = buildNavGroups(t);
 
   const hasPermission = (permission?: string | string[]): boolean => {
     if (!permission) return true;
@@ -342,7 +354,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <ScrollArea className="flex-1 px-3 py-4">
         <div className="space-y-6">
           {visibleGroups.map((group) => (
-            <div key={group.label}>
+            <div key={group.groupKey}>
               <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
                 {group.label}
               </p>
@@ -351,7 +363,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   if (item.children && item.children.length > 0) {
                     return (
                       <NavGroupItem
-                        key={item.name}
+                        key={item.href}
                         item={item}
                         pathname={location.pathname}
                         onNavigate={onNavigate}
@@ -363,7 +375,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                     (item.href !== '/dashboard' && location.pathname.startsWith(item.href));
                   return (
                     <NavLink
-                      key={item.name}
+                      key={item.href}
                       item={item}
                       isActive={isActive}
                       onClick={onNavigate}
@@ -390,30 +402,27 @@ const NOTIF_PROMPT_DISMISSED_KEY = 'matjar.notifPromptDismissed.v1';
  * silently no-op `requestPermission()` once denied.
  */
 const useNotificationPermissionPrompt = () => {
+  const { t } = useTranslation(['nav']);
   React.useEffect(() => {
     if (typeof Notification === 'undefined') return;
     if (Notification.permission !== 'default') return;
     if (localStorage.getItem(NOTIF_PROMPT_DISMISSED_KEY) === '1') return;
 
-    const id = toast('Enable browser notifications?', {
+    const id = toast(t('nav:browser_notifications.prompt_title'), {
       id: 'notif-permission-prompt',
-      description: 'Get an OS-level alert when a new order arrives.',
+      description: t('nav:browser_notifications.prompt_description'),
       duration: Infinity,
       action: {
-        label: 'Enable',
+        label: t('nav:browser_notifications.enable'),
         onClick: () => {
           Notification.requestPermission()
             .then((result) => {
-              // Immediately fire a confirmation notification so the
-              // merchant sees proof the OS channel works — otherwise
-              // they grant permission and wonder for hours whether
-              // anything is wired up.
               if (result === 'granted') {
                 fireNativeNotification(
-                  'Notifications enabled',
-                  'You will be notified here when a new order arrives.',
+                  t('nav:browser_notifications.native_title'),
+                  t('nav:browser_notifications.native_body'),
                 );
-                toast.success('Browser notifications enabled');
+                toast.success(t('nav:browser_notifications.enabled_success'));
               }
             })
             .catch(() => {})
@@ -423,7 +432,7 @@ const useNotificationPermissionPrompt = () => {
         },
       },
       cancel: {
-        label: 'Not now',
+        label: t('nav:browser_notifications.not_now'),
         onClick: () => {
           localStorage.setItem(NOTIF_PROMPT_DISMISSED_KEY, '1');
         },
@@ -432,7 +441,7 @@ const useNotificationPermissionPrompt = () => {
     return () => {
       toast.dismiss(id);
     };
-  }, []);
+  }, [t]);
 };
 
 const DashboardLayoutInner: React.FC = () => {
@@ -441,6 +450,7 @@ const DashboardLayoutInner: React.FC = () => {
   const breadcrumbOverride = useBreadcrumbOverride();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const { t } = useTranslation(['nav']);
 
   // Side-effect hooks for notifications. Both are mounted here so they
   // live for the entire lifetime of an authenticated dashboard session.
@@ -452,9 +462,12 @@ const DashboardLayoutInner: React.FC = () => {
     navigate('/login');
   };
 
-  // Build breadcrumb from path
+  // Build breadcrumb from path — uses translated nav item names
   const getBreadcrumbs = () => {
     const path = location.pathname;
+    // Build a flat list of nav items for lookup using translated names
+    const navGroups = buildNavGroups(t);
+    const allNavItems = navGroups.flatMap((g) => flattenNav(g.items));
     const navItem = allNavItems.find(
       (item) => item.href === path || (item.href !== '/dashboard' && path.startsWith(item.href))
     );
@@ -467,9 +480,9 @@ const DashboardLayoutInner: React.FC = () => {
     if (segments.length > 1) {
       const lastSegment = segments[segments.length - 1];
       if (lastSegment === 'new') {
-        crumbs.push({ label: 'New' });
+        crumbs.push({ label: t('nav:breadcrumb.new') });
       } else if (segments[segments.length - 1] === 'edit') {
-        crumbs.push({ label: 'Edit' });
+        crumbs.push({ label: t('nav:breadcrumb.edit') });
       } else if (lastSegment !== navItem.name.toLowerCase()) {
         crumbs.push({ label: `#${lastSegment.slice(0, 8)}...` });
       }
@@ -484,14 +497,14 @@ const DashboardLayoutInner: React.FC = () => {
     <TooltipProvider delayDuration={0}>
       <div className="flex h-screen overflow-hidden bg-background">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r">
+        <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-e">
           <SidebarContent />
 
           {/* User section — pinned to the bottom of the sidebar. */}
           <div className="shrink-0 border-t p-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-accent transition-colors">
+                <button className="flex w-full items-center gap-3 rounded-lg p-2 text-start hover:bg-accent transition-colors">
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="bg-primary/10 text-primary text-sm">
                       {user?.name?.charAt(0)?.toUpperCase() || 'U'}
@@ -513,13 +526,13 @@ const DashboardLayoutInner: React.FC = () => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
-                  <SettingsIcon className="mr-2 h-4 w-4" />
-                  Settings
+                  <SettingsIcon className="me-2 h-4 w-4" />
+                  {t('nav:user_menu.settings')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
+                  <LogOut className="me-2 h-4 w-4" />
+                  {t('nav:user_menu.log_out')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -535,7 +548,7 @@ const DashboardLayoutInner: React.FC = () => {
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="lg:hidden">
                   <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
+                  <span className="sr-only">{t('nav:toggle_menu')}</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0">
@@ -555,7 +568,7 @@ const DashboardLayoutInner: React.FC = () => {
                     | { kind: 'crumb'; label: string; href?: string; isLast: boolean }
                     | { kind: 'ellipsis' };
                   const all: { label: string; href?: string }[] = [
-                    { label: 'Dashboard', href: '/dashboard' },
+                    { label: t('nav:breadcrumb.dashboard'), href: '/dashboard' },
                     ...(breadcrumbs ?? []),
                   ];
                   const lastIdx = all.length - 1;
@@ -599,7 +612,7 @@ const DashboardLayoutInner: React.FC = () => {
               </BreadcrumbList>
             </Breadcrumb>
 
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ms-auto flex items-center gap-2">
               <NotificationBell />
 
               {/* Mobile user menu */}
@@ -618,10 +631,10 @@ const DashboardLayoutInner: React.FC = () => {
                     <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
-                      Settings
+                      {t('nav:user_menu.settings')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                      Log out
+                      {t('nav:user_menu.log_out')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

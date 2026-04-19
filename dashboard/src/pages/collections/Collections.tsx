@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -53,6 +54,7 @@ interface CollectionsListResponse {
 interface ApiErrorLike { message?: string; error?: string }
 
 export const Collections: React.FC = () => {
+  const { t } = useTranslation(['products', 'common']);
   const navigate = useNavigate();
   const confirm = useConfirm();
 
@@ -80,17 +82,17 @@ export const Collections: React.FC = () => {
   const handleBulkDelete = async () => {
     if (selected.size === 0) return;
     if (!(await confirm({
-      title: `Delete ${selected.size} collection${selected.size === 1 ? '' : 's'}?`,
-      description: 'This cannot be undone.',
-      confirmText: 'Delete',
+      title: t('products.collections.confirm.delete.title'),
+      description: t('products.collections.confirm.delete.description_bulk'),
+      confirmText: t('common.action.delete'),
       variant: 'destructive',
     }))) return;
     const ids = [...selected];
     const results = await Promise.allSettled(ids.map((id) => api.delete(`/collections/${id}`)));
     const ok = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(`${ok} deleted`);
-    if (failed) toast.error(`${failed} failed`);
+    if (ok) toast.success(t('products.collections.bulk.deleted_count', { count: ok }));
+    if (failed) toast.error(t('products.collections.bulk.failed_count', { count: failed }));
     setSelected(new Set());
     loadCollections();
   };
@@ -101,8 +103,8 @@ export const Collections: React.FC = () => {
     const results = await Promise.allSettled(ids.map((id) => api.patch(`/collections/${id}`, { isPublished })));
     const ok = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(`${ok} ${isPublished ? 'published' : 'unpublished'}`);
-    if (failed) toast.error(`${failed} failed`);
+    if (ok) toast.success(t(isPublished ? 'products.collections.bulk.published_count' : 'products.collections.bulk.unpublished_count', { count: ok }));
+    if (failed) toast.error(t('products.collections.bulk.failed_count', { count: failed }));
     setSelected(new Set());
     loadCollections();
   };
@@ -141,18 +143,18 @@ export const Collections: React.FC = () => {
 
   const handleDelete = async (collection: Collection) => {
     if (!(await confirm({
-      title: 'Delete collection?',
-      description: `"${collection.title}" will be permanently removed.`,
-      confirmText: 'Delete',
+      title: t('products.collections.confirm.delete.title'),
+      description: t('products.collections.confirm.delete.description', { title: collection.title }),
+      confirmText: t('common.action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       await api.delete(`/collections/${collection._id}`);
-      toast.success('Collection deleted');
+      toast.success(t('products.collections.toast.deleted'));
       loadCollections();
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to delete collection');
+      toast.error(e?.message || t('products.collections.toast.delete_failed'));
     }
   };
 
@@ -176,12 +178,12 @@ export const Collections: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Collections</h1>
-          <p className="text-muted-foreground">Curated groups of products — manual or rule-based</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('products.collections.list.title')}</h1>
+          <p className="text-muted-foreground">{t('products.collections.list.subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/dashboard/collections/new')}>
           <Plus className="h-4 w-4 mr-2" />
-          New Collection
+          {t('products.collections.list.new_collection')}
         </Button>
       </div>
 
@@ -191,13 +193,13 @@ export const Collections: React.FC = () => {
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search collections..."
+              placeholder={t('products.collections.list.search_placeholder')}
               className="pl-8 w-60"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <Button type="submit" variant="secondary" size="sm">Search</Button>
+          <Button type="submit" variant="secondary" size="sm">{t('common.action.search')}</Button>
         </form>
 
         <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v as 'all' | 'manual' | 'smart'); setPage(1); }}>
@@ -205,9 +207,9 @@ export const Collections: React.FC = () => {
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
-            <SelectItem value="manual">Manual</SelectItem>
-            <SelectItem value="smart">Smart</SelectItem>
+            <SelectItem value="all">{t('products.collections.list.filter.all_types')}</SelectItem>
+            <SelectItem value="manual">{t('products.collections.list.filter.manual')}</SelectItem>
+            <SelectItem value="smart">{t('products.collections.list.filter.smart')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -216,28 +218,28 @@ export const Collections: React.FC = () => {
             <SelectValue placeholder="Published" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="published">Published</SelectItem>
-            <SelectItem value="unpublished">Unpublished</SelectItem>
+            <SelectItem value="all">{t('products.collections.list.filter.all_statuses')}</SelectItem>
+            <SelectItem value="published">{t('products.collections.list.filter.published')}</SelectItem>
+            <SelectItem value="unpublished">{t('products.collections.list.filter.unpublished')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('products.collections.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />Clear
+              <X className="h-3.5 w-3.5 mr-1.5" />{t('products.collections.bulk.clear')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkPublish(true)}>
-              <Eye className="h-3.5 w-3.5 mr-1.5" />Publish
+              <Eye className="h-3.5 w-3.5 mr-1.5" />{t('products.collections.bulk.publish')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkPublish(false)}>
-              <EyeOff className="h-3.5 w-3.5 mr-1.5" />Unpublish
+              <EyeOff className="h-3.5 w-3.5 mr-1.5" />{t('products.collections.bulk.unpublish')}
             </Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />Delete
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('products.collections.bulk.delete')}
             </Button>
           </div>
         </div>
@@ -251,13 +253,13 @@ export const Collections: React.FC = () => {
               <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <Layers className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">No collections yet</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('products.collections.list.empty.title')}</h3>
               <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-                Collections let you organize products into groups for your storefront
+                {t('products.collections.list.empty.description')}
               </p>
               <Button onClick={() => navigate('/dashboard/collections/new')}>
                 <Plus className="h-4 w-4 mr-2" />
-                Create Collection
+                {t('products.collections.list.empty.action')}
               </Button>
             </div>
           </CardContent>
@@ -276,12 +278,12 @@ export const Collections: React.FC = () => {
                       className="h-4 w-4 rounded border-gray-300"
                     />
                   </TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Handle</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead>Published</TableHead>
-                  <TableHead>Updated</TableHead>
+                  <TableHead>{t('products.collections.list.column.title')}</TableHead>
+                  <TableHead>{t('products.collections.list.column.handle')}</TableHead>
+                  <TableHead>{t('products.collections.list.column.type')}</TableHead>
+                  <TableHead>{t('products.collections.list.column.products')}</TableHead>
+                  <TableHead>{t('products.collections.list.column.published')}</TableHead>
+                  <TableHead>{t('products.collections.list.column.updated')}</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
@@ -306,7 +308,7 @@ export const Collections: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant={col.type === 'smart' ? 'default' : 'secondary'}>
-                        {col.type === 'smart' ? 'Smart' : 'Manual'}
+                        {col.type === 'smart' ? t('products.collections.list.type_badge.smart') : t('products.collections.list.type_badge.manual')}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -314,7 +316,7 @@ export const Collections: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant={col.isPublished ? 'default' : 'outline'}>
-                        {col.isPublished ? 'Published' : 'Hidden'}
+                        {col.isPublished ? t('products.collections.list.published_badge.published') : t('products.collections.list.published_badge.hidden')}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -329,13 +331,13 @@ export const Collections: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => navigate(`/dashboard/collections/${col._id}/edit`)}>
-                            <Edit className="h-4 w-4 mr-2" />Edit
+                            <Edit className="h-4 w-4 mr-2" />{t('common.action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDelete(col)}
                             className="text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />Delete
+                            <Trash2 className="h-4 w-4 mr-2" />{t('common.action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -351,7 +353,7 @@ export const Collections: React.FC = () => {
       {/* Pagination */}
       {pagination.pages > 1 && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>{pagination.total} total collections</span>
+          <span>{t('products.collections.list.total', { count: pagination.total })}</span>
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -359,16 +361,16 @@ export const Collections: React.FC = () => {
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
-              Previous
+              {t('common.action.previous')}
             </Button>
-            <span className="py-1">Page {page} of {pagination.pages}</span>
+            <span className="py-1">{t('common.pagination.page_of', { n: page, total: pagination.pages })}</span>
             <Button
               variant="outline"
               size="sm"
               disabled={page >= pagination.pages}
               onClick={() => setPage((p) => p + 1)}
             >
-              Next
+              {t('common.action.next')}
             </Button>
           </div>
         </div>

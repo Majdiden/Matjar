@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
@@ -58,13 +59,14 @@ const displayOrderNumber = (orderNumber?: string | null, fallbackId?: string) =>
 
 type StatusTab = '' | 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
 
-const TAB_DEFS: { id: StatusTab; label: string; icon: React.ElementType }[] = [
-  { id: '', label: 'All Orders', icon: ShoppingCart },
-  { id: 'Pending', label: 'Pending', icon: Clock },
-  { id: 'Processing', label: 'Processing', icon: PackageIcon },
-  { id: 'Shipped', label: 'Shipped', icon: Truck },
-  { id: 'Delivered', label: 'Delivered', icon: CheckCircle2 },
-  { id: 'Cancelled', label: 'Cancelled', icon: XCircle },
+// TAB_DEFS labels are resolved inside the component using t()
+const TAB_DEFS_META: { id: StatusTab; icon: React.ElementType; labelKey: string }[] = [
+  { id: '', labelKey: 'orders.list.filter.all', icon: ShoppingCart },
+  { id: 'Pending', labelKey: 'orders.list.filter.pending', icon: Clock },
+  { id: 'Processing', labelKey: 'orders.list.filter.processing', icon: PackageIcon },
+  { id: 'Shipped', labelKey: 'orders.list.filter.shipped', icon: Truck },
+  { id: 'Delivered', labelKey: 'orders.list.filter.delivered', icon: CheckCircle2 },
+  { id: 'Cancelled', labelKey: 'orders.list.filter.cancelled', icon: XCircle },
 ];
 
 const statusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
@@ -92,6 +94,7 @@ const paymentVariant = (status: string): 'default' | 'secondary' | 'destructive'
 };
 
 export const Orders: React.FC = () => {
+  const { t } = useTranslation(['orders', 'common']);
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,8 +131,8 @@ export const Orders: React.FC = () => {
     const results = await Promise.allSettled(ids.map((id) => api.orders.updateStatus(id, status)));
     const ok = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(`${ok} order${ok === 1 ? '' : 's'} marked as ${status}`);
-    if (failed) toast.error(`${failed} failed to update`);
+    if (ok) toast.success(ok === 1 ? t('orders:list.bulk.selected', { count: ok }) + ` → ${status}` : t('orders:toast.bulk_marked_plural', { count: ok, status }));
+    if (failed) toast.error(t('orders:toast.bulk_update_failed', { count: failed }));
     setSelected(new Set());
     loadOrders();
     loadStats();
@@ -138,7 +141,7 @@ export const Orders: React.FC = () => {
   const handleBulkExport = () => {
     const all = orders.filter((o) => selected.has(o._id));
     if (all.length === 0) {
-      toast.message('No orders to export');
+      toast.message(t('orders:toast.no_orders_to_export'));
       return;
     }
     const csv = toCSV(all as OrderForExport[], [
@@ -151,13 +154,13 @@ export const Orders: React.FC = () => {
       { key: 'totalAmount', label: 'Total', get: (o: OrderForExport) => (o.totalAmount ?? 0).toFixed(2) },
     ]);
     downloadCSV(csv, 'orders-selected');
-    toast.success(`Exported ${all.length} order${all.length === 1 ? '' : 's'}`);
+    toast.success(all.length === 1 ? t('orders:toast.export_success', { count: all.length }) : t('orders:toast.export_success_plural', { count: all.length }));
   };
 
   const setAsDefault = () => {
     localStorage.setItem(VIEW_PREF_KEY, viewMode);
     setDefaultView(viewMode);
-    toast.success(`${viewMode === 'cards' ? 'Cards' : 'Table'} view set as default`);
+    toast.success(t('orders:toast.view_set_default', { view: viewMode === 'cards' ? t('orders:list.view.cards') : t('orders:list.view.table') }));
   };
 
   // loadOrders / loadStats are stable closures over setters — redeclaring
@@ -193,7 +196,7 @@ export const Orders: React.FC = () => {
       if (response.responseObject.pagination) setPagination(response.responseObject.pagination);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to load orders');
+      toast.error(msg || t('orders:toast.load_failed'));
       setOrders([]);
     } finally {
       setLoading(false);
@@ -203,12 +206,12 @@ export const Orders: React.FC = () => {
   const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
     try {
       await api.orders.updateStatus(orderId, newStatus);
-      toast.success(`Order updated to ${newStatus}`);
+      toast.success(t('orders:toast.status_updated', { status: newStatus }));
       setOrders((prev) => prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o)));
       loadStats();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to update order status');
+      toast.error(msg || t('orders:toast.status_update_failed'));
     }
   };
 
@@ -217,7 +220,7 @@ export const Orders: React.FC = () => {
       const res = await api.orders.getAll({ page: 1, limit: 5000 }) as PaginatedResponse<Order>;
       const all: Order[] = (res.responseObject.orders as Order[] | undefined) || [];
       if (all.length === 0) {
-        toast.message('No orders to export');
+        toast.message(t('orders:toast.no_orders_to_export'));
         return;
       }
       const csv = toCSV(all as OrderForExport[], [
@@ -236,21 +239,22 @@ export const Orders: React.FC = () => {
         { key: 'totalAmount', label: 'Total', get: (o: OrderForExport) => (o.totalAmount ?? 0).toFixed(2) },
       ]);
       downloadCSV(csv, 'orders');
-      toast.success(`Exported ${all.length} order${all.length === 1 ? '' : 's'}`);
+      toast.success(all.length === 1 ? t('orders:toast.export_success', { count: all.length }) : t('orders:toast.export_success_plural', { count: all.length }));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Export failed');
+      toast.error(msg || t('orders:toast.export_failed'));
     }
   };
 
   const statCards = useMemo(
     () => [
-      { label: 'Total Orders', value: stats.total.toLocaleString(), icon: ShoppingCart, description: 'All time' },
-      { label: 'Pending', value: stats.pending.toLocaleString(), icon: Clock, description: 'Awaiting fulfillment' },
-      { label: 'Delivered', value: stats.delivered.toLocaleString(), icon: CheckCircle2, description: 'Completed orders' },
-      { label: 'Total Revenue', value: formatPrice(stats.revenue), icon: DollarSign, description: 'Gross sales' },
+      { label: t('orders:list.stat.total_orders'), value: stats.total.toLocaleString(), icon: ShoppingCart, description: t('orders:list.stat.all_time') },
+      { label: t('orders:list.stat.pending'), value: stats.pending.toLocaleString(), icon: Clock, description: t('orders:list.stat.awaiting_fulfillment') },
+      { label: t('orders:list.stat.delivered'), value: stats.delivered.toLocaleString(), icon: CheckCircle2, description: t('orders:list.stat.completed_orders') },
+      { label: t('orders:list.stat.total_revenue'), value: formatPrice(stats.revenue), icon: DollarSign, description: t('orders:list.stat.gross_sales') },
     ],
-    [stats]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [stats, t]
   );
 
   return (
@@ -258,13 +262,13 @@ export const Orders: React.FC = () => {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('orders:list.title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Track, fulfill, and manage your customer orders
+            {t('orders:list.description')}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleExport}>
-          <Download className="h-4 w-4 mr-2" /> Export
+          <Download className="h-4 w-4 mr-2" /> {t('common:action.export')}
         </Button>
       </div>
 
@@ -289,7 +293,7 @@ export const Orders: React.FC = () => {
 
       {/* Filter pills */}
       <FilterPills
-        items={TAB_DEFS.map((t) => ({ id: t.id || 'all', label: t.label, icon: t.icon }))}
+        items={TAB_DEFS_META.map((td) => ({ id: td.id || 'all', label: t(td.labelKey as Parameters<typeof t>[0]), icon: td.icon }))}
         value={tab || 'all'}
         onChange={(v) => { setTab(v === 'all' ? '' : (v as StatusTab)); setPage(1); }}
       />
@@ -299,14 +303,14 @@ export const Orders: React.FC = () => {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by order # or customer..."
+            placeholder={t('orders:list.search.placeholder')}
             className="pl-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
         <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" /> Filter
+          <Filter className="h-4 w-4 mr-2" /> {t('common:action.filter')}
         </Button>
         <div className="ml-auto flex items-center gap-2">
           <div className="inline-flex rounded-md border bg-background p-0.5">
@@ -318,7 +322,7 @@ export const Orders: React.FC = () => {
               }`}
               aria-pressed={viewMode === 'cards'}
             >
-              <LayoutGrid className="h-3.5 w-3.5" /> Cards
+              <LayoutGrid className="h-3.5 w-3.5" /> {t('orders:list.view.cards')}
             </button>
             <button
               type="button"
@@ -328,7 +332,7 @@ export const Orders: React.FC = () => {
               }`}
               aria-pressed={viewMode === 'table'}
             >
-              <List className="h-3.5 w-3.5" /> Table
+              <List className="h-3.5 w-3.5" /> {t('orders:list.view.table')}
             </button>
           </div>
           <Button
@@ -336,12 +340,12 @@ export const Orders: React.FC = () => {
             size="sm"
             onClick={setAsDefault}
             disabled={viewMode === defaultView}
-            title={viewMode === defaultView ? 'This is your default view' : `Set ${viewMode} as default`}
+            title={viewMode === defaultView ? t('orders:list.view.is_default') : t('orders:list.view.set_as', { mode: viewMode })}
           >
             {viewMode === defaultView ? (
-              <><Pin className="h-3.5 w-3.5 mr-1.5" /> Default</>
+              <><Pin className="h-3.5 w-3.5 mr-1.5" /> {t('orders:list.view.default')}</>
             ) : (
-              <><PinOff className="h-3.5 w-3.5 mr-1.5" /> Set default</>
+              <><PinOff className="h-3.5 w-3.5 mr-1.5" /> {t('orders:list.view.set_default')}</>
             )}
           </Button>
         </div>
@@ -350,22 +354,22 @@ export const Orders: React.FC = () => {
       {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('orders:list.bulk.selected', { count: selected.size })}</p>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />Clear
+              <X className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.clear')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Processing')}>
-              <PackageIcon className="h-3.5 w-3.5 mr-1.5" />Mark as Processing
+              <PackageIcon className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.mark_processing')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Shipped')}>
-              <Truck className="h-3.5 w-3.5 mr-1.5" />Mark as Shipped
+              <Truck className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.mark_shipped')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Delivered')}>
-              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />Mark as Delivered
+              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.mark_delivered')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleBulkExport}>
-              <Download className="h-3.5 w-3.5 mr-1.5" />Export CSV
+              <Download className="h-3.5 w-3.5 mr-1.5" />{t('orders:list.bulk.export_csv')}
             </Button>
           </div>
         </div>
@@ -381,12 +385,12 @@ export const Orders: React.FC = () => {
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold">
-              {tab || search ? 'No orders match your filters' : 'No orders yet'}
+              {tab || search ? t('orders:list.empty.filtered_title') : t('orders:list.empty.title')}
             </h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
               {tab || search
-                ? 'Try clearing your filters or searching with a different term.'
-                : "When customers place orders, they'll show up here."}
+                ? t('orders:list.empty.filtered_description')
+                : t('orders:list.empty.description')}
             </p>
           </CardContent>
         </Card>
@@ -403,13 +407,13 @@ export const Orders: React.FC = () => {
                     className="h-4 w-4 rounded border-gray-300"
                   />
                 </TableHead>
-                <TableHead className="w-[120px]">Order</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-center">Items</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Payment</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="w-[120px]">{t('orders:list.column.order')}</TableHead>
+                <TableHead>{t('orders:list.column.customer')}</TableHead>
+                <TableHead>{t('orders:list.column.date')}</TableHead>
+                <TableHead className="text-center">{t('orders:list.column.items')}</TableHead>
+                <TableHead>{t('orders:list.column.status')}</TableHead>
+                <TableHead>{t('orders:list.column.payment')}</TableHead>
+                <TableHead className="text-right">{t('orders:list.column.total')}</TableHead>
                 <TableHead className="w-[50px]" />
               </TableRow>
             </TableHeader>
@@ -444,7 +448,7 @@ export const Orders: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-medium text-sm">{order.user?.name || 'Guest'}</span>
+                      <span className="font-medium text-sm">{order.user?.name || t('orders:list.guest')}</span>
                       {order.user?.email && (
                         <span className="text-xs text-muted-foreground">{order.user.email}</span>
                       )}
@@ -477,16 +481,16 @@ export const Orders: React.FC = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t('orders:list.dropdown.actions')}</DropdownMenuLabel>
                         <DropdownMenuItem
                           onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/orders/${order._id}`); }}
                         >
-                          <Eye className="mr-2 h-4 w-4" /> View details
+                          <Eye className="mr-2 h-4 w-4" /> {t('orders:list.dropdown.view_details')}
                         </DropdownMenuItem>
                         {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuLabel className="text-xs">Update status</DropdownMenuLabel>
+                            <DropdownMenuLabel className="text-xs">{t('orders:list.dropdown.update_status')}</DropdownMenuLabel>
                             {(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] as OrderStatus[])
                               .filter((s) => s !== order.status)
                               .map((s) => (
@@ -544,15 +548,17 @@ export const Orders: React.FC = () => {
                           {order.replacementOf ? (
                             <>
                               <RefreshCw className="h-3.5 w-3.5" />
-                              Replacement order
+                              {t('orders:list.replacement.label')}
                             </>
                           ) : (
                             <>
                               <GitBranch className="h-3.5 w-3.5" />
-                              Has {order.replacementOrders!.length} replacement{order.replacementOrders!.length === 1 ? '' : 's'}
+                              {order.replacementOrders!.length === 1
+                                ? t('orders:list.replacement.has_replacements', { count: 1 })
+                                : t('orders:list.replacement.has_replacements_plural', { count: order.replacementOrders!.length })}
                             </>
                           )}
-                          <span className="opacity-70">· view timeline</span>
+                          <span className="opacity-70">{t('orders:list.replacement.view_timeline')}</span>
                         </button>
                       )}
                       <div className="flex items-center gap-2 flex-wrap">
@@ -567,10 +573,10 @@ export const Orders: React.FC = () => {
                         </Badge>
                       </div>
                       <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground/80">{order.user?.name || 'Guest'}</span>
+                        <span className="font-medium text-foreground/80">{order.user?.name || t('orders:list.guest')}</span>
                         {order.user?.email && <span className="hidden md:inline">{order.user.email}</span>}
                         <span>•</span>
-                        <span>{order.products.length} {order.products.length === 1 ? 'item' : 'items'}</span>
+                        <span>{order.products.length === 1 ? t('orders:list.item_count_one', { count: 1 }) : t('orders:list.item_count_other', { count: order.products.length })}</span>
                         <span>•</span>
                         <span>{new Date(order.createdAt).toLocaleDateString()}</span>
                       </div>
@@ -593,16 +599,16 @@ export const Orders: React.FC = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t('orders:list.dropdown.actions')}</DropdownMenuLabel>
                         <DropdownMenuItem
                           onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/orders/${order._id}`); }}
                         >
-                          <Eye className="mr-2 h-4 w-4" /> View details
+                          <Eye className="mr-2 h-4 w-4" /> {t('orders:list.dropdown.view_details')}
                         </DropdownMenuItem>
                         {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuLabel className="text-xs">Update status</DropdownMenuLabel>
+                            <DropdownMenuLabel className="text-xs">{t('orders:list.dropdown.update_status')}</DropdownMenuLabel>
                             {(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] as OrderStatus[])
                               .filter((s) => s !== order.status)
                               .map((s) => (
@@ -629,13 +635,11 @@ export const Orders: React.FC = () => {
       {pagination.pages > 1 && !loading && (
         <div className="flex items-center justify-between pt-2">
           <p className="text-sm text-muted-foreground">
-            Showing <span className="font-medium text-foreground">{((page - 1) * pagination.limit) + 1}</span>–
-            <span className="font-medium text-foreground">{Math.min(page * pagination.limit, pagination.total)}</span> of{' '}
-            <span className="font-medium text-foreground">{pagination.total}</span>
+            {t('common:pagination.showing', { from: ((page - 1) * pagination.limit) + 1, to: Math.min(page * pagination.limit, pagination.total), total: pagination.total })}
           </p>
           <div className="flex items-center gap-1">
             <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              Previous
+              {t('common:action.previous')}
             </Button>
             {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => i + 1).map((p) => (
               <Button
@@ -654,7 +658,7 @@ export const Orders: React.FC = () => {
               disabled={page >= pagination.pages}
               onClick={() => setPage((p) => p + 1)}
             >
-              Next
+              {t('common:action.next')}
             </Button>
           </div>
         </div>

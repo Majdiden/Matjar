@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -47,7 +48,6 @@ interface GiftCardFull {
   updatedAt: string;
 }
 
-// Shape helpers for loosely-typed api-client responses.
 interface ApiEnvelope<T> {
   data?: T;
   responseObject?: { data?: T };
@@ -78,19 +78,18 @@ const TX_TYPE_COLORS: Record<string, string> = {
 };
 
 const GiftCardDetail: React.FC = () => {
+  const { t } = useTranslation(['marketing', 'common']);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [card, setCard] = useState<GiftCardFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Adjust dialog
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [adjustAmount, setAdjustAmount] = useState('');
   const [adjustNote, setAdjustNote] = useState('');
   const [adjustSign, setAdjustSign] = useState<1 | -1>(1);
 
-  // Refund dialog
   const [refundOpen, setRefundOpen] = useState(false);
   const [refundAmount, setRefundAmount] = useState('');
   const [refundNote, setRefundNote] = useState('');
@@ -102,26 +101,26 @@ const GiftCardDetail: React.FC = () => {
       const res = await api.get(`/gift-cards/${id}`);
       setCard(unwrap<GiftCardFull>(res) ?? null);
     } catch {
-      toast.error('Failed to load gift card');
+      toast.error(t('marketing.gift_card.toast.load_failed'));
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => { loadCard(); }, [loadCard]);
 
   const handleToggleStatus = async () => {
     if (!card) return;
     const endpoint = card.status === 'disabled' ? 'enable' : 'disable';
-    const label = card.status === 'disabled' ? 'enabled' : 'disabled';
+    const label = card.status === 'disabled' ? t('marketing.gift_card.toast.enabled') : t('marketing.gift_card.toast.disabled');
     try {
       setActionLoading(true);
       const res = await api.post(`/gift-cards/${card._id}/${endpoint}`);
       setCard(unwrap<GiftCardFull>(res) ?? card);
-      toast.success(`Gift card ${label}`);
+      toast.success(label);
     } catch (err) {
       const e = err as ApiErrorLike;
-      toast.error(e?.response?.data?.message ?? `Failed to ${endpoint} gift card`);
+      toast.error(e?.response?.data?.message ?? t('marketing.gift_card.toast.toggle_failed', { action: endpoint }));
     } finally {
       setActionLoading(false);
     }
@@ -129,7 +128,7 @@ const GiftCardDetail: React.FC = () => {
 
   const handleAdjust = async () => {
     const amt = parseFloat(adjustAmount);
-    if (isNaN(amt) || amt <= 0) { toast.error('Enter a valid positive amount'); return; }
+    if (isNaN(amt) || amt <= 0) { toast.error(t('marketing.gift_card.toast.amount_invalid')); return; }
     try {
       setActionLoading(true);
       const finalAmount = adjustSign * amt;
@@ -141,10 +140,10 @@ const GiftCardDetail: React.FC = () => {
       setAdjustOpen(false);
       setAdjustAmount('');
       setAdjustNote('');
-      toast.success('Balance adjusted');
+      toast.success(t('marketing.gift_card.toast.balance_adjusted'));
     } catch (err) {
       const e = err as ApiErrorLike;
-      toast.error(e?.response?.data?.message ?? 'Adjustment failed');
+      toast.error(e?.response?.data?.message ?? t('marketing.gift_card.toast.adjustment_failed'));
     } finally {
       setActionLoading(false);
     }
@@ -152,13 +151,9 @@ const GiftCardDetail: React.FC = () => {
 
   const handleRefund = async () => {
     const amt = parseFloat(refundAmount);
-    if (isNaN(amt) || amt <= 0) { toast.error('Enter a valid positive amount'); return; }
+    if (isNaN(amt) || amt <= 0) { toast.error(t('marketing.gift_card.toast.amount_invalid')); return; }
     try {
       setActionLoading(true);
-      // Refund is exposed via adjust with positive amount internally,
-      // but we call the dedicated service. Use the adjust endpoint for now
-      // since a separate /refund endpoint isn't in the router (refund is service-level).
-      // We model a refund as a positive adjust with a note.
       const res = await api.post(`/gift-cards/${card!._id}/adjust`, {
         amount: amt,
         note: refundNote || 'Refund',
@@ -167,10 +162,10 @@ const GiftCardDetail: React.FC = () => {
       setRefundOpen(false);
       setRefundAmount('');
       setRefundNote('');
-      toast.success('Refund applied');
+      toast.success(t('marketing.gift_card.toast.refund_applied'));
     } catch (err) {
       const e = err as ApiErrorLike;
-      toast.error(e?.response?.data?.message ?? 'Refund failed');
+      toast.error(e?.response?.data?.message ?? t('marketing.gift_card.toast.refund_failed'));
     } finally {
       setActionLoading(false);
     }
@@ -195,8 +190,8 @@ const GiftCardDetail: React.FC = () => {
   if (!card) {
     return (
       <div className="p-6">
-        <p className="text-muted-foreground">Gift card not found.</p>
-        <Button variant="link" onClick={() => navigate('/dashboard/gift-cards')}>Back to list</Button>
+        <p className="text-muted-foreground">{t('marketing.gift_card.detail.not_found')}</p>
+        <Button variant="link" onClick={() => navigate('/dashboard/gift-cards')}>{t('marketing.gift_card.detail.not_found_back')}</Button>
       </div>
     );
   }
@@ -205,11 +200,10 @@ const GiftCardDetail: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/gift-cards')}>
           <ArrowLeft className="w-4 h-4 mr-1" />
-          Gift Cards
+          {t('marketing.gift_card.detail.back_link')}
         </Button>
         <h1 className="text-xl font-semibold font-mono">
           ••••-••••-••••-{card.codeLast4}
@@ -219,43 +213,42 @@ const GiftCardDetail: React.FC = () => {
         </span>
         {card.coverShipping && (
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-            Covers shipping
+            {t('marketing.gift_card.list.tag.covers_shipping')}
           </span>
         )}
         {card.coverTax && (
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
-            Covers tax
+            {t('marketing.gift_card.list.tag.covers_tax')}
           </span>
         )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Overview card */}
         <div className="lg:col-span-2 space-y-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Overview</CardTitle>
+              <CardTitle className="text-base">{t('marketing.gift_card.detail.section.overview')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Balance</p>
+                  <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.balance')}</p>
                   <p className="font-semibold text-lg">{formatMoney(card.balance, card.currency)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Initial Amount</p>
+                  <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.initial_amount')}</p>
                   <p className="font-medium">{formatMoney(card.initialAmount, card.currency)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Currency</p>
+                  <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.currency')}</p>
                   <p className="font-medium">{card.currency}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Status</p>
+                  <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.status')}</p>
                   <p className="font-medium capitalize">{card.status}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Recipient</p>
+                  <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.recipient')}</p>
                   <p className="font-medium">
                     {card.issuedTo?.name || card.issuedTo?.email
                       ? `${card.issuedTo.name ?? ''} ${card.issuedTo.email ? `<${card.issuedTo.email}>` : ''}`.trim()
@@ -263,35 +256,34 @@ const GiftCardDetail: React.FC = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Customer ID</p>
+                  <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.customer_id')}</p>
                   <p className="font-mono text-xs">{card.customerId ?? '—'}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Expires</p>
-                  <p className="font-medium">{card.expiresAt ? formatDate(card.expiresAt) : 'Never'}</p>
+                  <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.expires')}</p>
+                  <p className="font-medium">{card.expiresAt ? formatDate(card.expiresAt) : t('marketing.gift_card.detail.expires_never')}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Issued</p>
+                  <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.issued')}</p>
                   <p className="font-medium">{formatDate(card.createdAt)}</p>
                 </div>
                 {card.message && (
                   <div className="col-span-2">
-                    <p className="text-muted-foreground">Message</p>
+                    <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.message')}</p>
                     <p className="font-medium italic">"{card.message}"</p>
                   </div>
                 )}
                 {card.note && (
                   <div className="col-span-2">
-                    <p className="text-muted-foreground">Internal Note</p>
+                    <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.note')}</p>
                     <p className="font-medium">{card.note}</p>
                   </div>
                 )}
               </div>
 
-              {/* Balance bar */}
               <div className="mt-4">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                  <span>Remaining balance</span>
+                  <span>{t('marketing.gift_card.detail.field.remaining_balance')}</span>
                   <span>{balancePct.toFixed(0)}%</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
@@ -304,28 +296,27 @@ const GiftCardDetail: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Transactions */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Transaction History</CardTitle>
+              <CardTitle className="text-base">{t('marketing.gift_card.detail.section.transactions')}</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Balance After</TableHead>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Note</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead>{t('marketing.gift_card.detail.tx_column.type')}</TableHead>
+                    <TableHead>{t('marketing.gift_card.detail.tx_column.amount')}</TableHead>
+                    <TableHead>{t('marketing.gift_card.detail.tx_column.balance_after')}</TableHead>
+                    <TableHead>{t('marketing.gift_card.detail.tx_column.order')}</TableHead>
+                    <TableHead>{t('marketing.gift_card.detail.tx_column.note')}</TableHead>
+                    <TableHead>{t('marketing.gift_card.detail.tx_column.date')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {card.transactions.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        No transactions
+                        {t('marketing.gift_card.detail.tx_empty')}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -366,11 +357,10 @@ const GiftCardDetail: React.FC = () => {
           </Card>
         </div>
 
-        {/* Actions sidebar */}
         <div className="space-y-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Actions</CardTitle>
+              <CardTitle className="text-base">{t('marketing.gift_card.detail.section.actions')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
@@ -386,7 +376,7 @@ const GiftCardDetail: React.FC = () => {
                 ) : (
                   <Ban className="w-4 h-4 mr-2 text-red-600" />
                 )}
-                {card.status === 'disabled' ? 'Enable Card' : 'Disable Card'}
+                {card.status === 'disabled' ? t('marketing.gift_card.detail.action.enable') : t('marketing.gift_card.detail.action.disable')}
               </Button>
 
               <Button
@@ -396,7 +386,7 @@ const GiftCardDetail: React.FC = () => {
                 disabled={actionLoading || card.status === 'disabled' || card.status === 'expired'}
               >
                 <PlusCircle className="w-4 h-4 mr-2 text-blue-600" />
-                Adjust Balance
+                {t('marketing.gift_card.detail.action.adjust')}
               </Button>
 
               <Button
@@ -406,7 +396,7 @@ const GiftCardDetail: React.FC = () => {
                 disabled={actionLoading || card.status === 'disabled' || card.status === 'expired'}
               >
                 <RefreshCw className="w-4 h-4 mr-2 text-purple-600" />
-                Refund to Card
+                {t('marketing.gift_card.detail.action.refund')}
               </Button>
             </CardContent>
           </Card>
@@ -417,9 +407,9 @@ const GiftCardDetail: React.FC = () => {
       <Dialog open={adjustOpen} onOpenChange={setAdjustOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Adjust Balance</DialogTitle>
+            <DialogTitle>{t('marketing.gift_card.adjust_dialog.title')}</DialogTitle>
             <DialogDescription>
-              Current balance: {formatMoney(card.balance, card.currency)}
+              {t('marketing.gift_card.adjust_dialog.current_balance', { balance: formatMoney(card.balance, card.currency) })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -429,18 +419,18 @@ const GiftCardDetail: React.FC = () => {
                 size="sm"
                 onClick={() => setAdjustSign(1)}
               >
-                + Add
+                {t('marketing.gift_card.adjust_dialog.add')}
               </Button>
               <Button
                 variant={adjustSign === -1 ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setAdjustSign(-1)}
               >
-                − Subtract
+                {t('marketing.gift_card.adjust_dialog.subtract')}
               </Button>
             </div>
             <div className="space-y-1">
-              <Label>Amount ({card.currency})</Label>
+              <Label>{t('marketing.gift_card.adjust_dialog.field.amount.label', { currency: card.currency })}</Label>
               <Input
                 type="number"
                 min="0.01"
@@ -451,19 +441,19 @@ const GiftCardDetail: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label>Note (required for audit trail)</Label>
+              <Label>{t('marketing.gift_card.adjust_dialog.field.note.label')}</Label>
               <Input
-                placeholder="Reason for adjustment"
+                placeholder={t('marketing.gift_card.adjust_dialog.field.note.placeholder')}
                 value={adjustNote}
                 onChange={e => setAdjustNote(e.target.value)}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAdjustOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setAdjustOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleAdjust} disabled={actionLoading}>
               {actionLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Apply
+              {t('marketing.gift_card.adjust_dialog.apply_button')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -473,15 +463,14 @@ const GiftCardDetail: React.FC = () => {
       <Dialog open={refundOpen} onOpenChange={setRefundOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Refund to Gift Card</DialogTitle>
+            <DialogTitle>{t('marketing.gift_card.refund_dialog.title')}</DialogTitle>
             <DialogDescription>
-              Add balance back to this card (e.g. for a returned order).
-              Current balance: {formatMoney(card.balance, card.currency)}
+              {t('marketing.gift_card.refund_dialog.description', { balance: formatMoney(card.balance, card.currency) })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1">
-              <Label>Refund Amount ({card.currency})</Label>
+              <Label>{t('marketing.gift_card.refund_dialog.field.amount.label', { currency: card.currency })}</Label>
               <Input
                 type="number"
                 min="0.01"
@@ -492,19 +481,19 @@ const GiftCardDetail: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label>Note</Label>
+              <Label>{t('marketing.gift_card.refund_dialog.field.note.label')}</Label>
               <Input
-                placeholder="Reason for refund"
+                placeholder={t('marketing.gift_card.refund_dialog.field.note.placeholder')}
                 value={refundNote}
                 onChange={e => setRefundNote(e.target.value)}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRefundOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setRefundOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleRefund} disabled={actionLoading}>
               {actionLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Refund
+              {t('marketing.gift_card.refund_dialog.refund_button')}
             </Button>
           </DialogFooter>
         </DialogContent>

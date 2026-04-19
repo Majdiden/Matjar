@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api-client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { CheckCircle2, Circle, Loader2, XCircle } from 'lucide-react';
@@ -50,21 +51,12 @@ interface SetupProgressProps {
   onError?: (error: string) => void;
 }
 
-const STEP_LABELS = {
-  domain_registration: 'Domain Registration',
-  theme_installation: 'Theme Installation',
-  data_seeding: 'Sample Data Seeding',
-  finalization: 'Finalization',
-};
+type StepKey = 'domain_registration' | 'theme_installation' | 'data_seeding' | 'finalization';
 
-const STEP_DESCRIPTIONS = {
-  domain_registration: 'Setting up your store domain',
-  theme_installation: 'Installing default theme',
-  data_seeding: 'Creating sample products and categories',
-  finalization: 'Finalizing setup',
-};
+const STEP_KEYS: StepKey[] = ['domain_registration', 'theme_installation', 'data_seeding', 'finalization'];
 
 export function SetupProgress({ tenantId, setupToken, onComplete, onError }: SetupProgressProps) {
+  const { t } = useTranslation(['errors']);
   const [status, setStatus] = useState<SetupStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +101,6 @@ export function SetupProgress({ tenantId, setupToken, onComplete, onError }: Set
         }
       } catch (err) {
         const apiErr = err as SetupApiError;
-        console.error('Failed to fetch setup status:', err);
         // If status endpoint returns 404, setup might be complete
         if (apiErr.statusCode === 404 || apiErr.status === 404) {
           setLoading(false);
@@ -163,10 +154,10 @@ export function SetupProgress({ tenantId, setupToken, onComplete, onError }: Set
       return details.length > 0 ? details.join(', ') : null;
     }
     if (step.status === 'skipped' && step.reason) {
-      return `Skipped: ${step.reason}`;
+      return t('errors:setup.step.skipped', { reason: step.reason });
     }
     if (step.status === 'failed' && step.error) {
-      return `Failed: ${step.error}`;
+      return t('errors:setup.step.failed', { error: step.error });
     }
     return null;
   };
@@ -177,7 +168,7 @@ export function SetupProgress({ tenantId, setupToken, onComplete, onError }: Set
         <CardContent className="pt-6">
           <div className="flex items-center justify-center space-x-2">
             <Loader2 className="h-5 w-5 animate-spin" />
-            <span>Loading setup status...</span>
+            <span>{t('errors:setup.loading')}</span>
           </div>
         </CardContent>
       </Card>
@@ -188,7 +179,7 @@ export function SetupProgress({ tenantId, setupToken, onComplete, onError }: Set
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-red-500">Setup Failed</CardTitle>
+          <CardTitle className="text-red-500">{t('errors:setup.failed_title')}</CardTitle>
           <CardDescription>{error}</CardDescription>
         </CardHeader>
       </Card>
@@ -202,29 +193,29 @@ export function SetupProgress({ tenantId, setupToken, onComplete, onError }: Set
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Setting Up Your Store</CardTitle>
+        <CardTitle>{t('errors:setup.setting_up_title')}</CardTitle>
         <CardDescription>
           {status.status === 'completed'
-            ? 'Your store is ready!'
+            ? t('errors:setup.store_ready')
             : status.status === 'failed'
-            ? 'Setup encountered an error'
-            : 'Please wait while we set up your store...'}
+            ? t('errors:setup.setup_error')
+            : t('errors:setup.setup_waiting')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {Object.entries(STEP_LABELS).map(([key, label]) => {
-            const step = status.steps?.[key as keyof typeof STEP_LABELS];
+          {STEP_KEYS.map((key) => {
+            const step = status.steps?.[key as keyof typeof status.steps];
             const stepDetails = step ? getStepDetails(step) : null;
+            const label = t(`errors:setup.step.${key}_label`);
+            const desc = t(`errors:setup.step.${key}_desc`);
 
             return (
               <div key={key} className="flex items-start space-x-3">
                 <div className="mt-0.5">{getStepIcon(step?.status)}</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900">{label}</p>
-                  <p className="text-sm text-gray-500">
-                    {STEP_DESCRIPTIONS[key as keyof typeof STEP_DESCRIPTIONS]}
-                  </p>
+                  <p className="text-sm text-gray-500">{desc}</p>
                   {stepDetails && (
                     <p className="text-xs text-gray-400 mt-1">{stepDetails}</p>
                   )}
@@ -237,7 +228,7 @@ export function SetupProgress({ tenantId, setupToken, onComplete, onError }: Set
         {status.status === 'in_progress' && (
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
-              This may take a minute. Please don't close this window.
+              {t('errors:setup.in_progress_note')}
             </p>
           </div>
         )}
@@ -245,7 +236,7 @@ export function SetupProgress({ tenantId, setupToken, onComplete, onError }: Set
         {status.status === 'completed' && (
           <div className="mt-6 text-center">
             <p className="text-sm text-green-600 font-medium">
-              Setup completed successfully! Redirecting...
+              {t('errors:setup.completed_note')}
             </p>
           </div>
         )}

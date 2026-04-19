@@ -1,1 +1,64 @@
-{}
+{
+  "companies": {
+    "list": {
+      "title": "الشركات",
+      "subtitle": "إدارة حسابات شركات B2B وشروط الدفع",
+      "all": "جميع الشركات",
+      "search_placeholder": "البحث عن شركات...",
+      "column": {
+        "company": "الشركة",
+        "contacts": "جهات الاتصال",
+        "payment_terms": "شروط الدفع",
+        "credit_limit": "حد الائتمان",
+        "balance": "الرصيد",
+        "actions": "الإجراءات"
+      },
+      "empty": {
+        "title": "لا توجد شركات",
+        "description": "أضف حسابات شركات B2B بشروط دفع مخصصة."
+      }
+    },
+    "form": {
+      "title_create": "إنشاء شركة",
+      "title_edit": "تعديل الشركة",
+      "field": {
+        "name": {
+          "label": "اسم الشركة",
+          "placeholder": "Acme Corp",
+          "error": {
+            "required": "اسم الشركة مطلوب"
+          }
+        },
+        "payment_terms": {
+          "label": "شروط الدفع"
+        },
+        "credit_limit": {
+          "label": "حد الائتمان",
+          "placeholder": "10000"
+        }
+      },
+      "payment_type": {
+        "net15": "صافي 15",
+        "net30": "صافي 30",
+        "net60": "صافي 60",
+        "net90": "صافي 90",
+        "due_on_receipt": "مستحق عند الاستلام"
+      }
+    },
+    "confirm": {
+      "delete_title": "حذف الشركة؟",
+      "delete_description": "سيؤدي هذا إلى حذف حساب شركة B2B وإلغاء ربط جهات الاتصال الخاصة بها."
+    },
+    "toast": {
+      "created": "تم إنشاء الشركة",
+      "updated": "تم تحديث الشركة",
+      "deleted": "تم حذف الشركة",
+      "load_failed": "فشل تحميل الشركات",
+      "save_failed": "فشل حفظ الشركة",
+      "delete_failed": "فشل حذف الشركة"
+    },
+    "action": {
+      "add_company": "إضافة شركة"
+    }
+  }
+}

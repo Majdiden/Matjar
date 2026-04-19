@@ -1,1 +1,30 @@
-{}
+{
+  "permission": {
+    "denied_title": "You don't have access to this page",
+    "denied_body": "Ask an admin to grant you the required permission ({{key}}).",
+    "denied_body_multiple": "Ask an admin to grant you the required permission (one of: {{keys}})."
+  },
+  "setup": {
+    "loading": "Loading setup status...",
+    "failed_title": "Setup Failed",
+    "setting_up_title": "Setting Up Your Store",
+    "store_ready": "Your store is ready!",
+    "setup_error": "Setup encountered an error",
+    "setup_waiting": "Please wait while we set up your store...",
+    "in_progress_note": "This may take a minute. Please don't close this window.",
+    "completed_note": "Setup completed successfully! Redirecting...",
+    "redirecting_in": "Redirecting in",
+    "step": {
+      "domain_registration_label": "Domain Registration",
+      "domain_registration_desc": "Setting up your store domain",
+      "theme_installation_label": "Theme Installation",
+      "theme_installation_desc": "Installing default theme",
+      "data_seeding_label": "Sample Data Seeding",
+      "data_seeding_desc": "Creating sample products and categories",
+      "finalization_label": "Finalization",
+      "finalization_desc": "Finalizing setup",
+      "skipped": "Skipped: {{reason}}",
+      "failed": "Failed: {{error}}"
+    }
+  }
+}

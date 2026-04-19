@@ -1,1 +1,55 @@
-{}
+{
+  "inventory": {
+    "list": {
+      "title": "المخزون",
+      "subtitle": "تتبع مستويات مخزون المنتجات وإدارتها",
+      "card_title_all": "جميع المخزون",
+      "card_title_low": "عناصر المخزون المنخفض",
+      "empty_no_low": "لا توجد عناصر بمخزون منخفض",
+      "empty_no_inventory": "لا توجد سجلات مخزون",
+      "search_placeholder": "ابحث باسم المنتج...",
+      "selected_count": "{{count}} محدد",
+      "filter": {
+        "all": "جميع العناصر",
+        "low": "المخزون المنخفض"
+      }
+    },
+    "column": {
+      "product": "المنتج",
+      "price": "السعر",
+      "stock": "المخزون",
+      "status": "الحالة",
+      "last_updated": "آخر تحديث",
+      "actions": "الإجراءات"
+    },
+    "stock_status": {
+      "in_stock": "متوفر",
+      "low_stock": "مخزون منخفض",
+      "out_of_stock": "غير متوفر"
+    },
+    "variant_count": "({{count}} متغيّر)",
+    "variant_count_plural": "({{count}} متغيّرات)",
+    "card_on_hand_label": "المتاح",
+    "card_price_label": "السعر",
+    "card_updated": "تحديث {{date}}",
+    "alert": {
+      "low_stock": "مخزون منخفض"
+    },
+    "action": {
+      "adjust": "تعديل",
+      "edit_variants": "تعديل المتغيّرات",
+      "export_csv": "تصدير CSV",
+      "no_export": "لا توجد عناصر للتصدير"
+    },
+    "adjust": {
+      "placeholder": "+/-"
+    },
+    "toast": {
+      "adjusted": "تم تعديل المخزون بمقدار {{delta}}",
+      "adjust_failed": "فشل تعديل المخزون",
+      "fetch_failed": "فشل تحميل المخزون",
+      "exported": "تم تصدير {{count}} عنصر",
+      "exported_plural": "تم تصدير {{count}} عناصر"
+    }
+  }
+}

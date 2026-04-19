@@ -1,1 +1,233 @@
-{}
+{
+  "staff": {
+    "list": {
+      "title": "Staff & Team",
+      "subtitle": "Manage team members and pending invitations.",
+      "tab_members": "Team members",
+      "tab_invites": "Pending invites",
+      "card_title": "Team members",
+      "card_description": "Admins, managers, and staff with dashboard access.",
+      "empty_title": "No staff members yet. Invite someone to get started.",
+      "empty_search": "No staff match your search.",
+      "search_placeholder": "Search by name or email...",
+      "selected_count": "{{count}} selected",
+      "bulk_export_csv": "Export CSV",
+      "bulk_remove": "Remove",
+      "bulk_clear": "Clear",
+      "column": {
+        "name": "Name",
+        "email": "Email",
+        "roles": "Roles",
+        "last_login": "Last login",
+        "status": "Status"
+      }
+    },
+    "invite": {
+      "title": "Invite a staff member",
+      "description": "An invitation link will be emailed to them. It expires in 7 days.",
+      "button": "Invite staff",
+      "field": {
+        "email": {
+          "label": "Email address",
+          "placeholder": "colleague@example.com"
+        },
+        "role": {
+          "label": "Role"
+        }
+      },
+      "send_button": "Send invitation",
+      "toast": {
+        "sent": "Invitation sent to {{email}}",
+        "resent": "Invitation resent to {{email}}",
+        "revoked": "Invitation revoked",
+        "send_failed": "Failed to send invitation",
+        "resend_failed": "Failed to resend invitation",
+        "revoke_failed": "Failed to revoke invitation",
+        "email_required": "Email is required"
+      },
+      "confirm_revoke": {
+        "title": "Revoke invitation?",
+        "description": "This will revoke the invitation sent to {{email}}. They will no longer be able to accept it.",
+        "confirm_text": "Revoke"
+      }
+    },
+    "invites": {
+      "card_title": "Pending invites",
+      "card_description": "Invitations that have been sent but not yet accepted.",
+      "empty": "No pending invitations.",
+      "column": {
+        "email": "Email",
+        "role": "Role",
+        "invited": "Invited",
+        "expires": "Expires"
+      },
+      "action": {
+        "resend": "Resend",
+        "revoke": "Revoke"
+      }
+    },
+    "member": {
+      "confirm_remove": {
+        "title": "Remove staff member?",
+        "description": "{{name}} will lose access to the dashboard. This action can be undone by re-inviting them.",
+        "confirm_text": "Remove"
+      },
+      "confirm_bulk_remove": {
+        "title": "Remove {{count}} staff member?",
+        "title_plural": "Remove {{count}} staff members?",
+        "description": "They will lose dashboard access immediately.",
+        "confirm_text": "Remove"
+      },
+      "toast": {
+        "removed": "{{name}} removed",
+        "remove_failed": "Failed to remove staff member",
+        "bulk_removed": "{{count}} removed",
+        "bulk_failed": "{{count}} failed",
+        "no_export": "No staff to export",
+        "exported": "Exported {{count}} staff",
+        "role_required": "At least one role is required",
+        "roles_updated": "Roles updated",
+        "roles_update_failed": "Failed to update roles"
+      },
+      "action": {
+        "edit_roles": "Edit roles",
+        "remove": "Remove"
+      }
+    },
+    "edit_roles": {
+      "title": "Edit roles — {{name}}",
+      "description": "Select one or more roles for this team member.",
+      "group_builtin": "Built-in roles",
+      "group_custom": "Custom roles"
+    },
+    "role": {
+      "list": {
+        "title": "Roles & Permissions",
+        "subtitle": "Built-in roles are read-only. Custom roles let you grant a tailored permission set — e.g. a Bookkeeper who can verify payments but not edit products.",
+        "column": {
+          "role": "Role",
+          "description": "Description",
+          "permissions": "Permissions",
+          "type": "Type"
+        },
+        "type_builtin": "Built-in",
+        "type_custom": "Custom",
+        "all_permissions": "All Permissions",
+        "permission_count": "{{count}} permissions",
+        "empty": "No roles found."
+      },
+      "form": {
+        "title_create": "Create Role",
+        "title_edit": "Edit Role",
+        "title_view": "{{name}} (built-in)",
+        "description_builtin": "Built-in roles are defined in code and cannot be modified.",
+        "description_edit": "Modify role permissions",
+        "description_create": "Define a new role with specific permissions",
+        "field": {
+          "name": {
+            "label": "Role Name",
+            "placeholder": "e.g., Bookkeeper"
+          },
+          "description": {
+            "label": "Description",
+            "placeholder": "What can this role do?"
+          },
+          "permissions": {
+            "label": "Permissions"
+          }
+        },
+        "wildcard_notice": "Wildcard — all permissions granted.",
+        "close_button": "Close",
+        "save_button": "Save Role",
+        "create_button": "Create Role"
+      },
+      "toast": {
+        "created": "Role created",
+        "updated": "Role updated",
+        "deleted": "Role deleted",
+        "save_failed": "Failed to save role",
+        "delete_failed": "Failed to delete role",
+        "name_required": "Role name is required",
+        "builtin_no_delete": "Built-in roles cannot be deleted",
+        "load_failed": "Failed to load roles"
+      },
+      "confirm_delete": {
+        "title": "Delete role \"{{name}}\"?",
+        "description": "Users with this role will lose the permissions it grants.",
+        "confirm_text": "Delete"
+      }
+    },
+    "permission": {
+      "group": {
+        "products": {
+          "label": "Products"
+        },
+        "orders": {
+          "label": "Orders"
+        },
+        "customers": {
+          "label": "Customers"
+        },
+        "settings": {
+          "label": "Settings"
+        },
+        "staff": {
+          "label": "Staff"
+        },
+        "analytics": {
+          "label": "Analytics"
+        },
+        "marketing": {
+          "label": "Marketing"
+        },
+        "themes": {
+          "label": "Themes"
+        },
+        "payments": {
+          "label": "Payments"
+        },
+        "inventory": {
+          "label": "Inventory"
+        }
+      }
+    },
+    "accept_invite": {
+      "verifying": "Verifying your invitation…",
+      "invalid_title": "Invitation not found",
+      "no_token": "No invitation token found in URL.",
+      "invalid_server": "Invalid invitation response from server.",
+      "expired_fallback": "This invitation is invalid or has expired.",
+      "go_to_login": "Go to login",
+      "success_title": "Account created!",
+      "success_redirect": "Redirecting you to the login page…",
+      "title": "Accept invitation",
+      "description": "You have been invited to join as",
+      "description_suffix": ". Create your account to get started.",
+      "field": {
+        "email": {
+          "label": "Email address"
+        },
+        "name": {
+          "label": "Full name",
+          "placeholder": "Jane Smith"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "At least 8 characters"
+        },
+        "confirm_password": {
+          "label": "Confirm password",
+          "placeholder": "Repeat your password"
+        }
+      },
+      "submit": "Create account",
+      "toast": {
+        "created": "Account created! Redirecting to login…",
+        "accept_failed": "Failed to accept invitation. Please try again.",
+        "name_required": "Name is required",
+        "password_short": "Password must be at least 8 characters",
+        "password_mismatch": "Passwords do not match"
+      }
+    }
+  }
+}

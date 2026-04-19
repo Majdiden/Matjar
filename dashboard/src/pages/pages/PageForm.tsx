@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -35,9 +36,6 @@ const DEFAULT_FORM: PageFormData = {
   isPublished: false,
 };
 
-// Keep the dashboard slugifier in lockstep with the backend regex in
-// services/page.js (normaliseSlug). Both collapse whitespace and non-
-// alphanumerics to single hyphens, lowercase, and strip edges.
 function slugify(s: string): string {
   return s
     .toLowerCase()
@@ -52,6 +50,7 @@ export const PageForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id && id !== 'new');
   const confirm = useConfirm();
+  const { t } = useTranslation(['pages', 'common']);
 
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -78,11 +77,9 @@ export const PageForm: React.FC = () => {
           locale: p.locale || 'en',
           isPublished: !!p.isPublished,
         });
-        // On edit, the slug is already set — don't auto-regenerate it
-        // from title changes and break live URLs.
         setSlugEdited(true);
       } catch {
-        toast.error('Failed to load page');
+        toast.error(t('pages:toast.error_load'));
       } finally {
         setLoading(false);
       }
@@ -104,7 +101,7 @@ export const PageForm: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!form.title.trim()) { toast.error('Title is required'); return; }
+    if (!form.title.trim()) { toast.error(t('pages:toast.title_required')); return; }
     try {
       setSaving(true);
       const payload = {
@@ -113,11 +110,11 @@ export const PageForm: React.FC = () => {
       };
       if (isEdit) {
         await api.pages.update(id!, payload);
-        toast.success('Page saved');
+        toast.success(t('pages:toast.saved'));
       } else {
         const res = (await api.pages.create(payload)) as { data?: { _id?: string } };
         const newId = res?.data?._id;
-        toast.success('Page created');
+        toast.success(t('pages:toast.created'));
         if (newId) {
           navigate(`/dashboard/pages/${newId}/edit`);
           return;
@@ -126,7 +123,7 @@ export const PageForm: React.FC = () => {
       navigate('/dashboard/pages');
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to save page');
+      toast.error(e?.message || t('pages:toast.error_save'));
     } finally {
       setSaving(false);
     }
@@ -134,19 +131,19 @@ export const PageForm: React.FC = () => {
 
   const handleDelete = async () => {
     if (!(await confirm({
-      title: 'Delete page?',
-      description: 'This action cannot be undone.',
-      confirmText: 'Delete',
+      title: t('pages:confirm.delete_title'),
+      description: t('pages:confirm.delete_description_generic'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       setDeleting(true);
       await api.pages.delete(id!);
-      toast.success('Page deleted');
+      toast.success(t('pages:toast.deleted'));
       navigate('/dashboard/pages');
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to delete page');
+      toast.error(e?.message || t('pages:toast.error_delete'));
     } finally {
       setDeleting(false);
     }
@@ -167,10 +164,10 @@ export const PageForm: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {isEdit ? 'Edit Page' : 'New Page'}
+            {isEdit ? t('pages:form.title_edit') : t('pages:form.title_new')}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Static content pages (About, Contact, Privacy…)
+            {t('pages:form.subtitle')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -180,43 +177,45 @@ export const PageForm: React.FC = () => {
             </Button>
           )}
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving…</> : <><Save className="h-4 w-4 mr-2" />Save</>}
+            {saving
+              ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
+              : <><Save className="h-4 w-4 mr-2" />{t('common:action.save')}</>}
           </Button>
         </div>
       </div>
 
       {/* Basic info */}
       <Card>
-        <CardHeader><CardTitle>Basic info</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('pages:form.section.basic_info.title')}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Title <span className="text-destructive">*</span></Label>
+            <Label>{t('pages:form.field.title.label')} <span className="text-destructive">*</span></Label>
             <Input
               value={form.title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              placeholder="e.g. About Us"
+              placeholder={t('pages:form.field.title.placeholder')}
             />
           </div>
           <div className="space-y-1">
-            <Label>Slug (URL path)</Label>
+            <Label>{t('pages:form.field.slug.label')}</Label>
             <Input
               value={form.slug}
               onChange={(e) => handleSlugChange(e.target.value)}
-              placeholder="about-us"
+              placeholder={t('pages:form.field.slug.placeholder')}
             />
             <p className="text-xs text-muted-foreground">
-              /pages/{form.slug || 'slug'}
+              {t('pages:form.field.slug.hint', { slug: form.slug || 'slug' })}
             </p>
           </div>
           <div className="space-y-1">
-            <Label>Locale</Label>
+            <Label>{t('pages:form.field.locale.label')}</Label>
             <Input
               value={form.locale}
               onChange={(e) => setField('locale', e.target.value.toLowerCase())}
-              placeholder="en"
+              placeholder={t('pages:form.field.locale.placeholder')}
             />
             <p className="text-xs text-muted-foreground">
-              The storefront language this page is written for (e.g. "en", "ar", "fr"). Create one page per locale.
+              {t('pages:form.field.locale.hint')}
             </p>
           </div>
         </CardContent>
@@ -224,30 +223,34 @@ export const PageForm: React.FC = () => {
 
       {/* Content */}
       <Card>
-        <CardHeader><CardTitle>Content</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('pages:form.section.content.title')}</CardTitle></CardHeader>
         <CardContent>
           <Textarea
             className="min-h-[320px] font-mono text-sm"
             value={form.content}
             onChange={(e) => setField('content', e.target.value)}
-            placeholder="<p>Page content as HTML…</p>"
+            placeholder={t('pages:form.field.content.placeholder')}
           />
           <p className="text-xs text-muted-foreground mt-2">
-            HTML body rendered by the storefront page template. Max 100KB.
+            {t('pages:form.field.content.hint')}
           </p>
         </CardContent>
       </Card>
 
       {/* Visibility */}
       <Card>
-        <CardHeader><CardTitle>Visibility</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('pages:form.section.visibility.title')}</CardTitle></CardHeader>
         <CardContent>
           <div className="flex items-center gap-3">
             <Switch
               checked={form.isPublished}
               onCheckedChange={(v) => setField('isPublished', v)}
             />
-            <Label>{form.isPublished ? 'Published' : 'Draft (hidden from storefront)'}</Label>
+            <Label>
+              {form.isPublished
+                ? t('pages:form.field.is_published.label_published')
+                : t('pages:form.field.is_published.label_draft')}
+            </Label>
           </div>
         </CardContent>
       </Card>
@@ -258,7 +261,7 @@ export const PageForm: React.FC = () => {
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer select-none">
               <div className="flex items-center justify-between">
-                <CardTitle>SEO</CardTitle>
+                <CardTitle>{t('pages:form.section.seo.title')}</CardTitle>
                 {seoOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </div>
             </CardHeader>
@@ -266,7 +269,7 @@ export const PageForm: React.FC = () => {
           <CollapsibleContent>
             <CardContent className="space-y-4">
               <div className="space-y-1">
-                <Label>Meta title</Label>
+                <Label>{t('pages:form.field.meta_title.label')}</Label>
                 <Input
                   value={form.metaTitle}
                   onChange={(e) => setField('metaTitle', e.target.value)}
@@ -274,12 +277,12 @@ export const PageForm: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Meta description</Label>
+                <Label>{t('pages:form.field.meta_description.label')}</Label>
                 <Textarea
                   className="min-h-20"
                   value={form.metaDescription}
                   onChange={(e) => setField('metaDescription', e.target.value)}
-                  placeholder="Brief description for search engines…"
+                  placeholder={t('pages:form.field.meta_description.placeholder')}
                 />
               </div>
             </CardContent>

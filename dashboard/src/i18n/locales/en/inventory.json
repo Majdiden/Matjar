@@ -1,1 +1,55 @@
-{}
+{
+  "inventory": {
+    "list": {
+      "title": "Inventory",
+      "subtitle": "Track and manage product stock levels",
+      "card_title_all": "All Inventory",
+      "card_title_low": "Low Stock Items",
+      "empty_no_low": "No low stock items",
+      "empty_no_inventory": "No inventory records",
+      "search_placeholder": "Search by product name...",
+      "selected_count": "{{count}} selected",
+      "filter": {
+        "all": "All Items",
+        "low": "Low Stock"
+      }
+    },
+    "column": {
+      "product": "Product",
+      "price": "Price",
+      "stock": "Stock",
+      "status": "Status",
+      "last_updated": "Last Updated",
+      "actions": "Actions"
+    },
+    "stock_status": {
+      "in_stock": "In Stock",
+      "low_stock": "Low Stock",
+      "out_of_stock": "Out of Stock"
+    },
+    "variant_count": "({{count}} variant)",
+    "variant_count_plural": "({{count}} variants)",
+    "card_on_hand_label": "On hand",
+    "card_price_label": "Price",
+    "card_updated": "Updated {{date}}",
+    "alert": {
+      "low_stock": "Low stock"
+    },
+    "action": {
+      "adjust": "Adjust",
+      "edit_variants": "Edit variants",
+      "export_csv": "Export CSV",
+      "no_export": "No items to export"
+    },
+    "adjust": {
+      "placeholder": "+/-"
+    },
+    "toast": {
+      "adjusted": "Stock adjusted by {{delta}}",
+      "adjust_failed": "Failed to adjust stock",
+      "fetch_failed": "Failed to fetch inventory",
+      "exported": "Exported {{count}} item",
+      "exported_plural": "Exported {{count}} items"
+    }
+  }
+}

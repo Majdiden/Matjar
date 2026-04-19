@@ -1,1 +1,126 @@
-{}
+{
+  "list": {
+    "title": "التنقل",
+    "subtitle": "إدارة قوائم الترويسة والتذييل والجوّال",
+    "column": {
+      "title": "العنوان",
+      "handle": "المعرّف",
+      "location": "الموقع",
+      "items": "العناصر",
+      "active": "نشط",
+      "updated": "تاريخ التعديل"
+    },
+    "empty": {
+      "title": "لا توجد قوائم بعد",
+      "hint": "أنشئ قوائم تنقل لترويسة متجرك وتذييله وتنقل الجوّال.",
+      "action": "إنشاء أول قائمة"
+    },
+    "action": {
+      "add": "إضافة قائمة"
+    },
+    "toast": {
+      "activated": "تم تفعيل القائمة",
+      "deactivated": "تم تعطيل القائمة",
+      "deleted": "تم حذف القائمة",
+      "error_toggle": "فشل تغيير حالة القائمة",
+      "error_delete": "فشل حذف القائمة"
+    },
+    "confirm": {
+      "delete_title": "حذف القائمة؟",
+      "delete_description": "سيتم حذف «{{title}}» بشكل دائم.",
+      "delete_confirm": "حذف"
+    }
+  },
+  "form": {
+    "title_new": "قائمة جديدة",
+    "title_edit": "تعديل: {{title}}",
+    "subtitle": "إعداد عناصر التنقل وبنيتها",
+    "section": {
+      "settings": {
+        "title": "الإعدادات"
+      },
+      "items": {
+        "title": "عناصر القائمة"
+      },
+      "preview": {
+        "title": "معاينة"
+      }
+    },
+    "field": {
+      "title": {
+        "label": "العنوان",
+        "placeholder": "مثال: القائمة الرئيسية"
+      },
+      "handle": {
+        "label": "المعرّف",
+        "placeholder": "القائمة-الرئيسية",
+        "hint": "يُستخدم في API: /storefront/menus/{{handle}}"
+      },
+      "location": {
+        "label": "الموقع",
+        "option": {
+          "header": "الترويسة",
+          "footer": "التذييل",
+          "mobile": "الجوّال",
+          "custom": "مخصص"
+        }
+      },
+      "is_active": {
+        "label": "نشط"
+      }
+    },
+    "items": {
+      "empty": "لا توجد عناصر بعد. انقر «إضافة عنصر» لبدء بناء قائمتك.",
+      "add": "إضافة عنصر",
+      "add_top_level": "إضافة عنصر رئيسي",
+      "label_placeholder": "التسمية",
+      "target": {
+        "same_tab": "نفس التبويب",
+        "new_tab": "تبويب جديد"
+      },
+      "action": {
+        "move_up": "نقل لأعلى",
+        "move_down": "نقل لأسفل",
+        "indent": "إزاحة (جعله فرعيًا)",
+        "outdent": "رفع المستوى",
+        "add_child": "إضافة فرعي",
+        "delete": "حذف"
+      }
+    },
+    "preview": {
+      "empty": "أضف عناصر لرؤية المعاينة.",
+      "untitled": "بلا عنوان"
+    },
+    "resource_picker": {
+      "loading": "جاري التحميل…",
+      "placeholder_collection": "اختر مجموعة",
+      "placeholder_product": "اختر منتجًا",
+      "placeholder_category": "اختر فئة",
+      "placeholder_page": "اختر صفحة"
+    },
+    "toast": {
+      "created": "تم إنشاء القائمة",
+      "saved": "تم حفظ القائمة",
+      "deleted": "تم حذف القائمة",
+      "error_load": "فشل تحميل القائمة",
+      "error_save": "فشل حفظ القائمة",
+      "error_delete": "فشل الحذف",
+      "title_required": "العنوان مطلوب"
+    },
+    "confirm": {
+      "delete_title": "حذف القائمة؟",
+      "delete_description": "سيتم حذف «{{title}}» بشكل دائم.",
+      "delete_confirm": "حذف"
+    }
+  },
+  "item": {
+    "type": {
+      "link": "رابط",
+      "external": "رابط خارجي",
+      "collection": "مجموعة",
+      "product": "منتج",
+      "category": "فئة",
+      "page": "صفحة"
+    }
+  }
+}

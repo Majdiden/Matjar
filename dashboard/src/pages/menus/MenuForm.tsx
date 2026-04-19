@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -152,6 +153,7 @@ interface ResourcePickerProps {
 }
 
 const ResourcePicker: React.FC<ResourcePickerProps> = ({ type, value, onChange }) => {
+  const { t } = useTranslation(['menus']);
   const [options, setOptions] = useState<ResourceOption[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -184,7 +186,7 @@ const ResourcePicker: React.FC<ResourcePickerProps> = ({ type, value, onChange }
   return (
     <Select value={value} onValueChange={onChange} disabled={loading}>
       <SelectTrigger className="h-8 text-sm">
-        <SelectValue placeholder={loading ? 'Loading…' : `Select ${type}`} />
+        <SelectValue placeholder={loading ? t('menus:form.resource_picker.loading') : t(`menus:form.resource_picker.placeholder_${type}` as const)} />
       </SelectTrigger>
       <SelectContent>
         {options.map(opt => (
@@ -214,6 +216,7 @@ interface ItemRowProps {
 const ItemRow: React.FC<ItemRowProps> = ({
   flat, index, onChange, onMoveUp, onMoveDown, onIndent, onOutdent, onDelete, onAddChild,
 }) => {
+  const { t } = useTranslation(['menus']);
   const item = flat[index];
   const [expanded, setExpanded] = useState(true);
   const hasChildren = item.children && item.children.length > 0;
@@ -254,32 +257,32 @@ const ItemRow: React.FC<ItemRowProps> = ({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="_self" className="text-xs">Same tab</SelectItem>
+            <SelectItem value="_self" className="text-xs">{t('menus:form.items.target.same_tab')}</SelectItem>
             <SelectItem value="_blank" className="text-xs">
-              <span className="flex items-center gap-1"><ExternalLink className="h-3 w-3" />New tab</span>
+              <span className="flex items-center gap-1"><ExternalLink className="h-3 w-3" />{t('menus:form.items.target.new_tab')}</span>
             </SelectItem>
           </SelectContent>
         </Select>
         {/* Actions */}
         <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Move up" onClick={() => onMoveUp(index)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.move_up')} onClick={() => onMoveUp(index)}>
             <ArrowUp className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Move down" onClick={() => onMoveDown(index)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.move_down')} onClick={() => onMoveDown(index)}>
             <ArrowDown className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Indent (make child)" onClick={() => onIndent(index)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.indent')} onClick={() => onIndent(index)}>
             <Indent className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Outdent (promote)" onClick={() => onOutdent(index)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.outdent')} onClick={() => onOutdent(index)}>
             <Outdent className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Add child" onClick={() => onAddChild(index)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.add_child')} onClick={() => onAddChild(index)}>
             <Plus className="h-3.5 w-3.5" />
           </Button>
           <Button
             variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
-            title="Delete" onClick={() => onDelete(index)}
+            title={t('menus:form.items.action.delete')} onClick={() => onDelete(index)}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -309,13 +312,14 @@ const ItemRow: React.FC<ItemRowProps> = ({
 // ── Preview panel ────────────────────────────────────────────────────────────
 
 const PreviewTree: React.FC<{ items: MenuItem[]; depth?: number }> = ({ items, depth = 0 }) => {
+  const { t } = useTranslation(['menus']);
   if (!items || items.length === 0) return null;
   return (
     <ul className={depth === 0 ? 'space-y-1' : 'ml-4 mt-1 space-y-0.5 border-l pl-3'}>
       {items.map((item, i) => (
         <li key={i}>
           <div className="flex items-center gap-1 text-sm py-0.5">
-            <span className={item.children?.length ? 'font-medium' : ''}>{item.label || <em className="text-muted-foreground">untitled</em>}</span>
+            <span className={item.children?.length ? 'font-medium' : ''}>{item.label || <em className="text-muted-foreground">{t('menus:form.preview.untitled')}</em>}</span>
             {item.target === '_blank' && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
             <span className="text-xs text-muted-foreground ml-auto">{item.url || item.resourceId || item.type}</span>
           </div>
@@ -334,6 +338,7 @@ export const MenuForm: React.FC = () => {
   const confirm = useConfirm();
   const isNew = !id || id === 'new';
 
+  const { t } = useTranslation(['menus', 'common']);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
 
@@ -359,7 +364,7 @@ export const MenuForm: React.FC = () => {
         setIsActive(m.isActive ?? true);
         setFlatItems(flatten(m.items || []));
       })
-      .catch(() => toast.error('Failed to load menu'))
+      .catch(() => toast.error(t('menus:form.toast.error_load')))
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
@@ -481,7 +486,7 @@ export const MenuForm: React.FC = () => {
   // ── Save / delete ──────────────────────────────────────────────────────
 
   const handleSave = async () => {
-    if (!title.trim()) { toast.error('Title is required'); return; }
+    if (!title.trim()) { toast.error(t('menus:form.toast.title_required')); return; }
     setSaving(true);
     const payload = {
       title: title.trim(),
@@ -493,14 +498,14 @@ export const MenuForm: React.FC = () => {
     try {
       if (isNew) {
         await api.post('/menus', payload);
-        toast.success('Menu created');
+        toast.success(t('menus:form.toast.created'));
       } else {
         await api.put(`/menus/${id}`, payload);
-        toast.success('Menu saved');
+        toast.success(t('menus:form.toast.saved'));
       }
       navigate('/dashboard/menus');
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to save menu'));
+      toast.error(errMsg(err, t('menus:form.toast.error_save')));
     } finally {
       setSaving(false);
     }
@@ -508,17 +513,17 @@ export const MenuForm: React.FC = () => {
 
   const handleDelete = async () => {
     if (!(await confirm({
-      title: 'Delete menu?',
-      description: `"${title}" will be permanently removed.`,
-      confirmText: 'Delete',
+      title: t('menus:form.confirm.delete_title'),
+      description: t('menus:form.confirm.delete_description', { title }),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       await api.delete(`/menus/${id}`);
-      toast.success('Menu deleted');
+      toast.success(t('menus:form.toast.deleted'));
       navigate('/dashboard/menus');
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to delete'));
+      toast.error(errMsg(err, t('menus:form.toast.error_delete')));
     }
   };
 
@@ -539,20 +544,20 @@ export const MenuForm: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {isNew ? 'New Menu' : `Edit: ${title}`}
+            {isNew ? t('menus:form.title_new') : t('menus:form.title_edit', { title })}
           </h1>
-          <p className="text-muted-foreground">Configure navigation items and structure</p>
+          <p className="text-muted-foreground">{t('menus:form.subtitle')}</p>
         </div>
         <div className="flex gap-2">
           {!isNew && (
             <Button variant="destructive" onClick={handleDelete} disabled={saving}>
-              <Trash2 className="h-4 w-4 mr-2" />Delete
+              <Trash2 className="h-4 w-4 mr-2" />{t('common:action.delete')}
             </Button>
           )}
           <Button onClick={handleSave} disabled={saving}>
             {saving
-              ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving…</>
-              : <><Save className="h-4 w-4 mr-2" />Save</>}
+              ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
+              : <><Save className="h-4 w-4 mr-2" />{t('common:action.save')}</>}
           </Button>
         </div>
       </div>
@@ -562,44 +567,44 @@ export const MenuForm: React.FC = () => {
         <div className="xl:col-span-2 space-y-6">
           {/* Basic settings */}
           <Card>
-            <CardHeader><CardTitle>Settings</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('menus:form.section.settings.title')}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
-                <Label>Title</Label>
+                <Label>{t('menus:form.field.title.label')}</Label>
                 <Input
-                  placeholder="e.g. Main Menu"
+                  placeholder={t('menus:form.field.title.placeholder')}
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Handle</Label>
+                <Label>{t('menus:form.field.handle.label')}</Label>
                 <Input
-                  placeholder="main-menu"
+                  placeholder={t('menus:form.field.handle.placeholder')}
                   value={handle}
                   onChange={e => { setHandleTouched(true); setHandle(e.target.value); }}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Used in API: <code className="bg-muted px-1 rounded">/storefront/menus/{handle || 'handle'}</code>
+                  {t('menus:form.field.handle.hint', { handle: handle || 'handle' })}
                 </p>
               </div>
               <div className="space-y-1.5">
-                <Label>Location</Label>
+                <Label>{t('menus:form.field.location.label')}</Label>
                 <Select value={location} onValueChange={setLocation}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="header">Header</SelectItem>
-                    <SelectItem value="footer">Footer</SelectItem>
-                    <SelectItem value="mobile">Mobile</SelectItem>
-                    <SelectItem value="custom">Custom</SelectItem>
+                    <SelectItem value="header">{t('menus:form.field.location.option.header')}</SelectItem>
+                    <SelectItem value="footer">{t('menus:form.field.location.option.footer')}</SelectItem>
+                    <SelectItem value="mobile">{t('menus:form.field.location.option.mobile')}</SelectItem>
+                    <SelectItem value="custom">{t('menus:form.field.location.option.custom')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex items-center gap-3">
                 <Switch checked={isActive} onCheckedChange={setIsActive} />
-                <Label>Active</Label>
+                <Label>{t('menus:form.field.is_active.label')}</Label>
               </div>
             </CardContent>
           </Card>
@@ -608,9 +613,9 @@ export const MenuForm: React.FC = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Menu Items</CardTitle>
+                <CardTitle>{t('menus:form.section.items.title')}</CardTitle>
                 <Button size="sm" variant="outline" onClick={addTopLevel}>
-                  <Plus className="h-4 w-4 mr-1" />Add item
+                  <Plus className="h-4 w-4 mr-1" />{t('menus:form.items.add')}
                 </Button>
               </div>
             </CardHeader>
@@ -618,7 +623,7 @@ export const MenuForm: React.FC = () => {
               {flatItems.length === 0 ? (
                 <div className="text-center py-10 text-muted-foreground">
                   <NavigationIcon className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                  <p className="text-sm">No items yet. Click "Add item" to start building your menu.</p>
+                  <p className="text-sm">{t('menus:form.items.empty')}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -637,7 +642,7 @@ export const MenuForm: React.FC = () => {
                     />
                   ))}
                   <Button variant="outline" size="sm" className="w-full mt-2" onClick={addTopLevel}>
-                    <Plus className="h-4 w-4 mr-1" />Add top-level item
+                    <Plus className="h-4 w-4 mr-1" />{t('menus:form.items.add_top_level')}
                   </Button>
                 </div>
               )}
@@ -648,10 +653,10 @@ export const MenuForm: React.FC = () => {
         {/* Right: preview */}
         <div>
           <Card className="sticky top-6">
-            <CardHeader><CardTitle>Preview</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('menus:form.section.preview.title')}</CardTitle></CardHeader>
             <CardContent>
               {nested.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Add items to see a preview.</p>
+                <p className="text-sm text-muted-foreground">{t('menus:form.preview.empty')}</p>
               ) : (
                 <PreviewTree items={nested} />
               )}

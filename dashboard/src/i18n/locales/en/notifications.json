@@ -1,1 +1,33 @@
-{}
+{
+  "notifications": {
+    "list": {
+      "title": "Notifications",
+      "subtitle": "Review store activity, alerts, and follow-up items.",
+      "card_title": "All notifications",
+      "empty": "No notifications yet",
+      "empty_description": "New order, payment, return, stock, domain, and staff updates will appear here."
+    },
+    "badge": {
+      "unread": "Unread",
+      "unread_count": "{{count}} unread"
+    },
+    "action": {
+      "mark_read": "Mark read",
+      "mark_all_read": "Mark all read",
+      "dismiss": "Dismiss notification",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing...",
+      "load_more": "Load older notifications",
+      "loading_more": "Loading...",
+      "click_to_open": "Click to open"
+    },
+    "filter": {
+      "all": "All",
+      "unread": "Unread",
+      "order": "Orders",
+      "payment": "Payments",
+      "stock": "Stock",
+      "staff": "Staff"
+    }
+  }
+}

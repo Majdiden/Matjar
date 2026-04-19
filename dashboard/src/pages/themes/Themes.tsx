@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -46,6 +47,7 @@ function errorMessage(err: unknown, fallback: string): string {
 
 export const Themes: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation(['themes', 'common']);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [activeTheme, setActiveTheme] = useState<Theme | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +67,7 @@ export const Themes: React.FC = () => {
       setThemes(response.data?.themes || []);
       setActiveTheme(response.data?.currentTheme || null);
     } catch (err: unknown) {
-      toast.error(errorMessage(err, 'Failed to load themes'));
+      toast.error(errorMessage(err, t('themes:list.toast.error_load')));
     } finally {
       setLoading(false);
     }
@@ -73,17 +75,17 @@ export const Themes: React.FC = () => {
 
   const handleInstall = async (themeId: string) => {
     if (!(await confirm({
-      title: 'Activate this theme?',
-      description: 'Your current theme will be replaced. Customizations are preserved per-theme.',
-      confirmText: 'Activate',
+      title: t('themes:list.confirm.activate_title'),
+      description: t('themes:list.confirm.activate_description'),
+      confirmText: t('themes:list.confirm.activate_confirm'),
     }))) return;
     try {
       setActionLoading(themeId);
       await api.themes.install(themeId);
-      toast.success('Theme activated');
+      toast.success(t('themes:list.toast.activated'));
       await loadThemes();
     } catch (err: unknown) {
-      toast.error(errorMessage(err, 'Failed to install theme'));
+      toast.error(errorMessage(err, t('themes:list.toast.error_install')));
     } finally {
       setActionLoading('');
     }
@@ -91,18 +93,18 @@ export const Themes: React.FC = () => {
 
   const handleUninstall = async (themeId: string) => {
     if (!(await confirm({
-      title: 'Uninstall this theme?',
-      description: 'Removes the theme from your installed list. You can reinstall it later.',
-      confirmText: 'Uninstall',
+      title: t('themes:list.confirm.uninstall_title'),
+      description: t('themes:list.confirm.uninstall_description'),
+      confirmText: t('themes:list.confirm.uninstall_confirm'),
       variant: 'destructive',
     }))) return;
     try {
       setActionLoading(themeId);
       await api.themes.uninstall(themeId);
-      toast.success('Theme uninstalled');
+      toast.success(t('themes:list.toast.uninstalled'));
       await loadThemes();
     } catch (err: unknown) {
-      toast.error(errorMessage(err, 'Failed to uninstall theme'));
+      toast.error(errorMessage(err, t('themes:list.toast.error_uninstall')));
     } finally {
       setActionLoading('');
     }
@@ -147,15 +149,15 @@ export const Themes: React.FC = () => {
       {/* Page header */}
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Themes</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('themes:list.title')}</h1>
           <p className="text-muted-foreground mt-1">
-            Choose a theme to design your storefront, or customize the one you have.
+            {t('themes:list.subtitle')}
           </p>
         </div>
         <Button variant="outline" asChild>
           <a href="/" target="_blank" rel="noreferrer">
             <ExternalLink className="h-4 w-4 mr-2" />
-            View live store
+            {t('themes:list.view_live_store')}
           </a>
         </Button>
       </div>
@@ -181,7 +183,7 @@ export const Themes: React.FC = () => {
               <div className="absolute top-3 left-3">
                 <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white border-0 shadow-lg">
                   <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Live
+                  {t('themes:list.badge.live')}
                 </Badge>
               </div>
             </div>
@@ -190,7 +192,7 @@ export const Themes: React.FC = () => {
             <div className="flex flex-col justify-center">
               <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-3">
                 <Sparkles className="h-3.5 w-3.5" />
-                Current theme
+                {t('themes:list.current_theme_label')}
               </div>
               <h2 className="text-3xl font-bold tracking-tight mb-2">{activeTheme.name}</h2>
               <p className="text-muted-foreground mb-5 line-clamp-3">
@@ -200,13 +202,13 @@ export const Themes: React.FC = () => {
               <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-6">
                 <div>
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                    Version
+                    {t('themes:list.meta.version')}
                   </div>
                   <div className="font-medium">v{activeTheme.version}</div>
                 </div>
                 <div>
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                    Author
+                    {t('themes:list.meta.author')}
                   </div>
                   <div className="font-medium truncate">{activeTheme.author.name}</div>
                 </div>
@@ -214,7 +216,7 @@ export const Themes: React.FC = () => {
                   <>
                     <div>
                       <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                        Rating
+                        {t('themes:list.meta.rating')}
                       </div>
                       <div className="font-medium flex items-center gap-1">
                         <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
@@ -226,7 +228,7 @@ export const Themes: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                        Installs
+                        {t('themes:list.meta.installs')}
                       </div>
                       <div className="font-medium">
                         {activeTheme.statistics.installCount.toLocaleString()}
@@ -253,12 +255,12 @@ export const Themes: React.FC = () => {
                   className="shadow-lg shadow-primary/20"
                 >
                   <Palette className="h-4 w-4 mr-2" />
-                  Customize
+                  {t('themes:list.action.customize')}
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <a href="/" target="_blank" rel="noreferrer">
                     <Eye className="h-4 w-4 mr-2" />
-                    Preview
+                    {t('themes:list.action.preview')}
                   </a>
                 </Button>
               </div>
@@ -271,9 +273,9 @@ export const Themes: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight">Theme library</h2>
+            <h2 className="text-2xl font-semibold tracking-tight">{t('themes:list.library.title')}</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {filteredThemes.length} {filteredThemes.length === 1 ? 'theme' : 'themes'} available
+              {t('themes:list.library.count', { count: filteredThemes.length })}
             </p>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -282,7 +284,7 @@ export const Themes: React.FC = () => {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search themes..."
+                placeholder={t('themes:list.search_placeholder')}
                 className="pl-9"
               />
             </div>
@@ -301,7 +303,7 @@ export const Themes: React.FC = () => {
                   : 'bg-background hover:bg-muted border-border'
               }`}
             >
-              {f === 'all' ? 'All themes' : f === 'popular' ? 'Most popular' : 'Free'}
+              {t(`themes:list.filter.${f}`)}
             </button>
           ))}
         </div>
@@ -312,9 +314,9 @@ export const Themes: React.FC = () => {
         <Card>
           <CardContent className="p-16 text-center">
             <Palette className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-1">No themes found</h3>
+            <h3 className="text-lg font-semibold mb-1">{t('themes:list.empty.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              {search ? 'Try a different search term.' : 'Check back later for new themes.'}
+              {search ? t('themes:list.empty.hint_search') : t('themes:list.empty.hint_empty')}
             </p>
           </CardContent>
         </Card>
@@ -350,7 +352,7 @@ export const Themes: React.FC = () => {
                     <div className="absolute top-3 left-3">
                       <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white border-0 shadow">
                         <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Active
+                        {t('themes:list.badge.active')}
                       </Badge>
                     </div>
                   )}
@@ -364,7 +366,7 @@ export const Themes: React.FC = () => {
                         onClick={() => navigate('/dashboard/themes/editor')}
                       >
                         <Palette className="h-4 w-4 mr-1.5" />
-                        Customize
+                        {t('themes:list.action.customize')}
                       </Button>
                     ) : (
                       <Button
@@ -378,7 +380,7 @@ export const Themes: React.FC = () => {
                         ) : (
                           <Download className="h-4 w-4 mr-1.5" />
                         )}
-                        Activate
+                        {t('themes:list.action.activate')}
                       </Button>
                     )}
                   </div>
@@ -427,7 +429,7 @@ export const Themes: React.FC = () => {
                         onClick={() => navigate('/dashboard/themes/editor')}
                       >
                         <Palette className="h-4 w-4 mr-1.5" />
-                        Customize
+                        {t('themes:list.action.customize')}
                       </Button>
                     ) : (
                       <>
@@ -442,7 +444,7 @@ export const Themes: React.FC = () => {
                           ) : (
                             <Download className="h-4 w-4 mr-1.5" />
                           )}
-                          Activate
+                          {t('themes:list.action.activate')}
                         </Button>
                         <Button
                           size="sm"

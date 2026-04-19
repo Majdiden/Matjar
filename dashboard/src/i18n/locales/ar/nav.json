@@ -1,1 +1,87 @@
-{}
+{
+  "sidebar": {
+    "home": {
+      "title": "الرئيسية",
+      "dashboard": "لوحة التحكم",
+      "analytics": "التحليلات",
+      "notifications": "الإشعارات"
+    },
+    "orders": {
+      "title": "الطلبات",
+      "orders": "الطلبات",
+      "all_orders": "جميع الطلبات",
+      "fulfillments": "عمليات التنفيذ",
+      "payments": "المدفوعات",
+      "transactions": "المعاملات",
+      "payment_methods": "طرق الدفع"
+    },
+    "catalog": {
+      "title": "الكتالوج",
+      "products": "المنتجات",
+      "all_products": "جميع المنتجات",
+      "categories": "الفئات",
+      "collections": "المجموعات",
+      "inventory": "المخزون"
+    },
+    "customers": {
+      "title": "العملاء",
+      "customers": "العملاء",
+      "all_customers": "جميع العملاء",
+      "segments": "شرائح العملاء",
+      "reviews": "المراجعات"
+    },
+    "marketing": {
+      "title": "التسويق",
+      "discounts": "الخصومات",
+      "gift_cards": "بطاقات الهدايا"
+    },
+    "storefront": {
+      "title": "واجهة المتجر",
+      "themes": "القوالب",
+      "theme_library": "مكتبة القوالب",
+      "visual_editor": "المحرر المرئي",
+      "navigation": "التنقل",
+      "pages": "الصفحات",
+      "domains": "النطاقات"
+    },
+    "settings": {
+      "title": "الإعدادات",
+      "settings": "الإعدادات",
+      "subscription": "الاشتراك",
+      "custom_fields": "الحقول المخصصة",
+      "webhooks": "خطّافات الويب"
+    },
+    "team_security": {
+      "title": "الفريق والأمان",
+      "staff": "الموظفون",
+      "permissions": "الصلاحيات",
+      "audit_logs": "سجلات التدقيق"
+    }
+  },
+  "breadcrumb": {
+    "dashboard": "لوحة التحكم",
+    "new": "جديد",
+    "edit": "تعديل"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات بعد.",
+    "mark_all_read": "تحديد الكل كمقروء",
+    "view_all": "عرض جميع الإشعارات",
+    "settings_title": "إعدادات الإشعارات"
+  },
+  "user_menu": {
+    "settings": "الإعدادات",
+    "log_out": "تسجيل الخروج"
+  },
+  "toggle_menu": "تبديل القائمة",
+  "browser_notifications": {
+    "prompt_title": "تفعيل إشعارات المتصفح؟",
+    "prompt_description": "احصل على تنبيه من نظام التشغيل عند ورود طلب جديد.",
+    "enable": "تفعيل",
+    "not_now": "ليس الآن",
+    "enabled_success": "تم تفعيل إشعارات المتصفح",
+    "native_title": "تم تفعيل الإشعارات",
+    "native_body": "ستُبلَّغ هنا عند ورود طلب جديد."
+  }
+}

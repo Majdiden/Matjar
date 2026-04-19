@@ -1,1 +1,56 @@
-{}
+{
+  "subscriptions": {
+    "list": {
+      "title": "الاشتراك والخطط",
+      "subtitle": "إدارة اشتراكك ومراقبة حدود الاستخدام",
+      "current_plan_title": "الخطة الحالية: {{name}}",
+      "renews": "يتجدد في {{date}}",
+      "trial": "تجريبي",
+      "trial_ends": "تنتهي الفترة التجريبية في {{date}}",
+      "active_subscription": "اشتراك نشط",
+      "available_plans": "الخطط المتاحة",
+      "column": {
+        "products": "المنتجات",
+        "orders": "الطلبات",
+        "storage": "التخزين",
+        "team": "الفريق"
+      }
+    },
+    "plan": {
+      "free": { "label": "مجاني" },
+      "starter": { "label": "مبتدئ" },
+      "pro": { "label": "احترافي" },
+      "enterprise": { "label": "مؤسسي" }
+    },
+    "status": {
+      "active": "نشط",
+      "trial": "تجريبي",
+      "past_due": "متأخر السداد",
+      "cancelled": "ملغى",
+      "expired": "منتهي"
+    },
+    "badge": {
+      "recommended": "موصى به"
+    },
+    "limit": {
+      "unlimited": "غير محدود"
+    },
+    "action": {
+      "upgrade": "ترقية",
+      "switch": "تغيير",
+      "current": "الخطة الحالية",
+      "confirm_change": "تأكيد التغيير"
+    },
+    "upgrade_dialog": {
+      "title_upgrade": "الترقية إلى {{name}}",
+      "title_switch": "التحويل إلى {{name}}",
+      "description": "ستتغير خطتك فوراً. سيتم احتساب الفوترة بالتناسب.",
+      "new_price": "السعر الشهري الجديد",
+      "access_notice": "ستحصل على وصول فوري لجميع مزايا خطة {{name}}."
+    },
+    "toast": {
+      "upgraded": "تمت الترقية إلى خطة {{name}}!",
+      "upgrade_failed": "فشل ترقية الخطة"
+    }
+  }
+}

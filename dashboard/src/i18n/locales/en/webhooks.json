@@ -1,1 +1,94 @@
-{}
+{
+  "webhooks": {
+    "list": {
+      "title": "Webhooks",
+      "subtitle": "Configure event notifications to external services",
+      "empty_title": "No webhooks configured",
+      "empty_description": "Set up webhooks to receive real-time notifications when events happen in your store",
+      "add_first": "Add Your First Webhook",
+      "column": {
+        "endpoint": "Endpoint",
+        "events": "Events",
+        "last_delivery": "Last Delivery",
+        "status": "Status"
+      }
+    },
+    "delivery": {
+      "never": "Never",
+      "status": {
+        "success": "Success",
+        "failed": "Failed"
+      }
+    },
+    "form": {
+      "title_create": "Create Webhook",
+      "title_edit": "Edit Webhook",
+      "description": "Configure an endpoint to receive event notifications",
+      "field": {
+        "url": {
+          "label": "Endpoint URL",
+          "placeholder": "https://example.com/webhooks"
+        },
+        "description": {
+          "label": "Description (optional)",
+          "placeholder": "What does this webhook do?"
+        },
+        "enabled": {
+          "label": "Enabled"
+        },
+        "events": {
+          "label": "Events ({{count}} selected)"
+        }
+      },
+      "select_all": "Select all",
+      "deselect_all": "Deselect all"
+    },
+    "action": {
+      "add": "Add Webhook",
+      "edit": "Edit",
+      "send_test": "Send Test",
+      "copy_secret": "Copy Secret",
+      "delete": "Delete",
+      "save": "Save"
+    },
+    "toast": {
+      "created": "Webhook created",
+      "updated": "Webhook updated",
+      "deleted": "Webhook deleted",
+      "enabled": "Webhook enabled",
+      "disabled": "Webhook disabled",
+      "test_sent": "Test event sent",
+      "secret_copied": "Secret copied",
+      "save_failed": "Failed to save webhook",
+      "delete_failed": "Failed to delete webhook",
+      "toggle_failed": "Failed to toggle webhook",
+      "test_failed": "Test failed",
+      "url_required": "URL is required",
+      "event_required": "Select at least one event"
+    },
+    "confirm_delete": {
+      "title": "Delete webhook?",
+      "description": "The endpoint {{url}} will stop receiving events.",
+      "confirm_text": "Delete"
+    },
+    "event": {
+      "order_created": { "label": "Order created" },
+      "order_updated": { "label": "Order updated" },
+      "order_cancelled": { "label": "Order cancelled" },
+      "order_fulfilled": { "label": "Order fulfilled" },
+      "order_refunded": { "label": "Order refunded" },
+      "product_created": { "label": "Product created" },
+      "product_updated": { "label": "Product updated" },
+      "product_deleted": { "label": "Product deleted" },
+      "customer_created": { "label": "Customer created" },
+      "customer_updated": { "label": "Customer updated" },
+      "inventory_low_stock": { "label": "Inventory low stock" },
+      "inventory_updated": { "label": "Inventory updated" },
+      "payment_succeeded": { "label": "Payment succeeded" },
+      "payment_failed": { "label": "Payment failed" },
+      "payment_refunded": { "label": "Payment refunded" },
+      "theme_published": { "label": "Theme published" },
+      "theme_installed": { "label": "Theme installed" }
+    }
+  }
+}

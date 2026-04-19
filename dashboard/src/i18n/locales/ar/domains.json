@@ -1,1 +1,170 @@
-{}
+{
+  "list": {
+    "title": "النطاقات",
+    "subtitle": "عناوين الويب التي يستخدمها الزوار للوصول إلى متجرك.",
+    "hero": {
+      "live_at": "متجرك مباشر على",
+      "copy": "نسخ",
+      "visit": "زيارة المتجر"
+    },
+    "platform": {
+      "title": "عنوان المنصة المجاني",
+      "badge_main": "العنوان الرئيسي",
+      "description": "متاح دائمًا. لا يحتاج إلى إعداد DNS. مجاني للأبد.",
+      "rename": "إعادة تسمية",
+      "copy_aria": "نسخ العنوان",
+      "visit_aria": "زيارة المتجر",
+      "not_primary": "ليس عنوانك الرئيسي حاليًا.",
+      "use_as_main": "استخدام كعنوان رئيسي"
+    },
+    "custom": {
+      "section_title": "نطاقاتك المخصصة",
+      "section_hint": "اربط نطاقًا تمتلكه — سنتولى شهادة الأمان تلقائيًا.",
+      "add_another": "إضافة آخر",
+      "main_address_badge": "العنوان الرئيسي",
+      "use_as_main": "استخدام كعنوان رئيسي",
+      "visit": "زيارة",
+      "remove": "إزالة"
+    },
+    "empty": {
+      "title": "لا توجد نطاقات مخصصة بعد",
+      "hint": "اربط نطاقًا مثل mystore.com لمنح متجرك عنوانًا احترافيًا. سنتولى شهادة SSL تلقائيًا.",
+      "action": "ربط نطاق"
+    },
+    "plan_gate": {
+      "title": "النطاقات المخصصة ميزة Pro",
+      "hint": "أنت على خطة {{plan}}. رقّ خطتك لربط نطاق تمتلكه.",
+      "upgrade": "ترقية الخطة"
+    },
+    "action": {
+      "connect": "ربط نطاق"
+    },
+    "column": {
+      "address": "العنوان",
+      "status": "الحالة"
+    }
+  },
+  "ssl": {
+    "title": "شهادة الأمان",
+    "status": {
+      "active": "مباشر",
+      "pending_dns": "في انتظار سجلات DNS",
+      "ownership_verified": "التحقق من توجيه DNS",
+      "dns_verified": "طلب شهادة الأمان",
+      "provisioning_ssl": "إعداد شهادة الأمان",
+      "ssl_failed": "تعذّر إصدار الشهادة",
+      "dns_misconfigured": "DNS لم يعد يشير إلينا",
+      "disabled": "معطّل"
+    },
+    "description": {
+      "active": "متجرك يخدم الزوار على هذا العنوان.",
+      "pending_dns": "أضف سجلات DNS الموضحة أدناه لدى مزود نطاقك. يثبت ذلك ملكيتك للنطاق.",
+      "ownership_verified": "تم تأكيد الملكية. يجري التحقق الآن من توجيه نطاقك إلى خوادمنا.",
+      "dns_verified": "DNS يشير إلينا. جاري التحضير لإصدار شهادة SSL.",
+      "provisioning_ssl": "يستغرق هذا عادةً بضع دقائق. لا يلزمك فعل أي شيء.",
+      "ssl_failed": "تعذّر علينا الحصول على شهادة أمان لهذا النطاق. يمكنك المحاولة مرة أخرى.",
+      "dns_misconfigured": "تغيّرت سجلات DNS الخاصة بك ولم تعد تشير إلى خوادمنا. حدّثها وأعد التحقق.",
+      "disabled": "هذا النطاق معطّل ولا يستقبل أي زيارات."
+    },
+    "issued_valid": "صادر وساري",
+    "issued_on": "تاريخ الإصدار",
+    "expires_in": "تنتهي خلال",
+    "days": "{{count}} أيام",
+    "auto_renew": "(سيتجدد تلقائيًا)",
+    "status_label": "الحالة"
+  },
+  "dns": {
+    "records_title": "أضف هذه السجلات في إعدادات DNS الخاصة بك",
+    "propagation_hint": "عادةً يستغرق التطبيق 5-30 دقيقة",
+    "purpose_ownership": "يثبت ملكيتك للنطاق",
+    "purpose_routing": "يوجّه الزوار إلى متجرك",
+    "mismatch_title": "DNS لم يعد يشير إلى خوادمنا",
+    "should_point": "يجب أن يشير إلى:",
+    "currently_resolves": "يُحوَّل حاليًا إلى:",
+    "copy_target": "نسخ الهدف الصحيح",
+    "check_now": "لقد أضفت السجلات — تحقق الآن",
+    "recheck": "حاول مرة أخرى",
+    "field": {
+      "name": "الاسم",
+      "value": "القيمة"
+    }
+  },
+  "setup_steps": {
+    "verify_ownership": "التحقق من الملكية",
+    "check_routing": "التحقق من توجيه DNS",
+    "issue_cert": "إصدار الشهادة",
+    "live": "مباشر"
+  },
+  "add": {
+    "title_input": "إضافة نطاق مخصص",
+    "title_verify": "التحقق من ملكية النطاق",
+    "title_done": "تم ربط النطاق",
+    "description_input": "اربط اسم مضيف تمتلكه بهذا المتجر.",
+    "description_verify": "أضف سجلات DNS أدناه، ثم انقر تحقق.",
+    "description_done": "جاري إصدار شهادة SSL. يمكنك إغلاق هذا النافذة.",
+    "field": {
+      "hostname": {
+        "label": "اسم المضيف",
+        "placeholder": "shop.mystore.com",
+        "hint": "أدخله بدون http:// أو https://."
+      }
+    },
+    "kind": {
+      "apex": "نطاق رئيسي",
+      "subdomain": "نطاق فرعي"
+    },
+    "dns_records_title": "سجلات DNS المطلوب إضافتها",
+    "propagation_hint_1": "يستغرق انتشار DNS عادةً 5-30 دقيقة، وأحيانًا أكثر.",
+    "propagation_hint_2": "بعد تطبيق السجلات عالميًا، انقر تحقق.",
+    "verified_message": "تم التحقق من {{hostname}}",
+    "ssl_progress": "جاري إصدار SSL. يمكنك متابعة الحالة في قائمة النطاقات.",
+    "step": {
+      "domain": "النطاق",
+      "verify": "التحقق",
+      "connected": "تم الربط"
+    },
+    "action": {
+      "continue": "متابعة",
+      "back": "رجوع",
+      "verify": "تحقق من النطاق",
+      "close": "إغلاق"
+    },
+    "toast": {
+      "added": "تمت إضافة النطاق — تحقق الآن من الملكية",
+      "verified": "تم التحقق من النطاق — جاري إصدار SSL",
+      "error_add": "فشل إضافة النطاق",
+      "error_verify": "فشل التحقق"
+    }
+  },
+  "subdomain_dialog": {
+    "title": "تغيير عنوانك المجاني",
+    "description": "سيغيّر هذا المعرّف المستخدم لعنوانك المجاني .{{suffix}}. ستتوقف أي إشارات مرجعية للعنوان القديم عن العمل.",
+    "field": {
+      "new_address": {
+        "label": "العنوان الجديد"
+      }
+    },
+    "toast": {
+      "updated": "تم تحديث العنوان",
+      "error": "فشل تحديث العنوان"
+    }
+  },
+  "toast": {
+    "set_primary": "{{hostname}} هو الآن عنوان متجرك الرئيسي",
+    "error_primary": "فشل تحديث العنوان الرئيسي",
+    "retry_ssl": "جاري إعادة الإعداد لـ {{hostname}}",
+    "error_retry": "فشلت إعادة المحاولة",
+    "recheck_dns": "تم التحقق من DNS لـ {{hostname}}",
+    "error_recheck": "فشل التحقق من DNS",
+    "removed": "تمت إزالة {{hostname}}",
+    "error_remove": "فشل إزالة النطاق",
+    "error_load": "فشل تحميل النطاقات",
+    "address_copied": "تم نسخ العنوان",
+    "target_copied": "تم نسخ الهدف"
+  },
+  "confirm": {
+    "remove_title": "إزالة {{hostname}}؟",
+    "remove_description": "سيتوقف متجرك عن الاستجابة على هذا العنوان وستُلغى شهادة الأمان. يمكنك إضافة النطاق مرة أخرى لاحقًا.",
+    "remove_confirm": "إزالة النطاق"
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
@@ -44,6 +45,7 @@ const errMsg = (err: unknown, fallback: string): string => {
 };
 
 const CustomerSegments: React.FC = () => {
+  const { t } = useTranslation(['customers', 'common']);
   const navigate = useNavigate();
   const [segments, setSegments] = useState<Segment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +67,7 @@ const CustomerSegments: React.FC = () => {
         }
       });
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to load segments'));
+      toast.error(errMsg(err, t('segment.toast.load_failed')));
     } finally {
       setLoading(false);
     }
@@ -75,17 +77,17 @@ const CustomerSegments: React.FC = () => {
 
   const remove = async (seg: Segment) => {
     if (!(await confirm({
-      title: `Delete segment "${seg.name}"?`,
-      description: 'The saved filter will be removed. Customers inside the segment are not affected.',
-      confirmText: 'Delete',
+      title: t('segment.confirm.delete_title', { name: seg.name }),
+      description: t('segment.confirm.delete_description'),
+      confirmText: t('segment.confirm.delete_confirm'),
       variant: 'destructive',
     }))) return;
     try {
       await api.customerSegments.delete(seg._id);
-      toast.success('Segment deleted');
+      toast.success(t('segment.toast.deleted'));
       await loadSegments();
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to delete segment'));
+      toast.error(errMsg(err, t('segment.toast.delete_failed')));
     }
   };
 
@@ -94,19 +96,19 @@ const CustomerSegments: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <Users className="h-6 w-6" /> Customer Segments
+            <Users className="h-6 w-6" /> {t('segment.list.title')}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Group customers by spend, order history, tags, and marketing consent.
+            {t('segment.list.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={loadSegments} disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('common:action.refresh')}
           </Button>
           <Button size="sm" onClick={() => navigate('/dashboard/customers/segments/new')}>
-            <Plus className="h-4 w-4 mr-2" /> New segment
+            <Plus className="h-4 w-4 mr-2" /> {t('segment.list.new_segment')}
           </Button>
         </div>
       </div>
@@ -119,12 +121,12 @@ const CustomerSegments: React.FC = () => {
         <Card>
           <CardContent className="py-12 text-center">
             <Users className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-            <h3 className="font-semibold mb-1">No segments yet</h3>
+            <h3 className="font-semibold mb-1">{t('segment.list.empty.title')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Create your first segment to target customers in marketing campaigns.
+              {t('segment.list.empty.description')}
             </p>
             <Button onClick={() => navigate('/dashboard/customers/segments/new')}>
-              <Plus className="h-4 w-4 mr-2" /> New segment
+              <Plus className="h-4 w-4 mr-2" /> {t('segment.list.new_segment')}
             </Button>
           </CardContent>
         </Card>
@@ -141,26 +143,26 @@ const CustomerSegments: React.FC = () => {
                     )}
                   </div>
                   <Badge variant="secondary" className="shrink-0">
-                    {counts[seg._id] != null ? `${counts[seg._id]} customers` : '…'}
+                    {counts[seg._id] != null ? t('segment.list.customer_count', { count: counts[seg._id] }) : '…'}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col justify-between gap-3">
                 <div className="text-xs text-muted-foreground space-y-1">
                   {seg.filters?.totalSpentMin != null && (
-                    <div>Spent ≥ {formatMoney(seg.filters.totalSpentMin)}</div>
+                    <div>{t('segment.list.filter.spent_gte', { value: formatMoney(seg.filters.totalSpentMin) })}</div>
                   )}
                   {seg.filters?.totalSpentMax != null && (
-                    <div>Spent ≤ {formatMoney(seg.filters.totalSpentMax)}</div>
+                    <div>{t('segment.list.filter.spent_lte', { value: formatMoney(seg.filters.totalSpentMax) })}</div>
                   )}
                   {seg.filters?.orderCountMin != null && (
-                    <div>Orders ≥ {seg.filters.orderCountMin}</div>
+                    <div>{t('segment.list.filter.orders_gte', { value: seg.filters.orderCountMin })}</div>
                   )}
                   {Array.isArray(seg.filters?.tags) && seg.filters.tags.length > 0 && (
-                    <div>Tags: {seg.filters.tags.join(', ')}</div>
+                    <div>{t('segment.list.filter.tags', { value: seg.filters.tags.join(', ') })}</div>
                   )}
-                  {seg.filters?.acceptsMarketing === true && <div>Accepts marketing</div>}
-                  {seg.filters?.emailContains && <div>Email ~ {seg.filters.emailContains}</div>}
+                  {seg.filters?.acceptsMarketing === true && <div>{t('segment.list.filter.accepts_marketing')}</div>}
+                  {seg.filters?.emailContains && <div>{t('segment.list.filter.email_contains', { value: seg.filters.emailContains })}</div>}
                 </div>
                 <div className="flex items-center gap-2 pt-2 border-t">
                   <Button
@@ -168,7 +170,7 @@ const CustomerSegments: React.FC = () => {
                     size="sm"
                     onClick={() => navigate(`/dashboard/customers/segments/${seg._id}/edit`)}
                   >
-                    <Pencil className="h-4 w-4 mr-1" /> Edit
+                    <Pencil className="h-4 w-4 mr-1" /> {t('common:action.edit')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -176,7 +178,7 @@ const CustomerSegments: React.FC = () => {
                     className="text-destructive hover:text-destructive"
                     onClick={() => remove(seg)}
                   >
-                    <Trash2 className="h-4 w-4 mr-1" /> Delete
+                    <Trash2 className="h-4 w-4 mr-1" /> {t('common:action.delete')}
                   </Button>
                 </div>
               </CardContent>

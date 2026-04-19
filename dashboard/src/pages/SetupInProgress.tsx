@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Loader2, Check, Store } from 'lucide-react';
 import { api } from '../lib/api-client';
 import { useAuth } from '../contexts/auth-context';
@@ -15,13 +16,6 @@ const STEP_ORDER: StepKey[] = [
   'data_seeding',
   'finalization',
 ];
-
-const STEP_LABELS: Record<StepKey, string> = {
-  domain_registration: 'Registering your domain',
-  theme_installation: 'Installing your theme',
-  data_seeding: 'Seeding sample content',
-  finalization: 'Finishing up',
-};
 
 const COUNTDOWN_FROM = 5;
 // Pacing constants — every animation gets a minimum on-screen time so a
@@ -61,6 +55,7 @@ export default function SetupInProgress() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useTranslation(['errors']);
 
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [setupToken, setSetupToken] = useState<string | null>(null);
@@ -211,11 +206,11 @@ export default function SetupInProgress() {
 
     const shownFor = Date.now() - currentShownAtRef.current;
     const wait = Math.max(0, STEP_MIN_DISPLAY_MS - shownFor);
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setRevealedCount((c) => Math.min(c + 1, STEP_ORDER.length));
       currentShownAtRef.current = Date.now();
     }, wait);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [steps, revealedCount, phase]);
 
   // Exit: every step terminal on the backend, every row revealed, AND the
@@ -351,9 +346,9 @@ export default function SetupInProgress() {
         setupExiting ? 'onb-stack-out' : ''
       }`}
     >
-      <AnimatedTitle text="Building your store" />
+      <AnimatedTitle text={t('errors:setup.setting_up_title')} />
       <p className="onb-fade mt-4 text-lg text-muted-foreground max-w-xl" style={{ animationDelay: '1100ms' }}>
-        Hang tight — we're wiring everything up.
+        {t('errors:setup.setup_waiting')}
       </p>
 
       <div className="mt-8 w-full max-w-lg h-14 relative">
@@ -383,7 +378,7 @@ export default function SetupInProgress() {
                     : 'text-muted-foreground'
                 }`}
               >
-                {STEP_LABELS[currentKey]}
+                {t(`errors:setup.step.${currentKey}_label`)}
               </span>
             </div>
           );
@@ -402,11 +397,11 @@ export default function SetupInProgress() {
           <Check className="h-10 w-10" />
         </div>
       </div>
-      <AnimatedTitle text="Your store is ready" />
+      <AnimatedTitle text={t('errors:setup.store_ready')} />
       <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 h-8 flex items-center justify-center whitespace-nowrap">
         {countdownStarted && (
           <p className="onb-fade text-lg text-muted-foreground">
-            Redirecting in{' '}
+            {t('errors:setup.redirecting_in')}{' '}
             <span
               key={countdown}
               className="inline-block min-w-[1ch] font-semibold text-foreground onb-tick"

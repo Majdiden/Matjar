@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -26,14 +27,10 @@ interface Stats {
 interface SalesPoint { date: string; revenue: number; orders: number; }
 interface TopProduct { _id: string; name: string; totalSold: number; totalRevenue: number; }
 
-const PERIODS = [
-  { value: '7', label: 'Last 7 days' },
-  { value: '30', label: 'Last 30 days' },
-  { value: '90', label: 'Last 90 days' },
-  { value: '365', label: 'Last year' },
-];
+const PERIOD_VALUES = ['7', '30', '90', '365'] as const;
 
 export default function Analytics() {
+  const { t } = useTranslation(['analytics']);
   const [stats, setStats] = useState<Stats | null>(null);
   const [salesData, setSalesData] = useState<SalesPoint[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -72,22 +69,22 @@ export default function Analytics() {
           setTopProducts(d.data?.products || d.responseObject?.products || []);
         }
       } catch {
-        toast.error('Failed to load analytics');
+        toast.error(t('analytics.toast.load_failed'));
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [period]);
+  }, [period, t]);
 
   const formatCurrency = (v: number) =>
     new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(v);
 
   const statCards = [
-    { label: 'Total Revenue', value: formatCurrency(stats?.totalRevenue || 0), icon: DollarSign, color: 'text-green-600' },
-    { label: 'Total Orders', value: (stats?.totalOrders || 0).toLocaleString(), icon: ShoppingCart, color: 'text-blue-600' },
-    { label: 'Avg Order Value', value: formatCurrency(stats?.averageOrderValue || 0), icon: TrendingUp, color: 'text-purple-600' },
-    { label: 'Products', value: (stats?.totalProducts || 0).toLocaleString(), icon: Package, color: 'text-orange-600' },
+    { label: t('analytics.metric.total_revenue'), value: formatCurrency(stats?.totalRevenue || 0), icon: DollarSign, color: 'text-green-600' },
+    { label: t('analytics.metric.total_orders'), value: (stats?.totalOrders || 0).toLocaleString(), icon: ShoppingCart, color: 'text-blue-600' },
+    { label: t('analytics.metric.avg_order_value'), value: formatCurrency(stats?.averageOrderValue || 0), icon: TrendingUp, color: 'text-purple-600' },
+    { label: t('analytics.metric.total_products'), value: (stats?.totalProducts || 0).toLocaleString(), icon: Package, color: 'text-orange-600' },
   ];
 
   const maxRevenue = Math.max(...salesData.map(d => d.revenue), 1);
@@ -112,20 +109,20 @@ export default function Analytics() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-          <p className="text-muted-foreground">Track your store performance</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('analytics.title')}</h1>
+          <p className="text-muted-foreground">{t('analytics.subtitle')}</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">
-              {PERIODS.find(p => p.value === period)?.label}
+              {t(`analytics.range.${period as typeof PERIOD_VALUES[number]}`)}
               <ChevronDown className="h-4 w-4 ml-2" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {PERIODS.map(p => (
-              <DropdownMenuItem key={p.value} onClick={() => setPeriod(p.value)}>
-                {p.label}
+            {PERIOD_VALUES.map(p => (
+              <DropdownMenuItem key={p} onClick={() => setPeriod(p)}>
+                {t(`analytics.range.${p}`)}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -147,19 +144,19 @@ export default function Analytics() {
         ))}
       </div>
 
-      {/* Revenue Chart (CSS bars) */}
+      {/* Revenue Chart */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />Revenue Over Time
+            <BarChart3 className="h-4 w-4" />{t('analytics.chart.revenue_over_time.title')}
           </CardTitle>
           <CardDescription>
-            {PERIODS.find(p => p.value === period)?.label || 'Selected period'}
+            {t(`analytics.range.${period as typeof PERIOD_VALUES[number]}`)}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {salesData.length === 0 ? (
-            <div className="text-center text-muted-foreground py-12">No sales data for this period</div>
+            <div className="text-center text-muted-foreground py-12">{t('analytics.empty.no_sales')}</div>
           ) : (
             <div className="space-y-2">
               <div className="flex items-end gap-[2px] h-48">
@@ -198,20 +195,20 @@ export default function Analytics() {
       {/* Top Products */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Top Products</CardTitle>
-          <CardDescription>Best performing products by revenue</CardDescription>
+          <CardTitle className="text-base">{t('analytics.chart.top_products.title')}</CardTitle>
+          <CardDescription>{t('analytics.chart.top_products.description')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {topProducts.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">No product data yet</div>
+            <div className="p-8 text-center text-muted-foreground">{t('analytics.empty.no_products')}</div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-12">#</TableHead>
-                  <TableHead>Product</TableHead>
-                  <TableHead className="text-right">Units Sold</TableHead>
-                  <TableHead className="text-right">Revenue</TableHead>
+                  <TableHead className="w-12">{t('analytics.column.rank')}</TableHead>
+                  <TableHead>{t('analytics.column.product')}</TableHead>
+                  <TableHead className="text-right">{t('analytics.column.units_sold')}</TableHead>
+                  <TableHead className="text-right">{t('analytics.column.revenue')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

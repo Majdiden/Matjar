@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -81,6 +82,7 @@ const PLANS: Plan[] = [
 ];
 
 export const Subscriptions: React.FC = () => {
+  const { t } = useTranslation(['subscriptions', 'common']);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [upgradeDialog, setUpgradeDialog] = useState<{ open: boolean; plan: Plan | null }>({ open: false, plan: null });
@@ -114,12 +116,12 @@ export const Subscriptions: React.FC = () => {
     try {
       setUpgrading(true);
       await api.post('/subscription/upgrade', { planId: upgradeDialog.plan.id });
-      toast.success(`Upgraded to ${upgradeDialog.plan.name} plan!`);
+      toast.success(t('subscriptions.toast.upgraded', { name: upgradeDialog.plan.name }));
       setUpgradeDialog({ open: false, plan: null });
       await loadSubscription();
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to upgrade plan');
+      toast.error(e?.message || t('subscriptions.toast.upgrade_failed'));
     } finally {
       setUpgrading(false);
     }
@@ -132,18 +134,19 @@ export const Subscriptions: React.FC = () => {
     return Math.min((used / limit) * 100, 100);
   };
 
-  const formatLimit = (val: number) => (val < 0 ? 'Unlimited' : val.toLocaleString());
+  const formatLimit = (val: number) =>
+    val < 0 ? t('subscriptions.limit.unlimited') : val.toLocaleString();
 
   const getStatusBadge = (status: string) => {
-    const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
-      active: { variant: 'default', label: 'Active' },
-      trial: { variant: 'secondary', label: 'Trial' },
-      past_due: { variant: 'destructive', label: 'Past Due' },
-      cancelled: { variant: 'outline', label: 'Cancelled' },
-      expired: { variant: 'destructive', label: 'Expired' },
+    const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; labelKey: string }> = {
+      active: { variant: 'default', labelKey: 'subscriptions.status.active' },
+      trial: { variant: 'secondary', labelKey: 'subscriptions.status.trial' },
+      past_due: { variant: 'destructive', labelKey: 'subscriptions.status.past_due' },
+      cancelled: { variant: 'outline', labelKey: 'subscriptions.status.cancelled' },
+      expired: { variant: 'destructive', labelKey: 'subscriptions.status.expired' },
     };
-    const s = map[status] || { variant: 'outline' as const, label: status };
-    return <Badge variant={s.variant}>{s.label}</Badge>;
+    const s = map[status] || { variant: 'outline' as const, labelKey: status };
+    return <Badge variant={s.variant}>{t(s.labelKey)}</Badge>;
   };
 
   if (loading) {
@@ -161,8 +164,8 @@ export const Subscriptions: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Subscription & Plans</h1>
-        <p className="text-muted-foreground">Manage your subscription and monitor usage limits</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('subscriptions.list.title')}</h1>
+        <p className="text-muted-foreground">{t('subscriptions.list.subtitle')}</p>
       </div>
 
       {/* Current Plan */}
@@ -174,13 +177,15 @@ export const Subscriptions: React.FC = () => {
                 <Crown className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <CardTitle>Current Plan: {currentPlan.name}</CardTitle>
+                <CardTitle>{t('subscriptions.list.current_plan_title', { name: currentPlan.name })}</CardTitle>
                 <CardDescription>
                   {subscription?.status === 'trial'
-                    ? `Trial${subscription.trialEndsAt ? ` ends ${new Date(subscription.trialEndsAt).toLocaleDateString()}` : ''}`
+                    ? subscription.trialEndsAt
+                      ? t('subscriptions.list.trial_ends', { date: new Date(subscription.trialEndsAt).toLocaleDateString() })
+                      : t('subscriptions.list.trial')
                     : subscription?.currentPeriodEnd
-                      ? `Renews ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}`
-                      : 'Active subscription'
+                      ? t('subscriptions.list.renews', { date: new Date(subscription.currentPeriodEnd).toLocaleDateString() })
+                      : t('subscriptions.list.active_subscription')
                   }
                 </CardDescription>
               </div>
@@ -193,28 +198,28 @@ export const Subscriptions: React.FC = () => {
             <div className="grid gap-4 md:grid-cols-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1.5"><Package className="h-3.5 w-3.5" />Products</span>
+                  <span className="flex items-center gap-1.5"><Package className="h-3.5 w-3.5" />{t('subscriptions.list.column.products')}</span>
                   <span>{subscription.usage.products} / {formatLimit(currentPlan.limits.products)}</span>
                 </div>
                 <Progress value={getUsagePercent(subscription.usage.products, currentPlan.limits.products)} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1.5"><ShoppingCart className="h-3.5 w-3.5" />Orders</span>
+                  <span className="flex items-center gap-1.5"><ShoppingCart className="h-3.5 w-3.5" />{t('subscriptions.list.column.orders')}</span>
                   <span>{subscription.usage.orders} / {formatLimit(currentPlan.limits.orders)}</span>
                 </div>
                 <Progress value={getUsagePercent(subscription.usage.orders, currentPlan.limits.orders)} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" />Storage</span>
+                  <span className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" />{t('subscriptions.list.column.storage')}</span>
                   <span>{subscription.usage.storage}MB / {formatLimit(currentPlan.limits.storage)}MB</span>
                 </div>
                 <Progress value={getUsagePercent(subscription.usage.storage, currentPlan.limits.storage)} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />Team</span>
+                  <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{t('subscriptions.list.column.team')}</span>
                   <span>{subscription.usage.teamMembers} / {formatLimit(currentPlan.limits.teamMembers)}</span>
                 </div>
                 <Progress value={getUsagePercent(subscription.usage.teamMembers, currentPlan.limits.teamMembers)} />
@@ -226,7 +231,7 @@ export const Subscriptions: React.FC = () => {
 
       {/* Plans Grid */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Available Plans</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('subscriptions.list.available_plans')}</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {PLANS.map(plan => {
             const isCurrent = plan.id === subscription?.plan;
@@ -234,7 +239,7 @@ export const Subscriptions: React.FC = () => {
               <Card key={plan.id} className={plan.recommended ? 'border-primary shadow-lg relative' : ''}>
                 {plan.recommended && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary">Recommended</Badge>
+                    <Badge className="bg-primary">{t('subscriptions.badge.recommended')}</Badge>
                   </div>
                 )}
                 <CardHeader>
@@ -256,14 +261,14 @@ export const Subscriptions: React.FC = () => {
                 </CardContent>
                 <CardFooter>
                   {isCurrent ? (
-                    <Button variant="outline" className="w-full" disabled>Current Plan</Button>
+                    <Button variant="outline" className="w-full" disabled>{t('subscriptions.action.current')}</Button>
                   ) : (
                     <Button
                       className="w-full"
                       variant={plan.recommended ? 'default' : 'outline'}
                       onClick={() => setUpgradeDialog({ open: true, plan })}
                     >
-                      {plan.price > currentPlan.price ? 'Upgrade' : 'Switch'}
+                      {plan.price > currentPlan.price ? t('subscriptions.action.upgrade') : t('subscriptions.action.switch')}
                       <ArrowUpRight className="h-4 w-4 ml-1" />
                     </Button>
                   )}
@@ -279,28 +284,34 @@ export const Subscriptions: React.FC = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {upgradeDialog.plan && upgradeDialog.plan.price > currentPlan.price ? 'Upgrade' : 'Switch'} to {upgradeDialog.plan?.name}
+              {upgradeDialog.plan && upgradeDialog.plan.price > currentPlan.price
+                ? t('subscriptions.upgrade_dialog.title_upgrade', { name: upgradeDialog.plan?.name })
+                : t('subscriptions.upgrade_dialog.title_switch', { name: upgradeDialog.plan?.name })
+              }
             </DialogTitle>
             <DialogDescription>
-              Your plan will change immediately. Billing will be prorated.
+              {t('subscriptions.upgrade_dialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">New monthly price</span>
+              <span className="text-muted-foreground">{t('subscriptions.upgrade_dialog.new_price')}</span>
               <span className="font-semibold">${upgradeDialog.plan?.price}/{upgradeDialog.plan?.interval}</span>
             </div>
             <Separator />
             <p className="text-sm text-muted-foreground">
-              You'll get access to all {upgradeDialog.plan?.name} features immediately.
+              {t('subscriptions.upgrade_dialog.access_notice', { name: upgradeDialog.plan?.name })}
             </p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUpgradeDialog({ open: false, plan: null })} disabled={upgrading}>
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={handleUpgrade} disabled={upgrading}>
-              {upgrading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Processing...</> : 'Confirm Change'}
+              {upgrading
+                ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.processing')}</>
+                : t('subscriptions.action.confirm_change')
+              }
             </Button>
           </DialogFooter>
         </DialogContent>

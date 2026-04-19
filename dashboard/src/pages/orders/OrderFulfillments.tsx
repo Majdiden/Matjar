@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -63,6 +64,7 @@ const statusVariant = (s: Fulfillment['status']) => {
  * over-allocate.
  */
 export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
+  const { t } = useTranslation(['orders', 'common']);
   const [fulfillments, setFulfillments] = useState<Fulfillment[]>([]);
   const [unfulfilled, setUnfulfilled] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -89,7 +91,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
       setUnfulfilled(data.unfulfilledByLine || {});
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to load fulfillments');
+      toast.error(msg || t('orders:fulfillment.toast.load_failed'));
     } finally {
       setLoading(false);
     }
@@ -118,7 +120,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
       .filter(([, q]) => q > 0)
       .map(([orderLineId, quantity]) => ({ orderLineId, quantity }));
     if (items.length === 0) {
-      toast.error('Select at least one item to ship');
+      toast.error(t('orders:fulfillment.card.form.error_no_items'));
       return;
     }
     try {
@@ -129,13 +131,13 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
         trackingCarrier: carrier || undefined,
         markShipped,
       });
-      toast.success('Shipment created');
+      toast.success(t('orders:fulfillment.toast.shipment_created'));
       setShowForm(false);
       await load();
       onChange?.();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to create shipment');
+      toast.error(msg || t('orders:fulfillment.toast.shipment_failed'));
     } finally {
       setCreating(false);
     }
@@ -144,12 +146,12 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
   const updateStatus = async (id: string, status: Fulfillment['status']) => {
     try {
       await api.orders.updateFulfillmentStatus(order._id, id, { status });
-      toast.success(`Marked ${status.toLowerCase()}`);
+      toast.success(t('orders:fulfillment.toast.marked', { status: status.toLowerCase() }));
       await load();
       onChange?.();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to update fulfillment');
+      toast.error(msg || t('orders:fulfillment.toast.mark_failed'));
     }
   };
 
@@ -163,22 +165,22 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-base flex items-center gap-2">
-          <Truck className="h-5 w-5" />Fulfillments
+          <Truck className="h-5 w-5" />{t('orders:fulfillment.card.title')}
         </CardTitle>
         {totalRemaining > 0 && !showForm && (
           <Button size="sm" onClick={startNew}>
-            <Plus className="h-3.5 w-3.5 mr-1" />New Shipment
+            <Plus className="h-3.5 w-3.5 mr-1" />{t('orders:fulfillment.card.new_shipment')}
           </Button>
         )}
       </CardHeader>
       <CardContent className="space-y-4">
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <p className="text-sm text-muted-foreground">{t('orders:fulfillment.card.loading')}</p>
         ) : (
           <>
             {fulfillments.length === 0 && !showForm && (
               <p className="text-sm text-muted-foreground">
-                No shipments yet. {totalRemaining > 0 ? 'Create one to start fulfilling this order.' : 'Order is fully fulfilled.'}
+                {t('orders:fulfillment.card.no_shipments')} {totalRemaining > 0 ? t('orders:fulfillment.card.create_to_fulfill') : t('orders:fulfillment.card.fully_fulfilled')}
               </p>
             )}
 
@@ -187,23 +189,23 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Package className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium text-sm">Shipment #{idx + 1}</span>
+                    <span className="font-medium text-sm">{t('orders:fulfillment.card.shipment_n', { n: idx + 1 })}</span>
                     <Badge variant={statusVariant(f.status)}>{f.status}</Badge>
                   </div>
                   <div className="flex gap-1">
                     {f.status === 'Pending' && (
                       <Button size="sm" variant="outline" className="h-7" onClick={() => updateStatus(f._id, 'Shipped')}>
-                        Mark Shipped
+                        {t('orders:fulfillment.card.mark_shipped')}
                       </Button>
                     )}
                     {f.status === 'Shipped' && (
                       <Button size="sm" variant="outline" className="h-7" onClick={() => updateStatus(f._id, 'Delivered')}>
-                        Mark Delivered
+                        {t('orders:fulfillment.card.mark_delivered')}
                       </Button>
                     )}
                     {(f.status === 'Pending' || f.status === 'Shipped') && (
                       <Button size="sm" variant="outline" className="h-7" onClick={() => updateStatus(f._id, 'Cancelled')}>
-                        Cancel
+                        {t('orders:fulfillment.card.cancel')}
                       </Button>
                     )}
                   </div>
@@ -226,7 +228,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
 
             {showForm && (
               <div className="border rounded-lg p-3 space-y-3 bg-muted/30">
-                <p className="text-sm font-medium">New shipment</p>
+                <p className="text-sm font-medium">{t('orders:fulfillment.card.form.title')}</p>
                 <div className="space-y-2">
                   {order.products.map((line: OrderItem) => {
                     const id = String(line._id);
@@ -236,7 +238,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
                     return (
                       <div key={id} className="flex items-center justify-between gap-3 text-sm">
                         <span className="flex-1 truncate">{name}</span>
-                        <span className="text-xs text-muted-foreground">max {max}</span>
+                        <span className="text-xs text-muted-foreground">{t('orders:fulfillment.card.form.max', { max })}</span>
                         <Input
                           type="number"
                           min={0}
@@ -255,13 +257,13 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
                 <Separator />
                 <div className="grid grid-cols-2 gap-2">
                   <Input
-                    placeholder="Carrier (e.g. UPS)"
+                    placeholder={t('orders:fulfillment.card.form.carrier_placeholder')}
                     value={carrier}
                     onChange={e => setCarrier(e.target.value)}
                     className="h-8 text-sm"
                   />
                   <Input
-                    placeholder="Tracking number"
+                    placeholder={t('orders:fulfillment.card.form.tracking_placeholder')}
                     value={tracking}
                     onChange={e => setTracking(e.target.value)}
                     className="h-8 text-sm font-mono"
@@ -273,15 +275,15 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
                     checked={markShipped}
                     onChange={e => setMarkShipped(e.target.checked)}
                   />
-                  Mark as shipped immediately
+                  {t('orders:fulfillment.card.form.mark_shipped_label')}
                 </label>
                 <div className="flex gap-2">
                   <Button size="sm" onClick={submit} disabled={creating}>
                     {creating ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Check className="h-3 w-3 mr-1" />}
-                    Create
+                    {t('orders:fulfillment.card.form.create')}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setShowForm(false)}>
-                    <X className="h-3 w-3 mr-1" />Cancel
+                    <X className="h-3 w-3 mr-1" />{t('common:action.cancel')}
                   </Button>
                 </div>
               </div>

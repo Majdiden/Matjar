@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
@@ -44,15 +45,8 @@ const formatPrice = (price: number) =>
 
 type StatusTab = 'all' | 'active' | 'draft' | 'archived' | 'low-stock';
 
-const TAB_DEFS: { id: StatusTab; label: string; icon: React.ElementType }[] = [
-  { id: 'all', label: 'All', icon: Package },
-  { id: 'active', label: 'Active', icon: CheckCircle2 },
-  { id: 'draft', label: 'Drafts', icon: Edit },
-  { id: 'low-stock', label: 'Low Stock', icon: AlertTriangle },
-  { id: 'archived', label: 'Archived', icon: Archive },
-];
-
 export const Products: React.FC = () => {
+  const { t } = useTranslation(['products', 'common']);
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +58,14 @@ export const Products: React.FC = () => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useViewMode('products.viewMode', 'cards');
   const confirm = useConfirm();
+
+  const TAB_DEFS: { id: StatusTab; label: string; icon: React.ElementType }[] = [
+    { id: 'all', label: t('products.list.filter.all'), icon: Package },
+    { id: 'active', label: t('products.list.filter.active'), icon: CheckCircle2 },
+    { id: 'draft', label: t('products.list.filter.drafts'), icon: Edit },
+    { id: 'low-stock', label: t('products.list.filter.low_stock'), icon: AlertTriangle },
+    { id: 'archived', label: t('products.list.filter.archived'), icon: Archive },
+  ];
 
   useEffect(() => { loadProducts();
     // loadProducts is redeclared each render and depends on these three
@@ -102,7 +104,7 @@ export const Products: React.FC = () => {
       if (response.responseObject.pagination) setPagination(response.responseObject.pagination);
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to load products');
+      toast.error(e?.message || t('products.toast.load_failed'));
       setProducts([]);
     } finally {
       setLoading(false);
@@ -111,39 +113,39 @@ export const Products: React.FC = () => {
 
   const handleDelete = async (id: string, name: string) => {
     if (!(await confirm({
-      title: `Delete "${name}"?`,
-      description: 'This removes the product from your catalog and storefront.',
-      confirmText: 'Delete',
+      title: t('products.confirm.delete.title', { name }),
+      description: t('products.confirm.delete.description'),
+      confirmText: t('common.action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       await api.products.delete(id);
-      toast.success(`"${name}" deleted`);
+      toast.success(t('products.toast.deleted', { name }));
       loadProducts();
       loadStats();
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to delete product');
+      toast.error(e?.message || t('products.toast.delete_failed'));
     }
   };
 
   const handleBulkDelete = async () => {
     if (selected.size === 0) return;
     if (!(await confirm({
-      title: `Delete ${selected.size} products?`,
-      description: 'All selected products will be removed from your catalog and storefront.',
-      confirmText: 'Delete',
+      title: t('products.confirm.delete.title_bulk', { count: selected.size }),
+      description: t('products.confirm.delete.description_bulk'),
+      confirmText: t('common.action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       await Promise.all([...selected].map((id) => api.products.delete(id)));
-      toast.success(`${selected.size} products deleted`);
+      toast.success(t('products.toast.deleted_bulk', { count: selected.size }));
       setSelected(new Set());
       loadProducts();
       loadStats();
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Bulk delete failed');
+      toast.error(e?.message || t('products.toast.bulk_delete_failed'));
     }
   };
 
@@ -165,7 +167,7 @@ export const Products: React.FC = () => {
       const res = (await api.products.getAll({ page: 1, limit: 5000 })) as ProductListResponseShape;
       const all: Product[] = res?.responseObject?.data || [];
       if (all.length === 0) {
-        toast.message('No products to export');
+        toast.message(t('products.toast.export_empty'));
         return;
       }
       const csv = toCSV(all, [
@@ -190,35 +192,35 @@ export const Products: React.FC = () => {
         { key: 'createdAt', label: 'Created', get: (p: Product) => p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : '' },
       ]);
       downloadCSV(csv, 'products');
-      toast.success(`Exported ${all.length} product${all.length === 1 ? '' : 's'}`);
+      toast.success(t('products.toast.exported', { count: all.length }));
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Export failed');
+      toast.error(e?.message || t('products.toast.export_failed'));
     }
   };
 
   const statCards = useMemo(() => [
-    { label: 'Total Products', value: stats.total.toLocaleString(), icon: Package, description: 'In your catalog' },
-    { label: 'Active', value: stats.active.toLocaleString(), icon: CheckCircle2, description: 'Live on storefront' },
-    { label: 'Low Stock', value: stats.lowStock.toLocaleString(), icon: AlertTriangle, description: 'Need restocking' },
-    { label: 'Inventory Value', value: formatPrice(stats.value), icon: TrendingUp, description: 'Total stock value' },
-  ], [stats]);
+    { label: t('products.list.stat.total_products'), value: stats.total.toLocaleString(), icon: Package, description: t('products.list.stat.total_description') },
+    { label: t('products.list.stat.active'), value: stats.active.toLocaleString(), icon: CheckCircle2, description: t('products.list.stat.active_description') },
+    { label: t('products.list.stat.low_stock'), value: stats.lowStock.toLocaleString(), icon: AlertTriangle, description: t('products.list.stat.low_stock_description') },
+    { label: t('products.list.stat.inventory_value'), value: formatPrice(stats.value), icon: TrendingUp, description: t('products.list.stat.inventory_value_description') },
+  ], [stats, t]);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-          <p className="text-muted-foreground mt-1">Manage your catalog, inventory, and product information</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('products.list.title')}</h1>
+          <p className="text-muted-foreground mt-1">{t('products.list.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />Export
+            <Download className="h-4 w-4 mr-2" />{t('common.action.export')}
           </Button>
           <Button asChild>
             <Link to="/dashboard/products/new">
-              <Plus className="h-4 w-4 mr-2" />New Product
+              <Plus className="h-4 w-4 mr-2" />{t('products.list.new_product')}
             </Link>
           </Button>
         </div>
@@ -254,14 +256,14 @@ export const Products: React.FC = () => {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name, SKU, tag..."
+            placeholder={t('products.list.search_placeholder')}
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
             className="pl-9"
           />
         </div>
         <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" />More Filters
+          <Filter className="h-4 w-4 mr-2" />{t('products.list.more_filters')}
         </Button>
         <div className="ml-auto">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
@@ -271,11 +273,11 @@ export const Products: React.FC = () => {
       {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('products.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Clear</Button>
+            <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>{t('products.bulk.clear')}</Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />Delete
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('common.action.delete')}
             </Button>
           </div>
         </div>
@@ -292,16 +294,16 @@ export const Products: React.FC = () => {
             <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
               <Package className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold mb-1">{searchTerm ? 'No products match' : 'No products yet'}</h3>
+            <h3 className="text-xl font-semibold mb-1">{searchTerm ? t('products.list.empty.title_search') : t('products.list.empty.title')}</h3>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm">
               {searchTerm
-                ? 'Try a different search term or clear filters to see all products.'
-                : 'Add your first product to start selling. You can always edit it later.'}
+                ? t('products.list.empty.description_search')
+                : t('products.list.empty.description')}
             </p>
             {!searchTerm && (
               <Button asChild size="lg">
                 <Link to="/dashboard/products/new">
-                  <Plus className="h-4 w-4 mr-2" />Create Your First Product
+                  <Plus className="h-4 w-4 mr-2" />{t('products.list.empty.action')}
                 </Link>
               </Button>
             )}
@@ -320,12 +322,12 @@ export const Products: React.FC = () => {
                     className="h-4 w-4 rounded border-gray-300"
                   />
                 </TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead>Stock</TableHead>
+                <TableHead>{t('products.list.column.product')}</TableHead>
+                <TableHead>{t('products.list.column.sku')}</TableHead>
+                <TableHead>{t('products.list.column.category')}</TableHead>
+                <TableHead>{t('products.list.column.status')}</TableHead>
+                <TableHead className="text-right">{t('products.list.column.price')}</TableHead>
+                <TableHead>{t('products.list.column.stock')}</TableHead>
                 <TableHead className="w-[50px]" />
               </TableRow>
             </TableHeader>
@@ -362,7 +364,7 @@ export const Products: React.FC = () => {
                           <p className="font-medium text-sm truncate">{product.name}</p>
                           {product.featured && (
                             <Badge variant="outline" className="text-[10px] h-4 px-1.5 gap-1 mt-0.5">
-                              <Star className="h-2.5 w-2.5" />Featured
+                              <Star className="h-2.5 w-2.5" />{t('common.state.featured')}
                             </Badge>
                           )}
                         </div>
@@ -396,7 +398,7 @@ export const Products: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant={stockVariant} className="font-normal">
-                        {stock === 0 ? 'Out of stock' : `${stock}`}
+                        {stock === 0 ? t('products.list.stock_badge.out_of_stock') : `${stock}`}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -408,13 +410,13 @@ export const Products: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/products/${product._id}/edit`); }}>
-                            <Edit className="mr-2 h-4 w-4" />Edit
+                            <Edit className="mr-2 h-4 w-4" />{t('common.action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
                             onClick={(e) => { e.stopPropagation(); handleDelete(product._id, product.name); }}
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />Delete
+                            <Trash2 className="mr-2 h-4 w-4" />{t('common.action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -435,7 +437,7 @@ export const Products: React.FC = () => {
               onChange={toggleSelectAll}
               className="h-4 w-4 rounded border-gray-300"
             />
-            <span>Product</span>
+            <span>{t('products.list.select_all')}</span>
           </label>
 
           {products.map((product) => {
@@ -474,7 +476,7 @@ export const Products: React.FC = () => {
                     <p className="font-semibold truncate">{product.name}</p>
                     {product.featured && (
                       <Badge variant="outline" className="text-[10px] h-5 px-1.5 gap-1">
-                        <Star className="h-2.5 w-2.5" />Featured
+                        <Star className="h-2.5 w-2.5" />{t('common.state.featured')}
                       </Badge>
                     )}
                     <Badge
@@ -509,7 +511,7 @@ export const Products: React.FC = () => {
                 {/* Stock badge */}
                 <div className="hidden md:block">
                   <Badge variant={stockVariant} className="font-normal">
-                    {stock === 0 ? 'Out of stock' : `${stock} in stock`}
+                    {stock === 0 ? t('products.list.stock_badge.out_of_stock') : t('products.list.stock_badge.in_stock', { count: stock })}
                   </Badge>
                 </div>
 
@@ -522,13 +524,13 @@ export const Products: React.FC = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/products/${product._id}/edit`); }}>
-                      <Edit className="mr-2 h-4 w-4" />Edit
+                      <Edit className="mr-2 h-4 w-4" />{t('common.action.edit')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive"
                       onClick={(e) => { e.stopPropagation(); handleDelete(product._id, product.name); }}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />Delete
+                      <Trash2 className="mr-2 h-4 w-4" />{t('common.action.delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -542,12 +544,11 @@ export const Products: React.FC = () => {
       {pagination.pages > 1 && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
           <p className="text-sm text-muted-foreground">
-            Showing <span className="font-medium text-foreground">{((page - 1) * pagination.limit) + 1}–{Math.min(page * pagination.limit, pagination.total)}</span> of{' '}
-            <span className="font-medium text-foreground">{pagination.total}</span>
+            {t('common.pagination.showing', { from: ((page - 1) * pagination.limit) + 1, to: Math.min(page * pagination.limit, pagination.total), total: pagination.total })}
           </p>
           <div className="flex items-center gap-1">
             <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-              Previous
+              {t('common.action.previous')}
             </Button>
             {Array.from({ length: Math.min(5, pagination.pages) }).map((_, i) => {
               const pageNum = i + 1;
@@ -564,7 +565,7 @@ export const Products: React.FC = () => {
               );
             })}
             <Button variant="outline" size="sm" disabled={page === pagination.pages} onClick={() => setPage((p) => p + 1)}>
-              Next
+              {t('common.action.next')}
             </Button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/auth-context';
 import { Card, CardContent } from './ui/card';
 import { ShieldAlert } from 'lucide-react';
@@ -18,6 +19,7 @@ export const RequirePermission: React.FC<RequirePermissionProps> = ({
   inline = true,
 }) => {
   const { can, isLoading, permissions } = useAuth();
+  const { t } = useTranslation(['errors']);
   const keys = Array.isArray(permission) ? permission : [permission];
 
   // Wait until /auth/me has populated permissions. Otherwise a brief
@@ -38,10 +40,11 @@ export const RequirePermission: React.FC<RequirePermissionProps> = ({
         <Card>
           <CardContent className="flex flex-col items-center py-12 text-center">
             <ShieldAlert className="h-10 w-10 text-muted-foreground mb-3" />
-            <h2 className="text-lg font-semibold">You don't have access to this page</h2>
+            <h2 className="text-lg font-semibold">{t('errors:permission.denied_title')}</h2>
             <p className="text-sm text-muted-foreground max-w-md mt-1">
-              Ask an admin to grant you the required permission
-              {keys.length === 1 ? ` (${keys[0]})` : ` (one of: ${keys.join(', ')})`}.
+              {keys.length === 1
+                ? t('errors:permission.denied_body', { key: keys[0] })
+                : t('errors:permission.denied_body_multiple', { keys: keys.join(', ') })}
             </p>
           </CardContent>
         </Card>

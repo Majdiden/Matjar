@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { useSetBreadcrumbs } from '../../contexts/breadcrumb-context';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -122,6 +123,7 @@ interface PaymentMethodsEnvelope {
 }
 
 export const OrderDetails: React.FC = () => {
+  const { t } = useTranslation(['orders', 'common']);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { can } = useAuth();
@@ -139,7 +141,7 @@ export const OrderDetails: React.FC = () => {
   useSetBreadcrumbs(
     order
       ? [
-          { label: 'Orders', href: '/dashboard/orders' },
+          { label: t('orders:list.title'), href: '/dashboard/orders' },
           { label: `#${String(order.orderNumber || order._id).replace(/^#+/, '')}` },
         ]
       : null
@@ -273,13 +275,13 @@ export const OrderDetails: React.FC = () => {
     try {
       setVerifying(true);
       await api.payments.verifyManual(order._id, { note: verifyNote || undefined });
-      toast.success('Payment verified — order marked paid');
+      toast.success(t('orders:toast.payment_verified'));
       setVerifyOpen(false);
       await loadOrder(order._id);
       await loadPayments(order._id);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to verify payment');
+      toast.error(msg || t('orders:toast.verify_failed'));
     } finally {
       setVerifying(false);
     }
@@ -293,7 +295,7 @@ export const OrderDetails: React.FC = () => {
       setOrder(extractOrder(response));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      setError(msg || 'Failed to load order');
+      setError(msg || t('orders:toast.load_failed'));
     } finally {
       setLoading(false);
     }
@@ -333,11 +335,11 @@ export const OrderDetails: React.FC = () => {
     if (!order) return;
     const amt = Number(refundAmount);
     if (!amt || amt <= 0) {
-      toast.error('Enter a valid refund amount');
+      toast.error(t('orders:validation.refund_amount_invalid'));
       return;
     }
     if (amt > maxRefundable) {
-      toast.error(`Refund cannot exceed ${formatPrice(maxRefundable)}`);
+      toast.error(t('orders:dialog.refund.error_exceeds', { max: formatPrice(maxRefundable) }));
       return;
     }
     try {
@@ -352,8 +354,8 @@ export const OrderDetails: React.FC = () => {
       });
       toast.success(
         isManualRefund
-          ? `Recorded manual refund of ${formatPrice(amt)}`
-          : `Refunded ${formatPrice(amt)}`,
+          ? t('orders:toast.refund_success_manual', { amount: formatPrice(amt) })
+          : t('orders:toast.refund_success_gateway', { amount: formatPrice(amt) }),
       );
       setRefundOpen(false);
       // Reload both — order paymentStatus may have flipped to Refunded
@@ -362,7 +364,7 @@ export const OrderDetails: React.FC = () => {
       await loadPayments(order._id);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Refund failed');
+      toast.error(msg || t('orders:toast.refund_failed'));
     } finally {
       setRefunding(false);
     }
@@ -386,7 +388,7 @@ export const OrderDetails: React.FC = () => {
       .filter(([, q]) => q > 0)
       .map(([orderLineId, quantity]) => ({ orderLineId, quantity }));
     if (items.length === 0) {
-      toast.error('Select at least one item to replace');
+      toast.error(t('orders:dialog.replacement.error_no_items'));
       return;
     }
     try {
@@ -396,7 +398,7 @@ export const OrderDetails: React.FC = () => {
         reason: replacementReason || undefined,
       }) as { responseObject?: { replacement?: { _id?: string } } };
       const replacementId = res?.responseObject?.replacement?._id;
-      toast.success('Replacement order created');
+      toast.success(t('orders:toast.replacement_created'));
       setReplacementOpen(false);
       await loadOrder(order._id);
       if (replacementId) {
@@ -405,7 +407,7 @@ export const OrderDetails: React.FC = () => {
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to create replacement');
+      toast.error(msg || t('orders:toast.replacement_failed'));
     } finally {
       setCreatingReplacement(false);
     }
@@ -429,7 +431,7 @@ export const OrderDetails: React.FC = () => {
       .filter(([, q]) => q > 0)
       .map(([orderLineId, quantity]) => ({ orderLineId, quantity }));
     if (items.length === 0) {
-      toast.error('Select at least one item to return');
+      toast.error(t('orders:dialog.return.error_no_items'));
       return;
     }
     try {
@@ -438,12 +440,12 @@ export const OrderDetails: React.FC = () => {
         items,
         reason: returnReason || undefined,
       });
-      toast.success('Return requested');
+      toast.success(t('orders:toast.return_requested'));
       setReturnOpen(false);
       await loadOrder(order._id);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to create return');
+      toast.error(msg || t('orders:toast.return_failed'));
     } finally {
       setCreatingReturn(false);
     }
@@ -457,11 +459,11 @@ export const OrderDetails: React.FC = () => {
         status: nextStatus,
         refundAmount: refundAmt,
       });
-      toast.success(`Return marked ${nextStatus.toLowerCase()}`);
+      toast.success(t('orders:toast.return_updated', { status: nextStatus.toLowerCase() }));
       await loadOrder(order._id);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to update return');
+      toast.error(msg || t('orders:toast.return_update_failed'));
     } finally {
       setReturnBusy(null);
     }
@@ -476,10 +478,10 @@ export const OrderDetails: React.FC = () => {
       // entry — prefer it over a local merge so the timeline reflects truth.
       const updated = res?.responseObject;
       setOrder(updated || { ...order, status: newStatus });
-      toast.success(`Status updated to ${newStatus}`);
+      toast.success(t('orders:toast.status_updated', { status: newStatus }));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to update status');
+      toast.error(msg || t('orders:toast.status_update_failed'));
     } finally {
       setUpdatingStatus(false);
     }
@@ -499,11 +501,11 @@ export const OrderDetails: React.FC = () => {
     if (!order) return;
     const body = noteDraft.trim();
     if (!body) {
-      toast.error('Note cannot be empty');
+      toast.error(t('orders:validation.note_empty'));
       return;
     }
     if (body.length > 2000) {
-      toast.error('Note exceeds 2000 characters');
+      toast.error(t('orders:validation.note_too_long'));
       return;
     }
     try {
@@ -512,10 +514,10 @@ export const OrderDetails: React.FC = () => {
       setOrder(res?.responseObject || order);
       setNoteDraft('');
       setNotePinned(false);
-      toast.success('Note added');
+      toast.success(t('orders:toast.note_added'));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to add note');
+      toast.error(msg || t('orders:toast.note_add_failed'));
     } finally {
       setNoteSubmitting(false);
     }
@@ -524,9 +526,9 @@ export const OrderDetails: React.FC = () => {
   const handleDeleteNote = async (noteId: string) => {
     if (!order) return;
     const ok = await confirm({
-      title: 'Delete internal note?',
-      description: 'This note will be removed from the order.',
-      confirmText: 'Delete',
+      title: t('orders:dialog.delete_note.title'),
+      description: t('orders:dialog.delete_note.description'),
+      confirmText: t('orders:dialog.delete_note.confirm'),
       variant: 'destructive',
     });
     if (!ok) return;
@@ -534,10 +536,10 @@ export const OrderDetails: React.FC = () => {
       setNoteBusy(noteId);
       const res = await api.orders.deleteNote(order._id, noteId) as { responseObject?: Order };
       setOrder(res?.responseObject || order);
-      toast.success('Note deleted');
+      toast.success(t('orders:toast.note_deleted'));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to delete note');
+      toast.error(msg || t('orders:toast.note_delete_failed'));
     } finally {
       setNoteBusy(null);
     }
@@ -547,11 +549,11 @@ export const OrderDetails: React.FC = () => {
     if (!order) return;
     const tag = tagDraft.trim();
     if (!tag) {
-      toast.error('Tag cannot be empty');
+      toast.error(t('orders:validation.tag_empty'));
       return;
     }
     if (tag.length > 32) {
-      toast.error('Tag exceeds 32 characters');
+      toast.error(t('orders:validation.tag_too_long'));
       return;
     }
     try {
@@ -561,7 +563,7 @@ export const OrderDetails: React.FC = () => {
       setTagDraft('');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to add tag');
+      toast.error(msg || t('orders:toast.tag_add_failed'));
     } finally {
       setTagSubmitting(false);
     }
@@ -575,7 +577,7 @@ export const OrderDetails: React.FC = () => {
       setOrder(res?.responseObject || order);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to remove tag');
+      toast.error(msg || t('orders:toast.tag_remove_failed'));
     } finally {
       setTagBusy(null);
     }
@@ -624,14 +626,14 @@ export const OrderDetails: React.FC = () => {
         order._id,
         payload as Parameters<typeof api.orders.updateAddresses>[1],
       ) as OrderEnvelope;
-      toast.success(addressDialogKind === 'shipping' ? 'Shipping address updated' : 'Billing address updated');
+      toast.success(addressDialogKind === 'shipping' ? t('orders:toast.address_shipping_updated') : t('orders:toast.address_billing_updated'));
       setAddressDialogOpen(false);
       const updated = extractOrder(res);
       if (updated) setOrder(updated);
       else await loadOrder(order._id);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || 'Failed to save address');
+      toast.error(msg || t('orders:toast.address_save_failed'));
     } finally {
       setSavingAddress(false);
     }
@@ -644,7 +646,7 @@ export const OrderDetails: React.FC = () => {
     addr: Address | undefined,
     opts: { sameAsShipping?: boolean } = {}
   ) => {
-    const title = kind === 'shipping' ? 'Shipping address' : 'Billing address';
+    const title = kind === 'shipping' ? t('orders:detail.address.shipping') : t('orders:detail.address.billing');
     const hasAny = !!(
       addr && (addr.addressLine1 || addr.city || addr.postalCode || addr.firstName)
     );
@@ -672,7 +674,7 @@ export const OrderDetails: React.FC = () => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild><span>{editButton}</span></TooltipTrigger>
-                <TooltipContent>You need the orders.write permission to edit addresses</TooltipContent>
+                <TooltipContent>{t('orders:detail.address.needs_write')}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
@@ -680,11 +682,11 @@ export const OrderDetails: React.FC = () => {
         <CardContent>
           {opts.sameAsShipping ? (
             <div className="bg-muted/50 p-4 rounded-lg text-sm text-muted-foreground">
-              Same as shipping address
+              {t('orders:detail.address.same_as_shipping')}
             </div>
           ) : !hasAny ? (
             <div className="bg-muted/50 p-4 rounded-lg text-sm text-muted-foreground">
-              No {kind} address on file
+              {t('orders:detail.address.none_on_file', { kind })}
             </div>
           ) : (
             <div className="bg-muted/50 p-4 rounded-lg text-sm space-y-1">
@@ -705,7 +707,7 @@ export const OrderDetails: React.FC = () => {
               {addr?.deliveryInstructions && (
                 <div className="mt-3 pt-3 border-t border-border">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
-                    Delivery instructions
+                    {t('orders:detail.address.delivery_instructions')}
                   </p>
                   <p className="whitespace-pre-wrap">{addr.deliveryInstructions}</p>
                 </div>
@@ -736,12 +738,12 @@ export const OrderDetails: React.FC = () => {
     return (
       <div className="space-y-6">
         <Button variant="outline" onClick={() => navigate('/dashboard/orders')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />Back to Orders
+          <ArrowLeft className="h-4 w-4 mr-2" />{t('orders:detail.back')}
         </Button>
         <Card>
           <CardContent className="p-8 text-center">
             <AlertCircle className="h-10 w-10 text-destructive mx-auto mb-3" />
-            <p className="text-destructive">{error || 'Order not found'}</p>
+            <p className="text-destructive">{error}</p>
           </CardContent>
         </Card>
       </div>
@@ -774,12 +776,12 @@ export const OrderDetails: React.FC = () => {
         reference: opts.reference,
         note: opts.note,
       });
-      toast.success(`${label} — updated`);
+      toast.success(t('orders:toast.payment_action_updated', { label }));
       await loadOrder(order._id);
       await loadPayments(order._id);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || `Failed: ${label}`);
+      toast.error(msg || t('orders:toast.payment_action_failed', { label }));
     } finally {
       setPaymentActionBusy(false);
     }
@@ -795,7 +797,7 @@ export const OrderDetails: React.FC = () => {
   const submitRecordManual = async () => {
     const amt = Number(recordManualAmount);
     if (!amt || amt <= 0) {
-      toast.error('Enter a positive amount');
+      toast.error(t('orders:validation.refund_amount_positive'));
       return;
     }
     await runPaymentAction('record_manual', 'Record manual payment', {
@@ -875,17 +877,17 @@ export const OrderDetails: React.FC = () => {
         }}
         onCancelOrder={async () => {
           const ok = await confirm({
-            title: 'Cancel this order?',
-            description: 'The customer will be notified and any authorized payment will be voided.',
+            title: t('orders:dialog.cancel_order.title'),
+            description: t('orders:dialog.cancel_order.description'),
             variant: 'destructive',
-            confirmText: 'Cancel order',
-            cancelText: 'Keep order',
+            confirmText: t('orders:dialog.cancel_order.confirm'),
+            cancelText: t('orders:dialog.cancel_order.keep'),
           });
           if (!ok) return;
           try {
             setPaymentActionBusy(true);
             await api.orders.cancel(order._id);
-            toast.success('Order cancelled');
+            toast.success(t('orders:toast.order_cancelled'));
             await loadOrder(order._id);
           } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : null;

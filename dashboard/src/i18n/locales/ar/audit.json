@@ -1,1 +1,67 @@
-{}
+{
+  "audit": {
+    "list": {
+      "title": "سجلات التدقيق",
+      "subtitle": "تتبع جميع التغييرات والإجراءات في متجرك",
+      "card_title": "سجل النشاط",
+      "empty_title": "لا توجد سجلات تدقيق",
+      "empty_description": "سيتم تسجيل النشاط هنا عند إجراء أي تغييرات.",
+      "column": {
+        "time": "الوقت",
+        "actor": "المنفّذ",
+        "action": "الإجراء",
+        "resource": "المورد",
+        "resource_id": "معرف المورد",
+        "ip": "IP",
+        "details": "التفاصيل"
+      }
+    },
+    "detail": {
+      "title": "تفاصيل سجل التدقيق",
+      "field": {
+        "action": "الإجراء",
+        "resource": "المورد",
+        "actor": "المنفّذ",
+        "time": "الوقت",
+        "ip_address": "عنوان IP",
+        "resource_id": "معرف المورد",
+        "changes": "التغييرات",
+        "user_agent": "عميل المستخدم"
+      },
+      "system_actor": "النظام",
+      "na": "غير متاح"
+    },
+    "filter": {
+      "all_resources": "جميع الموارد",
+      "all_actions": "جميع الإجراءات",
+      "resource": {
+        "product": "منتج",
+        "order": "طلب",
+        "customer": "عميل",
+        "settings": "إعدادات",
+        "discount": "خصم",
+        "theme": "قالب",
+        "market": "سوق"
+      },
+      "action": {
+        "create": "إنشاء",
+        "update": "تحديث",
+        "delete": "حذف"
+      }
+    },
+    "action": {
+      "create": { "label": "إنشاء" },
+      "update": { "label": "تحديث" },
+      "delete": { "label": "حذف" },
+      "add": { "label": "إضافة" },
+      "remove": { "label": "إزالة" },
+      "edit": { "label": "تعديل" }
+    },
+    "toast": {
+      "load_failed": "فشل تحميل سجلات التدقيق"
+    },
+    "pagination": {
+      "page_of": "صفحة {{page}} من {{total}}"
+    }
+  }
+}

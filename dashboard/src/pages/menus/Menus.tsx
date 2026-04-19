@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -61,6 +62,7 @@ interface MenusListResponse {
 export const Menus: React.FC = () => {
   const navigate = useNavigate();
   const confirm = useConfirm();
+  const { t } = useTranslation(['menus', 'common']);
   const [menus, setMenus] = useState<Menu[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -82,25 +84,25 @@ export const Menus: React.FC = () => {
     try {
       await api.patch(`/menus/${menu._id}`, { isActive: !menu.isActive });
       setMenus(prev => prev.map(m => m._id === menu._id ? { ...m, isActive: !m.isActive } : m));
-      toast.success(menu.isActive ? 'Menu deactivated' : 'Menu activated');
+      toast.success(menu.isActive ? t('menus:list.toast.deactivated') : t('menus:list.toast.activated'));
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to toggle menu'));
+      toast.error(errMsg(err, t('menus:list.toast.error_toggle')));
     }
   };
 
   const handleDelete = async (menu: Menu) => {
     if (!(await confirm({
-      title: 'Delete menu?',
-      description: `"${menu.title}" will be permanently removed.`,
-      confirmText: 'Delete',
+      title: t('menus:list.confirm.delete_title'),
+      description: t('menus:list.confirm.delete_description', { title: menu.title }),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       await api.delete(`/menus/${menu._id}`);
-      toast.success('Menu deleted');
+      toast.success(t('menus:list.toast.deleted'));
       setMenus(prev => prev.filter(m => m._id !== menu._id));
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to delete menu'));
+      toast.error(errMsg(err, t('menus:list.toast.error_delete')));
     }
   };
 
@@ -117,12 +119,12 @@ export const Menus: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Navigation</h1>
-          <p className="text-muted-foreground">Manage header, footer, and mobile menu trees</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('menus:list.title')}</h1>
+          <p className="text-muted-foreground">{t('menus:list.subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/dashboard/menus/new')}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Menu
+          {t('menus:list.action.add')}
         </Button>
       </div>
 
@@ -133,13 +135,13 @@ export const Menus: React.FC = () => {
               <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <NavigationIcon className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">No menus yet</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('menus:list.empty.title')}</h3>
               <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-                Create navigation menus for your storefront header, footer, or mobile nav.
+                {t('menus:list.empty.hint')}
               </p>
               <Button onClick={() => navigate('/dashboard/menus/new')}>
                 <Plus className="h-4 w-4 mr-2" />
-                Create Your First Menu
+                {t('menus:list.empty.action')}
               </Button>
             </div>
           </CardContent>
@@ -150,12 +152,12 @@ export const Menus: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Handle</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Active</TableHead>
-                  <TableHead>Updated</TableHead>
+                  <TableHead>{t('menus:list.column.title')}</TableHead>
+                  <TableHead>{t('menus:list.column.handle')}</TableHead>
+                  <TableHead>{t('menus:list.column.location')}</TableHead>
+                  <TableHead>{t('menus:list.column.items')}</TableHead>
+                  <TableHead>{t('menus:list.column.active')}</TableHead>
+                  <TableHead>{t('menus:list.column.updated')}</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
@@ -198,13 +200,13 @@ export const Menus: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => navigate(`/dashboard/menus/${menu._id}/edit`)}>
-                            <Edit className="h-4 w-4 mr-2" />Edit
+                            <Edit className="h-4 w-4 mr-2" />{t('common:action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDelete(menu)}
                             className="text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />Delete
+                            <Trash2 className="h-4 w-4 mr-2" />{t('common:action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

@@ -4,6 +4,7 @@
  * device toggle, reset, preview, publish.
  */
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Eye, RotateCcw, Smartphone, Tablet, Monitor, ChevronDown, Loader2, Check, History as HistoryIcon, RotateCw, PanelLeft, PanelRight } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -95,7 +96,8 @@ export default function EditorTopBar({
   onToggleLeftSidebar,
   onToggleRightSidebar,
 }: EditorTopBarProps) {
-  const currentPageLabel = pageOptions.find((p) => p.id === currentPage)?.label || 'Home';
+  const { t } = useTranslation(['themes', 'common']);
+  const currentPageLabel = pageOptions.find((p) => p.id === currentPage)?.label || t('themes:editor.template.index');
 
   const [historyOpen, setHistoryOpen] = useState(false);
   const [versions, setVersions] = useState<ThemeVersionEntry[]>([]);
@@ -129,19 +131,19 @@ export default function EditorTopBar({
 
   const handleRollback = async (version: number) => {
     if (!(await confirm({
-      title: `Restore version ${version}?`,
-      description: 'This will overwrite your current draft. Any unsaved changes will be lost.',
-      confirmText: 'Restore',
+      title: t('themes:editor.version_history.confirm_title', { version }),
+      description: t('themes:editor.version_history.confirm_description'),
+      confirmText: t('themes:editor.version_history.confirm_text'),
       variant: 'destructive',
     }))) return;
     try {
       setRollingBack(version);
       await api.themeVersions.rollback(version);
-      toast.success(`Restored draft to version ${version}`);
+      toast.success(t('themes:editor.version_history.toast_restored', { version }));
       setHistoryOpen(false);
       if (onRollback) await onRollback();
     } catch (err: unknown) {
-      toast.error(errorMessage(err, 'Rollback failed'));
+      toast.error(errorMessage(err, t('themes:editor.version_history.toast_error_rollback')));
     } finally {
       setRollingBack(null);
     }
@@ -158,7 +160,7 @@ export default function EditorTopBar({
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Back to themes</TooltipContent>
+            <TooltipContent>{t('themes:editor.topbar.back')}</TooltipContent>
           </Tooltip>
 
           <div className="h-6 w-px bg-slate-200" />
@@ -174,7 +176,7 @@ export default function EditorTopBar({
                 <PanelLeft className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{leftSidebarOpen ? 'Hide sections' : 'Show sections'}</TooltipContent>
+            <TooltipContent>{leftSidebarOpen ? t('themes:editor.topbar.hide_sections') : t('themes:editor.topbar.show_sections')}</TooltipContent>
           </Tooltip>
 
           <div className="h-6 w-px bg-slate-200" />
@@ -186,7 +188,7 @@ export default function EditorTopBar({
                 variant="outline"
                 className="text-[10px] px-1.5 py-0 h-5 border-amber-300 bg-amber-50 text-amber-700 font-medium"
               >
-                Unpublished changes
+                {t('themes:editor.topbar.unpublished_changes')}
               </Badge>
             )}
             <SaveIndicator status={saveStatus} />
@@ -198,7 +200,7 @@ export default function EditorTopBar({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 gap-2 font-medium">
-                <span className="text-xs text-slate-500">Page:</span>
+                <span className="text-xs text-slate-500">{t('themes:editor.topbar.page_label')}</span>
                 <span>{currentPageLabel}</span>
                 <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
               </Button>
@@ -223,19 +225,19 @@ export default function EditorTopBar({
             <DeviceButton
               active={deviceMode === 'desktop'}
               icon={<Monitor className="h-3.5 w-3.5" />}
-              label="Desktop"
+              label={t('themes:editor.topbar.device.desktop')}
               onClick={() => onDeviceChange('desktop')}
             />
             <DeviceButton
               active={deviceMode === 'tablet'}
               icon={<Tablet className="h-3.5 w-3.5" />}
-              label="Tablet"
+              label={t('themes:editor.topbar.device.tablet')}
               onClick={() => onDeviceChange('tablet')}
             />
             <DeviceButton
               active={deviceMode === 'mobile'}
               icon={<Smartphone className="h-3.5 w-3.5" />}
-              label="Mobile"
+              label={t('themes:editor.topbar.device.mobile')}
               onClick={() => onDeviceChange('mobile')}
             />
           </div>
@@ -254,7 +256,7 @@ export default function EditorTopBar({
                 <PanelRight className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{rightSidebarOpen ? 'Hide settings' : 'Show settings'}</TooltipContent>
+            <TooltipContent>{rightSidebarOpen ? t('themes:editor.topbar.hide_settings') : t('themes:editor.topbar.show_settings')}</TooltipContent>
           </Tooltip>
 
           <div className="h-6 w-px bg-slate-200" />
@@ -264,7 +266,7 @@ export default function EditorTopBar({
                 <RotateCcw className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Reset to theme defaults</TooltipContent>
+            <TooltipContent>{t('themes:editor.topbar.reset')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -278,17 +280,17 @@ export default function EditorTopBar({
                 <HistoryIcon className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Version history</TooltipContent>
+            <TooltipContent>{t('themes:editor.topbar.version_history')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="sm" className="h-9 gap-2" onClick={onPreview}>
                 <Eye className="h-4 w-4" />
-                <span className="hidden sm:inline">Preview</span>
+                <span className="hidden sm:inline">{t('themes:editor.topbar.preview')}</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Open preview in new tab</TooltipContent>
+            <TooltipContent>{t('themes:editor.topbar.open_preview')}</TooltipContent>
           </Tooltip>
 
           <Button
@@ -304,15 +306,15 @@ export default function EditorTopBar({
             {saving ? (
               <>
                 <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                Publishing
+                {t('themes:editor.topbar.publishing')}
               </>
             ) : hasChanges ? (
               <>
                 <Check className="h-4 w-4 mr-1.5" />
-                Publish changes
+                {t('themes:editor.topbar.publish_changes')}
               </>
             ) : (
-              'Publish'
+              t('themes:editor.topbar.publish')
             )}
           </Button>
         </div>
@@ -321,20 +323,18 @@ export default function EditorTopBar({
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Version history</DialogTitle>
+            <DialogTitle>{t('themes:editor.version_history.title')}</DialogTitle>
             <DialogDescription>
-              Every publish creates a snapshot. Restoring brings the snapshot
-              into your draft — you'll still need to publish it to make it
-              live.
+              {t('themes:editor.version_history.description')}
             </DialogDescription>
           </DialogHeader>
           {versionsLoading ? (
             <div className="py-8 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+              <Loader2 className="h-4 w-4 animate-spin" /> {t('themes:editor.version_history.loading')}
             </div>
           ) : versions.length === 0 ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
-              No published versions yet. Hit Publish to create your first snapshot.
+              {t('themes:editor.version_history.empty')}
             </div>
           ) : (
             <div className="border rounded-md divide-y">
@@ -368,7 +368,7 @@ export default function EditorTopBar({
                     ) : (
                       <RotateCw className="h-4 w-4 mr-2" />
                     )}
-                    Restore
+                    {t('themes:editor.version_history.restore')}
                   </Button>
                 </div>
               ))}
@@ -411,18 +411,19 @@ function DeviceButton({
 }
 
 function SaveIndicator({ status }: { status: 'idle' | 'saving' | 'saved' }) {
+  const { t } = useTranslation(['themes']);
   if (status === 'idle') return null;
   return (
     <span className="text-[11px] text-slate-400 flex items-center gap-1 ml-1">
       {status === 'saving' ? (
         <>
           <Loader2 className="h-3 w-3 animate-spin" />
-          Saving…
+          {t('themes:editor.topbar.save_status.saving')}
         </>
       ) : (
         <>
           <Check className="h-3 w-3 text-emerald-500" />
-          Saved
+          {t('themes:editor.topbar.save_status.saved')}
         </>
       )}
     </span>

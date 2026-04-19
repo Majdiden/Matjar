@@ -1,1 +1,170 @@
-{}
+{
+  "list": {
+    "title": "Domains",
+    "subtitle": "The web addresses people use to visit your store.",
+    "hero": {
+      "live_at": "Your store is live at",
+      "copy": "Copy",
+      "visit": "Visit store"
+    },
+    "platform": {
+      "title": "Free platform address",
+      "badge_main": "Main address",
+      "description": "Always available. No DNS setup needed. Free forever.",
+      "rename": "Rename",
+      "copy_aria": "Copy address",
+      "visit_aria": "Visit store",
+      "not_primary": "Not currently your main address.",
+      "use_as_main": "Use as main address"
+    },
+    "custom": {
+      "section_title": "Your custom domains",
+      "section_hint": "Connect a domain you already own — we'll handle the security certificate automatically.",
+      "add_another": "Add another",
+      "main_address_badge": "Main address",
+      "use_as_main": "Use as main address",
+      "visit": "Visit",
+      "remove": "Remove"
+    },
+    "empty": {
+      "title": "No custom domains yet",
+      "hint": "Connect a domain like mystore.com to give your store a professional address. We'll handle the SSL certificate automatically.",
+      "action": "Connect a domain"
+    },
+    "plan_gate": {
+      "title": "Custom domains are a Pro feature",
+      "hint": "You're on the {{plan}} plan. Upgrade to connect a domain you already own.",
+      "upgrade": "Upgrade plan"
+    },
+    "action": {
+      "connect": "Connect a domain"
+    },
+    "column": {
+      "address": "Address",
+      "status": "Status"
+    }
+  },
+  "ssl": {
+    "title": "Security certificate",
+    "status": {
+      "active": "Live",
+      "pending_dns": "Waiting for DNS records",
+      "ownership_verified": "Checking DNS routing",
+      "dns_verified": "Requesting security certificate",
+      "provisioning_ssl": "Setting up security certificate",
+      "ssl_failed": "Couldn't issue certificate",
+      "dns_misconfigured": "DNS is no longer pointing at us",
+      "disabled": "Disabled"
+    },
+    "description": {
+      "active": "Your store is serving visitors at this address.",
+      "pending_dns": "Add the DNS records shown below at your domain provider. This proves you own the domain.",
+      "ownership_verified": "Ownership confirmed. Now checking that your domain points to our servers.",
+      "dns_verified": "DNS is pointing at us. Preparing to issue an SSL certificate.",
+      "provisioning_ssl": "This usually takes a few minutes. You don't need to do anything.",
+      "ssl_failed": "We weren't able to get a security certificate for this domain. You can try again.",
+      "dns_misconfigured": "Your DNS records changed and no longer point to our servers. Update them and re-check.",
+      "disabled": "This domain is turned off and not serving traffic."
+    },
+    "issued_valid": "Issued & valid",
+    "issued_on": "Issued on",
+    "expires_in": "Expires in",
+    "days": "{{count}} days",
+    "auto_renew": "(will auto-renew)",
+    "status_label": "Status"
+  },
+  "dns": {
+    "records_title": "Add these records in your DNS settings",
+    "propagation_hint": "Usually takes 5–30 minutes to take effect",
+    "purpose_ownership": "Proves you own the domain",
+    "purpose_routing": "Routes visitors to your store",
+    "mismatch_title": "DNS no longer points at our servers",
+    "should_point": "Should point at:",
+    "currently_resolves": "Currently resolves to:",
+    "copy_target": "Copy correct target",
+    "check_now": "I've added the records — check now",
+    "recheck": "Try again",
+    "field": {
+      "name": "Name",
+      "value": "Value"
+    }
+  },
+  "setup_steps": {
+    "verify_ownership": "Verify ownership",
+    "check_routing": "Check DNS routing",
+    "issue_cert": "Issue certificate",
+    "live": "Live"
+  },
+  "add": {
+    "title_input": "Add a custom domain",
+    "title_verify": "Verify domain ownership",
+    "title_done": "Domain connected",
+    "description_input": "Connect a hostname you own to this store.",
+    "description_verify": "Add the DNS records below, then click verify.",
+    "description_done": "SSL certificate is being issued. You can close this dialog.",
+    "field": {
+      "hostname": {
+        "label": "Hostname",
+        "placeholder": "shop.mystore.com",
+        "hint": "Enter without http:// or https://."
+      }
+    },
+    "kind": {
+      "apex": "Apex domain",
+      "subdomain": "Subdomain"
+    },
+    "dns_records_title": "DNS records to add",
+    "propagation_hint_1": "DNS propagation usually takes 5–30 minutes, sometimes longer.",
+    "propagation_hint_2": "After the records resolve globally, click Verify.",
+    "verified_message": "{{hostname}} is verified",
+    "ssl_progress": "SSL issuance is in progress. You can track status in the domains list.",
+    "step": {
+      "domain": "Domain",
+      "verify": "Verify",
+      "connected": "Connected"
+    },
+    "action": {
+      "continue": "Continue",
+      "back": "Back",
+      "verify": "Verify domain",
+      "close": "Close"
+    },
+    "toast": {
+      "added": "Domain added — now verify ownership",
+      "verified": "Domain verified — SSL provisioning started",
+      "error_add": "Failed to add domain",
+      "error_verify": "Verification failed"
+    }
+  },
+  "subdomain_dialog": {
+    "title": "Change your free address",
+    "description": "This will change the slug used for your free .{{suffix}} address. Any bookmarks to your old address will stop working.",
+    "field": {
+      "new_address": {
+        "label": "New address"
+      }
+    },
+    "toast": {
+      "updated": "Address updated",
+      "error": "Failed to update address"
+    }
+  },
+  "toast": {
+    "set_primary": "{{hostname}} is now your main storefront address",
+    "error_primary": "Failed to update main address",
+    "retry_ssl": "Retrying setup for {{hostname}}",
+    "error_retry": "Retry failed",
+    "recheck_dns": "Checked DNS for {{hostname}}",
+    "error_recheck": "DNS check failed",
+    "removed": "{{hostname}} removed",
+    "error_remove": "Failed to remove domain",
+    "error_load": "Failed to load domains",
+    "address_copied": "Address copied",
+    "target_copied": "Target copied"
+  },
+  "confirm": {
+    "remove_title": "Remove {{hostname}}?",
+    "remove_description": "Your store will stop responding at this address and the security certificate will be revoked. You can add the domain back later.",
+    "remove_confirm": "Remove domain"
+  }
+}

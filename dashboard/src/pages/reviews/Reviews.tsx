@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api-client';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -48,6 +49,7 @@ const errMsg = (err: unknown, fallback: string): string => {
 };
 
 export default function Reviews() {
+  const { t } = useTranslation(['reviews', 'common']);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -70,11 +72,11 @@ export default function Reviews() {
       setTotalPages(res.data.pagination.pages);
       setTotal(res.data.pagination.total);
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to fetch reviews'));
+      toast.error(errMsg(err, t('reviews.toast.fetch_failed')));
     } finally {
       setLoading(false);
     }
-  }, [page, statusFilter, search]);
+  }, [page, statusFilter, search, t]);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -94,29 +96,33 @@ export default function Reviews() {
       await Promise.all([...selected].map((id) =>
         api.patch(`/reviews/${id}/${approve ? 'approve' : 'reject'}`)
       ));
-      toast.success(`${selected.size} review${selected.size === 1 ? '' : 's'} ${approve ? 'approved' : 'rejected'}`);
+      if (approve) {
+        toast.success(t('reviews.toast.bulk_updated_plural', { count: selected.size }));
+      } else {
+        toast.success(t('reviews.toast.bulk_rejected_plural', { count: selected.size }));
+      }
       setSelected(new Set());
       fetchReviews();
     } catch (err) {
-      toast.error(errMsg(err, 'Bulk update failed'));
+      toast.error(errMsg(err, t('reviews.toast.bulk_update_failed')));
     }
   };
 
   const handleBulkDelete = async () => {
     if (selected.size === 0) return;
     if (!(await confirm({
-      title: `Delete ${selected.size} review${selected.size === 1 ? '' : 's'}?`,
-      description: 'This cannot be undone.',
-      confirmText: 'Delete',
+      title: t('reviews.confirm_bulk_delete.title_plural', { count: selected.size }),
+      description: t('reviews.confirm_bulk_delete.description'),
+      confirmText: t('reviews.confirm_bulk_delete.confirm_text'),
       variant: 'destructive',
     }))) return;
     try {
       await Promise.all([...selected].map((id) => api.delete(`/reviews/${id}`)));
-      toast.success(`${selected.size} deleted`);
+      toast.success(t('reviews.toast.bulk_deleted', { count: selected.size }));
       setSelected(new Set());
       fetchReviews();
     } catch (err) {
-      toast.error(errMsg(err, 'Bulk delete failed'));
+      toast.error(errMsg(err, t('reviews.toast.bulk_delete_failed')));
     }
   };
 
@@ -125,32 +131,32 @@ export default function Reviews() {
   const handleApprove = async (id: string) => {
     try {
       await api.patch(`/reviews/${id}/approve`);
-      toast.success('Review approved');
+      toast.success(t('reviews.toast.approved'));
       setReviews(prev => prev.map(r => r._id === id ? { ...r, isApproved: true } : r));
-    } catch (err) { toast.error(errMsg(err, 'Failed to approve')); }
+    } catch (err) { toast.error(errMsg(err, t('reviews.toast.approve_failed'))); }
   };
 
   const handleReject = async (id: string) => {
     try {
       await api.patch(`/reviews/${id}/reject`);
-      toast.success('Review rejected');
+      toast.success(t('reviews.toast.rejected'));
       setReviews(prev => prev.map(r => r._id === id ? { ...r, isApproved: false } : r));
-    } catch (err) { toast.error(errMsg(err, 'Failed to reject')); }
+    } catch (err) { toast.error(errMsg(err, t('reviews.toast.reject_failed'))); }
   };
 
   const handleDelete = async (id: string) => {
     if (!(await confirm({
-      title: 'Delete review?',
-      description: 'This permanently removes the review. This cannot be undone.',
-      confirmText: 'Delete',
+      title: t('reviews.confirm_delete.title'),
+      description: t('reviews.confirm_delete.description'),
+      confirmText: t('reviews.confirm_delete.confirm_text'),
       variant: 'destructive',
     }))) return;
     try {
       await api.delete(`/reviews/${id}`);
-      toast.success('Review deleted');
+      toast.success(t('reviews.toast.deleted'));
       setReviews(prev => prev.filter(r => r._id !== id));
-      setTotal(t => t - 1);
-    } catch (err) { toast.error(errMsg(err, 'Failed to delete')); }
+      setTotal(tot => tot - 1);
+    } catch (err) { toast.error(errMsg(err, t('reviews.toast.delete_failed'))); }
   };
 
   const renderStars = (rating: number) => (
@@ -164,15 +170,15 @@ export default function Reviews() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Reviews</h1>
-        <p className="text-muted-foreground">{total} total reviews</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('reviews.list.title')}</h1>
+        <p className="text-muted-foreground">{t('reviews.list.subtitle', { count: total })}</p>
       </div>
 
       <FilterPills
         items={[
-          { id: '', label: 'All', icon: Inbox },
-          { id: 'pending', label: 'Pending', icon: Clock },
-          { id: 'approved', label: 'Approved', icon: CheckCircle2 },
+          { id: '', label: t('reviews.list.filter.all'), icon: Inbox },
+          { id: 'pending', label: t('reviews.list.filter.pending'), icon: Clock },
+          { id: 'approved', label: t('reviews.list.filter.approved'), icon: CheckCircle2 },
         ]}
         value={statusFilter}
         onChange={(v) => { setStatusFilter(v); setPage(1); }}
@@ -182,7 +188,7 @@ export default function Reviews() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search review title or comment..."
+            placeholder={t('reviews.list.search_placeholder')}
             className="pl-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
@@ -195,17 +201,17 @@ export default function Reviews() {
 
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('reviews.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>Clear</Button>
+            <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>{t('reviews.action.bulk_clear')}</Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkApprove(true)}>
-              <Check className="h-3.5 w-3.5 mr-1.5" />Approve
+              <Check className="h-3.5 w-3.5 mr-1.5" />{t('reviews.action.bulk_approve')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkApprove(false)}>
-              <X className="h-3.5 w-3.5 mr-1.5" />Reject
+              <X className="h-3.5 w-3.5 mr-1.5" />{t('reviews.action.bulk_reject')}
             </Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />Delete
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('reviews.action.bulk_delete')}
             </Button>
           </div>
         </div>
@@ -219,8 +225,8 @@ export default function Reviews() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">No reviews found</h3>
-            <p className="text-sm text-muted-foreground">Reviews from customers will appear here.</p>
+            <h3 className="text-lg font-semibold">{t('reviews.list.empty_title')}</h3>
+            <p className="text-sm text-muted-foreground">{t('reviews.list.empty_description')}</p>
           </CardContent>
         </Card>
       ) : viewMode === 'table' ? (
@@ -236,13 +242,13 @@ export default function Reviews() {
                     className="h-4 w-4 rounded border-gray-300"
                   />
                 </TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Excerpt</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="w-[120px] text-right">Actions</TableHead>
+                <TableHead>{t('reviews.list.column.product')}</TableHead>
+                <TableHead>{t('reviews.list.column.rating')}</TableHead>
+                <TableHead>{t('reviews.list.column.author')}</TableHead>
+                <TableHead>{t('reviews.list.column.excerpt')}</TableHead>
+                <TableHead>{t('reviews.list.column.status')}</TableHead>
+                <TableHead>{t('reviews.list.column.date')}</TableHead>
+                <TableHead className="w-[120px] text-right">{t('reviews.list.column.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -259,11 +265,11 @@ export default function Reviews() {
                       />
                     </TableCell>
                     <TableCell className="text-sm font-medium max-w-[160px] truncate">
-                      {review.product?.name || 'Unknown product'}
+                      {review.product?.name || t('reviews.meta.unknown_product')}
                     </TableCell>
                     <TableCell>{renderStars(review.rating)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {review.user ? `${review.user.firstName} ${review.user.lastName}` : 'Anonymous'}
+                      {review.user ? `${review.user.firstName} ${review.user.lastName}` : t('reviews.meta.anonymous')}
                     </TableCell>
                     <TableCell className="text-sm max-w-[280px] truncate">
                       {review.title ? <span className="font-medium mr-1">{review.title}</span> : null}
@@ -271,7 +277,7 @@ export default function Reviews() {
                     </TableCell>
                     <TableCell>
                       <Badge variant={review.isApproved ? 'default' : 'secondary'} className="text-[10px] h-5">
-                        {review.isApproved ? 'Approved' : 'Pending'}
+                        {review.isApproved ? t('reviews.status.approved') : t('reviews.status.pending')}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
@@ -280,16 +286,16 @@ export default function Reviews() {
                     <TableCell>
                       <div className="flex gap-1 justify-end">
                         {!review.isApproved && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleApprove(review._id)} title="Approve">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleApprove(review._id)} title={t('reviews.action.approve')}>
                             <Check className="h-4 w-4 text-green-600" />
                           </Button>
                         )}
                         {review.isApproved && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleReject(review._id)} title="Reject">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleReject(review._id)} title={t('reviews.action.reject')}>
                             <X className="h-4 w-4 text-yellow-600" />
                           </Button>
                         )}
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(review._id)} title="Delete">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(review._id)} title={t('reviews.action.delete')}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
@@ -309,7 +315,7 @@ export default function Reviews() {
               onChange={toggleSelectAll}
               className="h-4 w-4 rounded border-gray-300"
             />
-            <span>Select all</span>
+            <span>{t('reviews.list.select_all')}</span>
           </label>
           {reviews.map(review => (
             <Card key={review._id} className={selected.has(review._id) ? 'border-primary/50 bg-primary/5' : ''}>
@@ -325,32 +331,32 @@ export default function Reviews() {
                     <div className="flex items-center gap-3">
                       {renderStars(review.rating)}
                       <Badge variant={review.isApproved ? 'default' : 'secondary'}>
-                        {review.isApproved ? 'Approved' : 'Pending'}
+                        {review.isApproved ? t('reviews.status.approved') : t('reviews.status.pending')}
                       </Badge>
                       {review.isVerifiedPurchase && (
-                        <Badge variant="outline">Verified Purchase</Badge>
+                        <Badge variant="outline">{t('reviews.badge.verified_purchase')}</Badge>
                       )}
                     </div>
                     {review.title && <h3 className="font-semibold">{review.title}</h3>}
                     <p className="text-sm text-muted-foreground">{review.comment}</p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
-                      <span>By {review.user ? `${review.user.firstName} ${review.user.lastName}` : 'Anonymous'}</span>
-                      <span>on {review.product?.name || 'Unknown product'}</span>
+                      <span>{t('reviews.meta.by', { author: review.user ? `${review.user.firstName} ${review.user.lastName}` : t('reviews.meta.anonymous') })}</span>
+                      <span>{t('reviews.meta.on_product', { product: review.product?.name || t('reviews.meta.unknown_product') })}</span>
                       <span>{new Date(review.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
                   <div className="flex gap-1.5 ml-4">
                     {!review.isApproved && (
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleApprove(review._id)} title="Approve">
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleApprove(review._id)} title={t('reviews.action.approve')}>
                         <Check className="h-4 w-4 text-green-600" />
                       </Button>
                     )}
                     {review.isApproved && (
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleReject(review._id)} title="Reject">
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleReject(review._id)} title={t('reviews.action.reject')}>
                         <X className="h-4 w-4 text-yellow-600" />
                       </Button>
                     )}
-                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleDelete(review._id)} title="Delete">
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleDelete(review._id)} title={t('reviews.action.delete')}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
@@ -363,10 +369,16 @@ export default function Reviews() {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Page {page} of {totalPages}</p>
+          <p className="text-sm text-muted-foreground">
+            {t('reviews.pagination.page_of', { page, total: totalPages })}
+          </p>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Previous</Button>
-            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
+              {t('common:action.previous')}
+            </Button>
+            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+              {t('common:action.next')}
+            </Button>
           </div>
         </div>
       )}

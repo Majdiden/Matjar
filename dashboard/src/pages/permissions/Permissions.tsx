@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -38,6 +39,7 @@ interface PermissionCatalogGroup {
 }
 
 export const Permissions: React.FC = () => {
+  const { t } = useTranslation(['staff', 'common']);
   const [roles, setRoles] = useState<Role[]>([]);
   const [catalog, setCatalog] = useState<PermissionCatalogGroup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,7 @@ export const Permissions: React.FC = () => {
       setRoles(data?.roles || []);
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to load roles');
+      toast.error(e?.message || t('staff.role.toast.load_failed'));
       setCatalog([]);
       setRoles([]);
     } finally {
@@ -114,41 +116,41 @@ export const Permissions: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) { toast.error('Role name is required'); return; }
+    if (!formData.name.trim()) { toast.error(t('staff.role.toast.name_required')); return; }
     try {
       setSaving(true);
       if (editingRole) {
         await api.patch(`/roles/${editingRole._id}`, formData);
-        toast.success('Role updated');
+        toast.success(t('staff.role.toast.updated'));
       } else {
         await api.post('/roles', formData);
-        toast.success('Role created');
+        toast.success(t('staff.role.toast.created'));
       }
       setDialogOpen(false);
       await loadRoles();
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to save role');
+      toast.error(e?.message || t('staff.role.toast.save_failed'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (role: Role) => {
-    if (role.isSystem) { toast.error('Built-in roles cannot be deleted'); return; }
+    if (role.isSystem) { toast.error(t('staff.role.toast.builtin_no_delete')); return; }
     if (!(await confirm({
-      title: `Delete role "${role.name}"?`,
-      description: 'Users with this role will lose the permissions it grants.',
-      confirmText: 'Delete',
+      title: t('staff.role.confirm_delete.title', { name: role.name }),
+      description: t('staff.role.confirm_delete.description'),
+      confirmText: t('staff.role.confirm_delete.confirm_text'),
       variant: 'destructive',
     }))) return;
     try {
       await api.delete(`/roles/${role._id}`);
-      toast.success('Role deleted');
+      toast.success(t('staff.role.toast.deleted'));
       await loadRoles();
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to delete role');
+      toast.error(e?.message || t('staff.role.toast.delete_failed'));
     }
   };
 
@@ -167,14 +169,14 @@ export const Permissions: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Roles & Permissions</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('staff.role.list.title')}</h1>
           <p className="text-muted-foreground">
-            Built-in roles are read-only. Custom roles let you grant a tailored permission set — e.g. a Bookkeeper who can verify payments but not edit products.
+            {t('staff.role.list.subtitle')}
           </p>
         </div>
         <Button onClick={openAddDialog}>
           <Plus className="h-4 w-4 mr-2" />
-          Create Role
+          {t('staff.role.form.create_button')}
         </Button>
       </div>
 
@@ -183,10 +185,10 @@ export const Permissions: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Role</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Permissions</TableHead>
-                <TableHead>Type</TableHead>
+                <TableHead>{t('staff.role.list.column.role')}</TableHead>
+                <TableHead>{t('staff.role.list.column.description')}</TableHead>
+                <TableHead>{t('staff.role.list.column.permissions')}</TableHead>
+                <TableHead>{t('staff.role.list.column.type')}</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
@@ -208,14 +210,16 @@ export const Permissions: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     {role.permissions.includes('*') ? (
-                      <Badge>All Permissions</Badge>
+                      <Badge>{t('staff.role.list.all_permissions')}</Badge>
                     ) : (
-                      <span className="text-sm text-muted-foreground">{role.permissions.length} permissions</span>
+                      <span className="text-sm text-muted-foreground">
+                        {t('staff.role.list.permission_count', { count: role.permissions.length })}
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>
                     <Badge variant={role.isSystem ? 'secondary' : 'outline'}>
-                      {role.isSystem ? 'Built-in' : 'Custom'}
+                      {role.isSystem ? t('staff.role.list.type_builtin') : t('staff.role.list.type_custom')}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -228,11 +232,11 @@ export const Permissions: React.FC = () => {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => openEditDialog(role)}>
                           <Edit className="h-4 w-4 mr-2" />
-                          {role.isSystem ? 'View' : 'Edit'}
+                          {role.isSystem ? t('common:action.view') : t('common:action.edit')}
                         </DropdownMenuItem>
                         {!role.isSystem && (
                           <DropdownMenuItem onClick={() => handleDelete(role)} className="text-destructive">
-                            <Trash2 className="h-4 w-4 mr-2" />Delete
+                            <Trash2 className="h-4 w-4 mr-2" />{t('common:action.delete')}
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
@@ -249,31 +253,33 @@ export const Permissions: React.FC = () => {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingRole ? (isSystemRole ? `${editingRole.name} (built-in)` : 'Edit Role') : 'Create Role'}
+              {editingRole
+                ? (isSystemRole ? t('staff.role.form.title_view', { name: editingRole.name }) : t('staff.role.form.title_edit'))
+                : t('staff.role.form.title_create')}
             </DialogTitle>
             <DialogDescription>
               {isSystemRole
-                ? 'Built-in roles are defined in code and cannot be modified.'
+                ? t('staff.role.form.description_builtin')
                 : editingRole
-                  ? 'Modify role permissions'
-                  : 'Define a new role with specific permissions'}
+                  ? t('staff.role.form.description_edit')
+                  : t('staff.role.form.description_create')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Role Name</Label>
+                <Label>{t('staff.role.form.field.name.label')}</Label>
                 <Input
-                  placeholder="e.g., Bookkeeper"
+                  placeholder={t('staff.role.form.field.name.placeholder')}
                   value={formData.name}
                   onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   disabled={isSystemRole}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Description</Label>
+                <Label>{t('staff.role.form.field.description.label')}</Label>
                 <Input
-                  placeholder="What can this role do?"
+                  placeholder={t('staff.role.form.field.description.placeholder')}
                   value={formData.description}
                   onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   disabled={isSystemRole}
@@ -284,13 +290,13 @@ export const Permissions: React.FC = () => {
             <Separator />
 
             <div className="space-y-4">
-              <h3 className="font-semibold">Permissions</h3>
+              <h3 className="font-semibold">{t('staff.role.form.field.permissions.label')}</h3>
               {formData.permissions.includes('*') && (
                 <Card className="border-primary/40">
                   <CardContent className="py-3">
                     <div className="flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">Wildcard — all permissions granted.</span>
+                      <span className="text-sm font-medium">{t('staff.role.form.wildcard_notice')}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -341,11 +347,14 @@ export const Permissions: React.FC = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>
-              {isSystemRole ? 'Close' : 'Cancel'}
+              {isSystemRole ? t('staff.role.form.close_button') : t('common:action.cancel')}
             </Button>
             {!isSystemRole && (
               <Button onClick={handleSave} disabled={saving}>
-                {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</> : <><Save className="h-4 w-4 mr-2" />Save Role</>}
+                {saving
+                  ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
+                  : <><Save className="h-4 w-4 mr-2" />{t('staff.role.form.save_button')}</>
+                }
               </Button>
             )}
           </DialogFooter>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -48,7 +49,6 @@ interface CustomerOption {
   email?: string;
 }
 
-// Narrow the api-client's loose return envelopes locally.
 interface ApiEnvelope<T> {
   data?: T;
   responseObject?: { data?: T };
@@ -101,6 +101,7 @@ interface CustomerSelectProps {
 }
 
 const CustomerSelect: React.FC<CustomerSelectProps> = ({ value, onChange }) => {
+  const { t } = useTranslation(['marketing']);
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState<CustomerOption[]>([]);
@@ -156,7 +157,7 @@ const CustomerSelect: React.FC<CustomerSelectProps> = ({ value, onChange }) => {
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           className="pl-8 pr-8"
-          placeholder="Search by name, email, or phone…"
+          placeholder={t('marketing.gift_card.issue_dialog.field.customer.search_placeholder')}
           value={open ? query : label}
           onFocus={() => { setOpen(true); setQuery(''); }}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
@@ -176,10 +177,10 @@ const CustomerSelect: React.FC<CustomerSelectProps> = ({ value, onChange }) => {
         <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md max-h-60 overflow-y-auto">
           {loading ? (
             <div className="px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
-              <Loader2 className="h-3 w-3 animate-spin" /> Searching…
+              <Loader2 className="h-3 w-3 animate-spin" /> {t('marketing.gift_card.issue_dialog.field.customer.searching')}
             </div>
           ) : results.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-muted-foreground">No customers found.</div>
+            <div className="px-3 py-2 text-sm text-muted-foreground">{t('marketing.gift_card.issue_dialog.field.customer.no_customers')}</div>
           ) : (
             results.map((c) => {
               const name = [c.firstName, c.lastName].filter(Boolean).join(' ').trim();
@@ -190,7 +191,7 @@ const CustomerSelect: React.FC<CustomerSelectProps> = ({ value, onChange }) => {
                   onClick={() => { onChange(c._id, c); setSelected(c); setOpen(false); }}
                   className="block w-full text-left px-3 py-2 text-sm hover:bg-accent"
                 >
-                  <div className="font-medium">{name || '(no name)'}</div>
+                  <div className="font-medium">{name || t('marketing.gift_card.issue_dialog.field.customer.no_name')}</div>
                   {c.email && <div className="text-xs text-muted-foreground">{c.email}</div>}
                 </button>
               );
@@ -203,14 +204,13 @@ const CustomerSelect: React.FC<CustomerSelectProps> = ({ value, onChange }) => {
 };
 
 const GiftCardNew: React.FC = () => {
+  const { t } = useTranslation(['marketing', 'common']);
   const navigate = useNavigate();
   const [form, setForm] = useState<IssueForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [issuedCode, setIssuedCode] = useState('');
 
-  // Track what we last autofilled per target field so we only overwrite
-  // values we wrote ourselves (or empty fields). User-typed overrides stay.
   const lastAutofill = useRef<{ name: string; email: string }>({ name: '', email: '' });
 
   const handleCustomerSelected = (id: string, customer?: CustomerOption | null) => {
@@ -233,7 +233,7 @@ const GiftCardNew: React.FC = () => {
 
   const handleIssue = async () => {
     if (!form.initialAmount || isNaN(Number(form.initialAmount))) {
-      toast.error('Enter a valid amount');
+      toast.error(t('marketing.gift_card.toast.amount_invalid'));
       return;
     }
     try {
@@ -260,7 +260,7 @@ const GiftCardNew: React.FC = () => {
       setSuccessOpen(true);
     } catch (err) {
       const e = err as ApiErrorLike;
-      toast.error(e?.response?.data?.message ?? 'Failed to issue gift card');
+      toast.error(e?.response?.data?.message ?? t('marketing.gift_card.toast.issue_failed'));
     } finally {
       setSaving(false);
     }
@@ -268,7 +268,7 @@ const GiftCardNew: React.FC = () => {
 
   const copyCode = () => {
     navigator.clipboard.writeText(issuedCode);
-    toast.success('Code copied to clipboard');
+    toast.success(t('marketing.gift_card.toast.code_copied'));
   };
 
   const handleDone = () => {
@@ -284,20 +284,20 @@ const GiftCardNew: React.FC = () => {
         </Button>
         <div className="flex items-center gap-2">
           <Gift className="w-6 h-6 text-muted-foreground" />
-          <h1 className="text-2xl font-semibold">Issue Gift Card</h1>
+          <h1 className="text-2xl font-semibold">{t('marketing.gift_card.form.page_title')}</h1>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">New gift card</CardTitle>
+          <CardTitle className="text-base">{t('marketing.gift_card.form.card_title')}</CardTitle>
           <CardDescription>
-            Create a new prepaid gift card. The full code will only be shown once after issuance.
+            {t('marketing.gift_card.form.card_description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Customer (optional — assigns to account)</Label>
+            <Label>{t('marketing.gift_card.issue_dialog.field.customer.label')}</Label>
             <CustomerSelect
               value={form.customerId}
               onChange={handleCustomerSelected}
@@ -306,7 +306,7 @@ const GiftCardNew: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label>Amount *</Label>
+              <Label>{t('marketing.gift_card.issue_dialog.field.amount.label')}</Label>
               <Input
                 type="number"
                 min="0"
@@ -317,7 +317,7 @@ const GiftCardNew: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <Label>Currency</Label>
+              <Label>{t('marketing.gift_card.issue_dialog.field.currency.label')}</Label>
               <Select value={form.currency} onValueChange={v => setForm(f => ({ ...f, currency: v }))}>
                 <SelectTrigger>
                   <SelectValue />
@@ -331,40 +331,40 @@ const GiftCardNew: React.FC = () => {
             </div>
           </div>
           <div className="space-y-1">
-            <Label>Recipient Name</Label>
+            <Label>{t('marketing.gift_card.issue_dialog.field.recipient_name.label')}</Label>
             <Input
-              placeholder="Jane Doe"
+              placeholder={t('marketing.gift_card.issue_dialog.field.recipient_name.placeholder')}
               value={form.recipientName}
               onChange={e => setForm(f => ({ ...f, recipientName: e.target.value }))}
             />
           </div>
           <div className="space-y-1">
-            <Label>Recipient Email</Label>
+            <Label>{t('marketing.gift_card.issue_dialog.field.recipient_email.label')}</Label>
             <Input
               type="email"
-              placeholder="jane@example.com"
+              placeholder={t('marketing.gift_card.issue_dialog.field.recipient_email.placeholder')}
               value={form.recipientEmail}
               onChange={e => setForm(f => ({ ...f, recipientEmail: e.target.value }))}
             />
           </div>
           <div className="space-y-1">
-            <Label>Message (shown on card)</Label>
+            <Label>{t('marketing.gift_card.issue_dialog.field.message.label')}</Label>
             <Input
-              placeholder="Happy Birthday!"
+              placeholder={t('marketing.gift_card.issue_dialog.field.message.placeholder')}
               value={form.message}
               onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
             />
           </div>
           <div className="space-y-1">
-            <Label>Internal Note</Label>
+            <Label>{t('marketing.gift_card.issue_dialog.field.note.label')}</Label>
             <Input
-              placeholder="For internal reference only"
+              placeholder={t('marketing.gift_card.issue_dialog.field.note.placeholder')}
               value={form.note}
               onChange={e => setForm(f => ({ ...f, note: e.target.value }))}
             />
           </div>
           <div className="space-y-1">
-            <Label>Expiry Date (optional)</Label>
+            <Label>{t('marketing.gift_card.issue_dialog.field.expires_at.label')}</Label>
             <Input
               type="date"
               value={form.expiresAt}
@@ -375,8 +375,8 @@ const GiftCardNew: React.FC = () => {
           <div className="pt-2 border-t space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <Label>Cover shipping</Label>
-                <p className="text-xs text-muted-foreground">This card can be applied against shipping fees.</p>
+                <Label>{t('marketing.gift_card.form.field.cover_shipping.label')}</Label>
+                <p className="text-xs text-muted-foreground">{t('marketing.gift_card.form.field.cover_shipping.hint')}</p>
               </div>
               <Switch
                 checked={form.coverShipping}
@@ -385,8 +385,8 @@ const GiftCardNew: React.FC = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <Label>Cover tax</Label>
-                <p className="text-xs text-muted-foreground">This card can be applied against tax.</p>
+                <Label>{t('marketing.gift_card.form.field.cover_tax.label')}</Label>
+                <p className="text-xs text-muted-foreground">{t('marketing.gift_card.form.field.cover_tax.hint')}</p>
               </div>
               <Switch
                 checked={form.coverTax}
@@ -396,10 +396,10 @@ const GiftCardNew: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => navigate('/dashboard/gift-cards')}>Cancel</Button>
+            <Button variant="outline" onClick={() => navigate('/dashboard/gift-cards')}>{t('common:action.cancel')}</Button>
             <Button onClick={handleIssue} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-              Issue Card
+              {t('marketing.gift_card.issue_dialog.issue_button')}
             </Button>
           </div>
         </CardContent>
@@ -408,15 +408,15 @@ const GiftCardNew: React.FC = () => {
       <Dialog open={successOpen} onOpenChange={(v) => { if (!v) handleDone(); else setSuccessOpen(v); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-green-700">Gift Card Issued</DialogTitle>
+            <DialogTitle className="text-green-700">{t('marketing.gift_card.success_dialog.title')}</DialogTitle>
             <DialogDescription>
-              Copy the code below. This is the <strong>only time</strong> the full code will be displayed.
+              {t('marketing.gift_card.success_dialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="my-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
             <div className="flex items-center gap-2 text-amber-800 text-sm">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>Save this code now — it cannot be retrieved again.</span>
+              <span>{t('marketing.gift_card.success_dialog.warning')}</span>
             </div>
             <div className="flex items-center gap-2">
               <code className="flex-1 font-mono text-lg font-bold tracking-widest bg-white border rounded px-3 py-2 text-center">
@@ -428,7 +428,7 @@ const GiftCardNew: React.FC = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleDone}>Done</Button>
+            <Button onClick={handleDone}>{t('common:action.done')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

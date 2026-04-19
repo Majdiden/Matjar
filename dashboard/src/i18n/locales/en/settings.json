@@ -1,1 +1,373 @@
-{}
+{
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your store configuration",
+    "tab": {
+      "general": { "label": "General" },
+      "regional": { "label": "Regional" },
+      "shipping": { "label": "Shipping" },
+      "tax": { "label": "Tax" },
+      "currencies": { "label": "Currencies" },
+      "markets": { "label": "Markets" },
+      "notifications": { "label": "Notifications" },
+      "email_templates": { "label": "Order emails" }
+    },
+    "section": {
+      "store_info": {
+        "title": "Store Information",
+        "description": "Basic details about your store"
+      },
+      "branding": {
+        "title": "Branding",
+        "description": "Upload your store logo and favicon"
+      },
+      "regional": {
+        "title": "Regional Settings",
+        "description": "Configure regional preferences"
+      },
+      "shipping_mode": {
+        "title": "Shipping Mode",
+        "description": "How shipping cost is calculated at checkout"
+      },
+      "shipping_zones": {
+        "title": "Shipping Zones",
+        "description": "Per-region rates with optional weight bands. Used when shipping mode is \"Zone\"."
+      },
+      "tax_behaviour": {
+        "title": "Tax behaviour",
+        "description": "How tax is calculated and shown to customers"
+      },
+      "tax_rates": {
+        "title": "Tax Rates",
+        "description": "One row per (country, state) — checkout picks the most specific match."
+      },
+      "currencies": {
+        "title": "Currency & FX Rates",
+        "description": "Base currency plus exchange rates used to convert prices when a market or storefront requests a different currency. Rate is in the destination currency per 1 base unit (e.g. base USD with EUR=0.92 means $1 = €0.92)."
+      },
+      "markets": {
+        "title": "Markets",
+        "description": "Map groups of countries to a currency, language, and price adjustment. Checkout resolves the shipping country to a market to compute presentment pricing."
+      },
+      "notifications": {
+        "title": "Notification preferences",
+        "description": "Choose how you want to be alerted for each type of event. Changes save automatically."
+      },
+      "sender": {
+        "title": "Sender",
+        "description": "From name and email address used for transactional order emails."
+      },
+      "status_templates": {
+        "title": "Status Templates",
+        "description": "Customize the email sent when an order moves to each status. Leave a template empty to fall back to the built-in default. You can use the placeholders {{orderNumber}}, {{customerName}}, and {{totalAmount}}."
+      }
+    },
+    "field": {
+      "store": {
+        "name": {
+          "label": "Store Name",
+          "placeholder": "My Awesome Store"
+        },
+        "description": {
+          "label": "Store Description",
+          "placeholder": "A brief description of your store"
+        }
+      },
+      "branding": {
+        "logo": {
+          "label": "Store Logo",
+          "description": "Recommended: 500x500px, transparent PNG"
+        },
+        "favicon": {
+          "label": "Favicon",
+          "description": "Recommended: 64x64px, PNG or ICO"
+        }
+      },
+      "regional": {
+        "currency": {
+          "label": "Currency",
+          "help": "Store's default display currency"
+        },
+        "timezone": {
+          "label": "Timezone",
+          "help": "Used for order timestamps & reports"
+        },
+        "language": {
+          "label": "Language",
+          "help": "Default storefront language"
+        }
+      },
+      "shipping": {
+        "flat_rate": {
+          "label": "Flat shipping rate ($)"
+        }
+      },
+      "tax": {
+        "country": {
+          "label": "Country"
+        },
+        "state": {
+          "label": "State / Region (optional)",
+          "placeholder": "CA"
+        },
+        "rate": {
+          "label": "Rate (%)",
+          "placeholder": "8.875"
+        },
+        "display_name": {
+          "label": "Display Name (optional)",
+          "placeholder": "NY State Sales Tax"
+        },
+        "product_class": {
+          "label": "Product Class (optional)",
+          "placeholder": "standard",
+          "help": "Restrict this rate to products with a matching tax class."
+        }
+      },
+      "currencies": {
+        "base": {
+          "label": "Base Currency"
+        },
+        "exchange_rates": {
+          "label": "Exchange Rates"
+        },
+        "rate_placeholder": "0.92"
+      },
+      "markets": {
+        "code": {
+          "label": "Code",
+          "placeholder": "eu",
+          "help": "Lowercase, 2–32 chars. Used in analytics + order records."
+        },
+        "name": {
+          "label": "Name",
+          "placeholder": "European Union"
+        },
+        "currency": {
+          "label": "Currency"
+        },
+        "language": {
+          "label": "Language"
+        },
+        "countries": {
+          "label": "Countries"
+        },
+        "price_adjustment": {
+          "label": "Price adjustment (%)",
+          "placeholder": "0",
+          "help": "Applied to the base price before currency conversion. Positive values mark up (e.g. 10 = +10%); negative values discount."
+        },
+        "enabled": {
+          "label": "Enabled",
+          "description": "Off: skip at resolve time."
+        },
+        "default": {
+          "label": "Default",
+          "description": "Fallback when no country matches."
+        }
+      },
+      "notifications": {
+        "from_name": {
+          "label": "From Name",
+          "placeholder": "Acme Coffee"
+        },
+        "from_email": {
+          "label": "From Email",
+          "placeholder": "orders@acme.test"
+        },
+        "subject": {
+          "label": "Subject"
+        },
+        "body": {
+          "label": "Body"
+        }
+      }
+    },
+    "shipping_mode": {
+      "flat": {
+        "label": "flat",
+        "description": "One rate for every order"
+      },
+      "weight": {
+        "label": "weight",
+        "description": "Rate per kilogram"
+      },
+      "zone": {
+        "label": "zone",
+        "description": "Geographic zones with weight bands"
+      },
+      "free": {
+        "label": "free",
+        "description": "Free shipping for everyone"
+      }
+    },
+    "tax_flag": {
+      "charge_tax": {
+        "label": "Charge tax on orders",
+        "description": "When off, all orders are tax-free regardless of rates below."
+      },
+      "include_in_price": {
+        "label": "Prices include tax",
+        "description": "Treat product prices as tax-inclusive (back out tax from the displayed price instead of adding it)."
+      },
+      "tax_shipping": {
+        "label": "Charge tax on shipping",
+        "description": "Apply the matching tax rate to the shipping cost as well as the line items."
+      }
+    },
+    "notification_type": {
+      "order_created": {
+        "label": "New orders",
+        "description": "Fires when a customer places a new order."
+      },
+      "payment_manual_submitted": {
+        "label": "Manual payment submitted",
+        "description": "A customer submitted proof for a manual / bank transfer payment."
+      },
+      "payment_failed": {
+        "label": "Payment failed",
+        "description": "A payment attempt (capture, charge, etc.) failed."
+      },
+      "stock_low": {
+        "label": "Low stock",
+        "description": "A product dropped below its low-stock threshold."
+      },
+      "refund_created": {
+        "label": "Refund created",
+        "description": "A refund was issued against an order."
+      },
+      "return_requested": {
+        "label": "Return requested",
+        "description": "A customer requested a return on an order."
+      },
+      "webhook_failed": {
+        "label": "Webhook failed",
+        "description": "An outbound webhook to an external service failed repeatedly."
+      },
+      "domain_verification_failed": {
+        "label": "Domain verification failed",
+        "description": "Custom domain DNS or SSL verification failed."
+      },
+      "staff_invite_accepted": {
+        "label": "Staff invite accepted",
+        "description": "A staff member accepted their invitation."
+      }
+    },
+    "notification_channel": {
+      "event": "Event",
+      "inbox": "Inbox",
+      "toast": "Toast",
+      "sound": "Sound",
+      "browser": "Browser",
+      "email": "Email"
+    },
+    "notification_channel_hint": "The sound channel plays a short chime when a matching notification arrives. The browser channel shows a native OS notification even when the dashboard tab is not focused. The email channel delivers a plain-text message to your account email with a deep-link back to the relevant record.",
+    "browser_permission": {
+      "not_enabled_title": "Browser notifications are not enabled",
+      "not_enabled_body": "Grant permission so Matjar can show OS-level alerts when this tab is not focused.",
+      "request_button": "Request permission",
+      "blocked_title": "Browser notifications are blocked",
+      "blocked_body": "Enable notifications for this site in your browser settings to receive OS-level alerts.",
+      "tooltip_blocked": "Browser notifications are blocked in your browser settings.",
+      "tooltip_grant": "Grant browser permission above to enable this channel."
+    },
+    "email_template": {
+      "send_this_email": {
+        "label": "Send this email",
+        "description": "Sent automatically when an order transitions to \"{{status}}\"."
+      },
+      "subject_placeholder": "Your order {{orderNumber}} is {{status}}",
+      "body_placeholder": "Hi {{customerName}},\n\nYour order {{orderNumber}} is now {{status}}.\n\nThanks for shopping with us!",
+      "off_badge": "(off)"
+    },
+    "toast": {
+      "settings_saved": "Settings saved",
+      "settings_save_failed": "Failed to save settings",
+      "settings_load_failed": "Failed to load settings",
+      "shipping_mode_saved": "Shipping mode saved",
+      "shipping_mode_save_failed": "Failed to save shipping mode",
+      "shipping_zones_load_failed": "Failed to load shipping zones",
+      "zone_deleted": "Zone deleted",
+      "zone_delete_failed": "Failed to delete zone",
+      "tax_load_failed": "Failed to load tax settings",
+      "tax_flag_save_failed": "Failed to save tax flags",
+      "tax_rate_updated": "Tax rate updated",
+      "tax_rate_created": "Tax rate created",
+      "tax_rate_save_failed": "Failed to save tax rate",
+      "tax_rate_deleted": "Tax rate deleted",
+      "tax_rate_delete_failed": "Failed to delete tax rate",
+      "currencies_load_failed": "Failed to load currencies",
+      "currencies_saved": "Currency rates saved",
+      "currencies_save_failed": "Failed to save currencies",
+      "markets_load_failed": "Failed to load markets",
+      "market_updated": "Market updated",
+      "market_created": "Market created",
+      "market_save_failed": "Failed to save market",
+      "market_deleted": "Market deleted",
+      "market_delete_failed": "Failed to delete market",
+      "notifications_load_failed": "Failed to load notifications",
+      "email_templates_saved": "Email templates saved",
+      "notifications_save_failed": "Failed to save notifications"
+    },
+    "confirm": {
+      "delete_shipping_zone": {
+        "title": "Delete shipping zone?",
+        "description": "Customers in its countries will fall back to your default rate.",
+        "confirm_text": "Delete"
+      },
+      "delete_tax_rate": {
+        "title": "Delete tax rate?",
+        "description": "Orders matching this rate's country/state/class will fall through to the next match.",
+        "confirm_text": "Delete"
+      },
+      "delete_market": {
+        "title": "Delete market \"{{name}}\"?",
+        "description": "Customers from its countries will fall through to the default market at checkout.",
+        "confirm_text": "Delete"
+      }
+    },
+    "validation": {
+      "country_required": "Country is required",
+      "rate_range": "Rate must be 0–100%",
+      "invalid_currency_code": "Invalid currency code: {{code}}",
+      "rate_must_be_positive": "Rate for {{code}} must be positive",
+      "market_code_invalid": "Code must be 2–32 chars, a–z 0–9 -",
+      "market_name_required": "Name is required",
+      "market_currency_invalid": "Currency must be a 3-letter ISO code",
+      "market_country_invalid": "Invalid country code: {{code}}",
+      "market_price_adjustment_range": "Price adjustment must be between -95% and +500%"
+    },
+    "button": {
+      "save_changes": "Save changes",
+      "saving": "Saving...",
+      "save_shipping_mode": "Save shipping mode",
+      "add_zone": "Add zone",
+      "add_rate": "Add rate",
+      "add_currency": "Add currency",
+      "add_market": "Add market",
+      "add_country": "Add country",
+      "save_currencies": "Save currencies",
+      "save_notifications": "Save notifications"
+    },
+    "empty": {
+      "no_shipping_zones": "No shipping zones configured yet.",
+      "no_tax_rates": "No tax rates configured.",
+      "no_currencies": "No additional currencies yet.",
+      "no_markets": "All customers pay in the base currency.",
+      "no_countries": "No countries — this market will only be selected when it's the default."
+    },
+    "dialog": {
+      "edit_tax_rate": "Edit tax rate",
+      "new_tax_rate": "New tax rate",
+      "edit_market": "Edit market",
+      "new_market": "New market"
+    },
+    "fx_rates_updated_at": "Last updated {{datetime}}",
+    "shipping_zone_mode_warning": "Switch shipping mode to \"Zone\" above to use these rates at checkout.",
+    "zone_rates_badge": "{{count}} rate",
+    "zone_rates_badge_plural": "{{count}} rates",
+    "fx_missing_warning": "No FX rate for {{currency}} → {{base}}. Add one on the Currencies tab or presentment will fall back to {{base}}.",
+    "market_badge_disabled": "Disabled",
+    "market_badge_default": "Default"
+  }
+}

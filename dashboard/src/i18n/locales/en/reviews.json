@@ -1,1 +1,79 @@
-{}
+{
+  "reviews": {
+    "list": {
+      "title": "Reviews",
+      "subtitle": "{{count}} total reviews",
+      "empty_title": "No reviews found",
+      "empty_description": "Reviews from customers will appear here.",
+      "select_all": "Select all",
+      "search_placeholder": "Search review title or comment...",
+      "column": {
+        "product": "Product",
+        "rating": "Rating",
+        "author": "Author",
+        "excerpt": "Excerpt",
+        "status": "Status",
+        "date": "Date",
+        "actions": "Actions"
+      },
+      "filter": {
+        "all": "All",
+        "pending": "Pending",
+        "approved": "Approved"
+      }
+    },
+    "status": {
+      "approved": "Approved",
+      "pending": "Pending"
+    },
+    "badge": {
+      "verified_purchase": "Verified Purchase"
+    },
+    "meta": {
+      "by": "By {{author}}",
+      "on_product": "on {{product}}",
+      "unknown_product": "Unknown product",
+      "anonymous": "Anonymous"
+    },
+    "action": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "delete": "Delete",
+      "bulk_approve": "Approve",
+      "bulk_reject": "Reject",
+      "bulk_delete": "Delete",
+      "bulk_clear": "Clear"
+    },
+    "selected_count": "{{count}} selected",
+    "confirm_delete": {
+      "title": "Delete review?",
+      "description": "This permanently removes the review. This cannot be undone.",
+      "confirm_text": "Delete"
+    },
+    "confirm_bulk_delete": {
+      "title": "Delete {{count}} review?",
+      "title_plural": "Delete {{count}} reviews?",
+      "description": "This cannot be undone.",
+      "confirm_text": "Delete"
+    },
+    "toast": {
+      "approved": "Review approved",
+      "rejected": "Review rejected",
+      "deleted": "Review deleted",
+      "approve_failed": "Failed to approve",
+      "reject_failed": "Failed to reject",
+      "delete_failed": "Failed to delete",
+      "fetch_failed": "Failed to fetch reviews",
+      "bulk_updated": "{{count}} review approved",
+      "bulk_updated_plural": "{{count}} reviews approved",
+      "bulk_rejected": "{{count}} review rejected",
+      "bulk_rejected_plural": "{{count}} reviews rejected",
+      "bulk_deleted": "{{count}} deleted",
+      "bulk_update_failed": "Bulk update failed",
+      "bulk_delete_failed": "Bulk delete failed"
+    },
+    "pagination": {
+      "page_of": "Page {{page}} of {{total}}"
+    }
+  }
+}

@@ -17,6 +17,7 @@
  * single round-trip.
  */
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../components/ui/tooltip';
 import {
@@ -128,6 +129,7 @@ type SettingsTab = 'general' | 'regional' | 'shipping' | 'tax' | 'currencies' | 
 const VALID_TABS: SettingsTab[] = ['general', 'regional', 'shipping', 'tax', 'currencies', 'markets', 'notifications', 'email-templates'];
 
 export const Settings: React.FC = () => {
+  const { t } = useTranslation(['settings', 'common']);
   const { setLang } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [savingGeneral, setSavingGeneral] = useState(false);
@@ -184,7 +186,7 @@ export const Settings: React.FC = () => {
         if (s.language) setTenantLocale(s.language === 'ar' ? 'ar-SD' : 'en-US');
       }
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to load settings'));
+      toast.error(errorMessage(err, t('settings.toast.settings_load_failed')));
     } finally {
       setLoading(false);
     }
@@ -197,9 +199,9 @@ export const Settings: React.FC = () => {
       setTenantCurrency(general.currency);
       setTenantLocale(general.language === 'ar' ? 'ar-SD' : 'en-US');
       setLang(general.language === 'ar' ? 'ar' : 'en');
-      toast.success('Settings saved');
+      toast.success(t('settings.toast.settings_saved'));
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to save settings'));
+      toast.error(errorMessage(err, t('settings.toast.settings_save_failed')));
     } finally {
       setSavingGeneral(false);
     }
@@ -210,9 +212,9 @@ export const Settings: React.FC = () => {
       await api.settings.update({
         shipping: { type: shippingType, rate: flatRate },
       });
-      toast.success('Shipping mode saved');
+      toast.success(t('settings.toast.shipping_mode_saved'));
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to save shipping mode'));
+      toast.error(errorMessage(err, t('settings.toast.shipping_mode_save_failed')));
     }
   };
 
@@ -228,22 +230,22 @@ export const Settings: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Manage your store configuration</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('settings.title')}</h1>
+        <p className="text-muted-foreground">{t('settings.subtitle')}</p>
       </div>
 
       <FilterPills<SettingsTab>
         value={tab}
         onChange={setTab}
         items={[
-          { id: 'general', label: 'General', icon: Store },
-          { id: 'regional', label: 'Regional', icon: Globe2 },
-          { id: 'shipping', label: 'Shipping', icon: Truck },
-          { id: 'tax', label: 'Tax', icon: Receipt },
-          { id: 'currencies', label: 'Currencies', icon: Coins },
-          { id: 'markets', label: 'Markets', icon: Globe2 },
-          { id: 'notifications', label: 'Notifications', icon: BellIcon },
-          { id: 'email-templates', label: 'Order emails', icon: Mail },
+          { id: 'general', label: t('settings.tab.general.label'), icon: Store },
+          { id: 'regional', label: t('settings.tab.regional.label'), icon: Globe2 },
+          { id: 'shipping', label: t('settings.tab.shipping.label'), icon: Truck },
+          { id: 'tax', label: t('settings.tab.tax.label'), icon: Receipt },
+          { id: 'currencies', label: t('settings.tab.currencies.label'), icon: Coins },
+          { id: 'markets', label: t('settings.tab.markets.label'), icon: Globe2 },
+          { id: 'notifications', label: t('settings.tab.notifications.label'), icon: BellIcon },
+          { id: 'email-templates', label: t('settings.tab.email_templates.label'), icon: Mail },
         ]}
       />
 
@@ -253,22 +255,22 @@ export const Settings: React.FC = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Store Information</CardTitle>
-              <CardDescription>Basic details about your store</CardDescription>
+              <CardTitle className="text-base">{t('settings.section.store_info.title')}</CardTitle>
+              <CardDescription>{t('settings.section.store_info.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Store Name</Label>
+                <Label>{t('settings.field.store.name.label')}</Label>
                 <Input
-                  placeholder="My Awesome Store"
+                  placeholder={t('settings.field.store.name.placeholder')}
                   value={general.storeName}
                   onChange={e => setGeneral(g => ({ ...g, storeName: e.target.value }))}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Store Description</Label>
+                <Label>{t('settings.field.store.description.label')}</Label>
                 <Input
-                  placeholder="A brief description of your store"
+                  placeholder={t('settings.field.store.description.placeholder')}
                   value={general.storeDescription}
                   onChange={e => setGeneral(g => ({ ...g, storeDescription: e.target.value }))}
                 />
@@ -278,23 +280,23 @@ export const Settings: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Branding</CardTitle>
-              <CardDescription>Upload your store logo and favicon</CardDescription>
+              <CardTitle className="text-base">{t('settings.section.branding.title')}</CardTitle>
+              <CardDescription>{t('settings.section.branding.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <ImageUpload
                 value={general.logo}
                 onChange={v => setGeneral(g => ({ ...g, logo: v as string }))}
-                multiple={false} maxSizeMB={2} label="Store Logo"
-                description="Recommended: 500x500px, transparent PNG"
+                multiple={false} maxSizeMB={2} label={t('settings.field.branding.logo.label')}
+                description={t('settings.field.branding.logo.description')}
                 accept="image/jpeg,image/png,image/webp,image/svg+xml"
               />
               <Separator />
               <ImageUpload
                 value={general.favicon}
                 onChange={v => setGeneral(g => ({ ...g, favicon: v as string }))}
-                multiple={false} maxSizeMB={1} label="Favicon"
-                description="Recommended: 64x64px, PNG or ICO"
+                multiple={false} maxSizeMB={1} label={t('settings.field.branding.favicon.label')}
+                description={t('settings.field.branding.favicon.description')}
                 accept="image/png,image/x-icon"
               />
             </CardContent>
@@ -305,7 +307,7 @@ export const Settings: React.FC = () => {
               {savingGeneral
                 ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 : <Save className="mr-2 h-4 w-4" />}
-              {savingGeneral ? 'Saving...' : 'Save changes'}
+              {savingGeneral ? t('settings.button.saving') : t('settings.button.save_changes')}
             </Button>
           </div>
         </div>
@@ -316,34 +318,34 @@ export const Settings: React.FC = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Regional Settings</CardTitle>
-              <CardDescription>Configure regional preferences</CardDescription>
+              <CardTitle className="text-base">{t('settings.section.regional.title')}</CardTitle>
+              <CardDescription>{t('settings.section.regional.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>Currency</Label>
+                  <Label>{t('settings.field.regional.currency.label')}</Label>
                   <CurrencyPicker
                     value={general.currency}
                     onChange={v => setGeneral(g => ({ ...g, currency: v }))}
                   />
-                  <p className="text-xs text-muted-foreground">Store's default display currency</p>
+                  <p className="text-xs text-muted-foreground">{t('settings.field.regional.currency.help')}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Timezone</Label>
+                  <Label>{t('settings.field.regional.timezone.label')}</Label>
                   <TimezonePicker
                     value={general.timezone}
                     onChange={v => setGeneral(g => ({ ...g, timezone: v }))}
                   />
-                  <p className="text-xs text-muted-foreground">Used for order timestamps & reports</p>
+                  <p className="text-xs text-muted-foreground">{t('settings.field.regional.timezone.help')}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Language</Label>
+                  <Label>{t('settings.field.regional.language.label')}</Label>
                   <LanguagePicker
                     value={general.language}
                     onChange={v => setGeneral(g => ({ ...g, language: v }))}
                   />
-                  <p className="text-xs text-muted-foreground">Default storefront language</p>
+                  <p className="text-xs text-muted-foreground">{t('settings.field.regional.language.help')}</p>
                 </div>
               </div>
             </CardContent>
@@ -351,7 +353,7 @@ export const Settings: React.FC = () => {
           <div className="flex justify-end">
             <Button onClick={handleSaveGeneral} disabled={savingGeneral}>
               {savingGeneral ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Save changes
+              {savingGeneral ? t('settings.button.saving') : t('settings.button.save_changes')}
             </Button>
           </div>
         </div>
@@ -362,8 +364,8 @@ export const Settings: React.FC = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Shipping Mode</CardTitle>
-              <CardDescription>How shipping cost is calculated at checkout</CardDescription>
+              <CardTitle className="text-base">{t('settings.section.shipping_mode.title')}</CardTitle>
+              <CardDescription>{t('settings.section.shipping_mode.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -377,19 +379,16 @@ export const Settings: React.FC = () => {
                         : 'border-border hover:border-primary/40'
                     }`}
                   >
-                    <p className="font-semibold capitalize">{mode}</p>
+                    <p className="font-semibold capitalize">{t(`settings.shipping_mode.${mode}.label`)}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {mode === 'flat' && 'One rate for every order'}
-                      {mode === 'weight' && 'Rate per kilogram'}
-                      {mode === 'zone' && 'Geographic zones with weight bands'}
-                      {mode === 'free' && 'Free shipping for everyone'}
+                      {t(`settings.shipping_mode.${mode}.description`)}
                     </p>
                   </button>
                 ))}
               </div>
               {shippingType === 'flat' && (
                 <div className="space-y-2 max-w-xs">
-                  <Label>Flat shipping rate ($)</Label>
+                  <Label>{t('settings.field.shipping.flat_rate.label')}</Label>
                   <Input
                     type="number" step="0.01" min="0"
                     value={flatRate}
@@ -398,7 +397,7 @@ export const Settings: React.FC = () => {
                 </div>
               )}
               <div className="flex justify-end">
-                <Button onClick={handleSaveShippingMode}>Save shipping mode</Button>
+                <Button onClick={handleSaveShippingMode}>{t('settings.button.save_shipping_mode')}</Button>
               </div>
             </CardContent>
           </Card>
@@ -449,6 +448,7 @@ export const Settings: React.FC = () => {
 // ---------------- Shipping zones panel ----------------
 
 const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
+  const { t } = useTranslation(['settings', 'common']);
   const navigate = useNavigate();
   const [zones, setZones] = useState<ShippingZone[]>([]);
   const [loading, setLoading] = useState(true);
@@ -462,7 +462,7 @@ const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
       const res = await api.settings.listShippingZones() as { data?: ShippingZone[] };
       setZones(res.data || []);
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to load shipping zones'));
+      toast.error(errorMessage(err, t('settings.toast.shipping_zones_load_failed')));
     } finally {
       setLoading(false);
     }
@@ -473,17 +473,17 @@ const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
 
   const handleDelete = async (id: string) => {
     if (!(await confirm({
-      title: 'Delete shipping zone?',
-      description: 'Customers in its countries will fall back to your default rate.',
-      confirmText: 'Delete',
+      title: t('settings.confirm.delete_shipping_zone.title'),
+      description: t('settings.confirm.delete_shipping_zone.description'),
+      confirmText: t('settings.confirm.delete_shipping_zone.confirm_text'),
       variant: 'destructive',
     }))) return;
     try {
       await api.settings.deleteShippingZone(id);
-      toast.success('Zone deleted');
+      toast.success(t('settings.toast.zone_deleted'));
       setZones(prev => prev.filter(z => z._id !== id));
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to delete zone'));
+      toast.error(errorMessage(err, t('settings.toast.zone_delete_failed')));
     }
   };
 
@@ -491,20 +491,20 @@ const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-base">Shipping Zones</CardTitle>
+          <CardTitle className="text-base">{t('settings.section.shipping_zones.title')}</CardTitle>
           <CardDescription>
-            Per-region rates with optional weight bands. Used when shipping mode is "Zone".
+            {t('settings.section.shipping_zones.description')}
           </CardDescription>
         </div>
         <Button onClick={openCreate} disabled={disabled}>
-          <Plus className="h-4 w-4 mr-2" />Add zone
+          <Plus className="h-4 w-4 mr-2" />{t('settings.button.add_zone')}
         </Button>
       </CardHeader>
       <CardContent>
         {disabled && (
           <div className="rounded-md bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-900 p-3 text-sm text-amber-800 dark:text-amber-200 mb-4 flex gap-2 items-start">
             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-            Switch shipping mode to "Zone" above to use these rates at checkout.
+            {t('settings.shipping_zone_mode_warning')}
           </div>
         )}
         {loading ? (
@@ -512,7 +512,7 @@ const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
         ) : zones.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Truck className="h-10 w-10 mx-auto mb-2 opacity-40" />
-            <p className="text-sm">No shipping zones configured yet.</p>
+            <p className="text-sm">{t('settings.empty.no_shipping_zones')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -523,7 +523,9 @@ const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-semibold">{zone.name}</h4>
                       <Badge variant="secondary" className="text-[10px]">
-                        {zone.rates.length} rate{zone.rates.length === 1 ? '' : 's'}
+                        {zone.rates.length === 1
+                          ? t('settings.zone_rates_badge', { count: zone.rates.length })
+                          : t('settings.zone_rates_badge_plural', { count: zone.rates.length })}
                       </Badge>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-2">
@@ -568,6 +570,7 @@ const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
 // ---------------- Tax panel ----------------
 
 const TaxPanel: React.FC = () => {
+  const { t } = useTranslation(['settings', 'common']);
   const [config, setConfig] = useState<TaxConfig>({ enabled: false, includeInPrice: false, taxShipping: false, rates: [] });
   const [loading, setLoading] = useState(true);
   const [savingFlags, setSavingFlags] = useState(false);
@@ -585,7 +588,7 @@ const TaxPanel: React.FC = () => {
       const res = await api.settings.listTaxRates() as { data?: TaxConfig };
       setConfig(res.data || { enabled: false, includeInPrice: false, taxShipping: false, rates: [] });
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to load tax settings'));
+      toast.error(errorMessage(err, t('settings.toast.tax_load_failed')));
     } finally {
       setLoading(false);
     }
@@ -598,7 +601,7 @@ const TaxPanel: React.FC = () => {
       await api.settings.update({ tax: { enabled: next.enabled, includeInPrice: next.includeInPrice, taxShipping: next.taxShipping } });
       setConfig(next);
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to save tax flags'));
+      toast.error(errorMessage(err, t('settings.toast.tax_flag_save_failed')));
     } finally {
       setSavingFlags(false);
     }
@@ -623,9 +626,9 @@ const TaxPanel: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!form.country.trim()) return toast.error('Country is required');
+    if (!form.country.trim()) return toast.error(t('settings.validation.country_required'));
     const ratePct = parseFloat(form.rate);
-    if (isNaN(ratePct) || ratePct < 0 || ratePct > 100) return toast.error('Rate must be 0–100%');
+    if (isNaN(ratePct) || ratePct < 0 || ratePct > 100) return toast.error(t('settings.validation.rate_range'));
     const payload: {
       country: string;
       state?: string;
@@ -643,15 +646,15 @@ const TaxPanel: React.FC = () => {
     try {
       if (editingId) {
         await api.settings.updateTaxRate(editingId, payload);
-        toast.success('Tax rate updated');
+        toast.success(t('settings.toast.tax_rate_updated'));
       } else {
         await api.settings.createTaxRate(payload);
-        toast.success('Tax rate created');
+        toast.success(t('settings.toast.tax_rate_created'));
       }
       setDialogOpen(false);
       load();
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to save tax rate'));
+      toast.error(errorMessage(err, t('settings.toast.tax_rate_save_failed')));
     } finally {
       setSaving(false);
     }
@@ -659,17 +662,17 @@ const TaxPanel: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!(await confirm({
-      title: 'Delete tax rate?',
-      description: 'Orders matching this rate\'s country/state/class will fall through to the next match.',
-      confirmText: 'Delete',
+      title: t('settings.confirm.delete_tax_rate.title'),
+      description: t('settings.confirm.delete_tax_rate.description'),
+      confirmText: t('settings.confirm.delete_tax_rate.confirm_text'),
       variant: 'destructive',
     }))) return;
     try {
       await api.settings.deleteTaxRate(id);
-      toast.success('Tax rate deleted');
+      toast.success(t('settings.toast.tax_rate_deleted'));
       setConfig(c => ({ ...c, rates: c.rates.filter(r => r._id !== id) }));
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to delete tax rate'));
+      toast.error(errorMessage(err, t('settings.toast.tax_rate_delete_failed')));
     }
   };
 
@@ -679,27 +682,27 @@ const TaxPanel: React.FC = () => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tax behaviour</CardTitle>
-          <CardDescription>How tax is calculated and shown to customers</CardDescription>
+          <CardTitle className="text-base">{t('settings.section.tax_behaviour.title')}</CardTitle>
+          <CardDescription>{t('settings.section.tax_behaviour.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <FlagRow
-            label="Charge tax on orders"
-            description="When off, all orders are tax-free regardless of rates below."
+            label={t('settings.tax_flag.charge_tax.label')}
+            description={t('settings.tax_flag.charge_tax.description')}
             checked={config.enabled}
             onCheckedChange={v => saveFlags({ enabled: v })}
             disabled={savingFlags}
           />
           <FlagRow
-            label="Prices include tax"
-            description="Treat product prices as tax-inclusive (back out tax from the displayed price instead of adding it)."
+            label={t('settings.tax_flag.include_in_price.label')}
+            description={t('settings.tax_flag.include_in_price.description')}
             checked={config.includeInPrice}
             onCheckedChange={v => saveFlags({ includeInPrice: v })}
             disabled={savingFlags || !config.enabled}
           />
           <FlagRow
-            label="Charge tax on shipping"
-            description="Apply the matching tax rate to the shipping cost as well as the line items."
+            label={t('settings.tax_flag.tax_shipping.label')}
+            description={t('settings.tax_flag.tax_shipping.description')}
             checked={config.taxShipping}
             onCheckedChange={v => saveFlags({ taxShipping: v })}
             disabled={savingFlags || !config.enabled}
@@ -710,18 +713,18 @@ const TaxPanel: React.FC = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">Tax Rates</CardTitle>
-            <CardDescription>One row per (country, state) — checkout picks the most specific match.</CardDescription>
+            <CardTitle className="text-base">{t('settings.section.tax_rates.title')}</CardTitle>
+            <CardDescription>{t('settings.section.tax_rates.description')}</CardDescription>
           </div>
           <Button onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-2" />Add rate
+            <Plus className="h-4 w-4 mr-2" />{t('settings.button.add_rate')}
           </Button>
         </CardHeader>
         <CardContent>
           {config.rates.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Receipt className="h-10 w-10 mx-auto mb-2 opacity-40" />
-              <p className="text-sm">No tax rates configured.</p>
+              <p className="text-sm">{t('settings.empty.no_tax_rates')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -754,41 +757,41 @@ const TaxPanel: React.FC = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit tax rate' : 'New tax rate'}</DialogTitle>
+            <DialogTitle>{editingId ? t('settings.dialog.edit_tax_rate') : t('settings.dialog.new_tax_rate')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Country</Label>
+                <Label>{t('settings.field.tax.country.label')}</Label>
                 <CountryPicker
                   value={form.country}
                   onChange={v => setForm(f => ({ ...f, country: v }))}
                 />
               </div>
               <div className="space-y-2">
-                <Label>State / Region (optional)</Label>
-                <Input value={form.state} onChange={e => setForm(f => ({ ...f, state: e.target.value.toUpperCase() }))} placeholder="CA" />
+                <Label>{t('settings.field.tax.state.label')}</Label>
+                <Input value={form.state} onChange={e => setForm(f => ({ ...f, state: e.target.value.toUpperCase() }))} placeholder={t('settings.field.tax.state.placeholder')} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Rate (%)</Label>
-              <Input type="number" step="0.001" min="0" max="100" value={form.rate} onChange={e => setForm(f => ({ ...f, rate: e.target.value }))} placeholder="8.875" />
+              <Label>{t('settings.field.tax.rate.label')}</Label>
+              <Input type="number" step="0.001" min="0" max="100" value={form.rate} onChange={e => setForm(f => ({ ...f, rate: e.target.value }))} placeholder={t('settings.field.tax.rate.placeholder')} />
             </div>
             <div className="space-y-2">
-              <Label>Display Name (optional)</Label>
-              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="NY State Sales Tax" />
+              <Label>{t('settings.field.tax.display_name.label')}</Label>
+              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('settings.field.tax.display_name.placeholder')} />
             </div>
             <div className="space-y-2">
-              <Label>Product Class (optional)</Label>
-              <Input value={form.productClass} onChange={e => setForm(f => ({ ...f, productClass: e.target.value }))} placeholder="standard" />
-              <p className="text-xs text-muted-foreground">Restrict this rate to products with a matching tax class.</p>
+              <Label>{t('settings.field.tax.product_class.label')}</Label>
+              <Input value={form.productClass} onChange={e => setForm(f => ({ ...f, productClass: e.target.value }))} placeholder={t('settings.field.tax.product_class.placeholder')} />
+              <p className="text-xs text-muted-foreground">{t('settings.field.tax.product_class.help')}</p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-              {editingId ? 'Update' : 'Create'}
+              {editingId ? t('common:action.update') : t('common:action.create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -813,6 +816,7 @@ const FlagRow: React.FC<{
 // ---------------- Currencies panel ----------------
 
 const CurrenciesPanel: React.FC = () => {
+  const { t } = useTranslation(['settings', 'common']);
   const [config, setConfig] = useState<CurrencyConfig>({ base: 'SDG', rates: {} });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -828,7 +832,7 @@ const CurrenciesPanel: React.FC = () => {
       setConfig(cfg);
       setDraftRates(Object.entries(cfg.rates || {}).map(([code, rate]) => ({ code, rate: String(rate) })));
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to load currencies'));
+      toast.error(errorMessage(err, t('settings.toast.currencies_load_failed')));
     } finally {
       setLoading(false);
     }
@@ -840,17 +844,17 @@ const CurrenciesPanel: React.FC = () => {
       const code = row.code.trim().toUpperCase();
       const num = parseFloat(row.rate);
       if (!code) continue;
-      if (!/^[A-Z]{3}$/.test(code)) return toast.error(`Invalid currency code: ${row.code}`);
-      if (isNaN(num) || num <= 0) return toast.error(`Rate for ${code} must be positive`);
+      if (!/^[A-Z]{3}$/.test(code)) return toast.error(t('settings.validation.invalid_currency_code', { code: row.code }));
+      if (isNaN(num) || num <= 0) return toast.error(t('settings.validation.rate_must_be_positive', { code }));
       rates[code] = num;
     }
     setSaving(true);
     try {
       const res = await api.settings.updateCurrencies({ base: config.base, rates }) as { data?: CurrencyConfig };
       setConfig(res.data || { base: config.base, rates });
-      toast.success('Currency rates saved');
+      toast.success(t('settings.toast.currencies_saved'));
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to save currencies'));
+      toast.error(errorMessage(err, t('settings.toast.currencies_save_failed')));
     } finally {
       setSaving(false);
     }
@@ -866,16 +870,14 @@ const CurrenciesPanel: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Currency &amp; FX Rates</CardTitle>
+        <CardTitle className="text-base">{t('settings.section.currencies.title')}</CardTitle>
         <CardDescription>
-          Base currency plus exchange rates used to convert prices when a market or storefront
-          requests a different currency. Rate is in the destination currency per 1 base unit
-          (e.g. base USD with EUR=0.92 means $1 = €0.92).
+          {t('settings.section.currencies.description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="space-y-2 max-w-xs">
-          <Label>Base Currency</Label>
+          <Label>{t('settings.field.currencies.base.label')}</Label>
           <CurrencyPicker
             value={config.base}
             onChange={v => setConfig(c => ({ ...c, base: v }))}
@@ -884,13 +886,13 @@ const CurrenciesPanel: React.FC = () => {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label>Exchange Rates</Label>
+            <Label>{t('settings.field.currencies.exchange_rates.label')}</Label>
             <Button variant="ghost" size="sm" onClick={addRow}>
-              <Plus className="h-3.5 w-3.5 mr-1" />Add currency
+              <Plus className="h-3.5 w-3.5 mr-1" />{t('settings.button.add_currency')}
             </Button>
           </div>
           {draftRates.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic py-4">No additional currencies yet.</p>
+            <p className="text-sm text-muted-foreground italic py-4">{t('settings.empty.no_currencies')}</p>
           ) : (
             <div className="space-y-2">
               {draftRates.map((row, i) => (
@@ -904,7 +906,7 @@ const CurrenciesPanel: React.FC = () => {
                   </div>
                   <Input
                     type="number" step="0.0001" min="0"
-                    placeholder="0.92"
+                    placeholder={t('settings.field.currencies.rate_placeholder')}
                     className="flex-1"
                     value={row.rate}
                     onChange={e => updateRow(i, { rate: e.target.value })}
@@ -920,14 +922,14 @@ const CurrenciesPanel: React.FC = () => {
 
         {config.ratesUpdatedAt && (
           <p className="text-xs text-muted-foreground">
-            Last updated {new Date(config.ratesUpdatedAt).toLocaleString()}
+            {t('settings.fx_rates_updated_at', { datetime: new Date(config.ratesUpdatedAt).toLocaleString() })}
           </p>
         )}
 
         <div className="flex justify-end">
           <Button onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-            Save currencies
+            {t('settings.button.save_currencies')}
           </Button>
         </div>
       </CardContent>
@@ -967,6 +969,7 @@ const MARKETS_EMPTY_FORM = {
 };
 
 const MarketsPanel: React.FC = () => {
+  const { t } = useTranslation(['settings', 'common']);
   const [markets, setMarkets] = useState<MarketConfig[]>([]);
   const [baseCurrency, setBaseCurrency] = useState<string>('SDG');
   const [fxRates, setFxRates] = useState<Record<string, number>>({});
@@ -989,7 +992,7 @@ const MarketsPanel: React.FC = () => {
       setBaseCurrency(res.data?.currencies?.base || 'SDG');
       setFxRates(res.data?.currencies?.rates || {});
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to load markets'));
+      toast.error(errorMessage(err, t('settings.toast.markets_load_failed')));
     } finally {
       setLoading(false);
     }
@@ -1019,16 +1022,16 @@ const MarketsPanel: React.FC = () => {
 
   const handleSave = async () => {
     const code = form.code.trim().toLowerCase();
-    if (!/^[a-z0-9-]{2,32}$/.test(code)) return toast.error('Code must be 2–32 chars, a–z 0–9 -');
-    if (!form.name.trim()) return toast.error('Name is required');
-    if (!/^[A-Z]{3}$/.test(form.currency)) return toast.error('Currency must be a 3-letter ISO code');
+    if (!/^[a-z0-9-]{2,32}$/.test(code)) return toast.error(t('settings.validation.market_code_invalid'));
+    if (!form.name.trim()) return toast.error(t('settings.validation.market_name_required'));
+    if (!/^[A-Z]{3}$/.test(form.currency)) return toast.error(t('settings.validation.market_currency_invalid'));
     const countries = form.countries.map(c => c.toUpperCase()).filter(Boolean);
     for (const c of countries) {
-      if (!/^[A-Z]{2}$/.test(c)) return toast.error(`Invalid country code: ${c}`);
+      if (!/^[A-Z]{2}$/.test(c)) return toast.error(t('settings.validation.market_country_invalid', { code: c }));
     }
     const pct = parseFloat(form.priceAdjustmentPct || '0');
     if (isNaN(pct) || pct < -95 || pct > 500) {
-      return toast.error('Price adjustment must be between -95% and +500%');
+      return toast.error(t('settings.validation.market_price_adjustment_range'));
     }
     const payload = {
       code,
@@ -1044,15 +1047,15 @@ const MarketsPanel: React.FC = () => {
     try {
       if (editingId) {
         await api.settings.updateMarketSettings(editingId, payload);
-        toast.success('Market updated');
+        toast.success(t('settings.toast.market_updated'));
       } else {
         await api.settings.createMarketSettings(payload);
-        toast.success('Market created');
+        toast.success(t('settings.toast.market_created'));
       }
       setDialogOpen(false);
       load();
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to save market'));
+      toast.error(errorMessage(err, t('settings.toast.market_save_failed')));
     } finally {
       setSaving(false);
     }
@@ -1060,17 +1063,17 @@ const MarketsPanel: React.FC = () => {
 
   const handleDelete = async (m: MarketConfig) => {
     if (!(await confirm({
-      title: `Delete market "${m.name}"?`,
-      description: 'Customers from its countries will fall through to the default market at checkout.',
-      confirmText: 'Delete',
+      title: t('settings.confirm.delete_market.title', { name: m.name }),
+      description: t('settings.confirm.delete_market.description'),
+      confirmText: t('settings.confirm.delete_market.confirm_text'),
       variant: 'destructive',
     }))) return;
     try {
       await api.settings.deleteMarketSettings(m._id);
-      toast.success('Market deleted');
+      toast.success(t('settings.toast.market_deleted'));
       setMarkets(list => list.filter(x => x._id !== m._id));
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to delete market'));
+      toast.error(errorMessage(err, t('settings.toast.market_delete_failed')));
     }
   };
 
@@ -1080,7 +1083,7 @@ const MarketsPanel: React.FC = () => {
   const missingFxWarning = (currency: string): string | null => {
     if (!currency || currency === baseCurrency) return null;
     if (fxRates[currency] > 0) return null;
-    return `No FX rate for ${currency} → ${baseCurrency}. Add one on the Currencies tab or presentment will fall back to ${baseCurrency}.`;
+    return t('settings.fx_missing_warning', { currency, base: baseCurrency });
   };
 
   const addCountryRow = () => setForm(f => ({ ...f, countries: [...f.countries, ''] }));
@@ -1096,21 +1099,20 @@ const MarketsPanel: React.FC = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">Markets</CardTitle>
+            <CardTitle className="text-base">{t('settings.section.markets.title')}</CardTitle>
             <CardDescription>
-              Map groups of countries to a currency, language, and price adjustment.
-              Checkout resolves the shipping country to a market to compute presentment pricing.
+              {t('settings.section.markets.description')}
             </CardDescription>
           </div>
           <Button onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-2" />Add market
+            <Plus className="h-4 w-4 mr-2" />{t('settings.button.add_market')}
           </Button>
         </CardHeader>
         <CardContent>
           {markets.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Globe2 className="h-10 w-10 mx-auto mb-2 opacity-40" />
-              <p className="text-sm">No markets configured. All customers pay in the base currency.</p>
+              <p className="text-sm">{t('settings.empty.no_markets')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -1128,8 +1130,8 @@ const MarketsPanel: React.FC = () => {
                             {m.priceAdjustmentPct > 0 ? '+' : ''}{(m.priceAdjustmentPct * 100).toFixed(1)}%
                           </Badge>
                         )}
-                        {m.isDefault && <Badge className="text-[10px]">Default</Badge>}
-                        {!m.enabled && <Badge variant="outline" className="text-[10px] text-muted-foreground">Disabled</Badge>}
+                        {m.isDefault && <Badge className="text-[10px]">{t('settings.market_badge_default')}</Badge>}
+                        {!m.enabled && <Badge variant="outline" className="text-[10px] text-muted-foreground">{t('settings.market_badge_disabled')}</Badge>}
                       </div>
                       {m.countries.length > 0 && (
                         <p className="text-xs text-muted-foreground">{m.countries.join(', ')}</p>
@@ -1159,32 +1161,32 @@ const MarketsPanel: React.FC = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit market' : 'New market'}</DialogTitle>
+            <DialogTitle>{editingId ? t('settings.dialog.edit_market') : t('settings.dialog.new_market')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Code</Label>
+                <Label>{t('settings.field.markets.code.label')}</Label>
                 <Input
                   value={form.code}
                   onChange={e => setForm(f => ({ ...f, code: e.target.value }))}
-                  placeholder="eu"
+                  placeholder={t('settings.field.markets.code.placeholder')}
                 />
-                <p className="text-xs text-muted-foreground">Lowercase, 2–32 chars. Used in analytics + order records.</p>
+                <p className="text-xs text-muted-foreground">{t('settings.field.markets.code.help')}</p>
               </div>
               <div className="space-y-2">
-                <Label>Name</Label>
+                <Label>{t('settings.field.markets.name.label')}</Label>
                 <Input
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="European Union"
+                  placeholder={t('settings.field.markets.name.placeholder')}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Currency</Label>
+                <Label>{t('settings.field.markets.currency.label')}</Label>
                 <CurrencyPicker
                   value={form.currency}
                   onChange={v => setForm(f => ({ ...f, currency: v }))}
@@ -1196,7 +1198,7 @@ const MarketsPanel: React.FC = () => {
                 )}
               </div>
               <div className="space-y-2">
-                <Label>Language</Label>
+                <Label>{t('settings.field.markets.language.label')}</Label>
                 <LanguagePicker
                   value={form.language}
                   onChange={v => setForm(f => ({ ...f, language: v }))}
@@ -1206,14 +1208,14 @@ const MarketsPanel: React.FC = () => {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Countries</Label>
+                <Label>{t('settings.field.markets.countries.label')}</Label>
                 <Button variant="ghost" size="sm" onClick={addCountryRow}>
-                  <Plus className="h-3.5 w-3.5 mr-1" />Add country
+                  <Plus className="h-3.5 w-3.5 mr-1" />{t('settings.button.add_country')}
                 </Button>
               </div>
               {form.countries.length === 0 ? (
                 <p className="text-xs text-muted-foreground italic">
-                  No countries — this market will only be selected when it's the default.
+                  {t('settings.empty.no_countries')}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -1235,7 +1237,7 @@ const MarketsPanel: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Price adjustment (%)</Label>
+              <Label>{t('settings.field.markets.price_adjustment.label')}</Label>
               <Input
                 type="number"
                 step="0.1"
@@ -1243,19 +1245,18 @@ const MarketsPanel: React.FC = () => {
                 max="500"
                 value={form.priceAdjustmentPct}
                 onChange={e => setForm(f => ({ ...f, priceAdjustmentPct: e.target.value }))}
-                placeholder="0"
+                placeholder={t('settings.field.markets.price_adjustment.placeholder')}
               />
               <p className="text-xs text-muted-foreground">
-                Applied to the base price before currency conversion. Positive values mark up (e.g. 10 = +10%);
-                negative values discount.
+                {t('settings.field.markets.price_adjustment.help')}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="flex items-center justify-between border rounded-md px-3 py-2">
                 <div>
-                  <p className="text-sm font-medium">Enabled</p>
-                  <p className="text-xs text-muted-foreground">Off: skip at resolve time.</p>
+                  <p className="text-sm font-medium">{t('settings.field.markets.enabled.label')}</p>
+                  <p className="text-xs text-muted-foreground">{t('settings.field.markets.enabled.description')}</p>
                 </div>
                 <Switch
                   checked={form.enabled}
@@ -1264,8 +1265,8 @@ const MarketsPanel: React.FC = () => {
               </div>
               <div className="flex items-center justify-between border rounded-md px-3 py-2">
                 <div>
-                  <p className="text-sm font-medium">Default</p>
-                  <p className="text-xs text-muted-foreground">Fallback when no country matches.</p>
+                  <p className="text-sm font-medium">{t('settings.field.markets.default.label')}</p>
+                  <p className="text-xs text-muted-foreground">{t('settings.field.markets.default.description')}</p>
                 </div>
                 <Switch
                   checked={form.isDefault}
@@ -1275,10 +1276,10 @@ const MarketsPanel: React.FC = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-              {editingId ? 'Update' : 'Create'}
+              {editingId ? t('common:action.update') : t('common:action.create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1290,6 +1291,7 @@ const MarketsPanel: React.FC = () => {
 // ---------------- Notifications panel ----------------
 
 const NotificationsPanel: React.FC = () => {
+  const { t } = useTranslation(['settings', 'common']);
   const [config, setConfig] = useState<NotificationConfig>({ fromName: '', fromEmail: '', templates: {} });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1304,7 +1306,7 @@ const NotificationsPanel: React.FC = () => {
       const data = res.data || { fromName: '', fromEmail: '', templates: {} };
       setConfig({ fromName: data.fromName || '', fromEmail: data.fromEmail || '', templates: data.templates || {} });
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to load notifications'));
+      toast.error(errorMessage(err, t('settings.toast.notifications_load_failed')));
     } finally {
       setLoading(false);
     }
@@ -1323,9 +1325,9 @@ const NotificationsPanel: React.FC = () => {
         templates: config.templates,
       };
       await api.settings.updateNotifications(payload);
-      toast.success('Email templates saved');
+      toast.success(t('settings.toast.email_templates_saved'));
     } catch (err) {
-      toast.error(errorMessage(err, 'Failed to save notifications'));
+      toast.error(errorMessage(err, t('settings.toast.notifications_save_failed')));
     } finally {
       setSaving(false);
     }
@@ -1349,18 +1351,18 @@ const NotificationsPanel: React.FC = () => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Sender</CardTitle>
-          <CardDescription>From name and email address used for transactional order emails.</CardDescription>
+          <CardTitle className="text-base">{t('settings.section.sender.title')}</CardTitle>
+          <CardDescription>{t('settings.section.sender.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>From Name</Label>
-              <Input value={config.fromName || ''} onChange={e => setConfig(c => ({ ...c, fromName: e.target.value }))} placeholder="Acme Coffee" />
+              <Label>{t('settings.field.notifications.from_name.label')}</Label>
+              <Input value={config.fromName || ''} onChange={e => setConfig(c => ({ ...c, fromName: e.target.value }))} placeholder={t('settings.field.notifications.from_name.placeholder')} />
             </div>
             <div className="space-y-2">
-              <Label>From Email</Label>
-              <Input type="email" value={config.fromEmail || ''} onChange={e => setConfig(c => ({ ...c, fromEmail: e.target.value }))} placeholder="orders@acme.test" />
+              <Label>{t('settings.field.notifications.from_email.label')}</Label>
+              <Input type="email" value={config.fromEmail || ''} onChange={e => setConfig(c => ({ ...c, fromEmail: e.target.value }))} placeholder={t('settings.field.notifications.from_email.placeholder')} />
             </div>
           </div>
         </CardContent>
@@ -1368,13 +1370,9 @@ const NotificationsPanel: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Status Templates</CardTitle>
+          <CardTitle className="text-base">{t('settings.section.status_templates.title')}</CardTitle>
           <CardDescription>
-            Customize the email sent when an order moves to each status. Leave a template empty
-            to fall back to the built-in default. You can use the placeholders{' '}
-            <code className="bg-muted px-1 rounded text-[11px]">{'{{orderNumber}}'}</code>,{' '}
-            <code className="bg-muted px-1 rounded text-[11px]">{'{{customerName}}'}</code>, and{' '}
-            <code className="bg-muted px-1 rounded text-[11px]">{'{{totalAmount}}'}</code>.
+            {t('settings.section.status_templates.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1393,7 +1391,7 @@ const NotificationsPanel: React.FC = () => {
                   }`}
                 >
                   {s}
-                  {!isEnabled && <span className="ml-1 text-[10px] opacity-70">(off)</span>}
+                  {!isEnabled && <span className="ml-1 text-[10px] opacity-70">{t('settings.email_template.off_badge')}</span>}
                 </button>
               );
             })}
@@ -1401,26 +1399,26 @@ const NotificationsPanel: React.FC = () => {
 
           <div className="space-y-4 border rounded-md p-4">
             <FlagRow
-              label="Send this email"
-              description={`Sent automatically when an order transitions to "${activeStatus}".`}
+              label={t('settings.email_template.send_this_email.label')}
+              description={t('settings.email_template.send_this_email.description', { status: activeStatus })}
               checked={tpl.enabled !== false}
               onCheckedChange={v => updateTemplate(activeStatus, { enabled: v })}
             />
             <div className="space-y-2">
-              <Label>Subject</Label>
+              <Label>{t('settings.field.notifications.subject.label')}</Label>
               <Input
                 value={tpl.subject || ''}
                 onChange={e => updateTemplate(activeStatus, { subject: e.target.value })}
-                placeholder={`Your order {{orderNumber}} is ${activeStatus.toLowerCase()}`}
+                placeholder={t('settings.email_template.subject_placeholder', { orderNumber: '{{orderNumber}}', status: activeStatus.toLowerCase() })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Body</Label>
+              <Label>{t('settings.field.notifications.body.label')}</Label>
               <Textarea
                 rows={10}
                 value={tpl.body || ''}
                 onChange={e => updateTemplate(activeStatus, { body: e.target.value })}
-                placeholder={`Hi {{customerName}},\n\nYour order {{orderNumber}} is now ${activeStatus.toLowerCase()}.\n\nThanks for shopping with us!`}
+                placeholder={t('settings.email_template.body_placeholder', { customerName: '{{customerName}}', orderNumber: '{{orderNumber}}', status: activeStatus.toLowerCase() })}
               />
             </div>
           </div>
@@ -1430,7 +1428,7 @@ const NotificationsPanel: React.FC = () => {
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-          Save notifications
+          {t('settings.button.save_notifications')}
         </Button>
       </div>
     </>
@@ -1445,55 +1443,32 @@ interface NotificationTypeMeta {
   icon: React.ElementType;
 }
 
-const NOTIFICATION_TYPE_META: Record<NotificationType, NotificationTypeMeta> = {
-  'order.created': {
-    label: 'New orders',
-    description: 'Fires when a customer places a new order.',
-    icon: PackageIcon,
-  },
-  'payment.manual_submitted': {
-    label: 'Manual payment submitted',
-    description: 'A customer submitted proof for a manual / bank transfer payment.',
-    icon: CreditCardIcon,
-  },
-  'payment.failed': {
-    label: 'Payment failed',
-    description: 'A payment attempt (capture, charge, etc.) failed.',
-    icon: AlertTriangleIcon,
-  },
-  'stock.low': {
-    label: 'Low stock',
-    description: 'A product dropped below its low-stock threshold.',
-    icon: BoxIcon,
-  },
-  'refund.created': {
-    label: 'Refund created',
-    description: 'A refund was issued against an order.',
-    icon: RotateCcwIcon,
-  },
-  'return.requested': {
-    label: 'Return requested',
-    description: 'A customer requested a return on an order.',
-    icon: RotateCcwIcon,
-  },
-  'webhook.failed': {
-    label: 'Webhook failed',
-    description: 'An outbound webhook to an external service failed repeatedly.',
-    icon: WebhookIcon,
-  },
-  'domain.verification_failed': {
-    label: 'Domain verification failed',
-    description: 'Custom domain DNS or SSL verification failed.',
-    icon: GlobeIcon,
-  },
-  'staff.invite_accepted': {
-    label: 'Staff invite accepted',
-    description: 'A staff member accepted their invitation.',
-    icon: UsersIcon,
-  },
+const NOTIFICATION_TYPE_ICONS: Record<NotificationType, React.ElementType> = {
+  'order.created': PackageIcon,
+  'payment.manual_submitted': CreditCardIcon,
+  'payment.failed': AlertTriangleIcon,
+  'stock.low': BoxIcon,
+  'refund.created': RotateCcwIcon,
+  'return.requested': RotateCcwIcon,
+  'webhook.failed': WebhookIcon,
+  'domain.verification_failed': GlobeIcon,
+  'staff.invite_accepted': UsersIcon,
+};
+
+const NOTIFICATION_TYPE_KEYS: Record<NotificationType, string> = {
+  'order.created': 'order_created',
+  'payment.manual_submitted': 'payment_manual_submitted',
+  'payment.failed': 'payment_failed',
+  'stock.low': 'stock_low',
+  'refund.created': 'refund_created',
+  'return.requested': 'return_requested',
+  'webhook.failed': 'webhook_failed',
+  'domain.verification_failed': 'domain_verification_failed',
+  'staff.invite_accepted': 'staff_invite_accepted',
 };
 
 const NotificationPreferencesPanel: React.FC = () => {
+  const { t } = useTranslation(['settings', 'common']);
   const { prefs, loading, updatePref } = useNotificationPreferences();
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(
     typeof Notification === 'undefined' ? 'unsupported' : Notification.permission,
@@ -1518,9 +1493,9 @@ const NotificationPreferencesPanel: React.FC = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Notification preferences</CardTitle>
+          <CardTitle className="text-base">{t('settings.section.notifications.title')}</CardTitle>
           <CardDescription>
-            Choose how you want to be alerted for each type of event. Changes save automatically.
+            {t('settings.section.notifications.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -1530,15 +1505,15 @@ const NotificationPreferencesPanel: React.FC = () => {
                 <BellIcon className="mt-0.5 h-4 w-4 text-amber-700 dark:text-amber-300" />
                 <div>
                   <p className="font-medium text-amber-900 dark:text-amber-100">
-                    Browser notifications are not enabled
+                    {t('settings.browser_permission.not_enabled_title')}
                   </p>
                   <p className="text-xs text-amber-800/80 dark:text-amber-200/80">
-                    Grant permission so Matjar can show OS-level alerts when this tab is not focused.
+                    {t('settings.browser_permission.not_enabled_body')}
                   </p>
                 </div>
               </div>
               <Button size="sm" onClick={handleRequestPermission}>
-                Request permission
+                {t('settings.browser_permission.request_button')}
               </Button>
             </div>
           )}
@@ -1546,9 +1521,9 @@ const NotificationPreferencesPanel: React.FC = () => {
             <div className="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm">
               <AlertCircle className="mt-0.5 h-4 w-4 text-destructive" />
               <div>
-                <p className="font-medium">Browser notifications are blocked</p>
+                <p className="font-medium">{t('settings.browser_permission.blocked_title')}</p>
                 <p className="text-xs text-muted-foreground">
-                  Enable notifications for this site in your browser settings to receive OS-level alerts.
+                  {t('settings.browser_permission.blocked_body')}
                 </p>
               </div>
             </div>
@@ -1556,15 +1531,16 @@ const NotificationPreferencesPanel: React.FC = () => {
 
           <div className="overflow-hidden rounded-md border">
             <div className="grid grid-cols-[minmax(0,1fr)_80px_80px_80px_80px_80px] items-center gap-2 border-b bg-muted/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <div>Event</div>
-              <div className="text-center">Inbox</div>
-              <div className="text-center">Toast</div>
-              <div className="text-center">Sound</div>
-              <div className="text-center">Browser</div>
-              <div className="text-center">Email</div>
+              <div>{t('settings.notification_channel.event')}</div>
+              <div className="text-center">{t('settings.notification_channel.inbox')}</div>
+              <div className="text-center">{t('settings.notification_channel.toast')}</div>
+              <div className="text-center">{t('settings.notification_channel.sound')}</div>
+              <div className="text-center">{t('settings.notification_channel.browser')}</div>
+              <div className="text-center">{t('settings.notification_channel.email')}</div>
             </div>
             {NOTIFICATION_TYPES.map((type) => {
-              const meta = NOTIFICATION_TYPE_META[type];
+              const Icon = NOTIFICATION_TYPE_ICONS[type];
+              const typeKey = NOTIFICATION_TYPE_KEYS[type];
               const row =
                 prefs[type] ?? {
                   inbox: true,
@@ -1573,7 +1549,6 @@ const NotificationPreferencesPanel: React.FC = () => {
                   browser: true,
                   email: false,
                 };
-              const Icon = meta.icon;
               const browserDisabled = permission !== 'granted';
               const renderChannel = (channel: NotificationChannel, disabled: boolean) => (
                 <div className="flex items-center justify-center">
@@ -1592,8 +1567,8 @@ const NotificationPreferencesPanel: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                     <div className="min-w-0">
-                      <p className="text-sm font-medium">{meta.label}</p>
-                      <p className="text-xs text-muted-foreground">{meta.description}</p>
+                      <p className="text-sm font-medium">{t(`settings.notification_type.${typeKey}.label`)}</p>
+                      <p className="text-xs text-muted-foreground">{t(`settings.notification_type.${typeKey}.description`)}</p>
                     </div>
                   </div>
                   {renderChannel('inbox', false)}
@@ -1606,8 +1581,8 @@ const NotificationPreferencesPanel: React.FC = () => {
                       </TooltipTrigger>
                       <TooltipContent>
                         {permission === 'denied'
-                          ? 'Browser notifications are blocked in your browser settings.'
-                          : 'Grant browser permission above to enable this channel.'}
+                          ? t('settings.browser_permission.tooltip_blocked')
+                          : t('settings.browser_permission.tooltip_grant')}
                       </TooltipContent>
                     </Tooltip>
                   ) : (
@@ -1619,10 +1594,7 @@ const NotificationPreferencesPanel: React.FC = () => {
             })}
           </div>
           <p className="text-xs text-muted-foreground">
-            The sound channel plays a short chime when a matching notification arrives. The browser
-            channel shows a native OS notification even when the dashboard tab is not focused.
-            The email channel delivers a plain-text message to your account email with a deep-link
-            back to the relevant record.
+            {t('settings.notification_channel_hint')}
           </p>
         </CardContent>
       </Card>

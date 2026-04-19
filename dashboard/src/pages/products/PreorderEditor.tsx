@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -30,17 +31,19 @@ interface Props {
   description?: string;
 }
 
-const POLICY_LABEL: Record<NonNullable<PreorderConfig['chargePolicy']>, string> = {
-  now: 'Charge immediately',
-  on_ship: 'Charge when shipped',
-};
-
 export const PreorderEditor: React.FC<Props> = ({
   value,
   onChange,
-  title = 'Pre-orders',
-  description = 'Allow customers to order this product before it is in stock.',
+  title,
+  description,
 }) => {
+  const { t } = useTranslation(['products']);
+  const resolvedTitle = title ?? t('products.preorder.title');
+  const resolvedDescription = description ?? t('products.preorder.description');
+  const POLICY_LABEL: Record<NonNullable<PreorderConfig['chargePolicy']>, string> = {
+    now: t('products.preorder.field.charge_policy.now'),
+    on_ship: t('products.preorder.field.charge_policy.on_ship'),
+  };
   const cfg: PreorderConfig = value || {};
   const enabled = !!cfg.enabled;
 
@@ -61,20 +64,20 @@ export const PreorderEditor: React.FC<Props> = ({
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center justify-between">
-          <span>{title}</span>
+          <span>{resolvedTitle}</span>
           <Switch
             checked={enabled}
             onCheckedChange={(checked) => patch({ enabled: checked })}
           />
         </CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription>{resolvedDescription}</CardDescription>
       </CardHeader>
 
       {enabled && (
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>Expected ship date</Label>
+              <Label>{t('products.preorder.field.expected_ship_date.label')}</Label>
               <Input
                 type="date"
                 value={dateValue}
@@ -83,12 +86,12 @@ export const PreorderEditor: React.FC<Props> = ({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Shown to customers on the product page.
+                {t('products.preorder.field.expected_ship_date.help')}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>Charge policy</Label>
+              <Label>{t('products.preorder.field.charge_policy.label')}</Label>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
@@ -110,11 +113,11 @@ export const PreorderEditor: React.FC<Props> = ({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>Maximum pre-orders</Label>
+              <Label>{t('products.preorder.field.max_units.label')}</Label>
               <Input
                 type="number"
                 min={0}
-                placeholder="Unlimited"
+                placeholder={t('products.preorder.field.max_units.placeholder')}
                 value={cfg.maxUnits ?? ''}
                 onChange={(e) =>
                   patch({
@@ -123,16 +126,16 @@ export const PreorderEditor: React.FC<Props> = ({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Leave blank for unlimited. {(cfg.unitsReserved || 0)} reserved so far.
+                {t('products.preorder.field.max_units.help', { reserved: cfg.unitsReserved || 0 })}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>Max per customer</Label>
+              <Label>{t('products.preorder.field.max_per_customer.label')}</Label>
               <Input
                 type="number"
                 min={1}
-                placeholder="Unlimited"
+                placeholder={t('products.preorder.field.max_per_customer.placeholder')}
                 value={cfg.maxPerCustomer ?? ''}
                 onChange={(e) =>
                   patch({

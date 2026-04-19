@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -58,10 +59,10 @@ interface StaffInvite {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const ROLE_OPTIONS: { value: StaffRole; label: string }[] = [
-  { value: 'admin', label: 'Admin' },
-  { value: 'manager', label: 'Manager' },
-  { value: 'staff', label: 'Staff' },
+const ROLE_OPTIONS: { value: StaffRole; labelKey: string }[] = [
+  { value: 'admin', labelKey: 'admin' },
+  { value: 'manager', labelKey: 'manager' },
+  { value: 'staff', labelKey: 'staff' },
 ];
 
 const roleBadgeVariant = (role: StaffRole): 'default' | 'secondary' | 'outline' => {
@@ -102,6 +103,7 @@ interface InvitesListResponse {
 type StaffTab = 'members' | 'invites';
 
 export const Staff: React.FC = () => {
+  const { t } = useTranslation(['staff', 'common']);
   const confirm = useConfirm();
   const [tab, setTab] = useState<StaffTab>('members');
 
@@ -126,9 +128,9 @@ export const Staff: React.FC = () => {
   const handleBulkRemove = async () => {
     if (selected.size === 0) return;
     const ok = await confirm({
-      title: `Remove ${selected.size} staff member${selected.size === 1 ? '' : 's'}?`,
-      description: 'They will lose dashboard access immediately.',
-      confirmText: 'Remove',
+      title: t('staff.member.confirm_bulk_remove.title', { count: selected.size }),
+      description: t('staff.member.confirm_bulk_remove.description'),
+      confirmText: t('staff.member.confirm_bulk_remove.confirm_text'),
       variant: 'destructive',
     });
     if (!ok) return;
@@ -136,8 +138,8 @@ export const Staff: React.FC = () => {
     const results = await Promise.allSettled(ids.map(id => api.delete(`/staff/${id}`)));
     const good = results.filter(r => r.status === 'fulfilled').length;
     const failed = results.length - good;
-    if (good) toast.success(`${good} removed`);
-    if (failed) toast.error(`${failed} failed`);
+    if (good) toast.success(t('staff.member.toast.bulk_removed', { count: good }));
+    if (failed) toast.error(t('staff.member.toast.bulk_failed', { count: failed }));
     setSelected(new Set());
     loadStaff();
   };
@@ -145,21 +147,21 @@ export const Staff: React.FC = () => {
   const handleBulkExport = () => {
     const all = staff.filter(m => selected.has(m._id));
     if (all.length === 0) {
-      toast.message('No staff to export');
+      toast.message(t('staff.member.toast.no_export'));
       return;
     }
     const csv = toCSV<StaffMember & Record<string, unknown>>(
       all as (StaffMember & Record<string, unknown>)[],
       [
-        { key: 'name', label: 'Name' },
-        { key: 'email', label: 'Email' },
-        { key: 'roles', label: 'Roles', get: (m) => (m.roles || []).join(', ') },
-        { key: 'isActive', label: 'Status', get: (m) => (m.isActive ? 'active' : 'inactive') },
-        { key: 'lastLoginAt', label: 'Last login', get: (m) => m.lastLoginAt ? new Date(m.lastLoginAt).toISOString().slice(0, 10) : '' },
+        { key: 'name', label: t('staff.list.column.name') },
+        { key: 'email', label: t('staff.list.column.email') },
+        { key: 'roles', label: t('staff.list.column.roles'), get: (m) => (m.roles || []).join(', ') },
+        { key: 'isActive', label: t('staff.list.column.status'), get: (m) => (m.isActive ? 'active' : 'inactive') },
+        { key: 'lastLoginAt', label: t('staff.list.column.last_login'), get: (m) => m.lastLoginAt ? new Date(m.lastLoginAt).toISOString().slice(0, 10) : '' },
       ]
     );
     downloadCSV(csv, 'staff-selected');
-    toast.success(`Exported ${all.length} staff`);
+    toast.success(t('staff.member.toast.exported', { count: all.length }));
   };
 
   const filteredStaff = React.useMemo(() => {
@@ -252,17 +254,17 @@ export const Staff: React.FC = () => {
 
   const submitInvite = async () => {
     if (!inviteEmail.trim()) {
-      toast.error('Email is required');
+      toast.error(t('staff.invite.toast.email_required'));
       return;
     }
     try {
       setInviteSaving(true);
       await api.post('/staff/invites', { email: inviteEmail.trim(), role: inviteRole });
-      toast.success(`Invitation sent to ${inviteEmail}`);
+      toast.success(t('staff.invite.toast.sent', { email: inviteEmail }));
       setInviteOpen(false);
       loadInvites();
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to send invitation'));
+      toast.error(errMsg(err, t('staff.invite.toast.send_failed')));
     } finally {
       setInviteSaving(false);
     }
@@ -271,27 +273,27 @@ export const Staff: React.FC = () => {
   const handleResendInvite = async (invite: StaffInvite) => {
     try {
       await api.post(`/staff/invites/${invite._id}/resend`);
-      toast.success(`Invitation resent to ${invite.email}`);
+      toast.success(t('staff.invite.toast.resent', { email: invite.email }));
       loadInvites();
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to resend invitation'));
+      toast.error(errMsg(err, t('staff.invite.toast.resend_failed')));
     }
   };
 
   const handleRevokeInvite = async (invite: StaffInvite) => {
     const ok = await confirm({
-      title: 'Revoke invitation?',
-      description: `This will revoke the invitation sent to ${invite.email}. They will no longer be able to accept it.`,
-      confirmText: 'Revoke',
+      title: t('staff.invite.confirm_revoke.title'),
+      description: t('staff.invite.confirm_revoke.description', { email: invite.email }),
+      confirmText: t('staff.invite.confirm_revoke.confirm_text'),
       variant: 'destructive',
     });
     if (!ok) return;
     try {
       await api.delete(`/staff/invites/${invite._id}`);
-      toast.success('Invitation revoked');
+      toast.success(t('staff.invite.toast.revoked'));
       loadInvites();
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to revoke invitation'));
+      toast.error(errMsg(err, t('staff.invite.toast.revoke_failed')));
     }
   };
 
@@ -319,7 +321,7 @@ export const Staff: React.FC = () => {
   const submitEditRoles = async () => {
     if (!editingMember) return;
     if (editRoles.length === 0) {
-      toast.error('At least one role is required');
+      toast.error(t('staff.member.toast.role_required'));
       return;
     }
     try {
@@ -328,11 +330,11 @@ export const Staff: React.FC = () => {
         roles: editRoles,
         customRoleIds: editCustomRoleIds,
       });
-      toast.success('Roles updated');
+      toast.success(t('staff.member.toast.roles_updated'));
       setEditOpen(false);
       loadStaff();
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to update roles'));
+      toast.error(errMsg(err, t('staff.member.toast.roles_update_failed')));
     } finally {
       setEditSaving(false);
     }
@@ -340,18 +342,18 @@ export const Staff: React.FC = () => {
 
   const handleRemoveStaff = async (member: StaffMember) => {
     const ok = await confirm({
-      title: 'Remove staff member?',
-      description: `${member.name} will lose access to the dashboard. This action can be undone by re-inviting them.`,
-      confirmText: 'Remove',
+      title: t('staff.member.confirm_remove.title'),
+      description: t('staff.member.confirm_remove.description', { name: member.name }),
+      confirmText: t('staff.member.confirm_remove.confirm_text'),
       variant: 'destructive',
     });
     if (!ok) return;
     try {
       await api.delete(`/staff/${member._id}`);
-      toast.success(`${member.name} removed`);
+      toast.success(t('staff.member.toast.removed', { name: member.name }));
       loadStaff();
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to remove staff member'));
+      toast.error(errMsg(err, t('staff.member.toast.remove_failed')));
     }
   };
 
@@ -361,19 +363,19 @@ export const Staff: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Staff & Team</h1>
-          <p className="text-muted-foreground">Manage team members and pending invitations.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('staff.list.title')}</h1>
+          <p className="text-muted-foreground">{t('staff.list.subtitle')}</p>
         </div>
         <Button onClick={openInviteDialog}>
           <Plus className="h-4 w-4 mr-2" />
-          Invite staff
+          {t('staff.invite.button')}
         </Button>
       </div>
 
       <FilterPills<StaffTab>
         items={[
-          { id: 'members', label: 'Team members', icon: Users, count: staff.length },
-          { id: 'invites', label: 'Pending invites', icon: Mail, count: invites.length },
+          { id: 'members', label: t('staff.list.tab_members'), icon: Users, count: staff.length },
+          { id: 'invites', label: t('staff.list.tab_invites'), icon: Mail, count: invites.length },
         ]}
         value={tab}
         onChange={setTab}
@@ -386,9 +388,9 @@ export const Staff: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Team members
+                {t('staff.list.card_title')}
               </CardTitle>
-              <CardDescription>Admins, managers, and staff with dashboard access.</CardDescription>
+              <CardDescription>{t('staff.list.card_description')}</CardDescription>
             </CardHeader>
             <CardContent>
               {staffLoading ? (
@@ -398,14 +400,14 @@ export const Staff: React.FC = () => {
               ) : staff.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Users className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                  <p>No staff members yet. Invite someone to get started.</p>
+                  <p>{t('staff.list.empty_title')}</p>
                 </div>
               ) : (
                 <>
                 <div className="relative max-w-md mb-4">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by name or email..."
+                    placeholder={t('staff.list.search_placeholder')}
                     className="pl-9"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -413,16 +415,16 @@ export const Staff: React.FC = () => {
                 </div>
                 {selected.size > 0 && (
                   <div className="flex items-center justify-between p-3 mb-3 rounded-lg border bg-primary/5">
-                    <p className="text-sm font-medium">{selected.size} selected</p>
+                    <p className="text-sm font-medium">{t('staff.list.selected_count', { count: selected.size })}</p>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-                        <X className="h-3.5 w-3.5 mr-1.5" />Clear
+                        <X className="h-3.5 w-3.5 mr-1.5" />{t('staff.list.bulk_clear')}
                       </Button>
                       <Button variant="outline" size="sm" onClick={handleBulkExport}>
-                        <Download className="h-3.5 w-3.5 mr-1.5" />Export CSV
+                        <Download className="h-3.5 w-3.5 mr-1.5" />{t('staff.list.bulk_export_csv')}
                       </Button>
                       <Button variant="destructive" size="sm" onClick={handleBulkRemove}>
-                        <Trash2 className="h-3.5 w-3.5 mr-1.5" />Remove
+                        <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('staff.list.bulk_remove')}
                       </Button>
                     </div>
                   </div>
@@ -438,11 +440,11 @@ export const Staff: React.FC = () => {
                           className="h-4 w-4 rounded border-gray-300"
                         />
                       </TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Roles</TableHead>
-                      <TableHead>Last login</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>{t('staff.list.column.name')}</TableHead>
+                      <TableHead>{t('staff.list.column.email')}</TableHead>
+                      <TableHead>{t('staff.list.column.roles')}</TableHead>
+                      <TableHead>{t('staff.list.column.last_login')}</TableHead>
+                      <TableHead>{t('staff.list.column.status')}</TableHead>
                       <TableHead className="w-[50px]" />
                     </TableRow>
                   </TableHeader>
@@ -450,7 +452,7 @@ export const Staff: React.FC = () => {
                     {filteredStaff.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
-                          No staff match your search.
+                          {t('staff.list.empty_search')}
                         </TableCell>
                       </TableRow>
                     )}
@@ -480,7 +482,7 @@ export const Staff: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Badge variant={member.isActive ? 'default' : 'secondary'}>
-                            {member.isActive ? 'Active' : 'Inactive'}
+                            {member.isActive ? t('common:state.active') : t('common:state.inactive')}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -493,14 +495,14 @@ export const Staff: React.FC = () => {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => openEditDialog(member)}>
                                 <Edit className="h-4 w-4 mr-2" />
-                                Edit roles
+                                {t('staff.member.action.edit_roles')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"
                                 onClick={() => handleRemoveStaff(member)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
-                                Remove
+                                {t('staff.member.action.remove')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -521,9 +523,9 @@ export const Staff: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="h-5 w-5" />
-                Pending invites
+                {t('staff.invites.card_title')}
               </CardTitle>
-              <CardDescription>Invitations that have been sent but not yet accepted.</CardDescription>
+              <CardDescription>{t('staff.invites.card_description')}</CardDescription>
             </CardHeader>
             <CardContent>
               {invitesLoading ? (
@@ -533,16 +535,16 @@ export const Staff: React.FC = () => {
               ) : invites.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Mail className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                  <p>No pending invitations.</p>
+                  <p>{t('staff.invites.empty')}</p>
                 </div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Invited</TableHead>
-                      <TableHead>Expires</TableHead>
+                      <TableHead>{t('staff.invites.column.email')}</TableHead>
+                      <TableHead>{t('staff.invites.column.role')}</TableHead>
+                      <TableHead>{t('staff.invites.column.invited')}</TableHead>
+                      <TableHead>{t('staff.invites.column.expires')}</TableHead>
                       <TableHead className="w-[50px]" />
                     </TableRow>
                   </TableHeader>
@@ -569,14 +571,14 @@ export const Staff: React.FC = () => {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleResendInvite(invite)}>
                                 <RefreshCw className="h-4 w-4 mr-2" />
-                                Resend
+                                {t('staff.invites.action.resend')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"
                                 onClick={() => handleRevokeInvite(invite)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
-                                Revoke
+                                {t('staff.invites.action.revoke')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -595,32 +597,32 @@ export const Staff: React.FC = () => {
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Invite a staff member</DialogTitle>
+            <DialogTitle>{t('staff.invite.title')}</DialogTitle>
             <DialogDescription>
-              An invitation link will be emailed to them. It expires in 7 days.
+              {t('staff.invite.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="invite-email">Email address</Label>
+              <Label htmlFor="invite-email">{t('staff.invite.field.email.label')}</Label>
               <Input
                 id="invite-email"
                 type="email"
-                placeholder="colleague@example.com"
+                placeholder={t('staff.invite.field.email.placeholder')}
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && submitInvite()}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="invite-role">Role</Label>
+              <Label htmlFor="invite-role">{t('staff.invite.field.role.label')}</Label>
               <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as StaffRole)}>
                 <SelectTrigger id="invite-role">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {ROLE_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    <SelectItem key={opt.value} value={opt.value}>{opt.labelKey}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -628,11 +630,11 @@ export const Staff: React.FC = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setInviteOpen(false)} disabled={inviteSaving}>
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={submitInvite} disabled={inviteSaving}>
               {inviteSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Send invitation
+              {t('staff.invite.send_button')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -642,14 +644,16 @@ export const Staff: React.FC = () => {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit roles — {editingMember?.name}</DialogTitle>
+            <DialogTitle>{t('staff.edit_roles.title', { name: editingMember?.name })}</DialogTitle>
             <DialogDescription>
-              Select one or more roles for this team member.
+              {t('staff.edit_roles.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="py-2 space-y-4">
             <div className="space-y-3">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Built-in roles</div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                {t('staff.edit_roles.group_builtin')}
+              </div>
               {ROLE_OPTIONS.map((opt) => (
                 <label key={opt.value} className="flex items-center gap-3 cursor-pointer select-none">
                   <input
@@ -658,13 +662,15 @@ export const Staff: React.FC = () => {
                     checked={editRoles.includes(opt.value)}
                     onChange={() => toggleEditRole(opt.value)}
                   />
-                  <span className="font-medium capitalize">{opt.label}</span>
+                  <span className="font-medium capitalize">{opt.labelKey}</span>
                 </label>
               ))}
             </div>
             {customRoles.length > 0 && (
               <div className="space-y-3 border-t pt-4">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Custom roles</div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  {t('staff.edit_roles.group_custom')}
+                </div>
                 {customRoles.map((r) => (
                   <label key={r._id} className="flex items-center gap-3 cursor-pointer select-none">
                     <input
@@ -681,11 +687,11 @@ export const Staff: React.FC = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditOpen(false)} disabled={editSaving}>
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={submitEditRoles} disabled={editSaving}>
               {editSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Save
+              {t('common:action.save')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,1 +1,40 @@
-{}
+{
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Track your store performance",
+    "metric": {
+      "total_revenue": "Total Revenue",
+      "total_orders": "Total Orders",
+      "avg_order_value": "Avg Order Value",
+      "total_products": "Products"
+    },
+    "chart": {
+      "revenue_over_time": {
+        "title": "Revenue Over Time"
+      },
+      "top_products": {
+        "title": "Top Products",
+        "description": "Best performing products by revenue"
+      }
+    },
+    "range": {
+      "7": "Last 7 days",
+      "30": "Last 30 days",
+      "90": "Last 90 days",
+      "365": "Last year"
+    },
+    "column": {
+      "rank": "#",
+      "product": "Product",
+      "units_sold": "Units Sold",
+      "revenue": "Revenue"
+    },
+    "empty": {
+      "no_sales": "No sales data for this period",
+      "no_products": "No product data yet"
+    },
+    "toast": {
+      "load_failed": "Failed to load analytics"
+    }
+  }
+}

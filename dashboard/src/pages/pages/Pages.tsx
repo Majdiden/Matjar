@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -28,6 +29,7 @@ interface PageRow {
 export const Pages: React.FC = () => {
   const navigate = useNavigate();
   const confirm = useConfirm();
+  const { t } = useTranslation(['pages', 'common']);
   const [pages, setPages] = useState<PageRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,18 +49,18 @@ export const Pages: React.FC = () => {
 
   const handleDelete = async (page: PageRow) => {
     if (!(await confirm({
-      title: 'Delete page?',
-      description: `"${page.title}" will be permanently removed.`,
-      confirmText: 'Delete',
+      title: t('pages:confirm.delete_title'),
+      description: t('pages:confirm.delete_description', { title: page.title }),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       await api.pages.delete(page._id);
-      toast.success('Page deleted');
+      toast.success(t('pages:toast.deleted'));
       setPages(prev => prev.filter(p => p._id !== page._id));
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to delete page');
+      toast.error(e?.message || t('pages:toast.error_delete'));
     }
   };
 
@@ -75,12 +77,12 @@ export const Pages: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pages</h1>
-          <p className="text-muted-foreground">Static content pages (About, Contact, Privacy…)</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('pages:list.title')}</h1>
+          <p className="text-muted-foreground">{t('pages:list.subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/dashboard/pages/new')}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Page
+          {t('pages:list.action.add')}
         </Button>
       </div>
 
@@ -91,13 +93,13 @@ export const Pages: React.FC = () => {
               <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <FileText className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">No pages yet</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('pages:list.empty.title')}</h3>
               <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-                Create static content pages your storefront can link to from navigation menus or footer.
+                {t('pages:list.empty.hint')}
               </p>
               <Button onClick={() => navigate('/dashboard/pages/new')}>
                 <Plus className="h-4 w-4 mr-2" />
-                Create Your First Page
+                {t('pages:list.empty.action')}
               </Button>
             </div>
           </CardContent>
@@ -108,11 +110,11 @@ export const Pages: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Slug</TableHead>
-                  <TableHead>Locale</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Updated</TableHead>
+                  <TableHead>{t('pages:list.column.title')}</TableHead>
+                  <TableHead>{t('pages:list.column.slug')}</TableHead>
+                  <TableHead>{t('pages:list.column.locale')}</TableHead>
+                  <TableHead>{t('pages:list.column.status')}</TableHead>
+                  <TableHead>{t('pages:list.column.updated')}</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
@@ -130,7 +132,7 @@ export const Pages: React.FC = () => {
                     <TableCell className="text-sm text-muted-foreground">{p.locale}</TableCell>
                     <TableCell>
                       <Badge variant={p.isPublished ? 'default' : 'secondary'}>
-                        {p.isPublished ? 'Published' : 'Draft'}
+                        {p.isPublished ? t('pages:form.status.published') : t('pages:form.status.draft')}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
@@ -145,13 +147,13 @@ export const Pages: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => navigate(`/dashboard/pages/${p._id}/edit`)}>
-                            <Edit className="h-4 w-4 mr-2" />Edit
+                            <Edit className="h-4 w-4 mr-2" />{t('common:action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDelete(p)}
                             className="text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />Delete
+                            <Trash2 className="h-4 w-4 mr-2" />{t('common:action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

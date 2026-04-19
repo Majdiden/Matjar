@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Bell,
   Package,
@@ -72,6 +73,7 @@ function relativeTime(iso: string): string {
 
 export const NotificationBell: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation(['nav']);
   const { items, unreadCount, markRead, markAllRead } =
     useNotificationsContext();
 
@@ -93,16 +95,16 @@ export const NotificationBell: React.FC = () => {
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-none text-destructive-foreground">
+            <span className="absolute -top-0.5 -end-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-none text-destructive-foreground">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
-          <span className="sr-only">Notifications</span>
+          <span className="sr-only">{t('nav:notifications.title')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-96">
         <DropdownMenuLabel className="flex items-center justify-between gap-2">
-          <span className="text-sm font-semibold">Notifications</span>
+          <span className="text-sm font-semibold">{t('nav:notifications.title')}</span>
           <div className="flex items-center gap-1">
             {unreadCount > 0 && (
               <button
@@ -115,13 +117,13 @@ export const NotificationBell: React.FC = () => {
                 }}
               >
                 <CheckCheck className="h-3.5 w-3.5" />
-                Mark all read
+                {t('nav:notifications.mark_all_read')}
               </button>
             )}
             <button
               type="button"
               className="inline-flex items-center rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-              title="Notification settings"
+              title={t('nav:notifications.settings_title')}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -136,7 +138,7 @@ export const NotificationBell: React.FC = () => {
         <DropdownMenuSeparator />
         {items.length === 0 ? (
           <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-            No notifications yet.
+            {t('nav:notifications.empty')}
           </div>
         ) : (
           <div>
@@ -150,7 +152,7 @@ export const NotificationBell: React.FC = () => {
                   type="button"
                   onClick={() => handleRowClick(n)}
                   className={cn(
-                    'block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent last:border-b-0',
+                    'block w-full border-b px-3 py-2 text-start text-sm hover:bg-accent last:border-b-0',
                     unread && 'bg-accent/40',
                   )}
                 >
@@ -194,7 +196,7 @@ export const NotificationBell: React.FC = () => {
                   setOpen(false);
                 }}
               >
-                View all notifications
+                {t('nav:notifications.view_all')}
               </Button>
             </div>
           </div>

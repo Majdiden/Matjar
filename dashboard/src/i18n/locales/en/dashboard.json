@@ -1,1 +1,56 @@
-{}
+{
+  "title": "Dashboard",
+  "subtitle": "Overview of your store performance",
+  "metric": {
+    "revenue": "Revenue",
+    "revenue_description": "Last 30 days",
+    "orders": "Orders",
+    "orders_description": "Total orders",
+    "products": "Products",
+    "products_description": "Active products",
+    "customers": "Customers",
+    "customers_description": "Registered users"
+  },
+  "domain_banner": {
+    "live_at": "Your store is live at",
+    "manage": "Manage"
+  },
+  "section": {
+    "recent_orders": {
+      "title": "Recent Orders",
+      "description": "Latest customer orders",
+      "view_all": "View All",
+      "empty": "No orders yet",
+      "guest": "Guest",
+      "item_count_one": "{{count}} item",
+      "item_count_other": "{{count}} items"
+    },
+    "quick_actions": {
+      "title": "Quick Actions",
+      "description": "Common tasks",
+      "add_product": "Add Product",
+      "view_orders": "View Orders",
+      "manage_themes": "Manage Themes",
+      "domain_settings": "Domain Settings",
+      "discounts": "Discounts",
+      "store_settings": "Store Settings"
+    },
+    "getting_started": {
+      "title": "Getting Started",
+      "description": "Set up your store in a few steps",
+      "step1_title": "Add your first product",
+      "step1_desc": "Start selling by adding products",
+      "step1_label": "Add Now",
+      "step2_title": "Customize your theme",
+      "step2_desc": "Make your store look professional",
+      "step2_label": "Browse Themes",
+      "step3_title": "Set up your domain",
+      "step3_desc": "Use your own domain for better branding",
+      "step3_label": "Configure"
+    }
+  },
+  "add_product": "Add Product",
+  "toast": {
+    "load_failed": "Failed to load dashboard data"
+  }
+}

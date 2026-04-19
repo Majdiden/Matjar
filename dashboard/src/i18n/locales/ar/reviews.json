@@ -1,1 +1,79 @@
-{}
+{
+  "reviews": {
+    "list": {
+      "title": "المراجعات",
+      "subtitle": "{{count}} مراجعة إجمالاً",
+      "empty_title": "لا توجد مراجعات",
+      "empty_description": "ستظهر هنا مراجعات العملاء.",
+      "select_all": "تحديد الكل",
+      "search_placeholder": "بحث في عنوان المراجعة أو التعليق...",
+      "column": {
+        "product": "المنتج",
+        "rating": "التقييم",
+        "author": "الكاتب",
+        "excerpt": "مقتطف",
+        "status": "الحالة",
+        "date": "التاريخ",
+        "actions": "الإجراءات"
+      },
+      "filter": {
+        "all": "الكل",
+        "pending": "قيد الانتظار",
+        "approved": "مُوافق عليها"
+      }
+    },
+    "status": {
+      "approved": "مُوافق عليها",
+      "pending": "قيد الانتظار"
+    },
+    "badge": {
+      "verified_purchase": "مشترٍ موثّق"
+    },
+    "meta": {
+      "by": "بقلم {{author}}",
+      "on_product": "على {{product}}",
+      "unknown_product": "منتج غير معروف",
+      "anonymous": "مجهول"
+    },
+    "action": {
+      "approve": "الموافقة",
+      "reject": "رفض",
+      "delete": "حذف",
+      "bulk_approve": "الموافقة",
+      "bulk_reject": "رفض",
+      "bulk_delete": "حذف",
+      "bulk_clear": "مسح"
+    },
+    "selected_count": "{{count}} محدد",
+    "confirm_delete": {
+      "title": "حذف المراجعة؟",
+      "description": "سيتم إزالة المراجعة نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+      "confirm_text": "حذف"
+    },
+    "confirm_bulk_delete": {
+      "title": "حذف مراجعة واحدة؟",
+      "title_plural": "حذف {{count}} مراجعات؟",
+      "description": "لا يمكن التراجع عن هذا الإجراء.",
+      "confirm_text": "حذف"
+    },
+    "toast": {
+      "approved": "تمت الموافقة على المراجعة",
+      "rejected": "تم رفض المراجعة",
+      "deleted": "تم حذف المراجعة",
+      "approve_failed": "فشلت الموافقة",
+      "reject_failed": "فشل الرفض",
+      "delete_failed": "فشل الحذف",
+      "fetch_failed": "فشل تحميل المراجعات",
+      "bulk_updated": "تمت الموافقة على مراجعة واحدة",
+      "bulk_updated_plural": "تمت الموافقة على {{count}} مراجعات",
+      "bulk_rejected": "تم رفض مراجعة واحدة",
+      "bulk_rejected_plural": "تم رفض {{count}} مراجعات",
+      "bulk_deleted": "تم حذف {{count}}",
+      "bulk_update_failed": "فشل التحديث الجماعي",
+      "bulk_delete_failed": "فشل الحذف الجماعي"
+    },
+    "pagination": {
+      "page_of": "صفحة {{page}} من {{total}}"
+    }
+  }
+}

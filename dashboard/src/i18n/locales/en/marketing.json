@@ -1,1 +1,453 @@
-{}
+{
+  "marketing": {
+    "discount": {
+      "list": {
+        "title": "Discounts",
+        "subtitle": "Create, edit, and combine discount codes",
+        "card_title": "All discounts",
+        "card_title_count": "All discounts ({{count}})",
+        "empty_title": "No discounts",
+        "empty_subtitle": "Create discount codes to offer promotions.",
+        "column": {
+          "code": "Code",
+          "applies_to": "Applies to",
+          "type": "Type",
+          "value": "Value",
+          "usage": "Usage",
+          "combines": "Combines",
+          "status": "Status",
+          "expires": "Expires",
+          "actions": "Actions",
+          "combines_none": "None"
+        },
+        "filter": {
+          "all": "All",
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "search_placeholder": "Search by code or description...",
+        "create_button": "Create discount",
+        "expires_never": "No expiry",
+        "expires_on": "Expires {{date}}",
+        "selected_count": "{{count}} selected",
+        "bulk_delete_title": "Delete {{count}} discount",
+        "bulk_delete_title_plural": "Delete {{count}} discounts",
+        "bulk_delete_description": "Customers will no longer be able to redeem these codes.",
+        "delete_title": "Delete this discount?",
+        "delete_description": "Customers will no longer be able to redeem this code.",
+        "card_value_label": "Value",
+        "card_uses_label": "Uses"
+      },
+      "picker": {
+        "title": "Select discount type",
+        "subtitle": "Choose the kind of discount you want to create."
+      },
+      "method": {
+        "amount_off_products": "Amount off products",
+        "amount_off_products_desc": "Discount specific products or collections of products.",
+        "buy_x_get_y": "Buy X get Y",
+        "buy_x_get_y_desc": "Give a discounted item when customers buy qualifying items.",
+        "amount_off_order": "Amount off order",
+        "amount_off_order_desc": "Discount the total order amount.",
+        "free_shipping": "Free shipping",
+        "free_shipping_desc": "Offer free shipping on an order."
+      },
+      "form": {
+        "section": {
+          "code": "Discount code",
+          "value": "Value",
+          "value_order_desc": "How much to take off the order subtotal.",
+          "value_products_desc": "How much to take off each qualifying line.",
+          "applies_to": "Applies to",
+          "applies_to_desc": "Pick the products and/or categories this discount applies to. Leave both empty to apply it to every line.",
+          "shipping_discount": "Shipping discount",
+          "shipping_discount_desc": "By default customers get 100% off shipping. Lower the percentage for a partial discount, or switch to a fixed-amount rebate.",
+          "customer_buys": "Customer buys",
+          "customer_buys_desc": "What the customer must have in their cart to qualify.",
+          "customer_gets": "Customer gets",
+          "customer_gets_desc": "What's discounted, and by how much.",
+          "requirements": "Requirements & limits",
+          "status": "Status",
+          "combinations": "Combinations",
+          "combinations_desc": "Customers can stack two discounts only if both opt in."
+        },
+        "field": {
+          "code": {
+            "label": "Code"
+          },
+          "type": {
+            "label": "Type"
+          },
+          "value": {
+            "label": "Value"
+          },
+          "min_order_amount": {
+            "label": "Min order amount",
+            "placeholder": "Optional"
+          },
+          "usage_limit": {
+            "label": "Total usage limit",
+            "placeholder": "Unlimited"
+          },
+          "per_user_limit": {
+            "label": "Per-customer limit",
+            "placeholder": "Unlimited"
+          },
+          "expires_at": {
+            "label": "Expires at"
+          },
+          "is_active": {
+            "label": "Active",
+            "hint": "Inactive discounts cannot be applied at checkout."
+          },
+          "bxgy_buy_quantity": {
+            "label": "Quantity"
+          },
+          "bxgy_buy_products": {
+            "label": "Any of these products"
+          },
+          "bxgy_buy_categories": {
+            "label": "Or any product in these categories"
+          },
+          "bxgy_buy_any_hint": "Leave both empty to allow any product in the cart to count toward the buy quantity.",
+          "bxgy_get_quantity": {
+            "label": "Quantity"
+          },
+          "bxgy_max_uses": {
+            "label": "Max uses per order",
+            "placeholder": "Unlimited"
+          },
+          "bxgy_get_products": {
+            "label": "Any of these products"
+          },
+          "bxgy_get_categories": {
+            "label": "Or any product in these categories"
+          },
+          "bxgy_discount_type": {
+            "label": "At a discount of"
+          },
+          "bxgy_free_hint": "Use 100% for \"get one free\". The discount applies to the cheapest qualifying units.",
+          "products_picker": {
+            "label": "Products",
+            "placeholder": "Search products..."
+          },
+          "categories_picker": {
+            "label": "Categories",
+            "placeholder": "Search categories..."
+          },
+          "combines_with": "Combines with {{kind}} discounts"
+        },
+        "type_option": {
+          "percentage": "Percentage (%)",
+          "fixed": "Fixed amount"
+        },
+        "picker_no_matches": "No matches",
+        "create_button": "Create discount",
+        "save_button": "Save changes",
+        "edit_title": "Edit {{code}}"
+      },
+      "toast": {
+        "created": "Discount created",
+        "updated": "Discount updated",
+        "deleted": "Discount deleted",
+        "delete_failed": "Failed to delete discount",
+        "load_failed": "Failed to load discounts",
+        "save_failed": "Failed to save discount",
+        "code_required": "Discount code is required",
+        "bulk_deleted": "{{count}} deleted",
+        "bulk_failed": "{{count}} failed",
+        "not_found": "Discount not found"
+      }
+    },
+    "gift_card": {
+      "list": {
+        "title": "Gift Cards",
+        "feature_toggle_label": "Gift cards",
+        "feature_on": "On",
+        "feature_off": "Off",
+        "issue_button": "Issue Gift Card",
+        "search_placeholder": "Search by last 4 digits...",
+        "empty_title": "No gift cards found",
+        "selected_count": "{{count}} selected",
+        "column": {
+          "code": "Code",
+          "recipient": "Recipient",
+          "initial": "Initial",
+          "balance": "Balance",
+          "status": "Status",
+          "expires": "Expires",
+          "created": "Created"
+        },
+        "filter": {
+          "all": "All",
+          "active": "Active",
+          "redeemed": "Redeemed",
+          "expired": "Expired",
+          "disabled": "Disabled"
+        },
+        "bulk": {
+          "disable": "Disable",
+          "enable": "Enable",
+          "export_csv": "Export CSV",
+          "no_export": "No gift cards to export"
+        },
+        "tag": {
+          "covers_shipping": "Covers shipping",
+          "covers_tax": "Covers tax"
+        },
+        "card_balance_label": "Balance",
+        "card_initial_label": "Initial",
+        "card_expires": "Expires {{date}}",
+        "card_created": "Created {{date}}"
+      },
+      "issue_dialog": {
+        "title": "Issue Gift Card",
+        "description": "Create a new prepaid gift card. The code will only be shown once after issuance.",
+        "field": {
+          "amount": {
+            "label": "Amount *"
+          },
+          "currency": {
+            "label": "Currency"
+          },
+          "recipient_name": {
+            "label": "Recipient Name",
+            "placeholder": "Jane Doe"
+          },
+          "recipient_email": {
+            "label": "Recipient Email",
+            "placeholder": "jane@example.com"
+          },
+          "message": {
+            "label": "Message (shown on card)",
+            "placeholder": "Happy Birthday!"
+          },
+          "note": {
+            "label": "Internal Note",
+            "placeholder": "For internal reference only"
+          },
+          "expires_at": {
+            "label": "Expiry Date (optional)"
+          },
+          "customer": {
+            "label": "Customer (optional — assigns to account)",
+            "search_placeholder": "Search by name, email, or phone…",
+            "searching": "Searching…",
+            "no_customers": "No customers found.",
+            "no_name": "(no name)"
+          }
+        },
+        "issue_button": "Issue Card"
+      },
+      "success_dialog": {
+        "title": "Gift Card Issued",
+        "description": "Copy the code below. This is the only time the full code will be displayed.",
+        "warning": "Save this code now — it cannot be retrieved again."
+      },
+      "form": {
+        "page_title": "Issue Gift Card",
+        "card_title": "New gift card",
+        "card_description": "Create a new prepaid gift card. The full code will only be shown once after issuance.",
+        "field": {
+          "cover_shipping": {
+            "label": "Cover shipping",
+            "hint": "This card can be applied against shipping fees."
+          },
+          "cover_tax": {
+            "label": "Cover tax",
+            "hint": "This card can be applied against tax."
+          }
+        }
+      },
+      "detail": {
+        "back_link": "Gift Cards",
+        "section": {
+          "overview": "Overview",
+          "transactions": "Transaction History",
+          "actions": "Actions"
+        },
+        "field": {
+          "balance": "Balance",
+          "initial_amount": "Initial Amount",
+          "currency": "Currency",
+          "status": "Status",
+          "recipient": "Recipient",
+          "customer_id": "Customer ID",
+          "expires": "Expires",
+          "issued": "Issued",
+          "message": "Message",
+          "note": "Internal Note",
+          "remaining_balance": "Remaining balance"
+        },
+        "expires_never": "Never",
+        "tx_column": {
+          "type": "Type",
+          "amount": "Amount",
+          "balance_after": "Balance After",
+          "order": "Order",
+          "note": "Note",
+          "date": "Date"
+        },
+        "tx_empty": "No transactions",
+        "action": {
+          "enable": "Enable Card",
+          "disable": "Disable Card",
+          "adjust": "Adjust Balance",
+          "refund": "Refund to Card"
+        },
+        "not_found": "Gift card not found.",
+        "not_found_back": "Back to list"
+      },
+      "adjust_dialog": {
+        "title": "Adjust Balance",
+        "current_balance": "Current balance: {{balance}}",
+        "add": "+ Add",
+        "subtract": "− Subtract",
+        "field": {
+          "amount": {
+            "label": "Amount ({{currency}})"
+          },
+          "note": {
+            "label": "Note (required for audit trail)",
+            "placeholder": "Reason for adjustment"
+          }
+        },
+        "apply_button": "Apply"
+      },
+      "refund_dialog": {
+        "title": "Refund to Gift Card",
+        "description": "Add balance back to this card (e.g. for a returned order). Current balance: {{balance}}",
+        "field": {
+          "amount": {
+            "label": "Refund Amount ({{currency}})"
+          },
+          "note": {
+            "label": "Note",
+            "placeholder": "Reason for refund"
+          }
+        },
+        "refund_button": "Refund"
+      },
+      "toast": {
+        "issued": "Gift card issued",
+        "issue_failed": "Failed to issue gift card",
+        "code_copied": "Code copied to clipboard",
+        "enabled": "Gift card enabled",
+        "disabled": "Gift card disabled",
+        "feature_updated": "{{state}}",
+        "feature_update_failed": "Failed to update",
+        "load_failed": "Failed to load gift card",
+        "toggle_failed": "Failed to {{action}} gift card",
+        "balance_adjusted": "Balance adjusted",
+        "adjustment_failed": "Adjustment failed",
+        "refund_applied": "Refund applied",
+        "refund_failed": "Refund failed",
+        "amount_invalid": "Enter a valid amount",
+        "bulk_toggled_enable": "{{count}} gift card enabled",
+        "bulk_toggled_enable_plural": "{{count}} gift cards enabled",
+        "bulk_toggled_disable": "{{count}} gift card disabled",
+        "bulk_toggled_disable_plural": "{{count}} gift cards disabled",
+        "bulk_failed": "{{count}} failed",
+        "exported": "Exported {{count}} gift card",
+        "exported_plural": "Exported {{count}} gift cards",
+        "no_export": "No gift cards to export"
+      }
+    },
+    "promotion": {
+      "list": {
+        "title": "Promotions",
+        "subtitle": "Manage promotional campaigns for your store",
+        "create_button": "Create promotion",
+        "empty_title": "No promotions",
+        "empty_subtitle": "Create promotional campaigns to boost sales.",
+        "column": {
+          "name": "Name",
+          "status": "Status",
+          "start_date": "Start Date",
+          "end_date": "End Date",
+          "actions": "Actions"
+        }
+      },
+      "form": {
+        "create_title": "Create Promotion",
+        "edit_title": "Edit Promotion",
+        "field": {
+          "name": {
+            "label": "Name",
+            "placeholder": "Summer Sale"
+          },
+          "description": {
+            "label": "Description"
+          },
+          "start_date": {
+            "label": "Start Date"
+          },
+          "end_date": {
+            "label": "End Date"
+          },
+          "is_active": {
+            "label": "Active"
+          }
+        }
+      },
+      "toast": {
+        "created": "Promotion created",
+        "updated": "Promotion updated",
+        "deleted": "Promotion deleted"
+      }
+    },
+    "market": {
+      "list": {
+        "title": "Markets",
+        "subtitle": "Manage geographic markets, currencies, and pricing adjustments",
+        "add_button": "Add Market",
+        "empty_title": "No markets configured",
+        "empty_subtitle": "Create markets to target different geographic regions.",
+        "create_first_button": "Create First Market",
+        "card": {
+          "currency_label": "Currency",
+          "price_adjustment_label": "Price Adjustment"
+        }
+      },
+      "form": {
+        "create_title": "Create Market",
+        "edit_title": "Edit Market",
+        "field": {
+          "name": {
+            "label": "Market Name",
+            "placeholder": "North America"
+          },
+          "countries": {
+            "label": "Countries (comma-separated ISO codes)",
+            "placeholder": "US, CA, MX"
+          },
+          "currency": {
+            "label": "Currency",
+            "placeholder": "USD"
+          },
+          "price_adjustment": {
+            "label": "Price Adjustment (%)"
+          }
+        },
+        "validation": {
+          "name_countries_required": "Name and countries are required"
+        },
+        "saving_button": "Saving...",
+        "update_button": "Update",
+        "create_button": "Create"
+      },
+      "delete_dialog": {
+        "title": "Delete market?",
+        "description": "Customers in this market's countries will fall back to your default market."
+      },
+      "toast": {
+        "created": "Market created",
+        "updated": "Market updated",
+        "deleted": "Market deleted",
+        "load_failed": "Failed to load markets",
+        "save_failed": "Failed to save market",
+        "delete_failed": "Failed to delete market"
+      }
+    }
+  }
+}

@@ -1,1 +1,64 @@
-{}
+{
+  "companies": {
+    "list": {
+      "title": "Companies",
+      "subtitle": "Manage B2B company accounts and payment terms",
+      "all": "All Companies",
+      "search_placeholder": "Search companies...",
+      "column": {
+        "company": "Company",
+        "contacts": "Contacts",
+        "payment_terms": "Payment Terms",
+        "credit_limit": "Credit Limit",
+        "balance": "Balance",
+        "actions": "Actions"
+      },
+      "empty": {
+        "title": "No companies",
+        "description": "Add B2B company accounts with custom payment terms."
+      }
+    },
+    "form": {
+      "title_create": "Create Company",
+      "title_edit": "Edit Company",
+      "field": {
+        "name": {
+          "label": "Company Name",
+          "placeholder": "Acme Corp",
+          "error": {
+            "required": "Company name is required"
+          }
+        },
+        "payment_terms": {
+          "label": "Payment Terms"
+        },
+        "credit_limit": {
+          "label": "Credit Limit",
+          "placeholder": "10000"
+        }
+      },
+      "payment_type": {
+        "net15": "Net 15",
+        "net30": "Net 30",
+        "net60": "Net 60",
+        "net90": "Net 90",
+        "due_on_receipt": "Due on Receipt"
+      }
+    },
+    "confirm": {
+      "delete_title": "Delete company?",
+      "delete_description": "This removes the B2B company account and unlinks its contacts."
+    },
+    "toast": {
+      "created": "Company created",
+      "updated": "Company updated",
+      "deleted": "Company deleted",
+      "load_failed": "Failed to load companies",
+      "save_failed": "Failed to save company",
+      "delete_failed": "Failed to delete company"
+    },
+    "action": {
+      "add_company": "Add Company"
+    }
+  }
+}

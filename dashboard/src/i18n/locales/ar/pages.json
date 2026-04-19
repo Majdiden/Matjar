@@ -1,1 +1,91 @@
-{}
+{
+  "list": {
+    "title": "الصفحات",
+    "subtitle": "صفحات المحتوى الثابت (من نحن، اتصل بنا، الخصوصية…)",
+    "column": {
+      "title": "العنوان",
+      "slug": "المعرّف",
+      "locale": "اللغة",
+      "status": "الحالة",
+      "updated": "تاريخ التعديل"
+    },
+    "empty": {
+      "title": "لا توجد صفحات بعد",
+      "hint": "أنشئ صفحات محتوى ثابت يمكن لواجهة متجرك ربطها من قوائم التنقل أو التذييل.",
+      "action": "إنشاء أول صفحة"
+    },
+    "action": {
+      "add": "إضافة صفحة"
+    }
+  },
+  "form": {
+    "title_new": "صفحة جديدة",
+    "title_edit": "تعديل الصفحة",
+    "subtitle": "صفحات المحتوى الثابت (من نحن، اتصل بنا، الخصوصية…)",
+    "section": {
+      "basic_info": {
+        "title": "المعلومات الأساسية"
+      },
+      "content": {
+        "title": "المحتوى"
+      },
+      "visibility": {
+        "title": "الظهور"
+      },
+      "seo": {
+        "title": "تحسين محركات البحث"
+      }
+    },
+    "field": {
+      "title": {
+        "label": "العنوان",
+        "placeholder": "مثال: من نحن"
+      },
+      "slug": {
+        "label": "المعرّف (مسار الرابط)",
+        "placeholder": "من-نحن",
+        "hint": "/pages/{{slug}}"
+      },
+      "locale": {
+        "label": "اللغة",
+        "placeholder": "ar",
+        "hint": "لغة واجهة المتجر التي كُتبت بها هذه الصفحة (مثل: \"ar\"، \"en\"، \"fr\"). أنشئ صفحة واحدة لكل لغة."
+      },
+      "content": {
+        "label": "المحتوى",
+        "placeholder": "<p>محتوى الصفحة بصيغة HTML…</p>",
+        "hint": "نص HTML يُعرضه قالب صفحة واجهة المتجر. الحد الأقصى 100 كيلوبايت."
+      },
+      "is_published": {
+        "label_published": "منشور",
+        "label_draft": "مسودة (مخفية من واجهة المتجر)"
+      },
+      "meta_title": {
+        "label": "عنوان الميتا"
+      },
+      "meta_description": {
+        "label": "وصف الميتا",
+        "placeholder": "وصف موجز لمحركات البحث…"
+      }
+    },
+    "status": {
+      "published": "منشور",
+      "draft": "مسودة"
+    }
+  },
+  "toast": {
+    "created": "تم إنشاء الصفحة",
+    "saved": "تم حفظ الصفحة",
+    "deleted": "تم حذف الصفحة",
+    "error_load": "فشل تحميل الصفحة",
+    "error_save": "فشل حفظ الصفحة",
+    "error_delete": "فشل حذف الصفحة",
+    "title_required": "العنوان مطلوب"
+  },
+  "confirm": {
+    "delete_title": "حذف الصفحة؟",
+    "delete_description": "سيتم حذف «{{title}}» بشكل دائم.",
+    "delete_confirm": "حذف",
+    "delete_description_generic": "لا يمكن التراجع عن هذا الإجراء."
+  }
+}

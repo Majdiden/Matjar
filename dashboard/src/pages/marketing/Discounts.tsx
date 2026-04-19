@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, Tag, Pencil, ShoppingBag, Percent, Truck, ChevronRight, Search, X, CheckCircle2, Circle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../lib/api-client";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -33,37 +34,12 @@ type DiscountMethod =
   | "buy_x_get_y"
   | "free_shipping";
 
-const METHOD_OPTIONS: {
-  method: DiscountMethod;
-  label: string;
-  description: string;
-  icon: React.ElementType;
-}[] = [
-  {
-    method: "amount_off_products",
-    label: "Amount off products",
-    description: "Discount specific products or collections of products.",
-    icon: Tag,
-  },
-  {
-    method: "buy_x_get_y",
-    label: "Buy X get Y",
-    description: "Give a discounted item when customers buy qualifying items.",
-    icon: ShoppingBag,
-  },
-  {
-    method: "amount_off_order",
-    label: "Amount off order",
-    description: "Discount the total order amount.",
-    icon: Percent,
-  },
-  {
-    method: "free_shipping",
-    label: "Free shipping",
-    description: "Offer free shipping on an order.",
-    icon: Truck,
-  },
-];
+const METHOD_ICONS: Record<DiscountMethod, React.ElementType> = {
+  amount_off_products: Tag,
+  buy_x_get_y: ShoppingBag,
+  amount_off_order: Percent,
+  free_shipping: Truck,
+};
 
 type DiscountKind = "product" | "order" | "shipping";
 
@@ -83,6 +59,7 @@ interface Discount {
 type StatusTab = 'all' | 'active' | 'inactive';
 
 export default function Discounts() {
+  const { t } = useTranslation(['marketing', 'common']);
   const navigate = useNavigate();
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,6 +72,38 @@ export default function Discounts() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useViewMode('discounts.viewMode', 'table');
   const confirm = useConfirm();
+
+  const METHOD_OPTIONS: {
+    method: DiscountMethod;
+    label: string;
+    description: string;
+    icon: React.ElementType;
+  }[] = [
+    {
+      method: "amount_off_products",
+      label: t('marketing.discount.method.amount_off_products'),
+      description: t('marketing.discount.method.amount_off_products_desc'),
+      icon: Tag,
+    },
+    {
+      method: "buy_x_get_y",
+      label: t('marketing.discount.method.buy_x_get_y'),
+      description: t('marketing.discount.method.buy_x_get_y_desc'),
+      icon: ShoppingBag,
+    },
+    {
+      method: "amount_off_order",
+      label: t('marketing.discount.method.amount_off_order'),
+      description: t('marketing.discount.method.amount_off_order_desc'),
+      icon: Percent,
+    },
+    {
+      method: "free_shipping",
+      label: t('marketing.discount.method.free_shipping'),
+      description: t('marketing.discount.method.free_shipping_desc'),
+      icon: Truck,
+    },
+  ];
 
   const openPicker = () => setPickerOpen(true);
   const selectMethod = (method: DiscountMethod) => {
@@ -117,11 +126,11 @@ export default function Discounts() {
       setTotal(data.total || 0);
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || "Failed to load discounts");
+      toast.error(e?.message || t('marketing.discount.toast.load_failed'));
     } finally {
       setLoading(false);
     }
-  }, [page, search, tab]);
+  }, [page, search, tab, t]);
 
   useEffect(() => { fetchDiscounts(); }, [fetchDiscounts]);
 
@@ -140,35 +149,35 @@ export default function Discounts() {
   const handleBulkDelete = async () => {
     if (selected.size === 0) return;
     if (!(await confirm({
-      title: `Delete ${selected.size} discount${selected.size === 1 ? '' : 's'}?`,
-      description: 'Customers will no longer be able to redeem these codes.',
-      confirmText: 'Delete',
+      title: t('marketing.discount.list.bulk_delete_title', { count: selected.size }),
+      description: t('marketing.discount.list.bulk_delete_description'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     const ids = [...selected];
     const results = await Promise.allSettled(ids.map((id) => api.discounts.delete(id)));
     const ok = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(`${ok} deleted`);
-    if (failed) toast.error(`${failed} failed`);
+    if (ok) toast.success(t('marketing.discount.toast.bulk_deleted', { count: ok }));
+    if (failed) toast.error(t('marketing.discount.toast.bulk_failed', { count: failed }));
     setSelected(new Set());
     fetchDiscounts();
   };
 
   const handleDelete = async (id: string) => {
     if (!(await confirm({
-      title: "Delete this discount?",
-      description: "Customers will no longer be able to redeem this code.",
-      confirmText: "Delete",
+      title: t('marketing.discount.list.delete_title'),
+      description: t('marketing.discount.list.delete_description'),
+      confirmText: t('common:action.delete'),
       variant: "destructive",
     }))) return;
     try {
       await api.discounts.delete(id);
-      toast.success("Discount deleted");
+      toast.success(t('marketing.discount.toast.deleted'));
       setDiscounts(prev => prev.filter(d => d._id !== id));
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || "Failed to delete discount");
+      toast.error(e?.message || t('marketing.discount.toast.delete_failed'));
     }
   };
 
@@ -176,20 +185,20 @@ export default function Discounts() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Discounts</h1>
-          <p className="text-muted-foreground">Create, edit, and combine discount codes</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('marketing.discount.list.title')}</h1>
+          <p className="text-muted-foreground">{t('marketing.discount.list.subtitle')}</p>
         </div>
         <Button onClick={openPicker}>
           <Plus className="h-4 w-4 mr-2" />
-          Create discount
+          {t('marketing.discount.list.create_button')}
         </Button>
       </div>
 
       <FilterPills
         items={[
-          { id: 'all', label: 'All', icon: Tag },
-          { id: 'active', label: 'Active', icon: CheckCircle2 },
-          { id: 'inactive', label: 'Inactive', icon: Circle },
+          { id: 'all', label: t('marketing.discount.list.filter.all'), icon: Tag },
+          { id: 'active', label: t('marketing.discount.list.filter.active'), icon: CheckCircle2 },
+          { id: 'inactive', label: t('marketing.discount.list.filter.inactive'), icon: Circle },
         ]}
         value={tab}
         onChange={(v) => { setTab(v as StatusTab); setPage(1); }}
@@ -199,7 +208,7 @@ export default function Discounts() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by code or description..."
+            placeholder={t('marketing.discount.list.search_placeholder')}
             className="pl-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
@@ -212,13 +221,13 @@ export default function Discounts() {
 
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('marketing.discount.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />Clear
+              <X className="h-3.5 w-3.5 mr-1.5" />{t('common:action.cancel')}
             </Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />Delete
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" />{t('common:action.delete')}
             </Button>
           </div>
         </div>
@@ -226,7 +235,11 @@ export default function Discounts() {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">All discounts{total > 0 && ` (${total})`}</CardTitle>
+          <CardTitle className="text-base">
+            {total > 0
+              ? t('marketing.discount.list.card_title_count', { count: total })
+              : t('marketing.discount.list.card_title')}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -236,12 +249,12 @@ export default function Discounts() {
           ) : discounts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Tag className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold">No discounts</h3>
+              <h3 className="text-lg font-semibold">{t('marketing.discount.list.empty_title')}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Create discount codes to offer promotions.
+                {t('marketing.discount.list.empty_subtitle')}
               </p>
               <Button onClick={openPicker}>
-                <Plus className="h-4 w-4 mr-2" />Create discount
+                <Plus className="h-4 w-4 mr-2" />{t('marketing.discount.list.create_button')}
               </Button>
             </div>
           ) : viewMode === 'table' ? (
@@ -256,15 +269,15 @@ export default function Discounts() {
                       className="h-4 w-4 rounded border-gray-300"
                     />
                   </TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Applies to</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Usage</TableHead>
-                  <TableHead>Combines</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Expires</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('marketing.discount.list.column.code')}</TableHead>
+                  <TableHead>{t('marketing.discount.list.column.applies_to')}</TableHead>
+                  <TableHead>{t('marketing.discount.list.column.type')}</TableHead>
+                  <TableHead>{t('marketing.discount.list.column.value')}</TableHead>
+                  <TableHead>{t('marketing.discount.list.column.usage')}</TableHead>
+                  <TableHead>{t('marketing.discount.list.column.combines')}</TableHead>
+                  <TableHead>{t('marketing.discount.list.column.status')}</TableHead>
+                  <TableHead>{t('marketing.discount.list.column.expires')}</TableHead>
+                  <TableHead className="text-right">{t('marketing.discount.list.column.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -292,7 +305,7 @@ export default function Discounts() {
                       </TableCell>
                       <TableCell>
                         {combines.length === 0 ? (
-                          <span className="text-xs text-muted-foreground">None</span>
+                          <span className="text-xs text-muted-foreground">{t('marketing.discount.list.column.combines_none')}</span>
                         ) : (
                           <div className="flex gap-1 flex-wrap">
                             {combines.map((k) => (
@@ -303,11 +316,11 @@ export default function Discounts() {
                       </TableCell>
                       <TableCell>
                         <Badge variant={d.isActive ? "default" : "secondary"}>
-                          {d.isActive ? "Active" : "Inactive"}
+                          {d.isActive ? t('marketing.discount.list.filter.active') : t('marketing.discount.list.filter.inactive')}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {d.expiresAt ? new Date(d.expiresAt).toLocaleDateString() : 'Never'}
+                        {d.expiresAt ? t('marketing.discount.list.expires_on', { date: new Date(d.expiresAt).toLocaleDateString() }) : t('marketing.discount.list.expires_never')}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
@@ -355,7 +368,7 @@ export default function Discounts() {
                           className="h-4 w-4 rounded border-gray-300 flex-shrink-0 mt-1"
                         />
                         <Badge variant={d.isActive ? "default" : "secondary"}>
-                          {d.isActive ? "Active" : "Inactive"}
+                          {d.isActive ? t('marketing.discount.list.filter.active') : t('marketing.discount.list.filter.inactive')}
                         </Badge>
                       </div>
                       <div className="min-w-0">
@@ -366,13 +379,13 @@ export default function Discounts() {
                       </div>
                       <div className="flex items-baseline justify-between">
                         <div>
-                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Value</p>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('marketing.discount.list.card_value_label')}</p>
                           <p className="text-xl font-bold tabular-nums">
                             {d.type === 'percentage' ? `${d.value}%` : `$${d.value}`}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Uses</p>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('marketing.discount.list.card_uses_label')}</p>
                           <p className="text-sm text-muted-foreground tabular-nums">{usageText}</p>
                         </div>
                       </div>
@@ -385,7 +398,9 @@ export default function Discounts() {
                       )}
                       <div className="pt-2 border-t flex items-center justify-between text-xs text-muted-foreground">
                         <span>
-                          {d.expiresAt ? `Expires ${new Date(d.expiresAt).toLocaleDateString()}` : 'No expiry'}
+                          {d.expiresAt
+                            ? t('marketing.discount.list.expires_on', { date: new Date(d.expiresAt).toLocaleDateString() })
+                            : t('marketing.discount.list.expires_never')}
                         </span>
                         <div className="flex gap-1">
                           <Button
@@ -417,10 +432,10 @@ export default function Discounts() {
 
       {totalPages > 1 && !loading && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Page {page} of {totalPages}</p>
+          <p className="text-sm text-muted-foreground">{t('common:pagination.page_of', { n: page, total: totalPages })}</p>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Previous</Button>
-            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>{t('common:action.previous')}</Button>
+            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>{t('common:action.next')}</Button>
           </div>
         </div>
       )}
@@ -428,9 +443,9 @@ export default function Discounts() {
       <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Select discount type</DialogTitle>
+            <DialogTitle>{t('marketing.discount.picker.title')}</DialogTitle>
             <DialogDescription>
-              Choose the kind of discount you want to create.
+              {t('marketing.discount.picker.subtitle')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 pt-2">

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -62,6 +63,7 @@ const actionColor = (action: string) => {
 };
 
 export const AuditLogs: React.FC = () => {
+  const { t } = useTranslation(['audit', 'common']);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -82,39 +84,39 @@ export const AuditLogs: React.FC = () => {
       setPagination(res.responseObject?.pagination || res.data?.pagination || { total: 0, pages: 1 });
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to load audit logs');
+      toast.error(e?.message || t('audit.toast.load_failed'));
     } finally {
       setLoading(false);
     }
-  }, [page, actionFilter, resourceFilter]);
+  }, [page, actionFilter, resourceFilter, t]);
 
   useEffect(() => { loadLogs(); }, [loadLogs]);
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Audit Logs</h1>
-        <p className="text-muted-foreground">Track all changes and actions across your store</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('audit.list.title')}</h1>
+        <p className="text-muted-foreground">{t('audit.list.subtitle')}</p>
       </div>
 
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <CardTitle className="text-base">Activity Log</CardTitle>
+            <CardTitle className="text-base">{t('audit.list.card_title')}</CardTitle>
             <div className="flex items-center gap-2">
               <div className="w-40">
                 <Select
                   value={resourceFilter}
                   onChange={e => { setResourceFilter(e.target.value); setPage(1); }}
                   options={[
-                    { value: '', label: 'All Resources' },
-                    { value: 'Product', label: 'Product' },
-                    { value: 'Order', label: 'Order' },
-                    { value: 'Customer', label: 'Customer' },
-                    { value: 'Settings', label: 'Settings' },
-                    { value: 'Discount', label: 'Discount' },
-                    { value: 'Theme', label: 'Theme' },
-                    { value: 'Market', label: 'Market' },
+                    { value: '', label: t('audit.filter.all_resources') },
+                    { value: 'Product', label: t('audit.filter.resource.product') },
+                    { value: 'Order', label: t('audit.filter.resource.order') },
+                    { value: 'Customer', label: t('audit.filter.resource.customer') },
+                    { value: 'Settings', label: t('audit.filter.resource.settings') },
+                    { value: 'Discount', label: t('audit.filter.resource.discount') },
+                    { value: 'Theme', label: t('audit.filter.resource.theme') },
+                    { value: 'Market', label: t('audit.filter.resource.market') },
                   ]}
                 />
               </div>
@@ -123,10 +125,10 @@ export const AuditLogs: React.FC = () => {
                   value={actionFilter}
                   onChange={e => { setActionFilter(e.target.value); setPage(1); }}
                   options={[
-                    { value: '', label: 'All Actions' },
-                    { value: 'create', label: 'Create' },
-                    { value: 'update', label: 'Update' },
-                    { value: 'delete', label: 'Delete' },
+                    { value: '', label: t('audit.filter.all_actions') },
+                    { value: 'create', label: t('audit.filter.action.create') },
+                    { value: 'update', label: t('audit.filter.action.update') },
+                    { value: 'delete', label: t('audit.filter.action.delete') },
                   ]}
                 />
               </div>
@@ -141,20 +143,20 @@ export const AuditLogs: React.FC = () => {
           ) : logs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Shield className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold">No audit logs</h3>
-              <p className="text-sm text-muted-foreground">Activity will be recorded here as changes are made.</p>
+              <h3 className="text-lg font-semibold">{t('audit.list.empty_title')}</h3>
+              <p className="text-sm text-muted-foreground">{t('audit.list.empty_description')}</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Actor</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Resource</TableHead>
-                  <TableHead>Resource ID</TableHead>
-                  <TableHead>IP</TableHead>
-                  <TableHead className="text-right">Details</TableHead>
+                  <TableHead>{t('audit.list.column.time')}</TableHead>
+                  <TableHead>{t('audit.list.column.actor')}</TableHead>
+                  <TableHead>{t('audit.list.column.action')}</TableHead>
+                  <TableHead>{t('audit.list.column.resource')}</TableHead>
+                  <TableHead>{t('audit.list.column.resource_id')}</TableHead>
+                  <TableHead>{t('audit.list.column.ip')}</TableHead>
+                  <TableHead className="text-right">{t('audit.list.column.details')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -165,7 +167,7 @@ export const AuditLogs: React.FC = () => {
                     </TableCell>
                     <TableCell className="text-sm">
                       <div className="flex flex-col">
-                        <span className="font-medium">{log.actorDisplay || 'system'}</span>
+                        <span className="font-medium">{log.actorDisplay || t('audit.detail.system_actor')}</span>
                         {log.actorEmail && (
                           <span className="text-xs text-muted-foreground">{log.actorEmail}</span>
                         )}
@@ -193,13 +195,13 @@ export const AuditLogs: React.FC = () => {
           {pagination.pages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-4">
               <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
-                Previous
+                {t('common:action.previous')}
               </Button>
               <span className="text-sm text-muted-foreground">
-                Page {page} of {pagination.pages}
+                {t('audit.pagination.page_of', { page, total: pagination.pages })}
               </span>
               <Button variant="outline" size="sm" disabled={page === pagination.pages} onClick={() => setPage(p => p + 1)}>
-                Next
+                {t('common:action.next')}
               </Button>
             </div>
           )}
@@ -210,42 +212,42 @@ export const AuditLogs: React.FC = () => {
       <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Audit Log Details</DialogTitle>
+            <DialogTitle>{t('audit.detail.title')}</DialogTitle>
           </DialogHeader>
           {selectedLog && (
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-muted-foreground">Action</p>
+                  <p className="text-muted-foreground">{t('audit.detail.field.action')}</p>
                   <Badge variant={actionColor(selectedLog.action)}>{selectedLog.action}</Badge>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Resource</p>
+                  <p className="text-muted-foreground">{t('audit.detail.field.resource')}</p>
                   <p className="font-medium">{selectedLog.resource}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Actor</p>
-                  <p className="font-medium">{selectedLog.actorDisplay || 'system'}</p>
+                  <p className="text-muted-foreground">{t('audit.detail.field.actor')}</p>
+                  <p className="font-medium">{selectedLog.actorDisplay || t('audit.detail.system_actor')}</p>
                   {selectedLog.actorEmail && (
                     <p className="text-xs text-muted-foreground">{selectedLog.actorEmail}</p>
                   )}
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Time</p>
+                  <p className="text-muted-foreground">{t('audit.detail.field.time')}</p>
                   <p>{new Date(selectedLog.createdAt).toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">IP Address</p>
-                  <p className="font-mono">{selectedLog.ip || 'N/A'}</p>
+                  <p className="text-muted-foreground">{t('audit.detail.field.ip_address')}</p>
+                  <p className="font-mono">{selectedLog.ip || t('audit.detail.na')}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Resource ID</p>
-                  <p className="font-mono text-xs break-all">{selectedLog.resourceId || 'N/A'}</p>
+                  <p className="text-muted-foreground">{t('audit.detail.field.resource_id')}</p>
+                  <p className="font-mono text-xs break-all">{selectedLog.resourceId || t('audit.detail.na')}</p>
                 </div>
               </div>
               {selectedLog.changes && Object.keys(selectedLog.changes).length > 0 && (
                 <div>
-                  <p className="text-muted-foreground mb-2">Changes</p>
+                  <p className="text-muted-foreground mb-2">{t('audit.detail.field.changes')}</p>
                   <pre className="bg-muted rounded-lg p-3 text-xs overflow-auto max-h-64">
                     {JSON.stringify(selectedLog.changes, null, 2)}
                   </pre>
@@ -253,7 +255,7 @@ export const AuditLogs: React.FC = () => {
               )}
               {selectedLog.userAgent && (
                 <div>
-                  <p className="text-muted-foreground">User Agent</p>
+                  <p className="text-muted-foreground">{t('audit.detail.field.user_agent')}</p>
                   <p className="text-xs text-muted-foreground break-all">{selectedLog.userAgent}</p>
                 </div>
               )}

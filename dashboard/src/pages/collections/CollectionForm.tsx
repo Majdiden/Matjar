@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -94,41 +95,22 @@ interface CollectionPreviewResponse {
 
 interface ApiErrorLike { message?: string; error?: string }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Constants (values only — labels built from t() inside component) ─────────
 
-const RULE_FIELDS = [
-  { value: 'title',       label: 'Title',        type: 'string' },
-  { value: 'tag',         label: 'Tag',           type: 'string' },
-  { value: 'price',       label: 'Price',         type: 'number' },
-  { value: 'inventory',   label: 'Inventory',     type: 'number' },
-  { value: 'category',    label: 'Category',      type: 'string' },
+const RULE_FIELDS_VALUES = [
+  { value: 'title',     type: 'string' },
+  { value: 'tag',       type: 'string' },
+  { value: 'price',     type: 'number' },
+  { value: 'inventory', type: 'number' },
+  { value: 'category',  type: 'string' },
 ];
 
-const STRING_OPERATORS = [
-  { value: 'equals',      label: 'is equal to' },
-  { value: 'not_equals',  label: 'is not equal to' },
-  { value: 'contains',    label: 'contains' },
-  { value: 'starts_with', label: 'starts with' },
-  { value: 'ends_with',   label: 'ends with' },
-  { value: 'in',          label: 'is one of' },
-];
+const STRING_OPERATOR_VALUES = ['equals', 'not_equals', 'contains', 'starts_with', 'ends_with', 'in'];
+const NUMBER_OPERATOR_VALUES = ['equals', 'not_equals', 'greater_than', 'less_than'];
 
-const NUMBER_OPERATORS = [
-  { value: 'equals',       label: 'is equal to' },
-  { value: 'not_equals',   label: 'is not equal to' },
-  { value: 'greater_than', label: 'is greater than' },
-  { value: 'less_than',    label: 'is less than' },
-];
-
-const SORT_ORDERS = [
-  { value: 'manual',       label: 'Manually' },
-  { value: 'best-selling', label: 'Best selling' },
-  { value: 'title-asc',    label: 'Title A–Z' },
-  { value: 'title-desc',   label: 'Title Z–A' },
-  { value: 'price-asc',    label: 'Price low to high' },
-  { value: 'price-desc',   label: 'Price high to low' },
-  { value: 'created-desc', label: 'Newest first' },
-  { value: 'created-asc',  label: 'Oldest first' },
+const SORT_ORDER_VALUES = [
+  'manual', 'best-selling', 'title-asc', 'title-desc',
+  'price-asc', 'price-desc', 'created-desc', 'created-asc',
 ];
 
 const DEFAULT_FORM: CollectionFormData = {
@@ -158,25 +140,47 @@ function slugify(str: string): string {
 }
 
 function fieldType(fieldValue: string): 'string' | 'number' {
-  const f = RULE_FIELDS.find((r) => r.value === fieldValue);
+  const f = RULE_FIELDS_VALUES.find((r) => r.value === fieldValue);
   return (f?.type as 'string' | 'number') || 'string';
 }
 
-function operatorsFor(fieldValue: string) {
-  return fieldType(fieldValue) === 'number' ? NUMBER_OPERATORS : STRING_OPERATORS;
-}
-
 function defaultOperatorFor(fieldValue: string): string {
-  return operatorsFor(fieldValue)[0].value;
+  return fieldType(fieldValue) === 'number' ? NUMBER_OPERATOR_VALUES[0] : STRING_OPERATOR_VALUES[0];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const CollectionForm: React.FC = () => {
+  const { t } = useTranslation(['products', 'common']);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id && id !== 'new');
   const confirm = useConfirm();
+
+  // Build translated label arrays inside the component so t() is available
+  const RULE_FIELDS = RULE_FIELDS_VALUES.map((f) => ({
+    ...f,
+    label: t(`products.collections.form.rules.field.${f.value}`),
+  }));
+
+  const STRING_OPERATORS = STRING_OPERATOR_VALUES.map((v) => ({
+    value: v,
+    label: t(`products.collections.form.rules.operator.${v}`),
+  }));
+
+  const NUMBER_OPERATORS = NUMBER_OPERATOR_VALUES.map((v) => ({
+    value: v,
+    label: t(`products.collections.form.rules.operator.${v}`),
+  }));
+
+  const SORT_ORDERS = SORT_ORDER_VALUES.map((v) => ({
+    value: v,
+    label: t(`products.collections.form.sort_order.${v.replace(/-/g, '_')}`),
+  }));
+
+  function operatorsFor(fieldValue: string) {
+    return fieldType(fieldValue) === 'number' ? NUMBER_OPERATORS : STRING_OPERATORS;
+  }
 
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -229,7 +233,7 @@ export const CollectionForm: React.FC = () => {
           await loadCollectionProducts(col.productIds);
         }
       } catch {
-        toast.error('Failed to load collection');
+        toast.error(t('products.collections.toast.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -331,10 +335,10 @@ export const CollectionForm: React.FC = () => {
     if (isEdit) {
       try {
         await api.post(`/collections/${id}/products`, { productIds: toAdd.map((p) => p._id) });
-        toast.success(`${toAdd.length} product(s) added`);
+        toast.success(t('products.collections.toast.products_added', { count: toAdd.length }));
       } catch (err: unknown) {
         const e = err as ApiErrorLike;
-        toast.error(e?.message || 'Failed to add products');
+        toast.error(e?.message || t('products.collections.toast.products_add_failed'));
         return;
       }
     }
@@ -350,7 +354,7 @@ export const CollectionForm: React.FC = () => {
         await api.delete(`/collections/${id}/products`, { data: { productIds: [product._id] } });
       } catch (err: unknown) {
         const e = err as ApiErrorLike;
-        toast.error(e?.message || 'Failed to remove product');
+        toast.error(e?.message || t('products.collections.toast.product_remove_failed'));
         return;
       }
     }
@@ -368,7 +372,7 @@ export const CollectionForm: React.FC = () => {
       try {
         await api.put(`/collections/${id}/products/order`, { productIds: newList.map((p) => p._id) });
       } catch {
-        toast.error('Failed to save order');
+        toast.error(t('products.collections.toast.order_failed'));
       }
     }
   };
@@ -376,7 +380,7 @@ export const CollectionForm: React.FC = () => {
   // ─── Preview (smart) ──────────────────────────────────────────────────────
 
   const handlePreview = async () => {
-    if (!isEdit) { toast.info('Save the collection first to preview products'); return; }
+    if (!isEdit) { toast.info(t('products.collections.toast.save_first')); return; }
     try {
       setPreviewLoading(true);
       setPreviewOpen(true);
@@ -392,9 +396,9 @@ export const CollectionForm: React.FC = () => {
   // ─── Save / Delete ────────────────────────────────────────────────────────
 
   const handleSave = async () => {
-    if (!form.title.trim()) { toast.error('Title is required'); return; }
+    if (!form.title.trim()) { toast.error(t('products.collections.form.title_required')); return; }
     if (form.type === 'smart' && form.rules.some((r) => !r.value)) {
-      toast.error('All rule values are required');
+      toast.error(t('products.collections.form.rules_required'));
       return;
     }
 
@@ -407,11 +411,11 @@ export const CollectionForm: React.FC = () => {
 
       if (isEdit) {
         await api.put(`/collections/${id}`, payload);
-        toast.success('Collection saved');
+        toast.success(t('products.collections.toast.saved'));
       } else {
         const res = (await api.post('/collections', payload)) as CollectionGetResponse;
         const newId = res?.data?._id || res?.responseObject?._id;
-        toast.success('Collection created');
+        toast.success(t('products.collections.toast.created'));
         if (newId) {
           // Add products if any were staged
           if (form.type === 'manual' && collectionProducts.length > 0) {
@@ -426,7 +430,7 @@ export const CollectionForm: React.FC = () => {
       }
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to save collection');
+      toast.error(e?.message || t('products.collections.toast.save_failed'));
     } finally {
       setSaving(false);
     }
@@ -434,19 +438,19 @@ export const CollectionForm: React.FC = () => {
 
   const handleDelete = async () => {
     if (!(await confirm({
-      title: 'Delete collection?',
-      description: 'This action cannot be undone.',
-      confirmText: 'Delete',
+      title: t('products.collections.confirm.delete.title'),
+      description: t('products.collections.confirm.delete.description_bulk'),
+      confirmText: t('common.action.delete'),
       variant: 'destructive',
     }))) return;
     try {
       setDeleting(true);
       await api.delete(`/collections/${id}`);
-      toast.success('Collection deleted');
+      toast.success(t('products.collections.toast.deleted'));
       navigate('/dashboard/collections');
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to delete collection');
+      toast.error(e?.message || t('products.collections.toast.delete_failed'));
     } finally {
       setDeleting(false);
     }
@@ -470,10 +474,10 @@ export const CollectionForm: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {isEdit ? 'Edit Collection' : 'New Collection'}
+            {isEdit ? t('products.collections.form.title.edit') : t('products.collections.form.title.create')}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {form.type === 'smart' ? 'Products added automatically by rules' : 'Products added manually'}
+            {form.type === 'smart' ? t('products.collections.form.subtitle.smart') : t('products.collections.form.subtitle.manual')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -483,50 +487,50 @@ export const CollectionForm: React.FC = () => {
             </Button>
           )}
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</> : <><Save className="h-4 w-4 mr-2" />Save</>}
+            {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common.state.saving_ellipsis')}</> : <><Save className="h-4 w-4 mr-2" />{t('common.action.save')}</>}
           </Button>
         </div>
       </div>
 
       {/* Basic info */}
       <Card>
-        <CardHeader><CardTitle>Basic info</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('products.collections.form.section.basic_info')}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Title <span className="text-destructive">*</span></Label>
+            <Label>{t('products.collections.form.field.title.label')} <span className="text-destructive">*</span></Label>
             <Input
               value={form.title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              placeholder="e.g. Summer Sale"
+              placeholder={t('products.collections.form.field.title.placeholder')}
             />
           </div>
           <div className="space-y-1">
-            <Label>Handle (URL slug)</Label>
+            <Label>{t('products.collections.form.field.handle.label')}</Label>
             <Input
               value={form.handle}
               onChange={(e) => handleHandleChange(e.target.value)}
-              placeholder="summer-sale"
+              placeholder={t('products.collections.form.field.handle.placeholder')}
             />
             <p className="text-xs text-muted-foreground">
               /collections/{form.handle || 'handle'}
             </p>
           </div>
           <div className="space-y-1">
-            <Label>Description</Label>
+            <Label>{t('products.collections.form.field.description.label')}</Label>
             <textarea
               className="w-full min-h-20 rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               value={form.description}
               onChange={(e) => setField('description', e.target.value)}
-              placeholder="Short description..."
+              placeholder={t('products.collections.form.field.description.placeholder')}
             />
           </div>
           <div className="space-y-1">
-            <Label>Description HTML</Label>
+            <Label>{t('products.collections.form.field.description_html.label')}</Label>
             <textarea
               className="w-full min-h-20 rounded-md border bg-background px-3 py-2 text-sm font-mono ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               value={form.descriptionHtml}
               onChange={(e) => setField('descriptionHtml', e.target.value)}
-              placeholder="<p>Rich text HTML...</p>"
+              placeholder={t('products.collections.form.field.description_html.placeholder')}
             />
           </div>
         </CardContent>
@@ -534,22 +538,22 @@ export const CollectionForm: React.FC = () => {
 
       {/* Image */}
       <Card>
-        <CardHeader><CardTitle>Image</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('products.collections.form.section.image')}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1">
-            <Label>Image URL</Label>
+            <Label>{t('products.collections.form.field.image_url.label')}</Label>
             <Input
               value={form.image.url}
               onChange={(e) => setField('image', { ...form.image, url: e.target.value })}
-              placeholder="https://..."
+              placeholder={t('products.collections.form.field.image_url.placeholder')}
             />
           </div>
           <div className="space-y-1">
-            <Label>Alt text</Label>
+            <Label>{t('products.collections.form.field.image_alt.label')}</Label>
             <Input
               value={form.image.alt}
               onChange={(e) => setField('image', { ...form.image, alt: e.target.value })}
-              placeholder="Describe the image"
+              placeholder={t('products.collections.form.field.image_alt.placeholder')}
             />
           </div>
           {form.image.url && (
@@ -565,22 +569,22 @@ export const CollectionForm: React.FC = () => {
 
       {/* Collection type */}
       <Card>
-        <CardHeader><CardTitle>Collection type</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('products.collections.form.section.type')}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-4">
-            {(['manual', 'smart'] as const).map((t) => (
-              <label key={t} className="flex items-center gap-2 cursor-pointer">
+            {(['manual', 'smart'] as const).map((tVal) => (
+              <label key={tVal} className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="type"
-                  value={t}
-                  checked={form.type === t}
-                  onChange={() => setField('type', t)}
+                  value={tVal}
+                  checked={form.type === tVal}
+                  onChange={() => setField('type', tVal)}
                   className="accent-primary"
                 />
-                <span className="capitalize">{t}</span>
-                <Badge variant={t === 'smart' ? 'default' : 'secondary'} className="text-[10px]">
-                  {t === 'smart' ? 'Rule-based' : 'Curated'}
+                <span className="capitalize">{tVal === 'smart' ? t('products.collections.form.type_label.smart') : t('products.collections.form.type_label.manual')}</span>
+                <Badge variant={tVal === 'smart' ? 'default' : 'secondary'} className="text-[10px]">
+                  {tVal === 'smart' ? t('products.collections.form.type_label.badge_rule_based') : t('products.collections.form.type_label.badge_curated')}
                 </Badge>
               </label>
             ))}

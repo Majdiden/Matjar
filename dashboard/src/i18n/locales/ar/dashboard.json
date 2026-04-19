@@ -1,1 +1,60 @@
-{}
+{
+  "title": "لوحة التحكم",
+  "subtitle": "نظرة عامة على أداء متجرك",
+  "metric": {
+    "revenue": "الإيرادات",
+    "revenue_description": "آخر 30 يوماً",
+    "orders": "الطلبات",
+    "orders_description": "إجمالي الطلبات",
+    "products": "المنتجات",
+    "products_description": "المنتجات النشطة",
+    "customers": "العملاء",
+    "customers_description": "المستخدمون المسجّلون"
+  },
+  "domain_banner": {
+    "live_at": "متجرك متاح على",
+    "manage": "إدارة"
+  },
+  "section": {
+    "recent_orders": {
+      "title": "الطلبات الأخيرة",
+      "description": "أحدث طلبات العملاء",
+      "view_all": "عرض الكل",
+      "empty": "لا توجد طلبات بعد",
+      "guest": "ضيف",
+      "item_count_zero": "لا عناصر",
+      "item_count_one": "عنصر واحد",
+      "item_count_two": "عنصران",
+      "item_count_few": "{{count}} عناصر",
+      "item_count_many": "{{count}} عنصراً",
+      "item_count_other": "{{count}} عنصر"
+    },
+    "quick_actions": {
+      "title": "إجراءات سريعة",
+      "description": "المهام الشائعة",
+      "add_product": "إضافة منتج",
+      "view_orders": "عرض الطلبات",
+      "manage_themes": "إدارة القوالب",
+      "domain_settings": "إعدادات النطاق",
+      "discounts": "الخصومات",
+      "store_settings": "إعدادات المتجر"
+    },
+    "getting_started": {
+      "title": "البداية",
+      "description": "أعدّ متجرك في بضع خطوات",
+      "step1_title": "أضف منتجك الأول",
+      "step1_desc": "ابدأ البيع بإضافة منتجات",
+      "step1_label": "أضف الآن",
+      "step2_title": "خصّص قالبك",
+      "step2_desc": "اجعل مظهر متجرك احترافياً",
+      "step2_label": "تصفّح القوالب",
+      "step3_title": "أعدّ نطاقك",
+      "step3_desc": "استخدم نطاقك الخاص لعلامة تجارية أفضل",
+      "step3_label": "إعداد"
+    }
+  },
+  "add_product": "إضافة منتج",
+  "toast": {
+    "load_failed": "فشل تحميل بيانات لوحة التحكم"
+  }
+}

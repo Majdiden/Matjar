@@ -1,1 +1,87 @@
-{}
+{
+  "sidebar": {
+    "home": {
+      "title": "Home",
+      "dashboard": "Dashboard",
+      "analytics": "Analytics",
+      "notifications": "Notifications"
+    },
+    "orders": {
+      "title": "Orders",
+      "orders": "Orders",
+      "all_orders": "All orders",
+      "fulfillments": "Fulfillments",
+      "payments": "Payments",
+      "transactions": "Transactions",
+      "payment_methods": "Payment methods"
+    },
+    "catalog": {
+      "title": "Catalog",
+      "products": "Products",
+      "all_products": "All products",
+      "categories": "Categories",
+      "collections": "Collections",
+      "inventory": "Inventory"
+    },
+    "customers": {
+      "title": "Customers",
+      "customers": "Customers",
+      "all_customers": "All Customers",
+      "segments": "Segments",
+      "reviews": "Reviews"
+    },
+    "marketing": {
+      "title": "Marketing",
+      "discounts": "Discounts",
+      "gift_cards": "Gift Cards"
+    },
+    "storefront": {
+      "title": "Storefront",
+      "themes": "Themes",
+      "theme_library": "Theme library",
+      "visual_editor": "Visual editor",
+      "navigation": "Navigation",
+      "pages": "Pages",
+      "domains": "Domains"
+    },
+    "settings": {
+      "title": "Settings",
+      "settings": "Settings",
+      "subscription": "Subscription",
+      "custom_fields": "Custom Fields",
+      "webhooks": "Webhooks"
+    },
+    "team_security": {
+      "title": "Team & Security",
+      "staff": "Staff",
+      "permissions": "Permissions",
+      "audit_logs": "Audit Logs"
+    }
+  },
+  "breadcrumb": {
+    "dashboard": "Dashboard",
+    "new": "New",
+    "edit": "Edit"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet.",
+    "mark_all_read": "Mark all read",
+    "view_all": "View all notifications",
+    "settings_title": "Notification settings"
+  },
+  "user_menu": {
+    "settings": "Settings",
+    "log_out": "Log out"
+  },
+  "toggle_menu": "Toggle menu",
+  "browser_notifications": {
+    "prompt_title": "Enable browser notifications?",
+    "prompt_description": "Get an OS-level alert when a new order arrives.",
+    "enable": "Enable",
+    "not_now": "Not now",
+    "enabled_success": "Browser notifications enabled",
+    "native_title": "Notifications enabled",
+    "native_body": "You will be notified here when a new order arrives."
+  }
+}

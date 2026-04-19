@@ -1,1 +1,220 @@
-{}
+{
+  "list": {
+    "title": "Payments",
+    "description": "Manage payments and process refunds",
+    "stat": {
+      "total_revenue": "Total Revenue",
+      "total_refunded": "Total Refunded",
+      "successful": "Successful",
+      "pending": "Pending"
+    },
+    "search": {
+      "placeholder": "Search by order or transaction..."
+    },
+    "column": {
+      "order": "Order",
+      "customer": "Customer",
+      "amount": "Amount",
+      "method": "Method",
+      "status": "Status",
+      "date": "Date"
+    },
+    "empty": {
+      "title": "No payments found"
+    },
+    "refunded_badge": "-{{amount}} refunded",
+    "dropdown": {
+      "view_details": "View details",
+      "view_order": "View Order",
+      "process_refund": "Process Refund"
+    }
+  },
+  "method": {
+    "list": {
+      "title": "Payment Methods",
+      "description": "Enable how customers pay at checkout.",
+      "empty": "No payment methods configured.",
+      "add": "Add payment method"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "type": {
+      "manual_info": "Tap a provider to fill your receiving account. Enabled providers are shown to customers at checkout.",
+      "cod_info": "Customers pay when the order is delivered. No further configuration required."
+    },
+    "provider": {
+      "label": "Providers",
+      "configured_badge": "Configured",
+      "missing_badge": "Missing info",
+      "off_badge": "Off",
+      "custom_badge": "Custom",
+      "add": "Add provider"
+    },
+    "instructions": {
+      "label": "Instructions for customer",
+      "placeholder": "Shown under the provider details on checkout."
+    },
+    "chooser": {
+      "title": "Add payment method",
+      "description": "Choose how your customer will pay.",
+      "manual_transfer_title": "Manual transfer provider",
+      "manual_transfer_desc": "Add a bank or mobile-money option — customers see your account details at checkout and upload a receipt."
+    },
+    "form": {
+      "title_new": "Add provider",
+      "title_edit": "Edit {{name}}",
+      "desc_new": "Add a manual-transfer option customers can pay through.",
+      "desc_edit": "Update your receiving account details for this provider.",
+      "field": {
+        "provider_name": {
+          "label": "Provider name *",
+          "placeholder": "e.g. Bank of Khartoum"
+        },
+        "icon": {
+          "label": "Icon",
+          "help": "Shown to customers at checkout and in product trust badges. PNG/SVG with transparent background recommended."
+        },
+        "beneficiary_name": {
+          "label": "Beneficiary name",
+          "placeholder": "Account holder"
+        },
+        "account_number": {
+          "label": "Account number",
+          "placeholder": "e.g. 1234-5678"
+        },
+        "phone": {
+          "label": "Phone",
+          "placeholder": "e.g. +249..."
+        },
+        "notes": {
+          "label": "Notes for customer (optional)",
+          "placeholder": "e.g. Reference the order number in the transfer note."
+        },
+        "enabled": {
+          "label": "Enabled — show to customers at checkout"
+        }
+      },
+      "upload": "Upload",
+      "uploading": "Uploading…",
+      "replace_logo": "Replace",
+      "remove_logo": "Remove"
+    },
+    "toast": {
+      "load_failed": "Failed to load payment methods",
+      "enabled": "{{label}} enabled",
+      "disabled": "{{label}} disabled",
+      "saved": "Saved",
+      "provider_added": "Provider added",
+      "provider_updated": "Provider updated",
+      "provider_removed": "Provider removed",
+      "logo_uploaded": "Logo uploaded",
+      "system_provider_remove_error": "System providers cannot be removed — disable instead.",
+      "manual_not_installed": "Manual Transfer is not installed.",
+      "missing_account_error": "{{label}}: add account number or phone before enabling.",
+      "enable_before_save": "Add account number or phone before enabling."
+    },
+    "validation": {
+      "label_required": "Label is required",
+      "invalid_name": "Invalid name",
+      "duplicate_provider": "A provider with that name already exists."
+    }
+  },
+  "transaction": {
+    "list": {
+      "title": "Transactions",
+      "back": "Transactions",
+      "not_found": "Transaction not found.",
+      "back_action": "Back"
+    },
+    "detail": {
+      "title_payment": "Payment {{amount}}",
+      "title_refund": "Refund {{amount}}",
+      "section": {
+        "transaction_details": "Transaction details",
+        "customer_payment_details": "Customer payment details",
+        "customer_payment_subtitle": "Submitted by the customer at checkout for {{method}}.",
+        "refund_details": "Refund payment details",
+        "refund_details_subtitle": "Captured by the merchant when recording this manual refund.",
+        "related": "Related transactions",
+        "related_subtitle": "Other payment or refund records on the same order.",
+        "order": "Order",
+        "customer": "Customer",
+        "method_instructions": "Method instructions",
+        "method_instructions_subtitle": "What the customer saw at checkout."
+      },
+      "field": {
+        "amount": "Amount",
+        "method": "Method",
+        "created": "Created",
+        "transaction_id": "Transaction ID",
+        "event_id": "Event ID",
+        "status": "Status",
+        "payment_method": "Payment method",
+        "method_code": "Method code",
+        "provider": "Provider",
+        "currency": "Currency",
+        "payment_intent": "Payment intent",
+        "reason": "Reason",
+        "note": "Note",
+        "number": "Number",
+        "total": "Total",
+        "subtotal": "Subtotal",
+        "shipping": "Shipping",
+        "tax": "Tax",
+        "order_status": "Order status",
+        "payment_status": "Payment status",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "shipping_address": "Shipping address",
+        "refunded": "-{{amount}} refunded",
+        "refunded_at": "Refunded: {{date}}",
+        "via": "via {{label}}"
+      },
+      "status": {
+        "succeeded": "Succeeded",
+        "refunded": "Refunded",
+        "partial_refund": "Partial Refund",
+        "pending": "Pending",
+        "failed": "Failed"
+      },
+      "open_order": "Open order",
+      "view_order": "View order",
+      "not_provided": "Not provided",
+      "no_inline_data": "File reference — no inline data",
+      "open_attachment": "Open attachment",
+      "download": "Download"
+    }
+  },
+  "refund": {
+    "form": {
+      "title": "Process Refund",
+      "description": "Refund payment for order #{{orderNumber}}",
+      "field": {
+        "original_amount": {
+          "label": "Original Amount"
+        },
+        "refund_amount": {
+          "label": "Refund Amount (leave empty for full refund)"
+        }
+      },
+      "warning": "This action cannot be undone. The refund will be processed immediately.",
+      "submit": "Process Refund",
+      "processing": "Processing...",
+      "toast": {
+        "success": "Refund processed successfully",
+        "failed": "Failed to process refund",
+        "amount_positive": "Refund amount must be positive",
+        "exceeds_payment": "Refund amount exceeds payment"
+      }
+    }
+  },
+  "field_display": {
+    "not_provided": "Not provided",
+    "file_no_data": "— no inline data",
+    "preview_unavailable": "Preview not available for this file type.",
+    "download": "Download {{name}}"
+  }
+}

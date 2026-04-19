@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { api } from '../../lib/api-client';
 import { Button } from '../../components/ui/button';
@@ -48,6 +49,7 @@ interface InventoryQuery {
 }
 
 export default function Inventory() {
+  const { t } = useTranslation(['inventory', 'common']);
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [lowStockItems, setLowStockItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,11 +83,11 @@ export default function Inventory() {
         setTotalPages(res.data.pagination?.pages || 1);
       }
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to fetch inventory'));
+      toast.error(errMsg(err, t('inventory.toast.fetch_failed')));
     } finally {
       setLoading(false);
     }
-  }, [page, tab, search]);
+  }, [page, tab, search, t]);
 
   useEffect(() => { fetchInventory(); }, [fetchInventory]);
 
@@ -94,12 +96,12 @@ export default function Inventory() {
     if (isNaN(val) || val === 0) return;
     try {
       await api.inventory.adjustStock(productId, val);
-      toast.success(`Stock adjusted by ${val > 0 ? '+' : ''}${val}`);
+      toast.success(t('inventory.toast.adjusted', { delta: `${val > 0 ? '+' : ''}${val}` }));
       setAdjusting(null);
       setAdjustValue('');
       fetchInventory();
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to adjust stock'));
+      toast.error(errMsg(err, t('inventory.toast.adjust_failed')));
     }
   };
 
@@ -120,7 +122,7 @@ export default function Inventory() {
   const handleBulkExport = () => {
     const all = displayItems.filter(i => selected.has(i._id));
     if (all.length === 0) {
-      toast.message('No items to export');
+      toast.message(t('inventory.action.no_export'));
       return;
     }
     const csv = toCSV<InventoryItem>(all, [
@@ -131,7 +133,7 @@ export default function Inventory() {
         { key: 'updatedAt', label: 'Updated', get: (i) => new Date(i.updatedAt).toISOString().slice(0, 10) },
       ]);
     downloadCSV(csv, 'inventory-selected');
-    toast.success(`Exported ${all.length} item${all.length === 1 ? '' : 's'}`);
+    toast.success(t('inventory.toast.exported', { count: all.length }));
   };
 
   const stockVariant = (stock: number, threshold: number = 10): "default" | "secondary" | "destructive" => {
@@ -141,22 +143,22 @@ export default function Inventory() {
   };
 
   const stockLabel = (stock: number, threshold: number = 10) => {
-    if (stock === 0) return 'Out of Stock';
-    if (stock <= threshold) return 'Low Stock';
-    return 'In Stock';
+    if (stock === 0) return t('inventory.stock_status.out_of_stock');
+    if (stock <= threshold) return t('inventory.stock_status.low_stock');
+    return t('inventory.stock_status.in_stock');
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
-        <p className="text-muted-foreground">Track and manage product stock levels</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('inventory.list.title')}</h1>
+        <p className="text-muted-foreground">{t('inventory.list.subtitle')}</p>
       </div>
 
       <FilterPills
         items={[
-          { id: 'all', label: 'All Items', icon: Package },
-          { id: 'low', label: 'Low Stock', icon: AlertTriangle },
+          { id: 'all', label: t('inventory.list.filter.all'), icon: Package },
+          { id: 'low', label: t('inventory.list.filter.low'), icon: AlertTriangle },
         ]}
         value={tab}
         onChange={(v) => { setTab(v); setPage(1); }}
@@ -167,7 +169,7 @@ export default function Inventory() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by product name..."
+              placeholder={t('inventory.list.search_placeholder')}
               className="pl-9"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
@@ -181,13 +183,13 @@ export default function Inventory() {
 
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('inventory.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />Clear
+              <X className="h-3.5 w-3.5 mr-1.5" />{t('common:action.cancel')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleBulkExport}>
-              <Download className="h-3.5 w-3.5 mr-1.5" />Export CSV
+              <Download className="h-3.5 w-3.5 mr-1.5" />{t('inventory.action.export_csv')}
             </Button>
           </div>
         </div>
@@ -197,7 +199,7 @@ export default function Inventory() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">
-                {tab === 'low' ? 'Low Stock Items' : 'All Inventory'}
+                {tab === 'low' ? t('inventory.list.card_title_low') : t('inventory.list.card_title_all')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -208,7 +210,7 @@ export default function Inventory() {
               ) : displayItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Package className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold">{tab === 'low' ? 'No low stock items' : 'No inventory records'}</h3>
+                  <h3 className="text-lg font-semibold">{tab === 'low' ? t('inventory.list.empty_no_low') : t('inventory.list.empty_no_inventory')}</h3>
                 </div>
               ) : viewMode === 'table' ? (
                 <Table>
@@ -222,12 +224,12 @@ export default function Inventory() {
                           className="h-4 w-4 rounded border-gray-300"
                         />
                       </TableHead>
-                      <TableHead>Product</TableHead>
-                      <TableHead className="text-right">Price</TableHead>
-                      <TableHead className="text-right">Stock</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Last Updated</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t('inventory.column.product')}</TableHead>
+                      <TableHead className="text-right">{t('inventory.column.price')}</TableHead>
+                      <TableHead className="text-right">{t('inventory.column.stock')}</TableHead>
+                      <TableHead>{t('inventory.column.status')}</TableHead>
+                      <TableHead>{t('inventory.column.last_updated')}</TableHead>
+                      <TableHead className="text-right">{t('inventory.column.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -248,7 +250,9 @@ export default function Inventory() {
                           {item.product?.name || 'Unknown'}
                           {hasVariants && (
                             <span className="ml-2 text-xs text-muted-foreground">
-                              ({variantCount} variant{variantCount === 1 ? '' : 's'})
+                              {variantCount === 1
+                                ? t('inventory.variant_count', { count: variantCount })
+                                : t('inventory.variant_count_plural', { count: variantCount })}
                             </span>
                           )}
                         </TableCell>
@@ -270,25 +274,25 @@ export default function Inventory() {
                               className="h-8"
                               onClick={() => window.location.assign(`/dashboard/products/${item.product._id}/edit`)}
                             >
-                              Edit variants
+                              {t('inventory.action.edit_variants')}
                             </Button>
                           ) : adjusting === item.product?._id ? (
                             <div className="flex items-center justify-end gap-2">
                               <Input
                                 type="number"
                                 className="w-20 h-8 text-sm"
-                                placeholder="+/-"
+                                placeholder={t('inventory.adjust.placeholder')}
                                 value={adjustValue}
                                 onChange={e => setAdjustValue(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && handleAdjust(item.product._id)}
                                 autoFocus
                               />
-                              <Button size="sm" className="h-8" onClick={() => handleAdjust(item.product._id)}>Save</Button>
-                              <Button variant="outline" size="sm" className="h-8" onClick={() => { setAdjusting(null); setAdjustValue(''); }}>Cancel</Button>
+                              <Button size="sm" className="h-8" onClick={() => handleAdjust(item.product._id)}>{t('common:action.save')}</Button>
+                              <Button variant="outline" size="sm" className="h-8" onClick={() => { setAdjusting(null); setAdjustValue(''); }}>{t('common:action.cancel')}</Button>
                             </div>
                           ) : (
                             <Button variant="outline" size="sm" className="h-8" onClick={() => { setAdjusting(item.product?._id); setAdjustValue(''); }}>
-                              <Plus className="h-3 w-3" /><Minus className="h-3 w-3" /> Adjust
+                              <Plus className="h-3 w-3" /><Minus className="h-3 w-3" /> {t('inventory.action.adjust')}
                             </Button>
                           )}
                         </TableCell>
@@ -321,27 +325,29 @@ export default function Inventory() {
                             <p className="font-semibold text-sm truncate">{item.product?.name || 'Unknown'}</p>
                             {hasVariants && (
                               <p className="text-xs text-muted-foreground mt-0.5">
-                                {variantCount} variant{variantCount === 1 ? '' : 's'}
+                                {variantCount === 1
+                                  ? t('inventory.variant_count', { count: variantCount })
+                                  : t('inventory.variant_count_plural', { count: variantCount })}
                               </p>
                             )}
                           </div>
                           <div className="flex items-baseline justify-between">
                             <div>
-                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">On hand</p>
+                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('inventory.card_on_hand_label')}</p>
                               <p className="text-xl font-bold tabular-nums">{item.stock}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Price</p>
+                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t('inventory.card_price_label')}</p>
                               <p className="text-sm text-muted-foreground tabular-nums">{formatPrice(item.product?.price || 0)}</p>
                             </div>
                           </div>
                           {isLow && (
                             <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400">
-                              <AlertTriangle className="h-3.5 w-3.5" /> Low stock
+                              <AlertTriangle className="h-3.5 w-3.5" /> {t('inventory.alert.low_stock')}
                             </div>
                           )}
                           <div className="pt-2 border-t flex items-center justify-between text-xs text-muted-foreground">
-                            <span>Updated {new Date(item.updatedAt).toLocaleDateString()}</span>
+                            <span>{t('inventory.card_updated', { date: new Date(item.updatedAt).toLocaleDateString() })}</span>
                             {hasVariants ? (
                               <Button
                                 variant="outline"
@@ -349,24 +355,24 @@ export default function Inventory() {
                                 className="h-7"
                                 onClick={() => window.location.assign(`/dashboard/products/${item.product._id}/edit`)}
                               >
-                                Edit variants
+                                {t('inventory.action.edit_variants')}
                               </Button>
                             ) : adjusting === item.product?._id ? (
                               <div className="flex items-center gap-1">
                                 <Input
                                   type="number"
                                   className="w-16 h-7 text-xs"
-                                  placeholder="+/-"
+                                  placeholder={t('inventory.adjust.placeholder')}
                                   value={adjustValue}
                                   onChange={e => setAdjustValue(e.target.value)}
                                   onKeyDown={e => e.key === 'Enter' && handleAdjust(item.product._id)}
                                   autoFocus
                                 />
-                                <Button size="sm" className="h-7 px-2" onClick={() => handleAdjust(item.product._id)}>Save</Button>
+                                <Button size="sm" className="h-7 px-2" onClick={() => handleAdjust(item.product._id)}>{t('common:action.save')}</Button>
                               </div>
                             ) : (
                               <Button variant="outline" size="sm" className="h-7" onClick={() => { setAdjusting(item.product?._id); setAdjustValue(''); }}>
-                                <Plus className="h-3 w-3" /><Minus className="h-3 w-3" /> Adjust
+                                <Plus className="h-3 w-3" /><Minus className="h-3 w-3" /> {t('inventory.action.adjust')}
                               </Button>
                             )}
                           </div>
@@ -379,10 +385,10 @@ export default function Inventory() {
 
               {tab === 'all' && totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4">
-                  <p className="text-sm text-muted-foreground">Page {page} of {totalPages}</p>
+                  <p className="text-sm text-muted-foreground">{t('common:pagination.page_of', { n: page, total: totalPages })}</p>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Previous</Button>
-                    <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
+                    <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>{t('common:action.previous')}</Button>
+                    <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>{t('common:action.next')}</Button>
                   </div>
                 </div>
               )}

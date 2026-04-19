@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -57,6 +58,7 @@ const AVAILABLE_EVENTS = [
 ];
 
 export const Webhooks: React.FC = () => {
+  const { t } = useTranslation(['webhooks', 'common']);
   const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -125,21 +127,21 @@ export const Webhooks: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.url.trim()) { toast.error('URL is required'); return; }
-    if (formData.events.length === 0) { toast.error('Select at least one event'); return; }
+    if (!formData.url.trim()) { toast.error(t('webhooks.toast.url_required')); return; }
+    if (formData.events.length === 0) { toast.error(t('webhooks.toast.event_required')); return; }
     try {
       setSaving(true);
       if (editingWebhook) {
         await api.put(`/webhooks/${editingWebhook._id}`, formData);
-        toast.success('Webhook updated');
+        toast.success(t('webhooks.toast.updated'));
       } else {
         await api.post('/webhooks', formData);
-        toast.success('Webhook created');
+        toast.success(t('webhooks.toast.created'));
       }
       setDialogOpen(false);
       await loadWebhooks();
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to save webhook'));
+      toast.error(errMsg(err, t('webhooks.toast.save_failed')));
     } finally {
       setSaving(false);
     }
@@ -149,35 +151,35 @@ export const Webhooks: React.FC = () => {
     try {
       await api.patch(`/webhooks/${webhook._id}`, { enabled: !webhook.enabled });
       setWebhooks(prev => prev.map(w => w._id === webhook._id ? { ...w, enabled: !w.enabled } : w));
-      toast.success(webhook.enabled ? 'Webhook disabled' : 'Webhook enabled');
+      toast.success(webhook.enabled ? t('webhooks.toast.disabled') : t('webhooks.toast.enabled'));
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to toggle webhook'));
+      toast.error(errMsg(err, t('webhooks.toast.toggle_failed')));
     }
   };
 
   const handleDelete = async (webhook: WebhookEndpoint) => {
     if (!(await confirm({
-      title: 'Delete webhook?',
-      description: `The endpoint ${webhook.url} will stop receiving events.`,
-      confirmText: 'Delete',
+      title: t('webhooks.confirm_delete.title'),
+      description: t('webhooks.confirm_delete.description', { url: webhook.url }),
+      confirmText: t('webhooks.confirm_delete.confirm_text'),
       variant: 'destructive',
     }))) return;
     try {
       await api.delete(`/webhooks/${webhook._id}`);
-      toast.success('Webhook deleted');
+      toast.success(t('webhooks.toast.deleted'));
       await loadWebhooks();
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to delete webhook'));
+      toast.error(errMsg(err, t('webhooks.toast.delete_failed')));
     }
   };
 
   const handleTest = async (webhook: WebhookEndpoint) => {
     try {
       await api.post(`/webhooks/${webhook._id}/test`);
-      toast.success('Test event sent');
+      toast.success(t('webhooks.toast.test_sent'));
       await loadWebhooks();
     } catch (err) {
-      toast.error(errMsg(err, 'Test failed'));
+      toast.error(errMsg(err, t('webhooks.toast.test_failed')));
     }
   };
 
@@ -194,12 +196,12 @@ export const Webhooks: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Webhooks</h1>
-          <p className="text-muted-foreground">Configure event notifications to external services</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('webhooks.list.title')}</h1>
+          <p className="text-muted-foreground">{t('webhooks.list.subtitle')}</p>
         </div>
         <Button onClick={openAddDialog}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Webhook
+          {t('webhooks.action.add')}
         </Button>
       </div>
 
@@ -210,13 +212,13 @@ export const Webhooks: React.FC = () => {
               <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <Webhook className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">No webhooks configured</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('webhooks.list.empty_title')}</h3>
               <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-                Set up webhooks to receive real-time notifications when events happen in your store
+                {t('webhooks.list.empty_description')}
               </p>
               <Button onClick={openAddDialog}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Your First Webhook
+                {t('webhooks.list.add_first')}
               </Button>
             </div>
           </CardContent>
@@ -227,10 +229,10 @@ export const Webhooks: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Endpoint</TableHead>
-                  <TableHead>Events</TableHead>
-                  <TableHead>Last Delivery</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t('webhooks.list.column.endpoint')}</TableHead>
+                  <TableHead>{t('webhooks.list.column.events')}</TableHead>
+                  <TableHead>{t('webhooks.list.column.last_delivery')}</TableHead>
+                  <TableHead>{t('webhooks.list.column.status')}</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
@@ -268,7 +270,7 @@ export const Webhooks: React.FC = () => {
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-muted-foreground">Never</span>
+                        <span className="text-xs text-muted-foreground">{t('webhooks.delivery.never')}</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -286,18 +288,18 @@ export const Webhooks: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => openEditDialog(webhook)}>
-                            <Edit className="h-4 w-4 mr-2" />Edit
+                            <Edit className="h-4 w-4 mr-2" />{t('webhooks.action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleTest(webhook)}>
-                            <RefreshCw className="h-4 w-4 mr-2" />Send Test
+                            <RefreshCw className="h-4 w-4 mr-2" />{t('webhooks.action.send_test')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => { navigator.clipboard.writeText(webhook.secret); toast.success('Secret copied'); }}
+                            onClick={() => { navigator.clipboard.writeText(webhook.secret); toast.success(t('webhooks.toast.secret_copied')); }}
                           >
-                            <Copy className="h-4 w-4 mr-2" />Copy Secret
+                            <Copy className="h-4 w-4 mr-2" />{t('webhooks.action.copy_secret')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDelete(webhook)} className="text-destructive">
-                            <Trash2 className="h-4 w-4 mr-2" />Delete
+                            <Trash2 className="h-4 w-4 mr-2" />{t('webhooks.action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -314,25 +316,25 @@ export const Webhooks: React.FC = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingWebhook ? 'Edit Webhook' : 'Create Webhook'}</DialogTitle>
+            <DialogTitle>{editingWebhook ? t('webhooks.form.title_edit') : t('webhooks.form.title_create')}</DialogTitle>
             <DialogDescription>
-              Configure an endpoint to receive event notifications
+              {t('webhooks.form.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="space-y-2">
-              <Label>Endpoint URL</Label>
+              <Label>{t('webhooks.form.field.url.label')}</Label>
               <Input
                 type="url"
-                placeholder="https://example.com/webhooks"
+                placeholder={t('webhooks.form.field.url.placeholder')}
                 value={formData.url}
                 onChange={e => setFormData(prev => ({ ...prev, url: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
-              <Label>Description (optional)</Label>
+              <Label>{t('webhooks.form.field.description.label')}</Label>
               <Input
-                placeholder="What does this webhook do?"
+                placeholder={t('webhooks.form.field.description.placeholder')}
                 value={formData.description}
                 onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
               />
@@ -342,11 +344,11 @@ export const Webhooks: React.FC = () => {
                 checked={formData.enabled}
                 onCheckedChange={enabled => setFormData(prev => ({ ...prev, enabled }))}
               />
-              <Label>Enabled</Label>
+              <Label>{t('webhooks.form.field.enabled.label')}</Label>
             </div>
 
             <div className="space-y-3">
-              <Label>Events ({formData.events.length} selected)</Label>
+              <Label>{t('webhooks.form.field.events.label', { count: formData.events.length })}</Label>
               {AVAILABLE_EVENTS.map(group => {
                 const allSelected = group.events.every(e => formData.events.includes(e));
                 return (
@@ -360,7 +362,7 @@ export const Webhooks: React.FC = () => {
                           className="text-xs h-6"
                           onClick={() => toggleGroupEvents(group.events)}
                         >
-                          {allSelected ? 'Deselect all' : 'Select all'}
+                          {allSelected ? t('webhooks.form.deselect_all') : t('webhooks.form.select_all')}
                         </Button>
                       </div>
                     </CardHeader>
@@ -384,9 +386,14 @@ export const Webhooks: React.FC = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>
+              {t('common:action.cancel')}
+            </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</> : <><Save className="h-4 w-4 mr-2" />Save</>}
+              {saving
+                ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
+                : <><Save className="h-4 w-4 mr-2" />{t('webhooks.action.save')}</>
+              }
             </Button>
           </DialogFooter>
         </DialogContent>

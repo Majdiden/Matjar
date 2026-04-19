@@ -1,1 +1,287 @@
-{}
+{
+  "list": {
+    "title": "القوالب",
+    "subtitle": "اختر قالبًا لتصميم واجهة متجرك، أو خصّص القالب الحالي.",
+    "view_live_store": "عرض المتجر المباشر",
+    "current_theme_label": "القالب الحالي",
+    "meta": {
+      "version": "الإصدار",
+      "author": "المؤلف",
+      "rating": "التقييم",
+      "installs": "عدد التثبيتات"
+    },
+    "library": {
+      "title": "مكتبة القوالب",
+      "count_one": "قالب واحد متاح",
+      "count_two": "قالبان متاحان",
+      "count_few": "{{count}} قوالب متاحة",
+      "count_many": "{{count}} قالبًا متاحًا",
+      "count_other": "{{count}} قالب متاح"
+    },
+    "search_placeholder": "بحث في القوالب…",
+    "filter": {
+      "all": "جميع القوالب",
+      "popular": "الأكثر شيوعًا",
+      "free": "مجاني"
+    },
+    "badge": {
+      "live": "مباشر",
+      "active": "نشط"
+    },
+    "empty": {
+      "title": "لا توجد قوالب",
+      "hint_search": "جرّب مصطلح بحث آخر.",
+      "hint_empty": "تفقد المكتبة لاحقًا للاطلاع على قوالب جديدة."
+    },
+    "action": {
+      "customize": "تخصيص",
+      "preview": "معاينة",
+      "activate": "تفعيل",
+      "install": "تفعيل",
+      "uninstall": "إلغاء التثبيت"
+    },
+    "confirm": {
+      "activate_title": "تفعيل هذا القالب؟",
+      "activate_description": "سيتم استبدال قالبك الحالي. يتم الاحتفاظ بالتخصيصات لكل قالب على حدة.",
+      "activate_confirm": "تفعيل",
+      "uninstall_title": "إلغاء تثبيت هذا القالب؟",
+      "uninstall_description": "يُزيل القالب من قائمة القوالب المثبتة لديك. يمكنك إعادة تثبيته لاحقًا.",
+      "uninstall_confirm": "إلغاء التثبيت"
+    },
+    "toast": {
+      "activated": "تم تفعيل القالب",
+      "uninstalled": "تم إلغاء تثبيت القالب",
+      "error_load": "فشل تحميل القوالب",
+      "error_install": "فشل تثبيت القالب",
+      "error_uninstall": "فشل إلغاء تثبيت القالب"
+    }
+  },
+  "editor": {
+    "loading": "جاري تحميل المحرر…",
+    "no_data": "لا تتوفر بيانات تخصيص",
+    "back_to_themes": "العودة إلى القوالب",
+    "topbar": {
+      "back": "العودة إلى القوالب",
+      "hide_sections": "إخفاء الأقسام",
+      "show_sections": "إظهار الأقسام",
+      "hide_settings": "إخفاء الإعدادات",
+      "show_settings": "إظهار الإعدادات",
+      "reset": "إعادة تعيين القالب الافتراضي",
+      "version_history": "سجل الإصدارات",
+      "preview": "معاينة",
+      "open_preview": "فتح المعاينة في تبويب جديد",
+      "publish": "نشر",
+      "publish_changes": "نشر التغييرات",
+      "publishing": "جاري النشر",
+      "unpublished_changes": "تغييرات غير منشورة",
+      "page_label": "الصفحة:",
+      "device": {
+        "desktop": "سطح المكتب",
+        "tablet": "جهاز لوحي",
+        "mobile": "جوّال"
+      },
+      "save_status": {
+        "saving": "جاري الحفظ…",
+        "saved": "تم الحفظ"
+      }
+    },
+    "sidebar": {
+      "sections": "الأقسام",
+      "settings": "الإعدادات",
+      "css": "CSS",
+      "theme_settings": "القالب",
+      "section_tab": "القسم",
+      "custom_css_tab": "CSS مخصص"
+    },
+    "section_library": {
+      "title": "إضافة قسم",
+      "subtitle": "اختر نوع القسم لإضافته إلى صفحتك.",
+      "search_placeholder": "بحث في الأقسام…",
+      "empty_title": "لا توجد أقسام",
+      "empty_hint": "جرّب بحثًا مختلفًا أو فئة أخرى",
+      "add": "إضافة",
+      "category": {
+        "all": "الكل",
+        "content": "المحتوى",
+        "commerce": "التجارة",
+        "marketing": "التسويق",
+        "media": "الوسائط",
+        "layout": "التخطيط"
+      }
+    },
+    "global_settings": {
+      "title": "إعدادات القالب",
+      "colors": "الألوان",
+      "typography": "الطباعة",
+      "layout": "التخطيط",
+      "body_font": "خط النص",
+      "heading_font": "خط العناوين",
+      "base_font_size": "حجم الخط الأساسي",
+      "line_height": "ارتفاع السطر",
+      "max_content_width": "أقصى عرض للمحتوى"
+    },
+    "color_labels": {
+      "primary": "الرئيسي",
+      "secondary": "الثانوي",
+      "accent": "التمييز",
+      "background": "الخلفية",
+      "foreground": "النص",
+      "muted": "نص خافت",
+      "border": "الحدود",
+      "error": "الخطأ",
+      "success": "النجاح"
+    },
+    "section": {
+      "header": { "label": "الترويسة" },
+      "announcement_bar": { "label": "شريط الإعلانات" },
+      "footer": { "label": "التذييل" },
+      "hero": { "label": "بانر الرئيسي" },
+      "banner": { "label": "بانر ترويجي" },
+      "slideshow": { "label": "عرض الشرائح" },
+      "image_banner": { "label": "بانر صورة" },
+      "featured_products": { "label": "المنتجات المميزة" },
+      "best_sellers": { "label": "الأكثر مبيعًا" },
+      "new_arrivals": { "label": "الوصول حديثًا" },
+      "product_grid": { "label": "شبكة المنتجات" },
+      "top_rated_carousel": { "label": "الأعلى تقييمًا" },
+      "categories": { "label": "الفئات" },
+      "collection_list": { "label": "قائمة المجموعات" },
+      "product_recommendations": { "label": "قد يعجبك أيضًا" },
+      "newsletter": { "label": "النشرة البريدية" },
+      "newsletter_cta": { "label": "الاشتراك في النشرة" },
+      "testimonials": { "label": "شهادات العملاء" },
+      "brands": { "label": "شعارات العلامات" },
+      "features": { "label": "أبرز الميزات" },
+      "tech_features": { "label": "شارات الميزات" },
+      "video": { "label": "فيديو" },
+      "image_gallery": { "label": "معرض الصور" },
+      "text_block": { "label": "كتلة نصية" },
+      "rich_text": { "label": "نص منسّق" },
+      "blog": { "label": "المقالات" },
+      "fallback": { "label": "قسم" }
+    },
+    "section_editor": {
+      "no_settings": "لا توجد إعدادات قابلة للتعديل في هذا القسم.",
+      "visible": "مرئي",
+      "hidden": "مخفي",
+      "items_label": "العناصر",
+      "add_item": "إضافة",
+      "settings_title": "إعدادات القسم",
+      "layout": "التخطيط",
+      "layout_full_width": "عرض كامل",
+      "layout_contained": "محاط",
+      "layout_grid_2": "عمودان",
+      "layout_grid_3": "3 أعمدة",
+      "layout_grid_4": "4 أعمدة",
+      "heading": "العنوان",
+      "heading_placeholder": "أدخل العنوان",
+      "subheading": "العنوان الفرعي",
+      "subheading_placeholder": "أدخل العنوان الفرعي",
+      "button_text": "نص الزر",
+      "button_text_placeholder": "أدخل نص الزر",
+      "button_link": "رابط الزر",
+      "background_color": "لون الخلفية",
+      "text_color": "لون النص",
+      "product_limit": "عدد المنتجات",
+      "padding": "المسافة الداخلية",
+      "padding_hint": "قيمة CSS للمسافة الداخلية (مثل: \"3rem 0\" أو \"2rem 1rem\")",
+      "image_url": "رابط الصورة",
+      "save_changes": "حفظ التغييرات",
+      "no_changes": "لا توجد تغييرات"
+    },
+    "control": {
+      "text": { "label": "نص" },
+      "textarea": { "label": "منطقة نص" },
+      "number": { "label": "رقم" },
+      "color": { "label": "لون" },
+      "image": { "label": "صورة", "change": "تغيير الصورة" },
+      "range": { "label": "نطاق" },
+      "select": { "label": "قائمة" },
+      "toggle": { "label": "تبديل" },
+      "url": { "label": "رابط" }
+    },
+    "custom_css": {
+      "title": "CSS مخصص",
+      "subtitle": "أضف أنماطًا مخصصة لتجاوز الأنماط الافتراضية للقالب. تُطبَّق التغييرات على واجهة متجرك فقط.",
+      "save": "حفظ CSS",
+      "reset": "إعادة تعيين"
+    },
+    "preview": {
+      "desktop": "سطح المكتب",
+      "tablet": "جهاز لوحي",
+      "mobile": "جوّال"
+    },
+    "version_history": {
+      "title": "سجل الإصدارات",
+      "description": "كل عملية نشر تُنشئ نسخة احتياطية. يؤدي الاستعادة إلى إدراج النسخة في المسودة — ستحتاج إلى نشرها لتصبح مباشرة.",
+      "loading": "جاري التحميل…",
+      "empty": "لا توجد إصدارات منشورة بعد. اضغط نشر لإنشاء أول نسخة احتياطية.",
+      "restore": "استعادة",
+      "confirm_title": "استعادة الإصدار {{version}}؟",
+      "confirm_description": "سيؤدي هذا إلى استبدال مسودتك الحالية. ستُفقد أي تغييرات غير محفوظة.",
+      "confirm_text": "استعادة",
+      "toast_restored": "تمت استعادة المسودة إلى الإصدار {{version}}",
+      "toast_error_load": "فشل تحميل الإصدارات",
+      "toast_error_rollback": "فشلت عملية التراجع"
+    },
+    "section_manager": {
+      "no_sections": "لا توجد أقسام متاحة",
+      "no_sections_hint": "ثبّت قالبًا لإدارة أقسامه",
+      "drag_hint": "اسحب الأقسام لإعادة ترتيبها. استخدم أيقونة العين للتحكم في الظهور.",
+      "saving": "جاري الحفظ...",
+      "hide_section": "إخفاء القسم",
+      "show_section": "إظهار القسم",
+      "collapse": "طي",
+      "expand": "توسيع",
+      "tips_title": "نصائح",
+      "tips": {
+        "reorder": "اسحب الأقسام لأعلى أو لأسفل لتغيير ترتيبها في واجهة متجرك",
+        "visibility": "انقر على أيقونة العين لإظهار/إخفاء الأقسام دون حذفها",
+        "drafts": "تُحفظ التغييرات تلقائيًا كمسودات",
+        "publish": "انقر «نشر» لإظهار تغييراتك للعملاء"
+      },
+      "error_reorder": "فشل حفظ ترتيب الأقسام. حاول مرة أخرى.",
+      "error_toggle": "فشل تغيير حالة ظهور القسم. حاول مرة أخرى."
+    },
+    "sections_panel": {
+      "title": "الأقسام",
+      "add": "إضافة"
+    },
+    "right_panel": {
+      "tab": {
+        "theme": "القالب",
+        "section": "القسم",
+        "css": "CSS مخصص"
+      }
+    },
+    "toast": {
+      "section_added": "تمت إضافة القسم",
+      "section_duplicated": "تم تكرار القسم",
+      "css_saved": "تم حفظ CSS المخصص",
+      "published": "تم نشر القالب",
+      "reset_done": "تمت إعادة التعيين إلى الافتراضي",
+      "error_load": "فشل تحميل محرر القالب.",
+      "error_add_section": "فشل إضافة القسم.",
+      "error_toggle_section": "فشل تغيير حالة القسم.",
+      "error_duplicate": "فشل تكرار القسم.",
+      "error_delete": "فشل حذف القسم.",
+      "error_save_section": "فشل حفظ الإعدادات.",
+      "error_save_css": "فشل حفظ CSS المخصص.",
+      "error_publish": "فشل النشر.",
+      "error_reset": "فشل إعادة التعيين."
+    },
+    "confirm": {
+      "reset_title": "إعادة التعيين إلى الافتراضي؟",
+      "reset_description": "ستعود جميع تخصيصات الألوان والطباعة والتخطيط والأقسام إلى القيم الافتراضية للقالب. لا يمكن التراجع عن هذا الإجراء.",
+      "reset_confirm": "إعادة تعيين"
+    },
+    "template": {
+      "index": "الرئيسية",
+      "product": "صفحة المنتج",
+      "collection": "المجموعة / الفئة",
+      "cart": "سلة التسوق",
+      "search": "نتائج البحث",
+      "page": "الصفحات الثابتة"
+    }
+  }
+}

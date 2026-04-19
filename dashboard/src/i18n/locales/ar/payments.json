@@ -1,1 +1,220 @@
-{}
+{
+  "list": {
+    "title": "المدفوعات",
+    "description": "إدارة المدفوعات ومعالجة الاستردادات",
+    "stat": {
+      "total_revenue": "إجمالي الإيرادات",
+      "total_refunded": "إجمالي المُستردّ",
+      "successful": "ناجح",
+      "pending": "قيد الانتظار"
+    },
+    "search": {
+      "placeholder": "ابحث بالطلب أو المعاملة..."
+    },
+    "column": {
+      "order": "الطلب",
+      "customer": "العميل",
+      "amount": "المبلغ",
+      "method": "الطريقة",
+      "status": "الحالة",
+      "date": "التاريخ"
+    },
+    "empty": {
+      "title": "لا توجد مدفوعات"
+    },
+    "refunded_badge": "-{{amount}} مستردّ",
+    "dropdown": {
+      "view_details": "عرض التفاصيل",
+      "view_order": "عرض الطلب",
+      "process_refund": "معالجة الاسترداد"
+    }
+  },
+  "method": {
+    "list": {
+      "title": "طرق الدفع",
+      "description": "فعّل طرق الدفع التي يستخدمها العملاء عند الدفع.",
+      "empty": "لا توجد طرق دفع مُهيّأة.",
+      "add": "إضافة طريقة دفع"
+    },
+    "status": {
+      "enabled": "مفعّل",
+      "disabled": "معطّل"
+    },
+    "type": {
+      "manual_info": "انقر على مزوّد لتعبئة حساب الاستلام. تظهر المزوّدات المفعّلة للعملاء عند الدفع.",
+      "cod_info": "يدفع العملاء عند تسليم الطلب. لا يلزم أي إعداد إضافي."
+    },
+    "provider": {
+      "label": "المزوّدات",
+      "configured_badge": "مُهيَّأ",
+      "missing_badge": "معلومات ناقصة",
+      "off_badge": "إيقاف",
+      "custom_badge": "مخصص",
+      "add": "إضافة مزوّد"
+    },
+    "instructions": {
+      "label": "تعليمات للعميل",
+      "placeholder": "تظهر أسفل تفاصيل المزوّد عند الدفع."
+    },
+    "chooser": {
+      "title": "إضافة طريقة دفع",
+      "description": "اختر كيف يدفع عملاؤك.",
+      "manual_transfer_title": "مزوّد التحويل اليدوي",
+      "manual_transfer_desc": "أضف خيار بنك أو محفظة إلكترونية — يرى العملاء تفاصيل حسابك عند الدفع ويرفعون الإيصال."
+    },
+    "form": {
+      "title_new": "إضافة مزوّد",
+      "title_edit": "تعديل {{name}}",
+      "desc_new": "أضف خيار تحويل يدوي يمكن للعملاء الدفع من خلاله.",
+      "desc_edit": "حدّث تفاصيل حساب الاستلام لهذا المزوّد.",
+      "field": {
+        "provider_name": {
+          "label": "اسم المزوّد *",
+          "placeholder": "مثال: بنك الخرطوم"
+        },
+        "icon": {
+          "label": "الأيقونة",
+          "help": "تظهر للعملاء عند الدفع وفي شارات الثقة. يُوصى بـ PNG/SVG بخلفية شفافة."
+        },
+        "beneficiary_name": {
+          "label": "اسم المستفيد",
+          "placeholder": "صاحب الحساب"
+        },
+        "account_number": {
+          "label": "رقم الحساب",
+          "placeholder": "مثال: 1234-5678"
+        },
+        "phone": {
+          "label": "الهاتف",
+          "placeholder": "مثال: +249..."
+        },
+        "notes": {
+          "label": "ملاحظات للعميل (اختياري)",
+          "placeholder": "مثال: اذكر رقم الطلب في ملاحظة التحويل."
+        },
+        "enabled": {
+          "label": "مفعّل — اعرضه للعملاء عند الدفع"
+        }
+      },
+      "upload": "رفع",
+      "uploading": "جاري الرفع…",
+      "replace_logo": "استبدال",
+      "remove_logo": "إزالة"
+    },
+    "toast": {
+      "load_failed": "فشل تحميل طرق الدفع",
+      "enabled": "تم تفعيل {{label}}",
+      "disabled": "تم تعطيل {{label}}",
+      "saved": "تم الحفظ",
+      "provider_added": "تمت إضافة المزوّد",
+      "provider_updated": "تم تحديث المزوّد",
+      "provider_removed": "تمت إزالة المزوّد",
+      "logo_uploaded": "تم رفع الشعار",
+      "system_provider_remove_error": "لا يمكن إزالة مزوّدات النظام — قم بتعطيلها بدلاً من ذلك.",
+      "manual_not_installed": "التحويل اليدوي غير مثبّت.",
+      "missing_account_error": "{{label}}: أضف رقم حساب أو هاتف قبل التفعيل.",
+      "enable_before_save": "أضف رقم حساب أو هاتف قبل التفعيل."
+    },
+    "validation": {
+      "label_required": "التسمية مطلوبة",
+      "invalid_name": "اسم غير صالح",
+      "duplicate_provider": "يوجد مزوّد بهذا الاسم بالفعل."
+    }
+  },
+  "transaction": {
+    "list": {
+      "title": "المعاملات",
+      "back": "المعاملات",
+      "not_found": "المعاملة غير موجودة.",
+      "back_action": "رجوع"
+    },
+    "detail": {
+      "title_payment": "دفعة {{amount}}",
+      "title_refund": "استرداد {{amount}}",
+      "section": {
+        "transaction_details": "تفاصيل المعاملة",
+        "customer_payment_details": "تفاصيل دفع العميل",
+        "customer_payment_subtitle": "قدّمها العميل عند الدفع لـ {{method}}.",
+        "refund_details": "تفاصيل دفع الاسترداد",
+        "refund_details_subtitle": "سجّلها التاجر عند تسجيل هذا الاسترداد اليدوي.",
+        "related": "المعاملات ذات الصلة",
+        "related_subtitle": "سجلات دفع أو استرداد أخرى على نفس الطلب.",
+        "order": "الطلب",
+        "customer": "العميل",
+        "method_instructions": "تعليمات الطريقة",
+        "method_instructions_subtitle": "ما رآه العميل عند الدفع."
+      },
+      "field": {
+        "amount": "المبلغ",
+        "method": "الطريقة",
+        "created": "التاريخ",
+        "transaction_id": "معرّف المعاملة",
+        "event_id": "معرّف الحدث",
+        "status": "الحالة",
+        "payment_method": "طريقة الدفع",
+        "method_code": "كود الطريقة",
+        "provider": "المزوّد",
+        "currency": "العملة",
+        "payment_intent": "نية الدفع",
+        "reason": "السبب",
+        "note": "الملاحظة",
+        "number": "الرقم",
+        "total": "الإجمالي",
+        "subtotal": "الإجمالي الفرعي",
+        "shipping": "الشحن",
+        "tax": "الضريبة",
+        "order_status": "حالة الطلب",
+        "payment_status": "حالة الدفع",
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "shipping_address": "عنوان الشحن",
+        "refunded": "-{{amount}} مستردّ",
+        "refunded_at": "تم الاسترداد: {{date}}",
+        "via": "عبر {{label}}"
+      },
+      "status": {
+        "succeeded": "ناجح",
+        "refunded": "تم الاسترداد",
+        "partial_refund": "استرداد جزئي",
+        "pending": "قيد الانتظار",
+        "failed": "فشل"
+      },
+      "open_order": "فتح الطلب",
+      "view_order": "عرض الطلب",
+      "not_provided": "غير مقدّم",
+      "no_inline_data": "مرجع ملف — لا توجد بيانات مضمّنة",
+      "open_attachment": "فتح المرفق",
+      "download": "تنزيل"
+    }
+  },
+  "refund": {
+    "form": {
+      "title": "معالجة الاسترداد",
+      "description": "استرداد الدفعة للطلب #{{orderNumber}}",
+      "field": {
+        "original_amount": {
+          "label": "المبلغ الأصلي"
+        },
+        "refund_amount": {
+          "label": "مبلغ الاسترداد (اتركه فارغاً لاسترداد كامل)"
+        }
+      },
+      "warning": "لا يمكن التراجع عن هذا الإجراء. سيتم معالجة الاسترداد فوراً.",
+      "submit": "معالجة الاسترداد",
+      "processing": "جاري المعالجة...",
+      "toast": {
+        "success": "تمت معالجة الاسترداد بنجاح",
+        "failed": "فشل معالجة الاسترداد",
+        "amount_positive": "يجب أن يكون مبلغ الاسترداد موجباً",
+        "exceeds_payment": "مبلغ الاسترداد يتجاوز الدفعة"
+      }
+    }
+  },
+  "field_display": {
+    "not_provided": "غير مقدّم",
+    "file_no_data": "— لا توجد بيانات مضمّنة",
+    "preview_unavailable": "المعاينة غير متاحة لهذا النوع من الملفات.",
+    "download": "تنزيل {{name}}"
+  }
+}

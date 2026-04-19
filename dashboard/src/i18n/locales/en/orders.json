@@ -1,1 +1,554 @@
-{}
+{
+  "list": {
+    "title": "Orders",
+    "description": "Track, fulfill, and manage your customer orders",
+    "column": {
+      "order": "Order",
+      "customer": "Customer",
+      "date": "Date",
+      "items": "Items",
+      "status": "Status",
+      "payment": "Payment",
+      "total": "Total",
+      "actions": "Actions"
+    },
+    "filter": {
+      "all": "All Orders",
+      "pending": "Pending",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "search": {
+      "placeholder": "Search by order # or customer..."
+    },
+    "view": {
+      "cards": "Cards",
+      "table": "Table",
+      "default": "Default",
+      "set_default": "Set default",
+      "is_default": "This is your default view",
+      "set_as": "Set {{mode}} as default"
+    },
+    "stat": {
+      "total_orders": "Total Orders",
+      "all_time": "All time",
+      "pending": "Pending",
+      "awaiting_fulfillment": "Awaiting fulfillment",
+      "delivered": "Delivered",
+      "completed_orders": "Completed orders",
+      "total_revenue": "Total Revenue",
+      "gross_sales": "Gross sales"
+    },
+    "empty": {
+      "title": "No orders yet",
+      "description": "When customers place orders, they'll show up here.",
+      "filtered_title": "No orders match your filters",
+      "filtered_description": "Try clearing your filters or searching with a different term."
+    },
+    "bulk": {
+      "selected": "{{count}} selected",
+      "clear": "Clear",
+      "mark_processing": "Mark as Processing",
+      "mark_shipped": "Mark as Shipped",
+      "mark_delivered": "Mark as Delivered",
+      "export_csv": "Export CSV"
+    },
+    "dropdown": {
+      "actions": "Actions",
+      "view_details": "View details",
+      "update_status": "Update status"
+    },
+    "replacement": {
+      "label": "Replacement order",
+      "has_replacements": "Has {{count}} replacement",
+      "has_replacements_plural": "Has {{count}} replacements",
+      "view_timeline": "· view timeline"
+    },
+    "guest": "Guest",
+    "item_count_one": "{{count}} item",
+    "item_count_other": "{{count}} items"
+  },
+  "detail": {
+    "placed": "Placed {{date}}",
+    "back": "Back",
+    "section": {
+      "items": {
+        "title": "Order Items"
+      },
+      "payments": {
+        "title": "Payments & refunds"
+      },
+      "customer": {
+        "title": "Customer"
+      },
+      "timeline": {
+        "title": "Timeline"
+      },
+      "tags": {
+        "title": "Tags"
+      },
+      "notes": {
+        "title": "Internal Notes",
+        "subtitle": "Internal — not visible to customer"
+      },
+      "order_notes": {
+        "title": "Order Notes"
+      },
+      "returns": {
+        "title": "Returns & replacements"
+      }
+    },
+    "action": {
+      "print": "Print",
+      "refund": "Issue refund",
+      "record_manual_refund": "Record manual refund",
+      "mark_paid": "Mark as paid",
+      "mark_failed": "Mark as failed",
+      "capture": "Capture",
+      "void": "Void",
+      "cancel": "Cancel order",
+      "mark_fulfilled": "Mark as fulfilled",
+      "mark_delivered": "Mark as delivered",
+      "create_fulfillment": "Create fulfillment",
+      "print_packing_slip": "Print packing slip",
+      "view_timeline": "View timeline",
+      "view_all_orders": "View all orders",
+      "view_profile": "View profile",
+      "record_manual_payment": "Record manual payment",
+      "verify_payment": "Verify payment",
+      "mark_verified": "Mark as verified",
+      "request_return": "Request return",
+      "create_replacement": "Create replacement",
+      "new_return": "New return",
+      "new_replacement": "New replacement",
+      "view_original_order": "View original order",
+      "view_replacement_order": "View replacement order",
+      "view_replacement_n": "View replacement #{{n}}"
+    },
+    "item": {
+      "sku": "SKU: {{sku}}",
+      "variant": "Variant: {{label}}",
+      "qty": "Qty: {{count}}",
+      "fulfilled": "Fulfilled: {{done}}/{{total}}",
+      "refunded": "Refunded: {{done}}/{{total}}",
+      "returnable": "Returnable: {{count}}",
+      "unit": "Unit: {{price}}",
+      "subtotal": "Subtotal: {{price}}",
+      "discount": "Discount: -{{price}}",
+      "tax": "Tax: {{price}}",
+      "shipped": "{{done}}/{{total}} shipped",
+      "pre_order": "Pre-order",
+      "ships": "· ships {{date}}"
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "tax": "Tax",
+      "discount": "Discount",
+      "gift_card": "Gift card",
+      "total": "Total"
+    },
+    "payment": {
+      "paid": "Paid",
+      "refunded": "Refunded",
+      "refundable": "Refundable",
+      "no_records": "No payment records. Refund history will appear here once a payment is captured.",
+      "record_type_payment": "Payment",
+      "record_type_refund": "Refund"
+    },
+    "customer": {
+      "guest": "Guest",
+      "customer": "Customer",
+      "lifetime_orders": "Lifetime orders",
+      "lifetime_spend": "Lifetime spend",
+      "previous_refunds": "Previous refunds",
+      "previous_cancellations": "Previous cancellations",
+      "last_order": "Last order",
+      "customer_since": "Customer since",
+      "marketing_consent": "Marketing consent",
+      "no_context": "No customer context available.",
+      "yes": "Yes",
+      "no": "No",
+      "unknown": "Unknown"
+    },
+    "tags": {
+      "none": "No tags yet.",
+      "add_placeholder": "Add tag…",
+      "add": "Add"
+    },
+    "notes": {
+      "none": "No internal notes yet.",
+      "add_placeholder": "Add an internal note…",
+      "pin_to_top": "Pin to top",
+      "add_button": "Add note",
+      "staff": "Staff"
+    },
+    "address": {
+      "shipping": "Shipping address",
+      "billing": "Billing address",
+      "same_as_shipping": "Same as shipping address",
+      "none_on_file": "No {{kind}} address on file",
+      "delivery_instructions": "Delivery instructions",
+      "needs_write": "You need the orders.write permission to edit addresses"
+    },
+    "replacement_info": {
+      "is_replacement": "This is a replacement order.",
+      "has_one": "This order has a replacement order.",
+      "has_many": "This order has {{count}} replacement orders."
+    }
+  },
+  "dialog": {
+    "refund": {
+      "title_manual": "Record manual refund",
+      "title_gateway": "Issue refund",
+      "desc_manual": "This order was paid via {{method}}. Mark it refunded in the books — no payment provider will be charged. Use this for cash, bank transfer, or store credit.",
+      "desc_gateway": "Refund up to {{max}} back to the original payment method.",
+      "order_total": "Order total",
+      "already_refunded": "Already refunded",
+      "amount_label": "Refund amount",
+      "max_refundable": "Max refundable: {{amount}}",
+      "reason_label": "Reason (optional)",
+      "reason_placeholder": "e.g. Damaged on arrival",
+      "details_title": "Refund payment details",
+      "details_desc": "Record how the refund was sent to the customer — mirrors the fields they filled at checkout.",
+      "submit_manual": "Record",
+      "submit_gateway": "Refund",
+      "error_invalid_amount": "Enter a valid refund amount",
+      "error_exceeds": "Refund cannot exceed {{max}}"
+    },
+    "replacement": {
+      "title": "Create replacement order",
+      "description": "Creates a new $0 order with the items you pick, linked to this order. Fulfill it just like a regular order — useful for damaged or lost items.",
+      "reason_label": "Reason (optional)",
+      "reason_placeholder": "e.g. Damaged in transit — re-shipping same items",
+      "submit": "Create replacement",
+      "error_no_items": "Select at least one item to replace"
+    },
+    "return": {
+      "title": "New return request",
+      "description": "Record which items the customer wants to return. You can approve, mark received, and refund from the returns list.",
+      "reason_label": "Reason (optional)",
+      "reason_placeholder": "e.g. Wrong size",
+      "submit": "Request return",
+      "error_no_items": "Select at least one item to return"
+    },
+    "verify": {
+      "title": "Verify manual payment",
+      "description": "Review the payment details the customer submitted for {{method}}. Marking verified sets the order to Paid.",
+      "no_fields": "This method has no customer-submitted fields — verify payment out-of-band, then confirm below.",
+      "note_label": "Verification note (optional)",
+      "note_placeholder": "e.g. Matched $120.00 received via bank transfer ref #8827",
+      "submit": "Mark as verified",
+      "provider": "Provider"
+    },
+    "record_manual_payment": {
+      "title": "Record manual payment",
+      "description": "Log a payment collected outside of the gateway (bank transfer, cash, wallet). The order will be marked as paid.",
+      "amount_label": "Amount",
+      "reference_label": "Reference (optional)",
+      "reference_placeholder": "Transfer ID, receipt #, etc.",
+      "note_label": "Internal note (optional)",
+      "submit": "Record payment"
+    },
+    "cancel_order": {
+      "title": "Cancel this order?",
+      "description": "The customer will be notified and any authorized payment will be voided.",
+      "confirm": "Cancel order",
+      "keep": "Keep order"
+    },
+    "delete_note": {
+      "title": "Delete internal note?",
+      "description": "This note will be removed from the order.",
+      "confirm": "Delete"
+    },
+    "address_edit": {
+      "title_shipping": "Edit shipping address",
+      "title_billing": "Edit billing address",
+      "description": "Updates are written immediately to the order and recorded in the timeline.",
+      "fulfillment_warning": "This order is already {{status}}. Changing the address here will not redirect packages already handed to the carrier.",
+      "field": {
+        "first_name": "First name",
+        "last_name": "Last name",
+        "line1": "Address line 1",
+        "line2": "Address line 2",
+        "city": "City",
+        "state": "State / Region",
+        "postal": "Postal code",
+        "country": "Country",
+        "phone": "Phone",
+        "delivery_instructions": "Delivery instructions"
+      },
+      "submit": "Save changes"
+    },
+    "return_refund_amount": {
+      "title": "Refund amount",
+      "submit": "Confirm refund"
+    }
+  },
+  "toast": {
+    "status_updated": "Status updated to {{status}}",
+    "status_update_failed": "Failed to update order status",
+    "order_cancelled": "Order cancelled",
+    "cancel_failed": "Failed to cancel order",
+    "refund_success_manual": "Recorded manual refund of {{amount}}",
+    "refund_success_gateway": "Refunded {{amount}}",
+    "refund_failed": "Refund failed",
+    "payment_verified": "Payment verified — order marked paid",
+    "verify_failed": "Failed to verify payment",
+    "replacement_created": "Replacement order created",
+    "replacement_failed": "Failed to create replacement",
+    "return_requested": "Return requested",
+    "return_failed": "Failed to create return",
+    "return_updated": "Return marked {{status}}",
+    "return_update_failed": "Failed to update return",
+    "note_added": "Note added",
+    "note_add_failed": "Failed to add note",
+    "note_deleted": "Note deleted",
+    "note_delete_failed": "Failed to delete note",
+    "tag_add_failed": "Failed to add tag",
+    "tag_remove_failed": "Failed to remove tag",
+    "address_shipping_updated": "Shipping address updated",
+    "address_billing_updated": "Billing address updated",
+    "address_save_failed": "Failed to save address",
+    "export_success": "Exported {{count}} order",
+    "export_success_plural": "Exported {{count}} orders",
+    "no_orders_to_export": "No orders to export",
+    "export_failed": "Export failed",
+    "load_failed": "Failed to load orders",
+    "bulk_marked": "{{count}} order marked as {{status}}",
+    "bulk_marked_plural": "{{count}} orders marked as {{status}}",
+    "bulk_update_failed": "{{count}} failed to update",
+    "lifecycle_load_failed": "Failed to load order lifecycle",
+    "view_set_default": "{{view}} view set as default",
+    "payment_action_updated": "{{label}} — updated",
+    "payment_action_failed": "Failed: {{label}}"
+  },
+  "validation": {
+    "note_empty": "Note cannot be empty",
+    "note_too_long": "Note exceeds 2000 characters",
+    "tag_empty": "Tag cannot be empty",
+    "tag_too_long": "Tag exceeds 32 characters",
+    "refund_amount_invalid": "Enter a valid refund amount",
+    "refund_amount_positive": "Enter a positive amount",
+    "no_eligible_items": "No eligible items found for this request."
+  },
+  "lifecycle": {
+    "title": "Order timeline",
+    "standalone": "Standalone order — no replacements linked.",
+    "case_summary": "{{count}} orders in this case, rooted at {{root}}.",
+    "state": {
+      "Pending": "Pending",
+      "Confirmed": "Confirmed",
+      "Processing": "Processing",
+      "Shipped": "Shipped",
+      "Delivered": "Delivered",
+      "Cancelled": "Cancelled",
+      "Refunded": "Refunded",
+      "Archived": "Archived"
+    },
+    "label": {
+      "order_placed": "ORDER PLACED",
+      "order_replaced": "ORDER REPLACED",
+      "replacement_created": "Replacement created from here"
+    },
+    "could_not_load": "Could not load order lifecycle."
+  },
+  "fulfillment": {
+    "list": {
+      "title": "Fulfillments",
+      "description": "Track and manage order fulfillments",
+      "column": {
+        "order": "Order",
+        "items": "Items",
+        "status": "Status",
+        "tracking": "Tracking",
+        "carrier": "Carrier",
+        "date": "Date",
+        "actions": "Actions"
+      },
+      "filter": {
+        "all": "All",
+        "pending": "Pending",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "search": {
+        "placeholder": "Search by tracking, carrier, or order..."
+      },
+      "empty": {
+        "title": "No fulfillments",
+        "description": "Fulfillments will appear here when orders are processed."
+      },
+      "bulk": {
+        "selected": "{{count}} selected",
+        "clear": "Clear",
+        "mark_shipped": "Mark shipped",
+        "mark_delivered": "Mark delivered",
+        "cancel": "Cancel"
+      },
+      "item_count_one": "{{count}} item",
+      "item_count_other": "{{count}} items",
+      "card": {
+        "tracking": "Tracking",
+        "carrier": "Carrier"
+      },
+      "pagination": {
+        "page_of": "Page {{page}} of {{pages}}",
+        "total": "· {{total}} total"
+      }
+    },
+    "card": {
+      "title": "Fulfillments",
+      "new_shipment": "New Shipment",
+      "loading": "Loading…",
+      "no_shipments": "No shipments yet.",
+      "create_to_fulfill": "Create one to start fulfilling this order.",
+      "fully_fulfilled": "Order is fully fulfilled.",
+      "shipment_n": "Shipment #{{n}}",
+      "mark_shipped": "Mark Shipped",
+      "mark_delivered": "Mark Delivered",
+      "cancel": "Cancel",
+      "form": {
+        "title": "New shipment",
+        "max": "max {{max}}",
+        "carrier_placeholder": "Carrier (e.g. UPS)",
+        "tracking_placeholder": "Tracking number",
+        "mark_shipped_label": "Mark as shipped immediately",
+        "create": "Create",
+        "error_no_items": "Select at least one item to ship"
+      }
+    },
+    "toast": {
+      "load_failed": "Failed to load fulfillments",
+      "shipment_created": "Shipment created",
+      "shipment_failed": "Failed to create shipment",
+      "status_updated": "Fulfillment status updated",
+      "status_update_failed": "Failed to update status",
+      "marked": "Marked {{status}}",
+      "mark_failed": "Failed to update fulfillment",
+      "bulk_updated_one": "{{count}} fulfillment updated to {{status}}",
+      "bulk_updated_other": "{{count}} fulfillments updated to {{status}}",
+      "bulk_failed": "{{count}} failed"
+    }
+  },
+  "shipping_zone": {
+    "form": {
+      "title_new": "New shipping zone",
+      "title_edit": "Edit shipping zone",
+      "subtitle": "Per-region rates with optional weight bands.",
+      "submit_new": "Create zone",
+      "submit_edit": "Update zone",
+      "section": {
+        "zone_details": "Zone details",
+        "rates": "Rates",
+        "summary": "Summary"
+      },
+      "field": {
+        "zone_name": {
+          "label": "Zone name",
+          "placeholder": "North America"
+        },
+        "countries": {
+          "label": "Countries",
+          "placeholder": "Add a country...",
+          "help": "Pick one or more countries this zone applies to."
+        },
+        "rate_name": {
+          "label": "Name",
+          "placeholder": "Standard"
+        },
+        "rate_price": {
+          "label": "Price ($)"
+        },
+        "rate_min_weight": {
+          "label": "Min weight (kg)"
+        },
+        "rate_max_weight": {
+          "label": "Max weight (kg, blank for no cap)"
+        },
+        "rate_estimated_days": {
+          "label": "Estimated days",
+          "placeholder": "3-5"
+        }
+      },
+      "rate_n": "Rate #{{n}}",
+      "add_rate": "Add rate",
+      "summary": {
+        "name": "Name",
+        "countries": "Countries",
+        "rates": "Rates"
+      },
+      "toast": {
+        "load_failed": "Failed to load zone",
+        "not_found": "Shipping zone not found",
+        "created": "Zone created",
+        "updated": "Zone updated",
+        "save_failed": "Failed to save zone"
+      },
+      "validation": {
+        "name_required": "Zone name is required",
+        "countries_required": "At least one country is required",
+        "rates_required": "At least one rate is required",
+        "rate_name_required": "Rate name is required",
+        "rate_price_negative": "Rate price cannot be negative"
+      }
+    }
+  },
+  "document": {
+    "invoice": {
+      "title": "Invoice",
+      "bill_to": "Bill to",
+      "ship_to": "Ship to",
+      "column": {
+        "item": "Item",
+        "sku": "SKU",
+        "qty": "Qty",
+        "price": "Price",
+        "line_total": "Line total"
+      },
+      "totals": {
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "shipping": "Shipping",
+        "tax": "Tax",
+        "total": "Total"
+      },
+      "payment_line": "Payment: {{method}} · Status: {{status}}",
+      "loading": "Loading invoice…",
+      "error": "Failed to load order"
+    },
+    "packing_slip": {
+      "title": "Packing slip",
+      "bill_to": "Bill to",
+      "ship_to": "Ship to",
+      "column": {
+        "item": "Item",
+        "sku": "SKU",
+        "qty": "Qty"
+      },
+      "loading": "Loading packing slip…",
+      "error": "Failed to load order"
+    },
+    "refund_receipt": {
+      "title": "Refund receipt",
+      "original_order": "Original order",
+      "column": {
+        "item": "Item",
+        "sku": "SKU",
+        "qty_refunded": "Qty refunded",
+        "unit_price": "Unit price",
+        "refund_amount": "Refund amount"
+      },
+      "totals": {
+        "refund_total": "Refund total"
+      },
+      "payment_method": "Payment method",
+      "refund_reason": "Refund reason",
+      "loading": "Loading refund receipt…",
+      "error": "Failed to load order"
+    }
+  }
+}

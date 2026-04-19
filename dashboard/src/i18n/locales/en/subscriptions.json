@@ -1,1 +1,56 @@
-{}
+{
+  "subscriptions": {
+    "list": {
+      "title": "Subscription & Plans",
+      "subtitle": "Manage your subscription and monitor usage limits",
+      "current_plan_title": "Current Plan: {{name}}",
+      "renews": "Renews {{date}}",
+      "trial": "Trial",
+      "trial_ends": "Trial ends {{date}}",
+      "active_subscription": "Active subscription",
+      "available_plans": "Available Plans",
+      "column": {
+        "products": "Products",
+        "orders": "Orders",
+        "storage": "Storage",
+        "team": "Team"
+      }
+    },
+    "plan": {
+      "free": { "label": "Free" },
+      "starter": { "label": "Starter" },
+      "pro": { "label": "Professional" },
+      "enterprise": { "label": "Enterprise" }
+    },
+    "status": {
+      "active": "Active",
+      "trial": "Trial",
+      "past_due": "Past Due",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "badge": {
+      "recommended": "Recommended"
+    },
+    "limit": {
+      "unlimited": "Unlimited"
+    },
+    "action": {
+      "upgrade": "Upgrade",
+      "switch": "Switch",
+      "current": "Current Plan",
+      "confirm_change": "Confirm Change"
+    },
+    "upgrade_dialog": {
+      "title_upgrade": "Upgrade to {{name}}",
+      "title_switch": "Switch to {{name}}",
+      "description": "Your plan will change immediately. Billing will be prorated.",
+      "new_price": "New monthly price",
+      "access_notice": "You'll get access to all {{name}} features immediately."
+    },
+    "toast": {
+      "upgraded": "Upgraded to {{name}} plan!",
+      "upgrade_failed": "Failed to upgrade plan"
+    }
+  }
+}

@@ -1,1 +1,186 @@
-{}
+{
+  "customers": {
+    "list": {
+      "title": "Customers",
+      "subtitle": "Manage and engage with your store's customers",
+      "column": {
+        "name": "Name",
+        "email": "Email",
+        "orders": "Orders",
+        "total_spent": "Total Spent",
+        "status": "Status",
+        "joined": "Joined"
+      },
+      "filter": {
+        "all": "All Customers",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "search_placeholder": "Search by name, email, or phone...",
+      "select_all": "Select all",
+      "empty": {
+        "title": "No customers yet",
+        "description": "When shoppers create accounts on your storefront, they'll appear here."
+      },
+      "showing": "Showing {{count}} of {{total}} customers"
+    },
+    "stat": {
+      "total_customers": "Total Customers",
+      "total_customers_desc": "Registered users",
+      "active": "Active",
+      "active_desc": "Currently active",
+      "total_revenue": "Total Revenue",
+      "total_revenue_desc": "From all customers",
+      "avg_ltv": "Avg Lifetime Value",
+      "avg_ltv_desc": "Per customer"
+    },
+    "bulk": {
+      "selected": "{{count}} selected",
+      "clear": "Clear",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "export": "Export"
+    },
+    "detail": {
+      "back": "Back to customers",
+      "joined": "Joined {{date}}",
+      "section": {
+        "profile": {
+          "title": "Profile"
+        },
+        "orders": {
+          "title": "Recent Orders",
+          "count": "{{count}} orders",
+          "empty": "No orders yet"
+        }
+      },
+      "stat": {
+        "total_orders": "Total Orders",
+        "total_spent": "Total Spent",
+        "avg_order_value": "Avg Order Value"
+      }
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "toast": {
+      "fetch_failed": "Failed to fetch customers",
+      "detail_failed": "Failed to load customer details",
+      "export_failed": "Export failed",
+      "export_empty": "No customers to export",
+      "exported": "Exported {{count}} customers",
+      "bulk_activated": "{{count}} customers activated",
+      "bulk_deactivated": "{{count}} customers deactivated",
+      "bulk_update_failed": "Bulk update failed"
+    }
+  },
+  "segment": {
+    "list": {
+      "title": "Customer Segments",
+      "subtitle": "Group customers by spend, order history, tags, and marketing consent.",
+      "new_segment": "New segment",
+      "empty": {
+        "title": "No segments yet",
+        "description": "Create your first segment to target customers in marketing campaigns."
+      },
+      "customer_count": "{{count}} customers",
+      "filter": {
+        "spent_gte": "Spent ≥ {{value}}",
+        "spent_lte": "Spent ≤ {{value}}",
+        "orders_gte": "Orders ≥ {{value}}",
+        "tags": "Tags: {{value}}",
+        "accepts_marketing": "Accepts marketing",
+        "email_contains": "Email ~ {{value}}"
+      }
+    },
+    "form": {
+      "title_create": "New segment",
+      "title_edit": "Edit segment",
+      "subtitle": "Group customers by spend, order history, tags, and marketing consent.",
+      "section": {
+        "details": "Details",
+        "spend": "Spend",
+        "orders": "Orders",
+        "profile": "Profile",
+        "preview": "Preview"
+      },
+      "field": {
+        "name": {
+          "label": "Name",
+          "placeholder": "VIP customers",
+          "error": {
+            "required": "Segment name is required"
+          }
+        },
+        "description": {
+          "label": "Description",
+          "placeholder": "Customers with high lifetime value"
+        },
+        "total_spent_min": {
+          "label": "Min total spent"
+        },
+        "total_spent_max": {
+          "label": "Max total spent"
+        },
+        "order_count_min": {
+          "label": "Min orders"
+        },
+        "order_count_max": {
+          "label": "Max orders"
+        },
+        "last_order_after": {
+          "label": "Last order after"
+        },
+        "last_order_before": {
+          "label": "Last order before"
+        },
+        "tags": {
+          "label": "Tags (comma separated)",
+          "placeholder": "vip, wholesale"
+        },
+        "email_contains": {
+          "label": "Email contains",
+          "placeholder": "@company.com"
+        },
+        "marketing_consent": {
+          "label": "Marketing consent",
+          "any": "Any",
+          "subscribed": "Subscribed",
+          "not_subscribed": "Not subscribed"
+        }
+      },
+      "preview": {
+        "run": "Run preview",
+        "match": "customers match",
+        "hint": "Click \"Run preview\" to see how many customers match these filters before saving.",
+        "column": {
+          "name": "Name",
+          "email": "Email",
+          "orders": "Orders",
+          "spent": "Spent"
+        }
+      },
+      "action": {
+        "save_changes": "Save changes",
+        "create_segment": "Create segment"
+      }
+    },
+    "confirm": {
+      "delete_title": "Delete segment \"{{name}}\"?",
+      "delete_description": "The saved filter will be removed. Customers inside the segment are not affected.",
+      "delete_confirm": "Delete"
+    },
+    "toast": {
+      "deleted": "Segment deleted",
+      "delete_failed": "Failed to delete segment",
+      "updated": "Segment updated",
+      "created": "Segment created",
+      "save_failed": "Failed to save segment",
+      "load_failed": "Failed to load segments",
+      "preview_failed": "Preview failed",
+      "not_found": "Segment not found",
+      "segment_load_failed": "Failed to load segment"
+    }
+  }
+}

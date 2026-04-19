@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { Link } from 'react-router-dom';
 import { api } from '../../lib/api-client';
@@ -66,16 +67,18 @@ interface CustomerListResponse {
 
 type StatusTab = 'all' | 'active' | 'inactive';
 
-const TAB_DEFS: { id: StatusTab; label: string; icon: React.ElementType }[] = [
-  { id: 'all', label: 'All Customers', icon: Users },
-  { id: 'active', label: 'Active', icon: UserCheck },
-  { id: 'inactive', label: 'Inactive', icon: UserX },
+// TAB_DEFS labels are resolved via t() at render time; keep the id as the key.
+const TAB_IDS: { id: StatusTab; icon: React.ElementType }[] = [
+  { id: 'all', icon: Users },
+  { id: 'active', icon: UserCheck },
+  { id: 'inactive', icon: UserX },
 ];
 
 const formatPrice = (n: number) =>
   new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(n);
 
 export default function Customers() {
+  const { t } = useTranslation(['customers', 'common']);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -107,18 +110,22 @@ export default function Customers() {
       await Promise.all([...selected].map((id) =>
         api.patch(`/customers/${id}`, { isActive })
       ));
-      toast.success(`${selected.size} customer${selected.size === 1 ? '' : 's'} ${isActive ? 'activated' : 'deactivated'}`);
+      if (isActive) {
+        toast.success(t('customers.toast.bulk_activated', { count: selected.size }));
+      } else {
+        toast.success(t('customers.toast.bulk_deactivated', { count: selected.size }));
+      }
       setSelected(new Set());
       fetchCustomers();
     } catch (err) {
-      toast.error(errMsg(err, 'Bulk update failed'));
+      toast.error(errMsg(err, t('customers.toast.bulk_update_failed')));
     }
   };
 
   const handleBulkExport = () => {
     const all = customers.filter((c) => selected.has(c._id));
     if (all.length === 0) {
-      toast.message('No customers to export');
+      toast.message(t('customers.toast.export_empty'));
       return;
     }
     const csv = toCSV(all, [
@@ -132,7 +139,7 @@ export default function Customers() {
       { key: 'createdAt', label: 'Joined', get: (c) => new Date(c.createdAt).toISOString().slice(0, 10) },
     ]);
     downloadCSV(csv, 'customers-selected');
-    toast.success(`Exported ${all.length} customer${all.length === 1 ? '' : 's'}`);
+    toast.success(t('customers.toast.exported', { count: all.length }));
   };
 
   const loadStats = async () => {
@@ -170,7 +177,7 @@ export default function Customers() {
       setTotalPages(res.data.pagination.pages);
       setTotal(res.data.pagination.total);
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to fetch customers'));
+      toast.error(errMsg(err, t('customers.toast.fetch_failed')));
     } finally {
       setLoading(false);
     }
@@ -185,7 +192,7 @@ export default function Customers() {
       const res = await api.get<{ data: CustomerDetail }>(`/customers/${id}`);
       setSelectedCustomer(res.data);
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to load customer details'));
+      toast.error(errMsg(err, t('customers.toast.detail_failed')));
     } finally {
       setDetailLoading(false);
     }
@@ -198,7 +205,7 @@ export default function Customers() {
       const res = await api.get<CustomerListResponse>('/customers', { params: { page: 1, limit: 5000 } });
       const all: Customer[] = res.data?.customers || [];
       if (all.length === 0) {
-        toast.message('No customers to export');
+        toast.message(t('customers.toast.export_empty'));
         return;
       }
       const csv = toCSV(all, [
@@ -212,20 +219,20 @@ export default function Customers() {
         { key: 'createdAt', label: 'Joined', get: (c) => new Date(c.createdAt).toISOString().slice(0, 10) },
       ]);
       downloadCSV(csv, 'customers');
-      toast.success(`Exported ${all.length} customer${all.length === 1 ? '' : 's'}`);
+      toast.success(t('customers.toast.exported', { count: all.length }));
     } catch (err) {
-      toast.error(errMsg(err, 'Export failed'));
+      toast.error(errMsg(err, t('customers.toast.export_failed')));
     }
   };
 
   const statCards = useMemo(
     () => [
-      { label: 'Total Customers', value: stats.total.toLocaleString(), icon: Users, description: 'Registered users' },
-      { label: 'Active', value: stats.active.toLocaleString(), icon: UserCheck, description: 'Currently active' },
-      { label: 'Total Revenue', value: formatPrice(stats.totalSpent), icon: DollarSign, description: 'From all customers' },
-      { label: 'Avg Lifetime Value', value: formatPrice(stats.avgLtv), icon: TrendingUp, description: 'Per customer' },
+      { label: t('customers.stat.total_customers'), value: stats.total.toLocaleString(), icon: Users, description: t('customers.stat.total_customers_desc') },
+      { label: t('customers.stat.active'), value: stats.active.toLocaleString(), icon: UserCheck, description: t('customers.stat.active_desc') },
+      { label: t('customers.stat.total_revenue'), value: formatPrice(stats.totalSpent), icon: DollarSign, description: t('customers.stat.total_revenue_desc') },
+      { label: t('customers.stat.avg_ltv'), value: formatPrice(stats.avgLtv), icon: TrendingUp, description: t('customers.stat.avg_ltv_desc') },
     ],
-    [stats]
+    [stats, t]
   );
 
   // ── Customer detail view ──────────────────────────────────────────────
@@ -238,7 +245,7 @@ export default function Customers() {
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => setSelectedCustomer(null)}>
-            <ChevronLeft className="h-4 w-4 mr-1" /> Back to customers
+            <ChevronLeft className="h-4 w-4 mr-1" /> {t('customers.detail.back')}
           </Button>
         </div>
 
@@ -255,7 +262,7 @@ export default function Customers() {
                 <div className="flex items-center gap-3 flex-wrap">
                   <h1 className="text-2xl font-bold tracking-tight">{fullName}</h1>
                   <Badge variant={customer.isActive !== false ? 'default' : 'destructive'}>
-                    {customer.isActive !== false ? 'Active' : 'Inactive'}
+                    {customer.isActive !== false ? t('customers.status.active') : t('customers.status.inactive')}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground flex-wrap">
@@ -264,7 +271,7 @@ export default function Customers() {
                     <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> {customer.phone}</span>
                   )}
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" /> Joined {new Date(customer.createdAt).toLocaleDateString()}
+                    <Calendar className="h-3.5 w-3.5" /> {t('customers.detail.joined', { date: new Date(customer.createdAt).toLocaleDateString() })}
                   </span>
                 </div>
               </div>
@@ -275,9 +282,9 @@ export default function Customers() {
         {/* Detail stats */}
         <div className="grid gap-4 md:grid-cols-3">
           {[
-            { label: 'Total Orders', value: detailStats.totalOrders, icon: ShoppingCart },
-            { label: 'Total Spent', value: formatPrice(detailStats.totalSpent || 0), icon: DollarSign },
-            { label: 'Avg Order Value', value: formatPrice(detailStats.avgOrderValue || 0), icon: TrendingUp },
+            { label: t('customers.detail.stat.total_orders'), value: detailStats.totalOrders, icon: ShoppingCart },
+            { label: t('customers.detail.stat.total_spent'), value: formatPrice(detailStats.totalSpent || 0), icon: DollarSign },
+            { label: t('customers.detail.stat.avg_order_value'), value: formatPrice(detailStats.avgOrderValue || 0), icon: TrendingUp },
           ].map((s) => {
             const Icon = s.icon;
             return (
@@ -298,13 +305,13 @@ export default function Customers() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold">Recent Orders</h3>
-              <span className="text-xs text-muted-foreground">{recentOrders.length} orders</span>
+              <h3 className="text-base font-semibold">{t('customers.detail.section.orders.title')}</h3>
+              <span className="text-xs text-muted-foreground">{t('customers.detail.section.orders.count', { count: recentOrders.length })}</span>
             </div>
             {recentOrders.length === 0 ? (
               <div className="py-12 text-center">
                 <ShoppingCart className="h-10 w-10 mx-auto text-muted-foreground/40 mb-2" />
-                <p className="text-sm text-muted-foreground">No orders yet</p>
+                <p className="text-sm text-muted-foreground">{t('customers.detail.section.orders.empty')}</p>
               </div>
             ) : (
               <div className="divide-y divide-border/60">
@@ -342,14 +349,14 @@ export default function Customers() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('customers.list.title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage and engage with your store's customers
+            {t('customers.list.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" /> Export
+            <Download className="h-4 w-4 mr-2" /> {t('common:action.export')}
           </Button>
         </div>
       </div>
@@ -375,7 +382,7 @@ export default function Customers() {
 
       {/* Filter pills */}
       <FilterPills
-        items={TAB_DEFS.map((t) => ({ id: t.id, label: t.label, icon: t.icon }))}
+        items={TAB_IDS.map((tab) => ({ id: tab.id, label: t(`customers.list.filter.${tab.id}`), icon: tab.icon }))}
         value={tab}
         onChange={(v) => { setTab(v as StatusTab); setPage(1); }}
       />
@@ -385,14 +392,14 @@ export default function Customers() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name, email, or phone..."
+            placeholder={t('customers.list.search_placeholder')}
             className="pl-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
         <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" /> Filter
+          <Filter className="h-4 w-4 mr-2" /> {t('common:action.filter')}
         </Button>
         <div className="ml-auto">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
@@ -402,19 +409,19 @@ export default function Customers() {
       {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('customers.bulk.selected', { count: selected.size })}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />Clear
+              <X className="h-3.5 w-3.5 mr-1.5" />{t('customers.bulk.clear')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkActivate(true)}>
-              <UserCheck className="h-3.5 w-3.5 mr-1.5" />Activate
+              <UserCheck className="h-3.5 w-3.5 mr-1.5" />{t('customers.bulk.activate')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkActivate(false)}>
-              <UserX className="h-3.5 w-3.5 mr-1.5" />Deactivate
+              <UserX className="h-3.5 w-3.5 mr-1.5" />{t('customers.bulk.deactivate')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleBulkExport}>
-              <Download className="h-3.5 w-3.5 mr-1.5" />Export
+              <Download className="h-3.5 w-3.5 mr-1.5" />{t('customers.bulk.export')}
             </Button>
           </div>
         </div>
@@ -429,9 +436,9 @@ export default function Customers() {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Users className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">No customers yet</h3>
+            <h3 className="text-lg font-semibold">{t('customers.list.empty.title')}</h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-              When shoppers create accounts on your storefront, they'll appear here.
+              {t('customers.list.empty.description')}
             </p>
           </CardContent>
         </Card>
@@ -448,12 +455,12 @@ export default function Customers() {
                     className="h-4 w-4 rounded border-gray-300"
                   />
                 </TableHead>
-                <TableHead className="w-[180px]">Name</TableHead>
-                <TableHead className="w-[140px]">Email</TableHead>
-                <TableHead className="text-center w-[120px]">Orders</TableHead>
-                <TableHead className="w-[140px]">Total Spent</TableHead>
-                <TableHead className="w-[120px]">Status</TableHead>
-                <TableHead className="w-[120px]">Joined</TableHead>
+                <TableHead className="w-[180px]">{t('customers.list.column.name')}</TableHead>
+                <TableHead className="w-[140px]">{t('customers.list.column.email')}</TableHead>
+                <TableHead className="text-center w-[120px]">{t('customers.list.column.orders')}</TableHead>
+                <TableHead className="w-[140px]">{t('customers.list.column.total_spent')}</TableHead>
+                <TableHead className="w-[120px]">{t('customers.list.column.status')}</TableHead>
+                <TableHead className="w-[120px]">{t('customers.list.column.joined')}</TableHead>
                 <TableHead className="w-[50px]" />
               </TableRow>
             </TableHeader>
@@ -498,7 +505,7 @@ export default function Customers() {
                         variant={c.isActive !== false ? 'default' : 'destructive'}
                         className="text-[10px] h-5"
                       >
-                        {c.isActive !== false ? 'Active' : 'Inactive'}
+                        {c.isActive !== false ? t('customers.status.active') : t('customers.status.inactive')}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
@@ -529,7 +536,7 @@ export default function Customers() {
               onChange={toggleSelectAll}
               className="h-4 w-4 rounded border-gray-300"
             />
-            <span>Select all</span>
+            <span>{t('customers.list.select_all')}</span>
           </label>
           {customers.map((c) => {
             const fullName = `${c.firstName || ''} ${c.lastName || ''}`.trim() || c.email;
@@ -563,7 +570,7 @@ export default function Customers() {
                           variant={c.isActive !== false ? 'default' : 'destructive'}
                           className="text-[10px] px-1.5 py-0"
                         >
-                          {c.isActive !== false ? 'Active' : 'Inactive'}
+                          {c.isActive !== false ? t('customers.status.active') : t('customers.status.inactive')}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
@@ -579,7 +586,7 @@ export default function Customers() {
                     </div>
 
                     <div className="hidden md:flex flex-col items-end text-right">
-                      <span className="text-xs text-muted-foreground">Joined</span>
+                      <span className="text-xs text-muted-foreground">{t('customers.list.column.joined')}</span>
                       <span className="text-sm font-medium">
                         {new Date(c.createdAt).toLocaleDateString()}
                       </span>
@@ -605,12 +612,11 @@ export default function Customers() {
       {totalPages > 1 && !loading && (
         <div className="flex items-center justify-between pt-2">
           <p className="text-sm text-muted-foreground">
-            Showing <span className="font-medium text-foreground">{customers.length}</span> of{' '}
-            <span className="font-medium text-foreground">{total}</span> customers
+            {t('customers.list.showing', { count: customers.length, total })}
           </p>
           <div className="flex items-center gap-1">
             <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              Previous
+              {t('common:action.previous')}
             </Button>
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((p) => (
               <Button
@@ -624,7 +630,7 @@ export default function Customers() {
               </Button>
             ))}
             <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-              Next
+              {t('common:action.next')}
             </Button>
           </div>
         </div>

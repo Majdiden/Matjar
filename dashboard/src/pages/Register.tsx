@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -43,19 +44,22 @@ type Step = 'welcome' | 'account' | 'store' | 'niche' | 'theme';
 
 const STEPS: Step[] = ['welcome', 'account', 'store', 'niche', 'theme'];
 
-const NICHES: { id: string; label: string; tagline: string; icon: React.ReactNode }[] = [
-  { id: 'fashion', label: 'Fashion & Apparel', tagline: 'Clothes, accessories, style', icon: <Shirt className="h-5 w-5" /> },
-  { id: 'electronics', label: 'Electronics', tagline: 'Gadgets and devices', icon: <Smartphone className="h-5 w-5" /> },
-  { id: 'food', label: 'Food & Grocery', tagline: 'Edibles, pantry, fresh', icon: <UtensilsCrossed className="h-5 w-5" /> },
-  { id: 'sports', label: 'Sports & Fitness', tagline: 'Gear and activewear', icon: <Dumbbell className="h-5 w-5" /> },
-  { id: 'books', label: 'Books & Media', tagline: 'Print, digital, learning', icon: <BookOpen className="h-5 w-5" /> },
-  { id: 'toys', label: 'Kids & Toys', tagline: 'Play, learn, grow', icon: <Baby className="h-5 w-5" /> },
-  { id: 'home', label: 'Home & Decor', tagline: 'Furniture and essentials', icon: <HomeIcon className="h-5 w-5" /> },
-  { id: 'general', label: 'A bit of everything', tagline: 'Mixed catalog', icon: <ShoppingBag className="h-5 w-5" /> },
-];
+const NICHE_IDS = ['fashion', 'electronics', 'food', 'sports', 'books', 'toys', 'home', 'general'] as const;
+
+const NICHE_ICONS: Record<string, React.ReactNode> = {
+  fashion: <Shirt className="h-5 w-5" />,
+  electronics: <Smartphone className="h-5 w-5" />,
+  food: <UtensilsCrossed className="h-5 w-5" />,
+  sports: <Dumbbell className="h-5 w-5" />,
+  books: <BookOpen className="h-5 w-5" />,
+  toys: <Baby className="h-5 w-5" />,
+  home: <HomeIcon className="h-5 w-5" />,
+  general: <ShoppingBag className="h-5 w-5" />,
+};
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation(['auth', 'common']);
 
   const [step, setStep] = useState<Step>('welcome');
   const [transitionDir, setTransitionDir] = useState<'in' | 'out'>('in');
@@ -138,7 +142,7 @@ export const Register: React.FC = () => {
   // Pre-filter themes by niche
   const relevantThemes = useMemo(() => {
     if (!form.niche || form.niche === 'general') return themes;
-    const matched = themes.filter(t => t.categories?.includes(form.niche));
+    const matched = themes.filter(th => th.categories?.includes(form.niche));
     return matched.length > 0 ? matched : themes;
   }, [themes, form.niche]);
 
@@ -184,36 +188,36 @@ export const Register: React.FC = () => {
     const errs: Partial<Record<keyof typeof form, string>> = {};
     if (s === 'account') {
       const name = form.name.trim();
-      if (!name) errs.name = 'Please enter your name.';
-      else if (name.length < 2) errs.name = 'Name must be at least 2 characters.';
+      if (!name) errs.name = t('auth.field.name.error.required');
+      else if (name.length < 2) errs.name = t('auth.field.name.error.too_short');
 
       const email = form.email.trim();
-      if (!email) errs.email = 'Email is required.';
+      if (!email) errs.email = t('auth.validation.email_field_required');
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
-        errs.email = 'That doesn\u2019t look like a valid email.';
+        errs.email = t('auth.validation.email_invalid');
 
       const pw = form.password;
-      if (!pw) errs.password = 'Password is required.';
-      else if (pw.length < 8) errs.password = 'Use at least 8 characters.';
+      if (!pw) errs.password = t('auth.field.password.error.required');
+      else if (pw.length < 8) errs.password = t('auth.field.password.error.too_short');
       else if (!/[A-Za-z]/.test(pw) || !/\d/.test(pw))
-        errs.password = 'Include at least one letter and one number.';
+        errs.password = t('auth.field.password.error.weak');
     }
     if (s === 'store') {
       const name = form.storeName.trim();
-      if (!name) errs.storeName = 'Your store needs a name.';
-      else if (name.length < 2) errs.storeName = 'Store name is too short.';
+      if (!name) errs.storeName = t('auth.field.store_name.error.required');
+      else if (name.length < 2) errs.storeName = t('auth.field.store_name.error.too_short');
 
       const sd = form.subdomain;
-      if (!sd) errs.subdomain = 'Pick a URL for your store.';
-      else if (sd.length < 3) errs.subdomain = 'At least 3 characters.';
+      if (!sd) errs.subdomain = t('auth.field.subdomain.error.required');
+      else if (sd.length < 3) errs.subdomain = t('auth.field.subdomain.error.too_short');
       else if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(sd))
-        errs.subdomain = 'Lowercase letters, numbers and hyphens only. No leading or trailing hyphen.';
-      else if (subdomainChecking) errs.subdomain = 'Checking availability\u2026';
-      else if (subdomainAvailable === false) errs.subdomain = 'That URL is taken \u2014 try another.';
-      else if (subdomainAvailable !== true) errs.subdomain = 'Waiting for availability check\u2026';
+        errs.subdomain = t('auth.field.subdomain.error.invalid');
+      else if (subdomainChecking) errs.subdomain = t('auth.field.subdomain.error.checking');
+      else if (subdomainAvailable === false) errs.subdomain = t('auth.field.subdomain.error.taken');
+      else if (subdomainAvailable !== true) errs.subdomain = t('auth.field.subdomain.error.waiting');
     }
-    if (s === 'niche' && !form.niche) errs.niche = 'Pick one to continue.';
-    if (s === 'theme' && !form.themeSlug) errs.themeSlug = 'Pick a theme to continue.';
+    if (s === 'niche' && !form.niche) errs.niche = t('auth.register.pick_niche_error');
+    if (s === 'theme' && !form.themeSlug) errs.themeSlug = t('auth.register.pick_theme_error');
     return errs;
   };
 
@@ -272,7 +276,7 @@ export const Register: React.FC = () => {
       ...validateStep('niche'),
     };
     if (Object.keys(priorErrs).length > 0) {
-      setError('Something earlier needs a fix. Go back and check each step.');
+      setError(t('auth.register.general_error'));
       return;
     }
     setError('');
@@ -301,12 +305,12 @@ export const Register: React.FC = () => {
       sessionStorage.setItem('setupDomain', response.responseObject?.subdomain || response.responseObject?.domain || form.subdomain);
       sessionStorage.setItem('setupToken', response.responseObject?.setupToken || '');
 
-      toast.success('Your store is being created!');
+      toast.success(t('auth.toast.store_created'));
       const tenantId = response.responseObject?.tenantId;
       navigate(`/setup?tenantId=${tenantId}`, { replace: true });
     } catch (err) {
       const e = err as { message?: string; error?: string };
-      const msg = e?.message || e?.error || 'Something went wrong. Try again.';
+      const msg = e?.message || e?.error || t('auth.toast.sign_in_failed');
       setError(msg);
       toast.error(msg);
     } finally {
@@ -333,7 +337,7 @@ export const Register: React.FC = () => {
               />
             </div>
             <div className="mt-1.5 text-xs text-muted-foreground text-center">
-              Step {stepIndex + 1} of {STEPS.length}
+              {t('auth.register.step_of', { current: stepIndex + 1, total: STEPS.length })}
             </div>
           </div>
           <div />
@@ -355,7 +359,7 @@ export const Register: React.FC = () => {
         )}
 
         {step === 'welcome' && (() => {
-          const title = "Let's open your store.";
+          const title = t('auth.register.welcome_title');
           const letters = [...title];
           const perLetter = 55;
           const buttonDelay = letters.length * perLetter + 200;
@@ -391,16 +395,16 @@ export const Register: React.FC = () => {
                 style={{ animationDelay: `${buttonDelay}ms` }}
               >
                 <Button size="lg" onClick={next} className="h-12 px-8 text-base">
-                  Get started <ChevronRight className="ml-2 h-4 w-4" />
+                  {t('common:action.get_started')} <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
               <div
                 className="onb-fade mt-6 text-sm text-muted-foreground"
                 style={{ animationDelay: `${linkDelay}ms` }}
               >
-                Already have an account?{' '}
+                {t('auth.register.already_have_account')}{' '}
                 <Link to="/login" className="text-foreground font-medium hover:underline">
-                  Sign in
+                  {t('common:action.sign_in')}
                 </Link>
               </div>
             </div>
@@ -410,22 +414,22 @@ export const Register: React.FC = () => {
         {step === 'account' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">First, who are you?</h1>
-              <p className="mt-2 text-muted-foreground">We'll use this to sign you in — email and password only.</p>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('auth.register.account_title')}</h1>
+              <p className="mt-2 text-muted-foreground">{t('auth.register.account_subtitle')}</p>
             </div>
 
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="name">Your name</Label>
-                <Input id="name" placeholder="Jamie Rivera" value={form.name}
+                <Label htmlFor="name">{t('auth.field.name.label')}</Label>
+                <Input id="name" placeholder={t('auth.field.name.placeholder')} value={form.name}
                   onChange={e => update('name', e.target.value)} autoFocus
                   aria-invalid={!!fieldErrors.name} />
                 {fieldErrors.name && <p className="text-xs text-destructive">{fieldErrors.name}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="you@example.com"
+                <Label htmlFor="email">{t('auth.field.email.label')}</Label>
+                <Input id="email" type="email" placeholder={t('auth.field.email.placeholder')}
                   value={form.email} autoComplete="email"
                   onChange={e => update('email', e.target.value)}
                   aria-invalid={!!fieldErrors.email} />
@@ -433,10 +437,10 @@ export const Register: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.field.password.label')}</Label>
                 <div className="relative">
                   <Input id="password" type={showPassword ? 'text' : 'password'}
-                    placeholder="At least 8 characters" minLength={8}
+                    placeholder={t('auth.field.password.placeholder_register')} minLength={8}
                     value={form.password}
                     onChange={e => update('password', e.target.value)} className="pr-10"
                     aria-invalid={!!fieldErrors.password} />
@@ -448,7 +452,7 @@ export const Register: React.FC = () => {
                 {fieldErrors.password ? (
                   <p className="text-xs text-destructive">{fieldErrors.password}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground">At least 8 characters, with a letter and a number.</p>
+                  <p className="text-xs text-muted-foreground">{t('auth.field.password.help')}</p>
                 )}
               </div>
             </div>
@@ -458,14 +462,14 @@ export const Register: React.FC = () => {
         {step === 'store' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">Name your store.</h1>
-              <p className="mt-2 text-muted-foreground">This is what shoppers will see. You can rename it later.</p>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('auth.register.store_title')}</h1>
+              <p className="mt-2 text-muted-foreground">{t('auth.register.store_subtitle')}</p>
             </div>
 
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="storeName">Store name</Label>
-                <Input id="storeName" placeholder="Rivera & Co."
+                <Label htmlFor="storeName">{t('auth.field.store_name.label')}</Label>
+                <Input id="storeName" placeholder={t('auth.field.store_name.placeholder')}
                   value={form.storeName} autoFocus
                   onChange={e => update('storeName', e.target.value)}
                   aria-invalid={!!fieldErrors.storeName} />
@@ -473,11 +477,11 @@ export const Register: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="subdomain">Your store URL</Label>
+                <Label htmlFor="subdomain">{t('auth.field.subdomain.label')}</Label>
                 <div className="flex items-center gap-0 border rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-ring">
                   <Input
                     id="subdomain"
-                    placeholder="rivera-co"
+                    placeholder={t('auth.field.subdomain.placeholder')}
                     value={form.subdomain}
                     onChange={e => {
                       setSubdomainTouched(true);
@@ -497,9 +501,9 @@ export const Register: React.FC = () => {
                 {fieldErrors.subdomain ? (
                   <p className="text-xs text-destructive">{fieldErrors.subdomain}</p>
                 ) : subdomainAvailable === false ? (
-                  <p className="text-xs text-destructive">That URL is taken — try another.</p>
+                  <p className="text-xs text-destructive">{t('auth.field.subdomain.error.taken')}</p>
                 ) : subdomainAvailable === true ? (
-                  <p className="text-xs text-green-600">Nice — that one's yours.</p>
+                  <p className="text-xs text-green-600">{t('auth.field.subdomain.available')}</p>
                 ) : null}
               </div>
             </div>
@@ -509,19 +513,19 @@ export const Register: React.FC = () => {
         {step === 'niche' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">What will you sell?</h1>
-              <p className="mt-2 text-muted-foreground">We'll suggest themes and defaults that fit your niche.</p>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('auth.register.niche_title')}</h1>
+              <p className="mt-2 text-muted-foreground">{t('auth.register.niche_subtitle')}</p>
               {fieldErrors.niche && <p className="mt-2 text-xs text-destructive">{fieldErrors.niche}</p>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {NICHES.map(n => {
-                const selected = form.niche === n.id;
+              {NICHE_IDS.map(id => {
+                const selected = form.niche === id;
                 return (
                   <button
-                    key={n.id}
+                    key={id}
                     type="button"
-                    onClick={() => update('niche', n.id)}
+                    onClick={() => update('niche', id)}
                     className={`text-left p-4 rounded-xl border transition-all flex items-center gap-3 ${
                       selected
                         ? 'border-foreground bg-accent'
@@ -531,11 +535,11 @@ export const Register: React.FC = () => {
                     <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${
                       selected ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
                     }`}>
-                      {n.icon}
+                      {NICHE_ICONS[id]}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium">{n.label}</div>
-                      <div className="text-xs text-muted-foreground">{n.tagline}</div>
+                      <div className="font-medium">{t(`auth.niche.${id}.label`)}</div>
+                      <div className="text-xs text-muted-foreground">{t(`auth.niche.${id}.tagline`)}</div>
                     </div>
                     {selected && <Check className="h-4 w-4 shrink-0" />}
                   </button>
@@ -548,8 +552,8 @@ export const Register: React.FC = () => {
         {step === 'theme' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">Pick a starting look.</h1>
-              <p className="mt-2 text-muted-foreground">You can customize or switch themes anytime from the dashboard.</p>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('auth.register.theme_title')}</h1>
+              <p className="mt-2 text-muted-foreground">{t('auth.register.theme_subtitle')}</p>
               {fieldErrors.themeSlug && <p className="mt-2 text-xs text-destructive">{fieldErrors.themeSlug}</p>}
             </div>
 
@@ -561,7 +565,7 @@ export const Register: React.FC = () => {
               </div>
             ) : relevantThemes.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
-                No themes available — a default will be applied.
+                {t('auth.register.no_themes')}
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -605,20 +609,20 @@ export const Register: React.FC = () => {
         {step !== 'welcome' && (
           <div className="mt-12 flex items-center justify-between">
             <Button variant="ghost" onClick={back} disabled={submitting}>
-              <ChevronLeft className="mr-1 h-4 w-4" /> Back
+              <ChevronLeft className="mr-1 h-4 w-4" /> {t('common:action.back')}
             </Button>
 
             {step === 'theme' ? (
               <Button size="lg" onClick={submit} disabled={submitting || !canAdvance()} className="h-12 px-8">
                 {submitting ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating your store...</>
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.register.creating')}</>
                 ) : (
-                  <>Launch my store</>
+                  <>{t('auth.register.launch')}</>
                 )}
               </Button>
             ) : (
               <Button size="lg" onClick={next} disabled={!canAdvance()} className="h-12 px-8">
-                Continue <ChevronRight className="ml-2 h-4 w-4" />
+                {t('common:action.continue')} <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             )}
           </div>

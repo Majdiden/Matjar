@@ -1,1 +1,186 @@
-{}
+{
+  "customers": {
+    "list": {
+      "title": "العملاء",
+      "subtitle": "إدارة العملاء والتفاعل معهم في متجرك",
+      "column": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "orders": "الطلبات",
+        "total_spent": "إجمالي الإنفاق",
+        "status": "الحالة",
+        "joined": "تاريخ الانضمام"
+      },
+      "filter": {
+        "all": "جميع العملاء",
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "search_placeholder": "البحث بالاسم أو البريد الإلكتروني أو الهاتف...",
+      "select_all": "تحديد الكل",
+      "empty": {
+        "title": "لا يوجد عملاء بعد",
+        "description": "سيظهر العملاء هنا عند إنشاء حسابات في واجهة متجرك."
+      },
+      "showing": "عرض {{count}} من {{total}} عميل"
+    },
+    "stat": {
+      "total_customers": "إجمالي العملاء",
+      "total_customers_desc": "المستخدمون المسجّلون",
+      "active": "نشط",
+      "active_desc": "نشطون حالياً",
+      "total_revenue": "إجمالي الإيرادات",
+      "total_revenue_desc": "من جميع العملاء",
+      "avg_ltv": "متوسط القيمة الدائمة",
+      "avg_ltv_desc": "لكل عميل"
+    },
+    "bulk": {
+      "selected": "{{count}} محدد",
+      "clear": "مسح",
+      "activate": "تفعيل",
+      "deactivate": "إلغاء التفعيل",
+      "export": "تصدير"
+    },
+    "detail": {
+      "back": "العودة إلى العملاء",
+      "joined": "انضم {{date}}",
+      "section": {
+        "profile": {
+          "title": "الملف الشخصي"
+        },
+        "orders": {
+          "title": "الطلبات الأخيرة",
+          "count": "{{count}} طلبات",
+          "empty": "لا توجد طلبات بعد"
+        }
+      },
+      "stat": {
+        "total_orders": "إجمالي الطلبات",
+        "total_spent": "إجمالي الإنفاق",
+        "avg_order_value": "متوسط قيمة الطلب"
+      }
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "toast": {
+      "fetch_failed": "فشل تحميل العملاء",
+      "detail_failed": "فشل تحميل بيانات العميل",
+      "export_failed": "فشل التصدير",
+      "export_empty": "لا يوجد عملاء للتصدير",
+      "exported": "تم تصدير {{count}} عملاء",
+      "bulk_activated": "تم تفعيل {{count}} عملاء",
+      "bulk_deactivated": "تم إلغاء تفعيل {{count}} عملاء",
+      "bulk_update_failed": "فشل التحديث الجماعي"
+    }
+  },
+  "segment": {
+    "list": {
+      "title": "شرائح العملاء",
+      "subtitle": "تجميع العملاء حسب الإنفاق وسجل الطلبات والعلامات والموافقة التسويقية.",
+      "new_segment": "شريحة جديدة",
+      "empty": {
+        "title": "لا توجد شرائح بعد",
+        "description": "أنشئ شريحتك الأولى لاستهداف العملاء في الحملات التسويقية."
+      },
+      "customer_count": "{{count}} عميل",
+      "filter": {
+        "spent_gte": "الإنفاق ≥ {{value}}",
+        "spent_lte": "الإنفاق ≤ {{value}}",
+        "orders_gte": "الطلبات ≥ {{value}}",
+        "tags": "العلامات: {{value}}",
+        "accepts_marketing": "موافق على التسويق",
+        "email_contains": "البريد الإلكتروني ~ {{value}}"
+      }
+    },
+    "form": {
+      "title_create": "شريحة جديدة",
+      "title_edit": "تعديل الشريحة",
+      "subtitle": "تجميع العملاء حسب الإنفاق وسجل الطلبات والعلامات والموافقة التسويقية.",
+      "section": {
+        "details": "التفاصيل",
+        "spend": "الإنفاق",
+        "orders": "الطلبات",
+        "profile": "الملف الشخصي",
+        "preview": "معاينة"
+      },
+      "field": {
+        "name": {
+          "label": "الاسم",
+          "placeholder": "عملاء VIP",
+          "error": {
+            "required": "اسم الشريحة مطلوب"
+          }
+        },
+        "description": {
+          "label": "الوصف",
+          "placeholder": "عملاء ذوو قيمة دائمة عالية"
+        },
+        "total_spent_min": {
+          "label": "الحد الأدنى للإنفاق"
+        },
+        "total_spent_max": {
+          "label": "الحد الأقصى للإنفاق"
+        },
+        "order_count_min": {
+          "label": "الحد الأدنى للطلبات"
+        },
+        "order_count_max": {
+          "label": "الحد الأقصى للطلبات"
+        },
+        "last_order_after": {
+          "label": "آخر طلب بعد"
+        },
+        "last_order_before": {
+          "label": "آخر طلب قبل"
+        },
+        "tags": {
+          "label": "العلامات (مفصولة بفواصل)",
+          "placeholder": "vip, wholesale"
+        },
+        "email_contains": {
+          "label": "البريد الإلكتروني يحتوي على",
+          "placeholder": "@company.com"
+        },
+        "marketing_consent": {
+          "label": "الموافقة التسويقية",
+          "any": "أي",
+          "subscribed": "مشترك",
+          "not_subscribed": "غير مشترك"
+        }
+      },
+      "preview": {
+        "run": "تشغيل المعاينة",
+        "match": "عميل مطابق",
+        "hint": "انقر على \"تشغيل المعاينة\" لمعرفة عدد العملاء المطابقين لهذه الفلاتر قبل الحفظ.",
+        "column": {
+          "name": "الاسم",
+          "email": "البريد الإلكتروني",
+          "orders": "الطلبات",
+          "spent": "الإنفاق"
+        }
+      },
+      "action": {
+        "save_changes": "حفظ التغييرات",
+        "create_segment": "إنشاء شريحة"
+      }
+    },
+    "confirm": {
+      "delete_title": "حذف الشريحة \"{{name}}\"؟",
+      "delete_description": "سيتم حذف الفلتر المحفوظ. لن يتأثر العملاء داخل الشريحة.",
+      "delete_confirm": "حذف"
+    },
+    "toast": {
+      "deleted": "تم حذف الشريحة",
+      "delete_failed": "فشل حذف الشريحة",
+      "updated": "تم تحديث الشريحة",
+      "created": "تم إنشاء الشريحة",
+      "save_failed": "فشل حفظ الشريحة",
+      "load_failed": "فشل تحميل الشرائح",
+      "preview_failed": "فشلت المعاينة",
+      "not_found": "الشريحة غير موجودة",
+      "segment_load_failed": "فشل تحميل الشريحة"
+    }
+  }
+}

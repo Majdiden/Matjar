@@ -1,1 +1,601 @@
-{}
+{
+  "products": {
+    "list": {
+      "title": "المنتجات",
+      "subtitle": "إدارة الكتالوج والمخزون ومعلومات المنتجات",
+      "column": {
+        "product": "المنتج",
+        "sku": "رمز المنتج",
+        "category": "الفئة",
+        "status": "الحالة",
+        "price": "السعر",
+        "stock": "المخزون"
+      },
+      "filter": {
+        "all": "الكل",
+        "active": "نشط",
+        "drafts": "المسودات",
+        "low_stock": "مخزون منخفض",
+        "archived": "مؤرشف"
+      },
+      "new_product": "منتج جديد",
+      "search_placeholder": "البحث بالاسم أو رمز المنتج أو العلامة...",
+      "more_filters": "المزيد من التصفية",
+      "empty": {
+        "title": "لا توجد منتجات بعد",
+        "title_search": "لا توجد منتجات مطابقة",
+        "description": "أضف منتجك الأول لتبدأ البيع. يمكنك تعديله لاحقاً.",
+        "description_search": "جرب مصطلح بحث مختلفاً أو امسح التصفية لعرض جميع المنتجات.",
+        "action": "أنشئ منتجك الأول"
+      },
+      "stat": {
+        "total_products": "إجمالي المنتجات",
+        "total_description": "في الكتالوج",
+        "active": "نشط",
+        "active_description": "مرئي في واجهة المتجر",
+        "low_stock": "مخزون منخفض",
+        "low_stock_description": "يحتاج إلى إعادة تخزين",
+        "inventory_value": "قيمة المخزون",
+        "inventory_value_description": "إجمالي قيمة المخزون"
+      },
+      "stock_badge": {
+        "out_of_stock": "غير متوفر",
+        "in_stock": "{{count}} متوفّر"
+      },
+      "select_all": "المنتج",
+      "selected_count": "{{count}} محدد"
+    },
+    "bulk": {
+      "clear": "مسح",
+      "delete": "حذف"
+    },
+    "confirm": {
+      "delete": {
+        "title": "حذف \"{{name}}\"؟",
+        "description": "سيؤدي هذا إلى إزالة المنتج من الكتالوج وواجهة المتجر.",
+        "title_bulk": "حذف {{count}} منتجات؟",
+        "description_bulk": "ستُزال جميع المنتجات المحددة من الكتالوج وواجهة المتجر."
+      }
+    },
+    "toast": {
+      "deleted": "تم حذف \"{{name}}\"",
+      "deleted_bulk": "تم حذف {{count}} منتجات",
+      "delete_failed": "فشل حذف المنتج",
+      "bulk_delete_failed": "فشل الحذف الجماعي",
+      "load_failed": "فشل تحميل المنتجات",
+      "created": "تم إنشاء المنتج",
+      "updated": "تم تحديث المنتج",
+      "save_failed_create": "فشل إنشاء المنتج",
+      "save_failed_update": "فشل تحديث المنتج",
+      "export_empty": "لا توجد منتجات للتصدير",
+      "exported": "تم تصدير {{count}} منتجات",
+      "export_failed": "فشل التصدير",
+      "variants_missing": "المتغيّرات مفعّلة ولكن لم تُنشئ أياً منها. أضف قيم الخيارات وانقر على إنشاء."
+    },
+    "form": {
+      "title": {
+        "create": "إضافة منتج",
+        "edit": "تعديل المنتج"
+      },
+      "subtitle": {
+        "create": "إنشاء قائمة منتج جديد",
+        "edit": "تحديث معلومات المنتج"
+      },
+      "section": {
+        "basic_info": {
+          "title": "المعلومات الأساسية"
+        },
+        "pricing": {
+          "title": "التسعير والمخزون"
+        },
+        "images": {
+          "title": "صور المنتج",
+          "description": "ارفع صور المنتج. ستكون الصورة الأولى هي الصورة الرئيسية."
+        },
+        "status": {
+          "title": "الحالة"
+        },
+        "options": {
+          "title": "الخيارات"
+        },
+        "tags": {
+          "title": "العلامات"
+        }
+      },
+      "field": {
+        "name": {
+          "label": "اسم المنتج *",
+          "placeholder": "مثال: سماعات لاسلكية",
+          "error": {
+            "required": "مطلوب"
+          }
+        },
+        "description": {
+          "label": "الوصف *",
+          "placeholder": "صف منتجك...",
+          "error": {
+            "required": "مطلوب"
+          }
+        },
+        "sku": {
+          "label": "رمز المنتج *",
+          "placeholder": "مثال: WH-001",
+          "error": {
+            "required": "مطلوب"
+          }
+        },
+        "slug": {
+          "label": "المعرّف *",
+          "placeholder": "مثال: wireless-headphones",
+          "error": {
+            "required": "مطلوب"
+          }
+        },
+        "category": {
+          "label": "الفئة *",
+          "placeholder": "اختر الفئة",
+          "error": {
+            "required": "مطلوب"
+          }
+        },
+        "regular_price": {
+          "label": "السعر الأصلي *",
+          "error": {
+            "positive": "يجب أن يكون أكبر من 0"
+          }
+        },
+        "sale_price": {
+          "label": "سعر التخفيض",
+          "error": {
+            "less_than_price": "يجب أن يكون أقل من السعر الأصلي"
+          }
+        },
+        "stock": {
+          "label": "كمية المخزون *",
+          "error": {
+            "negative": "لا يمكن أن يكون سالباً"
+          }
+        },
+        "featured": {
+          "label": "منتج مميّز",
+          "help": "عرضه في الأقسام المميّزة"
+        },
+        "tags": {
+          "placeholder": "أضف علامة..."
+        }
+      },
+      "status": {
+        "draft_help": "محفوظ لكن غير مرئي للعملاء",
+        "active_help": "مرئي ومتاح للشراء",
+        "archived_help": "مخفي من المتجر"
+      },
+      "image_upload": {
+        "label": "رفع الصور",
+        "description": "اسحب وأفلت أو انقر للرفع (JPEG، PNG، WebP)"
+      },
+      "action": {
+        "create": "إنشاء المنتج",
+        "update": "تحديث المنتج"
+      }
+    },
+    "status": {
+      "draft": "مسودة",
+      "active": "نشط",
+      "archived": "مؤرشف"
+    },
+    "variants": {
+      "title": "المتغيّرات",
+      "description": "بع هذا المنتج بأحجام أو ألوان أو تكوينات مختلفة.",
+      "enabled": "مفعّل",
+      "disabled": "معطّل",
+      "option_axes_label": "محاور الخيارات",
+      "add_option": "إضافة خيار",
+      "first_option_hint": "أضف خيارك الأول (مثل \"المقاس\") لبدء بناء المتغيّرات.",
+      "option_name_placeholder": "اسم الخيار (اللون، المقاس، ...)",
+      "add_value_placeholder": "أضف قيمة + Enter",
+      "combinations": "{{count}} تركيبات من محاور الخيارات",
+      "add_values_hint": "أضف قيم الخيارات لبناء مصفوفة المتغيّرات",
+      "generate": "إنشاء المتغيّرات",
+      "refresh": "تحديث المصفوفة",
+      "variants_label": "المتغيّرات ({{count}})",
+      "total_stock": "إجمالي المخزون",
+      "column": {
+        "variant": "المتغيّر",
+        "sku": "رمز المنتج",
+        "price": "السعر",
+        "stock": "المخزون"
+      },
+      "price_inherit_help": "اترك السعر فارغاً للوراثة من السعر الأصلي للمنتج. يحلّ المخزون هنا محلّ مخزون مستوى المنتج للمنتجات ذات المتغيّرات."
+    },
+    "preorder": {
+      "title": "الطلب المسبق",
+      "description": "اسمح للعملاء بطلب هذا المنتج قبل توفّره في المخزون.",
+      "field": {
+        "expected_ship_date": {
+          "label": "تاريخ الشحن المتوقع",
+          "help": "يُعرض للعملاء في صفحة المنتج."
+        },
+        "charge_policy": {
+          "label": "سياسة الخصم",
+          "now": "الخصم فوري",
+          "on_ship": "الخصم عند الشحن"
+        },
+        "max_units": {
+          "label": "الحد الأقصى للطلبات المسبقة",
+          "placeholder": "غير محدود",
+          "help": "اترك فارغاً لعدم التحديد. {{reserved}} محجوز حتى الآن."
+        },
+        "max_per_customer": {
+          "label": "الحد الأقصى لكل عميل",
+          "placeholder": "غير محدود"
+        }
+      }
+    },
+    "categories": {
+      "list": {
+        "title": "الفئات",
+        "subtitle": "نظّم كتالوجك في مجموعات قابلة للتسوق",
+        "new_category": "فئة جديدة",
+        "search_placeholder": "البحث في الفئات...",
+        "empty": {
+          "title": "لا توجد فئات بعد",
+          "title_search": "لا توجد فئات مطابقة",
+          "description": "نظّم منتجاتك في فئات لتسهيل الاكتشاف.",
+          "description_search": "جرب مصطلح بحث مختلفاً.",
+          "action": "أضف أول فئة"
+        },
+        "select_all": "تحديد الكل",
+        "selected_count": "{{count}} محدد",
+        "product_count_zero": "0 منتجات",
+        "product_count_one": "منتج واحد",
+        "product_count_two": "منتجان",
+        "product_count_few": "{{count}} منتجات",
+        "product_count_many": "{{count}} منتجاً",
+        "product_count_other": "{{count}} منتج",
+        "no_description": "لا يوجد وصف"
+      },
+      "form": {
+        "title": {
+          "create": "فئة جديدة",
+          "edit": "تعديل الفئة"
+        },
+        "subtitle": {
+          "create": "إنشاء فئة جديدة لتنظيم منتجاتك",
+          "edit": "تحديث معلومات الفئة"
+        },
+        "field": {
+          "name": {
+            "label": "اسم الفئة",
+            "placeholder": "مثال: الإلكترونيات",
+            "error": {
+              "required": "اسم الفئة مطلوب"
+            }
+          },
+          "slug": {
+            "label": "المعرّف",
+            "placeholder": "مثال: electronics",
+            "help_create": "يُنشأ تلقائياً من الاسم",
+            "help_edit": "لا يمكن تغيير المعرّف بعد الإنشاء"
+          },
+          "description": {
+            "label": "الوصف (اختياري)",
+            "placeholder": "صف هذه الفئة..."
+          }
+        }
+      },
+      "toast": {
+        "created": "تم إنشاء الفئة",
+        "updated": "تم تحديث الفئة",
+        "deleted": "تم حذف الفئة",
+        "create_failed": "فشل إنشاء الفئة",
+        "update_failed": "فشل تحديث الفئة",
+        "delete_failed": "فشل حذف الفئة",
+        "load_failed": "فشل تحميل الفئات"
+      },
+      "confirm": {
+        "delete": {
+          "title": "حذف \"{{name}}\"؟",
+          "description": "ستصبح المنتجات في هذه الفئة غير مصنّفة. لا يمكن التراجع عن هذا الإجراء."
+        },
+        "delete_bulk": {
+          "title": "حذف {{count}} فئات؟",
+          "description": "ستصبح المنتجات في هذه الفئات غير مصنّفة."
+        }
+      },
+      "bulk": {
+        "deleted_count": "تم حذف {{count}}",
+        "failed_count": "فشل {{count}}"
+      }
+    },
+    "collections": {
+      "list": {
+        "title": "المجموعات",
+        "subtitle": "مجموعات منتجات منسّقة — يدوية أو قائمة على قواعد",
+        "new_collection": "مجموعة جديدة",
+        "search_placeholder": "البحث في المجموعات...",
+        "filter": {
+          "all_types": "جميع الأنواع",
+          "manual": "يدوي",
+          "smart": "ذكي",
+          "all_statuses": "جميع الحالات",
+          "published": "منشور",
+          "unpublished": "غير منشور"
+        },
+        "column": {
+          "title": "العنوان",
+          "handle": "المعرّف",
+          "type": "النوع",
+          "products": "المنتجات",
+          "published": "منشور",
+          "updated": "تم التحديث"
+        },
+        "type_badge": {
+          "smart": "ذكي",
+          "manual": "يدوي"
+        },
+        "published_badge": {
+          "published": "منشور",
+          "hidden": "مخفي"
+        },
+        "total": "{{count}} مجموعة إجمالاً",
+        "empty": {
+          "title": "لا توجد مجموعات بعد",
+          "description": "تتيح لك المجموعات تنظيم المنتجات في مجموعات لواجهة متجرك",
+          "action": "إنشاء مجموعة"
+        },
+        "selected_count": "{{count}} محدد"
+      },
+      "bulk": {
+        "clear": "مسح",
+        "publish": "نشر",
+        "unpublish": "إلغاء النشر",
+        "delete": "حذف",
+        "published_count": "تم نشر {{count}}",
+        "unpublished_count": "تم إلغاء نشر {{count}}",
+        "deleted_count": "تم حذف {{count}}",
+        "failed_count": "فشل {{count}}"
+      },
+      "confirm": {
+        "delete": {
+          "title": "حذف المجموعة؟",
+          "description": "سيُحذف \"{{title}}\" بشكل نهائي.",
+          "description_bulk": "لا يمكن التراجع عن هذا الإجراء."
+        }
+      },
+      "toast": {
+        "deleted": "تم حذف المجموعة",
+        "delete_failed": "فشل حذف المجموعة",
+        "saved": "تم حفظ المجموعة",
+        "created": "تم إنشاء المجموعة",
+        "save_failed": "فشل حفظ المجموعة",
+        "load_failed": "فشل تحميل المجموعة",
+        "order_failed": "فشل حفظ الترتيب",
+        "save_first": "احفظ المجموعة أولاً لمعاينة المنتجات",
+        "products_added": "تمت إضافة {{count}} منتجات",
+        "products_add_failed": "فشل إضافة المنتجات",
+        "product_remove_failed": "فشل إزالة المنتج"
+      },
+      "form": {
+        "title": {
+          "create": "مجموعة جديدة",
+          "edit": "تعديل المجموعة"
+        },
+        "subtitle": {
+          "manual": "تُضاف المنتجات يدوياً",
+          "smart": "تُضاف المنتجات تلقائياً بالقواعد"
+        },
+        "section": {
+          "basic_info": "المعلومات الأساسية",
+          "image": "الصورة",
+          "type": "نوع المجموعة",
+          "products": "المنتجات",
+          "rules": "القواعد",
+          "visibility": "الرؤية",
+          "seo": "SEO"
+        },
+        "field": {
+          "title": {
+            "label": "العنوان",
+            "placeholder": "مثال: تخفيضات الصيف"
+          },
+          "handle": {
+            "label": "المعرّف (مسار URL)",
+            "placeholder": "summer-sale"
+          },
+          "description": {
+            "label": "الوصف",
+            "placeholder": "وصف مختصر..."
+          },
+          "description_html": {
+            "label": "وصف HTML",
+            "placeholder": "<p>نص HTML غني...</p>"
+          },
+          "image_url": {
+            "label": "رابط الصورة",
+            "placeholder": "https://..."
+          },
+          "image_alt": {
+            "label": "النص البديل",
+            "placeholder": "صف الصورة"
+          },
+          "sort_order": {
+            "label": "ترتيب الفرز"
+          },
+          "meta_title": {
+            "label": "عنوان ميتا"
+          },
+          "meta_description": {
+            "label": "وصف ميتا",
+            "placeholder": "وصف مختصر لمحركات البحث..."
+          }
+        },
+        "sort_order": {
+          "manual": "يدوياً",
+          "best_selling": "الأكثر مبيعاً",
+          "title_asc": "العنوان أ-ي",
+          "title_desc": "العنوان ي-أ",
+          "price_asc": "السعر من الأدنى إلى الأعلى",
+          "price_desc": "السعر من الأعلى إلى الأدنى",
+          "created_desc": "الأحدث أولاً",
+          "created_asc": "الأقدم أولاً"
+        },
+        "type_label": {
+          "manual": "يدوي",
+          "smart": "ذكي",
+          "badge_rule_based": "قائم على قواعد",
+          "badge_curated": "منسّق"
+        },
+        "rules": {
+          "match_prefix": "يجب أن تطابق المنتجات",
+          "match_all": "جميع",
+          "match_any": "أي",
+          "match_suffix": "الشروط",
+          "no_rules": "لا توجد قواعد بعد. أضف شرطاً أدناه.",
+          "add_condition": "إضافة شرط",
+          "field": {
+            "title": "العنوان",
+            "tag": "العلامة",
+            "price": "السعر",
+            "inventory": "المخزون",
+            "category": "الفئة"
+          },
+          "operator": {
+            "equals": "يساوي",
+            "not_equals": "لا يساوي",
+            "contains": "يحتوي على",
+            "starts_with": "يبدأ بـ",
+            "ends_with": "ينتهي بـ",
+            "in": "أحد",
+            "greater_than": "أكبر من",
+            "less_than": "أقل من"
+          },
+          "value_placeholder_number": "0",
+          "value_placeholder_string": "القيمة"
+        },
+        "products": {
+          "add_button": "إضافة منتجات",
+          "no_products": "لم تُضف منتجات بعد. انقر على \"إضافة منتجات\" للبدء.",
+          "column": {
+            "product": "المنتج",
+            "price": "السعر",
+            "order": "الترتيب"
+          }
+        },
+        "visibility": {
+          "published": "منشور",
+          "hidden": "مخفي من واجهة المتجر"
+        },
+        "title_required": "العنوان مطلوب",
+        "rules_required": "جميع قيم القواعد مطلوبة"
+      },
+      "picker": {
+        "title": "إضافة منتجات",
+        "search_placeholder": "البحث في المنتجات...",
+        "no_products": "لم يتم العثور على منتجات",
+        "add_button": "إضافة ({{count}}) منتجات",
+        "add_button_empty": "إضافة منتجات"
+      },
+      "preview": {
+        "title": "معاينة — المنتجات المطابقة",
+        "button": "معاينة المنتجات",
+        "no_products": "لا توجد منتجات تطابق القواعد الحالية",
+        "column": {
+          "product": "المنتج",
+          "price": "السعر"
+        }
+      }
+    },
+    "custom_fields": {
+      "list": {
+        "title": "الحقول المخصصة",
+        "subtitle": "إدارة الحقول الوصفية للمنتجات والطلبات والعملاء والمزيد",
+        "all_title": "جميع الحقول المخصصة",
+        "empty": {
+          "title": "لا توجد حقول مخصصة",
+          "description": "أضف حقولاً وصفية لتوسيع نموذج البيانات.",
+          "action": "إضافة حقل"
+        },
+        "column": {
+          "resource": "المورد",
+          "namespace_key": "المساحة / المفتاح",
+          "type": "النوع",
+          "value": "القيمة",
+          "actions": "الإجراءات"
+        }
+      },
+      "form": {
+        "title": {
+          "create": "إنشاء حقل مخصص",
+          "edit": "تعديل الحقل المخصص"
+        },
+        "field": {
+          "resource": {
+            "label": "المورد"
+          },
+          "type": {
+            "label": "النوع"
+          },
+          "namespace": {
+            "label": "المساحة",
+            "placeholder": "custom"
+          },
+          "key": {
+            "label": "المفتاح",
+            "placeholder": "my_field"
+          },
+          "resource_id": {
+            "label": "معرّف المورد (اختياري)",
+            "placeholder": "اتركه فارغاً للإعدادات الافتراضية على مستوى المورد"
+          },
+          "value": {
+            "label": "القيمة"
+          }
+        },
+        "resource": {
+          "product": "منتج",
+          "category": "الفئة",
+          "order": "طلب",
+          "customer": "عميل",
+          "store": "المتجر"
+        },
+        "filter": {
+          "all_resources": "جميع الموارد"
+        },
+        "action": {
+          "update": "تحديث",
+          "create": "إنشاء"
+        }
+      },
+      "field_type": {
+        "string": "نص",
+        "number": "رقم",
+        "boolean": "منطقي",
+        "date": "تاريخ",
+        "json": "JSON",
+        "url": "رابط",
+        "color": "لون",
+        "richtext": "نص منسّق"
+      },
+      "boolean_options": {
+        "true": "صحيح",
+        "false": "خطأ"
+      },
+      "toast": {
+        "created": "تم إنشاء الحقل المخصص",
+        "updated": "تم تحديث الحقل المخصص",
+        "deleted": "تم حذف الحقل المخصص",
+        "save_failed": "فشل حفظ الحقل المخصص",
+        "delete_failed": "فشل الحذف",
+        "load_failed": "فشل تحميل الحقول المخصصة",
+        "required": "المورد والمفتاح مطلوبان"
+      },
+      "confirm": {
+        "delete": {
+          "title": "حذف الحقل المخصص؟",
+          "description": "سيؤدي هذا إلى إزالة الحقل الوصفي من المورد المرتبط به."
+        }
+      },
+      "add_field": "إضافة حقل"
+    }
+  }
+}

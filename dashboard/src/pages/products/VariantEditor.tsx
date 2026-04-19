@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -54,6 +55,7 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
   basePrice,
   onChange,
 }) => {
+  const { t } = useTranslation(['products', 'common']);
   const generatedRows = useMemo(() => cartesian(options), [options]);
 
   const update = (patch: Partial<{ hasVariants: boolean; options: ProductOption[]; variants: ProductVariant[] }>) => {
@@ -153,15 +155,15 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
         <div className="flex items-start justify-between gap-4">
           <div>
             <CardTitle className="text-base flex items-center gap-2">
-              <Layers className="h-4 w-4" /> Variants
+              <Layers className="h-4 w-4" /> {t('products.variants.title')}
             </CardTitle>
             <CardDescription>
-              Sell this product in multiple sizes, colours or other configurations.
+              {t('products.variants.description')}
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Label htmlFor="hasVariants" className="text-sm cursor-pointer">
-              {hasVariants ? 'Enabled' : 'Disabled'}
+              {hasVariants ? t('products.variants.enabled') : t('products.variants.disabled')}
             </Label>
             <Switch id="hasVariants" checked={hasVariants} onCheckedChange={toggleVariants} />
           </div>
@@ -174,15 +176,15 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-                Option axes
+                {t('products.variants.option_axes_label')}
               </Label>
               <Button type="button" variant="ghost" size="sm" onClick={addOption}>
-                <Plus className="h-3.5 w-3.5 mr-1" /> Add option
+                <Plus className="h-3.5 w-3.5 mr-1" /> {t('products.variants.add_option')}
               </Button>
             </div>
             {options.length === 0 && (
               <p className="text-xs text-muted-foreground italic">
-                Add your first option (e.g. "Size") to start building variants.
+                {t('products.variants.first_option_hint')}
               </p>
             )}
             {options.map((opt, idx) => (
@@ -201,8 +203,8 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
           <div className="flex items-center justify-between rounded-md border border-dashed bg-muted/30 p-3">
             <div className="text-xs text-muted-foreground">
               {generatedRows.length > 0
-                ? `${generatedRows.length} combinations from your option axes`
-                : 'Add option values to build the variant matrix'}
+                ? t('products.variants.combinations', { count: generatedRows.length })
+                : t('products.variants.add_values_hint')}
             </div>
             <Button
               type="button"
@@ -212,7 +214,7 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
               onClick={generateMatrix}
             >
               <RefreshCw className="h-3.5 w-3.5 mr-1" />
-              {variants.length ? 'Refresh matrix' : 'Generate variants'}
+              {variants.length ? t('products.variants.refresh') : t('products.variants.generate')}
             </Button>
           </div>
 
@@ -221,20 +223,20 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-                  Variants ({variants.length})
+                  {t('products.variants.variants_label', { count: variants.length })}
                 </Label>
                 <span className="text-xs text-muted-foreground">
-                  Total stock: <span className="font-semibold text-foreground">{totalVariantStock}</span>
+                  {t('products.variants.total_stock')}: <span className="font-semibold text-foreground">{totalVariantStock}</span>
                 </span>
               </div>
               <div className="overflow-x-auto rounded-md border">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40 text-xs text-muted-foreground">
                     <tr>
-                      <th className="p-2 text-left font-medium">Variant</th>
-                      <th className="p-2 text-left font-medium">SKU</th>
-                      <th className="p-2 text-left font-medium">Price</th>
-                      <th className="p-2 text-left font-medium">Stock</th>
+                      <th className="p-2 text-left font-medium">{t('products.variants.column.variant')}</th>
+                      <th className="p-2 text-left font-medium">{t('products.variants.column.sku')}</th>
+                      <th className="p-2 text-left font-medium">{t('products.variants.column.price')}</th>
+                      <th className="p-2 text-left font-medium">{t('products.variants.column.stock')}</th>
                       <th className="w-10" />
                     </tr>
                   </thead>
@@ -299,8 +301,7 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
                 </table>
               </div>
               <p className="text-xs text-muted-foreground">
-                Leave price blank to inherit the product's regular price.
-                Stock here replaces the product-level stock for variant-enabled products.
+                {t('products.variants.price_inherit_help')}
               </p>
             </div>
           )}
@@ -319,6 +320,7 @@ const OptionRow: React.FC<{
   onRemoveValue: (value: string) => void;
   onRemove: () => void;
 }> = ({ option, onNameChange, onAddValue, onRemoveValue, onRemove }) => {
+  const { t } = useTranslation(['products']);
   const [draft, setDraft] = React.useState('');
 
   const commit = () => {
@@ -331,7 +333,7 @@ const OptionRow: React.FC<{
     <div className="rounded-md border p-3 space-y-2">
       <div className="flex items-center gap-2">
         <Input
-          placeholder="Option name (Color, Size, …)"
+          placeholder={t('products.variants.option_name_placeholder')}
           value={option.name}
           onChange={(e) => onNameChange(e.target.value)}
           className="h-8 text-sm flex-1"
@@ -350,7 +352,7 @@ const OptionRow: React.FC<{
           </Badge>
         ))}
         <Input
-          placeholder="Add value + Enter"
+          placeholder={t('products.variants.add_value_placeholder')}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {

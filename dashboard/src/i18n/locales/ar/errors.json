@@ -1,1 +1,30 @@
-{}
+{
+  "permission": {
+    "denied_title": "ليس لديك صلاحية الوصول إلى هذه الصفحة",
+    "denied_body": "اطلب من المسؤول منحك الصلاحية المطلوبة ({{key}}).",
+    "denied_body_multiple": "اطلب من المسؤول منحك إحدى الصلاحيات المطلوبة ({{keys}})."
+  },
+  "setup": {
+    "loading": "جاري تحميل حالة الإعداد...",
+    "failed_title": "فشل الإعداد",
+    "setting_up_title": "جاري إعداد متجرك",
+    "store_ready": "متجرك جاهز!",
+    "setup_error": "واجه الإعداد خطأً",
+    "setup_waiting": "يرجى الانتظار بينما نُعدّ متجرك...",
+    "in_progress_note": "قد يستغرق هذا دقيقة. يرجى عدم إغلاق هذه النافذة.",
+    "completed_note": "اكتمل الإعداد بنجاح! جاري إعادة التوجيه...",
+    "redirecting_in": "إعادة التوجيه خلال",
+    "step": {
+      "domain_registration_label": "تسجيل النطاق",
+      "domain_registration_desc": "إعداد نطاق متجرك",
+      "theme_installation_label": "تثبيت القالب",
+      "theme_installation_desc": "تثبيت القالب الافتراضي",
+      "data_seeding_label": "بيانات العيّنة",
+      "data_seeding_desc": "إنشاء منتجات وفئات نموذجية",
+      "finalization_label": "الإنهاء",
+      "finalization_desc": "اختتام الإعداد",
+      "skipped": "تم التخطي: {{reason}}",
+      "failed": "فشل: {{error}}"
+    }
+  }
+}

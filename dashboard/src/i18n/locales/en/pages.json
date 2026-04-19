@@ -1,1 +1,91 @@
-{}
+{
+  "list": {
+    "title": "Pages",
+    "subtitle": "Static content pages (About, Contact, Privacy…)",
+    "column": {
+      "title": "Title",
+      "slug": "Slug",
+      "locale": "Locale",
+      "status": "Status",
+      "updated": "Updated"
+    },
+    "empty": {
+      "title": "No pages yet",
+      "hint": "Create static content pages your storefront can link to from navigation menus or footer.",
+      "action": "Create Your First Page"
+    },
+    "action": {
+      "add": "Add Page"
+    }
+  },
+  "form": {
+    "title_new": "New Page",
+    "title_edit": "Edit Page",
+    "subtitle": "Static content pages (About, Contact, Privacy…)",
+    "section": {
+      "basic_info": {
+        "title": "Basic info"
+      },
+      "content": {
+        "title": "Content"
+      },
+      "visibility": {
+        "title": "Visibility"
+      },
+      "seo": {
+        "title": "SEO"
+      }
+    },
+    "field": {
+      "title": {
+        "label": "Title",
+        "placeholder": "e.g. About Us"
+      },
+      "slug": {
+        "label": "Slug (URL path)",
+        "placeholder": "about-us",
+        "hint": "/pages/{{slug}}"
+      },
+      "locale": {
+        "label": "Locale",
+        "placeholder": "en",
+        "hint": "The storefront language this page is written for (e.g. \"en\", \"ar\", \"fr\"). Create one page per locale."
+      },
+      "content": {
+        "label": "Content",
+        "placeholder": "<p>Page content as HTML…</p>",
+        "hint": "HTML body rendered by the storefront page template. Max 100KB."
+      },
+      "is_published": {
+        "label_published": "Published",
+        "label_draft": "Draft (hidden from storefront)"
+      },
+      "meta_title": {
+        "label": "Meta title"
+      },
+      "meta_description": {
+        "label": "Meta description",
+        "placeholder": "Brief description for search engines…"
+      }
+    },
+    "status": {
+      "published": "Published",
+      "draft": "Draft"
+    }
+  },
+  "toast": {
+    "created": "Page created",
+    "saved": "Page saved",
+    "deleted": "Page deleted",
+    "error_load": "Failed to load page",
+    "error_save": "Failed to save page",
+    "error_delete": "Failed to delete page",
+    "title_required": "Title is required"
+  },
+  "confirm": {
+    "delete_title": "Delete page?",
+    "delete_description": "\"{{title}}\" will be permanently removed.",
+    "delete_confirm": "Delete",
+    "delete_description_generic": "This action cannot be undone."
+  }
+}
