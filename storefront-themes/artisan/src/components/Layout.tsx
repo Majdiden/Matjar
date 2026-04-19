@@ -7,20 +7,22 @@ import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@shared/components/CartDrawer';
+import { useTranslation } from 'react-i18next';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation(['theme']);
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--color-background)] pb-16 md:pb-0">
       {/* Announcement Bar */}
       <AnnouncementBar
-        message="Handcrafted with care -- Free shipping on orders over $75"
+        message={t('theme.layout.announcement')}
         href="/products"
-        linkText="Explore"
+        linkText={t('theme.layout.announcement_link')}
         className="bg-[var(--color-primary)] text-[var(--color-border)]"
       />
 
@@ -37,8 +39,8 @@ const Layout: React.FC = () => {
 
             {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-1">
-              <Link to="/" className="px-3 py-2 text-sm text-[var(--color-primary)]/70 hover:text-[var(--color-primary)] transition">Home</Link>
-              <Link to="/products" className="px-3 py-2 text-sm text-[var(--color-primary)]/70 hover:text-[var(--color-primary)] transition">Collection</Link>
+              <Link to="/" className="px-3 py-2 text-sm text-[var(--color-primary)]/70 hover:text-[var(--color-primary)] transition">{t('theme.layout.nav.home')}</Link>
+              <Link to="/products" className="px-3 py-2 text-sm text-[var(--color-primary)]/70 hover:text-[var(--color-primary)] transition">{t('theme.layout.nav.collection')}</Link>
               {categories.slice(0, 4).map(cat => (
                 <Link
                   key={cat._id}
@@ -48,14 +50,14 @@ const Layout: React.FC = () => {
                   {cat.name}
                 </Link>
               ))}
-              <Link to="/about" className="px-3 py-2 text-sm text-[var(--color-primary)]/70 hover:text-[var(--color-primary)] transition">Our Story</Link>
+              <Link to="/about" className="px-3 py-2 text-sm text-[var(--color-primary)]/70 hover:text-[var(--color-primary)] transition">{t('theme.layout.nav.our_story')}</Link>
             </nav>
 
             {/* Right Actions */}
             <div className="flex items-center gap-2">
               {/* Desktop Search */}
               <div className="hidden md:block w-56">
-                <SearchBar placeholder="Find artisan goods..." className="w-full" />
+                <SearchBar placeholder={t('theme.products.search_placeholder')} className="w-full" />
               </div>
 
               {/* Mobile Search */}
@@ -96,8 +98,8 @@ const Layout: React.FC = () => {
           {/* Mobile Nav */}
           {mobileMenuOpen && (
             <nav className="lg:hidden pb-4 border-t border-[var(--color-border)] pt-3 space-y-1">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">Home</Link>
-              <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">Collection</Link>
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">{t('theme.layout.nav.home')}</Link>
+              <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">{t('theme.layout.nav.collection')}</Link>
               {categories.slice(0, 6).map(cat => (
                 <Link
                   key={cat._id}
@@ -108,7 +110,7 @@ const Layout: React.FC = () => {
                   {cat.name}
                 </Link>
               ))}
-              <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">Our Story</Link>
+              <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">{t('theme.layout.nav.our_story')}</Link>
             </nav>
           )}
         </div>
@@ -126,13 +128,13 @@ const Layout: React.FC = () => {
             <div>
               <h3 className="text-white text-xl italic mb-4">{store?.name || 'Artisan'}</h3>
               <p className="text-sm text-[var(--color-muted)] leading-relaxed">
-                Handcrafted with care, made to last. Every piece tells a story of tradition and craftsmanship.
+                {t('theme.footer.tagline')}
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">Shop</h4>
+              <h4 className="text-white font-semibold mb-3">{t('theme.footer.shop_heading')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/products" className="hover:text-white transition">All Pieces</Link></li>
+                <li><Link to="/products" className="hover:text-white transition">{t('theme.footer.shop_all')}</Link></li>
                 {categories.slice(0, 4).map(cat => (
                   <li key={cat._id}>
                     <Link to={`/categories/${cat.slug}`} className="hover:text-white transition">{cat.name}</Link>
@@ -141,37 +143,37 @@ const Layout: React.FC = () => {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">About</h4>
+              <h4 className="text-white font-semibold mb-3">{t('theme.footer.about_heading')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/about" className="hover:text-white transition">Our Story</Link></li>
-                <li><span className="hover:text-white cursor-pointer">Meet the Makers</span></li>
-                <li><span className="hover:text-white cursor-pointer">Sustainability</span></li>
-                <li><Link to="/contact" className="hover:text-white transition">Contact</Link></li>
+                <li><Link to="/about" className="hover:text-white transition">{t('theme.footer.our_story')}</Link></li>
+                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.meet_makers')}</span></li>
+                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.sustainability')}</span></li>
+                <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.contact')}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">Join Our Circle</h4>
-              <p className="text-sm text-[var(--color-muted)] mb-3">New collections, maker stories, and exclusive offers.</p>
+              <h4 className="text-white font-semibold mb-3">{t('theme.footer.circle_heading')}</h4>
+              <p className="text-sm text-[var(--color-muted)] mb-3">{t('theme.footer.circle_subtext')}</p>
               <form onSubmit={e => e.preventDefault()} className="flex gap-2">
                 <input
                   type="email"
-                  placeholder="Email address"
+                  placeholder={t('theme.footer.email_placeholder')}
                   className="flex-1 px-3 py-2 bg-[var(--color-secondary)] border border-[var(--color-border)] rounded text-sm text-white placeholder-[var(--color-muted)] focus:outline-none focus:border-[var(--color-accent)]"
                 />
                 <button
                   type="submit"
                   className="px-4 py-2 bg-[var(--color-accent)] hover:bg-[color-mix(in_srgb,var(--color-accent)_80%,black_20%)] text-white rounded text-sm font-medium transition"
                 >
-                  Join
+                  {t('theme.footer.join_button')}
                 </button>
               </form>
             </div>
           </div>
           <div className="border-t border-[var(--color-border)] mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[var(--color-muted)]">
-            <span>&copy; {new Date().getFullYear()} {store?.name || 'Artisan'}. All rights reserved.</span>
+            <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'Artisan' })}</span>
             <div className="flex gap-4">
-              <span className="hover:text-white cursor-pointer">Privacy Policy</span>
-              <span className="hover:text-white cursor-pointer">Terms of Service</span>
+              <span className="hover:text-white cursor-pointer">{t('theme.footer.privacy')}</span>
+              <span className="hover:text-white cursor-pointer">{t('theme.footer.terms')}</span>
             </div>
           </div>
         </div>

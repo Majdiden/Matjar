@@ -1,1 +1,141 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "eyebrow": "NATURAL BEAUTY",
+      "headline": "Reveal The Beauty of Skin",
+      "subheadline": "Clean, vegan and dermatologist-approved formulas crafted to nourish and reveal your natural glow.",
+      "cta": "SHOP NOW"
+    },
+    "section": {
+      "product_grid": {
+        "best_sellers_title": "BEST SELLERS",
+        "best_sellers_subtitle": "Hand-picked favourites loved by our community",
+        "new_arrivals_title": "NEW ARRIVALS"
+      },
+      "quote": {
+        "default_quote": "\"Beauty begins the moment you decide to be yourself.\"",
+        "default_author": "COCO CHANEL"
+      },
+      "instagram": {
+        "title": "@GLOWINGBEAUTY",
+        "subtitle": "Follow us on Instagram for daily inspiration"
+      },
+      "promo_cards": {
+        "card1_eyebrow": "NEW SEASON",
+        "card1_title": "Summer Collection",
+        "card1_cta": "SHOP NOW",
+        "card2_eyebrow": "JUST DROPPED",
+        "card2_title": "What's New?",
+        "card2_cta": "DISCOVER",
+        "card3_eyebrow": "LIMITED OFFER",
+        "card3_title": "Buy 1 Get 1",
+        "card3_cta": "SHOP NOW"
+      }
+    },
+    "nav": {
+      "home": "Home",
+      "shop": "Shop",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "footer": {
+      "tagline": "Clean formulas. Conscious beauty. Made for everyone.",
+      "col_shop": "Shop",
+      "col_help": "Help",
+      "col_company": "Company",
+      "col_newsletter": "Newsletter",
+      "all_products": "All Products",
+      "best_sellers": "Best Sellers",
+      "new_arrivals": "New Arrivals",
+      "gift_cards": "Gift Cards",
+      "shipping": "Shipping",
+      "returns": "Returns",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "about_us": "About Us",
+      "ingredients": "Ingredients",
+      "sustainability": "Sustainability",
+      "journal": "Journal",
+      "newsletter_subtitle": "Join for 10% off your first order.",
+      "email_placeholder": "Your email",
+      "copyright": "© {{year}} {{name}}. All rights reserved."
+    },
+    "announcement": {
+      "default_text": "FREE SHIPPING ON ALL U.S. ORDERS $50+"
+    },
+    "products": {
+      "title": "All Products",
+      "subtitle": "Discover our complete collection of clean, vegan beauty essentials",
+      "breadcrumb_home": "Home",
+      "breadcrumb_shop": "Shop",
+      "sidebar_categories": "Categories",
+      "sidebar_availability": "Availability",
+      "sidebar_price": "Price",
+      "all_products": "All Products",
+      "availability_all": "All",
+      "availability_in_stock": "In stock",
+      "availability_out_of_stock": "Out of stock",
+      "price_min": "Min",
+      "price_max": "Max",
+      "showing_count": "Showing {{count}} products",
+      "sort_newest": "Sort: Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "empty": "No products found. Try different filters.",
+      "loading": "Loading…"
+    },
+    "category": {
+      "collections_sidebar": "Collections",
+      "all_products": "All Products",
+      "empty": "No products in this category yet."
+    },
+    "product_detail": {
+      "tab_description": "Description",
+      "tab_shipping": "Shipping & Return",
+      "tab_reviews": "Reviews",
+      "reviews_count": "({{count}} reviews)",
+      "in_stock": "In stock — ready to ship",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of stock",
+      "buy_it_now": "Buy It Now",
+      "compare": "Compare",
+      "wishlist": "Wishlist",
+      "share": "Share",
+      "free_shipping": "Free shipping on orders over $50",
+      "estimated_delivery": "Estimated delivery: 3–5 business days",
+      "easy_returns": "30-day easy returns",
+      "shipping_tab_body1": "Free shipping on all US orders over $50. International shipping available at checkout.",
+      "shipping_tab_body2": "30-day returns. If you're not satisfied, return your order within 30 days for a full refund.",
+      "shipping_tab_body3": "All orders are processed within 1–2 business days. You'll receive tracking information via email as soon as your order ships.",
+      "you_may_also_like": "You May Also Like",
+      "not_found_title": "Not Found",
+      "not_found_body": "We couldn't find that product.",
+      "back_to_shop": "Back to Shop",
+      "save": "Save {{amount}}"
+    },
+    "product_card": {
+      "sale_badge": "Sale -{{pct}}%",
+      "choose_options": "Choose Options",
+      "add_to_cart": "+ Add to Cart"
+    },
+    "cart": {
+      "loading": "Loading cart...",
+      "empty_title": "Your cart is empty",
+      "empty_subtitle": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "title": "Shopping Cart",
+      "clear": "Clear Cart",
+      "remove": "Remove",
+      "each": "each",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping": "Shipping",
+      "shipping_calc": "Calculated at checkout",
+      "tax": "Tax",
+      "tax_calc": "Calculated at checkout",
+      "total": "Total",
+      "checkout": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping"
+    }
+  }
+}

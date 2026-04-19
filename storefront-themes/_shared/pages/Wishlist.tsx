@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useWishlist } from '../hooks/useWishlist';
 import { useCart } from '../contexts/CartContext';
 import { useThemeCard } from '../theme/ThemeCardProvider';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Standalone wishlist page, mounted at /wishlist in every theme.
@@ -18,6 +19,7 @@ interface WishlistProps {
 
 const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
   const themeCard = useThemeCard();
+  const { t } = useTranslation(['account']);
   // Route-level prop wins over the theme-wide provider; both fall back to the
   // built-in tile rendered lower in this file.
   const renderCard =
@@ -33,17 +35,17 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-semibold mb-3" style={{ color: 'var(--color-text, #111)' }}>
-          Your Wishlist
+          {t('wishlist.title')}
         </h1>
         <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted, #6b7280)' }}>
-          Log in to see items you've saved for later.
+          {t('wishlist.login_prompt')}
         </p>
         <Link
           to="/login?return=/wishlist"
           className="inline-block px-5 py-2.5 rounded-lg text-sm font-medium text-white"
           style={{ background: 'var(--color-primary, #111)' }}
         >
-          Log in
+          {t('wishlist.login_action')}
         </Link>
       </div>
     );
@@ -72,7 +74,7 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       <h1 className="text-2xl md:text-3xl font-semibold mb-6" style={{ color: 'var(--color-text, #111)' }}>
-        Your Wishlist
+        {t('wishlist.title')}
       </h1>
 
       {loading && (
@@ -99,14 +101,14 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
           style={{ borderColor: 'var(--color-border, #e5e7eb)' }}
         >
           <p className="text-sm mb-4" style={{ color: 'var(--color-text-muted, #6b7280)' }}>
-            Your wishlist is empty — browse products to save your favourites.
+            {t('wishlist.empty.description')}
           </p>
           <Link
             to="/products"
             className="inline-block px-5 py-2.5 rounded-lg text-sm font-medium text-white"
             style={{ background: 'var(--color-primary, #111)' }}
           >
-            Browse products
+            {t('wishlist.browse_products')}
           </Link>
         </div>
       )}
@@ -123,7 +125,7 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
                     type="button"
                     onClick={() => handleRemove(productId)}
                     disabled={busy === productId}
-                    aria-label="Remove from wishlist"
+                    aria-label={t('wishlist.remove')}
                     className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-gray-600 hover:text-red-600 shadow-sm disabled:opacity-50"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -156,7 +158,7 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
                   type="button"
                   onClick={() => handleRemove(productId)}
                   disabled={busy === productId}
-                  aria-label="Remove from wishlist"
+                  aria-label={t('wishlist.remove')}
                   className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-gray-600 hover:text-red-600 shadow-sm disabled:opacity-50"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -170,7 +172,7 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
                     <img src={image} alt={product.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">
-                      No image
+                      {t('wishlist.no_image')}
                     </div>
                   )}
                 </Link>
@@ -195,7 +197,7 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
                     className="mt-auto w-full text-sm font-medium py-2 rounded-lg text-white disabled:opacity-60"
                     style={{ background: 'var(--color-primary, #111)' }}
                   >
-                    {busy === productId ? 'Adding…' : 'Add to cart'}
+                    {busy === productId ? t('wishlist.adding_to_cart') : t('wishlist.move_to_cart')}
                   </button>
                 </div>
               </div>

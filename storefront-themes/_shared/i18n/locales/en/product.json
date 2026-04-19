@@ -1,1 +1,133 @@
-{}
+{
+  "add_to_cart": "Add to cart",
+  "buy_now": "Buy now",
+  "out_of_stock": "Out of stock",
+  "sold_out": "Sold out",
+  "in_stock": "In stock",
+  "low_stock": "Only {{count}} left",
+  "preorder": "Pre-order",
+  "preorder_badge": {
+    "label": "Pre-order"
+  },
+  "choose_options": "Choose options",
+  "select_options_hint": "Select options on the product page",
+  "only_remaining": "Only {{count}} left",
+  "price": {
+    "from": "From",
+    "compare_at": "Compare at",
+    "save_amount": "Save {{amount}}",
+    "save_percent": "Save {{percent}}%",
+    "tax_included": "Tax included.",
+    "shipping_at_checkout": "Shipping calculated at checkout."
+  },
+  "variant": {
+    "label": "Variant"
+  },
+  "quantity": {
+    "label": "Quantity",
+    "aria": {
+      "increment": "Increase quantity",
+      "decrement": "Decrease quantity"
+    }
+  },
+  "color_swatch": {
+    "label": "Color",
+    "aria": "Select color {{name}}"
+  },
+  "size_swatch": {
+    "label": "Size",
+    "select": "Select"
+  },
+  "image": {
+    "zoom_aria": "Zoom image",
+    "thumbnail_aria": "View image {{index}}"
+  },
+  "review": {
+    "title": "Customer reviews",
+    "empty": "No reviews yet. Be the first to share your experience.",
+    "based_on_zero": "No reviews",
+    "based_on_one": "Based on {{count}} review",
+    "based_on_other": "Based on {{count}} reviews",
+    "rating_aria": "{{rating}} out of {{max}} stars",
+    "write_review": "Write a review",
+    "sign_in_to_review": "Sign in to write a review",
+    "your_rating": "Your rating",
+    "title_field": "Title",
+    "title_optional": "(optional)",
+    "title_placeholder": "Sum it up in a few words",
+    "comment_field": "Your review",
+    "comment_required": "Your review *",
+    "comment_placeholder": "What did you like or dislike? How was the quality?",
+    "submit": "Submit review",
+    "submitting": "Submitting\u2026",
+    "success": "Thanks! Your review was submitted.",
+    "error_min_length": "Please write at least a few words about the product.",
+    "star_aria_one": "{{count}} star",
+    "star_aria_other": "{{count}} stars",
+    "verified_purchase": "Verified Purchase",
+    "verified": "Verified",
+    "anonymous": "Anonymous"
+  },
+  "compare": {
+    "add": "Compare",
+    "remove": "Comparing",
+    "title": "Compare Products ({{count}})",
+    "empty": "Add products to compare",
+    "clear_all": "Clear All",
+    "items_to_compare_one": "{{count}} item to compare",
+    "items_to_compare_other": "{{count}} items to compare",
+    "row": {
+      "price": "Price",
+      "rating": "Rating",
+      "availability": "Availability"
+    },
+    "na": "N/A"
+  },
+  "wishlist": {
+    "add": "Add to Wishlist",
+    "remove": "Wishlisted",
+    "aria_add": "Add to wishlist",
+    "aria_remove": "Remove from wishlist"
+  },
+  "payment": {
+    "guaranteed": {
+      "title": "Guaranteed Safe Checkout",
+      "description": "Secure checkout powered by trusted payment providers"
+    },
+    "no_methods": "No payment methods available. Please contact support.",
+    "choose_provider": "Choose a provider",
+    "transfer_to": "Transfer to:",
+    "beneficiary": "Beneficiary:",
+    "account": "Account:",
+    "phone": "Phone:",
+    "required": "Required",
+    "please_choose_provider": "Please choose a provider."
+  },
+  "description": {
+    "no_description": "No description available."
+  },
+  "specifications": {
+    "empty": "No specifications listed for this product."
+  },
+  "tab": {
+    "description": "Description",
+    "specifications": "Specifications",
+    "reviews": "Reviews"
+  },
+  "bundle": {
+    "title": "Frequently Bought Together",
+    "subtitle": "Customers often pair these together.",
+    "addon_total": "Add-on total",
+    "this_item": "This item",
+    "of_extras_selected_one": "{{selected}} of {{total}} extra selected",
+    "of_extras_selected_other": "{{selected}} of {{total}} extras selected",
+    "add_selected": "Add Selected to Cart",
+    "adding": "Adding...",
+    "choose_options": "Choose options"
+  },
+  "similar": {
+    "title": "Similar Products",
+    "subtitle": "More from this collection you might love."
+  },
+  "featured_badge": "Featured"
+}

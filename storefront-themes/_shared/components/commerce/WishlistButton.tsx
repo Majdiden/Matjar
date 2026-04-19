@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { wishlistApi } from '../../api/client';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
@@ -31,6 +32,7 @@ export function WishlistButton(props: WishlistButtonProps) {
     variant = 'icon',
     onToggle,
   } = props;
+  const { t } = useTranslation('product');
   const [wishlisted, setWishlisted] = useState(initialWishlisted);
   const [loading, setLoading] = useState(false);
 
@@ -66,7 +68,7 @@ export function WishlistButton(props: WishlistButtonProps) {
         <svg className={sizeClasses[size]} viewBox="0 0 24 24" fill={wishlisted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
-        {wishlisted ? 'Wishlisted' : 'Add to Wishlist'}
+        {wishlisted ? t('wishlist.remove') : t('wishlist.add')}
       </button>
     );
   }
@@ -83,7 +85,7 @@ export function WishlistButton(props: WishlistButtonProps) {
         loading && 'animate-pulse',
         className
       )}
-      aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+      aria-label={wishlisted ? t('wishlist.aria_remove') : t('wishlist.aria_add')}
     >
       <svg className={sizeClasses[size]} viewBox="0 0 24 24" fill={wishlisted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />

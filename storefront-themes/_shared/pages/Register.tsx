@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authApi } from '../api/client';
 import { useStore } from '../contexts/StoreContext';
+import { useTranslation } from 'react-i18next';
 
 interface RegisterProps {
   className?: string;
@@ -13,11 +14,12 @@ interface RegisterProps {
 const Register: React.FC<RegisterProps> = ({
   className = '',
   accentColor,
-  heading = 'Create an account',
-  subheading = 'Join us to start shopping and tracking orders.',
+  heading,
+  subheading,
 }) => {
   const navigate = useNavigate();
   const { store } = useStore();
+  const { t } = useTranslation(['account']);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,11 +34,11 @@ const Register: React.FC<RegisterProps> = ({
     setError(null);
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError(t('register.error.password_min'));
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('register.error.password_match'));
       return;
     }
 
@@ -50,12 +52,12 @@ const Register: React.FC<RegisterProps> = ({
       } else {
         // Fallback: explicit login if the endpoint didn't return a token
         const loginRes = await authApi.login(email, password);
-        const t = loginRes.data?.accessToken || loginRes.responseObject?.accessToken;
-        if (t) localStorage.setItem('customer_token', t);
+        const t2 = loginRes.data?.accessToken || loginRes.responseObject?.accessToken;
+        if (t2) localStorage.setItem('customer_token', t2);
       }
       navigate('/account');
     } catch (err: any) {
-      setError(err?.message || 'Registration failed. Please try again.');
+      setError(err?.message || t('register.error.default'));
     } finally {
       setSubmitting(false);
     }
@@ -64,8 +66,8 @@ const Register: React.FC<RegisterProps> = ({
   return (
     <div className={`max-w-md mx-auto px-4 sm:px-6 py-12 ${className}`}>
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">{heading}</h1>
-        <p className="text-gray-500 text-sm">{subheading}</p>
+        <h1 className="text-3xl font-bold mb-2">{heading || t('register.title')}</h1>
+        <p className="text-gray-500 text-sm">{subheading || t('register.subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -76,7 +78,7 @@ const Register: React.FC<RegisterProps> = ({
         )}
 
         <div>
-          <label className="block text-sm font-medium mb-1">Full name</label>
+          <label className="block text-sm font-medium mb-1">{t('register.field.full_name.label')}</label>
           <input
             type="text"
             required
@@ -84,13 +86,13 @@ const Register: React.FC<RegisterProps> = ({
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
             style={{ '--tw-ring-color': accent } as React.CSSProperties}
-            placeholder="Jane Doe"
+            placeholder={t('register.field.full_name.placeholder')}
             autoComplete="name"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
+          <label className="block text-sm font-medium mb-1">{t('register.field.email.label')}</label>
           <input
             type="email"
             required
@@ -98,13 +100,13 @@ const Register: React.FC<RegisterProps> = ({
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
             style={{ '--tw-ring-color': accent } as React.CSSProperties}
-            placeholder="your@email.com"
+            placeholder={t('register.field.email.placeholder')}
             autoComplete="email"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
+          <label className="block text-sm font-medium mb-1">{t('register.field.password.label')}</label>
           <input
             type="password"
             required
@@ -113,13 +115,13 @@ const Register: React.FC<RegisterProps> = ({
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
             style={{ '--tw-ring-color': accent } as React.CSSProperties}
-            placeholder="At least 6 characters"
+            placeholder={t('register.field.password.placeholder')}
             autoComplete="new-password"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Confirm password</label>
+          <label className="block text-sm font-medium mb-1">{t('register.field.confirm_password.label')}</label>
           <input
             type="password"
             required
@@ -127,7 +129,7 @@ const Register: React.FC<RegisterProps> = ({
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
             style={{ '--tw-ring-color': accent } as React.CSSProperties}
-            placeholder="Re-enter password"
+            placeholder={t('register.field.confirm_password.placeholder')}
             autoComplete="new-password"
           />
         </div>
@@ -138,24 +140,24 @@ const Register: React.FC<RegisterProps> = ({
           className="w-full py-3 rounded-lg text-white font-medium transition hover:opacity-90 disabled:opacity-50"
           style={{ backgroundColor: accent }}
         >
-          {submitting ? 'Creating account...' : 'Create Account'}
+          {submitting ? t('register.submitting') : t('register.submit')}
         </button>
 
         <p className="text-xs text-gray-400 text-center">
-          By creating an account you agree to our Terms and Privacy Policy.
+          {t('register.terms_html')}
         </p>
       </form>
 
       <p className="text-center text-sm text-gray-500 mt-6">
-        Already have an account?{' '}
+        {t('register.have_account_text')}{' '}
         <Link to="/login" className="font-medium hover:underline" style={{ color: accent }}>
-          Sign in
+          {t('register.have_account_link')}
         </Link>
       </p>
 
       {store?.name && (
         <p className="text-center text-xs text-gray-400 mt-8">
-          Joining {store.name}
+          {t('register.joining', { store: store.name })}
         </p>
       )}
     </div>

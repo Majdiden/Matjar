@@ -1,1 +1,56 @@
-{}
+{
+  "theme": {
+    "section": {
+      "hero": {
+        "eyebrow": "Curated reads for curious minds",
+        "heading_line1": "Discover Your",
+        "heading_line2": "Next Read",
+        "subheading": "Hand-picked books across every genre, delivered to your door.",
+        "cta": "Browse Collection"
+      },
+      "genres": {
+        "heading": "Browse by Genre",
+        "subheading": "Find your next adventure in any category"
+      },
+      "staff_picks": {
+        "heading": "Staff Picks",
+        "subheading": "Handpicked by our team of bibliophiles",
+        "add_to_shelf": "Add to Shelf",
+        "see_all": "See All"
+      },
+      "reading_quote": {
+        "text": "A reader lives a thousand lives before he dies. The man who never reads lives only one.",
+        "author": "George R.R. Martin"
+      },
+      "bestsellers": {
+        "heading": "Bestsellers",
+        "subheading": "The books everyone is reading right now",
+        "add": "Add"
+      },
+      "newsletter": {
+        "heading": "Start Your Reading List",
+        "subheading": "Sign up for curated recommendations, exclusive deals, and early access to new arrivals.",
+        "placeholder": "your@email.com",
+        "button": "Subscribe"
+      }
+    },
+    "layout": {
+      "announcement": "Free shipping on orders over $35 — Feed your reading habit!",
+      "nav": {
+        "browse": "Browse",
+        "browse_all": "Browse All",
+        "menu_heading": "Menu"
+      }
+    },
+    "footer": {
+      "tagline": "Your next great read awaits. Curated selections for every reader.",
+      "explore_heading": "Explore",
+      "browse_all": "Browse All",
+      "help_heading": "Help",
+      "about_us": "About Us",
+      "contact": "Contact",
+      "shipping_returns": "Shipping & Returns",
+      "copyright": "© {{year}} {{name}}. All rights reserved."
+    }
+  }
+}

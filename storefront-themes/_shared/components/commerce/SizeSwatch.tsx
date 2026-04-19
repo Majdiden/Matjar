@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
@@ -28,13 +29,14 @@ export function SizeSwatch(props: SizeSwatchProps) {
     className,
     showLabel = true,
   } = props;
+  const { t } = useTranslation('product');
   const selectedOption = options.find(o => o.value === selected);
 
   return (
     <div className={className}>
       {showLabel && (
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-          Size: <span className="font-medium text-gray-900 dark:text-white">{selectedOption?.name || 'Select'}</span>
+          {t('size_swatch.label')}: <span className="font-medium text-gray-900 dark:text-white">{selectedOption?.name || t('size_swatch.select')}</span>
         </p>
       )}
       <div className="flex flex-wrap gap-2">

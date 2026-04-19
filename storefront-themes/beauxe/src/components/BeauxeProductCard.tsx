@@ -4,6 +4,7 @@ import { useCart } from '@shared/contexts/CartContext';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useThemeSetting } from '@shared/theme/ThemeProvider';
 import { getPreorderState } from '@shared/utils/preorder';
+import { useTranslation } from 'react-i18next';
 
 /**
  * BeauxeProductCard — rounded pink/cream tile with SALE pill.
@@ -23,6 +24,7 @@ const BG_PALETTE_DEFAULTS = ['#f8e4e4', '#faf3ec', '#f3ddd1', '#f5e1d8', '#f9ebe
 export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => {
   const { formatPrice } = useStore();
   const { addItem } = useCart();
+  const { t } = useTranslation(['theme']);
 
   const bg1 = useThemeSetting<string>('product_tile_bg_1');
   const bg2 = useThemeSetting<string>('product_tile_bg_2');
@@ -71,21 +73,21 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
           {(onSale || pre.savingsPct > 0) && (
             <div className="absolute top-4 left-4">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white rounded-full" style={{ backgroundColor: 'var(--color-error)' }}>
-                -{pct}% {pre.mode === 'preorder' ? 'Pre-order' : 'Sale'}
+                -{pct}% {pre.mode === 'preorder' ? t('theme.product_card.preorder') : t('theme.product_card.sale')}
               </span>
             </div>
           )}
           {pre.mode === 'preorder' && !onSale && pre.savingsPct === 0 && (
             <div className="absolute top-4 left-4">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white rounded-full" style={{ backgroundColor: 'var(--color-primary)' }}>
-                Pre-order
+                {t('theme.product_card.preorder')}
               </span>
             </div>
           )}
           {!onSale && pre.mode === 'buy' && product.isNew && (
             <div className="absolute top-4 left-4">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white rounded-full" style={{ backgroundColor: 'var(--color-primary)' }}>
-                New
+                {t('theme.product_card.new')}
               </span>
             </div>
           )}
@@ -126,10 +128,10 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
               className="px-7 py-3 rounded-full bg-[color:var(--color-primary)] text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--color-secondary)] transition disabled:opacity-60"
               title={requiresOptions ? 'Select options on the product page' : pre.mode === 'preorder' ? [pre.shipByLabel, pre.depositLabel].filter(Boolean).join(' · ') || undefined : undefined}
             >
-              {requiresOptions ? 'Choose Options' : pre.mode === 'preorder' ? '+ Pre-order' : pre.mode === 'soldOut' ? 'Sold out' : '+ Add to Cart'}
+              {requiresOptions ? t('theme.product_card.choose_options') : pre.mode === 'preorder' ? `+ ${t('theme.product_card.preorder')}` : pre.mode === 'soldOut' ? t('theme.product_card.sold_out') : t('theme.product_card.add_to_cart')}
             </button>
             {pre.lowRemaining && pre.remaining !== null && (
-              <span className="text-[10px] font-semibold text-white bg-amber-600 px-2 py-0.5 rounded-full">Only {pre.remaining} left</span>
+              <span className="text-[10px] font-semibold text-white bg-amber-600 px-2 py-0.5 rounded-full">{t('theme.product_card.only_left', { count: pre.remaining })}</span>
             )}
           </div>
         </div>

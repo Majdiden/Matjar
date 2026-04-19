@@ -1,1 +1,55 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "main": {
+        "headline": "Welcome to Our Store",
+        "subheadline": "Discover our curated collection of quality products.",
+        "cta": "Shop Now"
+      }
+    },
+    "section": {
+      "categories": {
+        "title": "Categories"
+      },
+      "featured_products": {
+        "title": "Featured Products",
+        "view_all": "View All",
+        "add_to_cart": "Add"
+      },
+      "trust_badges": {
+        "free_shipping": {
+          "title": "Free Shipping",
+          "description": "On orders over $50"
+        },
+        "easy_returns": {
+          "title": "Easy Returns",
+          "description": "30-day return policy"
+        },
+        "secure_checkout": {
+          "title": "Secure Checkout",
+          "description": "Safe & encrypted"
+        }
+      },
+      "newsletter": {
+        "title": "Stay Updated",
+        "subtitle": "Subscribe for new arrivals and offers.",
+        "placeholder": "your@email.com",
+        "cta": "Subscribe"
+      }
+    },
+    "banner": {
+      "announcement": {
+        "text": "Free shipping on orders over $50!"
+      }
+    },
+    "footer": {
+      "copyright_html": "© {{year}} {{name}}",
+      "products": "Products",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "nav": {
+      "products": "Products"
+    }
+  }
+}

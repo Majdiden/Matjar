@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
@@ -18,6 +19,7 @@ import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
  */
 
 const Layout: React.FC = () => {
+  const { t } = useTranslation(['theme', 'common']);
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
@@ -25,7 +27,7 @@ const Layout: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const showStrip = useThemeSetting<boolean>('show_announcement_bar') !== false;
-  const stripText = useThemeSetting<string>('announcement_text') || 'FREE SHIPPING ON ALL U.S. ORDERS $50+';
+  const stripText = useThemeSetting<string>('announcement_text') || t('theme.announcement.default_text');
 
   const brand = (store?.name || 'GLOWING').toUpperCase();
   const isActive = (path: string) =>
@@ -96,8 +98,8 @@ const Layout: React.FC = () => {
 
         {/* Nav row — desktop */}
         <nav className="hidden md:flex justify-center gap-10 pb-5 text-[11px] tracking-[0.22em] uppercase text-neutral-700 border-t border-neutral-100 pt-4">
-          <Link to="/" className={isActive('/') && location.pathname === '/' ? 'text-black font-semibold' : 'hover:text-black'}>Home</Link>
-          <Link to="/products" className={isActive('/products') ? 'text-black font-semibold' : 'hover:text-black'}>Shop</Link>
+          <Link to="/" className={isActive('/') && location.pathname === '/' ? 'text-black font-semibold' : 'hover:text-black'}>{t('theme.nav.home')}</Link>
+          <Link to="/products" className={isActive('/products') ? 'text-black font-semibold' : 'hover:text-black'}>{t('theme.nav.shop')}</Link>
           {categories.slice(0, 4).map((cat) => (
             <Link
               key={cat._id}
@@ -107,20 +109,20 @@ const Layout: React.FC = () => {
               {cat.name}
             </Link>
           ))}
-          <Link to="/about" className="hover:text-black">About</Link>
-          <Link to="/contact" className="hover:text-black">Contact</Link>
+          <Link to="/about" className="hover:text-black">{t('theme.nav.about')}</Link>
+          <Link to="/contact" className="hover:text-black">{t('theme.nav.contact')}</Link>
         </nav>
 
         {/* Mobile nav */}
         {menuOpen && (
           <nav className="md:hidden border-t border-neutral-100 px-6 py-4 space-y-3 text-sm uppercase tracking-wider">
-            <Link onClick={() => setMenuOpen(false)} to="/" className="block">Home</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/products" className="block">Shop</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/" className="block">{t('theme.nav.home')}</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/products" className="block">{t('theme.nav.shop')}</Link>
             {categories.slice(0, 6).map((cat) => (
               <Link key={cat._id} onClick={() => setMenuOpen(false)} to={`/categories/${cat.slug}`} className="block">{cat.name}</Link>
             ))}
-            <Link onClick={() => setMenuOpen(false)} to="/about" className="block">About</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">Contact</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.nav.about')}</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.nav.contact')}</Link>
           </nav>
         )}
       </header>
@@ -137,45 +139,45 @@ const Layout: React.FC = () => {
               {brand}
             </div>
             <p className="text-sm text-neutral-500 max-w-md mx-auto">
-              Clean formulas. Conscious beauty. Made for everyone.
+              {t('theme.footer.tagline')}
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">Shop</h4>
+              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_shop')}</h4>
               <div className="space-y-3 text-sm text-neutral-600">
-                <Link to="/products" className="block hover:text-black">All Products</Link>
-                <Link to="/products" className="block hover:text-black">Best Sellers</Link>
-                <Link to="/products" className="block hover:text-black">New Arrivals</Link>
-                <Link to="/products" className="block hover:text-black">Gift Cards</Link>
+                <Link to="/products" className="block hover:text-black">{t('theme.footer.all_products')}</Link>
+                <Link to="/products" className="block hover:text-black">{t('theme.footer.best_sellers')}</Link>
+                <Link to="/products" className="block hover:text-black">{t('theme.footer.new_arrivals')}</Link>
+                <Link to="/products" className="block hover:text-black">{t('theme.footer.gift_cards')}</Link>
               </div>
             </div>
             <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">Help</h4>
+              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_help')}</h4>
               <div className="space-y-3 text-sm text-neutral-600">
-                <a href="#" className="block hover:text-black">Shipping</a>
-                <a href="#" className="block hover:text-black">Returns</a>
-                <a href="#" className="block hover:text-black">FAQ</a>
-                <Link to="/contact" className="block hover:text-black">Contact</Link>
+                <a href="#" className="block hover:text-black">{t('theme.footer.shipping')}</a>
+                <a href="#" className="block hover:text-black">{t('theme.footer.returns')}</a>
+                <a href="#" className="block hover:text-black">{t('theme.footer.faq')}</a>
+                <Link to="/contact" className="block hover:text-black">{t('theme.footer.contact')}</Link>
               </div>
             </div>
             <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">Company</h4>
+              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_company')}</h4>
               <div className="space-y-3 text-sm text-neutral-600">
-                <Link to="/about" className="block hover:text-black">About Us</Link>
-                <a href="#" className="block hover:text-black">Ingredients</a>
-                <a href="#" className="block hover:text-black">Sustainability</a>
-                <a href="#" className="block hover:text-black">Journal</a>
+                <Link to="/about" className="block hover:text-black">{t('theme.footer.about_us')}</Link>
+                <a href="#" className="block hover:text-black">{t('theme.footer.ingredients')}</a>
+                <a href="#" className="block hover:text-black">{t('theme.footer.sustainability')}</a>
+                <a href="#" className="block hover:text-black">{t('theme.footer.journal')}</a>
               </div>
             </div>
             <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">Newsletter</h4>
-              <p className="text-sm text-neutral-600 mb-4">Join for 10% off your first order.</p>
+              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_newsletter')}</h4>
+              <p className="text-sm text-neutral-600 mb-4">{t('theme.footer.newsletter_subtitle')}</p>
               <form className="flex border-b border-neutral-300 focus-within:border-black transition">
                 <input
                   type="email"
-                  placeholder="Your email"
+                  placeholder={t('theme.footer.email_placeholder')}
                   className="flex-1 py-2 text-sm bg-transparent focus:outline-none"
                 />
                 <button type="submit" className="text-xs uppercase tracking-wider font-semibold px-2">→</button>
@@ -184,7 +186,7 @@ const Layout: React.FC = () => {
           </div>
 
           <div className="border-t border-neutral-100 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] tracking-wide text-neutral-500">
-            <span>© {new Date().getFullYear()} {brand}. All rights reserved.</span>
+            <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), name: brand })}</span>
             <div className="flex items-center gap-3">
               {['VISA', 'MC', 'AMEX', 'PP'].map((p) => (
                 <span key={p} className="h-5 px-2 border border-neutral-300 text-[9px] font-bold flex items-center">{p}</span>

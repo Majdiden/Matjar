@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { reviewsApi } from '../../api/client';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
@@ -81,6 +82,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
     accentColor = '#111111',
     className = '',
   } = props;
+  const { t } = useTranslation(['product', 'common']);
   const [isSignedIn, setIsSignedIn] = useState<boolean>(
     typeof window !== 'undefined' && !!localStorage.getItem('customer_token'),
   );
@@ -146,7 +148,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
           <div className="text-5xl font-bold leading-none mb-2">{avgRating.toFixed(1)}</div>
           <Stars rating={avgRating} size="md" color={accentColor} />
           <p className="text-xs opacity-60 mt-2">
-            Based on {totalReviews} review{totalReviews === 1 ? '' : 's'}
+            {t(totalReviews === 0 ? 'product:review.based_on_zero' : totalReviews === 1 ? 'product:review.based_on_one' : 'product:review.based_on_other', { count: totalReviews })}
           </p>
         </div>
 
@@ -180,7 +182,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
               className="px-5 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition"
               style={{ backgroundColor: accentColor }}
             >
-              Write a review
+              {t('product:review.write_review')}
             </button>
           ) : (
             <Link
@@ -188,13 +190,13 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
               className="inline-block px-5 py-2.5 rounded-lg text-sm font-semibold border hover:bg-current/5 transition"
               style={{ borderColor: accentColor, color: accentColor }}
             >
-              Sign in to write a review
+              {t('product:review.sign_in_to_review')}
             </Link>
           )
         ) : (
           <form onSubmit={handleSubmit} className="border border-current/10 rounded-xl p-5 space-y-4">
             <div>
-              <p className="text-sm font-semibold mb-2">Your rating</p>
+              <p className="text-sm font-semibold mb-2">{t('product:review.your_rating')}</p>
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((n) => {
                   const filled = (hover || rating) >= n;
@@ -207,7 +209,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
                       onMouseLeave={() => setHover(0)}
                       className="text-3xl leading-none transition"
                       style={{ color: filled ? '#facc15' : 'currentColor', opacity: filled ? 1 : 0.25 }}
-                      aria-label={`${n} star${n === 1 ? '' : 's'}`}
+                      aria-label={t(n === 1 ? 'product:review.star_aria_one' : 'product:review.star_aria_other', { count: n })}
                     >
                       ★
                     </button>
@@ -219,7 +221,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
 
             <div>
               <label htmlFor="review-title" className="block text-sm font-semibold mb-1">
-                Title <span className="opacity-50 font-normal">(optional)</span>
+                {t('product:review.title_field')} <span className="opacity-50 font-normal">{t('product:review.title_optional')}</span>
               </label>
               <input
                 id="review-title"
@@ -227,14 +229,14 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={200}
-                placeholder="Sum it up in a few words"
+                placeholder={t('product:review.title_placeholder')}
                 className="w-full px-3 py-2 text-sm border border-current/20 rounded-lg bg-transparent focus:outline-none focus:ring-2"
               />
             </div>
 
             <div>
               <label htmlFor="review-comment" className="block text-sm font-semibold mb-1">
-                Your review
+                {t('product:review.comment_field')}
               </label>
               <textarea
                 id="review-comment"
@@ -242,7 +244,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
                 onChange={(e) => setComment(e.target.value)}
                 rows={4}
                 maxLength={5000}
-                placeholder="What did you like or dislike? How was the quality?"
+                placeholder={t('product:review.comment_placeholder')}
                 className="w-full px-3 py-2 text-sm border border-current/20 rounded-lg bg-transparent focus:outline-none focus:ring-2 resize-y"
                 required
               />
@@ -257,14 +259,14 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
                 className="px-5 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition disabled:opacity-50"
                 style={{ backgroundColor: accentColor }}
               >
-                {submitting ? 'Submitting…' : 'Submit review'}
+                {submitting ? t('product:review.submitting') : t('product:review.submit')}
               </button>
               <button
                 type="button"
                 onClick={() => { setShowForm(false); setError(null); }}
                 className="px-5 py-2.5 rounded-lg text-sm font-semibold border border-current/20 hover:bg-current/5 transition"
               >
-                Cancel
+                {t('common:action.cancel')}
               </button>
             </div>
           </form>
@@ -274,7 +276,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
       {/* Review list */}
       {totalReviews === 0 ? (
         <div className="text-center py-12 text-sm opacity-60">
-          No reviews yet. Be the first to share your thoughts.
+          {t('product:review.empty')}
         </div>
       ) : (
         <div className="space-y-5">
@@ -292,8 +294,8 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
                     <p className="text-sm font-semibold leading-tight">
                       {reviewerName(r)}
                       {(r.isVerifiedPurchase || r.isVerified) && (
-                        <span className="ml-2 text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded font-medium">
-                          Verified Purchase
+                        <span className="ms-2 text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded font-medium">
+                          {t('product:review.verified_purchase')}
                         </span>
                       )}
                     </p>

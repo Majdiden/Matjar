@@ -1,1 +1,98 @@
-{}
+{
+  "order": {
+    "success": {
+      "title": "Thank you for your order!",
+      "subtitle": "Your order {{orderNumber}} has been received.",
+      "confirmation_sent": "A confirmation has been sent to {{email}}.",
+      "order_placed": "Order placed",
+      "order_total": "Order total",
+      "shipping_to": "Shipping to",
+      "payment": "Payment",
+      "qty": "Qty {{qty}}",
+      "preorder": "Pre-order",
+      "preorder_ships": "Pre-order — ships {{date}}",
+      "action": {
+        "track": "Track your order",
+        "continue_shopping": "Continue shopping"
+      },
+      "contact_question": "Questions about your order?",
+      "contact_link": "Contact {{store}}",
+      "error_title": "We couldn't load your order",
+      "error_description": "If you've just placed an order, check your email for the confirmation.",
+      "error_check_email": "We couldn't find that order. Please check your email for the confirmation.",
+      "back_home": "Back to home"
+    },
+    "tracking": {
+      "title": "Track your order",
+      "gate_subtitle": "Enter the email address you used at checkout to view this order.",
+      "field": {
+        "email": { "label": "Email", "placeholder": "you@example.com" }
+      },
+      "submit": "View order",
+      "looking_up": "Looking up…",
+      "order_label": "Order",
+      "placed_on": "Placed {{date}}",
+      "cancel_order": "Cancel order",
+      "cancelling": "Cancelling…",
+      "status": {
+        "order_received": "Order received",
+        "being_prepared": "Being prepared",
+        "on_its_way": "On its way",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      },
+      "shipment_status": {
+        "preparing": "Preparing",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "event": {
+        "order_placed": "Order placed",
+        "order_cancelled": "Order cancelled",
+        "tracking_updated": "Tracking information updated",
+        "note_added": "Note added"
+      },
+      "tracking_number": "Tracking number",
+      "via": "via {{carrier}}",
+      "order_items": "Order items",
+      "shipments": "Shipments",
+      "shipment_count_zero": "{{count}} shipments for this order",
+      "shipment_count_one": "{{count}} shipment for this order",
+      "shipment_count_two": "{{count}} shipments for this order",
+      "shipment_count_few": "{{count}} shipments for this order",
+      "shipment_count_many": "{{count}} shipments for this order",
+      "shipment_count_other": "{{count}} shipments for this order",
+      "shipment_n": "Shipment {{n}}",
+      "shipped_on": "Shipped {{date}}",
+      "delivered_on": "Delivered {{date}}",
+      "cancelled_on": "Cancelled {{date}}",
+      "created_on": "Created {{date}}",
+      "shipping_to": "Shipping to",
+      "activity": "Activity",
+      "no_updates": "No updates yet.",
+      "preorder": "Pre-order",
+      "preorder_ships": "Pre-order — ships {{date}}",
+      "qty": "Qty {{qty}}",
+      "summary": {
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "shipping": "Shipping",
+        "tax": "Tax",
+        "gift_card": "Gift card",
+        "total": "Total"
+      },
+      "continue_shopping": "← Continue shopping",
+      "not_found_title": "Order not found",
+      "not_found_description": "We couldn't find an order with that reference.",
+      "back_home": "Back to home",
+      "cancel_confirm": {
+        "title": "Cancel this order?",
+        "description": "This cannot be undone — any reserved stock will be released.",
+        "confirm": "Cancel order",
+        "cancel": "Keep order"
+      }
+    }
+  }
+}

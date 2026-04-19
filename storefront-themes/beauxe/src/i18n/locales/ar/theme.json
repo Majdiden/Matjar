@@ -1,1 +1,89 @@
-{}
+{
+  "theme": {
+    "section": {
+      "top_bar": {
+        "text": "تخفيضات الصيف · خصم يصل إلى 40% على منتجات مختارة",
+        "link": "تسوّق الآن"
+      },
+      "hero": {
+        "eyebrow": "مجموعة جديدة",
+        "heading": "الجمال الطبيعي، بتعريف جديد",
+        "subheading": "اكتشفي روتين العناية بالبشرة النظيف وغير المُختبَر على الحيوانات، المُصنَّع بأنقى مكونات الطبيعة.",
+        "cta": "تسوّقي المجموعة",
+        "trust_line": "تقييم 4.9 من أكثر من 2300 مراجعة",
+        "badge": "جمال\nnنظيف\n2024"
+      },
+      "feature_strip": {
+        "free_shipping_title": "شحن مجاني",
+        "free_shipping_subtitle": "للطلبات التي تتجاوز 50$",
+        "natural_title": "100% طبيعي",
+        "natural_subtitle": "مكونات نظيفة",
+        "cruelty_title": "غير مُختبَر على الحيوانات",
+        "cruelty_subtitle": "نحن ضد التجارب على الحيوانات",
+        "secure_title": "دفع آمن",
+        "secure_subtitle": "مشفّر بشهادة SSL",
+        "favourites": "مختارات بعناية لكِ"
+      },
+      "category_tiles": {
+        "heading": "تسوّقي حسب الفئة",
+        "subheading": "اعثري على ما تحتاجه بشرتك",
+        "shop_now": "تسوّقي الآن"
+      },
+      "product_grid": {
+        "heading_bestsellers": "الأكثر مبيعاً",
+        "heading_new_arrivals": "وصول حديثاً",
+        "subheading": "محبوبة من مجتمعنا",
+        "view_all": "عرض جميع المنتجات"
+      },
+      "banner": {
+        "eyebrow": "عرض محدود",
+        "heading": "اشتري واحدة واحصلي على أخرى مجاناً",
+        "subheading": "على جميع مجموعات العناية بالبشرة هذا الأسبوع فقط.",
+        "cta": "تسوّقي العرض"
+      },
+      "testimonials": {
+        "heading": "ماذا تقول عملاؤنا",
+        "verified_buyer": "مشترية موثّقة"
+      }
+    },
+    "layout": {
+      "announcement": "تخفيضات الصيف · خصم يصل إلى 40%",
+      "nav": {
+        "home": "الرئيسية",
+        "shop": "المتجر",
+        "about": "من نحن",
+        "contact": "تواصل معنا",
+        "account": "الحساب",
+        "track_order": "تتبع الطلب"
+      }
+    },
+    "footer": {
+      "tagline": "جمال نظيف وغير مُختبَر على الحيوانات، مصنوع بحب. انضمي إلى آلاف اللواتي اخترن التألق.",
+      "shop_heading": "المتجر",
+      "shop_all": "جميع المنتجات",
+      "best_sellers": "الأكثر مبيعاً",
+      "new_arrivals": "وصول حديثاً",
+      "gift_sets": "مجموعات الهدايا",
+      "help_heading": "المساعدة",
+      "shipping": "الشحن",
+      "returns": "الإرجاع",
+      "faqs": "الأسئلة الشائعة",
+      "contact": "تواصل معنا",
+      "about_heading": "من نحن",
+      "our_story": "قصتنا",
+      "ingredients": "المكونات",
+      "sustainability": "الاستدامة",
+      "careers": "الوظائف",
+      "copyright": "© {{year}} {{brand}}. صُنع بحب."
+    },
+    "product_card": {
+      "sale": "تخفيض",
+      "preorder": "طلب مسبق",
+      "new": "جديد",
+      "choose_options": "اختر الخيارات",
+      "add_to_cart": "+ أضيفي إلى السلة",
+      "sold_out": "نفد المخزون",
+      "only_left": "{{count}} فقط متبقية"
+    }
+  }
+}

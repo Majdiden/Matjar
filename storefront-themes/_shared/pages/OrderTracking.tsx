@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ordersApi } from '../api/client';
 import { useStore } from '../contexts/StoreContext';
 import { useConfirm } from '../components/primitives/ConfirmDialog';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Customer-facing order tracking page (/orders/:id).
@@ -77,45 +78,43 @@ interface TrackedOrder {
   createdAt: string;
 }
 
-const SHIPMENT_STATUS_COPY: Record<TrackedFulfillment['status'], { label: string; tint: string }> = {
-  Pending:   { label: 'Preparing',  tint: 'bg-amber-50 text-amber-700'   },
-  Shipped:   { label: 'Shipped',    tint: 'bg-sky-50 text-sky-700'       },
-  Delivered: { label: 'Delivered',  tint: 'bg-emerald-50 text-emerald-700' },
-  Cancelled: { label: 'Cancelled',  tint: 'bg-red-50 text-red-700'       },
-};
-
-// Map the order's *current* status to a customer-friendly label and color
-// — same idea as the dashboard timeline, kept here so themes don't have to
-// import dashboard code.
-const STATUS_COPY: Record<string, { label: string; tint: string; ring: string }> = {
-  Pending:    { label: 'Order received',     tint: 'bg-amber-50 text-amber-700',     ring: 'ring-amber-500'   },
-  Processing: { label: 'Being prepared',     tint: 'bg-violet-50 text-violet-700',   ring: 'ring-violet-500'  },
-  Shipped:    { label: 'On its way',         tint: 'bg-sky-50 text-sky-700',         ring: 'ring-sky-500'     },
-  Delivered:  { label: 'Delivered',          tint: 'bg-emerald-50 text-emerald-700', ring: 'ring-emerald-500' },
-  Cancelled:  { label: 'Cancelled',          tint: 'bg-red-50 text-red-700',         ring: 'ring-red-500'     },
-  Refunded:   { label: 'Refunded',           tint: 'bg-rose-50 text-rose-700',       ring: 'ring-rose-500'    },
-};
-
 // Linear progress journey for non-terminal orders.
 const PROGRESS_STEPS = ['Pending', 'Processing', 'Shipped', 'Delivered'] as const;
-
-const eventLabel = (entry: HistoryEntry): string => {
-  if (entry.event === 'created') return 'Order placed';
-  if (entry.event === 'cancelled') return 'Order cancelled';
-  if (entry.event === 'tracking_updated') return 'Tracking information updated';
-  if (entry.event === 'note_added') return 'Note added';
-  if (entry.event === 'status_changed' && entry.status) {
-    return STATUS_COPY[entry.status]?.label || entry.status;
-  }
-  return entry.event;
-};
 
 const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentColor }) => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const { formatPrice } = useStore();
+  const { t } = useTranslation(['order']);
 
   const accent = accentColor || 'var(--color-primary, #2563eb)';
+
+  const STATUS_COPY: Record<string, { label: string; tint: string; ring: string }> = {
+    Pending:    { label: t('order.tracking.status.order_received'),  tint: 'bg-amber-50 text-amber-700',     ring: 'ring-amber-500'   },
+    Processing: { label: t('order.tracking.status.being_prepared'),  tint: 'bg-violet-50 text-violet-700',   ring: 'ring-violet-500'  },
+    Shipped:    { label: t('order.tracking.status.on_its_way'),      tint: 'bg-sky-50 text-sky-700',         ring: 'ring-sky-500'     },
+    Delivered:  { label: t('order.tracking.status.delivered'),       tint: 'bg-emerald-50 text-emerald-700', ring: 'ring-emerald-500' },
+    Cancelled:  { label: t('order.tracking.status.cancelled'),       tint: 'bg-red-50 text-red-700',         ring: 'ring-red-500'     },
+    Refunded:   { label: t('order.tracking.status.refunded'),        tint: 'bg-rose-50 text-rose-700',       ring: 'ring-rose-500'    },
+  };
+
+  const SHIPMENT_STATUS_COPY: Record<TrackedFulfillment['status'], { label: string; tint: string }> = {
+    Pending:   { label: t('order.tracking.shipment_status.preparing'),  tint: 'bg-amber-50 text-amber-700'   },
+    Shipped:   { label: t('order.tracking.shipment_status.shipped'),    tint: 'bg-sky-50 text-sky-700'       },
+    Delivered: { label: t('order.tracking.shipment_status.delivered'),  tint: 'bg-emerald-50 text-emerald-700' },
+    Cancelled: { label: t('order.tracking.shipment_status.cancelled'),  tint: 'bg-red-50 text-red-700'       },
+  };
+
+  const eventLabel = (entry: HistoryEntry): string => {
+    if (entry.event === 'created') return t('order.tracking.event.order_placed');
+    if (entry.event === 'cancelled') return t('order.tracking.event.order_cancelled');
+    if (entry.event === 'tracking_updated') return t('order.tracking.event.tracking_updated');
+    if (entry.event === 'note_added') return t('order.tracking.event.note_added');
+    if (entry.event === 'status_changed' && entry.status) {
+      return STATUS_COPY[entry.status]?.label || entry.status;
+    }
+    return entry.event;
+  };
 
   const [order, setOrder] = useState<TrackedOrder | null>(null);
   const [loading, setLoading] = useState(true);
@@ -130,10 +129,10 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
   const handleCancel = async () => {
     if (!id) return;
     const confirmed = await confirm({
-      title: 'Cancel this order?',
-      description: 'This cannot be undone — any reserved stock will be released.',
-      confirmText: 'Cancel order',
-      cancelText: 'Keep order',
+      title: t('order.tracking.cancel_confirm.title'),
+      description: t('order.tracking.cancel_confirm.description'),
+      confirmText: t('order.tracking.cancel_confirm.confirm'),
+      cancelText: t('order.tracking.cancel_confirm.cancel'),
       variant: 'destructive',
     });
     if (!confirmed) return;
@@ -145,7 +144,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
       // restored stock counters.
       fetchOrder(email || undefined);
     } catch (err: any) {
-      setCancelError(err?.message || 'Failed to cancel order');
+      setCancelError(err?.message || t('account.toast.cancel_error'));
     } finally {
       setCancelling(false);
     }
@@ -163,7 +162,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
           setOrder(fetched);
           setNeedsEmail(false);
         } else {
-          setError('Order not found');
+          setError(t('order.tracking.not_found_title'));
         }
       })
       .catch((err: any) => {
@@ -174,7 +173,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
         if (!token) {
           setNeedsEmail(true);
         } else {
-          setError(err?.message || 'Failed to load order');
+          setError(err?.message || t('order.tracking.not_found_description'));
         }
       })
       .finally(() => setLoading(false));
@@ -190,9 +189,9 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
   if (needsEmail && !order) {
     return (
       <div className={`max-w-md mx-auto px-4 sm:px-6 py-16 ${className}`}>
-        <h1 className="text-2xl font-bold mb-2 text-center">Track your order</h1>
+        <h1 className="text-2xl font-bold mb-2 text-center">{t('order.tracking.title')}</h1>
         <p className="text-sm text-gray-500 text-center mb-6">
-          Enter the email address you used at checkout to view this order.
+          {t('order.tracking.gate_subtitle')}
         </p>
         <form
           onSubmit={(e) => {
@@ -203,14 +202,14 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
         >
           <div>
             <label className="block text-xs uppercase tracking-wider text-gray-500 font-semibold mb-1">
-              Email
+              {t('order.tracking.field.email.label')}
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder={t('order.tracking.field.email.placeholder')}
               className="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
               style={{ '--tw-ring-color': accent } as React.CSSProperties}
             />
@@ -221,7 +220,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
             className="w-full py-3 rounded-lg text-white font-medium hover:opacity-90 transition disabled:opacity-50"
             style={{ backgroundColor: accent }}
           >
-            {loading ? 'Looking up…' : 'View order'}
+            {loading ? t('order.tracking.looking_up') : t('order.tracking.submit')}
           </button>
           {error && <p className="text-xs text-red-600 text-center">{error}</p>}
         </form>
@@ -245,14 +244,14 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
   if (error || !order) {
     return (
       <div className={`max-w-2xl mx-auto px-4 sm:px-6 py-20 text-center ${className}`}>
-        <h1 className="text-2xl font-bold mb-2">Order not found</h1>
-        <p className="text-gray-500 mb-6">{error || "We couldn't find an order with that reference."}</p>
+        <h1 className="text-2xl font-bold mb-2">{t('order.tracking.not_found_title')}</h1>
+        <p className="text-gray-500 mb-6">{error || t('order.tracking.not_found_description')}</p>
         <Link
           to="/"
           className="inline-block px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition"
           style={{ backgroundColor: accent }}
         >
-          Back to home
+          {t('order.tracking.back_home')}
         </Link>
       </div>
     );
@@ -273,12 +272,12 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
       {/* ── Header ───────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
         <div>
-          <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">Order</p>
+          <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">{t('order.tracking.order_label')}</p>
           <h1 className="text-3xl font-bold">
             {order.orderNumber || `#${order._id.slice(-6).toUpperCase()}`}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Placed {placedAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+            {t('order.tracking.placed_on', { date: placedAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) })}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -292,7 +291,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
               disabled={cancelling}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 hover:border-red-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {cancelling ? 'Cancelling…' : 'Cancel order'}
+              {cancelling ? t('order.tracking.cancelling') : t('order.tracking.cancel_order')}
             </button>
           )}
         </div>
@@ -334,7 +333,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                   </div>
                   <p className={`text-[11px] mt-2 font-medium text-center ${isCurrent ? '' : 'text-gray-500'}`}
                      style={isCurrent ? { color: accent } : undefined}>
-                    {STATUS_COPY[step].label}
+                    {STATUS_COPY[step]?.label || step}
                   </p>
                 </div>
               );
@@ -356,10 +355,10 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
             </svg>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">Tracking number</p>
-            <p className="font-mono text-sm font-semibold">{order.trackingNumber}</p>
+            <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">{t('order.tracking.tracking_number')}</p>
+            <p className="font-mono text-sm font-semibold"><bdi>{order.trackingNumber}</bdi></p>
             {order.trackingCarrier && (
-              <p className="text-xs text-gray-500 mt-0.5">via {order.trackingCarrier}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('order.tracking.via', { carrier: order.trackingCarrier })}</p>
             )}
           </div>
         </div>
@@ -370,7 +369,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
         <div className="lg:col-span-2 space-y-6">
           <div className="border rounded-2xl bg-white shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b">
-              <h2 className="font-semibold">Order items</h2>
+              <h2 className="font-semibold">{t('order.tracking.order_items')}</h2>
             </div>
             <div className="px-6 py-2 divide-y">
               {order.products.map((item, i) => {
@@ -396,13 +395,12 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                       )}
                       {(item as any).isPreorder && (
                         <p className="text-xs text-amber-600 font-medium mt-0.5">
-                          Pre-order
                           {(item as any).preorderExpectedShipDate
-                            ? ` — ships ${new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`
-                            : ''}
+                            ? t('order.tracking.preorder_ships', { date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) })
+                            : t('order.tracking.preorder')}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500 mt-0.5">Qty {item.quantity} · {formatPrice(item.price)}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{t('order.tracking.qty', { qty: item.quantity })} · {formatPrice(item.price)}</p>
                     </div>
                     <p className="text-sm font-semibold whitespace-nowrap">
                       {formatPrice(item.price * item.quantity)}
@@ -414,36 +412,36 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
             <div className="px-6 py-4 bg-gray-50/50 border-t space-y-1.5 text-sm">
               {order.subtotal !== undefined && (
                 <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
+                  <span>{t('order.tracking.summary.subtotal')}</span>
                   <span>{formatPrice(order.subtotal)}</span>
                 </div>
               )}
               {(order.discount ?? 0) > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Discount</span>
+                  <span>{t('order.tracking.summary.discount')}</span>
                   <span>−{formatPrice(order.discount!)}</span>
                 </div>
               )}
               {(order.shippingCost ?? 0) > 0 && (
                 <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
+                  <span>{t('order.tracking.summary.shipping')}</span>
                   <span>{formatPrice(order.shippingCost!)}</span>
                 </div>
               )}
               {(order.tax ?? 0) > 0 && (
                 <div className="flex justify-between text-gray-600">
-                  <span>Tax</span>
+                  <span>{t('order.tracking.summary.tax')}</span>
                   <span>{formatPrice(order.tax!)}</span>
                 </div>
               )}
               {(order.giftCardRedemption?.amount ?? 0) > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Gift card{order.giftCardRedemption?.codeLast4 ? ` (•••• ${order.giftCardRedemption.codeLast4})` : ''}</span>
+                  <span>{t('order.tracking.summary.gift_card')}{order.giftCardRedemption?.codeLast4 ? ` (•••• ${order.giftCardRedemption.codeLast4})` : ''}</span>
                   <span>−{formatPrice(order.giftCardRedemption!.amount!)}</span>
                 </div>
               )}
               <div className="flex justify-between text-base font-bold pt-2 mt-2 border-t">
-                <span>Total</span>
+                <span>{t('order.tracking.summary.total')}</span>
                 <span>{formatPrice(order.totalAmount)}</span>
               </div>
             </div>
@@ -452,10 +450,9 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
           {(order.fulfillments || []).length > 0 && (
             <div className="border rounded-2xl bg-white shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b">
-                <h2 className="font-semibold">Shipments</h2>
+                <h2 className="font-semibold">{t('order.tracking.shipments')}</h2>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {(order.fulfillments || []).length} shipment
-                  {(order.fulfillments || []).length === 1 ? '' : 's'} for this order
+                  {t('order.tracking.shipment_count_other', { count: (order.fulfillments || []).length })}
                 </p>
               </div>
               <div className="divide-y">
@@ -466,15 +463,15 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                     return line?.name || (typeof line?.product === 'object' ? line?.product?.name : 'Item');
                   };
                   const dateLabel =
-                    f.deliveredAt ? `Delivered ${new Date(f.deliveredAt).toLocaleDateString()}` :
-                    f.shippedAt   ? `Shipped ${new Date(f.shippedAt).toLocaleDateString()}` :
-                    f.cancelledAt ? `Cancelled ${new Date(f.cancelledAt).toLocaleDateString()}` :
-                                    `Created ${new Date(f.createdAt).toLocaleDateString()}`;
+                    f.deliveredAt ? t('order.tracking.delivered_on', { date: new Date(f.deliveredAt).toLocaleDateString() }) :
+                    f.shippedAt   ? t('order.tracking.shipped_on', { date: new Date(f.shippedAt).toLocaleDateString() }) :
+                    f.cancelledAt ? t('order.tracking.cancelled_on', { date: new Date(f.cancelledAt).toLocaleDateString() }) :
+                                    t('order.tracking.created_on', { date: new Date(f.createdAt).toLocaleDateString() });
                   return (
                     <div key={f._id} className="px-6 py-4 space-y-2">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">Shipment {idx + 1}</span>
+                          <span className="font-medium text-sm">{t('order.tracking.shipment_n', { n: idx + 1 })}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${copy.tint}`}>
                             {copy.label}
                           </span>
@@ -492,7 +489,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                       {(f.trackingNumber || f.trackingCarrier) && (
                         <p className="text-xs text-gray-500">
                           {f.trackingCarrier && <span>{f.trackingCarrier} </span>}
-                          {f.trackingNumber && <span className="font-mono">{f.trackingNumber}</span>}
+                          {f.trackingNumber && <span className="font-mono"><bdi>{f.trackingNumber}</bdi></span>}
                         </p>
                       )}
                     </div>
@@ -504,7 +501,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
 
           {order.shippingAddress && (
             <div className="border rounded-2xl bg-white shadow-sm p-6">
-              <h2 className="font-semibold mb-3">Shipping to</h2>
+              <h2 className="font-semibold mb-3">{t('order.tracking.shipping_to')}</h2>
               <div className="text-sm space-y-0.5">
                 <p className="font-medium">
                   {order.shippingAddress.firstName} {order.shippingAddress.lastName}
@@ -526,9 +523,9 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
 
         {/* ── Timeline ───────────────────────────────────────── */}
         <div className="border rounded-2xl bg-white shadow-sm p-6 self-start">
-          <h2 className="font-semibold mb-4">Activity</h2>
+          <h2 className="font-semibold mb-4">{t('order.tracking.activity')}</h2>
           {history.length === 0 ? (
-            <p className="text-sm text-gray-500">No updates yet.</p>
+            <p className="text-sm text-gray-500">{t('order.tracking.no_updates')}</p>
           ) : (
             <ol className="relative space-y-5">
               {history.map((entry, idx) => {
@@ -561,7 +558,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
 
       <div className="mt-8 text-center">
         <Link to="/products" className="text-sm underline text-gray-600 hover:text-gray-900">
-          ← Continue shopping
+          {t('order.tracking.continue_shopping')}
         </Link>
       </div>
     </div>

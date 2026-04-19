@@ -1,1 +1,62 @@
-{}
+{
+  "theme": {
+    "section": {
+      "hero": {
+        "season_label": "New Season",
+        "heading": "Timeless Elegance",
+        "subheading": "Curated luxury fashion and accessories",
+        "cta": "Shop Collection"
+      },
+      "collections": {
+        "eyebrow": "Explore",
+        "heading": "Our Collections",
+        "hover_explore": "Explore"
+      },
+      "featured_products": {
+        "eyebrow": "Curated",
+        "heading": "Editor's Picks",
+        "view_all": "View All"
+      },
+      "editorial_banner": {
+        "eyebrow": "The Art of",
+        "heading": "Effortless Style",
+        "cta": "Discover More"
+      },
+      "new_arrivals": {
+        "eyebrow": "Just In",
+        "heading": "New Arrivals"
+      },
+      "trust_bar": {
+        "free_shipping_title": "Free Shipping",
+        "free_shipping_desc": "On orders over $200",
+        "secure_payment_title": "Secure Payment",
+        "secure_payment_desc": "SSL encrypted",
+        "easy_returns_title": "Easy Returns",
+        "easy_returns_desc": "30-day policy",
+        "luxury_packaging_title": "Luxury Packaging",
+        "luxury_packaging_desc": "Gift-ready"
+      }
+    },
+    "layout": {
+      "announcement": "Complimentary shipping on orders over $200",
+      "nav": {
+        "home": "Home",
+        "shop_all": "Shop All"
+      }
+    },
+    "footer": {
+      "tagline": "Luxury fashion and accessories.",
+      "shop_heading": "Shop",
+      "all_collections": "All Collections",
+      "help_heading": "Help",
+      "size_guide": "Size Guide",
+      "shipping_returns": "Shipping & Returns",
+      "contact": "Contact Us",
+      "newsletter_heading": "Newsletter",
+      "newsletter_subtext": "Be first to know about new arrivals.",
+      "email_placeholder": "Email address",
+      "join_button": "Join",
+      "copyright": "© {{year}} {{name}}. All rights reserved."
+    }
+  }
+}

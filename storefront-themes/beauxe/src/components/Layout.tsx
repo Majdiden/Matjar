@@ -7,6 +7,7 @@ import { useThemeSetting } from '@shared/theme/ThemeProvider';
 import CartDrawer from '@shared/components/CartDrawer';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Beauxe Layout — navy announcement + pink-accent header.
@@ -26,6 +27,7 @@ const Layout: React.FC = () => {
   const { categories } = useCategories();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useTranslation(['theme']);
 
   const showBar = useThemeSetting<boolean>('show_announcement_bar') !== false;
   const barText = useThemeSetting<string>('announcement_text') || 'SUMMER SALE · UP TO 40% OFF';
@@ -46,8 +48,8 @@ const Layout: React.FC = () => {
             </div>
             <div className="flex-1 text-center">{barText}</div>
             <div className="hidden md:flex items-center gap-4 text-[10px]">
-              <Link to="/account" className="hover:text-[var(--color-primary)]">ACCOUNT</Link>
-              <Link to="/orders" className="hover:text-[var(--color-primary)]">TRACK ORDER</Link>
+              <Link to="/account" className="hover:text-[var(--color-primary)]">{t('theme.layout.nav.account')}</Link>
+              <Link to="/orders" className="hover:text-[var(--color-primary)]">{t('theme.layout.nav.track_order')}</Link>
             </div>
           </div>
         </div>
@@ -70,8 +72,8 @@ const Layout: React.FC = () => {
 
             {/* Left: nav */}
             <nav className="hidden md:flex items-center gap-7 text-[12px] tracking-[0.15em] uppercase" style={{ color: NAVY }}>
-              <Link to="/" className={isActive('/') && location.pathname === '/' ? 'font-bold' : 'hover:text-[var(--color-primary)]'}>Home</Link>
-              <Link to="/products" className={isActive('/products') ? 'font-bold' : 'hover:text-[var(--color-primary)]'}>Shop</Link>
+              <Link to="/" className={isActive('/') && location.pathname === '/' ? 'font-bold' : 'hover:text-[var(--color-primary)]'}>{t('theme.layout.nav.home')}</Link>
+              <Link to="/products" className={isActive('/products') ? 'font-bold' : 'hover:text-[var(--color-primary)]'}>{t('theme.layout.nav.shop')}</Link>
               {categories.slice(0, 3).map((cat) => (
                 <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[var(--color-primary)]">
                   {cat.name}
@@ -90,8 +92,8 @@ const Layout: React.FC = () => {
 
             {/* Right: icons */}
             <div className="flex items-center gap-4 md:gap-5 justify-end" style={{ color: NAVY }}>
-              <Link to="/about" className="hidden md:block hover:text-[var(--color-primary)] text-[12px] tracking-[0.15em] uppercase">About</Link>
-              <Link to="/contact" className="hidden md:block hover:text-[var(--color-primary)] text-[12px] tracking-[0.15em] uppercase">Contact</Link>
+              <Link to="/about" className="hidden md:block hover:text-[var(--color-primary)] text-[12px] tracking-[0.15em] uppercase">{t('theme.layout.nav.about')}</Link>
+              <Link to="/contact" className="hidden md:block hover:text-[var(--color-primary)] text-[12px] tracking-[0.15em] uppercase">{t('theme.layout.nav.contact')}</Link>
               <SearchBar variant="compact" className="hover:text-[var(--color-primary)] hover:bg-pink-50" />
               <Link to="/wishlist" aria-label="Wishlist" className="hover:text-[var(--color-primary)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
@@ -114,13 +116,13 @@ const Layout: React.FC = () => {
 
         {menuOpen && (
           <nav className="md:hidden border-t border-pink-100/50 px-6 py-4 space-y-3 text-sm uppercase tracking-wider" style={{ color: NAVY }}>
-            <Link onClick={() => setMenuOpen(false)} to="/" className="block">Home</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/products" className="block">Shop</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/" className="block">{t('theme.layout.nav.home')}</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/products" className="block">{t('theme.layout.nav.shop')}</Link>
             {categories.slice(0, 6).map((cat) => (
               <Link key={cat._id} onClick={() => setMenuOpen(false)} to={`/categories/${cat.slug}`} className="block">{cat.name}</Link>
             ))}
-            <Link onClick={() => setMenuOpen(false)} to="/about" className="block">About</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">Contact</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.layout.nav.about')}</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.layout.nav.contact')}</Link>
           </nav>
         )}
       </header>
@@ -138,7 +140,7 @@ const Layout: React.FC = () => {
                 {brand}
               </div>
               <p className="text-sm mb-5 max-w-xs" style={{ color: NAVY, opacity: 0.75 }}>
-                Clean, cruelty-free beauty crafted with love. Join thousands who've made the glow.
+                {t('theme.footer.tagline')}
               </p>
               <div className="flex gap-3">
                 {['f', 'i', 'p', 't'].map((s) => (
@@ -154,9 +156,9 @@ const Layout: React.FC = () => {
               </div>
             </div>
             {[
-              { h: 'Shop', items: ['All Products', 'Best Sellers', 'New Arrivals', 'Gift Sets'] },
-              { h: 'Help', items: ['Shipping', 'Returns', 'FAQs', 'Contact'] },
-              { h: 'About', items: ['Our Story', 'Ingredients', 'Sustainability', 'Careers'] },
+              { h: t('theme.footer.shop_heading'), items: [t('theme.footer.shop_all'), t('theme.footer.best_sellers'), t('theme.footer.new_arrivals'), t('theme.footer.gift_sets')] },
+              { h: t('theme.footer.help_heading'), items: [t('theme.footer.shipping'), t('theme.footer.returns'), t('theme.footer.faqs'), t('theme.footer.contact')] },
+              { h: t('theme.footer.about_heading'), items: [t('theme.footer.our_story'), t('theme.footer.ingredients'), t('theme.footer.sustainability'), t('theme.footer.careers')] },
             ].map((col) => (
               <div key={col.h}>
                 <h4 className="text-[11px] tracking-[0.22em] uppercase font-bold mb-5" style={{ color: NAVY }}>
@@ -171,7 +173,7 @@ const Layout: React.FC = () => {
             ))}
           </div>
           <div className="border-t border-pink-200/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]" style={{ color: NAVY, opacity: 0.7 }}>
-            <span>© {new Date().getFullYear()} {brand}. Made with love.</span>
+            <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), brand })}</span>
             <div className="flex gap-2">
               {['VISA', 'MC', 'AMEX', 'PP'].map((p) => (
                 <span key={p} className="h-5 px-2 border border-current/30 text-[9px] font-bold flex items-center">{p}</span>

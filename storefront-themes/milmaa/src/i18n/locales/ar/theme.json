@@ -1,1 +1,170 @@
-{}
+{
+  "theme": {
+    "section": {
+      "milmaa-top-strip": {
+        "text": "🌱 100% نباتي · شحن مجاني للطلبات التي تزيد عن $40"
+      },
+      "milmaa-hero": {
+        "eyebrow": "100% نباتي",
+        "heading": "احتضن قوة الطبيعة",
+        "subheading": "حليب نباتي كريمي وشهي مصنوع من أجود المكسرات والشوفان والبذور — لصحة أفضل ونكهة لا مثيل لها.",
+        "cta": "تسوّق الحليب",
+        "watch_story": "شاهد القصة",
+        "badge": "100% طبيعي"
+      },
+      "milmaa-flavors": {
+        "heading": "نكهاتنا الشهية",
+        "subheading": "اختر نكهتك المفضّلة واستمتع بكل رشفة",
+        "flavor_label": "نكهة",
+        "shop_now": "تسوّق الآن"
+      },
+      "milmaa-product-grid": {
+        "heading": "تسوّق منتجاتنا",
+        "subheading": "كل علبة رشفة صغيرة من السعادة"
+      },
+      "milmaa-benefits": {
+        "eyebrow": "لماذا ميلماء",
+        "heading": "بداية صحية لكل يوم",
+        "badge": "معتمد عضوياً"
+      },
+      "milmaa-blog": {
+        "heading": "من دفتر اليوميات",
+        "subheading": "وصفات وقصص ورشّة من الخير",
+        "view_all": "عرض جميع المقالات →",
+        "post_label": "وصفة"
+      },
+      "milmaa-testimonials": {
+        "heading": "يتحدث عملاؤنا",
+        "subheading": "كلمات حقيقية من محبّي الحليب النباتي"
+      },
+      "milmaa-instagram": {
+        "heading": "@milmaa_milk",
+        "subheading": "تابع جرعتنا اليومية من الطاقة النباتية"
+      }
+    },
+    "hero": {
+      "main": {
+        "eyebrow": "100% نباتي",
+        "headline": "احتضن قوة الطبيعة",
+        "subheadline": "حليب نباتي كريمي وشهي مصنوع من أجود المكسرات والشوفان والبذور — لصحة أفضل ونكهة لا مثيل لها.",
+        "cta": "تسوّق الحليب"
+      }
+    },
+    "footer": {
+      "tagline": "حليب نباتي كريمي مصنوع بحب. أُعدّ للعائلات والمزارعين والكوكب.",
+      "copyright_html": "© {{year}} {{brand}}. صُنع بحب 🌱",
+      "col_shop": "المتجر",
+      "col_company": "الشركة",
+      "col_help": "المساعدة",
+      "item_all_milks": "جميع أنواع الحليب",
+      "item_banana": "حليب الموز",
+      "item_badam": "حليب اللوز",
+      "item_cashewnut": "حليب الكاجو",
+      "item_about_us": "من نحن",
+      "item_our_farmers": "مزارعونا",
+      "item_sustainability": "الاستدامة",
+      "item_blog": "المدونة",
+      "item_shipping": "الشحن",
+      "item_returns": "الإرجاع",
+      "item_faqs": "الأسئلة الشائعة",
+      "item_contact": "اتصل بنا"
+    },
+    "nav": {
+      "home": "الرئيسية",
+      "shop": "المتجر",
+      "about": "من نحن",
+      "contact": "اتصل بنا"
+    },
+    "products": {
+      "page_title": "جميع منتجاتنا",
+      "page_subtitle": "استكشف مجموعتنا الكريمية من الحليب النباتي — كل زجاجة مصنوعة بحب.",
+      "breadcrumb_home": "الرئيسية",
+      "breadcrumb_shop": "المتجر",
+      "filter_category": "الفئة",
+      "filter_availability": "التوفر",
+      "filter_price": "السعر",
+      "all_products": "جميع المنتجات",
+      "promo_eyebrow": "عرض",
+      "promo_heading": "توصيل مجاني للطلبات التي تزيد عن $40",
+      "promo_body": "استكمل مخزونك ووفّر على نكهاتك المفضّلة.",
+      "promo_cta": "تسوّق الآن →",
+      "sort_newest": "ترتيب: الأحدث",
+      "sort_price_asc": "السعر: من الأقل للأعلى",
+      "sort_price_desc": "السعر: من الأعلى للأقل",
+      "sort_popular": "الأكثر شعبية",
+      "count_zero": "لا توجد منتجات",
+      "count_one": "منتج واحد",
+      "count_two": "منتجان",
+      "count_few": "{{count}} منتجات",
+      "count_many": "{{count}} منتجاً",
+      "count_other": "{{count}} منتج",
+      "empty": "لا توجد منتجات. جرّب فلاتر مختلفة."
+    },
+    "product_detail": {
+      "not_found_heading": "غير موجود",
+      "not_found_body": "لم نتمكن من العثور على هذا المنتج.",
+      "back_to_shop": "العودة إلى المتجر",
+      "badge_natural": "100% طبيعي",
+      "in_stock": "متوفر — جاهز للشحن",
+      "sold_out": "نفد المخزون",
+      "out_of_stock": "غير متوفر",
+      "save_to_wishlist": "♡ أضف إلى قائمة الأمنيات",
+      "tab_description": "الوصف",
+      "tab_ingredients": "المكونات",
+      "tab_reviews": "المراجعات",
+      "you_may_also_love": "قد يعجبك أيضاً",
+      "benefit_plant_based": "100% نباتي وخالٍ من منتجات الألبان",
+      "benefit_free_shipping": "شحن مجاني للطلبات التي تزيد عن $40",
+      "benefit_returns": "إرجاع مجاني خلال 30 يوماً",
+      "benefit_secure": "دفع آمن بشهادة SSL"
+    },
+    "category": {
+      "collections_label": "المجموعات",
+      "all_products": "جميع المنتجات",
+      "empty": "لا توجد منتجات في هذه الفئة بعد."
+    },
+    "cart": {
+      "page_title": "سلة التسوق",
+      "clear_cart": "إفراغ السلة",
+      "loading": "جاري تحميل السلة…",
+      "empty_heading": "سلتك فارغة",
+      "empty_body": "يبدو أنك لم تُضف أي شيء بعد",
+      "start_shopping": "ابدأ التسوق",
+      "each_price": "للقطعة",
+      "remove": "إزالة",
+      "subtotal_zero": "الإجمالي الفرعي (لا عناصر)",
+      "subtotal_one": "الإجمالي الفرعي (عنصر واحد)",
+      "subtotal_two": "الإجمالي الفرعي (عنصران)",
+      "subtotal_few": "الإجمالي الفرعي ({{count}} عناصر)",
+      "subtotal_many": "الإجمالي الفرعي ({{count}} عنصراً)",
+      "subtotal_other": "الإجمالي الفرعي ({{count}} عنصر)",
+      "shipping": "الشحن",
+      "calculated_at_checkout": "يُحسب عند إتمام الشراء",
+      "tax": "الضريبة",
+      "total": "الإجمالي",
+      "proceed_to_checkout": "المتابعة إلى الدفع",
+      "continue_shopping": "متابعة التسوق"
+    },
+    "testimonial": {
+      "tm-1": {
+        "quote": "ألذ حليب نباتي تذوقته في حياتي! أطفالي يحبونه وأنا مرتاحة لإعطائه لهم.",
+        "author": "سارة م.",
+        "role": "أم مشغولة"
+      },
+      "tm-2": {
+        "quote": "مثالي لشوفان الصباح. مكونات نظيفة ونكهة رائعة — تغيير حقيقي في نمط الحياة.",
+        "author": "ديفيد ل.",
+        "role": "مدرب يوغا"
+      },
+      "tm-3": {
+        "quote": "أخيراً حليباً غير لبني يُشبه الحليب الحقيقي. نكهة اللوز لا تُقاوم!",
+        "author": "بريا ك.",
+        "role": "عاشقة طعام"
+      }
+    },
+    "about": {
+      "title": "لماذا ميلماء",
+      "body": "نؤمن بقوة النباتات. كل علبة ميلماء مصنوعة من مكسرات وشوفان وبذور مختارة بعناية — بلا حليب بقري ولا تنازلات."
+    }
+  }
+}

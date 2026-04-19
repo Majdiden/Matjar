@@ -1,1 +1,141 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "eyebrow": "الجمال الطبيعي",
+      "headline": "اكتشفي جمال بشرتك",
+      "subheadline": "تركيبات نظيفة وخالية من المواد الحيوانية، معتمدة من الأطباء، صُنعت لتغذية بشرتك وإبراز توهجك الطبيعي.",
+      "cta": "تسوّقي الآن"
+    },
+    "section": {
+      "product_grid": {
+        "best_sellers_title": "الأكثر مبيعاً",
+        "best_sellers_subtitle": "اختيارات مفضّلة لدى مجتمعنا",
+        "new_arrivals_title": "الوصول حديثاً"
+      },
+      "quote": {
+        "default_quote": "«الجمال يبدأ في اللحظة التي تقرّرين فيها أن تكوني نفسك.»",
+        "default_author": "كوكو شانيل"
+      },
+      "instagram": {
+        "title": "@GLOWINGBEAUTY",
+        "subtitle": "تابعينا على إنستغرام للحصول على إلهام يومي"
+      },
+      "promo_cards": {
+        "card1_eyebrow": "موسم جديد",
+        "card1_title": "مجموعة الصيف",
+        "card1_cta": "تسوّقي الآن",
+        "card2_eyebrow": "وصل للتو",
+        "card2_title": "ما الجديد؟",
+        "card2_cta": "اكتشفي",
+        "card3_eyebrow": "عرض محدود",
+        "card3_title": "اشتري 1 واحصلي على 1",
+        "card3_cta": "تسوّقي الآن"
+      }
+    },
+    "nav": {
+      "home": "الرئيسية",
+      "shop": "المتجر",
+      "about": "من نحن",
+      "contact": "تواصل معنا"
+    },
+    "footer": {
+      "tagline": "تركيبات نظيفة. جمال واعٍ. صُنع للجميع.",
+      "col_shop": "المتجر",
+      "col_help": "المساعدة",
+      "col_company": "الشركة",
+      "col_newsletter": "النشرة البريدية",
+      "all_products": "جميع المنتجات",
+      "best_sellers": "الأكثر مبيعاً",
+      "new_arrivals": "الوصول حديثاً",
+      "gift_cards": "بطاقات الهدايا",
+      "shipping": "الشحن",
+      "returns": "الإرجاع",
+      "faq": "الأسئلة الشائعة",
+      "contact": "تواصل معنا",
+      "about_us": "من نحن",
+      "ingredients": "المكوّنات",
+      "sustainability": "الاستدامة",
+      "journal": "المدوّنة",
+      "newsletter_subtitle": "انضمي للحصول على خصم 10% على طلبك الأول.",
+      "email_placeholder": "بريدك الإلكتروني",
+      "copyright": "© {{year}} {{name}}. جميع الحقوق محفوظة."
+    },
+    "announcement": {
+      "default_text": "شحن مجاني لجميع الطلبات داخل الولايات المتحدة بقيمة 50$ فأكثر"
+    },
+    "products": {
+      "title": "جميع المنتجات",
+      "subtitle": "اكتشفي مجموعتنا الكاملة من مستحضرات التجميل النظيفة والخالية من المواد الحيوانية",
+      "breadcrumb_home": "الرئيسية",
+      "breadcrumb_shop": "المتجر",
+      "sidebar_categories": "الفئات",
+      "sidebar_availability": "التوفر",
+      "sidebar_price": "السعر",
+      "all_products": "جميع المنتجات",
+      "availability_all": "الكل",
+      "availability_in_stock": "متوفر",
+      "availability_out_of_stock": "غير متوفر",
+      "price_min": "الحد الأدنى",
+      "price_max": "الحد الأقصى",
+      "showing_count": "عرض {{count}} منتج",
+      "sort_newest": "ترتيب: الأحدث",
+      "sort_price_asc": "السعر: من الأقل إلى الأعلى",
+      "sort_price_desc": "السعر: من الأعلى إلى الأقل",
+      "sort_popular": "الأكثر شعبية",
+      "empty": "لا توجد منتجات. جرّبي فلاتر مختلفة.",
+      "loading": "جاري التحميل…"
+    },
+    "category": {
+      "collections_sidebar": "المجموعات",
+      "all_products": "جميع المنتجات",
+      "empty": "لا توجد منتجات في هذه الفئة بعد."
+    },
+    "product_detail": {
+      "tab_description": "الوصف",
+      "tab_shipping": "الشحن والإرجاع",
+      "tab_reviews": "المراجعات",
+      "reviews_count": "({{count}} مراجعة)",
+      "in_stock": "متوفر — جاهز للشحن",
+      "sold_out": "نفد المخزون",
+      "out_of_stock": "غير متوفر",
+      "buy_it_now": "اشتري الآن",
+      "compare": "مقارنة",
+      "wishlist": "قائمة الأمنيات",
+      "share": "مشاركة",
+      "free_shipping": "شحن مجاني للطلبات التي تزيد عن 50$",
+      "estimated_delivery": "التسليم المقدّر: 3–5 أيام عمل",
+      "easy_returns": "إرجاع سهل خلال 30 يوماً",
+      "shipping_tab_body1": "شحن مجاني لجميع الطلبات الأمريكية التي تزيد عن 50$. الشحن الدولي متاح عند الدفع.",
+      "shipping_tab_body2": "إرجاع خلال 30 يوماً. إذا لم تكوني راضية، أعيدي طلبك خلال 30 يوماً للحصول على استرداد كامل.",
+      "shipping_tab_body3": "تُعالَج جميع الطلبات خلال 1–2 يوم عمل. ستصلك معلومات التتبع عبر البريد الإلكتروني فور شحن طلبك.",
+      "you_may_also_like": "قد يعجبك أيضاً",
+      "not_found_title": "غير موجود",
+      "not_found_body": "تعذّر العثور على هذا المنتج.",
+      "back_to_shop": "العودة إلى المتجر",
+      "save": "وفّري {{amount}}"
+    },
+    "product_card": {
+      "sale_badge": "تخفيض -{{pct}}%",
+      "choose_options": "اختر الخيارات",
+      "add_to_cart": "+ إضافة إلى السلة"
+    },
+    "cart": {
+      "loading": "جاري تحميل السلة...",
+      "empty_title": "سلتك فارغة",
+      "empty_subtitle": "يبدو أنك لم تضيفي أي شيء بعد",
+      "start_shopping": "ابدأي التسوق",
+      "title": "سلة التسوق",
+      "clear": "إفراغ السلة",
+      "remove": "إزالة",
+      "each": "للقطعة",
+      "subtotal": "الإجمالي الفرعي ({{count}} عناصر)",
+      "shipping": "الشحن",
+      "shipping_calc": "يُحسب عند الدفع",
+      "tax": "الضريبة",
+      "tax_calc": "تُحسب عند الدفع",
+      "total": "الإجمالي",
+      "checkout": "المتابعة إلى الدفع",
+      "continue_shopping": "متابعة التسوق"
+    }
+  }
+}

@@ -1,1 +1,38 @@
-{}
+{
+  "announcement": {
+    "dismiss_aria": "إغلاق الإعلان"
+  },
+  "countdown": {
+    "label": "ينتهي خلال:",
+    "expired": "انتهى العرض",
+    "units": {
+      "days": "أيام",
+      "hours": "ساعات",
+      "minutes": "دقائق",
+      "seconds": "ثوانٍ"
+    }
+  },
+  "newsletter": {
+    "title": "ابقَ على اطلاع",
+    "description": "اشترك للحصول على عروض خاصة وهدايا مجانية ووصول حديث.",
+    "placeholder": "أدخل بريدك الإلكتروني",
+    "submit": "اشتراك",
+    "subscribing": "جارٍ الاشتراك...",
+    "success_title": "أنت الآن مشترك!",
+    "success": "شكراً لاشتراكك.",
+    "error": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "no_thanks": "لا شكراً"
+  },
+  "social_share": {
+    "title": "مشاركة",
+    "copy_link": "نسخ الرابط",
+    "aria": {
+      "facebook": "مشاركة على Facebook",
+      "twitter": "مشاركة على Twitter",
+      "pinterest": "مشاركة على Pinterest",
+      "whatsapp": "مشاركة على WhatsApp",
+      "email": "مشاركة عبر البريد الإلكتروني",
+      "copy": "نسخ الرابط"
+    }
+  }
+}

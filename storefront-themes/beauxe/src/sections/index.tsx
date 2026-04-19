@@ -8,6 +8,7 @@ import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import BeauxeProductCard from '../components/BeauxeProductCard';
+import { useTranslation } from 'react-i18next';
 
 const NAVY = 'var(--color-primary)';
 const PINK = 'var(--color-secondary)';
@@ -18,9 +19,10 @@ const BLUSH = 'var(--color-muted)';
 
 const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
+  const { t } = useTranslation(['theme']);
   return (
     <div className="text-white text-[11px] tracking-[0.2em] py-2.5 text-center" style={{ backgroundColor: NAVY }}>
-      {s.text || 'SUMMER SALE · UP TO 40% OFF'}
+      {s.text || t('theme.section.top_bar.text')}
       {s.link_text && (
         <Link to={s.link_url || '/products'} className="ml-3 underline hover:text-[var(--color-primary)]">
           {s.link_text}
@@ -34,6 +36,7 @@ const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
+  const { t } = useTranslation(['theme']);
   return (
     <section className="relative overflow-hidden" style={{ backgroundColor: BLUSH }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
@@ -48,7 +51,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             className="font-serif text-5xl md:text-6xl lg:text-7xl leading-[1.05] mb-6"
             style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
           >
-            {s.heading || 'Natural Beauty, Redefined'}
+            {s.heading || t('theme.section.hero.heading')}
           </h1>
           {s.subheading && (
             <p className="text-base md:text-lg leading-relaxed mb-8 max-w-md" style={{ color: NAVY, opacity: 0.8 }}>
@@ -60,14 +63,14 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             className="inline-block px-10 py-4 rounded-full text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:opacity-90 transition"
             style={{ backgroundColor: NAVY }}
           >
-            {s.cta_text || 'Shop the Collection'} →
+            {s.cta_text || t('theme.section.hero.cta')} →
           </Link>
 
           {/* Trust line */}
           <div className="mt-8 flex items-center gap-4 justify-center md:justify-start text-[11px]" style={{ color: NAVY }}>
             <div className="flex items-center gap-1.5">
               <span className="text-lg">★★★★★</span>
-              <span className="opacity-75">4.9 from 2,300+ reviews</span>
+              <span className="opacity-75">{t('theme.section.hero.trust_line')}</span>
             </div>
           </div>
         </div>
@@ -111,12 +114,13 @@ const iconFor = (key: string) => {
 };
 
 const FeatureStripSection: React.FC<SectionComponentProps> = ({ section }) => {
+  const { t } = useTranslation(['theme']);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { icon: 'truck', title: 'Free Shipping', subtitle: 'On orders over $50' } },
-    { id: 'b', settings: { icon: 'leaf', title: '100% Natural', subtitle: 'Clean ingredients' } },
-    { id: 'c', settings: { icon: 'heart', title: 'Cruelty Free', subtitle: 'Never tested on animals' } },
-    { id: 'd', settings: { icon: 'shield', title: 'Secure Checkout', subtitle: 'SSL encrypted' } },
+    { id: 'a', settings: { icon: 'truck', title: t('theme.section.feature_strip.free_shipping_title'), subtitle: t('theme.section.feature_strip.free_shipping_subtitle') } },
+    { id: 'b', settings: { icon: 'leaf', title: t('theme.section.feature_strip.natural_title'), subtitle: t('theme.section.feature_strip.natural_subtitle') } },
+    { id: 'c', settings: { icon: 'heart', title: t('theme.section.feature_strip.cruelty_title'), subtitle: t('theme.section.feature_strip.cruelty_subtitle') } },
+    { id: 'd', settings: { icon: 'shield', title: t('theme.section.feature_strip.secure_title'), subtitle: t('theme.section.feature_strip.secure_subtitle') } },
   ];
   return (
     <section className="py-10" style={{ backgroundColor: CREAM }}>
@@ -144,6 +148,7 @@ const FeatureStripSection: React.FC<SectionComponentProps> = ({ section }) => {
 
 const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
+  const { t } = useTranslation(['theme']);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
     { id: 'a', settings: { title: 'Skincare', background: '#f8e4e4' } },
@@ -154,7 +159,7 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
       <div className="text-center mb-12">
         <h2 className="font-serif text-4xl md:text-5xl mb-3" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
-          {s.heading || 'Shop By Category'}
+          {s.heading || t('theme.section.category_tiles.heading')}
         </h2>
         {s.subheading && <p className="text-sm opacity-75" style={{ color: NAVY }}>{s.subheading}</p>}
       </div>
@@ -176,7 +181,7 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
                   {bs.title}
                 </h3>
                 <span className="inline-block px-6 py-2 rounded-full text-[11px] tracking-[0.22em] uppercase font-semibold text-white group-hover:bg-[color:var(--color-secondary)] transition" style={{ backgroundColor: NAVY }}>
-                  Shop Now →
+                  {t('theme.section.category_tiles.shop_now')} →
                 </span>
               </div>
             </Link>
@@ -191,6 +196,7 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
 
 const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) => {
   const s = useThemeSettings(id);
+  const { t } = useTranslation(['theme']);
   const limit = Number(s.product_limit) || 8;
   const source = (s.source as string) || 'featured';
   const featured = useFeaturedProducts(limit);
@@ -201,10 +207,10 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
       <div className="text-center mb-12">
         <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-3" style={{ color: PINK }}>
-          {s.subheading || 'HAND-PICKED FAVOURITES'}
+          {s.subheading || t('theme.section.feature_strip.favourites')}
         </div>
         <h2 className="font-serif text-4xl md:text-5xl" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
-          {s.heading || 'BEST SELLERS'}
+          {s.heading || t('theme.section.product_grid.heading_bestsellers')}
         </h2>
         <div className="w-16 h-[2px] mx-auto mt-5" style={{ backgroundColor: PINK }} />
       </div>
@@ -227,7 +233,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           className="inline-block px-10 py-4 rounded-full border-2 text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--color-primary)] hover:text-white transition"
           style={{ borderColor: NAVY, color: NAVY }}
         >
-          View All Products →
+          {t('theme.section.product_grid.view_all')} →
         </Link>
       </div>
     </section>
@@ -238,6 +244,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
 
 const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
+  const { t } = useTranslation(['theme']);
   return (
     <section className="my-20" style={{ backgroundColor: s.background_color || BLUSH }}>
       <div className="max-w-5xl mx-auto px-6 py-20 text-center">
@@ -250,7 +257,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
           className="font-serif text-5xl md:text-6xl mb-6"
           style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
         >
-          {s.heading || 'Buy 1 Get 1 Free'}
+          {s.heading || t('theme.section.banner.heading')}
         </h2>
         {s.subheading && (
           <p className="text-base max-w-md mx-auto mb-8" style={{ color: NAVY, opacity: 0.8 }}>
@@ -262,7 +269,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
           className="inline-block px-10 py-4 rounded-full text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:opacity-90 transition"
           style={{ backgroundColor: NAVY }}
         >
-          {s.cta_text || 'Shop the Offer'}
+          {s.cta_text || t('theme.section.banner.cta')}
         </Link>
       </div>
     </section>
@@ -273,6 +280,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
+  const { t } = useTranslation(['theme']);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
     { id: 'a', settings: { quote: 'Absolutely love this serum!', author: 'Emma R.', role: 'Verified Buyer' } },
@@ -284,7 +292,7 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
           <h2 className="font-serif text-4xl md:text-5xl" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
-            {s.heading || 'What Our Customers Say'}
+            {s.heading || t('theme.section.testimonials.heading')}
           </h2>
           <div className="w-16 h-[2px] mx-auto mt-5" style={{ backgroundColor: PINK }} />
         </div>
@@ -304,7 +312,7 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
                   "{bs.quote}"
                 </p>
                 <div className="text-sm font-bold" style={{ color: NAVY }}>— {bs.author}</div>
-                {bs.role && <div className="text-[11px] opacity-60 uppercase tracking-wider mt-1">{bs.role}</div>}
+                {bs.role && <div className="text-[11px] opacity-60 uppercase tracking-wider mt-1">{bs.role || t('theme.section.testimonials.verified_buyer')}</div>}
               </div>
             );
           })}

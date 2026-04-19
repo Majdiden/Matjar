@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/commerce/ProductCard';
 import { Skeleton } from '../components/primitives/Skeleton';
 import { useThemeCard } from '../theme/ThemeCardProvider';
+import { useTranslation } from 'react-i18next';
 import type { Product } from '../types/commerce';
 
 interface SearchResultsProps {
@@ -23,6 +24,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   renderCard: propRenderCard,
 }) => {
   const themeCard = useThemeCard();
+  const { t } = useTranslation(['category']);
   const renderCard =
     propRenderCard ||
     (themeCard ? ((p: Product) => themeCard(p, onQuickView)) : undefined);
@@ -36,8 +38,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         <svg className="w-14 h-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
         </svg>
-        <h1 className="text-2xl font-bold mb-2">Search</h1>
-        <p className="text-gray-500">Enter a search term to find products.</p>
+        <h1 className="text-2xl font-bold mb-2">{t('search.title')}</h1>
+        <p className="text-gray-500">{t('search.empty_prompt')}</p>
       </div>
     );
   }
@@ -46,11 +48,11 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-8 ${className}`}>
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-1">
-          Search results for "{query}"
+          {t('search.results_for', { query })}
         </h1>
         {!loading && (
           <p className="text-gray-500 text-sm">
-            {products.length} {products.length === 1 ? 'result' : 'results'} found
+            {t('search.results_count_other', { count: products.length })}
           </p>
         )}
       </div>
@@ -62,16 +64,16 @@ const SearchResults: React.FC<SearchResultsProps> = ({
           <svg className="w-14 h-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
-          <h2 className="text-xl font-semibold mb-2">No results found</h2>
+          <h2 className="text-xl font-semibold mb-2">{t('search.empty.title')}</h2>
           <p className="text-gray-500 mb-6">
-            Try adjusting your search or browse our collections.
+            {t('search.empty.description')}
           </p>
           <Link
             to="/products"
             className="inline-block px-6 py-3 rounded-lg text-white font-medium transition hover:opacity-90"
             style={{ backgroundColor: accentColor || 'var(--color-primary, #2563eb)' }}
           >
-            Browse All Products
+            {t('search.empty.browse_all')}
           </Link>
         </div>
       ) : (

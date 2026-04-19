@@ -1,1 +1,46 @@
-{}
+{
+  "breadcrumb": {
+    "home": "Home",
+    "aria": "Breadcrumb"
+  },
+  "megamenu": {
+    "aria": "Main navigation",
+    "featured": "Featured",
+    "view_all": "View All {{name}}"
+  },
+  "mobile_bottom": {
+    "home": "Home",
+    "search": "Search",
+    "cart": "Cart",
+    "account": "Account"
+  },
+  "pagination": {
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "Page {{page}} of {{total}}",
+    "aria": "Pagination"
+  },
+  "search": {
+    "placeholder": "Search products, brands and more...",
+    "button_aria": "Open search",
+    "close_aria": "Close search",
+    "empty": "Start typing to find products",
+    "no_results": "No products found",
+    "no_results_hint": "Try a different search term or browse our categories",
+    "recent": "Recent",
+    "clear_all": "Clear all",
+    "trending": "Trending now",
+    "products_section": "Products",
+    "see_all_results": "See all results for \u201c{{query}}\u201d \u2192",
+    "navigate_hint": "navigate",
+    "select_hint": "select",
+    "close_hint": "close"
+  },
+  "aria": {
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "go_to_slide": "Go to slide {{index}}",
+    "slide_label": "Slide {{index}} of {{total}}",
+    "carousel": "Carousel"
+  }
+}

@@ -1,1 +1,176 @@
-{}
+{
+  "theme": {
+    "section": {
+      "nutreko-top-strip": {
+        "text": "شحن مجاني للطلبات التي تزيد عن $75  ·  منتجات 100% أصيلة"
+      },
+      "nutreko-hero": {
+        "eyebrow": "مكملات غذائية فعّالة",
+        "heading": "عزّز أداءك",
+        "subheading": "تركيبات بروتين وما قبل التمرين والتعافي المتميّزة — مصمّمة للرياضيين الذين لا يقبلون بالتسوية.",
+        "cta": "تسوّق الآن",
+        "secondary_cta": "اعرض العروض",
+        "badge": "وصول جديد",
+        "stat_products": "منتج",
+        "stat_customers": "عميل",
+        "stat_authentic": "أصيل"
+      },
+      "nutreko-guarantee": {
+        "authentic_title": "100% أصيل",
+        "authentic_subtitle": "مصدره مباشرة من العلامات التجارية",
+        "potency_title": "أقصى فاعلية",
+        "potency_subtitle": "تركيبات بدرجة ممتازة",
+        "lab_title": "مختبر ومعتمد",
+        "lab_subtitle": "كل دفعة تُختبر",
+        "shipping_title": "شحن سريع",
+        "shipping_subtitle": "يُشحن خلال 24 ساعة"
+      },
+      "nutreko-category-strip": {
+        "heading": "استكشف المجموعة",
+        "subheading": "مصمّمة لكل مرحلة من مراحل تدريبك",
+        "shop_label": "تسوّق →"
+      },
+      "nutreko-product-grid": {
+        "top_sellers_heading": "الأكثر مبيعاً",
+        "top_sellers_subheading": "الأساسيات التي يحتاجها كل رياضي",
+        "trending_heading": "الأكثر رواجاً",
+        "fuel_heading": "أوقد تمرينك",
+        "view_all": "عرض الكل →"
+      },
+      "nutreko-banner": {
+        "eyebrow": "عرض محدود",
+        "heading": "اشترِ 2 واحصل على 1 مجاناً",
+        "subheading": "على جميع مسحوق الواي بروتين — هذا الأسبوع فقط.",
+        "cta": "تسوّق العرض"
+      }
+    },
+    "hero": {
+      "main": {
+        "eyebrow": "مكملات غذائية فعّالة",
+        "headline": "عزّز أداءك",
+        "subheadline": "تركيبات بروتين وما قبل التمرين والتعافي المتميّزة — مصمّمة للرياضيين الذين لا يقبلون بالتسوية.",
+        "cta": "تسوّق الآن"
+      }
+    },
+    "banner": {
+      "promo": {
+        "text": "شحن مجاني للطلبات التي تزيد عن $75  ·  منتجات 100% أصيلة"
+      },
+      "deal": {
+        "text": "اشترِ 2 واحصل على 1 مجاناً على جميع مسحوق الواي بروتين — هذا الأسبوع فقط."
+      }
+    },
+    "footer": {
+      "tagline": "مكملات غذائية ممتازة وتغذية رياضية للرياضيين الذين يطالبون بالأفضل. 100% أصيلة، مختبرة، مضمونة.",
+      "copyright_html": "© {{year}} {{brand}}. جميع الحقوق محفوظة.",
+      "col_shop": "المتجر",
+      "col_support": "الدعم",
+      "col_company": "الشركة",
+      "item_all_products": "جميع المنتجات",
+      "item_protein": "البروتين",
+      "item_pre_workout": "ما قبل التمرين",
+      "item_recovery": "التعافي",
+      "item_shipping": "الشحن",
+      "item_returns": "الإرجاع",
+      "item_faqs": "الأسئلة الشائعة",
+      "item_contact": "اتصل بنا",
+      "item_about": "من نحن",
+      "item_blog": "المدونة",
+      "item_ambassadors": "السفراء",
+      "item_careers": "الوظائف"
+    },
+    "nav": {
+      "home": "الرئيسية",
+      "shop_all": "جميع المنتجات",
+      "about": "من نحن",
+      "contact": "اتصل بنا"
+    },
+    "products": {
+      "page_title": "جميع المنتجات",
+      "page_subtitle": "مكملات غذائية ممتازة وبروتين وما قبل التمرين وتركيبات التعافي — مصمّمة للرياضيين.",
+      "breadcrumb_home": "الرئيسية",
+      "breadcrumb_shop": "المتجر",
+      "filter_categories": "الفئات",
+      "filter_availability": "التوفر",
+      "filter_price_range": "نطاق السعر",
+      "all_products": "جميع المنتجات",
+      "in_stock": "متوفر",
+      "out_of_stock": "غير متوفر",
+      "deal_eyebrow": "عرض محدود",
+      "deal_heading": "احصل على خصم 25% على أول طلب",
+      "deal_body": "استخدم الكود FUEL25 عند إتمام الشراء",
+      "deal_cta": "تسوّق الآن →",
+      "sort_newest": "الأحدث",
+      "sort_price_asc": "السعر: من الأقل للأعلى",
+      "sort_price_desc": "السعر: من الأعلى للأقل",
+      "sort_popular": "الأكثر شعبية",
+      "loading": "جاري التحميل…",
+      "count_zero": "لا توجد منتجات",
+      "count_one": "منتج واحد",
+      "count_two": "منتجان",
+      "count_few": "{{count}} منتجات",
+      "count_many": "{{count}} منتجاً",
+      "count_other": "{{count}} منتج",
+      "empty": "لا توجد منتجات. جرّب فلاتر مختلفة."
+    },
+    "product_detail": {
+      "not_found_heading": "غير موجود",
+      "not_found_body": "لم نتمكن من العثور على هذا المنتج.",
+      "back_to_shop": "العودة إلى المتجر",
+      "in_stock_ships": "متوفر · يُشحن خلال 24 ساعة",
+      "out_of_stock": "غير متوفر",
+      "pre_order": "طلب مسبق",
+      "in_stock_badge": "متوفر",
+      "adding": "جاري الإضافة…",
+      "select_options": "اختر الخيارات",
+      "add_to_cart": "+ إضافة إلى السلة",
+      "buy_now": "اشترِ الآن",
+      "share_label": "مشاركة",
+      "tab_description": "الوصف",
+      "tab_nutrition": "الحقائق الغذائية",
+      "tab_reviews": "المراجعات",
+      "nutrition_heading": "حقائق المكمل الغذائي",
+      "you_may_also_like": "قد يعجبك أيضاً",
+      "benefit_shipping": "شحن مجاني $75+",
+      "benefit_secure": "دفع آمن",
+      "benefit_returns": "إرجاع خلال 30 يوماً",
+      "benefit_authentic": "ضمان الأصالة"
+    },
+    "category": {
+      "breadcrumb_home": "الرئيسية",
+      "breadcrumb_shop": "المتجر",
+      "collections_label": "المجموعات",
+      "all_products": "جميع المنتجات",
+      "empty": "لا توجد منتجات في هذه الفئة بعد.",
+      "loading": "جاري التحميل…",
+      "count_zero": "لا توجد منتجات",
+      "count_one": "منتج واحد",
+      "count_two": "منتجان",
+      "count_few": "{{count}} منتجات",
+      "count_many": "{{count}} منتجاً",
+      "count_other": "{{count}} منتج"
+    },
+    "cart": {
+      "page_title": "سلة التسوق",
+      "clear_cart": "إفراغ السلة",
+      "loading": "جاري تحميل السلة…",
+      "empty_heading": "سلتك فارغة",
+      "empty_body": "يبدو أنك لم تُضف أي شيء بعد",
+      "start_shopping": "ابدأ التسوق",
+      "each_price": "للقطعة",
+      "remove": "إزالة",
+      "subtotal_zero": "الإجمالي الفرعي (لا عناصر)",
+      "subtotal_one": "الإجمالي الفرعي (عنصر واحد)",
+      "subtotal_two": "الإجمالي الفرعي (عنصران)",
+      "subtotal_few": "الإجمالي الفرعي ({{count}} عناصر)",
+      "subtotal_many": "الإجمالي الفرعي ({{count}} عنصراً)",
+      "subtotal_other": "الإجمالي الفرعي ({{count}} عنصر)",
+      "shipping": "الشحن",
+      "calculated_at_checkout": "يُحسب عند إتمام الشراء",
+      "tax": "الضريبة",
+      "total": "الإجمالي",
+      "proceed_to_checkout": "المتابعة إلى الدفع",
+      "continue_shopping": "متابعة التسوق"
+    }
+  }
+}

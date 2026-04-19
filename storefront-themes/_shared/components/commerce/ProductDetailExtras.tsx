@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '../../contexts/StoreContext';
 import { useCart } from '../../contexts/CartContext';
 import { reviewsApi } from '../../api/client';
@@ -108,6 +109,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
     accentColor,
     className = '',
   } = props;
+  const { t } = useTranslation(['product', 'common']);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
   const [tab, setTab] = useState<Tab>('description');
@@ -240,9 +242,9 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
   };
 
   const tabs: Array<{ id: Tab; label: string; count?: number }> = [
-    { id: 'description', label: 'Description' },
-    { id: 'specifications', label: 'Specifications', count: specs.length },
-    { id: 'reviews', label: 'Reviews', count: totalReviews },
+    { id: 'description', label: t('tab.description') },
+    { id: 'specifications', label: t('tab.specifications'), count: specs.length },
+    { id: 'reviews', label: t('tab.reviews'), count: totalReviews },
   ];
 
   return (
@@ -281,7 +283,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
               {product.description ? (
                 <div className="whitespace-pre-line">{product.description}</div>
               ) : (
-                <p className="text-gray-500">No description available.</p>
+                <p className="text-gray-500">{t('description.no_description')}</p>
               )}
             </div>
           )}
@@ -289,7 +291,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
           {tab === 'specifications' && (
             <div>
               {specs.length === 0 ? (
-                <p className="text-gray-500 text-sm">No specifications listed for this product.</p>
+                <p className="text-gray-500 text-sm">{t('specifications.empty')}</p>
               ) : (
                 <dl className="divide-y">
                   {specs.map((spec, i) => (
@@ -313,7 +315,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                   </div>
                   <Stars rating={product.rating || 0} size="md" />
                   <p className="text-xs text-gray-500 mt-2">
-                    Based on {totalReviews} review{totalReviews === 1 ? '' : 's'}
+                    {t(totalReviews === 0 ? 'review.based_on_zero' : totalReviews === 1 ? 'review.based_on_one' : 'review.based_on_other', { count: totalReviews })}
                   </p>
                 </div>
 
@@ -348,7 +350,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                       style={{ backgroundColor: accent }}
                       disabled={alreadyReviewed}
                     >
-                      Write a review
+                      {t('review.write_review')}
                     </button>
                   ) : (
                     <Link
@@ -356,7 +358,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                       className="inline-block px-5 py-2.5 rounded-lg text-sm font-semibold border hover:bg-gray-50 transition"
                       style={{ borderColor: accent, color: accent }}
                     >
-                      Sign in to write a review
+                      {t('review.sign_in_to_review')}
                     </Link>
                   )
                 ) : (
@@ -365,7 +367,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                     className="border rounded-xl p-5 space-y-4 bg-gray-50"
                   >
                     <div>
-                      <p className="text-sm font-semibold mb-2">Your rating</p>
+                      <p className="text-sm font-semibold mb-2">{t('review.your_rating')}</p>
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((n) => {
                           const filled = (reviewHover || reviewRating) >= n;
@@ -379,7 +381,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                               className={`text-3xl leading-none transition ${
                                 filled ? 'text-yellow-400' : 'text-gray-300'
                               }`}
-                              aria-label={`${n} star${n === 1 ? '' : 's'}`}
+                              aria-label={t(n === 1 ? 'review.star_aria_one' : 'review.star_aria_other', { count: n })}
                             >
                               ★
                             </button>
@@ -391,7 +393,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
 
                     <div>
                       <label htmlFor="review-title" className="block text-sm font-semibold mb-1">
-                        Title <span className="text-gray-400 font-normal">(optional)</span>
+                        {t('review.title_field')} <span className="text-gray-400 font-normal">{t('review.title_optional')}</span>
                       </label>
                       <input
                         id="review-title"
@@ -399,7 +401,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                         value={reviewTitle}
                         onChange={(e) => setReviewTitle(e.target.value)}
                         maxLength={200}
-                        placeholder="Sum it up in a few words"
+                        placeholder={t('review.title_placeholder')}
                         className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2"
                         style={{ borderColor: '#e5e7eb' }}
                       />
@@ -407,7 +409,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
 
                     <div>
                       <label htmlFor="review-comment" className="block text-sm font-semibold mb-1">
-                        Your review
+                        {t('review.comment_field')}
                       </label>
                       <textarea
                         id="review-comment"
@@ -415,7 +417,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                         onChange={(e) => setReviewComment(e.target.value)}
                         rows={4}
                         maxLength={5000}
-                        placeholder="What did you like or dislike? How was the quality?"
+                        placeholder={t('review.comment_placeholder')}
                         className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 resize-y"
                         style={{ borderColor: '#e5e7eb' }}
                         required
@@ -433,14 +435,14 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                         className="px-5 py-2.5 rounded-lg text-white text-sm font-semibold hover:opacity-90 transition disabled:opacity-50"
                         style={{ backgroundColor: accent }}
                       >
-                        {submittingReview ? 'Submitting…' : 'Submit review'}
+                        {submittingReview ? t('review.submitting') : t('review.submit')}
                       </button>
                       <button
                         type="button"
                         onClick={() => { setShowReviewForm(false); setReviewError(null); }}
                         className="px-5 py-2.5 rounded-lg text-sm font-semibold border hover:bg-white transition"
                       >
-                        Cancel
+                        {t('common:action.cancel')}
                       </button>
                     </div>
                   </form>
@@ -450,7 +452,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
               {/* Review list */}
               {totalReviews === 0 ? (
                 <div className="text-center py-12 text-sm text-gray-500">
-                  No reviews yet. Be the first to share your thoughts.
+                  {t('review.empty')}
                 </div>
               ) : (
                 <div className="space-y-5">
@@ -468,8 +470,8 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                             <p className="text-sm font-semibold leading-tight">
                               {reviewerName(r)}
                               {(r.isVerifiedPurchase || r.isVerified) && (
-                                <span className="ml-2 text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded font-medium">
-                                  Verified Purchase
+                                <span className="ms-2 text-[10px] text-green-700 bg-green-50 px-1.5 py-0.5 rounded font-medium">
+                                  {t('review.verified_purchase')}
                                 </span>
                               )}
                             </p>
@@ -498,8 +500,8 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
       {/* ─── Frequently bought together ──────────────────────── */}
       {frequentlyBoughtWith.length > 0 && (
         <section className="mt-12">
-          <h2 className="text-xl sm:text-2xl font-bold mb-1">Frequently Bought Together</h2>
-          <p className="text-sm text-gray-500 mb-6">Customers often pair these together.</p>
+          <h2 className="text-xl sm:text-2xl font-bold mb-1">{t('bundle.title')}</h2>
+          <p className="text-sm text-gray-500 mb-6">{t('bundle.subtitle')}</p>
 
           <div className="border rounded-2xl p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start bg-white">
             {/* Items */}
@@ -538,14 +540,14 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                             className="text-xs font-semibold mt-0.5 inline-block hover:underline"
                             style={{ color: accent as string }}
                           >
-                            Choose options
+                            {t('bundle.choose_options')}
                           </Link>
                         ) : (
                           <p className="text-xs text-gray-500 mt-0.5">{formatPrice(item.price)}</p>
                         )
                       )}
                       {i === 0 && (
-                        <p className="text-xs text-gray-400 italic mt-0.5">This item</p>
+                        <p className="text-xs text-gray-400 italic mt-0.5">{t('bundle.this_item')}</p>
                       )}
                     </div>
                   </React.Fragment>
@@ -555,10 +557,10 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
 
             {/* Bundle CTA */}
             <div className="lg:col-span-1 lg:border-l lg:pl-6">
-              <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Add-on total</p>
+              <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">{t('bundle.addon_total')}</p>
               <p className="text-2xl font-bold mb-3">{formatPrice(bundleTotal)}</p>
               <p className="text-xs text-gray-500 mb-4">
-                {selectedAddableCount} of {addableExtras.length} extras selected
+                {t(addableExtras.length === 1 ? 'bundle.of_extras_selected_one' : 'bundle.of_extras_selected_other', { selected: selectedAddableCount, total: addableExtras.length })}
               </p>
               <button
                 onClick={handleBundleAdd}
@@ -566,7 +568,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                 className="w-full py-3 rounded-lg text-white font-semibold hover:opacity-90 transition disabled:opacity-50 text-sm"
                 style={{ backgroundColor: accent }}
               >
-                {addingBundle ? 'Adding...' : 'Add Selected to Cart'}
+                {addingBundle ? t('bundle.adding') : t('bundle.add_selected')}
               </button>
             </div>
           </div>
@@ -576,8 +578,8 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
       {/* ─── Similar products ────────────────────────────────── */}
       {relatedProducts.length > 0 && (
         <section className="mt-12">
-          <h2 className="text-xl sm:text-2xl font-bold mb-1">Similar Products</h2>
-          <p className="text-sm text-gray-500 mb-6">More from this collection you might love.</p>
+          <h2 className="text-xl sm:text-2xl font-bold mb-1">{t('similar.title')}</h2>
+          <p className="text-sm text-gray-500 mb-6">{t('similar.subtitle')}</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {relatedProducts.slice(0, 8).map((p) => (
               <Link

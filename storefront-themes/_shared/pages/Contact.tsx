@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { contactApi } from '../api/client';
+import { useTranslation } from 'react-i18next';
 
 interface ContactProps {
   className?: string;
@@ -9,21 +10,23 @@ interface ContactProps {
   subheading?: string;
 }
 
-const SUBJECTS = [
-  'General Inquiry',
-  'Order Support',
-  'Returns & Exchanges',
-  'Product Question',
-  'Other',
-];
-
 const Contact: React.FC<ContactProps> = ({
   className = '',
   accentColor,
-  heading = 'Contact Us',
-  subheading = "Have a question or need help? We'd love to hear from you.",
+  heading,
+  subheading,
 }) => {
   const { store } = useStore();
+  const { t } = useTranslation(['footer']);
+
+  const SUBJECTS = [
+    t('footer.contact.subject.general'),
+    t('footer.contact.subject.order_support'),
+    t('footer.contact.subject.returns'),
+    t('footer.contact.subject.product'),
+    t('footer.contact.subject.other'),
+  ];
+
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -48,7 +51,7 @@ const Contact: React.FC<ContactProps> = ({
     setError(null);
 
     if (form.message.trim().length < 10) {
-      setError('Please write at least 10 characters in your message.');
+      setError(t('footer.contact.error.message_too_short'));
       return;
     }
 
@@ -62,7 +65,7 @@ const Contact: React.FC<ContactProps> = ({
       });
       setSubmitted(true);
     } catch (err: any) {
-      setError(err?.message || 'Could not send your message. Please try again.');
+      setError(err?.message || t('footer.contact.error.default'));
     } finally {
       setSubmitting(false);
     }
@@ -71,37 +74,37 @@ const Contact: React.FC<ContactProps> = ({
   return (
     <div className={`max-w-4xl mx-auto px-4 sm:px-6 py-12 ${className}`}>
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold mb-2">{heading}</h1>
-        <p className="text-gray-500">{subheading}</p>
+        <h1 className="text-3xl font-bold mb-2">{heading || t('footer.contact.title')}</h1>
+        <p className="text-gray-500">{subheading || t('footer.contact.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Contact Info */}
         <div className="space-y-6">
           <div>
-            <h3 className="font-semibold mb-2">Store</h3>
+            <h3 className="font-semibold mb-2">{t('footer.contact.info.store')}</h3>
             <p className="text-gray-600 text-sm">{store?.name || 'Our Store'}</p>
           </div>
           <div>
-            <h3 className="font-semibold mb-2">Email</h3>
+            <h3 className="font-semibold mb-2">{t('footer.contact.info.email')}</h3>
             <p className="text-gray-600 text-sm">{store?.email || 'support@store.com'}</p>
           </div>
           {store?.phone && (
             <div>
-              <h3 className="font-semibold mb-2">Phone</h3>
+              <h3 className="font-semibold mb-2">{t('footer.contact.info.phone')}</h3>
               <p className="text-gray-600 text-sm">{store.phone}</p>
             </div>
           )}
           {store?.address && (
             <div>
-              <h3 className="font-semibold mb-2">Address</h3>
+              <h3 className="font-semibold mb-2">{t('footer.contact.info.address')}</h3>
               <p className="text-gray-600 text-sm">{store.address}</p>
             </div>
           )}
           <div>
-            <h3 className="font-semibold mb-2">Hours</h3>
-            <p className="text-gray-600 text-sm">Monday - Friday: 9am - 6pm</p>
-            <p className="text-gray-600 text-sm">Saturday - Sunday: 10am - 4pm</p>
+            <h3 className="font-semibold mb-2">{t('footer.contact.info.hours')}</h3>
+            <p className="text-gray-600 text-sm">{t('footer.contact.info.hours_weekday')}</p>
+            <p className="text-gray-600 text-sm">{t('footer.contact.info.hours_weekend')}</p>
           </div>
         </div>
 
@@ -123,14 +126,14 @@ const Contact: React.FC<ContactProps> = ({
                   d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <h3 className="text-xl font-semibold mb-2">Message Sent</h3>
-              <p className="text-gray-500">We'll get back to you within 24 hours.</p>
+              <h3 className="text-xl font-semibold mb-2">{t('footer.contact.success_title')}</h3>
+              <p className="text-gray-500">{t('footer.contact.success_description')}</p>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
+              <label className="block text-sm font-medium mb-1">{t('footer.contact.field.name.label')}</label>
               <input
                 name="name"
                 type="text"
@@ -139,11 +142,11 @@ const Contact: React.FC<ContactProps> = ({
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
                 style={{ '--tw-ring-color': ringColor } as React.CSSProperties}
-                placeholder="Your name"
+                placeholder={t('footer.contact.field.name.placeholder')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
+              <label className="block text-sm font-medium mb-1">{t('footer.contact.field.email.label')}</label>
               <input
                 name="email"
                 type="email"
@@ -151,11 +154,11 @@ const Contact: React.FC<ContactProps> = ({
                 value={form.email}
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                placeholder="your@email.com"
+                placeholder={t('footer.contact.field.email.placeholder')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Subject</label>
+              <label className="block text-sm font-medium mb-1">{t('footer.contact.field.subject.label')}</label>
               <select
                 name="subject"
                 value={form.subject}
@@ -168,7 +171,7 @@ const Contact: React.FC<ContactProps> = ({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Message</label>
+              <label className="block text-sm font-medium mb-1">{t('footer.contact.field.message.label')}</label>
               <textarea
                 name="message"
                 required
@@ -176,7 +179,7 @@ const Contact: React.FC<ContactProps> = ({
                 value={form.message}
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 resize-none"
-                placeholder="How can we help you?"
+                placeholder={t('footer.contact.field.message.placeholder')}
               />
             </div>
             {error && (
@@ -190,7 +193,7 @@ const Contact: React.FC<ContactProps> = ({
               className="w-full py-3 rounded-lg text-white font-medium transition hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ backgroundColor: ringColor }}
             >
-              {submitting ? 'Sending…' : 'Send Message'}
+              {submitting ? t('footer.contact.submitting') : t('footer.contact.submit')}
             </button>
           </form>
         )}

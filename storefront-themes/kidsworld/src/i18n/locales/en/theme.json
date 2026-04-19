@@ -1,1 +1,106 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "heading_line1": "Imagination",
+      "heading_line2": "Starts Here!",
+      "subheading": "Discover amazing toys, games, and gifts that spark creativity and bring endless joy.",
+      "cta": "Explore Toys"
+    },
+    "section": {
+      "categories": {
+        "title": "Shop by Category",
+        "subtitle": "Something amazing for every little explorer"
+      },
+      "shop_by_age": {
+        "title": "Shop by Age",
+        "subtitle": "Find the perfect toy for any age"
+      },
+      "featured_products": {
+        "title": "Best Sellers",
+        "subtitle": "The toys kids love most",
+        "view_all": "See All"
+      },
+      "new_arrivals": {
+        "title": "New Adventures",
+        "subtitle": "Just arrived and ready for playtime"
+      },
+      "newsletter": {
+        "title": "Join the Fun Club!",
+        "subtitle": "Get exclusive deals, new arrival alerts, and birthday surprises for your little ones.",
+        "placeholder": "parent@email.com",
+        "button": "Subscribe"
+      }
+    },
+    "age_groups": {
+      "babies_toddlers": "Babies & Toddlers",
+      "preschool": "Preschool",
+      "little_kids": "Little Kids",
+      "big_kids": "Big Kids",
+      "tweens_teens": "Tweens & Teens"
+    },
+    "nav": {
+      "all_toys": "All Toys"
+    },
+    "footer": {
+      "tagline": "Making childhood magical, one toy at a time. Safe, fun, and educational toys for every age.",
+      "col_shop": "Shop",
+      "col_help": "Help",
+      "all_toys": "All Toys",
+      "about_us": "About Us",
+      "contact": "Contact",
+      "shipping_returns": "Shipping & Returns",
+      "copyright": "© {{year}} {{name}}. All rights reserved."
+    },
+    "announcement": {
+      "message": "Free shipping on orders over $40! Plus free gift wrapping on every order",
+      "link_text": "Shop Now"
+    },
+    "products": {
+      "title_all": "All Products",
+      "search_placeholder": "Search products...",
+      "all_categories": "All Categories",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "empty": "No products found",
+      "clear_search": "Clear search",
+      "page_of": "Page {{page}} of {{total}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "category": {
+      "not_found": "Category Not Found",
+      "browse_all": "Browse all products",
+      "empty": "No products in this category yet"
+    },
+    "product_detail": {
+      "breadcrumb_products": "Products",
+      "select_option": "Select an option to see availability",
+      "in_stock": "In Stock ({{count}} available)",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of Stock",
+      "description": "Description",
+      "not_found": "Product Not Found",
+      "back_to_shop": "Back to shop"
+    },
+    "cart": {
+      "loading": "Loading cart...",
+      "empty_title": "Your cart is empty",
+      "empty_subtitle": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "title": "Shopping Cart",
+      "clear": "Clear Cart",
+      "remove": "Remove",
+      "each": "each",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping": "Shipping",
+      "shipping_calc": "Calculated at checkout",
+      "tax": "Tax",
+      "tax_calc": "Calculated at checkout",
+      "total": "Total",
+      "checkout": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping"
+    }
+  }
+}

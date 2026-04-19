@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '@shared/contexts/CartContext';
 import { useStore } from '@shared/contexts/StoreContext';
 import { getPreorderState } from '@shared/utils/preorder';
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) => {
+  const { t } = useTranslation(['theme', 'common']);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
 
@@ -48,7 +50,7 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
           {onSale && (
             <div className="absolute top-3 left-3">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase bg-red-500 text-white rounded-full">
-                Sale -{pct}%
+                {t('theme.product_card.sale_badge', { pct })}
               </span>
             </div>
           )}
@@ -96,7 +98,7 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             onClick={(e) => { if (requiresOptions) return; e.preventDefault(); addItem(product._id || product.id, 1); }}
             className="absolute bottom-0 left-0 right-0 py-3.5 bg-black text-white text-[11px] tracking-[0.22em] uppercase font-semibold translate-y-full group-hover:translate-y-0 transition-transform duration-300"
           >
-            {requiresOptions ? 'Choose Options' : '+ Add to Cart'}
+            {requiresOptions ? t('theme.product_card.choose_options') : t('theme.product_card.add_to_cart')}
           </button>
         </div>
       </Link>

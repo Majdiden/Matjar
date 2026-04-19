@@ -1,1 +1,145 @@
-{}
+{
+  "add_to_cart": "أضف إلى السلة",
+  "buy_now": "اشترِ الآن",
+  "out_of_stock": "غير متوفر",
+  "sold_out": "نفد المخزون",
+  "in_stock": "متوفر",
+  "low_stock": "{{count}} متبقٍ فقط",
+  "preorder": "الطلب المسبق",
+  "preorder_badge": {
+    "label": "طلب مسبق"
+  },
+  "choose_options": "اختر الخيارات",
+  "select_options_hint": "اختر الخيارات من صفحة المنتج",
+  "only_remaining": "{{count}} متبقٍ فقط",
+  "price": {
+    "from": "من",
+    "compare_at": "السعر قبل",
+    "save_amount": "وفّر {{amount}}",
+    "save_percent": "وفّر {{percent}}%",
+    "tax_included": "الضريبة مشمولة.",
+    "shipping_at_checkout": "يُحسب الشحن عند الدفع."
+  },
+  "variant": {
+    "label": "متغيّر"
+  },
+  "quantity": {
+    "label": "الكمية",
+    "aria": {
+      "increment": "زيادة الكمية",
+      "decrement": "تقليل الكمية"
+    }
+  },
+  "color_swatch": {
+    "label": "اللون",
+    "aria": "اختر اللون {{name}}"
+  },
+  "size_swatch": {
+    "label": "المقاس",
+    "select": "اختر"
+  },
+  "image": {
+    "zoom_aria": "تكبير الصورة",
+    "thumbnail_aria": "عرض الصورة {{index}}"
+  },
+  "review": {
+    "title": "مراجعات العملاء",
+    "empty": "لا توجد مراجعات بعد. كن أول من يشارك تجربته.",
+    "based_on_zero": "لا توجد مراجعات",
+    "based_on_one": "بناءً على مراجعة واحدة",
+    "based_on_other": "بناءً على {{count}} مراجعات",
+    "rating_aria": "{{rating}} من أصل {{max}} نجوم",
+    "write_review": "اكتب مراجعة",
+    "sign_in_to_review": "سجّل الدخول لكتابة مراجعة",
+    "your_rating": "تقييمك",
+    "title_field": "العنوان",
+    "title_optional": "(اختياري)",
+    "title_placeholder": "لخّص تجربتك في كلمات قليلة",
+    "comment_field": "مراجعتك",
+    "comment_required": "مراجعتك *",
+    "comment_placeholder": "ما الذي أعجبك أو لم يُعجبك؟ كيف كانت الجودة؟",
+    "submit": "إرسال المراجعة",
+    "submitting": "جارٍ الإرسال…",
+    "success": "شكراً! تم إرسال مراجعتك.",
+    "error_min_length": "يرجى كتابة بضع كلمات على الأقل عن المنتج.",
+    "star_aria_zero": "لا نجوم",
+    "star_aria_one": "نجمة واحدة",
+    "star_aria_two": "نجمتان",
+    "star_aria_few": "{{count}} نجوم",
+    "star_aria_many": "{{count}} نجمة",
+    "star_aria_other": "{{count}} نجوم",
+    "verified_purchase": "مشترٍ موثّق",
+    "verified": "موثّق",
+    "anonymous": "مجهول"
+  },
+  "compare": {
+    "add": "مقارنة",
+    "remove": "في المقارنة",
+    "title": "مقارنة المنتجات ({{count}})",
+    "empty": "أضف منتجات للمقارنة",
+    "clear_all": "مسح الكل",
+    "items_to_compare_zero": "لا توجد منتجات للمقارنة",
+    "items_to_compare_one": "منتج واحد للمقارنة",
+    "items_to_compare_two": "منتجان للمقارنة",
+    "items_to_compare_few": "{{count}} منتجات للمقارنة",
+    "items_to_compare_many": "{{count}} منتجاً للمقارنة",
+    "items_to_compare_other": "{{count}} منتجات للمقارنة",
+    "row": {
+      "price": "السعر",
+      "rating": "التقييم",
+      "availability": "التوفر"
+    },
+    "na": "غير متاح"
+  },
+  "wishlist": {
+    "add": "إضافة إلى قائمة الأمنيات",
+    "remove": "في قائمة الأمنيات",
+    "aria_add": "إضافة إلى قائمة الأمنيات",
+    "aria_remove": "إزالة من قائمة الأمنيات"
+  },
+  "payment": {
+    "guaranteed": {
+      "title": "دفع آمن مضمون",
+      "description": "دفع آمن بواسطة مزودي دفع موثوقين"
+    },
+    "no_methods": "لا توجد طرق دفع متاحة. يرجى التواصل مع الدعم.",
+    "choose_provider": "اختر مزوداً",
+    "transfer_to": "التحويل إلى:",
+    "beneficiary": "المستفيد:",
+    "account": "الحساب:",
+    "phone": "الهاتف:",
+    "required": "مطلوب",
+    "please_choose_provider": "يرجى اختيار مزود."
+  },
+  "description": {
+    "no_description": "لا يوجد وصف متاح."
+  },
+  "specifications": {
+    "empty": "لا توجد مواصفات مدرجة لهذا المنتج."
+  },
+  "tab": {
+    "description": "الوصف",
+    "specifications": "المواصفات",
+    "reviews": "المراجعات"
+  },
+  "bundle": {
+    "title": "كثيراً ما يُشترى معاً",
+    "subtitle": "يقرن العملاء هذه المنتجات في الغالب.",
+    "addon_total": "إجمالي الإضافات",
+    "this_item": "هذا المنتج",
+    "of_extras_selected_zero": "لم يُختر أي إضافة",
+    "of_extras_selected_one": "{{selected}} من أصل {{total}} إضافة مختارة",
+    "of_extras_selected_two": "{{selected}} من أصل {{total}} إضافتين مختارتين",
+    "of_extras_selected_few": "{{selected}} من أصل {{total}} إضافات مختارة",
+    "of_extras_selected_many": "{{selected}} من أصل {{total}} إضافة مختارة",
+    "of_extras_selected_other": "{{selected}} من أصل {{total}} إضافات مختارة",
+    "add_selected": "إضافة المحدد إلى السلة",
+    "adding": "جارٍ الإضافة...",
+    "choose_options": "اختر الخيارات"
+  },
+  "similar": {
+    "title": "منتجات مشابهة",
+    "subtitle": "المزيد من هذه المجموعة قد يعجبك."
+  },
+  "featured_badge": "مميّز"
+}

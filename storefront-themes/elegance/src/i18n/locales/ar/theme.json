@@ -1,1 +1,62 @@
-{}
+{
+  "theme": {
+    "section": {
+      "hero": {
+        "season_label": "موسم جديد",
+        "heading": "الأناقة الخالدة",
+        "subheading": "أزياء وإكسسوارات فاخرة منتقاة بعناية",
+        "cta": "تسوّق المجموعة"
+      },
+      "collections": {
+        "eyebrow": "استكشف",
+        "heading": "مجموعاتنا",
+        "hover_explore": "استكشف"
+      },
+      "featured_products": {
+        "eyebrow": "منتقاة",
+        "heading": "اختيارات المحرر",
+        "view_all": "عرض الكل"
+      },
+      "editorial_banner": {
+        "eyebrow": "فن",
+        "heading": "الأناقة العفوية",
+        "cta": "اكتشف المزيد"
+      },
+      "new_arrivals": {
+        "eyebrow": "وصل للتو",
+        "heading": "وصول حديثاً"
+      },
+      "trust_bar": {
+        "free_shipping_title": "شحن مجاني",
+        "free_shipping_desc": "للطلبات التي تتجاوز 200$",
+        "secure_payment_title": "دفع آمن",
+        "secure_payment_desc": "مشفّر بشهادة SSL",
+        "easy_returns_title": "إرجاع سهل",
+        "easy_returns_desc": "سياسة 30 يوماً",
+        "luxury_packaging_title": "تغليف فاخر",
+        "luxury_packaging_desc": "جاهز للإهداء"
+      }
+    },
+    "layout": {
+      "announcement": "شحن مجاني تكميلي للطلبات التي تتجاوز 200$",
+      "nav": {
+        "home": "الرئيسية",
+        "shop_all": "تسوّق الكل"
+      }
+    },
+    "footer": {
+      "tagline": "أزياء وإكسسوارات فاخرة.",
+      "shop_heading": "المتجر",
+      "all_collections": "جميع المجموعات",
+      "help_heading": "المساعدة",
+      "size_guide": "دليل المقاسات",
+      "shipping_returns": "الشحن والإرجاع",
+      "contact": "تواصل معنا",
+      "newsletter_heading": "النشرة البريدية",
+      "newsletter_subtext": "كن أول من يعلم عن الوصول الجديد.",
+      "email_placeholder": "عنوان البريد الإلكتروني",
+      "join_button": "انضم",
+      "copyright": "© {{year}} {{name}}. جميع الحقوق محفوظة."
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import { useStore } from '../contexts/StoreContext';
 import { ordersApi, authApi, checkoutApi, giftCardApi, paymentMethodsApi, PaymentMethodPublic } from '../api/client';
 import PaymentMethodPicker from '../components/commerce/PaymentMethodPicker';
+import { useTranslation } from 'react-i18next';
 
 interface CheckoutProps {
   className?: string;
@@ -41,12 +42,6 @@ const blankAddress: AddressForm = {
 };
 
 type Step = 1 | 2 | 3 | 4;
-const STEPS: { id: Step; label: string }[] = [
-  { id: 1, label: 'Information' },
-  { id: 2, label: 'Shipping' },
-  { id: 3, label: 'Payment' },
-  { id: 4, label: 'Review' },
-];
 
 interface Quote {
   subtotal: number;
@@ -62,9 +57,17 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   const navigate = useNavigate();
   const { cart, loading: cartLoading, clearCart } = useCart();
   const { formatPrice, store } = useStore();
+  const { t } = useTranslation(['checkout']);
   const giftCardsEnabled = store?.giftCards?.enabled !== false;
 
   const accent = accentColor || 'var(--color-primary, #2563eb)';
+
+  const STEPS: { id: Step; label: string }[] = [
+    { id: 1, label: t('checkout.step.1.title') },
+    { id: 2, label: t('checkout.step.2.title') },
+    { id: 3, label: t('checkout.step.3.title') },
+    { id: 4, label: t('checkout.step.4.title') },
+  ];
 
   // Auth + profile
   const [authChecking, setAuthChecking] = useState(true);
@@ -89,7 +92,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   const [availablePaymentMethods, setAvailablePaymentMethods] = useState<PaymentMethodPublic[]>([]);
   const [notes, setNotes] = useState('');
   const [acceptsTerms, setAcceptsTerms] = useState(false);
-  const [idempotencyKey, setIdempotencyKey] = useState<string>(() =>
+  const [idempotencyKey] = useState<string>(() =>
     (typeof crypto !== 'undefined' && crypto.randomUUID
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`)
@@ -105,8 +108,6 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   // Gift card
   const [giftCardInput, setGiftCardInput] = useState('');
   const [appliedGiftCard, setAppliedGiftCard] = useState<{
-    // Either `code` (manual entry) OR `id` (stored card pick) is set.
-    // The backend routes through different paths based on which is present.
     code?: string;
     id?: string;
     balance: number;
@@ -136,7 +137,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     'w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:border-transparent';
   const inputStyle = { '--tw-ring-color': accent } as React.CSSProperties;
 
-  // ── Load payment methods (used by review summary for label lookup) ──
+  // ── Load payment methods ─────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
     paymentMethodsApi
@@ -174,7 +175,6 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
         const addresses: SavedAddress[] = u.addresses || [];
         setSavedAddresses(addresses);
 
-        // Pre-fill shipping from default address (or first), or from name/phone
         const defaultAddr = addresses.find((a) => a.isDefault) || addresses[0];
         if (defaultAddr) {
           setShipping({
@@ -204,9 +204,6 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   }, []);
 
   // ── Load signed-in customer's stored gift cards ──
-  // The server filters to active + balance>0, matching either explicit
-  // customerId OR issuedTo.email, so cards issued to the user's email
-  // before they had an account are still discoverable here.
   useEffect(() => {
     if (!user) { setMyGiftCards([]); return; }
     if (!giftCardsEnabled) return;
@@ -223,7 +220,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     return () => { cancelled = true; };
   }, [user, giftCardsEnabled]);
 
-  // ── Live quote: refetch on shipping address / discount changes ──
+  // ── Live quote ───────────────────────────────────────────────────
   const canQuote = useMemo(
     () =>
       !!user &&
@@ -264,7 +261,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     };
   }, [canQuote, shipping.addressLine1, shipping.city, shipping.state, shipping.postalCode, shipping.country, appliedDiscount]);
 
-  // ── Handlers ────────────────────────────────────────────────────
+  // ── Handlers ─────────────────────────────────────────────────────
   const setShippingField = (key: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setShipping({ ...shipping, [key]: e.target.value });
     setSelectedAddressIdx('new');
@@ -347,18 +344,18 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   };
 
   const validateInformation = () => {
-    if (!email) return 'Email is required';
+    if (!email) return t('checkout.error.email_required');
     return null;
   };
 
   const validateShipping = () => {
-    if (!shipping.firstName) return 'First name is required';
-    if (!shipping.lastName) return 'Last name is required';
-    if (!shipping.addressLine1) return 'Address is required';
-    if (!shipping.city) return 'City is required';
-    if (!shipping.postalCode) return 'Postal code is required';
-    if (!shipping.country) return 'Country is required';
-    if (!shipping.phone) return 'Phone is required';
+    if (!shipping.firstName) return t('checkout.error.first_name_required');
+    if (!shipping.lastName) return t('checkout.error.last_name_required');
+    if (!shipping.addressLine1) return t('checkout.error.address_required');
+    if (!shipping.city) return t('checkout.error.city_required');
+    if (!shipping.postalCode) return t('checkout.error.postal_required');
+    if (!shipping.country) return t('checkout.error.country_required');
+    if (!shipping.phone) return t('checkout.error.phone_required');
     return null;
   };
 
@@ -371,7 +368,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     if (step === 3) {
       if (!paymentMethodCode && !isZeroTotal) {
         setPaymentSubmitted(true);
-        setError('Please choose a payment method.');
+        setError(t('checkout.error.choose_payment'));
         return;
       }
     }
@@ -392,11 +389,11 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     if (!paymentMethodCode && !isZeroTotal) {
       setPaymentSubmitted(true);
       setStep(3);
-      setError('Please choose a payment method.');
+      setError(t('checkout.error.choose_payment'));
       return;
     }
     if (!acceptsTerms) {
-      setError('You must accept the terms and conditions to place your order.');
+      setError(t('checkout.error.accept_terms'));
       return;
     }
     setSubmitting(true);
@@ -430,13 +427,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
       const trackingToken = payload?.trackingToken || order?.trackingToken;
       const orderForState = trackingToken ? { ...order, trackingToken } : order;
       await clearCart();
-      // Redirect to the dedicated thank-you page. We pass the full order
-      // through navigation state so the page renders instantly without a
-      // round-trip — and so guests (no auth token) can still see their
-      // receipt. Logged-in customers will additionally re-fetch on mount.
       navigate(`/order-success/${order?._id || ''}`, { state: { order: orderForState } });
     } catch (err: any) {
-      setError(err?.message || 'Failed to place order. Please try again.');
+      setError(err?.message || t('checkout.error.place_order'));
     } finally {
       setSubmitting(false);
     }
@@ -446,7 +439,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   if (cartLoading || authChecking) {
     return (
       <div className={`max-w-5xl mx-auto px-4 sm:px-6 py-16 text-center text-gray-500 ${className}`}>
-        Loading checkout...
+        {t('checkout.loading')}
       </div>
     );
   }
@@ -457,27 +450,25 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
         <svg className="w-14 h-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272" />
         </svg>
-        <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
-        <p className="text-gray-500 mb-6">Add some products before checking out.</p>
+        <h2 className="text-2xl font-bold mb-2">{t('checkout.cart.empty_title')}</h2>
+        <p className="text-gray-500 mb-6">{t('checkout.cart.empty_description')}</p>
         <Link
           to="/products"
           className="inline-block px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition"
           style={{ backgroundColor: accent }}
         >
-          Browse Products
+          {t('checkout.cart.browse_products')}
         </Link>
       </div>
     );
   }
 
-  // ── Summary numbers (prefer live quote, fall back to cart) ──────
+  // ── Summary numbers ──────────────────────────────────────────────
   const summarySubtotal = quote?.subtotal ?? cart.subtotal;
   const summaryDiscount = quote?.discount ?? 0;
   const summaryShipping = quote?.shippingCost ?? 0;
   const summaryTax = quote?.tax ?? 0;
   const summaryTotalPreGift = quote?.totalAmount ?? cart.total;
-  // Coverage is now per-card (read from the applied card itself) rather
-  // than tenant-wide. A card with no coverage flags is goods-only.
   const giftCoverShipping = appliedGiftCard?.coverShipping === true;
   const giftCoverTax = appliedGiftCard?.coverTax === true;
   const giftCoverageBase = Math.min(
@@ -494,7 +485,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
   return (
     <div className={`max-w-6xl mx-auto px-4 sm:px-6 py-12 ${className}`}>
-      <h1 className="text-3xl font-bold mb-2">Checkout</h1>
+      <h1 className="text-3xl font-bold mb-2">{t('checkout.title')}</h1>
 
       {/* Stepper */}
       <ol className="flex items-center gap-2 mb-8 text-xs font-medium">
@@ -530,18 +521,18 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
           {user && (
             <div className="mb-4 px-4 py-3 rounded-lg border bg-gray-50 text-sm flex items-center justify-between">
               <span>
-                Logged in as <strong>{user.email}</strong>
+                {t('checkout.logged_in_as')} <strong>{user.email}</strong>
               </span>
               <Link to="/account" className="text-xs underline" style={{ color: accent }}>
-                View account
+                {t('checkout.view_account')}
               </Link>
             </div>
           )}
           {!user && (
             <div className="mb-4 px-4 py-3 rounded-lg border bg-gray-50 text-sm flex items-center justify-between">
-              <span>Have an account?</span>
+              <span>{t('checkout.have_account')}</span>
               <Link to="/login" className="text-xs underline" style={{ color: accent }}>
-                Sign in for faster checkout
+                {t('checkout.sign_in_faster')}
               </Link>
             </div>
           )}
@@ -555,9 +546,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
           {/* ── Step 1: Contact information ───────────────────── */}
           {step === 1 && (
             <form onSubmit={goNext} className="space-y-4">
-              <h2 className="text-lg font-semibold">Contact Information</h2>
+              <h2 className="text-lg font-semibold">{t('checkout.field.contact.title')}</h2>
               <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
+                <label className="block text-sm font-medium mb-1">{t('checkout.field.contact.email.label')}</label>
                 <input
                   type="email"
                   required
@@ -565,10 +556,10 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   onChange={(e) => setEmail(e.target.value)}
                   className={inputClass}
                   style={inputStyle}
-                  placeholder="you@example.com"
+                  placeholder={t('checkout.field.contact.email.placeholder')}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  We'll send your order confirmation here.
+                  {t('checkout.field.contact.email.hint')}
                 </p>
               </div>
 
@@ -579,7 +570,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   onChange={(e) => setAcceptsMarketing(e.target.checked)}
                   className="mt-0.5 w-4 h-4"
                 />
-                <span>Email me with news and offers</span>
+                <span>{t('checkout.field.contact.marketing')}</span>
               </label>
 
               <button
@@ -587,7 +578,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 className="w-full py-3 rounded-lg text-white font-medium hover:opacity-90 transition"
                 style={{ backgroundColor: accent }}
               >
-                Continue to Shipping
+                {t('checkout.action.continue_to_shipping')}
               </button>
             </form>
           )}
@@ -595,12 +586,12 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
           {/* ── Step 2: Shipping address ──────────────────────── */}
           {step === 2 && (
             <form onSubmit={goNext} className="space-y-4">
-              <h2 className="text-lg font-semibold">Shipping Address</h2>
+              <h2 className="text-lg font-semibold">{t('checkout.field.shipping.title')}</h2>
 
               {savedAddresses.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs uppercase tracking-wider font-medium text-gray-500">
-                    Saved addresses
+                    {t('checkout.field.shipping.saved_addresses')}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {savedAddresses.map((a, idx) => {
@@ -638,7 +629,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       }`}
                       style={selectedAddressIdx === 'new' ? { borderColor: accent, '--tw-ring-color': accent } as React.CSSProperties : undefined}
                     >
-                      + Use a new address
+                      {t('checkout.field.shipping.use_new_address')}
                     </button>
                   </div>
                 </div>
@@ -646,47 +637,47 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">First name</label>
+                  <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.first_name.label')}</label>
                   <input type="text" required value={shipping.firstName} onChange={setShippingField('firstName')} className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Last name</label>
+                  <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.last_name.label')}</label>
                   <input type="text" required value={shipping.lastName} onChange={setShippingField('lastName')} className={inputClass} style={inputStyle} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Phone</label>
+                <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.phone.label')}</label>
                 <input type="tel" required value={shipping.phone} onChange={setShippingField('phone')} className={inputClass} style={inputStyle} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Address</label>
-                <input type="text" required value={shipping.addressLine1} onChange={setShippingField('addressLine1')} className={inputClass} style={inputStyle} placeholder="Street address" />
+                <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.address.label')}</label>
+                <input type="text" required value={shipping.addressLine1} onChange={setShippingField('addressLine1')} className={inputClass} style={inputStyle} placeholder={t('checkout.field.shipping.address.placeholder')} />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Apartment, suite, etc. (optional)</label>
+                <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.address2.label')}</label>
                 <input type="text" value={shipping.addressLine2} onChange={setShippingField('addressLine2')} className={inputClass} style={inputStyle} />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">City</label>
+                  <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.city.label')}</label>
                   <input type="text" required value={shipping.city} onChange={setShippingField('city')} className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">State / Region</label>
+                  <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.state.label')}</label>
                   <input type="text" value={shipping.state} onChange={setShippingField('state')} className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">ZIP / Postal</label>
+                  <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.postal.label')}</label>
                   <input type="text" required value={shipping.postalCode} onChange={setShippingField('postalCode')} className={inputClass} style={inputStyle} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Country</label>
+                <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.country.label')}</label>
                 <input type="text" required value={shipping.country} onChange={setShippingField('country')} className={inputClass} style={inputStyle} />
               </div>
 
@@ -698,20 +689,20 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                     onChange={(e) => setSaveAddress(e.target.checked)}
                     className="mt-0.5 w-4 h-4"
                   />
-                  <span>Save this address to my account for next time</span>
+                  <span>{t('checkout.field.shipping.save_address')}</span>
                 </label>
               )}
 
               <div className="flex gap-3">
                 <button type="button" onClick={goBack} className="flex-1 py-3 rounded-lg border font-medium hover:bg-gray-50">
-                  Back
+                  {t('checkout.action.back')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 py-3 rounded-lg text-white font-medium hover:opacity-90 transition"
                   style={{ backgroundColor: accent }}
                 >
-                  Continue to Payment
+                  {t('checkout.action.continue_to_payment')}
                 </button>
               </div>
             </form>
@@ -720,11 +711,11 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
           {/* ── Step 3: Payment ─────────────────────────────── */}
           {step === 3 && (
             <form onSubmit={goNext} className="space-y-4">
-              <h2 className="text-lg font-semibold">Payment Method</h2>
+              <h2 className="text-lg font-semibold">{t('checkout.field.payment.title')}</h2>
 
               {isZeroTotal ? (
                 <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-                  Your gift card covers the full order total. No additional payment is required.
+                  {t('checkout.field.payment.gift_card_covers')}
                 </div>
               ) : (
                 <PaymentMethodPicker
@@ -739,7 +730,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
               {/* Billing address */}
               <div className="pt-2">
-                <h3 className="text-sm font-semibold mb-2">Billing Address</h3>
+                <h3 className="text-sm font-semibold mb-2">{t('checkout.field.payment.billing_title')}</h3>
                 <label className="flex items-center gap-2 text-sm mb-3">
                   <input
                     type="checkbox"
@@ -747,49 +738,49 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                     onChange={(e) => setBillingSameAsShipping(e.target.checked)}
                     className="w-4 h-4"
                   />
-                  <span>Same as shipping address</span>
+                  <span>{t('checkout.field.payment.billing_same')}</span>
                 </label>
 
                 {!billingSameAsShipping && (
                   <div className="space-y-3 p-4 border rounded-lg bg-gray-50">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <input placeholder="First name" value={billing.firstName} onChange={setBillingField('firstName')} className={inputClass} style={inputStyle} />
-                      <input placeholder="Last name" value={billing.lastName} onChange={setBillingField('lastName')} className={inputClass} style={inputStyle} />
+                      <input placeholder={t('checkout.field.shipping.first_name.label')} value={billing.firstName} onChange={setBillingField('firstName')} className={inputClass} style={inputStyle} />
+                      <input placeholder={t('checkout.field.shipping.last_name.label')} value={billing.lastName} onChange={setBillingField('lastName')} className={inputClass} style={inputStyle} />
                     </div>
-                    <input placeholder="Address" value={billing.addressLine1} onChange={setBillingField('addressLine1')} className={inputClass} style={inputStyle} />
+                    <input placeholder={t('checkout.field.shipping.address.label')} value={billing.addressLine1} onChange={setBillingField('addressLine1')} className={inputClass} style={inputStyle} />
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <input placeholder="City" value={billing.city} onChange={setBillingField('city')} className={inputClass} style={inputStyle} />
-                      <input placeholder="State" value={billing.state} onChange={setBillingField('state')} className={inputClass} style={inputStyle} />
-                      <input placeholder="Postal" value={billing.postalCode} onChange={setBillingField('postalCode')} className={inputClass} style={inputStyle} />
+                      <input placeholder={t('checkout.field.shipping.city.label')} value={billing.city} onChange={setBillingField('city')} className={inputClass} style={inputStyle} />
+                      <input placeholder={t('checkout.field.shipping.state.label')} value={billing.state} onChange={setBillingField('state')} className={inputClass} style={inputStyle} />
+                      <input placeholder={t('checkout.field.shipping.postal.label')} value={billing.postalCode} onChange={setBillingField('postalCode')} className={inputClass} style={inputStyle} />
                     </div>
-                    <input placeholder="Country" value={billing.country} onChange={setBillingField('country')} className={inputClass} style={inputStyle} />
+                    <input placeholder={t('checkout.field.shipping.country.label')} value={billing.country} onChange={setBillingField('country')} className={inputClass} style={inputStyle} />
                   </div>
                 )}
               </div>
 
               {/* Order notes */}
               <div>
-                <label className="block text-sm font-medium mb-1">Order notes (optional)</label>
+                <label className="block text-sm font-medium mb-1">{t('checkout.field.payment.notes.label')}</label>
                 <textarea
                   rows={3}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 resize-none"
                   style={inputStyle}
-                  placeholder="Delivery instructions, gift message, etc."
+                  placeholder={t('checkout.field.payment.notes.placeholder')}
                 />
               </div>
 
               <div className="flex gap-3">
                 <button type="button" onClick={goBack} className="flex-1 py-3 rounded-lg border font-medium hover:bg-gray-50">
-                  Back
+                  {t('checkout.action.back')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 py-3 rounded-lg text-white font-medium hover:opacity-90 transition"
                   style={{ backgroundColor: accent }}
                 >
-                  Review Order
+                  {t('checkout.action.review_order')}
                 </button>
               </div>
             </form>
@@ -798,20 +789,20 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
           {/* ── Step 4: Review ──────────────────────────────── */}
           {step === 4 && (
             <div className="space-y-5">
-              <h2 className="text-lg font-semibold">Review Your Order</h2>
+              <h2 className="text-lg font-semibold">{t('checkout.field.review.title')}</h2>
 
               <div className="border rounded-lg p-4 text-sm">
                 <div className="flex justify-between items-start mb-2">
-                  <p className="font-semibold uppercase text-xs text-gray-500">Contact</p>
-                  <button onClick={() => setStep(1)} className="text-xs underline" style={{ color: accent }}>Edit</button>
+                  <p className="font-semibold uppercase text-xs text-gray-500">{t('checkout.field.review.contact_label')}</p>
+                  <button onClick={() => setStep(1)} className="text-xs underline" style={{ color: accent }}>{t('checkout.action.edit')}</button>
                 </div>
                 <p>{email}</p>
               </div>
 
               <div className="border rounded-lg p-4 text-sm">
                 <div className="flex justify-between items-start mb-2">
-                  <p className="font-semibold uppercase text-xs text-gray-500">Ship to</p>
-                  <button onClick={() => setStep(2)} className="text-xs underline" style={{ color: accent }}>Edit</button>
+                  <p className="font-semibold uppercase text-xs text-gray-500">{t('checkout.field.review.ship_to_label')}</p>
+                  <button onClick={() => setStep(2)} className="text-xs underline" style={{ color: accent }}>{t('checkout.action.edit')}</button>
                 </div>
                 <p>{shipping.firstName} {shipping.lastName}</p>
                 <p className="text-gray-600">{shipping.addressLine1}{shipping.addressLine2 ? `, ${shipping.addressLine2}` : ''}</p>
@@ -822,8 +813,8 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
               <div className="border rounded-lg p-4 text-sm">
                 <div className="flex justify-between items-start mb-2">
-                  <p className="font-semibold uppercase text-xs text-gray-500">Payment</p>
-                  <button onClick={() => setStep(3)} className="text-xs underline" style={{ color: accent }}>Edit</button>
+                  <p className="font-semibold uppercase text-xs text-gray-500">{t('checkout.field.review.payment_label')}</p>
+                  <button onClick={() => setStep(3)} className="text-xs underline" style={{ color: accent }}>{t('checkout.action.edit')}</button>
                 </div>
                 <p>{isZeroTotal ? 'Gift Card' : (availablePaymentMethods.find((m) => m.code === paymentMethodCode)?.label || paymentMethodCode || '—')}</p>
                 {notes && <p className="text-gray-600 mt-2 text-xs italic">"{notes}"</p>}
@@ -837,14 +828,35 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   className="mt-0.5 w-4 h-4"
                 />
                 <span>
-                  I agree to the <Link to="/terms" className="underline">terms and conditions</Link> and{' '}
-                  <Link to="/privacy" className="underline">privacy policy</Link>.
+                  {t('checkout.field.review.terms')
+                    .split(t('checkout.field.review.terms_and_conditions'))
+                    .map((part, i, arr) =>
+                      i < arr.length - 1 ? (
+                        <React.Fragment key={i}>
+                          {part}
+                          <Link to="/terms" className="underline">{t('checkout.field.review.terms_and_conditions')}</Link>
+                        </React.Fragment>
+                      ) : (
+                        part
+                          .split(t('checkout.field.review.privacy_policy'))
+                          .map((p2, j, arr2) =>
+                            j < arr2.length - 1 ? (
+                              <React.Fragment key={j}>
+                                {p2}
+                                <Link to="/privacy" className="underline">{t('checkout.field.review.privacy_policy')}</Link>
+                              </React.Fragment>
+                            ) : (
+                              p2
+                            )
+                          )
+                      )
+                    )}
                 </span>
               </label>
 
               <div className="flex gap-3">
                 <button type="button" onClick={goBack} className="flex-1 py-3 rounded-lg border font-medium hover:bg-gray-50">
-                  Back
+                  {t('checkout.action.back')}
                 </button>
                 <button
                   type="button"
@@ -853,7 +865,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   className="flex-1 py-3 rounded-lg text-white font-medium hover:opacity-90 transition disabled:opacity-50"
                   style={{ backgroundColor: accent }}
                 >
-                  {submitting ? 'Placing order...' : `Place Order · ${formatPrice(summaryTotal)}`}
+                  {submitting ? t('checkout.action.placing') : t('checkout.action.place_order', { total: formatPrice(summaryTotal) })}
                 </button>
               </div>
             </div>
@@ -863,12 +875,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
         {/* ── Order summary sidebar ─────────────────────────────── */}
         <aside className="lg:col-span-1">
           <div className="border rounded-lg p-6 sticky top-24 space-y-4">
-            <h3 className="font-semibold">Order Summary</h3>
+            <h3 className="font-semibold">{t('checkout.summary.title')}</h3>
 
             {(() => {
-              // Consolidated pre-order notice. We surface the *latest* ship
-              // date across all pre-order lines so the customer's expectation
-              // is anchored on the slowest item rather than the first one.
               const preorderLines = cart.items.filter(
                 (i: any) => i.isPreorder,
               ) as any[];
@@ -877,19 +886,14 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 .map((i) => i.preorderExpectedShipDate)
                 .filter(Boolean)
                 .map((d) => new Date(d).getTime())
-                .filter((t) => !isNaN(t));
+                .filter((t2) => !isNaN(t2));
               const latest = dates.length > 0 ? new Date(Math.max(...dates)) : null;
               return (
                 <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                  <p className="font-semibold">Includes pre-order items</p>
+                  <p className="font-semibold">{t('checkout.summary.preorder_notice_title')}</p>
                   {latest && (
                     <p className="opacity-90">
-                      Ships by{' '}
-                      {latest.toLocaleDateString(undefined, {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
+                      {t('checkout.summary.preorder_ships_by', { date: latest.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) })}
                     </p>
                   )}
                 </div>
@@ -935,10 +939,10 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 {appliedDiscount && quote?.discountCode ? (
                   <div className="flex items-center justify-between text-sm">
                     <span>
-                      Code <strong>{quote.discountCode}</strong> applied
+                      {t('checkout.summary.code_applied', { code: quote.discountCode })}
                     </span>
                     <button onClick={removeDiscount} className="text-xs underline text-gray-500">
-                      Remove
+                      {t('checkout.summary.remove')}
                     </button>
                   </div>
                 ) : (
@@ -947,7 +951,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       type="text"
                       value={discountInput}
                       onChange={(e) => setDiscountInput(e.target.value)}
-                      placeholder="Discount code"
+                      placeholder={t('checkout.summary.discount_placeholder')}
                       className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2"
                       style={inputStyle}
                     />
@@ -957,7 +961,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       disabled={!discountInput.trim()}
                       className="px-4 py-2 rounded-lg border text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
                     >
-                      Apply
+                      {t('checkout.summary.apply')}
                     </button>
                   </div>
                 )}
@@ -971,13 +975,13 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
               {appliedGiftCard ? (
                 <div className="flex items-center justify-between text-sm">
                   <span>
-                    Gift card <strong>•••• {appliedGiftCard.codeLast4}</strong> applied
+                    {t('checkout.summary.gift_card_applied', { last4: appliedGiftCard.codeLast4 })}
                     <span className="text-xs text-gray-500 ml-1">
-                      (balance {formatPrice(appliedGiftCard.balance)})
+                      {t('checkout.summary.gift_card_balance', { balance: formatPrice(appliedGiftCard.balance) })}
                     </span>
                   </span>
                   <button onClick={removeGiftCard} className="text-xs underline text-gray-500">
-                    Remove
+                    {t('checkout.summary.remove')}
                   </button>
                 </div>
               ) : (
@@ -985,7 +989,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   {myGiftCards.length > 0 && (
                     <div className="space-y-1.5">
                       <p className="text-xs uppercase tracking-wider font-medium text-gray-500">
-                        Your gift cards
+                        {t('checkout.summary.your_gift_cards')}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {myGiftCards.map((c) => (
@@ -1007,7 +1011,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       type="text"
                       value={giftCardInput}
                       onChange={(e) => setGiftCardInput(e.target.value)}
-                      placeholder="Gift card code"
+                      placeholder={t('checkout.summary.gift_card_placeholder')}
                       className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2"
                       style={inputStyle}
                     />
@@ -1017,7 +1021,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       disabled={!giftCardInput.trim() || giftCardLoading}
                       className="px-4 py-2 rounded-lg border text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
                     >
-                      {giftCardLoading ? '…' : 'Apply'}
+                      {giftCardLoading ? '…' : t('checkout.summary.apply')}
                     </button>
                   </div>
                 </>
@@ -1028,47 +1032,47 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
             <div className="border-t pt-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-500">Subtotal</span>
+                <span className="text-gray-500">{t('checkout.summary.subtotal')}</span>
                 <span>{formatPrice(summarySubtotal)}</span>
               </div>
               {summaryDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Discount</span>
+                  <span>{t('checkout.summary.discount')}</span>
                   <span>−{formatPrice(summaryDiscount)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-gray-500">Shipping</span>
+                <span className="text-gray-500">{t('checkout.summary.shipping')}</span>
                 <span>
                   {quote
                     ? summaryShipping > 0
                       ? formatPrice(summaryShipping)
-                      : 'Free'
-                    : <span className="text-xs text-gray-400">Calculated next</span>}
+                      : t('checkout.summary.shipping_free')
+                    : <span className="text-xs text-gray-400">{t('checkout.summary.shipping_calculated')}</span>}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Tax</span>
+                <span className="text-gray-500">{t('checkout.summary.tax')}</span>
                 <span>
                   {quote
                     ? summaryTax > 0
                       ? formatPrice(summaryTax)
                       : '—'
-                    : <span className="text-xs text-gray-400">Calculated next</span>}
+                    : <span className="text-xs text-gray-400">{t('checkout.summary.tax_calculated')}</span>}
                 </span>
               </div>
               {giftCardDeduction > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Gift card{appliedGiftCard?.codeLast4 ? ` (•••• ${appliedGiftCard.codeLast4})` : ''}</span>
+                  <span>{t('checkout.summary.gift_card')}{appliedGiftCard?.codeLast4 ? ` (•••• ${appliedGiftCard.codeLast4})` : ''}</span>
                   <span>−{formatPrice(giftCardDeduction)}</span>
                 </div>
               )}
               <div className="flex justify-between text-base font-bold pt-2 border-t">
-                <span>Total</span>
+                <span>{t('checkout.summary.total')}</span>
                 <span>{formatPrice(summaryTotal)}</span>
               </div>
               {quoteLoading && (
-                <p className="text-[11px] text-gray-400 text-right">Updating totals…</p>
+                <p className="text-[11px] text-gray-400 text-right">{t('checkout.summary.updating')}</p>
               )}
             </div>
           </div>

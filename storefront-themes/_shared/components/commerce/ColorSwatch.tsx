@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
@@ -38,13 +39,14 @@ export function ColorSwatch(props: ColorSwatchProps) {
     size = 'md',
     showLabel = true,
   } = props;
+  const { t } = useTranslation('product');
   const selectedOption = options.find(o => o.value === selected);
 
   return (
     <div className={className}>
       {showLabel && selectedOption && (
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-          Color: <span className="font-medium text-gray-900 dark:text-white">{selectedOption.name}</span>
+          {t('color_swatch.label')}: <span className="font-medium text-gray-900 dark:text-white">{selectedOption.name}</span>
         </p>
       )}
       <div className="flex flex-wrap gap-2">
@@ -64,7 +66,7 @@ export function ColorSwatch(props: ColorSwatchProps) {
             )}
             style={option.image ? undefined : { backgroundColor: option.value }}
             title={option.name}
-            aria-label={option.name}
+            aria-label={t('color_swatch.aria', { name: option.name })}
             aria-pressed={selected === option.value}
           >
             {option.image && (

@@ -4,6 +4,7 @@ import { useCollection } from '../hooks/useCollections';
 import { ProductCard } from '../components/commerce/ProductCard';
 import { Skeleton } from '../components/primitives/Skeleton';
 import { useThemeCard } from '../theme/ThemeCardProvider';
+import { useTranslation } from 'react-i18next';
 import type { Product } from '../types/commerce';
 
 interface CollectionPageProps {
@@ -14,14 +15,6 @@ interface CollectionPageProps {
   renderCard?: (product: Product) => React.ReactNode;
 }
 
-const SORT_OPTIONS = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'name-asc', label: 'Name: A-Z' },
-];
-
 const CollectionPage: React.FC<CollectionPageProps> = ({
   className = '',
   accentColor,
@@ -30,6 +23,7 @@ const CollectionPage: React.FC<CollectionPageProps> = ({
   renderCard: propRenderCard,
 }) => {
   const themeCard = useThemeCard();
+  const { t } = useTranslation(['category']);
   const renderCard =
     propRenderCard ||
     (themeCard ? ((p: Product) => themeCard(p, onQuickView)) : undefined);
@@ -37,6 +31,14 @@ const CollectionPage: React.FC<CollectionPageProps> = ({
   const [sort, setSort] = useState('featured');
   const [page, setPage] = useState(1);
   const limit = 24;
+
+  const SORT_OPTIONS = [
+    { value: 'featured', label: t('category.sort.featured') },
+    { value: 'price-asc', label: t('category.sort.price_asc') },
+    { value: 'price-desc', label: t('category.sort.price_desc') },
+    { value: 'newest', label: t('category.sort.newest') },
+    { value: 'name-asc', label: t('category.sort.name_asc') },
+  ];
 
   const { collection, products, pagination, loading, error } = useCollection(handle, {
     sort,
@@ -47,14 +49,14 @@ const CollectionPage: React.FC<CollectionPageProps> = ({
   if (!loading && !collection && !error) {
     return (
       <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center ${className}`}>
-        <h1 className="text-2xl font-bold mb-2">Collection not found</h1>
-        <p className="text-gray-500 mb-6">The collection you're looking for doesn't exist.</p>
+        <h1 className="text-2xl font-bold mb-2">{t('collection.not_found_title')}</h1>
+        <p className="text-gray-500 mb-6">{t('collection.not_found_description')}</p>
         <Link
           to="/collections"
           className="inline-block px-6 py-3 rounded-lg text-white font-medium transition hover:opacity-90"
           style={{ backgroundColor: accentColor || 'var(--color-primary, #2563eb)' }}
         >
-          Browse Collections
+          {t('collection.browse_collections')}
         </Link>
       </div>
     );
@@ -93,14 +95,12 @@ const CollectionPage: React.FC<CollectionPageProps> = ({
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <p className="text-sm text-gray-500">
           {loading
-            ? 'Loading...'
-            : `${pagination?.total ?? products.length} ${
-                (pagination?.total ?? products.length) === 1 ? 'product' : 'products'
-              }`}
+            ? t('category.loading')
+            : t('collection.results_count_other', { count: pagination?.total ?? products.length })}
         </p>
         <div className="flex items-center gap-2">
           <label htmlFor="collection-sort" className="text-sm text-gray-600">
-            Sort by:
+            {t('collection.sort_by')}
           </label>
           <select
             id="collection-sort"
@@ -125,14 +125,14 @@ const CollectionPage: React.FC<CollectionPageProps> = ({
         <Skeleton.ProductGrid count={8} />
       ) : products.length === 0 ? (
         <div className="text-center py-16">
-          <h2 className="text-xl font-semibold mb-2">No products in this collection</h2>
-          <p className="text-gray-500 mb-6">Check back soon.</p>
+          <h2 className="text-xl font-semibold mb-2">{t('collection.empty.title')}</h2>
+          <p className="text-gray-500 mb-6">{t('collection.empty.description')}</p>
           <Link
             to="/products"
             className="inline-block px-6 py-3 rounded-lg text-white font-medium transition hover:opacity-90"
             style={{ backgroundColor: accentColor || 'var(--color-primary, #2563eb)' }}
           >
-            Browse All Products
+            {t('collection.empty.browse_all')}
           </Link>
         </div>
       ) : (
@@ -165,10 +165,10 @@ const CollectionPage: React.FC<CollectionPageProps> = ({
                 className="px-4 py-2 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
                 style={{ borderColor: 'var(--color-border, #e5e7eb)' }}
               >
-                Previous
+                {t('collection.pagination.previous')}
               </button>
               <span className="text-sm text-gray-600">
-                Page {page} of {totalPages}
+                {t('collection.pagination.page_of', { page, total: totalPages })}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -176,7 +176,7 @@ const CollectionPage: React.FC<CollectionPageProps> = ({
                 className="px-4 py-2 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
                 style={{ borderColor: 'var(--color-border, #e5e7eb)' }}
               >
-                Next
+                {t('collection.pagination.next')}
               </button>
             </div>
           )}

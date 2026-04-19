@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
@@ -32,6 +33,7 @@ export function QuantitySelector(props: QuantitySelectorProps) {
     size = 'md',
     disabled = false,
   } = props;
+  const { t } = useTranslation('product');
   const styles = sizeStyles[size];
 
   return (
@@ -42,11 +44,11 @@ export function QuantitySelector(props: QuantitySelectorProps) {
         disabled={disabled || value <= min}
         className={cn(
           styles.button,
-          'flex items-center justify-center rounded-l-lg transition',
+          'flex items-center justify-center rounded-s-lg transition',
           'hover:bg-gray-100 dark:hover:bg-gray-800',
           'disabled:opacity-30 disabled:cursor-not-allowed'
         )}
-        aria-label="Decrease quantity"
+        aria-label={t('quantity.aria.decrement')}
       >
         &minus;
       </button>
@@ -59,11 +61,11 @@ export function QuantitySelector(props: QuantitySelectorProps) {
         disabled={disabled || value >= max}
         className={cn(
           styles.button,
-          'flex items-center justify-center rounded-r-lg transition',
+          'flex items-center justify-center rounded-e-lg transition',
           'hover:bg-gray-100 dark:hover:bg-gray-800',
           'disabled:opacity-30 disabled:cursor-not-allowed'
         )}
-        aria-label="Increase quantity"
+        aria-label={t('quantity.aria.increment')}
       >
         +
       </button>

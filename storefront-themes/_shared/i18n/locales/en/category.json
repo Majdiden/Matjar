@@ -1,1 +1,79 @@
-{}
+{
+  "category": {
+    "title": "{{name}}",
+    "all_products": "All Products",
+    "sort": {
+      "newest": "Newest",
+      "price_asc": "Price: Low to High",
+      "price_desc": "Price: High to Low",
+      "popular": "Most Popular",
+      "featured": "Featured",
+      "name_asc": "Name: A-Z"
+    },
+    "sort_by": "Sort by:",
+    "results_count_zero": "{{count}} products",
+    "results_count_one": "{{count}} product",
+    "results_count_two": "{{count}} products",
+    "results_count_few": "{{count}} products",
+    "results_count_many": "{{count}} products",
+    "results_count_other": "{{count}} products",
+    "loading": "Loading…",
+    "empty": {
+      "title": "No products in this category yet."
+    }
+  },
+  "collection": {
+    "title": "{{name}}",
+    "not_found_title": "Collection not found",
+    "not_found_description": "The collection you're looking for doesn't exist.",
+    "browse_collections": "Browse Collections",
+    "sort_by": "Sort by:",
+    "results_count_zero": "{{count}} products",
+    "results_count_one": "{{count}} product",
+    "results_count_two": "{{count}} products",
+    "results_count_few": "{{count}} products",
+    "results_count_many": "{{count}} products",
+    "results_count_other": "{{count}} products",
+    "empty": {
+      "title": "No products in this collection",
+      "description": "Check back soon.",
+      "browse_all": "Browse All Products"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page_of": "Page {{page}} of {{total}}"
+    }
+  },
+  "collections_index": {
+    "title": "Collections",
+    "subtitle": "Curated groups of products for every occasion.",
+    "product_count_zero": "{{count}} products",
+    "product_count_one": "{{count}} product",
+    "product_count_two": "{{count}} products",
+    "product_count_few": "{{count}} products",
+    "product_count_many": "{{count}} products",
+    "product_count_other": "{{count}} products",
+    "empty": {
+      "title": "No collections yet",
+      "description": "Check back soon — collections are on the way.",
+      "browse_all": "Browse All Products"
+    }
+  },
+  "search": {
+    "title": "Search",
+    "empty_prompt": "Enter a search term to find products.",
+    "results_for": "Search results for \"{{query}}\"",
+    "results_count_zero": "{{count}} results found",
+    "results_count_one": "{{count}} result found",
+    "results_count_two": "{{count}} results found",
+    "results_count_few": "{{count}} results found",
+    "results_count_many": "{{count}} results found",
+    "results_count_other": "{{count}} results found",
+    "empty": {
+      "title": "No results found",
+      "description": "Try adjusting your search or browse our collections.",
+      "browse_all": "Browse All Products"
+    }
+  }
+}

@@ -1,1 +1,98 @@
-{}
+{
+  "order": {
+    "success": {
+      "title": "شكراً على طلبك!",
+      "subtitle": "تم استلام طلبك {{orderNumber}}.",
+      "confirmation_sent": "تم إرسال تأكيد إلى {{email}}.",
+      "order_placed": "تاريخ الطلب",
+      "order_total": "إجمالي الطلب",
+      "shipping_to": "الشحن إلى",
+      "payment": "الدفع",
+      "qty": "الكمية {{qty}}",
+      "preorder": "طلب مسبق",
+      "preorder_ships": "طلب مسبق — يُشحن {{date}}",
+      "action": {
+        "track": "تتبع طلبك",
+        "continue_shopping": "متابعة التسوق"
+      },
+      "contact_question": "هل لديك أسئلة عن طلبك؟",
+      "contact_link": "تواصل مع {{store}}",
+      "error_title": "تعذّر تحميل طلبك",
+      "error_description": "إذا كنت قد أجريت طلباً للتو، تحقق من بريدك الإلكتروني للتأكيد.",
+      "error_check_email": "تعذّر العثور على هذا الطلب. يرجى التحقق من بريدك الإلكتروني للتأكيد.",
+      "back_home": "العودة إلى الرئيسية"
+    },
+    "tracking": {
+      "title": "تتبع طلبك",
+      "gate_subtitle": "أدخل عنوان البريد الإلكتروني الذي استخدمته عند إتمام الشراء لعرض هذا الطلب.",
+      "field": {
+        "email": { "label": "البريد الإلكتروني", "placeholder": "you@example.com" }
+      },
+      "submit": "عرض الطلب",
+      "looking_up": "جاري البحث…",
+      "order_label": "الطلب",
+      "placed_on": "طُلب {{date}}",
+      "cancel_order": "إلغاء الطلب",
+      "cancelling": "جاري الإلغاء…",
+      "status": {
+        "order_received": "تم استلام الطلب",
+        "being_prepared": "جاري التحضير",
+        "on_its_way": "في الطريق إليك",
+        "delivered": "تم التسليم",
+        "cancelled": "ملغى",
+        "refunded": "تم الاسترداد"
+      },
+      "shipment_status": {
+        "preparing": "جاري التحضير",
+        "shipped": "تم الشحن",
+        "delivered": "تم التسليم",
+        "cancelled": "ملغى"
+      },
+      "event": {
+        "order_placed": "تم تقديم الطلب",
+        "order_cancelled": "تم إلغاء الطلب",
+        "tracking_updated": "تم تحديث معلومات التتبع",
+        "note_added": "تمت إضافة ملاحظة"
+      },
+      "tracking_number": "رقم التتبع",
+      "via": "عبر {{carrier}}",
+      "order_items": "عناصر الطلب",
+      "shipments": "الشحنات",
+      "shipment_count_zero": "لا توجد شحنات لهذا الطلب",
+      "shipment_count_one": "شحنة واحدة لهذا الطلب",
+      "shipment_count_two": "شحنتان لهذا الطلب",
+      "shipment_count_few": "{{count}} شحنات لهذا الطلب",
+      "shipment_count_many": "{{count}} شحنة لهذا الطلب",
+      "shipment_count_other": "{{count}} شحنة لهذا الطلب",
+      "shipment_n": "الشحنة {{n}}",
+      "shipped_on": "تم الشحن {{date}}",
+      "delivered_on": "تم التسليم {{date}}",
+      "cancelled_on": "تم الإلغاء {{date}}",
+      "created_on": "تم الإنشاء {{date}}",
+      "shipping_to": "الشحن إلى",
+      "activity": "النشاط",
+      "no_updates": "لا توجد تحديثات بعد.",
+      "preorder": "طلب مسبق",
+      "preorder_ships": "طلب مسبق — يُشحن {{date}}",
+      "qty": "الكمية {{qty}}",
+      "summary": {
+        "subtotal": "الإجمالي الفرعي",
+        "discount": "الخصم",
+        "shipping": "الشحن",
+        "tax": "الضريبة",
+        "gift_card": "بطاقة الهدايا",
+        "total": "الإجمالي"
+      },
+      "continue_shopping": "← متابعة التسوق",
+      "not_found_title": "الطلب غير موجود",
+      "not_found_description": "تعذّر العثور على طلب بهذا الرقم المرجعي.",
+      "back_home": "العودة إلى الرئيسية",
+      "cancel_confirm": {
+        "title": "إلغاء هذا الطلب؟",
+        "description": "لا يمكن التراجع عن هذا — سيتم الإفراج عن المخزون المحجوز.",
+        "confirm": "إلغاء الطلب",
+        "cancel": "الاحتفاظ بالطلب"
+      }
+    }
+  }
+}

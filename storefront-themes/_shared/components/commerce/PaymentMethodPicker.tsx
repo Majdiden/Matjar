@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { paymentMethodsApi, PaymentMethodPublic, PaymentMethodField } from '../../api/client';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 import PaymentLogo from './PaymentLogo';
@@ -37,6 +38,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
     className = '',
   } = props;
 
+  const { t } = useTranslation(['product', 'common']);
   const accent = accentColor || 'var(--color-primary, #2563eb)';
 
   const [methods, setMethods] = useState<PaymentMethodPublic[] | null>(null);
@@ -129,7 +131,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
         className={`rounded-lg border px-4 py-6 text-sm text-center ${className}`}
         style={{ borderColor: 'var(--color-border, #e5e7eb)', color: 'var(--color-muted, #6b7280)' }}
       >
-        No payment methods available. Please contact support.
+        {t('payment.no_methods')}
       </div>
     );
   }
@@ -195,7 +197,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
           style={{ borderColor: 'var(--color-border, #e5e7eb)', backgroundColor: 'var(--color-surface, #f9fafb)' }}
         >
           <p className="text-sm font-medium" style={{ color: 'var(--color-text, #111827)' }}>
-            Choose a provider
+            {t('payment.choose_provider')}
           </p>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
             {selected.providers.map((p) => {
@@ -241,7 +243,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
             })}
           </div>
           {submitted && !fieldValues.providerCode && (
-            <p className="text-xs text-red-600">Please choose a provider.</p>
+            <p className="text-xs text-red-600">{t('payment.please_choose_provider')}</p>
           )}
 
           {(() => {
@@ -249,15 +251,15 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
             if (!picked) return null;
             return (
               <div className="rounded-md border bg-white p-3 text-sm space-y-1" style={{ borderColor: 'var(--color-border, #e5e7eb)' }}>
-                <p className="font-medium" style={{ color: 'var(--color-text, #111827)' }}>Transfer to:</p>
+                <p className="font-medium" style={{ color: 'var(--color-text, #111827)' }}>{t('payment.transfer_to')}</p>
                 {picked.beneficiaryName && (
-                  <div><span className="text-xs" style={{ color: 'var(--color-muted, #6b7280)' }}>Beneficiary:</span> <strong>{picked.beneficiaryName}</strong></div>
+                  <div><span className="text-xs" style={{ color: 'var(--color-muted, #6b7280)' }}>{t('payment.beneficiary')}</span> <strong>{picked.beneficiaryName}</strong></div>
                 )}
                 {picked.accountNumber && (
-                  <div><span className="text-xs" style={{ color: 'var(--color-muted, #6b7280)' }}>Account:</span> <strong className="font-mono">{picked.accountNumber}</strong></div>
+                  <div><span className="text-xs" style={{ color: 'var(--color-muted, #6b7280)' }}>{t('payment.account')}</span> <strong className="font-mono">{picked.accountNumber}</strong></div>
                 )}
                 {picked.phone && (
-                  <div><span className="text-xs" style={{ color: 'var(--color-muted, #6b7280)' }}>Phone:</span> <strong className="font-mono">{picked.phone}</strong></div>
+                  <div><span className="text-xs" style={{ color: 'var(--color-muted, #6b7280)' }}>{t('payment.phone')}</span> <strong className="font-mono">{picked.phone}</strong></div>
                 )}
                 {picked.instructions && (
                   <p className="text-xs mt-2" style={{ color: 'var(--color-muted, #6b7280)' }}>{picked.instructions}</p>
@@ -301,7 +303,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
                     className={`${inputClass} resize-none`}
                     style={inputStyle}
                   />
-                  {missing && <p className="text-xs text-red-600 mt-1">Required</p>}
+                  {missing && <p className="text-xs text-red-600 mt-1">{t('payment.required')}</p>}
                 </div>
               );
             }
@@ -323,7 +325,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
                       </option>
                     ))}
                   </select>
-                  {missing && <p className="text-xs text-red-600 mt-1">Required</p>}
+                  {missing && <p className="text-xs text-red-600 mt-1">{t('payment.required')}</p>}
                 </div>
               );
             }
@@ -347,10 +349,10 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
                       <button
                         type="button"
                         onClick={() => setField(field.name, null)}
-                        className="text-xs underline ml-2"
+                        className="text-xs underline ms-2"
                         style={{ color: accent }}
                       >
-                        Remove
+                        {t('common:action.remove')}
                       </button>
                     </div>
                   ) : (

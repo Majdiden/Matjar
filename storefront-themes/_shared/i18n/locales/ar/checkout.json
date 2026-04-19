@@ -1,1 +1,114 @@
-{}
+{
+  "checkout": {
+    "title": "إتمام الشراء",
+    "loading": "جاري تحميل صفحة الدفع...",
+    "step": {
+      "1": { "title": "المعلومات" },
+      "2": { "title": "الشحن" },
+      "3": { "title": "الدفع" },
+      "4": { "title": "المراجعة" }
+    },
+    "logged_in_as": "مسجّل الدخول كـ",
+    "view_account": "عرض الحساب",
+    "have_account": "هل لديك حساب؟",
+    "sign_in_faster": "سجّل الدخول لإتمام شراء أسرع",
+    "field": {
+      "contact": {
+        "title": "معلومات التواصل",
+        "email": {
+          "label": "البريد الإلكتروني",
+          "placeholder": "you@example.com",
+          "hint": "سنرسل تأكيد طلبك إلى هذا البريد."
+        },
+        "marketing": "أرسل لي الأخبار والعروض بالبريد الإلكتروني"
+      },
+      "shipping": {
+        "title": "عنوان الشحن",
+        "saved_addresses": "العناوين المحفوظة",
+        "use_new_address": "+ استخدام عنوان جديد",
+        "first_name": { "label": "الاسم الأول" },
+        "last_name": { "label": "الاسم الأخير" },
+        "phone": { "label": "الهاتف" },
+        "address": {
+          "label": "العنوان",
+          "placeholder": "عنوان الشارع"
+        },
+        "address2": { "label": "الشقة، الجناح، إلخ. (اختياري)" },
+        "city": { "label": "المدينة" },
+        "state": { "label": "الولاية / المنطقة" },
+        "postal": { "label": "الرمز البريدي" },
+        "country": { "label": "الدولة" },
+        "save_address": "حفظ هذا العنوان في حسابي للمرة القادمة"
+      },
+      "payment": {
+        "title": "طريقة الدفع",
+        "billing_title": "عنوان الفوترة",
+        "billing_same": "نفس عنوان الشحن",
+        "gift_card_covers": "بطاقة الهدايا تغطي إجمالي الطلب بالكامل. لا حاجة إلى دفع إضافي.",
+        "notes": {
+          "label": "ملاحظات الطلب (اختياري)",
+          "placeholder": "تعليمات التسليم، رسالة هدية، إلخ."
+        }
+      },
+      "review": {
+        "title": "مراجعة طلبك",
+        "contact_label": "التواصل",
+        "ship_to_label": "الشحن إلى",
+        "payment_label": "الدفع",
+        "terms": "أوافق على شروط الخدمة وسياسة الخصوصية.",
+        "terms_and_conditions": "شروط الخدمة",
+        "privacy_policy": "سياسة الخصوصية"
+      }
+    },
+    "action": {
+      "continue_to_shipping": "المتابعة إلى الشحن",
+      "continue_to_payment": "المتابعة إلى الدفع",
+      "review_order": "مراجعة الطلب",
+      "place_order": "تأكيد الطلب · {{total}}",
+      "placing": "جاري تأكيد الطلب...",
+      "back": "رجوع",
+      "edit": "تعديل"
+    },
+    "cart": {
+      "empty_title": "سلتك فارغة",
+      "empty_description": "أضف بعض المنتجات قبل إتمام الشراء.",
+      "browse_products": "تصفح المنتجات"
+    },
+    "summary": {
+      "title": "ملخّص الطلب",
+      "subtotal": "الإجمالي الفرعي",
+      "discount": "الخصم",
+      "shipping": "الشحن",
+      "shipping_calculated": "يحسب لاحقاً",
+      "shipping_free": "مجاني",
+      "tax": "الضريبة",
+      "tax_calculated": "يحسب لاحقاً",
+      "gift_card": "بطاقة الهدايا",
+      "total": "الإجمالي",
+      "updating": "جاري تحديث الإجماليات…",
+      "code_applied": "تم تطبيق الكود {{code}}",
+      "discount_placeholder": "كود الخصم",
+      "apply": "تطبيق",
+      "remove": "إزالة",
+      "gift_card_placeholder": "كود بطاقة الهدايا",
+      "your_gift_cards": "بطاقات هداياك",
+      "gift_card_applied": "بطاقة الهدايا •••• {{last4}} مطبّقة",
+      "gift_card_balance": "(الرصيد {{balance}})",
+      "preorder_notice_title": "يتضمن عناصر الطلب المسبق",
+      "preorder_ships_by": "يُشحن بحلول {{date}}"
+    },
+    "error": {
+      "choose_payment": "يرجى اختيار طريقة دفع.",
+      "accept_terms": "يجب قبول شروط الخدمة لتأكيد طلبك.",
+      "place_order": "فشل تأكيد الطلب. يرجى المحاولة مرة أخرى.",
+      "email_required": "البريد الإلكتروني مطلوب",
+      "first_name_required": "الاسم الأول مطلوب",
+      "last_name_required": "الاسم الأخير مطلوب",
+      "address_required": "العنوان مطلوب",
+      "city_required": "المدينة مطلوبة",
+      "postal_required": "الرمز البريدي مطلوب",
+      "country_required": "الدولة مطلوبة",
+      "phone_required": "رقم الهاتف مطلوب"
+    }
+  }
+}

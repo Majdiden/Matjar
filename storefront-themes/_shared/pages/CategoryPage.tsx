@@ -5,6 +5,7 @@ import { ProductCard } from '../components/commerce/ProductCard';
 import { Skeleton } from '../components/primitives/Skeleton';
 import { QuickView } from '../components/discovery/QuickView';
 import { useThemeCard } from '../theme/ThemeCardProvider';
+import { useTranslation } from 'react-i18next';
 import type { Product } from '../types/commerce';
 
 // Shared CategoryPage — theme-agnostic, driven by CSS vars (--color-primary,
@@ -21,13 +22,6 @@ interface CategoryPageProps {
   hideSidebar?: boolean;
 }
 
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' },
-  { value: 'popular', label: 'Most Popular' },
-];
-
 const CategoryPage: React.FC<CategoryPageProps> = ({
   className = '',
   columns = 3,
@@ -38,9 +32,17 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const [quick, setQuick] = useState<Product | null>(null);
   const themeCard = useThemeCard();
+  const { t } = useTranslation(['category']);
   const renderCard =
     propRenderCard ||
     (themeCard ? ((p: Product, onQV: (p: Product) => void) => themeCard(p, onQV)) : undefined);
+
+  const SORT_OPTIONS = [
+    { value: 'newest', label: t('category.sort.newest') },
+    { value: 'price-asc', label: t('category.sort.price_asc') },
+    { value: 'price-desc', label: t('category.sort.price_desc') },
+    { value: 'popular', label: t('category.sort.popular') },
+  ];
 
   const sort = searchParams.get('sort') || 'newest';
   const { category, products, loading } = useCategory(slug!, { sort, limit: 24 });
@@ -93,12 +95,12 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
                   className="text-xs uppercase tracking-wider font-semibold px-5 py-3 border-b border-gray-200"
                   style={{ color: 'var(--color-primary)' }}
                 >
-                  Categories
+                  {t('category.title', { name: 'Categories' })}
                 </h3>
                 <ul className="p-4 space-y-2 text-sm">
                   <li>
                     <Link to="/products" className="block px-2 py-1 rounded hover:bg-gray-100">
-                      All Products
+                      {t('category.all_products')}
                     </Link>
                   </li>
                   {allCategories.slice(0, 14).map((cat) => (
@@ -122,7 +124,9 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
           <div>
             <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-200">
               <span className="text-sm text-gray-600">
-                {loading ? 'Loading…' : `${products.length} products`}
+                {loading
+                  ? t('category.loading')
+                  : t('category.results_count_other', { count: products.length })}
               </span>
               <select
                 value={sort}
@@ -144,7 +148,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-20 text-gray-500">
-                No products in this category yet.
+                {t('category.empty.title')}
               </div>
             ) : (
               <div className={`grid gap-5 ${gridCols}`}>

@@ -1,1 +1,70 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "main": {
+        "eyebrow": "الموسم الجديد",
+        "headline_line1": "تجاوز",
+        "headline_line2": "حدودك",
+        "subheadline": "معدات الأداء للرياضيين الذين يطلبون الأفضل. تدرّب أكثر، اذهب أبعد.",
+        "cta_primary": "تسوّق الآن",
+        "cta_secondary": "تصفّح الكل"
+      }
+    },
+    "section": {
+      "categories": {
+        "title": "تسوّق حسب الرياضة",
+        "shop_now": "تسوّق الآن"
+      },
+      "featured_products": {
+        "title": "أبرز المنتجات",
+        "view_all": "عرض الكل",
+        "add_to_cart": "إضافة إلى السلة"
+      },
+      "cta_banner": {
+        "title": "هل أنت مستعد للأداء؟",
+        "subtitle": "شحن مجاني على جميع الطلبات التي تزيد عن 75 دولار. لا أعذار.",
+        "cta": "ابدأ الآن"
+      },
+      "performance_gear": {
+        "title": "معدات الأداء"
+      },
+      "trust_badges": {
+        "free_returns": {
+          "title": "إرجاع مجاني",
+          "description": "إرجاع خلال 30 يوماً بدون أسئلة"
+        },
+        "pro_gear": {
+          "title": "معدات احترافية",
+          "description": "يستخدمها رياضيون محترفون حول العالم"
+        },
+        "fast_delivery": {
+          "title": "توصيل سريع",
+          "description": "شحن سريع على جميع الطلبات"
+        }
+      }
+    },
+    "banner": {
+      "announcement": {
+        "text": "شحن مجاني على الطلبات التي تزيد عن 75 دولار — لا أعذار.",
+        "cta": "تسوّق الآن"
+      }
+    },
+    "footer": {
+      "tagline": "جهّز نفسك. تحرّك. لا حدود.",
+      "shop_heading": "المتجر",
+      "info_heading": "معلومات",
+      "stay_connected_heading": "ابقَ على تواصل",
+      "newsletter_teaser": "انضم إلى الفريق. احصل على عروض حصرية.",
+      "newsletter_submit": "اشترك",
+      "all_products": "جميع المنتجات",
+      "about_us": "من نحن",
+      "contact": "تواصل معنا",
+      "shipping_policy": "سياسة الشحن",
+      "copyright_html": "© {{year}} {{name}}. جميع الحقوق محفوظة."
+    },
+    "nav": {
+      "shop": "المتجر",
+      "search_placeholder": "ابحث عن معدات..."
+    }
+  }
+}

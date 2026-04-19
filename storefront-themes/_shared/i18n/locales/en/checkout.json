@@ -1,1 +1,114 @@
-{}
+{
+  "checkout": {
+    "title": "Checkout",
+    "loading": "Loading checkout...",
+    "step": {
+      "1": { "title": "Information" },
+      "2": { "title": "Shipping" },
+      "3": { "title": "Payment" },
+      "4": { "title": "Review" }
+    },
+    "logged_in_as": "Logged in as",
+    "view_account": "View account",
+    "have_account": "Have an account?",
+    "sign_in_faster": "Sign in for faster checkout",
+    "field": {
+      "contact": {
+        "title": "Contact Information",
+        "email": {
+          "label": "Email",
+          "placeholder": "you@example.com",
+          "hint": "We'll send your order confirmation here."
+        },
+        "marketing": "Email me with news and offers"
+      },
+      "shipping": {
+        "title": "Shipping Address",
+        "saved_addresses": "Saved addresses",
+        "use_new_address": "+ Use a new address",
+        "first_name": { "label": "First name" },
+        "last_name": { "label": "Last name" },
+        "phone": { "label": "Phone" },
+        "address": {
+          "label": "Address",
+          "placeholder": "Street address"
+        },
+        "address2": { "label": "Apartment, suite, etc. (optional)" },
+        "city": { "label": "City" },
+        "state": { "label": "State / Region" },
+        "postal": { "label": "ZIP / Postal" },
+        "country": { "label": "Country" },
+        "save_address": "Save this address to my account for next time"
+      },
+      "payment": {
+        "title": "Payment Method",
+        "billing_title": "Billing Address",
+        "billing_same": "Same as shipping address",
+        "gift_card_covers": "Your gift card covers the full order total. No additional payment is required.",
+        "notes": {
+          "label": "Order notes (optional)",
+          "placeholder": "Delivery instructions, gift message, etc."
+        }
+      },
+      "review": {
+        "title": "Review Your Order",
+        "contact_label": "Contact",
+        "ship_to_label": "Ship to",
+        "payment_label": "Payment",
+        "terms": "I agree to the terms and conditions and privacy policy.",
+        "terms_and_conditions": "terms and conditions",
+        "privacy_policy": "privacy policy"
+      }
+    },
+    "action": {
+      "continue_to_shipping": "Continue to Shipping",
+      "continue_to_payment": "Continue to Payment",
+      "review_order": "Review Order",
+      "place_order": "Place Order · {{total}}",
+      "placing": "Placing order...",
+      "back": "Back",
+      "edit": "Edit"
+    },
+    "cart": {
+      "empty_title": "Your cart is empty",
+      "empty_description": "Add some products before checking out.",
+      "browse_products": "Browse Products"
+    },
+    "summary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "shipping": "Shipping",
+      "shipping_calculated": "Calculated next",
+      "shipping_free": "Free",
+      "tax": "Tax",
+      "tax_calculated": "Calculated next",
+      "gift_card": "Gift card",
+      "total": "Total",
+      "updating": "Updating totals…",
+      "code_applied": "Code {{code}} applied",
+      "discount_placeholder": "Discount code",
+      "apply": "Apply",
+      "remove": "Remove",
+      "gift_card_placeholder": "Gift card code",
+      "your_gift_cards": "Your gift cards",
+      "gift_card_applied": "Gift card •••• {{last4}} applied",
+      "gift_card_balance": "(balance {{balance}})",
+      "preorder_notice_title": "Includes pre-order items",
+      "preorder_ships_by": "Ships by {{date}}"
+    },
+    "error": {
+      "choose_payment": "Please choose a payment method.",
+      "accept_terms": "You must accept the terms and conditions to place your order.",
+      "place_order": "Failed to place order. Please try again.",
+      "email_required": "Email is required",
+      "first_name_required": "First name is required",
+      "last_name_required": "Last name is required",
+      "address_required": "Address is required",
+      "city_required": "City is required",
+      "postal_required": "Postal code is required",
+      "country_required": "Country is required",
+      "phone_required": "Phone is required"
+    }
+  }
+}

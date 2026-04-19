@@ -1,1 +1,119 @@
-{}
+{
+  "theme": {
+    "section": {
+      "hero": {
+        "eyebrow": "Handmade & Authentic",
+        "heading_line1": "Crafted by Hand,",
+        "heading_line2": "Made with Heart",
+        "subheading": "Discover one-of-a-kind pieces from independent makers and artisans around the world.",
+        "primary_cta": "Explore Collection",
+        "secondary_cta": "Browse Crafts"
+      },
+      "philosophy": {
+        "heading": "Our Philosophy",
+        "body": "Every item in our collection tells a story — of tradition, craftsmanship, and the human touch that no machine can replicate. We partner directly with artisans to bring you authentic, sustainable, and beautiful creations."
+      },
+      "featured_products": {
+        "heading": "Hand-Picked Pieces",
+        "subheading": "Curated with care from our finest makers",
+        "view_all": "View All Pieces"
+      },
+      "artisan_spotlight": {
+        "heading": "Artisan Spotlight",
+        "subheading": "Meet the hands behind the craft"
+      },
+      "categories": {
+        "heading": "Browse by Craft",
+        "subheading": "Explore our curated categories"
+      },
+      "new_arrivals": {
+        "heading": "New Arrivals",
+        "subheading": "Fresh from the workshop",
+        "see_more": "See More"
+      },
+      "newsletter": {
+        "heading": "Handcrafted with Love",
+        "subheading": "Join our community of craft lovers. Get early access to new collections, maker stories, and exclusive artisan offers.",
+        "placeholder": "Enter your email",
+        "button": "Subscribe",
+        "disclaimer": "No spam, unsubscribe anytime."
+      }
+    },
+    "layout": {
+      "announcement": "Handcrafted with care — Free shipping on orders over $75",
+      "announcement_link": "Explore",
+      "nav": {
+        "home": "Home",
+        "collection": "Collection",
+        "our_story": "Our Story"
+      }
+    },
+    "footer": {
+      "tagline": "Handcrafted with care, made to last. Every piece tells a story of tradition and craftsmanship.",
+      "shop_heading": "Shop",
+      "shop_all": "All Pieces",
+      "about_heading": "About",
+      "our_story": "Our Story",
+      "meet_makers": "Meet the Makers",
+      "sustainability": "Sustainability",
+      "contact": "Contact",
+      "circle_heading": "Join Our Circle",
+      "circle_subtext": "New collections, maker stories, and exclusive offers.",
+      "email_placeholder": "Email address",
+      "join_button": "Join",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "copyright": "© {{year}} {{name}}. All rights reserved."
+    },
+    "products": {
+      "page_title": "All Products",
+      "search_placeholder": "Search products...",
+      "all_categories": "All Categories",
+      "sort": {
+        "newest": "Newest",
+        "price_asc": "Price: Low to High",
+        "price_desc": "Price: High to Low",
+        "popular": "Most Popular"
+      },
+      "no_results": "No products found",
+      "clear_search": "Clear search",
+      "previous": "Previous",
+      "next": "Next",
+      "page_of": "Page {{page}} of {{total}}"
+    },
+    "category": {
+      "not_found_heading": "Category Not Found",
+      "browse_all": "Browse all products",
+      "no_products": "No products in this category yet"
+    },
+    "product_detail": {
+      "back_to_shop": "Back to shop",
+      "products_breadcrumb": "Products",
+      "select_option": "Select an option to see availability",
+      "in_stock": "In Stock ({{count}} available)",
+      "preorder": "Pre-order — ships {{date}}",
+      "only_left": "Only {{count}} left",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of Stock",
+      "description_heading": "Description",
+      "product_not_found": "Product Not Found"
+    },
+    "cart": {
+      "loading": "Loading cart...",
+      "empty_heading": "Your cart is empty",
+      "empty_subtext": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "page_heading": "Shopping Cart",
+      "clear_cart": "Clear Cart",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping_label": "Shipping",
+      "shipping_value": "Calculated at checkout",
+      "tax_label": "Tax",
+      "tax_value": "Calculated at checkout",
+      "total": "Total",
+      "checkout_button": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping",
+      "remove": "Remove"
+    }
+  }
+}

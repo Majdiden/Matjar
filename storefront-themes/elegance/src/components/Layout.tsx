@@ -6,18 +6,20 @@ import { useCategories } from '@shared/hooks/useProducts';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import CartDrawer from '@shared/components/CartDrawer';
+import { useTranslation } from 'react-i18next';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation(['theme']);
 
   return (
     <div className="min-h-screen flex flex-col pb-16 md:pb-0" style={{ fontFamily: 'var(--font-family, "Playfair Display", serif)' }}>
       {/* Top bar */}
       <div className="bg-gray-950 text-gray-300 text-xs text-center py-2 tracking-widest uppercase">
-        Complimentary shipping on orders over $200
+        {t('theme.layout.announcement')}
       </div>
 
       {/* Header */}
@@ -63,8 +65,8 @@ const Layout: React.FC = () => {
           </div>
 
           <nav className="hidden lg:flex items-center justify-center gap-8 pb-4 -mt-1">
-            <Link to="/" className="text-xs tracking-[0.15em] uppercase text-gray-600 hover:text-gray-900 transition">Home</Link>
-            <Link to="/products" className="text-xs tracking-[0.15em] uppercase text-gray-600 hover:text-gray-900 transition">Shop All</Link>
+            <Link to="/" className="text-xs tracking-[0.15em] uppercase text-gray-600 hover:text-gray-900 transition">{t('theme.layout.nav.home')}</Link>
+            <Link to="/products" className="text-xs tracking-[0.15em] uppercase text-gray-600 hover:text-gray-900 transition">{t('theme.layout.nav.shop_all')}</Link>
             {categories.slice(0, 5).map(cat => (
               <Link key={cat._id} to={`/categories/${cat.slug}`} className="text-xs tracking-[0.15em] uppercase text-gray-600 hover:text-gray-900 transition">
                 {cat.name}
@@ -74,8 +76,8 @@ const Layout: React.FC = () => {
 
           {mobileMenuOpen && (
             <nav className="lg:hidden pb-4 space-y-2 border-t pt-4">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">Home</Link>
-              <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">Shop All</Link>
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">{t('theme.layout.nav.home')}</Link>
+              <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">{t('theme.layout.nav.shop_all')}</Link>
               {categories.slice(0, 6).map(cat => (
                 <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">{cat.name}</Link>
               ))}

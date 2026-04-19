@@ -1,1 +1,40 @@
-{}
+{
+  "filter": {
+    "title": "تصفية",
+    "active_filters": "الفلاتر النشطة",
+    "clear_all": "مسح الكل",
+    "apply": "تطبيق",
+    "show_more": "عرض المزيد",
+    "price": {
+      "label": "السعر",
+      "min_aria": "الحد الأدنى للسعر",
+      "max_aria": "الحد الأقصى للسعر"
+    }
+  },
+  "toggle": {
+    "grid_aria": "عرض الشبكة",
+    "list_aria": "عرض القائمة"
+  },
+  "quickview": {
+    "title": "عرض سريع",
+    "close_aria": "إغلاق العرض السريع",
+    "tax_shipping": "الضريبة مشمولة. يُحسب الشحن عند الدفع.",
+    "variant_label": "متغيّر",
+    "quantity_label": "الكمية",
+    "out_of_stock": "غير متوفر",
+    "in_stock": "متوفر",
+    "low_stock_zero": "نفد المخزون",
+    "low_stock_one": "قطعة واحدة متبقية في المخزون",
+    "low_stock_two": "قطعتان متبقيتان في المخزون",
+    "low_stock_few": "{{count}} قطع متبقية في المخزون",
+    "low_stock_many": "{{count}} قطعة متبقية في المخزون",
+    "low_stock_other": "{{count}} قطع متبقية في المخزون",
+    "add_to_cart": "أضف إلى السلة",
+    "adding": "جارٍ الإضافة…",
+    "added": "أُضيف إلى السلة",
+    "save_percent": "وفّر {{percent}}%",
+    "view_full_details": "عرض التفاصيل كاملة \u2190",
+    "image_dot_aria": "عرض الصورة {{index}}"
+  },
+  "scroll_to_top_aria": "العودة إلى الأعلى"
+}

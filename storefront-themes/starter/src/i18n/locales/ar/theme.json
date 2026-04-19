@@ -1,1 +1,55 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "main": {
+        "headline": "أهلاً وسهلاً بك في متجرنا",
+        "subheadline": "اكتشف مجموعتنا المختارة من المنتجات عالية الجودة.",
+        "cta": "تسوّق الآن"
+      }
+    },
+    "section": {
+      "categories": {
+        "title": "الفئات"
+      },
+      "featured_products": {
+        "title": "المنتجات المميّزة",
+        "view_all": "عرض الكل",
+        "add_to_cart": "إضافة"
+      },
+      "trust_badges": {
+        "free_shipping": {
+          "title": "شحن مجاني",
+          "description": "على الطلبات التي تزيد عن 50 دولار"
+        },
+        "easy_returns": {
+          "title": "إرجاع سهل",
+          "description": "سياسة إرجاع لمدة 30 يوماً"
+        },
+        "secure_checkout": {
+          "title": "دفع آمن",
+          "description": "آمن ومشفّر"
+        }
+      },
+      "newsletter": {
+        "title": "ابقَ على اطلاع",
+        "subtitle": "اشترك للحصول على أحدث الوصول والعروض.",
+        "placeholder": "بريدك@الإلكتروني.com",
+        "cta": "اشتراك"
+      }
+    },
+    "banner": {
+      "announcement": {
+        "text": "شحن مجاني على الطلبات التي تزيد عن 50 دولار!"
+      }
+    },
+    "footer": {
+      "copyright_html": "© {{year}} {{name}}",
+      "products": "المنتجات",
+      "about": "من نحن",
+      "contact": "تواصل معنا"
+    },
+    "nav": {
+      "products": "المنتجات"
+    }
+  }
+}

@@ -1,1 +1,113 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "badge_text": "Farm Fresh Daily",
+      "heading_line1": "Farm Fresh",
+      "heading_line2": "to Your Door",
+      "subheading": "Hand-picked produce, artisan goods, and pantry essentials from local farms to your table.",
+      "primary_cta": "Start Shopping",
+      "secondary_cta": "Browse Categories"
+    },
+    "section": {
+      "categories": {
+        "title": "Shop by Category",
+        "subtitle": "Fresh picks from every aisle"
+      },
+      "weekly_deals": {
+        "badge": "THIS WEEK ONLY",
+        "title": "Weekly Fresh Deals",
+        "subtitle": "Save up to 40% on this week's hand-picked selection",
+        "cta": "Shop Deals"
+      },
+      "featured_products": {
+        "title": "Today's Picks",
+        "subtitle": "Freshly curated for you",
+        "view_all": "See All"
+      },
+      "new_arrivals": {
+        "title": "New Arrivals",
+        "subtitle": "Just harvested and in stock",
+        "view_all": "See More"
+      },
+      "newsletter": {
+        "title": "Recipes & Fresh Tips",
+        "subtitle": "Subscribe for weekly recipe ideas, seasonal picks, and exclusive deals on fresh produce.",
+        "button": "Subscribe",
+        "placeholder": "Enter your email",
+        "disclaimer": "No spam, unsubscribe anytime."
+      }
+    },
+    "nav": {
+      "home": "Home",
+      "shop_all": "Shop All"
+    },
+    "footer": {
+      "tagline": "Farm-fresh quality delivered to your door. We source directly from local farms to ensure the freshest produce every day.",
+      "col_shop": "Shop",
+      "col_help": "Help",
+      "col_stay_fresh": "Stay Fresh",
+      "stay_fresh_subtitle": "Get weekly deals and recipe ideas.",
+      "email_placeholder": "Email address",
+      "join_btn": "Join",
+      "all_products": "All Products",
+      "delivery_info": "Delivery Info",
+      "freshness_guarantee": "Freshness Guarantee",
+      "returns": "Returns",
+      "faq": "FAQ",
+      "privacy_policy": "Privacy Policy",
+      "terms_of_service": "Terms of Service",
+      "copyright": "© {{year}} {{name}}. All rights reserved."
+    },
+    "announcement": {
+      "message": "Fresh Delivery Daily — Free shipping on orders over $35",
+      "link_text": "Order Now"
+    },
+    "products": {
+      "title_all": "All Products",
+      "search_placeholder": "Search products...",
+      "all_categories": "All Categories",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "empty": "No products found",
+      "clear_search": "Clear search",
+      "page_of": "Page {{page}} of {{total}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "category": {
+      "not_found": "Category Not Found",
+      "browse_all": "Browse all products",
+      "empty": "No products in this category yet"
+    },
+    "product_detail": {
+      "breadcrumb_products": "Products",
+      "select_option": "Select an option to see availability",
+      "in_stock": "In Stock ({{count}} available)",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of Stock",
+      "description": "Description",
+      "not_found": "Product Not Found",
+      "back_to_shop": "Back to shop"
+    },
+    "cart": {
+      "loading": "Loading cart...",
+      "empty_title": "Your cart is empty",
+      "empty_subtitle": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "title": "Shopping Cart",
+      "clear": "Clear Cart",
+      "remove": "Remove",
+      "each": "each",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping": "Shipping",
+      "shipping_calc": "Calculated at checkout",
+      "tax": "Tax",
+      "tax_calc": "Calculated at checkout",
+      "total": "Total",
+      "checkout": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping"
+    }
+  }
+}

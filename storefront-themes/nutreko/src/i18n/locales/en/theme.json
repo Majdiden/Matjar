@@ -1,1 +1,161 @@
-{}
+{
+  "theme": {
+    "section": {
+      "nutreko-top-strip": {
+        "text": "FREE SHIPPING ON ORDERS OVER $75  ·  100% AUTHENTIC PRODUCTS"
+      },
+      "nutreko-hero": {
+        "eyebrow": "SUPPLEMENTS THAT WORK",
+        "heading": "FUEL YOUR PERFORMANCE",
+        "subheading": "Premium protein, pre-workout and recovery formulas built for athletes who refuse to settle.",
+        "cta": "SHOP NOW",
+        "secondary_cta": "VIEW DEALS",
+        "badge": "NEW ARRIVAL",
+        "stat_products": "PRODUCTS",
+        "stat_customers": "CUSTOMERS",
+        "stat_authentic": "AUTHENTIC"
+      },
+      "nutreko-guarantee": {
+        "authentic_title": "100% AUTHENTIC",
+        "authentic_subtitle": "Sourced direct from brands",
+        "potency_title": "MAXIMUM POTENCY",
+        "potency_subtitle": "Premium grade formulas",
+        "lab_title": "LAB TESTED",
+        "lab_subtitle": "Every batch verified",
+        "shipping_title": "FAST SHIPPING",
+        "shipping_subtitle": "Ships within 24 hours"
+      },
+      "nutreko-category-strip": {
+        "heading": "EXPLORE THE RANGE",
+        "subheading": "Built for every stage of your training",
+        "shop_label": "SHOP →"
+      },
+      "nutreko-product-grid": {
+        "top_sellers_heading": "TOP SELLERS",
+        "top_sellers_subheading": "The essentials every athlete needs",
+        "trending_heading": "TRENDING NOW",
+        "fuel_heading": "FUEL YOUR WORKOUT",
+        "view_all": "VIEW ALL →"
+      },
+      "nutreko-banner": {
+        "eyebrow": "LIMITED TIME",
+        "heading": "BUY 2 GET 1 FREE",
+        "subheading": "On all whey protein — this week only.",
+        "cta": "SHOP DEAL"
+      }
+    },
+    "hero": {
+      "main": {
+        "eyebrow": "SUPPLEMENTS THAT WORK",
+        "headline": "FUEL YOUR PERFORMANCE",
+        "subheadline": "Premium protein, pre-workout and recovery formulas built for athletes who refuse to settle.",
+        "cta": "SHOP NOW"
+      }
+    },
+    "banner": {
+      "promo": {
+        "text": "FREE SHIPPING ON ORDERS OVER $75  ·  100% AUTHENTIC PRODUCTS"
+      },
+      "deal": {
+        "text": "BUY 2 GET 1 FREE on all whey protein — this week only."
+      }
+    },
+    "footer": {
+      "tagline": "Premium supplements and sports nutrition for athletes who demand more. 100% authentic, lab-tested, guaranteed.",
+      "copyright_html": "© {{year}} {{brand}}. ALL RIGHTS RESERVED.",
+      "col_shop": "Shop",
+      "col_support": "Support",
+      "col_company": "Company",
+      "item_all_products": "All Products",
+      "item_protein": "Protein",
+      "item_pre_workout": "Pre-Workout",
+      "item_recovery": "Recovery",
+      "item_shipping": "Shipping",
+      "item_returns": "Returns",
+      "item_faqs": "FAQs",
+      "item_contact": "Contact",
+      "item_about": "About",
+      "item_blog": "Blog",
+      "item_ambassadors": "Ambassadors",
+      "item_careers": "Careers"
+    },
+    "nav": {
+      "home": "Home",
+      "shop_all": "Shop All",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "products": {
+      "page_title": "ALL PRODUCTS",
+      "page_subtitle": "Premium supplements, protein, pre-workout and recovery formulas — built for athletes.",
+      "breadcrumb_home": "HOME",
+      "breadcrumb_shop": "SHOP",
+      "filter_categories": "Categories",
+      "filter_availability": "Availability",
+      "filter_price_range": "Price Range",
+      "all_products": "ALL PRODUCTS",
+      "in_stock": "In Stock",
+      "out_of_stock": "Out of Stock",
+      "deal_eyebrow": "LIMITED OFFER",
+      "deal_heading": "GET 25% OFF ON FIRST ORDER",
+      "deal_body": "Use code FUEL25 at checkout",
+      "deal_cta": "SHOP NOW →",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "loading": "LOADING…",
+      "count": "{{count}} PRODUCTS",
+      "empty": "No products found. Try different filters."
+    },
+    "product_detail": {
+      "not_found_heading": "Not Found",
+      "not_found_body": "We couldn't find that product.",
+      "back_to_shop": "Back to Shop",
+      "in_stock_ships": "In Stock · Ships Within 24H",
+      "out_of_stock": "Out of Stock",
+      "pre_order": "PRE-ORDER",
+      "in_stock_badge": "IN STOCK",
+      "adding": "ADDING…",
+      "select_options": "SELECT OPTIONS",
+      "add_to_cart": "+ ADD TO CART",
+      "buy_now": "BUY IT NOW",
+      "share_label": "SHARE",
+      "tab_description": "DESCRIPTION",
+      "tab_nutrition": "NUTRITION FACTS",
+      "tab_reviews": "REVIEWS",
+      "nutrition_heading": "Supplement Facts",
+      "you_may_also_like": "YOU MAY ALSO LIKE",
+      "benefit_shipping": "Free Shipping $75+",
+      "benefit_secure": "Secure Checkout",
+      "benefit_returns": "30-Day Returns",
+      "benefit_authentic": "Authentic Guarantee"
+    },
+    "category": {
+      "breadcrumb_home": "HOME",
+      "breadcrumb_shop": "SHOP",
+      "collections_label": "Collections",
+      "all_products": "ALL PRODUCTS",
+      "empty": "No products in this category yet.",
+      "loading": "LOADING…",
+      "count": "{{count}} PRODUCTS"
+    },
+    "cart": {
+      "page_title": "Shopping Cart",
+      "clear_cart": "Clear Cart",
+      "loading": "Loading cart...",
+      "empty_heading": "Your cart is empty",
+      "empty_body": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "each_price": "each",
+      "remove": "Remove",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping": "Shipping",
+      "calculated_at_checkout": "Calculated at checkout",
+      "tax": "Tax",
+      "total": "Total",
+      "proceed_to_checkout": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping"
+    }
+  }
+}

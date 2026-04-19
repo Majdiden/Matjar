@@ -1,1 +1,79 @@
-{}
+{
+  "category": {
+    "title": "{{name}}",
+    "all_products": "جميع المنتجات",
+    "sort": {
+      "newest": "الأحدث",
+      "price_asc": "السعر: من الأقل إلى الأعلى",
+      "price_desc": "السعر: من الأعلى إلى الأقل",
+      "popular": "الأكثر رواجاً",
+      "featured": "مميّز",
+      "name_asc": "الاسم: أ-ي"
+    },
+    "sort_by": "ترتيب حسب:",
+    "results_count_zero": "لا توجد منتجات",
+    "results_count_one": "منتج واحد",
+    "results_count_two": "منتجان",
+    "results_count_few": "{{count}} منتجات",
+    "results_count_many": "{{count}} منتجاً",
+    "results_count_other": "{{count}} منتج",
+    "loading": "جاري التحميل…",
+    "empty": {
+      "title": "لا توجد منتجات في هذه الفئة بعد."
+    }
+  },
+  "collection": {
+    "title": "{{name}}",
+    "not_found_title": "المجموعة غير موجودة",
+    "not_found_description": "المجموعة التي تبحث عنها غير موجودة.",
+    "browse_collections": "تصفح المجموعات",
+    "sort_by": "ترتيب حسب:",
+    "results_count_zero": "لا توجد منتجات",
+    "results_count_one": "منتج واحد",
+    "results_count_two": "منتجان",
+    "results_count_few": "{{count}} منتجات",
+    "results_count_many": "{{count}} منتجاً",
+    "results_count_other": "{{count}} منتج",
+    "empty": {
+      "title": "لا توجد منتجات في هذه المجموعة",
+      "description": "تحقق مرة أخرى قريباً.",
+      "browse_all": "تصفح جميع المنتجات"
+    },
+    "pagination": {
+      "previous": "السابق",
+      "next": "التالي",
+      "page_of": "صفحة {{page}} من {{total}}"
+    }
+  },
+  "collections_index": {
+    "title": "المجموعات",
+    "subtitle": "مجموعات منتجات مختارة لكل مناسبة.",
+    "product_count_zero": "لا توجد منتجات",
+    "product_count_one": "منتج واحد",
+    "product_count_two": "منتجان",
+    "product_count_few": "{{count}} منتجات",
+    "product_count_many": "{{count}} منتجاً",
+    "product_count_other": "{{count}} منتج",
+    "empty": {
+      "title": "لا توجد مجموعات بعد",
+      "description": "تحقق مرة أخرى قريباً — المجموعات في الطريق.",
+      "browse_all": "تصفح جميع المنتجات"
+    }
+  },
+  "search": {
+    "title": "بحث",
+    "empty_prompt": "أدخل مصطلح بحث للعثور على المنتجات.",
+    "results_for": "نتائج البحث عن \"{{query}}\"",
+    "results_count_zero": "لا توجد نتائج",
+    "results_count_one": "نتيجة واحدة",
+    "results_count_two": "نتيجتان",
+    "results_count_few": "{{count}} نتائج",
+    "results_count_many": "{{count}} نتيجة",
+    "results_count_other": "{{count}} نتيجة",
+    "empty": {
+      "title": "لا توجد نتائج",
+      "description": "حاول تعديل بحثك أو تصفح مجموعاتنا.",
+      "browse_all": "تصفح جميع المنتجات"
+    }
+  }
+}

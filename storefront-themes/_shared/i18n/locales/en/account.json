@@ -1,1 +1,200 @@
-{}
+{
+  "account": {
+    "title": "My Account",
+    "welcome_back": "Welcome back, {{name}}",
+    "member_since": "Member since {{date}}",
+    "stat": {
+      "orders": "Orders",
+      "lifetime_spend": "Lifetime spend",
+      "saved_addresses": "Saved addresses"
+    },
+    "tab": {
+      "profile": "Profile",
+      "orders": "Orders ({{count}})",
+      "wishlist": "Wishlist",
+      "reviews": "Reviews",
+      "giftcards": "Gift cards",
+      "addresses": "Addresses ({{count}})",
+      "security": "Security"
+    },
+    "section": {
+      "profile": {
+        "title": "Personal information",
+        "subtitle": "This information is used at checkout and on your order receipts."
+      },
+      "password": {
+        "title": "Change password",
+        "subtitle": "Choose a strong password — at least 8 characters."
+      },
+      "deactivate": {
+        "title": "Deactivate account",
+        "subtitle": "This signs you out and disables sign-in. Your order history is preserved so receipts and refunds remain available."
+      }
+    },
+    "field": {
+      "full_name": { "label": "Full name *" },
+      "first_name": { "label": "First name" },
+      "last_name": { "label": "Last name" },
+      "email": {
+        "label": "Email",
+        "hint": "Contact support to change the email tied to this account."
+      },
+      "phone": { "label": "Phone" },
+      "marketing_opt_in": "Send me promotional emails about new products and offers.",
+      "marketing_opt_in_hint": "You can unsubscribe at any time.",
+      "current_password": { "label": "Current password" },
+      "new_password": { "label": "New password" },
+      "confirm_new_password": { "label": "Confirm new password" }
+    },
+    "address": {
+      "title": "Addresses",
+      "hint": "Saved addresses are pre-filled at checkout. Your default address is selected first.",
+      "add": "+ Add address",
+      "empty": "No addresses saved yet.",
+      "default_badge": "Default",
+      "set_default": "Set default",
+      "default_updated": "Default address updated",
+      "new_title": "New address",
+      "edit_title": "Edit address",
+      "field": {
+        "label": { "label": "Label", "placeholder": "Home, Work…" },
+        "first_name": { "label": "First name" },
+        "last_name": { "label": "Last name" },
+        "address_line1": { "label": "Address line 1 *" },
+        "address_line2": { "label": "Address line 2" },
+        "city": { "label": "City *" },
+        "state": { "label": "State / Province" },
+        "postal_code": { "label": "Postal code *" },
+        "country": { "label": "Country *" },
+        "phone": { "label": "Phone" },
+        "set_default": "Set as default shipping address"
+      },
+      "error": {
+        "required_fields": "Address line, city, postal code and country are required"
+      }
+    },
+    "order": {
+      "empty_title": "No orders yet",
+      "empty_description": "When you place an order, it will appear here.",
+      "start_shopping": "Start shopping",
+      "track": "Track order →",
+      "cancel": "Cancel",
+      "cancelling": "Cancelling…",
+      "cancel_confirm_title": "Cancel this order?",
+      "cancel_confirm_description": "This cannot be undone — any reserved stock will be released.",
+      "cancel_confirm_text": "Cancel order",
+      "cancel_keep_text": "Keep order"
+    },
+    "wishlist": {
+      "empty": "Your wishlist is empty.",
+      "browse": "Browse products →",
+      "open_full": "Open full wishlist page →",
+      "removing": "Removing…"
+    },
+    "reviews": {
+      "empty": "You haven't written any reviews yet.",
+      "browse": "Find something to review →",
+      "loading": "Loading reviews…"
+    },
+    "giftcards": {
+      "empty": "You don't have any gift cards yet.",
+      "loading": "Loading gift cards…",
+      "card": "Gift card •••• {{last4}}",
+      "balance": "Balance {{balance}} of {{initial}}"
+    },
+    "action": {
+      "sign_out": "Sign out",
+      "save_changes": "Save changes",
+      "saving": "Saving…",
+      "update_password": "Update password",
+      "updating": "Updating…",
+      "deactivate": "Deactivate my account",
+      "deactivating": "Deactivating…",
+      "add_address": "Add address"
+    },
+    "toast": {
+      "profile_updated": "Profile updated",
+      "password_updated": "Password updated",
+      "address_added": "Address added",
+      "address_updated": "Address updated",
+      "address_deleted": "Address deleted",
+      "default_address_updated": "Default address updated",
+      "order_cancelled": "Order cancelled",
+      "wishlist_removed": "Removed from wishlist",
+      "wishlist_load_error": "Could not load wishlist",
+      "wishlist_remove_error": "Could not remove item",
+      "reviews_load_error": "Could not load reviews",
+      "giftcards_load_error": "Failed to load gift cards",
+      "cancel_error": "Failed to cancel order",
+      "profile_error": "Failed to update profile",
+      "password_error_min": "New password must be at least 8 characters",
+      "password_error_match": "New passwords do not match",
+      "password_error_change": "Failed to change password",
+      "address_save_error": "Failed to save address",
+      "address_delete_error": "Failed to delete address",
+      "address_default_error": "Failed to set default address",
+      "deactivate_error": "Failed to deactivate account",
+      "name_required": "Name is required"
+    },
+    "deactivate_confirm": {
+      "title": "Deactivate your account?",
+      "description": "You will be signed out and your sign-in will be disabled. Your order history will be preserved.",
+      "confirm": "Deactivate"
+    },
+    "delete_address_confirm": {
+      "title": "Delete this address?",
+      "description": "This cannot be undone.",
+      "confirm": "Delete"
+    }
+  },
+  "login": {
+    "title": "Welcome back",
+    "subtitle": "Sign in to your account to continue.",
+    "field": {
+      "email": { "label": "Email", "placeholder": "your@email.com" },
+      "password": { "label": "Password", "placeholder": "••••••••" }
+    },
+    "forgot_link": "Forgot?",
+    "submit": "Sign In",
+    "submitting": "Signing in...",
+    "signing_in_to": "Signing in to {{store}}",
+    "no_account_link": "Create one",
+    "no_account_text": "Don't have an account?",
+    "error_default": "Login failed. Please check your credentials."
+  },
+  "register": {
+    "title": "Create an account",
+    "subtitle": "Join us to start shopping and tracking orders.",
+    "field": {
+      "full_name": { "label": "Full name", "placeholder": "Jane Doe" },
+      "email": { "label": "Email", "placeholder": "your@email.com" },
+      "password": { "label": "Password", "placeholder": "At least 6 characters" },
+      "confirm_password": { "label": "Confirm password", "placeholder": "Re-enter password" }
+    },
+    "submit": "Create Account",
+    "submitting": "Creating account...",
+    "terms_html": "By creating an account you agree to our Terms and Privacy Policy.",
+    "have_account_link": "Sign in",
+    "have_account_text": "Already have an account?",
+    "joining": "Joining {{store}}",
+    "error": {
+      "password_min": "Password must be at least 6 characters.",
+      "password_match": "Passwords do not match.",
+      "default": "Registration failed. Please try again."
+    }
+  },
+  "wishlist": {
+    "title": "Your Wishlist",
+    "login_prompt": "Log in to see items you've saved for later.",
+    "login_action": "Log in",
+    "empty": {
+      "title": "Your wishlist is empty",
+      "description": "Your wishlist is empty — browse products to save your favourites."
+    },
+    "browse_products": "Browse products",
+    "move_to_cart": "Add to cart",
+    "adding_to_cart": "Adding…",
+    "remove": "Remove from wishlist",
+    "no_image": "No image"
+  }
+}

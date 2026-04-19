@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
 export const SLOT_KEY = 'productDescription';
@@ -24,10 +25,11 @@ const ProductDescription: React.FC<ProductDescriptionProps> = (props) => {
   const Override = useThemeSlot<React.ComponentType<ProductDescriptionProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
   const { product, className = '' } = props;
+  const { t } = useTranslation('product');
   const hasAny = !!(product.description || product.shortDescription);
 
   if (!hasAny) {
-    return <p className={`opacity-60 text-sm ${className}`}>No description available.</p>;
+    return <p className={`opacity-60 text-sm ${className}`}>{t('description.no_description')}</p>;
   }
 
   return (

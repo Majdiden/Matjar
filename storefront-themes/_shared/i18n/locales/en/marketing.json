@@ -1,1 +1,38 @@
-{}
+{
+  "announcement": {
+    "dismiss_aria": "Dismiss announcement"
+  },
+  "countdown": {
+    "label": "Ends in:",
+    "expired": "Sale ended",
+    "units": {
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds"
+    }
+  },
+  "newsletter": {
+    "title": "Stay in the loop",
+    "description": "Subscribe to get special offers, free giveaways, and new arrivals.",
+    "placeholder": "Enter your email",
+    "submit": "Subscribe",
+    "subscribing": "Subscribing...",
+    "success_title": "You're in!",
+    "success": "Thanks for subscribing.",
+    "error": "Something went wrong. Please try again.",
+    "no_thanks": "No thanks"
+  },
+  "social_share": {
+    "title": "Share",
+    "copy_link": "Copy link",
+    "aria": {
+      "facebook": "Share on Facebook",
+      "twitter": "Share on Twitter",
+      "pinterest": "Share on Pinterest",
+      "whatsapp": "Share on WhatsApp",
+      "email": "Share via Email",
+      "copy": "Copy link"
+    }
+  }
+}

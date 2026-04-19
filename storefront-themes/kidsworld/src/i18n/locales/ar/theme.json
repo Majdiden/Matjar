@@ -1,1 +1,106 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "heading_line1": "الخيال",
+      "heading_line2": "يبدأ هنا!",
+      "subheading": "اكتشف ألعاباً وألعاب تفاعلية وهدايا رائعة تُشعل الإبداع وتجلب الفرح الذي لا ينتهي.",
+      "cta": "استكشف الألعاب"
+    },
+    "section": {
+      "categories": {
+        "title": "تسوّق حسب الفئة",
+        "subtitle": "شيء رائع لكل مستكشف صغير"
+      },
+      "shop_by_age": {
+        "title": "تسوّق حسب العمر",
+        "subtitle": "اعثر على اللعبة المثالية لأي عمر"
+      },
+      "featured_products": {
+        "title": "الأكثر مبيعاً",
+        "subtitle": "الألعاب التي يحبها الأطفال أكثر",
+        "view_all": "عرض الكل"
+      },
+      "new_arrivals": {
+        "title": "مغامرات جديدة",
+        "subtitle": "وصلت للتو وجاهزة للعب"
+      },
+      "newsletter": {
+        "title": "انضم إلى نادي المرح!",
+        "subtitle": "احصل على عروض حصرية، وتنبيهات بالوصول الجديد، ومفاجآت أعياد ميلاد لأطفالك الصغار.",
+        "placeholder": "بريد الوالدين@example.com",
+        "button": "اشترك"
+      }
+    },
+    "age_groups": {
+      "babies_toddlers": "الرضّع والأطفال الصغار",
+      "preschool": "مرحلة ما قبل المدرسة",
+      "little_kids": "الأطفال الصغار",
+      "big_kids": "الأطفال الكبار",
+      "tweens_teens": "المراهقون"
+    },
+    "nav": {
+      "all_toys": "كل الألعاب"
+    },
+    "footer": {
+      "tagline": "نصنع سحر الطفولة، لعبة في كل مرة. ألعاب آمنة وممتعة وتعليمية لكل الأعمار.",
+      "col_shop": "المتجر",
+      "col_help": "المساعدة",
+      "all_toys": "كل الألعاب",
+      "about_us": "من نحن",
+      "contact": "تواصل معنا",
+      "shipping_returns": "الشحن والإرجاع",
+      "copyright": "© {{year}} {{name}}. جميع الحقوق محفوظة."
+    },
+    "announcement": {
+      "message": "شحن مجاني للطلبات التي تزيد عن 40$! بالإضافة إلى تغليف هدايا مجاني مع كل طلب",
+      "link_text": "تسوّق الآن"
+    },
+    "products": {
+      "title_all": "جميع المنتجات",
+      "search_placeholder": "ابحث عن المنتجات...",
+      "all_categories": "كل الفئات",
+      "sort_newest": "الأحدث",
+      "sort_price_asc": "السعر: من الأقل إلى الأعلى",
+      "sort_price_desc": "السعر: من الأعلى إلى الأقل",
+      "sort_popular": "الأكثر شعبية",
+      "empty": "لا توجد منتجات",
+      "clear_search": "مسح البحث",
+      "page_of": "صفحة {{page}} من {{total}}",
+      "previous": "السابق",
+      "next": "التالي"
+    },
+    "category": {
+      "not_found": "الفئة غير موجودة",
+      "browse_all": "تصفّح جميع المنتجات",
+      "empty": "لا توجد منتجات في هذه الفئة بعد"
+    },
+    "product_detail": {
+      "breadcrumb_products": "المنتجات",
+      "select_option": "اختر خياراً لرؤية التوفر",
+      "in_stock": "متوفر ({{count}} متاح)",
+      "sold_out": "نفد المخزون",
+      "out_of_stock": "غير متوفر",
+      "description": "الوصف",
+      "not_found": "المنتج غير موجود",
+      "back_to_shop": "العودة إلى المتجر"
+    },
+    "cart": {
+      "loading": "جاري تحميل السلة...",
+      "empty_title": "سلتك فارغة",
+      "empty_subtitle": "يبدو أنك لم تضف أي شيء بعد",
+      "start_shopping": "ابدأ التسوق",
+      "title": "سلة التسوق",
+      "clear": "إفراغ السلة",
+      "remove": "إزالة",
+      "each": "للقطعة",
+      "subtotal": "الإجمالي الفرعي ({{count}} عناصر)",
+      "shipping": "الشحن",
+      "shipping_calc": "يُحسب عند الدفع",
+      "tax": "الضريبة",
+      "tax_calc": "تُحسب عند الدفع",
+      "total": "الإجمالي",
+      "checkout": "المتابعة إلى الدفع",
+      "continue_shopping": "متابعة التسوق"
+    }
+  }
+}

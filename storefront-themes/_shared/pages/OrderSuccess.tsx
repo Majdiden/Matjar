@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ordersApi } from '../api/client';
 import { useStore } from '../contexts/StoreContext';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Order Success / Thank-You page
@@ -54,6 +55,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
   const location = useLocation();
   const navigate = useNavigate();
   const { formatPrice, store } = useStore();
+  const { t } = useTranslation(['order']);
 
   const accent = accentColor || 'var(--color-primary, #2563eb)';
   const stateOrder: Order | undefined = (location.state as any)?.order;
@@ -78,7 +80,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
     if (!token) {
       // Guest checkout — rely on whatever came in via state.
       if (!stateOrder) {
-        setError("We couldn't find that order. Please check your email for the confirmation.");
+        setError(t('order.success.error_check_email'));
       }
       return;
     }
@@ -92,7 +94,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
       })
       .catch((err) => {
         // Don't blow up — fall back to whatever came in via state.
-        if (!stateOrder) setError(err?.message || 'Failed to load order');
+        if (!stateOrder) setError(err?.message || t('order.success.error_description'));
       })
       .finally(() => setLoading(false));
     // We intentionally only run this on mount: orderId can't change without
@@ -122,14 +124,14 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3m0 4h.01M12 21a9 9 0 110-18 9 9 0 010 18z" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold mb-2">We couldn't load your order</h1>
-        <p className="text-gray-500 mb-6">{error || "If you've just placed an order, check your email for the confirmation."}</p>
+        <h1 className="text-2xl font-bold mb-2">{t('order.success.error_title')}</h1>
+        <p className="text-gray-500 mb-6">{error || t('order.success.error_description')}</p>
         <Link
           to="/"
           className="inline-block px-6 py-3 rounded-lg text-white font-medium hover:opacity-90 transition"
           style={{ backgroundColor: accent }}
         >
-          Back to home
+          {t('order.success.back_home')}
         </Link>
       </div>
     );
@@ -142,6 +144,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
   const trackingHref = `/orders/${order._id}${trackingParams.toString() ? `?${trackingParams.toString()}` : ''}`;
   const lines = order.products || [];
   const placedAt = order.createdAt ? new Date(order.createdAt) : new Date();
+  const orderNumber = order.orderNumber || `#${order._id.slice(-6).toUpperCase()}`;
 
   return (
     <div className={`max-w-3xl mx-auto px-4 sm:px-6 py-12 ${className}`}>
@@ -159,12 +162,10 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2">Thank you for your order!</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2">{t('order.success.title')}</h1>
         <p className="text-gray-500 max-w-md mx-auto">
-          Your order <span className="font-semibold text-gray-800">{order.orderNumber || `#${order._id.slice(-6).toUpperCase()}`}</span> has been received.
-          {customerEmail && (
-            <> A confirmation has been sent to <span className="font-medium text-gray-800">{customerEmail}</span>.</>
-          )}
+          {t('order.success.subtitle', { orderNumber })}{' '}
+          {customerEmail && t('order.success.confirmation_sent', { email: customerEmail })}
         </p>
       </div>
 
@@ -173,7 +174,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
         {/* Header strip */}
         <div className="px-6 py-5 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">Order placed</p>
+            <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">{t('order.success.order_placed')}</p>
             <p className="text-sm font-medium">
               {placedAt.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
               {' · '}
@@ -181,7 +182,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
             </p>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">Order total</p>
+            <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">{t('order.success.order_total')}</p>
             <p className="text-xl font-bold" style={{ color: accent }}>{formatPrice(order.totalAmount)}</p>
           </div>
         </div>
@@ -211,13 +212,12 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
                   )}
                   {(item as any).isPreorder && (
                     <p className="text-xs text-amber-600 font-medium">
-                      Pre-order
                       {(item as any).preorderExpectedShipDate
-                        ? ` — ships ${new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`
-                        : ''}
+                        ? t('order.success.preorder_ships', { date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) })
+                        : t('order.success.preorder')}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500">Qty {item.quantity} · {formatPrice(item.price)} each</p>
+                  <p className="text-xs text-gray-500">{t('order.success.qty', { qty: item.quantity })} · {formatPrice(item.price)} each</p>
                 </div>
                 <p className="text-sm font-semibold whitespace-nowrap">{formatPrice(item.price * item.quantity)}</p>
               </div>
@@ -229,30 +229,30 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
         <div className="px-6 py-4 border-t bg-gray-50/50 space-y-1.5 text-sm">
           {order.subtotal !== undefined && (
             <div className="flex justify-between text-gray-600">
-              <span>Subtotal</span>
+              <span>{t('order.tracking.summary.subtotal')}</span>
               <span>{formatPrice(order.subtotal)}</span>
             </div>
           )}
           {(order.discount ?? 0) > 0 && (
             <div className="flex justify-between text-green-600">
-              <span>Discount</span>
+              <span>{t('order.tracking.summary.discount')}</span>
               <span>−{formatPrice(order.discount!)}</span>
             </div>
           )}
           {(order.shippingCost ?? 0) > 0 && (
             <div className="flex justify-between text-gray-600">
-              <span>Shipping</span>
+              <span>{t('order.tracking.summary.shipping')}</span>
               <span>{formatPrice(order.shippingCost!)}</span>
             </div>
           )}
           {(order.tax ?? 0) > 0 && (
             <div className="flex justify-between text-gray-600">
-              <span>Tax</span>
+              <span>{t('order.tracking.summary.tax')}</span>
               <span>{formatPrice(order.tax!)}</span>
             </div>
           )}
           <div className="flex justify-between text-base font-bold pt-2 mt-2 border-t">
-            <span>Total</span>
+            <span>{t('order.tracking.summary.total')}</span>
             <span>{formatPrice(order.totalAmount)}</span>
           </div>
         </div>
@@ -262,7 +262,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
           <div className="px-6 py-5 border-t grid sm:grid-cols-2 gap-6 text-sm">
             {order.shippingAddress && (
               <div>
-                <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold mb-2">Shipping to</p>
+                <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold mb-2">{t('order.success.shipping_to')}</p>
                 <p className="font-medium">
                   {order.shippingAddress.firstName} {order.shippingAddress.lastName}
                 </p>
@@ -280,7 +280,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
             )}
             {order.paymentMethod && (
               <div>
-                <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold mb-2">Payment</p>
+                <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold mb-2">{t('order.success.payment')}</p>
                 <p className="font-medium capitalize">
                   {order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod}
                 </p>
@@ -300,19 +300,23 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
           className="px-6 py-3 rounded-lg text-white font-medium text-center hover:opacity-90 transition"
           style={{ backgroundColor: accent }}
         >
-          Track your order
+          {t('order.success.action.track')}
         </Link>
         <Link
           to="/products"
           className="px-6 py-3 rounded-lg border font-medium text-center hover:bg-gray-50 transition"
         >
-          Continue shopping
+          {t('order.success.action.continue_shopping')}
         </Link>
       </div>
 
       {/* Helpful note */}
       <p className="text-center text-xs text-gray-500 mt-8">
-        Questions about your order? <Link to="/contact" className="underline">Contact {store?.name || 'us'}</Link>.
+        {t('order.success.contact_question')}{' '}
+        <Link to="/contact" className="underline">
+          {t('order.success.contact_link', { store: store?.name || 'us' })}
+        </Link>
+        .
       </p>
     </div>
   );

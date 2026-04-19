@@ -1,1 +1,200 @@
-{}
+{
+  "account": {
+    "title": "حسابي",
+    "welcome_back": "أهلاً بعودتك، {{name}}",
+    "member_since": "عضو منذ {{date}}",
+    "stat": {
+      "orders": "الطلبات",
+      "lifetime_spend": "إجمالي الإنفاق",
+      "saved_addresses": "العناوين المحفوظة"
+    },
+    "tab": {
+      "profile": "الملف الشخصي",
+      "orders": "الطلبات ({{count}})",
+      "wishlist": "قائمة الأمنيات",
+      "reviews": "المراجعات",
+      "giftcards": "بطاقات الهدايا",
+      "addresses": "العناوين ({{count}})",
+      "security": "الأمان"
+    },
+    "section": {
+      "profile": {
+        "title": "المعلومات الشخصية",
+        "subtitle": "تُستخدم هذه المعلومات عند إتمام الشراء وعلى إيصالات طلباتك."
+      },
+      "password": {
+        "title": "تغيير كلمة المرور",
+        "subtitle": "اختر كلمة مرور قوية — 8 أحرف على الأقل."
+      },
+      "deactivate": {
+        "title": "تعطيل الحساب",
+        "subtitle": "سيتم تسجيل خروجك وتعطيل تسجيل الدخول. يتم الاحتفاظ بسجل طلباتك حتى تظل الإيصالات والمستردات متاحة."
+      }
+    },
+    "field": {
+      "full_name": { "label": "الاسم الكامل *" },
+      "first_name": { "label": "الاسم الأول" },
+      "last_name": { "label": "الاسم الأخير" },
+      "email": {
+        "label": "البريد الإلكتروني",
+        "hint": "تواصل مع الدعم لتغيير البريد الإلكتروني المرتبط بهذا الحساب."
+      },
+      "phone": { "label": "الهاتف" },
+      "marketing_opt_in": "أرسل لي رسائل ترويجية عن المنتجات والعروض الجديدة.",
+      "marketing_opt_in_hint": "يمكنك إلغاء الاشتراك في أي وقت.",
+      "current_password": { "label": "كلمة المرور الحالية" },
+      "new_password": { "label": "كلمة المرور الجديدة" },
+      "confirm_new_password": { "label": "تأكيد كلمة المرور الجديدة" }
+    },
+    "address": {
+      "title": "العناوين",
+      "hint": "تُملأ العناوين المحفوظة تلقائياً عند إتمام الشراء. يتم اختيار عنوانك الافتراضي أولاً.",
+      "add": "+ إضافة عنوان",
+      "empty": "لا توجد عناوين محفوظة بعد.",
+      "default_badge": "افتراضي",
+      "set_default": "تعيين كافتراضي",
+      "default_updated": "تم تحديث العنوان الافتراضي",
+      "new_title": "عنوان جديد",
+      "edit_title": "تعديل العنوان",
+      "field": {
+        "label": { "label": "التسمية", "placeholder": "المنزل، العمل…" },
+        "first_name": { "label": "الاسم الأول" },
+        "last_name": { "label": "الاسم الأخير" },
+        "address_line1": { "label": "سطر العنوان 1 *" },
+        "address_line2": { "label": "سطر العنوان 2" },
+        "city": { "label": "المدينة *" },
+        "state": { "label": "الولاية / المقاطعة" },
+        "postal_code": { "label": "الرمز البريدي *" },
+        "country": { "label": "الدولة *" },
+        "phone": { "label": "الهاتف" },
+        "set_default": "تعيين كعنوان شحن افتراضي"
+      },
+      "error": {
+        "required_fields": "سطر العنوان والمدينة والرمز البريدي والدولة مطلوبة"
+      }
+    },
+    "order": {
+      "empty_title": "لا توجد طلبات بعد",
+      "empty_description": "عند تقديم طلب سيظهر هنا.",
+      "start_shopping": "ابدأ التسوق",
+      "track": "تتبع الطلب ←",
+      "cancel": "إلغاء",
+      "cancelling": "جاري الإلغاء…",
+      "cancel_confirm_title": "إلغاء هذا الطلب؟",
+      "cancel_confirm_description": "لا يمكن التراجع عن هذا — سيتم الإفراج عن المخزون المحجوز.",
+      "cancel_confirm_text": "إلغاء الطلب",
+      "cancel_keep_text": "الاحتفاظ بالطلب"
+    },
+    "wishlist": {
+      "empty": "قائمة أمنياتك فارغة.",
+      "browse": "تصفح المنتجات ←",
+      "open_full": "فتح صفحة قائمة الأمنيات الكاملة ←",
+      "removing": "جاري الإزالة…"
+    },
+    "reviews": {
+      "empty": "لم تكتب أي مراجعات بعد.",
+      "browse": "ابحث عن منتج لمراجعته ←",
+      "loading": "جاري تحميل المراجعات…"
+    },
+    "giftcards": {
+      "empty": "لا تمتلك أي بطاقات هدايا بعد.",
+      "loading": "جاري تحميل بطاقات الهدايا…",
+      "card": "بطاقة الهدايا •••• {{last4}}",
+      "balance": "الرصيد {{balance}} من {{initial}}"
+    },
+    "action": {
+      "sign_out": "تسجيل الخروج",
+      "save_changes": "حفظ التغييرات",
+      "saving": "جاري الحفظ…",
+      "update_password": "تحديث كلمة المرور",
+      "updating": "جاري التحديث…",
+      "deactivate": "تعطيل حسابي",
+      "deactivating": "جاري التعطيل…",
+      "add_address": "إضافة عنوان"
+    },
+    "toast": {
+      "profile_updated": "تم تحديث الملف الشخصي",
+      "password_updated": "تم تحديث كلمة المرور",
+      "address_added": "تمت إضافة العنوان",
+      "address_updated": "تم تحديث العنوان",
+      "address_deleted": "تم حذف العنوان",
+      "default_address_updated": "تم تحديث العنوان الافتراضي",
+      "order_cancelled": "تم إلغاء الطلب",
+      "wishlist_removed": "تمت الإزالة من قائمة الأمنيات",
+      "wishlist_load_error": "تعذّر تحميل قائمة الأمنيات",
+      "wishlist_remove_error": "تعذّر إزالة العنصر",
+      "reviews_load_error": "تعذّر تحميل المراجعات",
+      "giftcards_load_error": "فشل تحميل بطاقات الهدايا",
+      "cancel_error": "فشل إلغاء الطلب",
+      "profile_error": "فشل تحديث الملف الشخصي",
+      "password_error_min": "يجب أن تتكون كلمة المرور الجديدة من 8 أحرف على الأقل",
+      "password_error_match": "كلمتا المرور الجديدتان غير متطابقتين",
+      "password_error_change": "فشل تغيير كلمة المرور",
+      "address_save_error": "فشل حفظ العنوان",
+      "address_delete_error": "فشل حذف العنوان",
+      "address_default_error": "فشل تعيين العنوان الافتراضي",
+      "deactivate_error": "فشل تعطيل الحساب",
+      "name_required": "الاسم مطلوب"
+    },
+    "deactivate_confirm": {
+      "title": "تعطيل حسابك؟",
+      "description": "سيتم تسجيل خروجك وتعطيل تسجيل الدخول. سيتم الاحتفاظ بسجل طلباتك.",
+      "confirm": "تعطيل"
+    },
+    "delete_address_confirm": {
+      "title": "حذف هذا العنوان؟",
+      "description": "لا يمكن التراجع عن هذا.",
+      "confirm": "حذف"
+    }
+  },
+  "login": {
+    "title": "أهلاً بعودتك",
+    "subtitle": "سجّل الدخول إلى حسابك للمتابعة.",
+    "field": {
+      "email": { "label": "البريد الإلكتروني", "placeholder": "your@email.com" },
+      "password": { "label": "كلمة المرور", "placeholder": "••••••••" }
+    },
+    "forgot_link": "نسيت؟",
+    "submit": "تسجيل الدخول",
+    "submitting": "جاري تسجيل الدخول...",
+    "signing_in_to": "تسجيل الدخول إلى {{store}}",
+    "no_account_link": "أنشئ حساباً",
+    "no_account_text": "ليس لديك حساب؟",
+    "error_default": "فشل تسجيل الدخول. يرجى التحقق من بياناتك."
+  },
+  "register": {
+    "title": "إنشاء حساب",
+    "subtitle": "انضم إلينا لبدء التسوق وتتبع الطلبات.",
+    "field": {
+      "full_name": { "label": "الاسم الكامل", "placeholder": "أحمد محمد" },
+      "email": { "label": "البريد الإلكتروني", "placeholder": "your@email.com" },
+      "password": { "label": "كلمة المرور", "placeholder": "6 أحرف على الأقل" },
+      "confirm_password": { "label": "تأكيد كلمة المرور", "placeholder": "أعد إدخال كلمة المرور" }
+    },
+    "submit": "إنشاء حساب",
+    "submitting": "جاري إنشاء الحساب...",
+    "terms_html": "بإنشاء حساب فإنك توافق على شروط الخدمة وسياسة الخصوصية.",
+    "have_account_link": "تسجيل الدخول",
+    "have_account_text": "هل لديك حساب بالفعل؟",
+    "joining": "الانضمام إلى {{store}}",
+    "error": {
+      "password_min": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+      "password_match": "كلمتا المرور غير متطابقتين.",
+      "default": "فشل التسجيل. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "wishlist": {
+    "title": "قائمة أمنياتك",
+    "login_prompt": "سجّل الدخول لمشاهدة العناصر التي حفظتها لوقت لاحق.",
+    "login_action": "تسجيل الدخول",
+    "empty": {
+      "title": "قائمة الأمنيات فارغة",
+      "description": "قائمة أمنياتك فارغة — تصفح المنتجات لحفظ المفضّلة لديك."
+    },
+    "browse_products": "تصفح المنتجات",
+    "move_to_cart": "إضافة إلى السلة",
+    "adding_to_cart": "جاري الإضافة…",
+    "remove": "إزالة من قائمة الأمنيات",
+    "no_image": "لا توجد صورة"
+  }
+}

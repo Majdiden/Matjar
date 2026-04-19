@@ -1,1 +1,46 @@
-{}
+{
+  "breadcrumb": {
+    "home": "الرئيسية",
+    "aria": "مسار التنقل"
+  },
+  "megamenu": {
+    "aria": "التنقل الرئيسي",
+    "featured": "مميّز",
+    "view_all": "عرض كل {{name}}"
+  },
+  "mobile_bottom": {
+    "home": "الرئيسية",
+    "search": "بحث",
+    "cart": "السلة",
+    "account": "الحساب"
+  },
+  "pagination": {
+    "previous": "الصفحة السابقة",
+    "next": "الصفحة التالية",
+    "page": "صفحة {{page}} من {{total}}",
+    "aria": "ترقيم الصفحات"
+  },
+  "search": {
+    "placeholder": "ابحث عن منتجات وعلامات تجارية والمزيد...",
+    "button_aria": "فتح البحث",
+    "close_aria": "إغلاق البحث",
+    "empty": "ابدأ الكتابة للبحث عن المنتجات",
+    "no_results": "لا توجد منتجات",
+    "no_results_hint": "جرّب مصطلح بحث مختلفاً أو تصفّح الفئات",
+    "recent": "البحث الأخير",
+    "clear_all": "مسح الكل",
+    "trending": "الرائج الآن",
+    "products_section": "المنتجات",
+    "see_all_results": "عرض كل نتائج \u201c{{query}}\u201d \u2190",
+    "navigate_hint": "تنقل",
+    "select_hint": "اختر",
+    "close_hint": "إغلاق"
+  },
+  "aria": {
+    "previous": "الشريحة السابقة",
+    "next": "الشريحة التالية",
+    "go_to_slide": "الانتقال إلى الشريحة {{index}}",
+    "slide_label": "الشريحة {{index}} من {{total}}",
+    "carousel": "عرض شرائح"
+  }
+}

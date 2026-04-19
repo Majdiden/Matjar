@@ -1,1 +1,56 @@
-{}
+{
+  "footer": {
+    "about": {
+      "title": "من نحن",
+      "default_story": "تأسّس {{name}} بمهمة بسيطة: تقديم منتجات استثنائية مع خدمة متميزة. نؤمن بالجودة والقيمة وبناء علاقات دائمة مع عملائنا.",
+      "value": {
+        "quality_first_title": "الجودة أولاً",
+        "quality_first_description": "كل منتج يتم اختياره بعناية ليلبي أعلى المعايير.",
+        "customer_focus_title": "التركيز على العميل",
+        "customer_focus_description": "رضاك هو أولويتنا القصوى. نحن هنا من أجلك.",
+        "transparency_title": "الشفافية",
+        "transparency_description": "أسعار صادقة وسياسات واضحة وتواصل مفتوح."
+      },
+      "contact_email": "البريد الإلكتروني",
+      "contact_phone": "الهاتف",
+      "contact_visit": "زورنا"
+    },
+    "contact": {
+      "title": "اتصل بنا",
+      "subtitle": "هل لديك سؤال أو تحتاج مساعدة؟ يسعدنا سماعك.",
+      "info": {
+        "store": "المتجر",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "address": "العنوان",
+        "hours": "ساعات العمل",
+        "hours_weekday": "الاثنين - الجمعة: 9ص - 6م",
+        "hours_weekend": "السبت - الأحد: 10ص - 4م"
+      },
+      "field": {
+        "name": { "label": "الاسم", "placeholder": "اسمك" },
+        "email": { "label": "البريد الإلكتروني", "placeholder": "your@email.com" },
+        "subject": { "label": "الموضوع" },
+        "message": { "label": "الرسالة", "placeholder": "كيف يمكننا مساعدتك؟" }
+      },
+      "subject": {
+        "general": "استفسار عام",
+        "order_support": "دعم الطلبات",
+        "returns": "الإرجاع والاستبدال",
+        "product": "سؤال عن منتج",
+        "other": "أخرى"
+      },
+      "submit": "إرسال الرسالة",
+      "submitting": "جاري الإرسال…",
+      "success_title": "تم إرسال الرسالة",
+      "success_description": "سنرد عليك خلال 24 ساعة.",
+      "toast": {
+        "success": "تم إرسال الرسالة بنجاح."
+      },
+      "error": {
+        "message_too_short": "يرجى كتابة 10 أحرف على الأقل في رسالتك.",
+        "default": "تعذّر إرسال رسالتك. يرجى المحاولة مرة أخرى."
+      }
+    }
+  }
+}

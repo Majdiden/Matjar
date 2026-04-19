@@ -1,1 +1,143 @@
-{}
+{
+  "theme": {
+    "section": {
+      "hero": {
+        "badge": "مجموعة جديدة",
+        "headline": "أهلاً وسهلاً",
+        "subheadline": "اكتشف منتجات رائعة بأسعار مناسبة",
+        "primary_cta": "تسوّق الآن",
+        "secondary_cta": "تصفّح الفئات",
+        "sale_badge": "عرض محدود",
+        "sale_heading": "تخفيضات الموسم",
+        "sale_subheading": "خصم يصل إلى 50% على منتجات مختارة",
+        "sale_cta": "تسوّق التخفيضات"
+      },
+      "categories": {
+        "heading": "تسوّق حسب الفئة",
+        "subheading": "تصفّح مجموعاتنا المنتقاة",
+        "items_count_zero": "لا عناصر",
+        "items_count_one": "عنصر واحد",
+        "items_count_two": "عنصران",
+        "items_count_few": "{{count}} عناصر",
+        "items_count_many": "{{count}} عنصراً",
+        "items_count_other": "{{count}} عنصر"
+      },
+      "featured-products": {
+        "heading": "المنتجات المميّزة",
+        "subheading": "منتقاة خصيصاً لك",
+        "view_all": "عرض الكل"
+      },
+      "trust-badges": {
+        "free_shipping_title": "شحن مجاني",
+        "free_shipping_desc": "للطلبات التي تزيد عن $50",
+        "secure_payment_title": "دفع آمن",
+        "secure_payment_desc": "تشفير SSL بمعيار 256 بت",
+        "easy_returns_title": "إرجاع سهل",
+        "easy_returns_desc": "ضمان استرداد الأموال خلال 30 يوماً"
+      },
+      "new-arrivals": {
+        "heading": "الوصول حديثاً",
+        "subheading": "وصل للتو إلى متجرنا",
+        "see_more": "عرض المزيد"
+      },
+      "newsletter": {
+        "heading": "ابقَ على اطلاع",
+        "subheading": "اشترك للحصول على عروض حصرية ووصول جديد وعروض داخلية.",
+        "cta": "اشتراك",
+        "placeholder": "أدخل بريدك الإلكتروني",
+        "disclaimer": "لا رسائل مزعجة، يمكنك إلغاء الاشتراك في أي وقت."
+      }
+    },
+    "nav": {
+      "home": "الرئيسية",
+      "shop_all": "جميع المنتجات"
+    },
+    "footer": {
+      "tagline": "وجهتك الأولى للمنتجات عالية الجودة.",
+      "copyright_html": "© {{year}} {{brand}}. جميع الحقوق محفوظة.",
+      "col_shop": "المتجر",
+      "col_customer_service": "خدمة العملاء",
+      "col_newsletter": "النشرة البريدية",
+      "item_all_products": "جميع المنتجات",
+      "item_contact_us": "اتصل بنا",
+      "item_shipping_policy": "سياسة الشحن",
+      "item_returns_exchanges": "الإرجاع والاستبدال",
+      "item_faq": "الأسئلة الشائعة",
+      "newsletter_desc": "احصل على أحدث العروض والتحديثات.",
+      "newsletter_join": "انضم",
+      "newsletter_email_placeholder": "البريد الإلكتروني",
+      "privacy_policy": "سياسة الخصوصية",
+      "terms_of_service": "شروط الخدمة"
+    },
+    "announcement": {
+      "bar_text": "شحن مجاني للطلبات التي تزيد عن $50!",
+      "bar_cta": "تسوّق الآن"
+    },
+    "products": {
+      "title_all": "جميع المنتجات",
+      "filter_all": "جميع المنتجات",
+      "filter_categories": "الفئات",
+      "filter_sort_by": "ترتيب حسب",
+      "filter_button": "الفلاتر",
+      "sort_newest": "الأحدث",
+      "sort_price_asc": "السعر: من الأقل للأعلى",
+      "sort_price_desc": "السعر: من الأعلى للأقل",
+      "sort_popular": "الأكثر شعبية",
+      "sort_top_rated": "الأعلى تقييماً",
+      "search_placeholder": "ابحث عن المنتجات...",
+      "clear_search": "مسح البحث",
+      "no_products": "لا توجد منتجات",
+      "view_all": "عرض الكل"
+    },
+    "product_detail": {
+      "not_found_heading": "المنتج غير موجود",
+      "back_to_shop": "العودة إلى المتجر",
+      "select_option_availability": "حدد خياراً لمعرفة التوفر",
+      "in_stock_zero": "غير متوفر",
+      "in_stock_one": "متوفر (قطعة واحدة)",
+      "in_stock_two": "متوفر (قطعتان)",
+      "in_stock_few": "متوفر ({{count}} قطع)",
+      "in_stock_many": "متوفر ({{count}} قطعة)",
+      "in_stock_other": "متوفر ({{count}} قطعة)",
+      "pre_order": "طلب مسبق",
+      "pre_order_ships": "طلب مسبق — الشحن {{date}}",
+      "only_left_one": "قطعة واحدة فقط متبقية",
+      "only_left_two": "قطعتان فقط متبقيتان",
+      "only_left_few": "{{count}} قطع فقط متبقية",
+      "only_left_many": "{{count}} قطعة فقط متبقية",
+      "only_left_other": "{{count}} قطعة فقط متبقية",
+      "sold_out": "نفد المخزون",
+      "out_of_stock": "غير متوفر",
+      "share": "مشاركة:",
+      "tab_description": "الوصف",
+      "tab_reviews": "المراجعات"
+    },
+    "category": {
+      "not_found_heading": "الفئة غير موجودة",
+      "browse_all": "تصفّح جميع المنتجات",
+      "no_products": "لا توجد منتجات في هذه الفئة بعد"
+    },
+    "cart": {
+      "page_title": "سلة التسوق",
+      "clear_cart": "إفراغ السلة",
+      "loading": "جاري تحميل السلة…",
+      "empty_heading": "سلتك فارغة",
+      "empty_body": "يبدو أنك لم تُضف أي شيء بعد",
+      "start_shopping": "ابدأ التسوق",
+      "each_price": "للقطعة",
+      "remove": "إزالة",
+      "subtotal_zero": "الإجمالي الفرعي (لا عناصر)",
+      "subtotal_one": "الإجمالي الفرعي (عنصر واحد)",
+      "subtotal_two": "الإجمالي الفرعي (عنصران)",
+      "subtotal_few": "الإجمالي الفرعي ({{count}} عناصر)",
+      "subtotal_many": "الإجمالي الفرعي ({{count}} عنصراً)",
+      "subtotal_other": "الإجمالي الفرعي ({{count}} عنصر)",
+      "shipping": "الشحن",
+      "calculated_at_checkout": "يُحسب عند إتمام الشراء",
+      "tax": "الضريبة",
+      "total": "الإجمالي",
+      "proceed_to_checkout": "المتابعة إلى الدفع",
+      "continue_shopping": "متابعة التسوق"
+    }
+  }
+}

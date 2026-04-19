@@ -1,1 +1,30 @@
-{}
+{
+  "drawer": {
+    "title": "Cart ({{count}})",
+    "title_empty": "Cart",
+    "close_aria": "Close cart",
+    "empty": {
+      "title": "Your cart is empty",
+      "description": "Looks like you haven't added anything yet."
+    },
+    "subtotal": "Subtotal",
+    "shipping_note": "Shipping & taxes calculated at checkout",
+    "checkout": "Checkout",
+    "continue_shopping": "Continue Shopping",
+    "loading": "Loading..."
+  },
+  "item": {
+    "remove": "Remove",
+    "remove_aria": "Remove {{name}} from cart",
+    "quantity_aria": "Quantity for {{name}}",
+    "preorder_label": "Pre-order",
+    "preorder_ships_by": "Pre-order — ships by {{date}}"
+  },
+  "summary": {
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "shipping": "Shipping",
+    "total": "Total",
+    "discount": "Discount"
+  }
+}

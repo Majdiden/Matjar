@@ -1,1 +1,70 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "main": {
+        "eyebrow": "New Season",
+        "headline_line1": "Push Your",
+        "headline_line2": "Limits",
+        "subheadline": "Performance gear for athletes who demand the best. Train harder, go further.",
+        "cta_primary": "Shop Now",
+        "cta_secondary": "Browse All"
+      }
+    },
+    "section": {
+      "categories": {
+        "title": "Shop by Sport",
+        "shop_now": "Shop Now"
+      },
+      "featured_products": {
+        "title": "Top Picks",
+        "view_all": "View All",
+        "add_to_cart": "Add to Cart"
+      },
+      "cta_banner": {
+        "title": "Ready to Perform?",
+        "subtitle": "Free shipping on all orders over $75. No excuses.",
+        "cta": "Get Started"
+      },
+      "performance_gear": {
+        "title": "Performance Gear"
+      },
+      "trust_badges": {
+        "free_returns": {
+          "title": "Free Returns",
+          "description": "30-day no-questions-asked returns"
+        },
+        "pro_gear": {
+          "title": "Pro Gear",
+          "description": "Used by professional athletes worldwide"
+        },
+        "fast_delivery": {
+          "title": "Fast Delivery",
+          "description": "Express shipping on all orders"
+        }
+      }
+    },
+    "banner": {
+      "announcement": {
+        "text": "Free shipping on orders over $75 — No excuses.",
+        "cta": "Shop Now"
+      }
+    },
+    "footer": {
+      "tagline": "Gear up. Get moving. No limits.",
+      "shop_heading": "Shop",
+      "info_heading": "Info",
+      "stay_connected_heading": "Stay Connected",
+      "newsletter_teaser": "Join the team. Get exclusive drops.",
+      "newsletter_submit": "Go",
+      "all_products": "All Products",
+      "about_us": "About Us",
+      "contact": "Contact",
+      "shipping_policy": "Shipping Policy",
+      "copyright_html": "© {{year}} {{name}}. All rights reserved."
+    },
+    "nav": {
+      "shop": "Shop",
+      "search_placeholder": "Search gear..."
+    }
+  }
+}

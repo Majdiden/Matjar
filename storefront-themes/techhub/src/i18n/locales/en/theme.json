@@ -1,1 +1,119 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "showcase": {
+        "eyebrow": "Smart Speaker",
+        "headline_line1": "WIRELESS",
+        "headline_line2": "SPEAKERS",
+        "cta": "SHOP NOW",
+        "sidebar_heading": "BROWSE ALL COLLECTION",
+        "hotline_label": "HOTLINE",
+        "shipping_strip": "FREE SHIPPING FOR ORDER ABOVE $200. SHOP NOW",
+        "flash_deal_label": "FLASH DEAL"
+      }
+    },
+    "section": {
+      "features_strip": {
+        "free_us_shipping": {
+          "title": "Free US Shipping",
+          "subtitle": "For US customers on orders above $200"
+        },
+        "secure_payment": {
+          "title": "Secure Payment",
+          "subtitle": "We accept Visa, AmEx, Paypal and more"
+        },
+        "warranty": {
+          "title": "1 Year Warranty",
+          "subtitle": "All of our products are made with care"
+        }
+      },
+      "promo_banner": {
+        "pc_gaming": {
+          "title": "PC GAMING",
+          "subtitle": "PREMIUM PERFORMANCE",
+          "cta": "SHOP NOW"
+        },
+        "gopro": {
+          "title": "GOPRO SESSION",
+          "subtitle": "HERO 4 SESSION",
+          "cta": "SHOP NOW"
+        },
+        "gaming_mouse": {
+          "title": "GAMING MOUSE",
+          "subtitle": "ULTRA LIGHTWEIGHT",
+          "cta": "SHOP NOW"
+        }
+      },
+      "tabbed_products": {
+        "title": "FEATURED PRODUCTS",
+        "tab_all": "All Products",
+        "tab_new": "New Arrivals",
+        "tab_best_sellers": "Best Seller",
+        "tab_on_sale": "On Sale",
+        "empty": "No products in this feed yet — check back soon."
+      },
+      "category_sidebar": {
+        "eyebrow": "Shop by department",
+        "title": "Find what you need, fast",
+        "view_all": "All categories",
+        "featured_in": "Featured in",
+        "browse": "Browse"
+      }
+    },
+    "product_card": {
+      "select_color": "Select color",
+      "select_size": "Select size",
+      "choose_options": "Choose Options",
+      "adding": "Adding...",
+      "add_to_cart": "Add to Cart",
+      "compare": "Compare",
+      "compare_added": "✓ Compare",
+      "compare_full": "Compare list full",
+      "hot_badge": "HOT",
+      "pre_order_badge": "Pre-order"
+    },
+    "banner": {
+      "announcement": {
+        "text": "Free express shipping on orders over $200!",
+        "cta": "Shop Now"
+      }
+    },
+    "footer": {
+      "tagline": "Your destination for the latest tech and gadgets. Curated quality, fast shipping, and 1-year warranty.",
+      "help_support_heading": "Help & Support",
+      "company_info_heading": "Company Info",
+      "customer_care_heading": "Customer Care",
+      "shipping_info": "Shipping Info",
+      "returns": "Returns",
+      "how_to_order": "How To Order",
+      "how_to_track": "How To Track",
+      "size_guide": "Size Guide",
+      "about_us": "About Us",
+      "our_blog": "Our Blog",
+      "careers": "Careers",
+      "store_locations": "Store Locations",
+      "testimonial": "Testimonial",
+      "faq": "FAQs",
+      "terms_of_service": "Terms of Service",
+      "privacy_policy": "Privacy Policy",
+      "contact_us": "Contact Us",
+      "gift_card": "Gift Card",
+      "available_by_phone": "We're available by phone:",
+      "email_label": "Email:",
+      "opening_hours_label": "Opening Hours:",
+      "opening_hours": "Mon-Fri 10 to 6 EST",
+      "copyright_html": "© {{year}} {{name}}. All rights reserved."
+    },
+    "nav": {
+      "home": "Home",
+      "collections": "Collections",
+      "products": "Products",
+      "shop": "Shop",
+      "browse_all": "Browse All Collection",
+      "search_placeholder": "Enter your keywords...",
+      "account": "Account",
+      "hello_login": "Hello, Login",
+      "call_us": "Call Us:"
+    }
+  }
+}

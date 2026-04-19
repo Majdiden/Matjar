@@ -1,1 +1,119 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "showcase": {
+        "eyebrow": "مكبر صوت ذكي",
+        "headline_line1": "سماعات",
+        "headline_line2": "لاسلكية",
+        "cta": "تسوّق الآن",
+        "sidebar_heading": "تصفّح جميع المجموعات",
+        "hotline_label": "الخط الساخن",
+        "shipping_strip": "شحن مجاني للطلبات التي تزيد عن 200 دولار. تسوّق الآن",
+        "flash_deal_label": "عرض خاطف"
+      }
+    },
+    "section": {
+      "features_strip": {
+        "free_us_shipping": {
+          "title": "شحن مجاني داخل الولايات المتحدة",
+          "subtitle": "للعملاء الأمريكيين على الطلبات التي تزيد عن 200 دولار"
+        },
+        "secure_payment": {
+          "title": "دفع آمن",
+          "subtitle": "نقبل Visa وAmEx وPaypal وغيرها"
+        },
+        "warranty": {
+          "title": "ضمان سنة كاملة",
+          "subtitle": "جميع منتجاتنا مصنوعة بعناية"
+        }
+      },
+      "promo_banner": {
+        "pc_gaming": {
+          "title": "ألعاب الكمبيوتر",
+          "subtitle": "أداء احترافي متميّز",
+          "cta": "تسوّق الآن"
+        },
+        "gopro": {
+          "title": "جلسة GoPro",
+          "subtitle": "HERO 4 SESSION",
+          "cta": "تسوّق الآن"
+        },
+        "gaming_mouse": {
+          "title": "فأرة الألعاب",
+          "subtitle": "خفيفة الوزن للغاية",
+          "cta": "تسوّق الآن"
+        }
+      },
+      "tabbed_products": {
+        "title": "المنتجات المميّزة",
+        "tab_all": "جميع المنتجات",
+        "tab_new": "الوصول حديثاً",
+        "tab_best_sellers": "الأكثر مبيعاً",
+        "tab_on_sale": "عروض التخفيضات",
+        "empty": "لا توجد منتجات في هذا التغذية حتى الآن — تحقق لاحقاً."
+      },
+      "category_sidebar": {
+        "eyebrow": "تسوّق حسب القسم",
+        "title": "اعثر على ما تحتاجه بسرعة",
+        "view_all": "جميع الفئات",
+        "featured_in": "مميّز في",
+        "browse": "تصفّح"
+      }
+    },
+    "product_card": {
+      "select_color": "اختر اللون",
+      "select_size": "اختر المقاس",
+      "choose_options": "اختر الخيارات",
+      "adding": "جاري الإضافة...",
+      "add_to_cart": "إضافة إلى السلة",
+      "compare": "مقارنة",
+      "compare_added": "✓ مقارنة",
+      "compare_full": "قائمة المقارنة ممتلئة",
+      "hot_badge": "رائج",
+      "pre_order_badge": "طلب مسبق"
+    },
+    "banner": {
+      "announcement": {
+        "text": "شحن سريع مجاني على الطلبات التي تزيد عن 200 دولار!",
+        "cta": "تسوّق الآن"
+      }
+    },
+    "footer": {
+      "tagline": "وجهتك للحصول على أحدث التقنيات والأجهزة. جودة مختارة وشحن سريع وضمان سنة كاملة.",
+      "help_support_heading": "المساعدة والدعم",
+      "company_info_heading": "معلومات الشركة",
+      "customer_care_heading": "خدمة العملاء",
+      "shipping_info": "معلومات الشحن",
+      "returns": "الإرجاع",
+      "how_to_order": "كيفية الطلب",
+      "how_to_track": "كيفية التتبع",
+      "size_guide": "دليل المقاسات",
+      "about_us": "من نحن",
+      "our_blog": "مدونتنا",
+      "careers": "الوظائف",
+      "store_locations": "مواقع المتاجر",
+      "testimonial": "آراء العملاء",
+      "faq": "الأسئلة الشائعة",
+      "terms_of_service": "شروط الخدمة",
+      "privacy_policy": "سياسة الخصوصية",
+      "contact_us": "اتصل بنا",
+      "gift_card": "بطاقة الهدايا",
+      "available_by_phone": "نحن متاحون عبر الهاتف:",
+      "email_label": "البريد الإلكتروني:",
+      "opening_hours_label": "ساعات العمل:",
+      "opening_hours": "الاثنين–الجمعة من 10 إلى 6 بتوقيت الساحل الشرقي",
+      "copyright_html": "© {{year}} {{name}}. جميع الحقوق محفوظة."
+    },
+    "nav": {
+      "home": "الرئيسية",
+      "collections": "المجموعات",
+      "products": "المنتجات",
+      "shop": "المتجر",
+      "browse_all": "تصفّح جميع المجموعات",
+      "search_placeholder": "أدخل كلماتك البحثية...",
+      "account": "الحساب",
+      "hello_login": "مرحباً، سجّل الدخول",
+      "call_us": "اتصل بنا:"
+    }
+  }
+}

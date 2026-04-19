@@ -1,1 +1,30 @@
-{}
+{
+  "drawer": {
+    "title": "سلة التسوق ({{count}})",
+    "title_empty": "سلة التسوق",
+    "close_aria": "إغلاق سلة التسوق",
+    "empty": {
+      "title": "سلتك فارغة",
+      "description": "يبدو أنك لم تضف أي شيء بعد."
+    },
+    "subtotal": "الإجمالي الفرعي",
+    "shipping_note": "يُحسب الشحن والضريبة عند الدفع",
+    "checkout": "إتمام الشراء",
+    "continue_shopping": "متابعة التسوق",
+    "loading": "جاري التحميل..."
+  },
+  "item": {
+    "remove": "إزالة",
+    "remove_aria": "إزالة {{name}} من السلة",
+    "quantity_aria": "الكمية لـ {{name}}",
+    "preorder_label": "طلب مسبق",
+    "preorder_ships_by": "طلب مسبق — يُشحن بحلول {{date}}"
+  },
+  "summary": {
+    "subtotal": "الإجمالي الفرعي",
+    "tax": "الضريبة",
+    "shipping": "الشحن",
+    "total": "الإجمالي",
+    "discount": "الخصم"
+  }
+}

@@ -1,1 +1,89 @@
-{}
+{
+  "theme": {
+    "section": {
+      "top_bar": {
+        "text": "SUMMER SALE · UP TO 40% OFF SELECTED ITEMS",
+        "link": "SHOP NOW"
+      },
+      "hero": {
+        "eyebrow": "NEW COLLECTION",
+        "heading": "Natural Beauty, Redefined",
+        "subheading": "Discover our clean, cruelty-free skincare crafted with the purest ingredients nature has to offer.",
+        "cta": "Shop the Collection",
+        "trust_line": "4.9 from 2,300+ reviews",
+        "badge": "Clean\nBeauty\n2024"
+      },
+      "feature_strip": {
+        "free_shipping_title": "Free Shipping",
+        "free_shipping_subtitle": "On orders over $50",
+        "natural_title": "100% Natural",
+        "natural_subtitle": "Clean ingredients",
+        "cruelty_title": "Cruelty Free",
+        "cruelty_subtitle": "Never tested on animals",
+        "secure_title": "Secure Checkout",
+        "secure_subtitle": "SSL encrypted",
+        "favourites": "HAND-PICKED FAVOURITES"
+      },
+      "category_tiles": {
+        "heading": "Shop By Category",
+        "subheading": "Find what your skin is craving",
+        "shop_now": "Shop Now"
+      },
+      "product_grid": {
+        "heading_bestsellers": "BEST SELLERS",
+        "heading_new_arrivals": "NEW ARRIVALS",
+        "subheading": "Loved by our community",
+        "view_all": "View All Products"
+      },
+      "banner": {
+        "eyebrow": "LIMITED TIME",
+        "heading": "Buy 1 Get 1 Free",
+        "subheading": "On all skincare sets this weekend only.",
+        "cta": "Shop the Offer"
+      },
+      "testimonials": {
+        "heading": "What Our Customers Say",
+        "verified_buyer": "Verified Buyer"
+      }
+    },
+    "layout": {
+      "announcement": "SUMMER SALE · UP TO 40% OFF",
+      "nav": {
+        "home": "Home",
+        "shop": "Shop",
+        "about": "About",
+        "contact": "Contact",
+        "account": "ACCOUNT",
+        "track_order": "TRACK ORDER"
+      }
+    },
+    "footer": {
+      "tagline": "Clean, cruelty-free beauty crafted with love. Join thousands who've made the glow.",
+      "shop_heading": "Shop",
+      "shop_all": "All Products",
+      "best_sellers": "Best Sellers",
+      "new_arrivals": "New Arrivals",
+      "gift_sets": "Gift Sets",
+      "help_heading": "Help",
+      "shipping": "Shipping",
+      "returns": "Returns",
+      "faqs": "FAQs",
+      "contact": "Contact",
+      "about_heading": "About",
+      "our_story": "Our Story",
+      "ingredients": "Ingredients",
+      "sustainability": "Sustainability",
+      "careers": "Careers",
+      "copyright": "© {{year}} {{brand}}. Made with love."
+    },
+    "product_card": {
+      "sale": "Sale",
+      "preorder": "Pre-order",
+      "new": "New",
+      "choose_options": "Choose Options",
+      "add_to_cart": "+ Add to Cart",
+      "sold_out": "Sold out",
+      "only_left": "Only {{count}} left"
+    }
+  }
+}

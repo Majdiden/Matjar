@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { paymentMethodsApi, PaymentMethodPublic } from '../../api/client';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 import PaymentLogo from './PaymentLogo';
@@ -34,7 +35,9 @@ const GuaranteedCheckout: React.FC<Props> = (props) => {
   const Override = useThemeSlot<React.ComponentType<Props>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
 
-  const { className = '', heading = 'Guaranteed Safe Checkout' } = props;
+  const { t } = useTranslation('product');
+  const { className = '', heading } = props;
+  const resolvedHeading = heading ?? t('payment.guaranteed.title');
   const [badges, setBadges] = useState<{ code: string; src?: string }[] | null>(null);
 
   useEffect(() => {
@@ -95,7 +98,7 @@ const GuaranteedCheckout: React.FC<Props> = (props) => {
         className="text-center text-[11px] font-bold uppercase tracking-wider mb-3"
         style={{ color: 'var(--color-muted, #6b7280)' }}
       >
-        {heading}
+        {resolvedHeading}
       </p>
       <div className="flex items-center justify-center gap-2 flex-wrap">
         {badges.map((b) => (

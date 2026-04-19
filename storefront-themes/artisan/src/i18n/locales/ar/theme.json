@@ -1,1 +1,119 @@
-{}
+{
+  "theme": {
+    "section": {
+      "hero": {
+        "eyebrow": "صنع يدوي وأصيل",
+        "heading_line1": "مصنوع بالأيدي،",
+        "heading_line2": "مُبدَع بالقلب",
+        "subheading": "اكتشف قطعاً فريدة من صنع الحرفيين المستقلين من حول العالم.",
+        "primary_cta": "استكشف المجموعة",
+        "secondary_cta": "تصفّح الحرف"
+      },
+      "philosophy": {
+        "heading": "فلسفتنا",
+        "body": "كل قطعة في مجموعتنا تحكي قصة — من التراث والحرفية واللمسة الإنسانية التي لا تستطيع أي آلة تقليدها. نتعاون مباشرةً مع الحرفيين لنقدّم لك إبداعات أصيلة ومستدامة وجميلة."
+      },
+      "featured_products": {
+        "heading": "قطع مختارة بعناية",
+        "subheading": "منتقاة باهتمام من أمهر صانعينا",
+        "view_all": "عرض جميع القطع"
+      },
+      "artisan_spotlight": {
+        "heading": "تسليط الضوء على الحرفيين",
+        "subheading": "تعرّف على الأيدي التي صنعت هذه الحرفة"
+      },
+      "categories": {
+        "heading": "تصفّح حسب الحرفة",
+        "subheading": "استكشف فئاتنا المنتقاة"
+      },
+      "new_arrivals": {
+        "heading": "وصول حديثاً",
+        "subheading": "طازج من الورشة",
+        "see_more": "عرض المزيد"
+      },
+      "newsletter": {
+        "heading": "مصنوع بحب",
+        "subheading": "انضم إلى مجتمعنا من عشّاق الحرف اليدوية. احصل على وصول مبكر لمجموعات جديدة وقصص الحرفيين وعروض حصرية.",
+        "placeholder": "أدخل بريدك الإلكتروني",
+        "button": "اشترك",
+        "disclaimer": "لا رسائل مزعجة، يمكنك إلغاء الاشتراك في أي وقت."
+      }
+    },
+    "layout": {
+      "announcement": "مصنوع بعناية — شحن مجاني للطلبات التي تتجاوز 75$",
+      "announcement_link": "استكشف",
+      "nav": {
+        "home": "الرئيسية",
+        "collection": "المجموعة",
+        "our_story": "قصتنا"
+      }
+    },
+    "footer": {
+      "tagline": "مصنوع بعناية ليدوم. كل قطعة تحكي قصة من التراث والحرفية.",
+      "shop_heading": "المتجر",
+      "shop_all": "جميع القطع",
+      "about_heading": "من نحن",
+      "our_story": "قصتنا",
+      "meet_makers": "تعرّف على الحرفيين",
+      "sustainability": "الاستدامة",
+      "contact": "تواصل معنا",
+      "circle_heading": "انضم إلى دائرتنا",
+      "circle_subtext": "مجموعات جديدة وقصص الحرفيين وعروض حصرية.",
+      "email_placeholder": "عنوان البريد الإلكتروني",
+      "join_button": "انضم",
+      "privacy": "سياسة الخصوصية",
+      "terms": "شروط الخدمة",
+      "copyright": "© {{year}} {{name}}. جميع الحقوق محفوظة."
+    },
+    "products": {
+      "page_title": "جميع المنتجات",
+      "search_placeholder": "ابحث عن منتجات...",
+      "all_categories": "جميع الفئات",
+      "sort": {
+        "newest": "الأحدث",
+        "price_asc": "السعر: من الأدنى إلى الأعلى",
+        "price_desc": "السعر: من الأعلى إلى الأدنى",
+        "popular": "الأكثر شعبية"
+      },
+      "no_results": "لا توجد منتجات",
+      "clear_search": "مسح البحث",
+      "previous": "السابق",
+      "next": "التالي",
+      "page_of": "صفحة {{page}} من {{total}}"
+    },
+    "category": {
+      "not_found_heading": "الفئة غير موجودة",
+      "browse_all": "تصفّح جميع المنتجات",
+      "no_products": "لا توجد منتجات في هذه الفئة بعد"
+    },
+    "product_detail": {
+      "back_to_shop": "العودة إلى المتجر",
+      "products_breadcrumb": "المنتجات",
+      "select_option": "اختر خياراً لمعرفة التوفر",
+      "in_stock": "متوفر ({{count}} متاح)",
+      "preorder": "طلب مسبق — يُشحن {{date}}",
+      "only_left": "{{count}} فقط متبقية",
+      "sold_out": "نفد المخزون",
+      "out_of_stock": "غير متوفر",
+      "description_heading": "الوصف",
+      "product_not_found": "المنتج غير موجود"
+    },
+    "cart": {
+      "loading": "جاري تحميل السلة...",
+      "empty_heading": "سلتك فارغة",
+      "empty_subtext": "يبدو أنك لم تضف أي شيء بعد",
+      "start_shopping": "ابدأ التسوق",
+      "page_heading": "سلة التسوق",
+      "clear_cart": "إفراغ السلة",
+      "subtotal": "الإجمالي الفرعي ({{count}} عنصر)",
+      "shipping_label": "الشحن",
+      "shipping_value": "يُحسب عند إتمام الشراء",
+      "tax_label": "الضريبة",
+      "tax_value": "تُحسب عند إتمام الشراء",
+      "total": "الإجمالي",
+      "checkout_button": "المتابعة إلى الدفع",
+      "continue_shopping": "متابعة التسوق",
+      "remove": "إزالة"
+    }
+  }
+}

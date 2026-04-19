@@ -1,1 +1,114 @@
-{}
+{
+  "theme": {
+    "hero": {
+      "badge_text": "New Collection 2026",
+      "heading_line1": "Design Your",
+      "heading_line2": "Perfect Space",
+      "subheading": "Thoughtfully curated furniture, lighting, and accessories to transform any room into your sanctuary.",
+      "primary_cta": "Shop Collection",
+      "secondary_cta": "Browse Rooms"
+    },
+    "section": {
+      "categories": {
+        "eyebrow": "Explore",
+        "title": "Shop by Room"
+      },
+      "featured_products": {
+        "eyebrow": "Handpicked",
+        "title": "Editor's Picks",
+        "view_all": "View All"
+      },
+      "philosophy": {
+        "eyebrow": "Our Philosophy",
+        "title": "Designed to Last",
+        "body": "We believe great design should be accessible. Every piece is crafted from quality materials, built to endure, and designed to make your space feel like home. From sustainably sourced wood to hand-finished textiles, we obsess over the details so you can enjoy them for years to come."
+      },
+      "trending": {
+        "eyebrow": "Get Inspired",
+        "title": "Trending Now"
+      },
+      "newsletter": {
+        "eyebrow": "Stay Inspired",
+        "title": "Join Our Community",
+        "subtitle": "Get early access to new collections, design tips, and exclusive offers delivered to your inbox.",
+        "placeholder": "Your email address",
+        "button": "Subscribe"
+      }
+    },
+    "rooms": {
+      "living_room": "Living Room",
+      "bedroom": "Bedroom",
+      "kitchen": "Kitchen",
+      "dining": "Dining",
+      "office": "Office",
+      "outdoor": "Outdoor"
+    },
+    "nav": {
+      "shop_all": "Shop All"
+    },
+    "footer": {
+      "tagline": "Curated home furnishings for modern living. Transform your space with timeless design.",
+      "col_shop": "Shop",
+      "col_help": "Help",
+      "all_products": "All Products",
+      "shipping_returns": "Shipping & Returns",
+      "care_instructions": "Care Instructions",
+      "contact_us": "Contact Us",
+      "copyright": "© {{year}} {{name}}. All rights reserved."
+    },
+    "announcement": {
+      "message": "Free shipping on orders over $50!",
+      "link_text": "Shop Now"
+    },
+    "mobile_menu": {
+      "shop_all": "Shop All"
+    },
+    "products": {
+      "title_all": "All Products",
+      "search_placeholder": "Search products...",
+      "all_categories": "All Categories",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "empty": "No products found",
+      "clear_search": "Clear search",
+      "page_of": "Page {{page}} of {{total}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "category": {
+      "not_found": "Category Not Found",
+      "browse_all": "Browse all products",
+      "empty": "No products in this category yet"
+    },
+    "product_detail": {
+      "breadcrumb_products": "Products",
+      "select_option": "Select an option to see availability",
+      "in_stock": "In Stock ({{count}} available)",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of Stock",
+      "description": "Description",
+      "not_found": "Product Not Found",
+      "back_to_shop": "Back to shop"
+    },
+    "cart": {
+      "loading": "Loading cart...",
+      "empty_title": "Your cart is empty",
+      "empty_subtitle": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "title": "Shopping Cart",
+      "clear": "Clear Cart",
+      "remove": "Remove",
+      "each": "each",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping": "Shipping",
+      "shipping_calc": "Calculated at checkout",
+      "tax": "Tax",
+      "tax_calc": "Calculated at checkout",
+      "total": "Total",
+      "checkout": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping"
+    }
+  }
+}

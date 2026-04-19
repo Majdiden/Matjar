@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
@@ -63,6 +64,7 @@ function getNextSunday(): Date {
 }
 
 const Home: React.FC = () => {
+  const { t } = useTranslation(['theme', 'common']);
   const { store } = useStore();
 
   // Read section settings from the manifest + tenant overrides
@@ -104,20 +106,20 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 relative z-10">
           <div className="flex-1 text-white">
             <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-sm font-medium mb-4 backdrop-blur-sm">
-              {hero.badge_text || 'Farm Fresh Daily'}
+              {hero.badge_text || t('theme.hero.badge_text')}
             </span>
             <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight">
-              {hero.heading_line1 || 'Farm Fresh'}<br />{hero.heading_line2 || 'to Your Door'}
+              {hero.heading_line1 || t('theme.hero.heading_line1')}<br />{hero.heading_line2 || t('theme.hero.heading_line2')}
             </h1>
             <p className="text-green-100 text-lg mb-8 max-w-md">
-              {hero.subheading || 'Hand-picked produce, artisan goods, and pantry essentials from local farms to your table.'}
+              {hero.subheading || t('theme.hero.subheading')}
             </p>
             <div className="flex gap-3">
               <Link
                 to={hero.primary_button_url || '/products'}
                 className="inline-flex items-center gap-2 bg-[#f59e0b] text-white px-8 py-3.5 rounded-full font-bold hover:bg-[#d97706] transition shadow-lg"
               >
-                {hero.primary_button_text || 'Start Shopping'}
+                {hero.primary_button_text || t('theme.hero.primary_cta')}
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -126,7 +128,7 @@ const Home: React.FC = () => {
                 to={hero.secondary_button_url || '/categories'}
                 className="inline-flex items-center gap-2 border-2 border-white/40 text-white px-8 py-3.5 rounded-full font-bold hover:bg-white/10 transition"
               >
-                {hero.secondary_button_text || 'Browse Categories'}
+                {hero.secondary_button_text || t('theme.hero.secondary_cta')}
               </Link>
             </div>
           </div>
@@ -150,7 +152,7 @@ const Home: React.FC = () => {
           className={`max-w-7xl mx-auto px-4 py-16 transition-all duration-700 ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-2">{cats.heading || 'Shop by Category'}</h2>
+            <h2 className="text-3xl font-bold mb-2">{cats.heading || t('theme.section.categories.title')}</h2>
             {cats.subheading && <p className="text-gray-500">{cats.subheading}</p>}
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -188,10 +190,10 @@ const Home: React.FC = () => {
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-white">
             <div className="flex-1 text-center md:text-left">
               <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-bold mb-2 backdrop-blur-sm">
-                {deals.badge_label || 'THIS WEEK ONLY'}
+                {deals.badge_label || t('theme.section.weekly_deals.badge')}
               </span>
-              <h2 className="text-3xl md:text-4xl font-extrabold mb-1">{deals.heading || 'Weekly Fresh Deals'}</h2>
-              <p className="text-white/90 text-sm">{deals.subheading || "Save up to 40% on this week's hand-picked selection"}</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-1">{deals.heading || t('theme.section.weekly_deals.title')}</h2>
+              <p className="text-white/90 text-sm">{deals.subheading || t('theme.section.weekly_deals.subtitle')}</p>
             </div>
             <div className="flex-shrink-0">
               <CountdownTimer endDate={getNextSunday()} variant="boxes" label="Ends in" />
@@ -200,7 +202,7 @@ const Home: React.FC = () => {
               to={deals.cta_url || '/products?onSale=true'}
               className="flex-shrink-0 px-6 py-3 bg-white text-[#dc2626] rounded-full font-bold hover:bg-yellow-50 transition shadow-lg"
             >
-              {deals.cta_label || 'Shop Deals →'}
+              {deals.cta_label || t('theme.section.weekly_deals.cta')}
             </Link>
           </div>
         </section>
@@ -215,11 +217,11 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold">{feat.heading || "Today's Picks"}</h2>
+              <h2 className="text-3xl font-bold">{feat.heading || t('theme.section.featured_products.title')}</h2>
               {feat.subheading && <p className="text-gray-500 mt-1">{feat.subheading}</p>}
             </div>
             <Link to={feat.view_all_url || '/products'} className="text-[#16a34a] font-semibold text-sm hover:underline flex items-center gap-1">
-              {feat.view_all_text || 'See All'}
+              {feat.view_all_text || t('theme.section.featured_products.view_all')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
@@ -275,11 +277,11 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold">{arrivals.heading || 'New Arrivals'}</h2>
+              <h2 className="text-3xl font-bold">{arrivals.heading || t('theme.section.new_arrivals.title')}</h2>
               {arrivals.subheading && <p className="text-gray-500 mt-1">{arrivals.subheading}</p>}
             </div>
             <Link to={arrivals.view_all_url || '/products?sort=newest'} className="text-[#16a34a] font-semibold text-sm hover:underline flex items-center gap-1">
-              {arrivals.view_all_text || 'See More'}
+              {arrivals.view_all_text || t('theme.section.new_arrivals.view_all')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
@@ -314,19 +316,19 @@ const Home: React.FC = () => {
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
             </svg>
           </span>
-          <h2 className="text-3xl font-bold mb-2">{news.heading || 'Recipes & Fresh Tips'}</h2>
-          <p className="opacity-90 mb-8">{news.subheading || 'Subscribe for weekly recipe ideas, seasonal picks, and exclusive deals on fresh produce.'}</p>
+          <h2 className="text-3xl font-bold mb-2">{news.heading || t('theme.section.newsletter.title')}</h2>
+          <p className="opacity-90 mb-8">{news.subheading || t('theme.section.newsletter.subtitle')}</p>
           <form className="flex gap-2 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
             <input
               type="email"
-              placeholder={news.placeholder || 'Enter your email'}
+              placeholder={news.placeholder || t('theme.section.newsletter.placeholder')}
               className="flex-1 px-4 py-3.5 rounded-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50"
             />
             <button
               type="submit"
               className="px-6 py-3.5 bg-[#f59e0b] hover:bg-[#d97706] rounded-full font-bold transition shadow-lg"
             >
-              {news.button_text || 'Subscribe'}
+              {news.button_text || t('theme.section.newsletter.button')}
             </button>
           </form>
           {news.disclaimer && <p className="text-xs opacity-60 mt-3">{news.disclaimer}</p>}

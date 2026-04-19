@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCollections } from '../hooks/useCollections';
+import { useTranslation } from 'react-i18next';
 
 interface CollectionsIndexProps {
   className?: string;
@@ -14,15 +15,16 @@ const CollectionsIndex: React.FC<CollectionsIndexProps> = ({
   columns = 3,
 }) => {
   const { collections, loading, error } = useCollections();
+  const { t } = useTranslation(['category']);
 
   return (
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-10 ${className}`}>
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--color-text, #111)' }}>
-          Collections
+          {t('collections_index.title')}
         </h1>
         <p className="text-gray-500 text-sm">
-          Curated groups of products for every occasion.
+          {t('collections_index.subtitle')}
         </p>
       </div>
 
@@ -40,14 +42,14 @@ const CollectionsIndex: React.FC<CollectionsIndexProps> = ({
         <div className="text-center py-16 text-gray-500">{error}</div>
       ) : collections.length === 0 ? (
         <div className="text-center py-16">
-          <h2 className="text-xl font-semibold mb-2">No collections yet</h2>
-          <p className="text-gray-500 mb-6">Check back soon — collections are on the way.</p>
+          <h2 className="text-xl font-semibold mb-2">{t('collections_index.empty.title')}</h2>
+          <p className="text-gray-500 mb-6">{t('collections_index.empty.description')}</p>
           <Link
             to="/products"
             className="inline-block px-6 py-3 rounded-lg text-white font-medium transition hover:opacity-90"
             style={{ backgroundColor: accentColor || 'var(--color-primary, #2563eb)' }}
           >
-            Browse All Products
+            {t('collections_index.empty.browse_all')}
           </Link>
         </div>
       ) : (
@@ -75,7 +77,7 @@ const CollectionsIndex: React.FC<CollectionsIndexProps> = ({
                   </h3>
                   {typeof c.productCount === 'number' && (
                     <p className="text-xs text-gray-500 mt-1">
-                      {c.productCount} {c.productCount === 1 ? 'product' : 'products'}
+                      {t('collections_index.product_count_other', { count: c.productCount })}
                     </p>
                   )}
                   {c.description && (

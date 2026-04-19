@@ -1,1 +1,56 @@
-{}
+{
+  "footer": {
+    "about": {
+      "title": "About Us",
+      "default_story": "{{name}} was founded with a simple mission: to provide exceptional products with outstanding service. We believe in quality, value, and building lasting relationships with our customers.",
+      "value": {
+        "quality_first_title": "Quality First",
+        "quality_first_description": "Every product is carefully selected to meet the highest standards.",
+        "customer_focus_title": "Customer Focus",
+        "customer_focus_description": "Your satisfaction is our top priority. We are here for you.",
+        "transparency_title": "Transparency",
+        "transparency_description": "Honest pricing, clear policies, and open communication."
+      },
+      "contact_email": "Email",
+      "contact_phone": "Phone",
+      "contact_visit": "Visit us"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "Have a question or need help? We'd love to hear from you.",
+      "info": {
+        "store": "Store",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "hours": "Hours",
+        "hours_weekday": "Monday - Friday: 9am - 6pm",
+        "hours_weekend": "Saturday - Sunday: 10am - 4pm"
+      },
+      "field": {
+        "name": { "label": "Name", "placeholder": "Your name" },
+        "email": { "label": "Email", "placeholder": "your@email.com" },
+        "subject": { "label": "Subject" },
+        "message": { "label": "Message", "placeholder": "How can we help you?" }
+      },
+      "subject": {
+        "general": "General Inquiry",
+        "order_support": "Order Support",
+        "returns": "Returns & Exchanges",
+        "product": "Product Question",
+        "other": "Other"
+      },
+      "submit": "Send Message",
+      "submitting": "Sending…",
+      "success_title": "Message Sent",
+      "success_description": "We'll get back to you within 24 hours.",
+      "toast": {
+        "success": "Message sent successfully."
+      },
+      "error": {
+        "message_too_short": "Please write at least 10 characters in your message.",
+        "default": "Could not send your message. Please try again."
+      }
+    }
+  }
+}

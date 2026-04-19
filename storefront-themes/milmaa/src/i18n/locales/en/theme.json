@@ -1,1 +1,160 @@
-{}
+{
+  "theme": {
+    "section": {
+      "milmaa-top-strip": {
+        "text": "🌱 100% Plant-Based · Free Shipping on Orders Over $40"
+      },
+      "milmaa-hero": {
+        "eyebrow": "100% PLANT-BASED",
+        "heading": "Embracing the power of strength",
+        "subheading": "Creamy, dreamy plant-based milk crafted from the finest nuts, oats and seeds — for a healthier, tastier you.",
+        "cta": "Shop Milk",
+        "watch_story": "Watch Story",
+        "badge": "100% NATURAL"
+      },
+      "milmaa-flavors": {
+        "heading": "Our Delicious Flavors",
+        "subheading": "Pick your favorite and feel the goodness",
+        "flavor_label": "Flavor",
+        "shop_now": "Shop now"
+      },
+      "milmaa-product-grid": {
+        "heading": "Shop Our Milks",
+        "subheading": "Every carton is a small sip of happiness"
+      },
+      "milmaa-benefits": {
+        "eyebrow": "WHY MILMAA",
+        "heading": "A healthier start to every day",
+        "badge": "CERTIFIED ORGANIC"
+      },
+      "milmaa-blog": {
+        "heading": "From The Journal",
+        "subheading": "Recipes, stories and a sprinkle of goodness",
+        "view_all": "View all articles →",
+        "post_label": "RECIPE"
+      },
+      "milmaa-testimonials": {
+        "heading": "Customers Talk",
+        "subheading": "Real words from real milk lovers"
+      },
+      "milmaa-instagram": {
+        "heading": "@milmaa_milk",
+        "subheading": "Follow our daily dose of plant-powered goodness"
+      }
+    },
+    "hero": {
+      "main": {
+        "eyebrow": "100% PLANT-BASED",
+        "headline": "Embracing the power of strength",
+        "subheadline": "Creamy, dreamy plant-based milk crafted from the finest nuts, oats and seeds — for a healthier, tastier you.",
+        "cta": "Shop Milk"
+      }
+    },
+    "footer": {
+      "tagline": "Creamy, dreamy plant-based milk crafted with love. Made for families, farmers and the planet.",
+      "copyright_html": "© {{year}} {{brand}}. Made with 🌱 love.",
+      "col_shop": "Shop",
+      "col_company": "Company",
+      "col_help": "Help",
+      "item_all_milks": "All Milks",
+      "item_banana": "Banana",
+      "item_badam": "Badam",
+      "item_cashewnut": "Cashewnut",
+      "item_about_us": "About Us",
+      "item_our_farmers": "Our Farmers",
+      "item_sustainability": "Sustainability",
+      "item_blog": "Blog",
+      "item_shipping": "Shipping",
+      "item_returns": "Returns",
+      "item_faqs": "FAQs",
+      "item_contact": "Contact"
+    },
+    "nav": {
+      "home": "Home",
+      "shop": "Shop",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "products": {
+      "page_title": "All Our Milks",
+      "page_subtitle": "Explore our creamy, dreamy range of plant-based milks — every bottle crafted with love.",
+      "breadcrumb_home": "HOME",
+      "breadcrumb_shop": "SHOP",
+      "filter_category": "Category",
+      "filter_availability": "Availability",
+      "filter_price": "Price",
+      "all_products": "All Products",
+      "promo_eyebrow": "OFFER",
+      "promo_heading": "Free delivery on orders $40+",
+      "promo_body": "Stock up and save on your favorite flavors.",
+      "promo_cta": "Shop Now →",
+      "sort_newest": "Sort: Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "count": "{{count}} products",
+      "empty": "No products found. Try different filters."
+    },
+    "product_detail": {
+      "not_found_heading": "Not Found",
+      "not_found_body": "We couldn't find that product.",
+      "back_to_shop": "Back to Shop",
+      "badge_natural": "100% NATURAL",
+      "in_stock": "In stock — ready to ship",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of stock",
+      "save_to_wishlist": "♡ Save to Wishlist",
+      "tab_description": "Description",
+      "tab_ingredients": "Ingredients",
+      "tab_reviews": "Reviews",
+      "you_may_also_love": "You May Also Love",
+      "benefit_plant_based": "100% plant-based & vegan",
+      "benefit_free_shipping": "Free shipping on orders over $40",
+      "benefit_returns": "30-day free returns",
+      "benefit_secure": "Secure SSL checkout"
+    },
+    "category": {
+      "collections_label": "Collections",
+      "all_products": "All Products",
+      "empty": "No products in this category yet."
+    },
+    "cart": {
+      "page_title": "Shopping Cart",
+      "clear_cart": "Clear Cart",
+      "loading": "Loading cart...",
+      "empty_heading": "Your cart is empty",
+      "empty_body": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "each_price": "each",
+      "remove": "Remove",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping": "Shipping",
+      "calculated_at_checkout": "Calculated at checkout",
+      "tax": "Tax",
+      "total": "Total",
+      "proceed_to_checkout": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping"
+    },
+    "testimonial": {
+      "tm-1": {
+        "quote": "The creamiest plant milk I have ever tasted! My kids love it and I feel good giving it to them.",
+        "author": "Sarah M.",
+        "role": "Busy Mom"
+      },
+      "tm-2": {
+        "quote": "Perfect for my morning oats. Clean ingredients and amazing flavor — truly a game changer.",
+        "author": "David L.",
+        "role": "Yoga Instructor"
+      },
+      "tm-3": {
+        "quote": "Finally a non-dairy milk that actually tastes like milk. The badam flavor is to die for!",
+        "author": "Priya K.",
+        "role": "Foodie"
+      }
+    },
+    "about": {
+      "title": "Why Milmaa",
+      "body": "We believe in the power of plants. Every carton of Milmaa is crafted from carefully sourced nuts, oats and seeds — no dairy, no compromise."
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
@@ -24,6 +25,7 @@ const sizeClasses = {
 export function RatingStars(props: RatingStarsProps) {
   const Override = useThemeSlot<React.ComponentType<RatingStarsProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
+  const { t } = useTranslation('product');
   const {
     rating,
     maxRating = 5,
@@ -38,7 +40,7 @@ export function RatingStars(props: RatingStarsProps) {
 
   return (
     <div className={cn('flex items-center gap-1', className)}>
-      <div className="flex" aria-label={`${rating} out of ${maxRating} stars`}>
+      <div className="flex" aria-label={t('image.alt_rating', { rating, max: maxRating })}>
         {Array.from({ length: maxRating }).map((_, i) => {
           const fill = Math.min(1, Math.max(0, rating - i));
           return (

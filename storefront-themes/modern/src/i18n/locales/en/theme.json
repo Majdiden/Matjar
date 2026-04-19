@@ -1,1 +1,124 @@
-{}
+{
+  "theme": {
+    "section": {
+      "hero": {
+        "badge": "New Collection",
+        "headline": "Welcome",
+        "subheadline": "Discover amazing products at great prices",
+        "primary_cta": "Shop Now",
+        "secondary_cta": "Browse Categories",
+        "sale_badge": "Limited Time",
+        "sale_heading": "Season Sale",
+        "sale_subheading": "Up to 50% off selected items",
+        "sale_cta": "Shop the Sale"
+      },
+      "categories": {
+        "heading": "Shop by Category",
+        "subheading": "Browse our curated collections",
+        "items_count": "{{count}} items"
+      },
+      "featured-products": {
+        "heading": "Featured Products",
+        "subheading": "Hand-picked for you",
+        "view_all": "View All"
+      },
+      "trust-badges": {
+        "free_shipping_title": "Free Shipping",
+        "free_shipping_desc": "On orders over $50",
+        "secure_payment_title": "Secure Payment",
+        "secure_payment_desc": "256-bit SSL encryption",
+        "easy_returns_title": "Easy Returns",
+        "easy_returns_desc": "30-day money back guarantee"
+      },
+      "new-arrivals": {
+        "heading": "New Arrivals",
+        "subheading": "Just landed in store",
+        "see_more": "See More"
+      },
+      "newsletter": {
+        "heading": "Stay in the Loop",
+        "subheading": "Subscribe for exclusive deals, new arrivals, and insider offers.",
+        "cta": "Subscribe",
+        "placeholder": "Enter your email",
+        "disclaimer": "No spam, unsubscribe anytime."
+      }
+    },
+    "nav": {
+      "home": "Home",
+      "shop_all": "Shop All"
+    },
+    "footer": {
+      "tagline": "Your one-stop shop for quality products.",
+      "copyright_html": "© {{year}} {{brand}}. All rights reserved.",
+      "col_shop": "Shop",
+      "col_customer_service": "Customer Service",
+      "col_newsletter": "Newsletter",
+      "item_all_products": "All Products",
+      "item_contact_us": "Contact Us",
+      "item_shipping_policy": "Shipping Policy",
+      "item_returns_exchanges": "Returns & Exchanges",
+      "item_faq": "FAQ",
+      "newsletter_desc": "Get the latest deals and updates.",
+      "newsletter_join": "Join",
+      "newsletter_email_placeholder": "Email address",
+      "privacy_policy": "Privacy Policy",
+      "terms_of_service": "Terms of Service"
+    },
+    "announcement": {
+      "bar_text": "Free shipping on orders over $50!",
+      "bar_cta": "Shop Now"
+    },
+    "products": {
+      "title_all": "All Products",
+      "filter_all": "All Products",
+      "filter_categories": "Categories",
+      "filter_sort_by": "Sort By",
+      "filter_button": "Filters",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "sort_top_rated": "Top Rated",
+      "search_placeholder": "Search products...",
+      "clear_search": "Clear search",
+      "no_products": "No products found",
+      "view_all": "View All"
+    },
+    "product_detail": {
+      "not_found_heading": "Product Not Found",
+      "back_to_shop": "Back to shop",
+      "select_option_availability": "Select an option to see availability",
+      "in_stock": "In Stock ({{count}} available)",
+      "pre_order": "Pre-order",
+      "pre_order_ships": "Pre-order — ships {{date}}",
+      "only_left": "Only {{count}} left",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of Stock",
+      "share": "Share:",
+      "tab_description": "Description",
+      "tab_reviews": "Reviews"
+    },
+    "category": {
+      "not_found_heading": "Category Not Found",
+      "browse_all": "Browse all products",
+      "no_products": "No products in this category yet"
+    },
+    "cart": {
+      "page_title": "Shopping Cart",
+      "clear_cart": "Clear Cart",
+      "loading": "Loading cart...",
+      "empty_heading": "Your cart is empty",
+      "empty_body": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "each_price": "each",
+      "remove": "Remove",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping": "Shipping",
+      "calculated_at_checkout": "Calculated at checkout",
+      "tax": "Tax",
+      "total": "Total",
+      "proceed_to_checkout": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping"
+    }
+  }
+}
