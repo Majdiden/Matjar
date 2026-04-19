@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
@@ -39,6 +40,7 @@ function calcTimeLeft(endDate: Date): TimeLeft {
 export function CountdownTimer(props: CountdownTimerProps) {
   const Override = useThemeSlot<React.ComponentType<CountdownTimerProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
+  const { t } = useTranslation('marketing');
   const {
     endDate,
     label,
@@ -62,7 +64,7 @@ export function CountdownTimer(props: CountdownTimerProps) {
   }, [target, onExpired]);
 
   if (timeLeft.expired) {
-    return <span className={cn('text-sm text-gray-500', className)}>Sale ended</span>;
+    return <span className={cn('text-sm text-gray-500', className)}>{t('countdown.expired')}</span>;
   }
 
   const pad = (n: number) => n.toString().padStart(2, '0');
@@ -70,7 +72,7 @@ export function CountdownTimer(props: CountdownTimerProps) {
   if (variant === 'minimal') {
     return (
       <span className={cn('font-mono text-sm font-medium', className)}>
-        {label && <span className="mr-1">{label}</span>}
+        {label && <span className="me-1">{label}</span>}
         {timeLeft.days > 0 && `${timeLeft.days}d `}
         {pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
       </span>
@@ -80,7 +82,7 @@ export function CountdownTimer(props: CountdownTimerProps) {
   if (variant === 'inline') {
     return (
       <div className={cn('flex items-center gap-1 text-sm', className)}>
-        {label && <span className="font-medium mr-2">{label}</span>}
+        {label && <span className="font-medium me-2">{label}</span>}
         <span className="font-mono font-bold">{timeLeft.days}d</span>
         <span className="text-gray-400">:</span>
         <span className="font-mono font-bold">{pad(timeLeft.hours)}h</span>
@@ -94,10 +96,10 @@ export function CountdownTimer(props: CountdownTimerProps) {
 
   // boxes variant
   const units = [
-    { label: 'Days', value: timeLeft.days },
-    { label: 'Hours', value: timeLeft.hours },
-    { label: 'Minutes', value: timeLeft.minutes },
-    { label: 'Seconds', value: timeLeft.seconds },
+    { labelKey: 'countdown.units.days', value: timeLeft.days },
+    { labelKey: 'countdown.units.hours', value: timeLeft.hours },
+    { labelKey: 'countdown.units.minutes', value: timeLeft.minutes },
+    { labelKey: 'countdown.units.seconds', value: timeLeft.seconds },
   ];
 
   return (
@@ -105,13 +107,13 @@ export function CountdownTimer(props: CountdownTimerProps) {
       {label && <p className="text-sm font-medium mb-3">{label}</p>}
       <div className="flex items-center justify-center gap-3">
         {units.map((unit, i) => (
-          <React.Fragment key={unit.label}>
+          <React.Fragment key={unit.labelKey}>
             {i > 0 && <span className="text-2xl font-bold text-gray-300">:</span>}
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 flex items-center justify-center bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-2xl font-bold font-mono">
                 {pad(unit.value)}
               </div>
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider mt-1">{unit.label}</span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-wider mt-1">{t(unit.labelKey)}</span>
             </div>
           </React.Fragment>
         ))}

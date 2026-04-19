@@ -7,6 +7,7 @@ import ProductDetailExtras from '@shared/components/commerce/ProductDetailExtras
 import GuaranteedCheckout from '@shared/components/commerce/GuaranteedCheckout';
 import { VariantPicker, type Variant } from '@shared/components/commerce/VariantPicker';
 import { getPreorderState } from '@shared/utils/preorder';
+import { useTranslation } from 'react-i18next';
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -21,6 +22,7 @@ const ProductDetail: React.FC = () => {
   } = useProduct(slug!);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
+  const { t } = useTranslation(['theme']);
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -53,9 +55,9 @@ const ProductDetail: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
         <svg className="w-14 h-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg>
-        <h2 className="text-2xl font-bold mb-2">Product Not Found</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('theme.product_detail.product_not_found')}</h2>
         <Link to="/products" className="text-sm underline" style={{ color: 'var(--color-primary)' }}>
-          Back to shop
+          {t('theme.product_detail.back_to_shop')}
         </Link>
       </div>
     );
@@ -69,11 +71,6 @@ const ProductDetail: React.FC = () => {
   const displayStock = hasVariants ? (activeVariant?.stock ?? 0) : product.stock;
   const requiresVariantSelection = hasVariants && !activeVariant;
 
-  // Pre-order resolution (centralised helper). Variant overrides
-  // product. When the merchant flags a product as pre-order, the CTA
-  // says "Pre-order" regardless of on-hand stock; the `maxUnits -
-  // unitsReserved` counter then governs sold-out state. Deposit,
-  // discount and policy note labels are surfaced below the CTA.
   const preState = getPreorderState(product as any, activeVariant as any, {
     price: displayPrice,
     requiresSelection: requiresVariantSelection,
@@ -101,17 +98,14 @@ const ProductDetail: React.FC = () => {
   };
 
   const images = product.images?.length > 0 ? product.images : ['https://placehold.co/600x600?text=No+Image'];
-  const discount = displayCompareAt && displayCompareAt > displayPrice
-    ? Math.round((1 - displayPrice / displayCompareAt) * 100)
-    : 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       {/* Breadcrumb */}
       <nav className="text-sm text-gray-500 mb-6">
-        <Link to="/" className="hover:text-gray-700">Home</Link>
+        <Link to="/" className="hover:text-gray-700">{t('theme.product_detail.breadcrumb_home')}</Link>
         <span className="mx-2">/</span>
-        <Link to="/products" className="hover:text-gray-700">Products</Link>
+        <Link to="/products" className="hover:text-gray-700">{t('theme.product_detail.breadcrumb_products')}</Link>
         <span className="mx-2">/</span>
         <span className="text-gray-900">{product.name}</span>
       </nav>
@@ -150,7 +144,7 @@ const ProductDetail: React.FC = () => {
           )}
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
 
-          {/* Price (pre-order discount reflected when active) */}
+          {/* Price */}
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl font-bold">{formatPrice(effectivePrice)}</span>
             {effectiveCompareAt && effectiveCompareAt > effectivePrice && (
@@ -181,16 +175,16 @@ const ProductDetail: React.FC = () => {
 
           {/* Stock */}
           {requiresVariantSelection ? (
-            <p className="text-sm text-gray-500 mb-6">Select an option to see availability</p>
+            <p className="text-sm text-gray-500 mb-6">{t('theme.product_detail.select_option')}</p>
           ) : displayStock > 0 ? (
-            <p className="text-sm text-green-600 mb-6">In Stock ({displayStock} available)</p>
+            <p className="text-sm text-green-600 mb-6">{t('theme.product_detail.in_stock', { count: displayStock })}</p>
           ) : isPreorderable ? (
             <div className="mb-6">
               <p className="text-sm text-amber-600">
-                Pre-order{shipDateLabel ? ` — ships ${shipDateLabel}` : ''}
+                {t('theme.product_detail.preorder')}{shipDateLabel ? ` — ${t('theme.product_detail.preorder_ships', { date: shipDateLabel })}` : ''}
               </p>
               {preState.lowRemaining && preState.remaining !== null && (
-                <p className="text-xs font-semibold text-amber-700 mt-1">Only {preState.remaining} left</p>
+                <p className="text-xs font-semibold text-amber-700 mt-1">{t('theme.product_detail.only_left', { count: preState.remaining })}</p>
               )}
               {preState.depositLabel && (
                 <p className="text-xs text-amber-700 mt-1">{preState.depositLabel}</p>
@@ -200,12 +194,12 @@ const ProductDetail: React.FC = () => {
               )}
             </div>
           ) : isPreorderSoldOut ? (
-            <p className="text-sm text-red-500 mb-6">Sold out</p>
+            <p className="text-sm text-red-500 mb-6">{t('theme.product_detail.sold_out')}</p>
           ) : (
-            <p className="text-sm text-red-500 mb-6">Out of Stock</p>
+            <p className="text-sm text-red-500 mb-6">{t('theme.product_detail.out_of_stock')}</p>
           )}
 
-          {/* Quantity + Add to Cart (or Pre-order) */}
+          {/* Quantity + Add to Cart */}
           {!requiresVariantSelection && (displayStock > 0 || isPreorderable) && (
             <div className="flex items-center gap-4 mb-8">
               <div className="flex items-center border rounded-lg">
@@ -239,7 +233,7 @@ const ProductDetail: React.FC = () => {
           {/* Description */}
           {product.description && (
             <div className="prose prose-sm max-w-none mb-8">
-              <h3 className="font-semibold mb-2">Description</h3>
+              <h3 className="font-semibold mb-2">{t('theme.product_detail.description_heading')}</h3>
               <p className="text-gray-600 whitespace-pre-line">{product.description}</p>
             </div>
           )}

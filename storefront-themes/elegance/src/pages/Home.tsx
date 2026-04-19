@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
@@ -15,6 +16,7 @@ const HARDCODED_IDS = ['hero', 'collections', 'featured-products', 'editorial-ba
 
 const Home: React.FC = () => {
   const { store } = useStore();
+  const { t } = useTranslation(['theme']);
 
   // Read section settings from manifest + tenant overrides
   const hero = useThemeSettings('hero');
@@ -100,7 +102,7 @@ const Home: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-5">
                   <div>
                     <h3 className="text-white text-sm tracking-[0.15em] uppercase font-medium">{cat.name}</h3>
-                    <span className="text-white/70 text-xs tracking-wider group-hover:text-white transition">Explore &rarr;</span>
+                    <span className="text-white/70 text-xs tracking-wider group-hover:text-white transition">{t('theme.product_detail.explore')}</span>
                   </div>
                 </div>
               </Link>
@@ -122,7 +124,7 @@ const Home: React.FC = () => {
                 {feat.heading || "Editor's Picks"}
               </h2>
             </div>
-            <Link to={feat.view_all_url || '/products'} className="text-xs tracking-[0.15em] uppercase text-gray-600 hover:text-gray-900 transition border-b border-gray-400 pb-0.5">View All</Link>
+            <Link to={feat.view_all_url || '/products'} className="text-xs tracking-[0.15em] uppercase text-gray-600 hover:text-gray-900 transition border-b border-gray-400 pb-0.5">{t('theme.product_detail.view_all')}</Link>
           </div>
           {featuredLoading ? <Skeleton.ProductGrid count={4} /> : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -174,7 +176,7 @@ const Home: React.FC = () => {
       {arrivalsEnabled && !newLoading && newArrivals.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
           <div className="text-center mb-10">
-            <span className="text-xs tracking-[0.3em] uppercase text-gray-400 block mb-2">Just In</span>
+            <span className="text-xs tracking-[0.3em] uppercase text-gray-400 block mb-2">{t('theme.product_detail.just_in')}</span>
             <h2 className="text-3xl font-light" style={{ fontFamily: 'var(--font-family-heading, "Playfair Display", serif)' }}>
               {arrivals.heading || 'New Arrivals'}
             </h2>

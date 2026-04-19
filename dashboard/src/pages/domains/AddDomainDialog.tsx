@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -79,6 +80,7 @@ const errMsg = (err: unknown, fallback: string): string => {
 };
 
 export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
+  const { t } = useTranslation(['domains', 'common']);
   const [step, setStep] = useState<Step>('input');
   const [hostname, setHostname] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -88,8 +90,6 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
 
   useEffect(() => {
     if (!open) {
-      // Reset state whenever the dialog closes so the next open
-      // starts clean.
       setStep('input');
       setHostname('');
       setSubmitting(false);
@@ -117,7 +117,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
 
   const submitAdd = async () => {
     if (!isValidLookingHostname) {
-      toast.error('Enter a valid domain, e.g. shop.mystore.com');
+      toast.error(t('domains:add.field.hostname.hint'));
       return;
     }
     try {
@@ -128,8 +128,6 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
       } & AddDomainPayload;
       const payload: AddDomainPayload = response?.data || response?.responseObject || response;
 
-      // Backend returns either { verificationInstructions: {...} } or the
-      // legacy shape with record fields directly. Normalize.
       const instructions =
         payload?.verificationInstructions?.instructions ||
         payload?.instructions;
@@ -139,8 +137,8 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
 
       const purposeFor = (r: DnsRecordRaw): string => {
         if (r?.purpose && typeof r.purpose === 'string') return r.purpose;
-        if (r?.type === 'TXT') return 'Ownership verification';
-        return 'Traffic routing';
+        if (r?.type === 'TXT') return t('domains:dns.purpose_ownership');
+        return t('domains:dns.purpose_routing');
       };
 
       const built: PendingRecord[] = [];
@@ -162,8 +160,6 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
         });
       }
 
-      // Also fetch full instructions for the router records if the
-      // add response didn't include them (belt & braces).
       try {
         const instrResp = await api.domains.getVerificationInstructions() as {
           data?: InstructionsPayload;
@@ -190,9 +186,9 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
 
       setRecords(built);
       setStep('verify');
-      toast.success('Domain added — now verify ownership');
+      toast.success(t('domains:add.toast.added'));
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to add domain'));
+      toast.error(errMsg(err, t('domains:add.toast.error_add')));
     } finally {
       setSubmitting(false);
     }
@@ -206,13 +202,13 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
       const verified = response?.verified ?? response?.data?.verified;
       if (verified) {
         setStep('done');
-        toast.success('Domain verified — SSL provisioning started');
+        toast.success(t('domains:add.toast.verified'));
         onComplete();
       } else {
-        setVerifyError(response?.message || 'TXT record not yet visible — DNS may still be propagating.');
+        setVerifyError(response?.message || t('domains:add.propagation_hint_1'));
       }
     } catch (err) {
-      setVerifyError(errMsg(err, 'Verification failed'));
+      setVerifyError(errMsg(err, t('domains:add.toast.error_verify')));
     } finally {
       setVerifying(false);
     }
@@ -228,46 +224,45 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>
-            {step === 'input' && 'Add a custom domain'}
-            {step === 'verify' && 'Verify domain ownership'}
-            {step === 'done' && 'Domain connected'}
+            {step === 'input' && t('domains:add.title_input')}
+            {step === 'verify' && t('domains:add.title_verify')}
+            {step === 'done' && t('domains:add.title_done')}
           </DialogTitle>
           <DialogDescription>
-            {step === 'input' && 'Connect a hostname you own to this store.'}
-            {step === 'verify' && 'Add the DNS records below, then click verify.'}
-            {step === 'done' && 'SSL certificate is being issued. You can close this dialog.'}
+            {step === 'input' && t('domains:add.description_input')}
+            {step === 'verify' && t('domains:add.description_verify')}
+            {step === 'done' && t('domains:add.description_done')}
           </DialogDescription>
         </DialogHeader>
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 py-2">
-          <StepDot active={step === 'input'} done={step !== 'input'} label="Domain" index={1} />
+          <StepDot active={step === 'input'} done={step !== 'input'} label={t('domains:add.step.domain')} index={1} />
           <div className="flex-1 h-0.5 bg-muted-foreground/15 rounded" />
           <StepDot
             active={step === 'verify'}
             done={step === 'done'}
-            label="Verify"
+            label={t('domains:add.step.verify')}
             index={2}
           />
           <div className="flex-1 h-0.5 bg-muted-foreground/15 rounded" />
-          <StepDot active={false} done={step === 'done'} label="Connected" index={3} />
+          <StepDot active={false} done={step === 'done'} label={t('domains:add.step.connected')} index={3} />
         </div>
 
         {/* ---- Step 1: input ---- */}
         {step === 'input' && (
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="domain-hostname">Hostname</Label>
+              <Label htmlFor="domain-hostname">{t('domains:add.field.hostname.label')}</Label>
               <Input
                 id="domain-hostname"
-                placeholder="shop.mystore.com"
+                placeholder={t('domains:add.field.hostname.placeholder')}
                 value={hostname}
                 onChange={(e) => setHostname(e.target.value)}
                 autoFocus
               />
               <p className="text-xs text-muted-foreground">
-                Enter without <code className="font-mono">http://</code> or{' '}
-                <code className="font-mono">https://</code>.
+                {t('domains:add.field.hostname.hint')}
               </p>
             </div>
 
@@ -278,7 +273,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
                   <span className="font-mono text-sm truncate">{normalized}</span>
                 </div>
                 <Badge variant="outline" className="text-xs shrink-0">
-                  {detectedKind === 'custom_apex' ? 'Apex domain' : 'Subdomain'}
+                  {detectedKind === 'custom_apex' ? t('domains:add.kind.apex') : t('domains:add.kind.subdomain')}
                 </Badge>
               </div>
             )}
@@ -289,12 +284,12 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
         {step === 'verify' && (
           <div className="space-y-4 py-2">
             <div className="p-3 rounded-md bg-muted/30 border">
-              <p className="text-xs text-muted-foreground mb-1">Domain</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('domains:add.field.hostname.label')}</p>
               <p className="font-mono text-sm">{normalized}</p>
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold mb-2">DNS records to add</h4>
+              <h4 className="text-sm font-semibold mb-2">{t('domains:add.dns_records_title')}</h4>
               <div className="space-y-2">
                 {records.map((rec, i) => (
                   <div key={i} className="border rounded-md p-3 space-y-2 bg-background">
@@ -303,8 +298,8 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
                       <span className="text-xs text-muted-foreground">{rec.purpose}</span>
                     </div>
                     <div className="grid gap-1.5 text-xs">
-                      <RecordRow label="Name" value={rec.name} onCopy={(v) => copy(v, 'Name')} />
-                      <RecordRow label="Value" value={rec.value} onCopy={(v) => copy(v, 'Value')} />
+                      <RecordRow label={t('domains:dns.field.name')} value={rec.name} onCopy={(v) => copy(v, t('domains:dns.field.name'))} />
+                      <RecordRow label={t('domains:dns.field.value')} value={rec.value} onCopy={(v) => copy(v, t('domains:dns.field.value'))} />
                     </div>
                   </div>
                 ))}
@@ -312,8 +307,8 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
             </div>
 
             <div className="text-xs text-muted-foreground space-y-1">
-              <p>DNS propagation usually takes 5–30 minutes, sometimes longer.</p>
-              <p>After the records resolve globally, click Verify.</p>
+              <p>{t('domains:add.propagation_hint_1')}</p>
+              <p>{t('domains:add.propagation_hint_2')}</p>
             </div>
 
             {verifyError && (
@@ -332,9 +327,9 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
               <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="font-medium">{normalized} is verified</p>
+              <p className="font-medium">{t('domains:add.verified_message', { hostname: normalized })}</p>
               <p className="text-xs text-muted-foreground">
-                SSL issuance is in progress. You can track status in the domains list.
+                {t('domains:add.ssl_progress')}
               </p>
             </div>
           </div>
@@ -344,7 +339,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
           {step === 'input' && (
             <>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t('common:action.cancel')}
               </Button>
               <Button
                 onClick={submitAdd}
@@ -355,7 +350,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
                 ) : (
                   <ArrowRight className="h-4 w-4 mr-2" />
                 )}
-                Continue
+                {t('domains:add.action.continue')}
               </Button>
             </>
           )}
@@ -363,7 +358,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
             <>
               <Button variant="outline" onClick={() => setStep('input')}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                {t('domains:add.action.back')}
               </Button>
               <Button onClick={submitVerify} disabled={verifying}>
                 {verifying ? (
@@ -371,12 +366,12 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
                 ) : (
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                 )}
-                Verify domain
+                {t('domains:add.action.verify')}
               </Button>
             </>
           )}
           {step === 'done' && (
-            <Button onClick={() => onOpenChange(false)}>Close</Button>
+            <Button onClick={() => onOpenChange(false)}>{t('domains:add.action.close')}</Button>
           )}
         </DialogFooter>
       </DialogContent>

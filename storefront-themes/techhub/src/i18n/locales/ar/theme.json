@@ -25,7 +25,8 @@
         "warranty": {
           "title": "ضمان سنة كاملة",
           "subtitle": "جميع منتجاتنا مصنوعة بعناية"
-        }
+        },
+        "default_title": "شحن مجاني"
       },
       "promo_banner": {
         "pc_gaming": {
@@ -42,7 +43,9 @@
           "title": "فأرة الألعاب",
           "subtitle": "خفيفة الوزن للغاية",
           "cta": "تسوّق الآن"
-        }
+        },
+        "default_title": "عنوان العرض",
+        "default_cta": "تسوّق الآن"
       },
       "tabbed_products": {
         "title": "المنتجات المميّزة",
@@ -57,7 +60,14 @@
         "title": "اعثر على ما تحتاجه بسرعة",
         "view_all": "جميع الفئات",
         "featured_in": "مميّز في",
-        "browse": "تصفّح"
+        "browse": "تصفّح",
+        "browse_all_products": "تصفّح جميع المنتجات"
+      },
+      "tonmart_feeds": {
+        "featured_heading": "المنتجات المميّزة",
+        "new_arrivals_heading": "الوصول حديثاً",
+        "shop_products_heading": "تسوّق المنتجات",
+        "view_all": "عرض الكل"
       }
     },
     "product_card": {
@@ -70,13 +80,91 @@
       "compare_added": "✓ مقارنة",
       "compare_full": "قائمة المقارنة ممتلئة",
       "hot_badge": "رائج",
-      "pre_order_badge": "طلب مسبق"
+      "pre_order_badge": "طلب مسبق",
+      "compare_remove": "إزالة من المقارنة",
+      "compare_add": "إضافة إلى المقارنة",
+      "toggle_compare": "تبديل المقارنة",
+      "add_to_wishlist": "إضافة إلى قائمة الأمنيات",
+      "quick_view": "عرض سريع"
     },
     "banner": {
       "announcement": {
         "text": "شحن سريع مجاني على الطلبات التي تزيد عن 200 دولار!",
         "cta": "تسوّق الآن"
       }
+    },
+    "products": {
+      "page_title": "جميع المنتجات",
+      "all_categories": "جميع الفئات",
+      "filter_categories": "الفئات",
+      "filter_all_products": "جميع المنتجات",
+      "filter_by": "تصفية حسب",
+      "filter_clear_all": "مسح الكل",
+      "filter_availability": "التوفر",
+      "filter_in_stock": "متوفر",
+      "filter_price": "السعر",
+      "filter_brand": "العلامة التجارية",
+      "sort_by": "ترتيب حسب",
+      "product_count": "{{count}} منتج",
+      "no_results_filters": "لا توجد منتجات تطابق الفلاتر.",
+      "clear_all_filters": "مسح جميع الفلاتر",
+      "prev": "→ السابق",
+      "next_arrow": "التالي ←",
+      "price_min_label": "الأدنى",
+      "price_max_label": "الأعلى",
+      "search_placeholder": "ابحث عن منتجات...",
+      "sort_newest": "الأحدث",
+      "sort_price_asc": "السعر: من الأدنى إلى الأعلى",
+      "sort_price_desc": "السعر: من الأعلى إلى الأدنى",
+      "sort_popular": "الأكثر شعبية",
+      "no_results": "لا توجد منتجات",
+      "clear_search": "مسح البحث",
+      "previous": "السابق",
+      "next": "التالي",
+      "page_of": "صفحة {{page}} من {{total}}"
+    },
+    "category": {
+      "not_found_heading": "الفئة غير موجودة",
+      "browse_all": "تصفّح جميع المنتجات",
+      "breadcrumb_home": "الرئيسية",
+      "sort_newest": "الأحدث",
+      "sort_price_asc": "السعر: من الأدنى إلى الأعلى",
+      "sort_price_desc": "السعر: من الأعلى إلى الأدنى",
+      "no_products": "لا توجد منتجات في هذه الفئة بعد",
+      "previous": "السابق",
+      "next": "التالي",
+      "page_of": "صفحة {{page}} من {{total}}"
+    },
+    "product_detail": {
+      "breadcrumb_home": "الرئيسية",
+      "breadcrumb_products": "المنتجات",
+      "product_not_found": "المنتج غير موجود",
+      "back_to_shop": "العودة إلى المتجر",
+      "select_option": "اختر خياراً لمعرفة التوفر",
+      "in_stock": "متوفر ({{count}} متاح)",
+      "preorder": "طلب مسبق",
+      "preorder_ships": "طلب مسبق — يُشحن {{date}}",
+      "only_left": "{{count}} فقط متبقية",
+      "sold_out": "نفد المخزون",
+      "out_of_stock": "غير متوفر",
+      "description_heading": "الوصف"
+    },
+    "cart": {
+      "loading": "جاري تحميل السلة...",
+      "empty_heading": "سلتك فارغة",
+      "empty_subtext": "يبدو أنك لم تضف أي شيء بعد",
+      "start_shopping": "ابدأ التسوق",
+      "page_heading": "سلة التسوق",
+      "clear_cart": "إفراغ السلة",
+      "subtotal": "الإجمالي الفرعي ({{count}} عنصر)",
+      "shipping_label": "الشحن",
+      "shipping_value": "يُحسب عند إتمام الشراء",
+      "tax_label": "الضريبة",
+      "tax_value": "تُحسب عند إتمام الشراء",
+      "total": "الإجمالي",
+      "checkout_button": "المتابعة إلى الدفع",
+      "continue_shopping": "متابعة التسوق",
+      "remove": "إزالة"
     },
     "footer": {
       "tagline": "وجهتك للحصول على أحدث التقنيات والأجهزة. جودة مختارة وشحن سريع وضمان سنة كاملة.",
@@ -113,7 +201,54 @@
       "search_placeholder": "أدخل كلماتك البحثية...",
       "account": "الحساب",
       "hello_login": "مرحباً، سجّل الدخول",
-      "call_us": "اتصل بنا:"
+      "call_us": "اتصل بنا:",
+      "buy_now": "اشترِ الآن",
+      "share": "مشاركة",
+      "compare": "مقارنة",
+      "comparing": "قيد المقارنة",
+      "ask_question": "اطرح سؤالاً",
+      "faq": "الأسئلة الشائعة",
+      "view_all_reviews": "عرض جميع التقييمات ({{count}})"
+    },
+    "product_detail_extras": {
+      "tab_description": "الوصف",
+      "tab_specifications": "المواصفات",
+      "tab_delivery": "التسليم والشحن",
+      "tab_reviews": "آراء العملاء",
+      "no_description": "لا يوجد وصف متاح.",
+      "delivery_policy_heading": "سياسة التسليم",
+      "delivery_policy_line1": "الطلبات المقدَّمة قبل الساعة 3 مساءً تُشحن في نفس يوم العمل.",
+      "delivery_policy_line2": "التسليم العادي: 3–5 أيام عمل.",
+      "delivery_policy_line3": "التسليم السريع: 1–2 يوم عمل (بتكلفة إضافية).",
+      "shipping_return_heading": "الشحن والإرجاع",
+      "shipping_return_line1": "شحن مجاني على الطلبات التي تزيد عن 200 دولار.",
+      "shipping_return_line2": "نافذة إرجاع لمدة 30 يوماً — يجب أن تكون المنتجات غير مستخدمة وفي تغليفها الأصلي.",
+      "shipping_return_line3": "تواصل مع الدعم لبدء إجراءات الإرجاع.",
+      "based_on_reviews": "بناءً على {{count}} مراجعة",
+      "based_on_reviews_plural": "بناءً على {{count}} مراجعة",
+      "write_review": "اكتب مراجعة",
+      "sign_in_to_review": "سجّل الدخول لكتابة مراجعة",
+      "your_rating": "تقييمك",
+      "title_optional": "العنوان (اختياري)",
+      "title_placeholder": "لخّص تجربتك في كلمات قليلة",
+      "your_review": "مراجعتك",
+      "review_placeholder": "ما الذي أعجبك أو لم يعجبك؟",
+      "submit_review": "إرسال المراجعة",
+      "submitting": "جاري الإرسال…",
+      "cancel": "إلغاء",
+      "no_reviews": "لا توجد مراجعات بعد. كن أول من يشارك رأيه.",
+      "verified": "موثّق",
+      "anonymous": "مجهول",
+      "this_item": "هذا المنتج",
+      "choose_options_link": "اختر الخيارات",
+      "frequently_bought_heading": "يُشترى معه أيضاً",
+      "frequently_bought_subtitle": "العملاء كثيراً ما يقترنون هذه المنتجات معاً.",
+      "addon_total_label": "إجمالي الإضافات",
+      "extras_selected": "{{selected}} من أصل {{total}} إضافات محددة",
+      "add_selected_to_cart": "إضافة المحدد إلى السلة",
+      "adding_bundle": "جاري الإضافة…",
+      "similar_products_heading": "منتجات مشابهة",
+      "similar_products_subtitle": "المزيد من هذه المجموعة قد يعجبك."
     }
   }
 }

@@ -16,7 +16,8 @@
       "featured_products": {
         "eyebrow": "Handpicked",
         "title": "Editor's Picks",
-        "view_all": "View All"
+        "view_all": "View All",
+        "add_to_cart": "Add to Cart"
       },
       "philosophy": {
         "eyebrow": "Our Philosophy",

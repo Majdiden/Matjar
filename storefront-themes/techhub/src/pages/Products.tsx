@@ -17,15 +17,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useProducts, useCategories } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { TonmartProductCard } from '../components/TonmartProductCard';
+import { useTranslation } from 'react-i18next';
 
 type ViewMode = 'grid' | 'list';
-
-const SORT_OPTIONS: Array<{ value: string; label: string }> = [
-  { value: 'newest', label: 'Date, new to old' },
-  { value: 'price_asc', label: 'Price, low to high' },
-  { value: 'price_desc', label: 'Price, high to low' },
-  { value: 'popular', label: 'Best selling' },
-];
 
 const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -54,6 +48,15 @@ const Products: React.FC = () => {
     ...(brandParam && { brand: brandParam }),
     ...(inStockParam === '1' && { inStock: 1 }),
   });
+
+  const { t } = useTranslation(['theme']);
+
+  const SORT_OPTIONS: Array<{ value: string; label: string }> = [
+    { value: 'newest', label: t('theme.products.sort_newest') },
+    { value: 'price_asc', label: t('theme.products.sort_price_asc') },
+    { value: 'price_desc', label: t('theme.products.sort_price_desc') },
+    { value: 'popular', label: t('theme.products.sort_popular') },
+  ];
 
   const [view, setView] = useState<ViewMode>('grid');
   const [minPriceInput, setMinPriceInput] = useState(minPriceParam);
@@ -88,7 +91,7 @@ const Products: React.FC = () => {
   const activeFilters: Array<{ key: string; label: string }> = [];
   if (matchedCategory) activeFilters.push({ key: 'category', label: matchedCategory.name });
   if (brandParam) activeFilters.push({ key: 'brand', label: brandParam });
-  if (inStockParam === '1') activeFilters.push({ key: 'inStock', label: 'In stock' });
+  if (inStockParam === '1') activeFilters.push({ key: 'inStock', label: t('theme.products.filter_in_stock') });
   if (minPriceParam || maxPriceParam) {
     activeFilters.push({
       key: 'price',
@@ -122,12 +125,12 @@ const Products: React.FC = () => {
             className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-2"
             style={{ color: 'var(--color-foreground)' }}
           >
-            {matchedCategory?.name || 'Products'}
+            {matchedCategory?.name || t('theme.products.page_title')}
           </h1>
           <nav className="text-xs" style={{ color: 'var(--color-muted)' }}>
-            <Link to="/" className="hover:opacity-70">Home</Link>
+            <Link to="/" className="hover:opacity-70">{t('theme.product_detail.breadcrumb_home')}</Link>
             <span className="mx-2">•</span>
-            <span>{matchedCategory?.name || 'Products'}</span>
+            <span>{matchedCategory?.name || t('theme.products.page_title')}</span>
           </nav>
         </div>
       </div>
@@ -136,18 +139,18 @@ const Products: React.FC = () => {
         {/* ── Left sidebar ──────────────────────────────────────── */}
         <aside className="space-y-6">
           {/* Categories */}
-          <FilterCard title="Categories">
+          <FilterCard title={t('theme.products.filter_categories')}>
             <ul className="space-y-2">
               <li>
                 <button
                   onClick={() => updateParam('category', '')}
-                  className="text-[13px] text-left w-full hover:opacity-80 transition"
+                  className="text-[13px] text-start w-full hover:opacity-80 transition"
                   style={{
                     color: !categorySlug ? 'var(--color-primary)' : 'var(--color-foreground)',
                     fontWeight: !categorySlug ? 700 : 400,
                   }}
                 >
-                  All Products
+                  {t('theme.products.filter_all_products')}
                 </button>
               </li>
               {categories.map((cat) => {
@@ -173,14 +176,14 @@ const Products: React.FC = () => {
           {/* Active filters */}
           {activeFilters.length > 0 && (
             <FilterCard
-              title="Filter by"
+              title={t('theme.products.filter_by')}
               action={
                 <button
                   onClick={clearAll}
                   className="text-[10px] font-bold uppercase tracking-wider hover:opacity-80"
                   style={{ color: 'var(--color-primary)' }}
                 >
-                  Clear all
+                  {t('theme.products.filter_clear_all')}
                 </button>
               }
             >
@@ -204,7 +207,7 @@ const Products: React.FC = () => {
           )}
 
           {/* Availability */}
-          <FilterCard title="Availability">
+          <FilterCard title={t('theme.products.filter_availability')}>
             <label className="flex items-center gap-2 text-[13px] cursor-pointer" style={{ color: 'var(--color-foreground)' }}>
               <input
                 type="checkbox"
@@ -212,16 +215,16 @@ const Products: React.FC = () => {
                 onChange={(e) => updateParam('inStock', e.target.checked ? '1' : '')}
                 className="rounded"
               />
-              In stock
+              {t('theme.products.filter_in_stock')}
             </label>
           </FilterCard>
 
           {/* Price range */}
-          <FilterCard title="Price">
+          <FilterCard title={t('theme.products.filter_price')}>
             <div className="flex items-center gap-2">
               <div className="flex-1">
                 <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--color-muted)' }}>
-                  Min
+                  {t('theme.products.price_min_label')}
                 </div>
                 <input
                   type="number"
@@ -235,7 +238,7 @@ const Products: React.FC = () => {
               </div>
               <div className="flex-1">
                 <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--color-muted)' }}>
-                  Max
+                  {t('theme.products.price_max_label')}
                 </div>
                 <input
                   type="number"
@@ -252,7 +255,7 @@ const Products: React.FC = () => {
 
           {/* Brand facet */}
           {brandFacets.length > 0 && (
-            <FilterCard title="Brand">
+            <FilterCard title={t('theme.products.filter_brand')}>
               <ul className="space-y-2 max-h-56 overflow-y-auto pr-1">
                 {brandFacets.map(([brand, count]) => (
                   <li key={brand}>
@@ -283,11 +286,11 @@ const Products: React.FC = () => {
             style={{ borderColor: 'var(--color-border)' }}
           >
             <p className="text-xs" style={{ color: 'var(--color-muted)' }}>
-              {pagination?.total ?? products.length} products
+              {t('theme.products.product_count', { count: pagination?.total ?? products.length })}
             </p>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-muted)' }}>
-                <span className="uppercase tracking-wider font-semibold">Sort by</span>
+                <span className="uppercase tracking-wider font-semibold">{t('theme.products.sort_by')}</span>
                 <select
                   value={sort}
                   onChange={(e) => updateParam('sort', e.target.value)}
@@ -342,13 +345,13 @@ const Products: React.FC = () => {
               className="py-24 text-center rounded-lg border"
               style={{ borderColor: 'var(--color-border)', color: 'var(--color-muted)' }}
             >
-              <p className="text-sm mb-4">No products match your filters.</p>
+              <p className="text-sm mb-4">{t('theme.products.no_results_filters')}</p>
               <button
                 onClick={clearAll}
                 className="text-xs font-bold uppercase tracking-wider underline"
                 style={{ color: 'var(--color-primary)' }}
               >
-                Clear all filters
+                {t('theme.products.clear_all_filters')}
               </button>
             </div>
           ) : view === 'grid' ? (
@@ -411,7 +414,7 @@ const Products: React.FC = () => {
                 className="px-4 py-2 text-xs font-bold uppercase tracking-wider border rounded-full disabled:opacity-30 transition hover:opacity-80"
                 style={{ borderColor: 'var(--color-border)', color: 'var(--color-foreground)' }}
               >
-                ← Prev
+                {t('theme.products.prev')}
               </button>
               {Array.from({ length: pagination.pages }).slice(0, 7).map((_, i) => {
                 const n = i + 1;
@@ -437,7 +440,7 @@ const Products: React.FC = () => {
                 className="px-4 py-2 text-xs font-bold uppercase tracking-wider border rounded-full disabled:opacity-30 transition hover:opacity-80"
                 style={{ borderColor: 'var(--color-border)', color: 'var(--color-foreground)' }}
               >
-                Next →
+                {t('theme.products.next_arrow')}
               </button>
             </div>
           )}

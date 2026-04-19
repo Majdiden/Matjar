@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@shared/components/sections';
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
@@ -29,6 +30,7 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Power hero ───────────────────────────────────────────────────
 
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   return (
     <section className="relative overflow-hidden bg-black text-white">
@@ -78,9 +80,9 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
           {/* Stats */}
           <div className="mt-12 grid grid-cols-3 gap-6 max-w-md border-t border-white/10 pt-6">
             {[
-              ['500+', 'PRODUCTS'],
-              ['50K+', 'CUSTOMERS'],
-              ['100%', 'AUTHENTIC'],
+              ['500+', t('theme.section.nutreko-hero.stat_products')],
+              ['50K+', t('theme.section.nutreko-hero.stat_customers')],
+              ['100%', t('theme.section.nutreko-hero.stat_authentic')],
             ].map(([n, l]) => (
               <div key={l}>
                 <div className="font-display text-3xl" style={{ fontFamily: 'var(--font-family-heading)', color: LIME }}>{n}</div>
@@ -98,7 +100,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
               <img src="https://placehold.co/800x800/0a0a0a/a3e635?text=SUPPLEMENT" alt="" className="w-full h-full object-contain p-8" />
             )}
             <div className="absolute top-6 right-6 w-24 h-24 rounded-full flex items-center justify-center text-black font-black text-xs tracking-widest uppercase text-center" style={{ backgroundColor: LIME }}>
-              NEW<br />ARRIVAL
+              {t('theme.section.nutreko-hero.badge')}
             </div>
           </div>
         </div>
@@ -153,6 +155,7 @@ const GuaranteeSection: React.FC<SectionComponentProps> = ({ section }) => {
 // ─── Category strip ───────────────────────────────────────────────
 
 const CategoryStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
@@ -193,7 +196,7 @@ const CategoryStripSection: React.FC<SectionComponentProps> = ({ id, section }) 
               <div className="font-black text-sm tracking-wider uppercase text-center" style={headingFont}>
                 {bs.title}
               </div>
-              <div className="text-[10px] tracking-widest mt-1 opacity-60">SHOP →</div>
+              <div className="text-[10px] tracking-widest mt-1 opacity-60">{t('theme.section.nutreko-category-strip.shop_label')}</div>
             </Link>
           );
         })}
@@ -205,6 +208,7 @@ const CategoryStripSection: React.FC<SectionComponentProps> = ({ id, section }) 
 // ─── Product grid ─────────────────────────────────────────────────
 
 const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   const limit = Number(s.product_limit) || 8;
   const source = (s.source as string) || 'featured';
@@ -228,7 +232,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           className="text-[11px] tracking-[0.22em] uppercase font-black border-b-2 pb-1 hover:opacity-60 transition self-start md:self-auto"
           style={{ borderColor: LIME }}
         >
-          VIEW ALL →
+          {t('theme.section.nutreko-product-grid.view_all')}
         </Link>
       </div>
 

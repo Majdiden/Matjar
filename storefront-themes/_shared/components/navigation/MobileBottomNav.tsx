@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useCart } from '../../contexts/CartContext';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
@@ -7,6 +8,8 @@ import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 export const SLOT_KEY = 'mobileBottomNav';
 
 interface NavItem {
+  /** Stable identifier (not translated) used for active-state and click detection */
+  id?: string;
   label: string;
   href: string;
   icon: React.ReactNode;
@@ -23,13 +26,15 @@ interface MobileBottomNavProps {
 export function MobileBottomNav(props: MobileBottomNavProps) {
   const Override = useThemeSlot<React.ComponentType<MobileBottomNavProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
+  const { t } = useTranslation('nav');
   const { items, className, onCartClick, onSearchClick } = props;
   const location = useLocation();
   const { cart } = useCart();
 
   const defaultItems: NavItem[] = [
     {
-      label: 'Home',
+      id: 'home',
+      label: t('mobile_bottom.home'),
       href: '/',
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -38,7 +43,8 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       ),
     },
     {
-      label: 'Search',
+      id: 'search',
+      label: t('mobile_bottom.search'),
       href: '/search',
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -47,7 +53,8 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       ),
     },
     {
-      label: 'Cart',
+      id: 'cart',
+      label: t('mobile_bottom.cart'),
       href: '/cart',
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -57,7 +64,8 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       badge: cart?.itemCount || 0,
     },
     {
-      label: 'Account',
+      id: 'account',
+      label: t('mobile_bottom.account'),
       href: '/account',
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -71,15 +79,16 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
 
   return (
     <nav className={cn(
-      'fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t md:hidden',
+      'fixed bottom-0 start-0 end-0 z-40 bg-white dark:bg-gray-900 border-t md:hidden',
       'safe-area-bottom',
       className
     )}>
       <div className="flex items-center justify-around py-2">
         {navItems.map(item => {
           const isActive = location.pathname === item.href;
-          const isCart = item.label === 'Cart';
-          const isSearch = item.label === 'Search';
+          // Use stable `id` if provided; otherwise fall back to href-based detection
+          const isCart = item.id === 'cart' || item.href === '/cart';
+          const isSearch = item.id === 'search' || item.href === '/search';
 
           const handleClick = (e: React.MouseEvent) => {
             if (isCart && onCartClick) {
@@ -94,7 +103,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
 
           return (
             <Link
-              key={item.label}
+              key={item.href}
               to={item.href}
               onClick={handleClick}
               className={cn(
@@ -105,7 +114,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
               <div className="relative">
                 {item.icon}
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {item.badge > 99 ? '99+' : item.badge}
                   </span>
                 )}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
 import { Breadcrumbs } from '@shared/components/navigation/Breadcrumbs';
@@ -20,6 +21,7 @@ const Products: React.FC = () => {
   const search = searchParams.get('search') || '';
   const category = searchParams.get('category') || '';
 
+  const { t } = useTranslation('theme');
   const { products, pagination, loading } = useProducts({
     page, sort, search, limit: 12,
     ...(category && { category }),
@@ -45,13 +47,13 @@ const Products: React.FC = () => {
   const FilterContent = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="font-semibold text-sm mb-3">Categories</h3>
+        <h3 className="font-semibold text-sm mb-3">{t('theme.products.filter_categories')}</h3>
         <div className="space-y-1">
           <button
             onClick={() => updateParam('category', '')}
             className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition ${!category ? 'bg-gray-100 font-medium' : 'hover:bg-gray-50 text-gray-600'}`}
           >
-            All Products
+            {t('theme.products.filter_all')}
           </button>
           {categories.map(cat => (
             <button
@@ -69,17 +71,17 @@ const Products: React.FC = () => {
       </div>
 
       <div>
-        <h3 className="font-semibold text-sm mb-3">Sort By</h3>
+        <h3 className="font-semibold text-sm mb-3">{t('theme.products.filter_sort_by')}</h3>
         <select
           value={sort}
           onChange={(e) => updateParam('sort', e.target.value)}
           className="w-full px-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="newest">Newest</option>
-          <option value="price_asc">Price: Low to High</option>
-          <option value="price_desc">Price: High to Low</option>
-          <option value="popular">Most Popular</option>
-          <option value="rating">Top Rated</option>
+          <option value="newest">{t('theme.products.sort_newest')}</option>
+          <option value="price_asc">{t('theme.products.sort_price_asc')}</option>
+          <option value="price_desc">{t('theme.products.sort_price_desc')}</option>
+          <option value="popular">{t('theme.products.sort_popular')}</option>
+          <option value="rating">{t('theme.products.sort_top_rated')}</option>
         </select>
       </div>
     </div>
@@ -116,11 +118,11 @@ const Products: React.FC = () => {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
-                Filters
+                {t('theme.products.filter_button')}
               </button>
 
               <h1 className="text-xl font-bold">
-                {activeCategory?.name || 'All Products'}
+                {activeCategory?.name || t('theme.products.title_all')}
               </h1>
               {pagination && (
                 <span className="text-sm text-gray-500">({pagination.total} items)</span>
@@ -134,10 +136,10 @@ const Products: React.FC = () => {
                 onChange={(e) => updateParam('sort', e.target.value)}
                 className="hidden md:block px-3 py-2 border rounded-lg text-sm bg-white focus:outline-none"
               >
-                <option value="newest">Newest</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="popular">Most Popular</option>
+                <option value="newest">{t('theme.products.sort_newest')}</option>
+                <option value="price_asc">{t('theme.products.sort_price_asc')}</option>
+                <option value="price_desc">{t('theme.products.sort_price_desc')}</option>
+                <option value="popular">{t('theme.products.sort_popular')}</option>
               </select>
 
               <GridListToggle view={view} onChange={setView} />
@@ -155,7 +157,7 @@ const Products: React.FC = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder={t('theme.products.search_placeholder')}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -169,14 +171,14 @@ const Products: React.FC = () => {
           ) : products.length === 0 ? (
             <div className="text-center py-20">
               <div className="text-5xl mb-4">&#128269;</div>
-              <p className="text-gray-500 text-lg mb-2">No products found</p>
+              <p className="text-gray-500 text-lg mb-2">{t('theme.products.no_products')}</p>
               {search && (
                 <button
                   onClick={() => { setSearchInput(''); updateParam('search', ''); }}
                   className="text-sm underline"
                   style={{ color: 'var(--color-primary, #2563eb)' }}
                 >
-                  Clear search
+                  {t('theme.products.clear_search')}
                 </button>
               )}
             </div>
@@ -224,7 +226,7 @@ const Products: React.FC = () => {
 
       {/* Mobile Filter Drawer */}
       <Drawer isOpen={filterOpen} onClose={() => setFilterOpen(false)} side="left" width="max-w-xs">
-        <Drawer.Header onClose={() => setFilterOpen(false)}>Filters</Drawer.Header>
+        <Drawer.Header onClose={() => setFilterOpen(false)}>{t('theme.products.filter_button')}</Drawer.Header>
         <Drawer.Body>
           <FilterContent />
         </Drawer.Body>

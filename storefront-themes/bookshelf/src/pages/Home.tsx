@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
@@ -26,6 +27,8 @@ const GENRE_COLORS = [
 ];
 
 const Home: React.FC = () => {
+  const { t } = useTranslation(['theme', 'common']);
+
   // Section settings from manifest + tenant overrides
   const hero = useThemeSettings('hero');
   const genres = useThemeSettings('genres');
@@ -73,11 +76,11 @@ const Home: React.FC = () => {
         }}
       >
         <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="absolute top-10 left-10 w-24 h-24" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+          <svg className="absolute top-10 start-10 w-24 h-24" viewBox="0 0 24 24" fill="white" aria-hidden="true">
             <path d="M4 19.5A2.5 2.5 0 016.5 17H20V2H6.5A2.5 2.5 0 004 4.5v15z" />
             <path d="M6.5 17H20v2H6.5a.5.5 0 010-1z" opacity="0.5" />
           </svg>
-          <svg className="absolute bottom-10 right-10 w-24 h-24" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+          <svg className="absolute bottom-10 end-10 w-24 h-24" viewBox="0 0 24 24" fill="white" aria-hidden="true">
             <path d="M4 19.5A2.5 2.5 0 016.5 17H20V2H6.5A2.5 2.5 0 004 4.5v15z" />
           </svg>
           <svg className="absolute top-1/2 left-1/4 w-16 h-16" viewBox="0 0 24 24" fill="white" aria-hidden="true">
@@ -86,19 +89,19 @@ const Home: React.FC = () => {
         </div>
         <div className="max-w-2xl mx-auto relative z-10">
           <p className="text-violet-200 text-sm mb-4 tracking-wider uppercase">
-            {hero.eyebrow_text || 'Curated reads for curious minds'}
+            {hero.eyebrow_text || t('theme.section.hero.eyebrow')}
           </p>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            {hero.heading_line1 || 'Discover Your'}<br />{hero.heading_line2 || 'Next Read'}
+            {hero.heading_line1 || t('theme.section.hero.heading_line1')}<br />{hero.heading_line2 || t('theme.section.hero.heading_line2')}
           </h1>
           <p className="text-violet-200 text-lg mb-8 max-w-md mx-auto">
-            {hero.subheading || 'Hand-picked books across every genre, delivered to your door.'}
+            {hero.subheading || t('theme.section.hero.subheading')}
           </p>
           <Link
             to={hero.button_url || '/products'}
             className="inline-block bg-white text-[#7c3aed] px-8 py-3 rounded-lg font-semibold hover:bg-violet-50 transition shadow-lg"
           >
-            {hero.button_text || 'Browse Collection'}
+            {hero.button_text || t('theme.section.hero.cta')}
           </Link>
         </div>
       </section>
@@ -113,10 +116,10 @@ const Home: React.FC = () => {
         }`}
       >
         <h2 className="text-2xl font-bold text-center mb-2">
-          {genres.heading || 'Browse by Genre'}
+          {genres.heading || t('theme.section.genres.heading')}
         </h2>
         <p className="text-gray-500 text-center mb-10 text-sm">
-          {genres.subheading || 'Find your next adventure in any category'}
+          {genres.subheading || t('theme.section.genres.subheading')}
         </p>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {(categories.length > 0
@@ -161,16 +164,16 @@ const Home: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <h2 className="text-2xl font-bold">{staffPicks.heading || 'Staff Picks'}</h2>
+              <h2 className="text-2xl font-bold">{staffPicks.heading || t('theme.section.staff_picks.heading')}</h2>
               <p className="text-gray-500 text-sm mt-1">
-                {staffPicks.subheading || 'Handpicked by our team of bibliophiles'}
+                {staffPicks.subheading || t('theme.section.staff_picks.subheading')}
               </p>
             </div>
             <Link
               to={staffPicks.view_all_url || '/products'}
               className="text-[#7c3aed] font-semibold text-sm hover:underline"
             >
-              {staffPicks.view_all_text || 'See All'} &rarr;
+              {staffPicks.view_all_text || t('theme.section.staff_picks.see_all')} &rarr;
             </Link>
           </div>
           {loading ? (
@@ -188,7 +191,7 @@ const Home: React.FC = () => {
                     <ProductCard.Title />
                     {staffPicks.show_rating !== false && <ProductCard.Rating />}
                     <ProductCard.Price showCompareAt />
-                    <ProductCard.Actions addToCartText={staffPicks.add_to_cart_text || 'Add to Shelf'} />
+                    <ProductCard.Actions addToCartText={staffPicks.add_to_cart_text || t('theme.section.staff_picks.add_to_shelf')} />
                   </ProductCard.Body>
                 </ProductCard>
               ))}
@@ -216,9 +219,9 @@ const Home: React.FC = () => {
             <polyline points="10 9 9 9 8 9" />
           </svg>
           <blockquote className="text-2xl italic text-gray-700 mb-4 leading-relaxed">
-            &ldquo;{quote.quote_text || 'A reader lives a thousand lives before he dies. The man who never reads lives only one.'}&rdquo;
+            &ldquo;{quote.quote_text || t('theme.section.reading_quote.text')}&rdquo;
           </blockquote>
-          <p className="text-sm text-gray-400 font-medium">&mdash; {quote.quote_author || 'George R.R. Martin'}</p>
+          <p className="text-sm text-gray-400 font-medium">&mdash; {quote.quote_author || t('theme.section.reading_quote.author')}</p>
         </div>
       </section>
       )}
@@ -231,9 +234,9 @@ const Home: React.FC = () => {
           bestsellersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
-        <h2 className="text-2xl font-bold mb-2">{bestsellers.heading || 'Bestsellers'}</h2>
+        <h2 className="text-2xl font-bold mb-2">{bestsellers.heading || t('theme.section.bestsellers.heading')}</h2>
         <p className="text-gray-500 text-sm mb-8">
-          {bestsellers.subheading || 'The books everyone is reading right now'}
+          {bestsellers.subheading || t('theme.section.bestsellers.subheading')}
         </p>
         {loading ? (
           <div className="flex gap-4 overflow-hidden">
@@ -255,7 +258,7 @@ const Home: React.FC = () => {
                 <ProductCard.Body>
                   <ProductCard.Title />
                   <ProductCard.Price showCompareAt />
-                  <ProductCard.Actions addToCartText={bestsellers.add_to_cart_text || 'Add'} />
+                  <ProductCard.Actions addToCartText={bestsellers.add_to_cart_text || t('theme.section.bestsellers.add')} />
                 </ProductCard.Body>
               </ProductCard>
             ))}
@@ -277,19 +280,19 @@ const Home: React.FC = () => {
       >
         <div className="max-w-2xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
-            {newsletter.heading || 'Start Your Reading List'}
+            {newsletter.heading || t('theme.section.newsletter.heading')}
           </h2>
           <p className="text-violet-200 mb-8">
-            {newsletter.subheading || 'Sign up for curated recommendations, exclusive deals, and early access to new arrivals.'}
+            {newsletter.subheading || t('theme.section.newsletter.subheading')}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
             <input
               type="email"
-              placeholder={newsletter.placeholder || 'your@email.com'}
+              placeholder={newsletter.placeholder || t('theme.section.newsletter.placeholder')}
               className="flex-1 px-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-white/30"
             />
             <button className="bg-white text-[#7c3aed] px-6 py-3 rounded-lg font-semibold hover:bg-violet-50 transition">
-              {newsletter.button_text || 'Subscribe'}
+              {newsletter.button_text || t('theme.section.newsletter.button')}
             </button>
           </div>
         </div>

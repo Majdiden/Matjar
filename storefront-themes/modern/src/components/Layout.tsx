@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
@@ -9,6 +10,7 @@ import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@shared/components/CartDrawer';
 
 const Layout: React.FC = () => {
+  const { t } = useTranslation('theme');
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
@@ -18,9 +20,9 @@ const Layout: React.FC = () => {
     <div className="min-h-screen flex flex-col pb-16 md:pb-0">
       {/* Announcement Bar */}
       <AnnouncementBar
-        message="Free shipping on orders over $50"
+        message={t('theme.announcement.bar_text')}
         href="/products"
-        linkText="Shop Now"
+        linkText={t('theme.announcement.bar_cta')}
       />
 
       {/* Header */}
@@ -40,8 +42,8 @@ const Layout: React.FC = () => {
 
             {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-1">
-              <Link to="/" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition">Home</Link>
-              <Link to="/products" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition">Shop All</Link>
+              <Link to="/" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition">{t('theme.nav.home')}</Link>
+              <Link to="/products" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition">{t('theme.nav.shop_all')}</Link>
               {categories.slice(0, 5).map(cat => (
                 <Link
                   key={cat._id}
@@ -101,8 +103,8 @@ const Layout: React.FC = () => {
           {/* Mobile Nav */}
           {mobileMenuOpen && (
             <nav className="lg:hidden pb-4 border-t pt-3 space-y-1 animate-in slide-in-from-top duration-200">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">Home</Link>
-              <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">Shop All</Link>
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">{t('theme.nav.home')}</Link>
+              <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50">{t('theme.nav.shop_all')}</Link>
               {categories.slice(0, 6).map(cat => (
                 <Link
                   key={cat._id}
@@ -129,7 +131,7 @@ const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-white font-bold text-lg mb-4">{store?.name || 'Store'}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{store?.description || 'Your one-stop shop for quality products.'}</p>
+              <p className="text-sm text-gray-400 leading-relaxed">{store?.description || t('theme.footer.tagline')}</p>
               {store?.socialLinks && (
                 <div className="flex gap-3 mt-4">
                   {Object.entries(store.socialLinks).map(([platform, url]) => (
@@ -147,9 +149,9 @@ const Layout: React.FC = () => {
               )}
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">Shop</h4>
+              <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_shop')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/products" className="hover:text-white transition">All Products</Link></li>
+                <li><Link to="/products" className="hover:text-white transition">{t('theme.footer.item_all_products')}</Link></li>
                 {categories.slice(0, 4).map(cat => (
                   <li key={cat._id}>
                     <Link to={`/categories/${cat.slug}`} className="hover:text-white transition">{cat.name}</Link>
@@ -158,21 +160,21 @@ const Layout: React.FC = () => {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">Customer Service</h4>
+              <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_customer_service')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/contact" className="hover:text-white transition">Contact Us</Link></li>
-                <li><span className="hover:text-white cursor-pointer">Shipping Policy</span></li>
-                <li><span className="hover:text-white cursor-pointer">Returns & Exchanges</span></li>
-                <li><span className="hover:text-white cursor-pointer">FAQ</span></li>
+                <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.item_contact_us')}</Link></li>
+                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.item_shipping_policy')}</span></li>
+                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.item_returns_exchanges')}</span></li>
+                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.item_faq')}</span></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">Newsletter</h4>
-              <p className="text-sm text-gray-400 mb-3">Get the latest deals and updates.</p>
+              <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_newsletter')}</h4>
+              <p className="text-sm text-gray-400 mb-3">{t('theme.footer.newsletter_desc')}</p>
               <form onSubmit={e => e.preventDefault()} className="flex gap-2">
                 <input
                   type="email"
-                  placeholder="Email address"
+                  placeholder={t('theme.footer.newsletter_email_placeholder')}
                   className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
                 />
                 <button
@@ -180,16 +182,16 @@ const Layout: React.FC = () => {
                   className="px-4 py-2 rounded-lg text-sm font-medium text-white transition hover:opacity-90"
                   style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
                 >
-                  Join
+                  {t('theme.footer.newsletter_join')}
                 </button>
               </form>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-            <span>&copy; {new Date().getFullYear()} {store?.name || 'Store'}. All rights reserved.</span>
+            <span>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), brand: store?.name || 'Store' })}</span>
             <div className="flex gap-4">
-              <span className="hover:text-gray-300 cursor-pointer">Privacy Policy</span>
-              <span className="hover:text-gray-300 cursor-pointer">Terms of Service</span>
+              <span className="hover:text-gray-300 cursor-pointer">{t('theme.footer.privacy_policy')}</span>
+              <span className="hover:text-gray-300 cursor-pointer">{t('theme.footer.terms_of_service')}</span>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
@@ -10,6 +11,7 @@ import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@shared/components/CartDrawer';
 
 const Layout: React.FC = () => {
+  const { t } = useTranslation('theme');
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
@@ -18,7 +20,8 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#fffbf0]">
       <AnnouncementBar
-        message="Free shipping on orders over $40! Plus free gift wrapping on every order"
+        message={t('theme.announcement.message')}
+        linkText={t('theme.announcement.link_text')}
         className="bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-900 text-xs text-center py-1.5 font-bold"
       />
 
@@ -44,7 +47,7 @@ const Layout: React.FC = () => {
 
             <nav className="hidden md:flex items-center gap-5">
               <Link to="/products" className="text-sm font-bold text-gray-600 hover:text-[#ec4899] transition">
-                All Toys
+                {t('theme.nav.all_toys')}
               </Link>
               {categories.slice(0, 4).map(cat => (
                 <Link
@@ -101,13 +104,13 @@ const Layout: React.FC = () => {
                 {store?.name || 'KidsWorld'} <span className="text-[#fbbf24]">★</span>
               </h3>
               <p className="text-sm text-white/80 leading-relaxed">
-                Making childhood magical, one toy at a time. Safe, fun, and educational toys for every age.
+                {t('theme.footer.tagline')}
               </p>
             </div>
             <div>
-              <h4 className="font-bold mb-3 text-sm uppercase tracking-wider">Shop</h4>
+              <h4 className="font-bold mb-3 text-sm uppercase tracking-wider">{t('theme.footer.col_shop')}</h4>
               <div className="flex flex-col gap-2 text-sm text-white/80">
-                <Link to="/products" className="hover:text-[#fbbf24] transition">All Toys</Link>
+                <Link to="/products" className="hover:text-[#fbbf24] transition">{t('theme.footer.all_toys')}</Link>
                 {categories.slice(0, 3).map(cat => (
                   <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[#fbbf24] transition">
                     {cat.name}
@@ -116,17 +119,17 @@ const Layout: React.FC = () => {
               </div>
             </div>
             <div>
-              <h4 className="font-bold mb-3 text-sm uppercase tracking-wider">Help</h4>
+              <h4 className="font-bold mb-3 text-sm uppercase tracking-wider">{t('theme.footer.col_help')}</h4>
               <div className="flex flex-col gap-2 text-sm text-white/80">
-                <span className="cursor-pointer hover:text-[#fbbf24] transition">About Us</span>
-                <Link to="/contact" className="hover:text-[#fbbf24] transition">Contact</Link>
-                <span className="cursor-pointer hover:text-[#fbbf24] transition">Shipping & Returns</span>
+                <span className="cursor-pointer hover:text-[#fbbf24] transition">{t('theme.footer.about_us')}</span>
+                <Link to="/contact" className="hover:text-[#fbbf24] transition">{t('theme.footer.contact')}</Link>
+                <span className="cursor-pointer hover:text-[#fbbf24] transition">{t('theme.footer.shipping_returns')}</span>
               </div>
             </div>
           </div>
           <div className="border-t border-white/20 pt-6 text-center">
             <p className="text-xs text-white/60">
-              &copy; {new Date().getFullYear()} {store?.name || 'KidsWorld'}. All rights reserved.
+              {t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'KidsWorld' })}
             </p>
           </div>
         </div>
@@ -142,7 +145,7 @@ const Layout: React.FC = () => {
           </h2>
           <nav className="flex flex-col gap-4">
             <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-bold hover:text-[#ec4899]">
-              All Toys
+              {t('theme.nav.all_toys')}
             </Link>
             {categories.map(cat => (
               <Link

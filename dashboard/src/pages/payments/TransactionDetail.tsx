@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -102,6 +103,7 @@ interface ApiErrorLike {
 }
 
 export const TransactionDetail: React.FC = () => {
+  const { t } = useTranslation(['payments', 'common']);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [data, setData] = useState<TransactionPayload | null>(null);
@@ -119,13 +121,13 @@ export const TransactionDetail: React.FC = () => {
         if (!cancelled) setData(payload ?? null);
       } catch (err) {
         const e = err as ApiErrorLike;
-        if (!cancelled) toast.error(e?.message || 'Failed to load transaction');
+        if (!cancelled) toast.error(e?.message || t('payments:transaction.list.not_found'));
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, t]);
 
   const formatCurrency = (amount: number, currency = 'USD') =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount || 0);
@@ -137,8 +139,17 @@ export const TransactionDetail: React.FC = () => {
     return 'outline';
   };
 
-  const statusLabel = (s: string) =>
-    (({ completed: 'Succeeded', succeeded: 'Succeeded', refunded: 'Refunded', partially_refunded: 'Partial Refund', pending: 'Pending', failed: 'Failed' } as Record<string, string>)[s] || s);
+  const statusLabel = (s: string) => {
+    const map: Record<string, string> = {
+      completed: t('payments:transaction.detail.status.succeeded'),
+      succeeded: t('payments:transaction.detail.status.succeeded'),
+      refunded: t('payments:transaction.detail.status.refunded'),
+      partially_refunded: t('payments:transaction.detail.status.partial_refund'),
+      pending: t('payments:transaction.detail.status.pending'),
+      failed: t('payments:transaction.detail.status.failed'),
+    };
+    return map[s] || s;
+  };
 
   if (loading) {
     return (
@@ -156,9 +167,9 @@ export const TransactionDetail: React.FC = () => {
     return (
       <div className="space-y-4">
         <Button variant="outline" onClick={() => navigate('/dashboard/payments')}>
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back
+          <ArrowLeft className="h-4 w-4 mr-2" /> {t('payments:transaction.list.back_action')}
         </Button>
-        <p className="text-muted-foreground">Transaction not found.</p>
+        <p className="text-muted-foreground">{t('payments:transaction.list.not_found')}</p>
       </div>
     );
   }
@@ -188,12 +199,14 @@ export const TransactionDetail: React.FC = () => {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/payments')}>
-            <ArrowLeft className="h-4 w-4 mr-2" /> Transactions
+            <ArrowLeft className="h-4 w-4 mr-2" /> {t('payments:transaction.list.back')}
           </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
               {isRefund ? <ArrowDownLeft className="h-5 w-5 text-destructive" /> : <Receipt className="h-5 w-5" />}
-              {isRefund ? 'Refund' : 'Payment'} {formatCurrency(payment.amount, payment.currency)}
+              {isRefund
+                ? t('payments:transaction.detail.title_refund', { amount: formatCurrency(payment.amount, payment.currency) })
+                : t('payments:transaction.detail.title_payment', { amount: formatCurrency(payment.amount, payment.currency) })}
             </h1>
             <p className="text-sm text-muted-foreground font-mono">
               {payment._id}
@@ -205,7 +218,7 @@ export const TransactionDetail: React.FC = () => {
           {order._id && (
             <Button asChild variant="outline" size="sm">
               <Link to={`/dashboard/orders/${order._id}`}>
-                <ExternalLink className="h-4 w-4 mr-2" /> View order
+                <ExternalLink className="h-4 w-4 mr-2" /> {t('payments:transaction.detail.view_order')}
               </Link>
             </Button>
           )}
@@ -217,7 +230,7 @@ export const TransactionDetail: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <CreditCard className="h-4 w-4" /> Amount
+              <CreditCard className="h-4 w-4" /> {t('payments:transaction.detail.field.amount')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -226,7 +239,9 @@ export const TransactionDetail: React.FC = () => {
             </div>
             {(payment.refundAmount ?? 0) > 0 && (
               <p className="text-xs text-destructive mt-1">
-                -{formatCurrency(payment.refundAmount ?? 0, payment.currency)} refunded
+                {t('payments:transaction.detail.field.refunded', {
+                  amount: formatCurrency(payment.refundAmount ?? 0, payment.currency),
+                })}
               </p>
             )}
           </CardContent>
@@ -235,7 +250,7 @@ export const TransactionDetail: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Building2 className="h-4 w-4" /> Method
+              <Building2 className="h-4 w-4" /> {t('payments:transaction.detail.field.method')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -244,7 +259,7 @@ export const TransactionDetail: React.FC = () => {
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {submittedDetails.providerLabel
-                ? <>via <span className="font-medium">{submittedDetails.providerLabel}</span></>
+                ? <>{t('payments:transaction.detail.field.via', { label: submittedDetails.providerLabel })}</>
                 : <span className="capitalize">{paymentMethodDef?.type || payment.provider}</span>}
             </p>
           </CardContent>
@@ -253,7 +268,7 @@ export const TransactionDetail: React.FC = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Calendar className="h-4 w-4" /> Created
+              <Calendar className="h-4 w-4" /> {t('payments:transaction.detail.field.created')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -262,7 +277,9 @@ export const TransactionDetail: React.FC = () => {
             </div>
             {payment.refundedAt && (
               <p className="text-xs text-muted-foreground mt-1">
-                Refunded: {new Date(payment.refundedAt).toLocaleString()}
+                {t('payments:transaction.detail.field.refunded_at', {
+                  date: new Date(payment.refundedAt).toLocaleString(),
+                })}
               </p>
             )}
           </CardContent>
@@ -276,37 +293,37 @@ export const TransactionDetail: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Hash className="h-4 w-4" /> Transaction details
+                <Hash className="h-4 w-4" /> {t('payments:transaction.detail.section.transaction_details')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <DetailRow label="Transaction ID" value={payment.providerTransactionId} mono />
-              {payment.eventId && <DetailRow label="Event ID" value={payment.eventId} mono />}
-              <DetailRow label="Status" value={statusLabel(payment.status)} />
+              <DetailRow label={t('payments:transaction.detail.field.transaction_id')} value={payment.providerTransactionId} mono />
+              {payment.eventId && <DetailRow label={t('payments:transaction.detail.field.event_id')} value={payment.eventId} mono />}
+              <DetailRow label={t('payments:transaction.detail.field.status')} value={statusLabel(payment.status)} />
               <DetailRow
-                label="Payment method"
+                label={t('payments:transaction.detail.field.payment_method')}
                 value={paymentMethodDef?.label || payment.paymentMethod || '—'}
               />
               {paymentMethodDef?.code && (
-                <DetailRow label="Method code" value={paymentMethodDef.code} mono />
+                <DetailRow label={t('payments:transaction.detail.field.method_code')} value={paymentMethodDef.code} mono />
               )}
               {submittedDetails.providerLabel ? (
-                <DetailRow label="Provider" value={submittedDetails.providerLabel} />
+                <DetailRow label={t('payments:transaction.detail.field.provider')} value={submittedDetails.providerLabel} />
               ) : (
-                <DetailRow label="Provider" value={payment.provider} />
+                <DetailRow label={t('payments:transaction.detail.field.provider')} value={payment.provider} />
               )}
               <DetailRow
-                label="Currency"
+                label={t('payments:transaction.detail.field.currency')}
                 value={(payment.currency || 'USD').toUpperCase()}
               />
               {order.paymentIntentId && (
-                <DetailRow label="Payment intent" value={order.paymentIntentId} mono />
+                <DetailRow label={t('payments:transaction.detail.field.payment_intent')} value={order.paymentIntentId} mono />
               )}
               {payment.metadata?.reason && (
-                <DetailRow label="Reason" value={payment.metadata.reason} />
+                <DetailRow label={t('payments:transaction.detail.field.reason')} value={payment.metadata.reason} />
               )}
               {payment.metadata?.note && (
-                <DetailRow label="Note" value={payment.metadata.note} />
+                <DetailRow label={t('payments:transaction.detail.field.note')} value={payment.metadata.note} />
               )}
             </CardContent>
           </Card>
@@ -316,17 +333,16 @@ export const TransactionDetail: React.FC = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4" /> Customer payment details
+                  <ShieldCheck className="h-4 w-4" /> {t('payments:transaction.detail.section.customer_payment_details')}
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  Submitted by the customer at checkout for{' '}
-                  <span className="font-medium">{paymentMethodDef?.label}</span>.
+                  {t('payments:transaction.detail.section.customer_payment_subtitle', { method: paymentMethodDef?.label })}
                 </p>
               </CardHeader>
               <CardContent className="space-y-3">
                 {submittedDetails.providerLabel && (
                   <div className="flex items-center justify-between rounded-md border bg-muted/40 px-3 py-2">
-                    <span className="text-xs text-muted-foreground">Provider</span>
+                    <span className="text-xs text-muted-foreground">{t('payments:transaction.detail.field.provider')}</span>
                     <span className="text-sm font-medium">{submittedDetails.providerLabel}</span>
                   </div>
                 )}
@@ -346,10 +362,10 @@ export const TransactionDetail: React.FC = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <ArrowDownLeft className="h-4 w-4" /> Refund payment details
+                  <ArrowDownLeft className="h-4 w-4" /> {t('payments:transaction.detail.section.refund_details')}
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  Captured by the merchant when recording this manual refund.
+                  {t('payments:transaction.detail.section.refund_details_subtitle')}
                 </p>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -368,9 +384,9 @@ export const TransactionDetail: React.FC = () => {
           {related.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Related transactions</CardTitle>
+                <CardTitle className="text-base">{t('payments:transaction.detail.section.related')}</CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  Other payment or refund records on the same order.
+                  {t('payments:transaction.detail.section.related_subtitle')}
                 </p>
               </CardHeader>
               <CardContent className="p-0">
@@ -417,41 +433,41 @@ export const TransactionDetail: React.FC = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Order</CardTitle>
+              <CardTitle className="text-base">{t('payments:transaction.detail.section.order')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               {order.orderNumber && (
-                <DetailRow label="Number" value={`#${String(order.orderNumber).replace(/^#+/, '')}`} mono />
+                <DetailRow label={t('payments:transaction.detail.field.number')} value={`#${String(order.orderNumber).replace(/^#+/, '')}`} mono />
               )}
               <DetailRow
-                label="Total"
+                label={t('payments:transaction.detail.field.total')}
                 value={formatCurrency(order.totalAmount ?? 0, payment.currency)}
               />
               {typeof order.subtotal === 'number' && (
                 <DetailRow
-                  label="Subtotal"
+                  label={t('payments:transaction.detail.field.subtotal')}
                   value={formatCurrency(order.subtotal, payment.currency)}
                 />
               )}
               {typeof order.shippingCost === 'number' && (
                 <DetailRow
-                  label="Shipping"
+                  label={t('payments:transaction.detail.field.shipping')}
                   value={formatCurrency(order.shippingCost, payment.currency)}
                 />
               )}
               {typeof order.tax === 'number' && order.tax > 0 && (
                 <DetailRow
-                  label="Tax"
+                  label={t('payments:transaction.detail.field.tax')}
                   value={formatCurrency(order.tax, payment.currency)}
                 />
               )}
               <Separator className="my-2" />
-              <DetailRow label="Order status" value={order.status || '—'} />
-              <DetailRow label="Payment status" value={order.paymentStatus || '—'} />
+              <DetailRow label={t('payments:transaction.detail.field.order_status')} value={order.status || '—'} />
+              <DetailRow label={t('payments:transaction.detail.field.payment_status')} value={order.paymentStatus || '—'} />
               {order._id && (
                 <Button asChild variant="outline" size="sm" className="w-full mt-2">
                   <Link to={`/dashboard/orders/${order._id}`}>
-                    Open order
+                    {t('payments:transaction.detail.open_order')}
                   </Link>
                 </Button>
               )}
@@ -461,18 +477,18 @@ export const TransactionDetail: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <User className="h-4 w-4" /> Customer
+                <User className="h-4 w-4" /> {t('payments:transaction.detail.section.customer')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
-              <DetailRow label="Name" value={customerName || '—'} />
-              <DetailRow label="Email" value={order.customerEmail || '—'} />
+              <DetailRow label={t('payments:transaction.detail.field.name')} value={customerName || '—'} />
+              <DetailRow label={t('payments:transaction.detail.field.email')} value={order.customerEmail || '—'} />
               {order.customerPhone && (
-                <DetailRow label="Phone" value={order.customerPhone} />
+                <DetailRow label={t('payments:transaction.detail.field.phone')} value={order.customerPhone} />
               )}
               {shipping?.addressLine1 && (
                 <div className="pt-2 border-t">
-                  <p className="text-xs text-muted-foreground mb-1">Shipping address</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t('payments:transaction.detail.field.shipping_address')}</p>
                   <p className="text-sm">
                     {shipping.addressLine1}
                     {shipping.addressLine2 ? `, ${shipping.addressLine2}` : ''}
@@ -491,9 +507,9 @@ export const TransactionDetail: React.FC = () => {
           {paymentMethodDef?.instructions && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Method instructions</CardTitle>
+                <CardTitle className="text-base">{t('payments:transaction.detail.section.method_instructions')}</CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  What the customer saw at checkout.
+                  {t('payments:transaction.detail.section.method_instructions_subtitle')}
                 </p>
               </CardHeader>
               <CardContent>

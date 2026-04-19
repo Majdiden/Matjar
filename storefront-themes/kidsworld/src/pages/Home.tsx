@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
@@ -67,6 +68,8 @@ function renderKidsBadgeIcon(icon: string): React.ReactNode {
 }
 
 const Home: React.FC = () => {
+  const { t } = useTranslation(['theme', 'common']);
+
   // Section settings from manifest + tenant overrides
   const hero = useThemeSettings('hero');
   const cats = useThemeSettings('categories');
@@ -115,13 +118,13 @@ const Home: React.FC = () => {
         }}
       >
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-8 left-8 animate-bounce" style={{ animationDelay: '0s' }}>
+          <div className="absolute top-8 start-8 animate-bounce" style={{ animationDelay: '0s' }}>
             <svg className="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>
           </div>
-          <div className="absolute bottom-8 right-8 animate-bounce" style={{ animationDelay: '0.5s' }}>
+          <div className="absolute bottom-8 end-8 animate-bounce" style={{ animationDelay: '0.5s' }}>
             <svg className="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
           </div>
-          <div className="absolute top-1/3 right-1/4 animate-bounce" style={{ animationDelay: '1s' }}>
+          <div className="absolute top-1/3 end-1/4 animate-bounce" style={{ animationDelay: '1s' }}>
             <svg className="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
           </div>
         </div>
@@ -130,17 +133,17 @@ const Home: React.FC = () => {
             <svg className="w-14 h-14 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v1m0 16v1M4.22 4.22l.71.71m13.02 13.02.71.71M1 12h2m18 0h2M4.22 19.78l.71-.71M18.95 5.05l.71-.71M9 12a3 3 0 116 0 3 3 0 01-6 0z" /></svg>
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
-            {hero.heading_line1 || 'Imagination'}<br />{hero.heading_line2 || 'Starts Here!'}
+            {hero.heading_line1 || t('theme.hero.heading_line1')}<br />{hero.heading_line2 || t('theme.hero.heading_line2')}
           </h1>
           <p className="text-white/80 text-lg mb-8 max-w-md mx-auto">
-            {hero.subheading || 'Discover amazing toys, games, and gifts that spark creativity and bring endless joy.'}
+            {hero.subheading || t('theme.hero.subheading')}
           </p>
           <Link
             to={hero.button_url || '/products'}
             className="inline-block px-10 py-4 rounded-full font-extrabold text-lg hover:opacity-90 transition shadow-lg hover:shadow-xl hover:scale-105 transform text-gray-900"
             style={{ backgroundColor: hero.button_color || '#fbbf24' }}
           >
-            {hero.button_text || 'Explore Toys'}
+            {hero.button_text || t('theme.hero.cta')}
           </Link>
         </div>
       </section>
@@ -155,11 +158,11 @@ const Home: React.FC = () => {
         }`}
       >
         <h2 className="text-2xl font-extrabold text-center mb-2">
-          <span className="text-[#ec4899]">{cats.heading_highlight || 'Shop'}</span>{' '}
-          {(cats.heading || 'Shop by Category').replace(cats.heading_highlight || 'Shop', '').trim() || 'by Category'}
+          <span className="text-[#ec4899]">{cats.heading_highlight || t('theme.section.categories.heading_highlight')}</span>{' '}
+          {(cats.heading || t('theme.section.categories.title')).replace(cats.heading_highlight || t('theme.section.categories.heading_highlight'), '').trim() || t('theme.section.categories.heading_suffix')}
         </h2>
         <p className="text-gray-500 text-center mb-10 text-sm">
-          {cats.subheading || 'Something amazing for every little explorer'}
+          {cats.subheading || t('theme.section.categories.subtitle')}
         </p>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
           {(categories.length > 0
@@ -199,10 +202,10 @@ const Home: React.FC = () => {
       {ageEnabled !== false && (
         <section className="max-w-7xl mx-auto px-4 pb-8">
           <h2 className="text-2xl font-extrabold text-center mb-2">
-            {(age.heading || 'Shop by Age').replace(age.heading_highlight || 'Age', '').trim() || 'Shop by'}{' '}
-            <span className="text-[#8b5cf6]">{age.heading_highlight || 'Age'}</span>
+            {(age.heading || t('theme.section.shop_by_age.title')).replace(age.heading_highlight || t('theme.section.shop_by_age.heading_highlight'), '').trim() || t('theme.section.shop_by_age.heading_prefix')}{' '}
+            <span className="text-[#8b5cf6]">{age.heading_highlight || t('theme.section.shop_by_age.heading_highlight')}</span>
           </h2>
-          <p className="text-gray-500 text-center mb-8 text-sm">{age.subheading || 'Find the perfect toy for any age'}</p>
+          <p className="text-gray-500 text-center mb-8 text-sm">{age.subheading || t('theme.section.shop_by_age.subtitle')}</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {ageBlocks.map((block, i) => {
               const palette = AGE_COLORS[i % AGE_COLORS.length];
@@ -261,17 +264,17 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-between mb-10">
             <div>
               <h2 className="text-2xl font-extrabold">
-                <span className="text-[#fbbf24]">★</span> {feat.heading || 'Best Sellers'}
+                <span className="text-[#fbbf24]">★</span> {feat.heading || t('theme.section.featured_products.title')}
               </h2>
               <p className="text-gray-500 text-sm mt-1">
-                {feat.subheading || 'The toys kids love most'}
+                {feat.subheading || t('theme.section.featured_products.subtitle')}
               </p>
             </div>
             <Link
               to={feat.view_all_url || '/products'}
               className="text-[#8b5cf6] font-bold text-sm hover:underline"
             >
-              {feat.view_all_text || 'See All'} &rarr;
+              {feat.view_all_text || t('theme.section.featured_products.view_all')} &rarr;
             </Link>
           </div>
           {loading ? (
@@ -289,7 +292,7 @@ const Home: React.FC = () => {
                     <ProductCard.Title />
                     {feat.show_rating !== false && <ProductCard.Rating />}
                     <ProductCard.Price showCompareAt />
-                    <ProductCard.Actions addToCartText={feat.add_to_cart_text || 'Add to Cart'} />
+                    <ProductCard.Actions addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
                   </ProductCard.Body>
                 </ProductCard>
               ))}
@@ -310,11 +313,11 @@ const Home: React.FC = () => {
         <h2 className="text-2xl font-extrabold mb-2">
           <span className="inline-flex items-center gap-2">
             <svg className="w-7 h-7 text-[#8b5cf6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-            <span className="text-[#8b5cf6]">{arrivals.heading || 'New Adventures'}</span>
+            <span className="text-[#8b5cf6]">{arrivals.heading || t('theme.section.new_arrivals.title')}</span>
           </span>
         </h2>
         <p className="text-gray-500 text-sm mb-8">
-          {arrivals.subheading || 'Just arrived and ready for playtime'}
+          {arrivals.subheading || t('theme.section.new_arrivals.subtitle')}
         </p>
         {loading ? (
           <div className="flex gap-4 overflow-hidden">
@@ -336,7 +339,7 @@ const Home: React.FC = () => {
                 <ProductCard.Body>
                   <ProductCard.Title />
                   <ProductCard.Price showCompareAt />
-                  <ProductCard.Actions addToCartText={arrivals.add_to_cart_text || 'Add'} />
+                  <ProductCard.Actions addToCartText={arrivals.add_to_cart_text || t('theme.section.new_arrivals.add_to_cart')} />
                 </ProductCard.Body>
               </ProductCard>
             ))}
@@ -361,22 +364,22 @@ const Home: React.FC = () => {
             <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" /></svg>
           </div>
           <h2 className="text-3xl font-extrabold text-white mb-4">
-            {newsletter.heading || 'Join the Fun Club!'}
+            {newsletter.heading || t('theme.section.newsletter.title')}
           </h2>
           <p className="text-white/80 mb-8">
-            {newsletter.subheading || 'Get exclusive deals, new arrival alerts, and birthday surprises for your little ones.'}
+            {newsletter.subheading || t('theme.section.newsletter.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
             <input
               type="email"
-              placeholder={newsletter.placeholder || 'parent@email.com'}
+              placeholder={newsletter.placeholder || t('theme.section.newsletter.placeholder')}
               className="flex-1 px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white/30"
             />
             <button
               className="px-6 py-3 rounded-full font-extrabold hover:opacity-90 transition shadow-lg"
               style={{ backgroundColor: '#ffffff', color: newsletter.button_text_color || '#ec4899' }}
             >
-              {newsletter.button_text || 'Subscribe'}
+              {newsletter.button_text || t('theme.section.newsletter.button')}
             </button>
           </div>
         </div>

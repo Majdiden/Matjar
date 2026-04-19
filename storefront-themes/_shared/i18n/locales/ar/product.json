@@ -39,6 +39,7 @@
     "select": "اختر"
   },
   "image": {
+    "alt_rating": "{{rating}} من أصل {{max}} نجوم",
     "zoom_aria": "تكبير الصورة",
     "thumbnail_aria": "عرض الصورة {{index}}"
   },
@@ -141,5 +142,13 @@
     "title": "منتجات مشابهة",
     "subtitle": "المزيد من هذه المجموعة قد يعجبك."
   },
-  "featured_badge": "مميّز"
+  "featured_badge": "مميّز",
+  "card": {
+    "options": "الخيارات",
+    "add": "إضافة",
+    "adding": "...",
+    "preorder": "طلب مسبق",
+    "sold_out": "نفد المخزون",
+    "out_of_stock": "غير متوفر"
+  }
 }

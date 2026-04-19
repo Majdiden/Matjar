@@ -6,11 +6,13 @@ import { useCategories } from '@shared/hooks/useProducts';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import CartDrawer from '@shared/components/CartDrawer';
+import { useTranslation } from 'react-i18next';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
+  const { t } = useTranslation(['theme']);
 
   return (
     <div
@@ -43,7 +45,7 @@ const Layout: React.FC = () => {
             </Link>
 
             <nav className="hidden md:flex items-center gap-5">
-              <Link to="/products" className="text-sm transition hover:opacity-80" style={{ color: 'var(--color-muted)' }}>Products</Link>
+              <Link to="/products" className="text-sm transition hover:opacity-80" style={{ color: 'var(--color-muted)' }}>{t('theme.nav.products')}</Link>
               {categories.slice(0, 3).map(cat => (
                 <Link key={cat._id} to={`/categories/${cat.slug}`} className="text-sm transition hover:opacity-80" style={{ color: 'var(--color-muted)' }}>
                   {cat.name}
@@ -86,11 +88,11 @@ const Layout: React.FC = () => {
             className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm"
             style={{ color: 'var(--color-muted)' }}
           >
-            <p>&copy; {new Date().getFullYear()} {store?.name || 'Store'}</p>
+            <p>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), name: store?.name || 'Store' })}</p>
             <div className="flex gap-6">
-              <Link to="/products" className="transition hover:opacity-80">Products</Link>
-              <span className="cursor-pointer transition hover:opacity-80">About</span>
-              <Link to="/contact" className="transition hover:opacity-80">Contact</Link>
+              <Link to="/products" className="transition hover:opacity-80">{t('theme.footer.products')}</Link>
+              <span className="cursor-pointer transition hover:opacity-80">{t('theme.footer.about')}</span>
+              <Link to="/contact" className="transition hover:opacity-80">{t('theme.footer.contact')}</Link>
             </div>
           </div>
         </div>

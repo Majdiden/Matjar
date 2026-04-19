@@ -9,20 +9,26 @@
     "section": {
       "categories": {
         "title": "تسوّق حسب الفئة",
+        "heading_highlight": "تسوّق",
+        "heading_suffix": "حسب الفئة",
         "subtitle": "شيء رائع لكل مستكشف صغير"
       },
       "shop_by_age": {
         "title": "تسوّق حسب العمر",
+        "heading_highlight": "العمر",
+        "heading_prefix": "تسوّق حسب",
         "subtitle": "اعثر على اللعبة المثالية لأي عمر"
       },
       "featured_products": {
         "title": "الأكثر مبيعاً",
         "subtitle": "الألعاب التي يحبها الأطفال أكثر",
-        "view_all": "عرض الكل"
+        "view_all": "عرض الكل",
+        "add_to_cart": "إضافة إلى السلة"
       },
       "new_arrivals": {
         "title": "مغامرات جديدة",
-        "subtitle": "وصلت للتو وجاهزة للعب"
+        "subtitle": "وصلت للتو وجاهزة للعب",
+        "add_to_cart": "إضافة"
       },
       "newsletter": {
         "title": "انضم إلى نادي المرح!",

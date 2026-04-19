@@ -26,6 +26,7 @@ import { useStore } from '@shared/contexts/StoreContext';
 import { useCompare } from '@shared/components/commerce/ProductCompare';
 import type { Product } from '@shared/types/commerce';
 import { getPreorderState } from '@shared/utils/preorder';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   product: Product & {
@@ -89,6 +90,7 @@ const COLOR_MAP: Record<string, string> = {
 const resolveColor = (v: string) => COLOR_MAP[v.toLowerCase()] || v;
 
 export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) => {
+  const { t } = useTranslation(['theme']);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
   const compare = useCompare();
@@ -170,20 +172,20 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             comparing ? compare.remove(product._id) : compare.add(product);
           }}
           disabled={compareFull}
-          title={compareFull ? 'Compare list full' : comparing ? 'Remove from compare' : 'Add to compare'}
-          aria-label="Toggle compare"
-          className="absolute top-3 right-3 z-10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border transition disabled:opacity-40"
+          title={compareFull ? t('theme.product_card.compare_full') : comparing ? t('theme.product_card.compare_remove') : t('theme.product_card.compare_add')}
+          aria-label={t('theme.product_card.toggle_compare')}
+          className="absolute top-3 end-3 z-10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border transition disabled:opacity-40"
           style={{
             backgroundColor: comparing ? 'var(--color-primary)' : 'var(--color-background)',
             color: comparing ? '#fff' : 'var(--color-foreground)',
             borderColor: comparing ? 'var(--color-primary)' : 'var(--color-border)',
           }}
         >
-          {comparing ? '✓ Compare' : 'Compare'}
+          {comparing ? t('theme.product_card.compare_added') : t('theme.product_card.compare')}
         </button>
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+        <div className="absolute top-3 start-3 flex flex-col gap-1.5">
           {discount > 0 && (
             <span
               className="text-[10px] font-bold px-2 py-1 rounded text-white"
@@ -197,7 +199,7 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
               className="text-[10px] font-bold px-2 py-1 rounded text-white uppercase tracking-wider"
               style={{ backgroundColor: 'var(--color-accent)' }}
             >
-              Pre-order
+              {t('theme.product_card.pre_order_badge')}
             </span>
           )}
           {product.isFeatured && (
@@ -205,7 +207,7 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
               className="text-[10px] font-bold px-2 py-1 rounded text-white"
               style={{ backgroundColor: 'var(--color-foreground)' }}
             >
-              HOT
+              {t('theme.product_card.hot_badge')}
             </span>
           )}
         </div>
@@ -286,7 +288,7 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
                 className="text-[10px] font-bold uppercase tracking-wider mb-1.5"
                 style={{ color: 'var(--color-muted)' }}
               >
-                Select color
+                {t('theme.product_card.select_color')}
               </p>
               <div className="flex items-center gap-2">
                 {colorOpt.map((c) => {
@@ -320,7 +322,7 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
                 className="text-[10px] font-bold uppercase tracking-wider mb-1.5"
                 style={{ color: 'var(--color-muted)' }}
               >
-                Select size
+                {t('theme.product_card.select_size')}
               </p>
               <div className="flex items-center gap-1.5">
                 {sizeOpt.map((sz) => {
@@ -383,18 +385,18 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             <button
               onClick={handleAdd}
               disabled={adding}
-              title={requiresOptions ? 'Select options on the product page' : undefined}
+              title={requiresOptions ? t('theme.product_card.choose_options') : undefined}
               className="flex-1 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white transition hover:-translate-y-0.5 disabled:opacity-50"
               style={{ backgroundColor: 'var(--color-foreground)' }}
             >
-              {requiresOptions ? 'Choose Options' : adding ? 'Adding...' : 'Add to Cart'}
+              {requiresOptions ? t('theme.product_card.choose_options') : adding ? t('theme.product_card.adding') : t('theme.product_card.add_to_cart')}
             </button>
             <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
               }}
-              aria-label="Add to wishlist"
+              aria-label={t('theme.product_card.add_to_wishlist')}
               className="h-9 w-9 flex-none rounded-full flex items-center justify-center transition hover:opacity-80"
               style={{
                 backgroundColor: 'color-mix(in srgb, var(--color-foreground) 6%, transparent)',
@@ -407,7 +409,7 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             </button>
             <button
               onClick={handleQuickView}
-              aria-label="Quick view"
+              aria-label={t('theme.product_card.quick_view')}
               className="h-9 w-9 flex-none rounded-full flex items-center justify-center transition hover:opacity-80"
               style={{
                 backgroundColor: 'color-mix(in srgb, var(--color-foreground) 6%, transparent)',

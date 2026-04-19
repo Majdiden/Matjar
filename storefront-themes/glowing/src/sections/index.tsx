@@ -7,6 +7,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@shared/components/sections';
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
@@ -16,10 +17,11 @@ import GlowingProductCard from '../components/GlowingProductCard';
 // ─── Top strip (announcement) ─────────────────────────────────────
 
 const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   return (
     <div className="bg-black text-white text-[11px] tracking-[0.18em] font-medium py-2.5 text-center">
-      {s.text || 'FREE SHIPPING ON ALL U.S. ORDERS $50+'}
+      {s.text || t('theme.announcement.default_text')}
     </div>
   );
 };
@@ -27,15 +29,16 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Editorial hero ───────────────────────────────────────────────
 
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   return (
     <section className="relative overflow-hidden" style={{ backgroundColor: 'var(--color-accent)' }}>
       {/* soft leaf decoration */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.07]" aria-hidden>
-        <svg className="absolute top-10 left-10 w-64 h-64" viewBox="0 0 200 200" fill="none">
+        <svg className="absolute top-10 start-10 w-64 h-64" viewBox="0 0 200 200" fill="none">
           <path d="M100 20 C 140 60, 160 120, 100 180 C 40 120, 60 60, 100 20" stroke="var(--color-foreground)" strokeWidth="1" />
         </svg>
-        <svg className="absolute bottom-10 right-10 w-80 h-80" viewBox="0 0 200 200" fill="none">
+        <svg className="absolute bottom-10 end-10 w-80 h-80" viewBox="0 0 200 200" fill="none">
           <path d="M20 100 C 60 60, 120 40, 180 100 C 120 160, 60 140, 20 100" stroke="var(--color-foreground)" strokeWidth="1" />
         </svg>
       </div>
@@ -50,7 +53,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
           className="font-display text-5xl sm:text-6xl md:text-7xl leading-[1.05] text-black max-w-3xl mx-auto"
           style={{ fontFamily: 'var(--font-family-heading)' }}
         >
-          {s.heading || 'Reveal The Beauty of Skin'}
+          {s.heading || t('theme.hero.headline')}
         </h1>
         {s.subheading && (
           <p className="mt-6 text-sm md:text-base text-neutral-600 max-w-xl mx-auto leading-relaxed">
@@ -61,7 +64,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
           to={s.cta_url || '/products'}
           className="inline-block mt-10 px-10 py-4 bg-black text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-neutral-800 transition"
         >
-          {s.cta_text || 'SHOP NOW'}
+          {s.cta_text || t('theme.hero.cta')}
         </Link>
       </div>
     </section>
@@ -71,6 +74,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Three promo cards ────────────────────────────────────────────
 
 const PromoCardsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
+  const { t } = useTranslation(['theme']);
   const blocks: any[] = (section as any)?.blocks || [];
   const s = useThemeSettings(id);
   // Fallback: derive tints from the brand accent palette instead of a
@@ -79,9 +83,9 @@ const PromoCardsSection: React.FC<SectionComponentProps> = ({ id, section }) => 
   const fallbackTint = (pct: number) =>
     `color-mix(in srgb, var(--color-accent) ${pct}%, white)`;
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { eyebrow: 'NEW SEASON', title: 'Summer Collection', cta_text: 'SHOP NOW', background_color: fallbackTint(20) } },
-    { id: 'b', settings: { eyebrow: 'JUST DROPPED', title: "What's New?", cta_text: 'DISCOVER', background_color: fallbackTint(30) } },
-    { id: 'c', settings: { eyebrow: 'LIMITED OFFER', title: 'Buy 1 Get 1', cta_text: 'SHOP NOW', background_color: fallbackTint(40) } },
+    { id: 'a', settings: { eyebrow: t('theme.section.promo_cards.card1_eyebrow'), title: t('theme.section.promo_cards.card1_title'), cta_text: t('theme.section.promo_cards.card1_cta'), background_color: fallbackTint(20) } },
+    { id: 'b', settings: { eyebrow: t('theme.section.promo_cards.card2_eyebrow'), title: t('theme.section.promo_cards.card2_title'), cta_text: t('theme.section.promo_cards.card2_cta'), background_color: fallbackTint(30) } },
+    { id: 'c', settings: { eyebrow: t('theme.section.promo_cards.card3_eyebrow'), title: t('theme.section.promo_cards.card3_title'), cta_text: t('theme.section.promo_cards.card3_cta'), background_color: fallbackTint(40) } },
   ];
 
   return (
@@ -114,7 +118,7 @@ const PromoCardsSection: React.FC<SectionComponentProps> = ({ id, section }) => 
                   {bs.title}
                 </h3>
                 <span className="inline-block border-b border-black pb-1 text-[11px] tracking-[0.22em] uppercase font-semibold text-black group-hover:translate-y-[-2px] transition">
-                  {bs.cta_text || 'SHOP NOW'}
+                  {bs.cta_text || t('theme.hero.cta')}
                 </span>
               </div>
             </Link>
@@ -128,6 +132,7 @@ const PromoCardsSection: React.FC<SectionComponentProps> = ({ id, section }) => 
 // ─── Product grid (source-based) ──────────────────────────────────
 
 const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   const limit = Number(s.product_limit) || 8;
   const source = (s.source as string) || 'featured';
@@ -145,7 +150,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           className="font-display text-4xl md:text-5xl text-black"
           style={{ fontFamily: 'var(--font-family-heading)' }}
         >
-          {s.heading || 'BEST SELLERS'}
+          {s.heading || t('theme.section.product_grid.best_sellers_title')}
         </h2>
         {s.subheading && (
           <p className="mt-3 text-sm text-neutral-500 max-w-md mx-auto">{s.subheading}</p>
@@ -176,6 +181,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
 // ─── Centered quote ───────────────────────────────────────────────
 
 const QuoteSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   return (
     <section className="py-24 md:py-32" style={{ backgroundColor: 'var(--color-accent)' }}>
@@ -184,10 +190,10 @@ const QuoteSection: React.FC<SectionComponentProps> = ({ id }) => {
           className="font-display text-3xl md:text-4xl leading-snug text-black italic"
           style={{ fontFamily: 'var(--font-family-heading)' }}
         >
-          {s.quote || '"Beauty begins the moment you decide to be yourself."'}
+          {s.quote || t('theme.section.quote.default_quote')}
         </p>
         <div className="mt-6 text-[10px] tracking-[0.3em] uppercase text-neutral-500">
-          — {s.author || 'COCO CHANEL'}
+          — {s.author || t('theme.section.quote.default_author')}
         </div>
       </div>
     </section>
@@ -197,6 +203,7 @@ const QuoteSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Instagram ────────────────────────────────────────────────────
 
 const InstagramSection: React.FC<SectionComponentProps> = ({ id, section }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   // Derive fallback tints from the brand accent palette so the tile
@@ -215,7 +222,7 @@ const InstagramSection: React.FC<SectionComponentProps> = ({ id, section }) => {
           className="font-display text-4xl md:text-5xl text-black"
           style={{ fontFamily: 'var(--font-family-heading)' }}
         >
-          {s.heading || '@GLOWINGBEAUTY'}
+          {s.heading || t('theme.section.instagram.title')}
         </h2>
         {s.subheading && <p className="mt-3 text-sm text-neutral-500">{s.subheading}</p>}
       </div>

@@ -25,7 +25,8 @@
       "featured-products": {
         "heading": "المنتجات المميّزة",
         "subheading": "منتقاة خصيصاً لك",
-        "view_all": "عرض الكل"
+        "view_all": "عرض الكل",
+        "add_to_cart": "إضافة"
       },
       "trust-badges": {
         "free_shipping_title": "شحن مجاني",
@@ -38,7 +39,8 @@
       "new-arrivals": {
         "heading": "الوصول حديثاً",
         "subheading": "وصل للتو إلى متجرنا",
-        "see_more": "عرض المزيد"
+        "see_more": "عرض المزيد",
+        "add_to_cart": "إضافة إلى السلة"
       },
       "newsletter": {
         "heading": "ابقَ على اطلاع",

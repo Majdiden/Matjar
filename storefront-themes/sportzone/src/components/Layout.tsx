@@ -7,18 +7,20 @@ import CartDrawer from '@shared/components/CartDrawer';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
+import { useTranslation } from 'react-i18next';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useTranslation(['theme']);
 
   return (
     <div className="min-h-screen flex flex-col bg-white" style={{ '--accent': '#dc2626' } as React.CSSProperties}>
       <AnnouncementBar
-        message="Free shipping on orders over $75 -- No excuses."
-        linkText="Shop Now"
+        message={t('theme.banner.announcement.text')}
+        linkText={t('theme.banner.announcement.cta')}
         href="/products"
         bgColor="#dc2626"
         textColor="#ffffff"
@@ -35,7 +37,7 @@ const Layout: React.FC = () => {
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/products" className="text-sm font-bold uppercase text-gray-300 hover:text-[#dc2626] transition">Shop</Link>
+              <Link to="/products" className="text-sm font-bold uppercase text-gray-300 hover:text-[#dc2626] transition">{t('theme.nav.shop')}</Link>
               {categories.slice(0, 4).map(cat => (
                 <Link key={cat._id} to={`/categories/${cat.slug}`} className="text-sm font-bold uppercase text-gray-300 hover:text-[#dc2626] transition">
                   {cat.name}
@@ -46,7 +48,7 @@ const Layout: React.FC = () => {
             <div className="flex items-center gap-3">
               {/* Desktop search */}
               <div className="hidden md:block w-52">
-                <SearchBar placeholder="Search gear..." variant="expanded" className="bg-white/5 border-white/10 text-white" />
+                <SearchBar placeholder={t('theme.nav.search_placeholder')} variant="expanded" className="bg-white/5 border-white/10 text-white" />
               </div>
 
               {/* Mobile search */}
@@ -74,7 +76,7 @@ const Layout: React.FC = () => {
 
         {menuOpen && (
           <nav className="md:hidden bg-[#111827] border-t border-white/10 px-4 py-3 space-y-2">
-            <Link to="/products" onClick={() => setMenuOpen(false)} className="block text-sm font-bold uppercase text-gray-300 py-2">Shop</Link>
+            <Link to="/products" onClick={() => setMenuOpen(false)} className="block text-sm font-bold uppercase text-gray-300 py-2">{t('theme.nav.shop')}</Link>
             {categories.slice(0, 4).map(cat => (
               <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMenuOpen(false)} className="block text-sm font-bold uppercase text-gray-300 py-2">
                 {cat.name}
@@ -94,36 +96,36 @@ const Layout: React.FC = () => {
               <h3 className="text-white font-black text-lg uppercase mb-2">
                 <span className="text-[#dc2626]">///</span> {store?.name || 'SportZone'}
               </h3>
-              <p className="text-sm">Gear up. Get moving. No limits.</p>
+              <p className="text-sm">{t('theme.footer.tagline')}</p>
             </div>
             <div>
-              <h4 className="text-white font-bold text-sm uppercase mb-3">Shop</h4>
+              <h4 className="text-white font-bold text-sm uppercase mb-3">{t('theme.footer.shop_heading')}</h4>
               <div className="space-y-2 text-sm">
-                <Link to="/products" className="block hover:text-[#dc2626] transition">All Products</Link>
+                <Link to="/products" className="block hover:text-[#dc2626] transition">{t('theme.footer.all_products')}</Link>
                 {categories.slice(0, 3).map(cat => (
                   <Link key={cat._id} to={`/categories/${cat.slug}`} className="block hover:text-[#dc2626] transition">{cat.name}</Link>
                 ))}
               </div>
             </div>
             <div>
-              <h4 className="text-white font-bold text-sm uppercase mb-3">Info</h4>
+              <h4 className="text-white font-bold text-sm uppercase mb-3">{t('theme.footer.info_heading')}</h4>
               <div className="space-y-2 text-sm">
-                <Link to="/about" className="block hover:text-[#dc2626] transition">About Us</Link>
-                <Link to="/contact" className="block hover:text-[#dc2626] transition">Contact</Link>
-                <span className="block">Shipping Policy</span>
+                <Link to="/about" className="block hover:text-[#dc2626] transition">{t('theme.footer.about_us')}</Link>
+                <Link to="/contact" className="block hover:text-[#dc2626] transition">{t('theme.footer.contact')}</Link>
+                <span className="block">{t('theme.footer.shipping_policy')}</span>
               </div>
             </div>
             <div>
-              <h4 className="text-white font-bold text-sm uppercase mb-3">Stay Connected</h4>
-              <p className="text-sm mb-3">Join the team. Get exclusive drops.</p>
+              <h4 className="text-white font-bold text-sm uppercase mb-3">{t('theme.footer.stay_connected_heading')}</h4>
+              <p className="text-sm mb-3">{t('theme.footer.newsletter_teaser')}</p>
               <form className="flex" onSubmit={e => e.preventDefault()}>
-                <input type="email" placeholder="your@email.com" className="flex-1 bg-white/5 border border-white/10 rounded-l px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#dc2626]" />
-                <button className="bg-[#dc2626] text-white px-4 py-2 rounded-r text-sm font-black uppercase hover:bg-[#b91c1c] transition">Go</button>
+                <input type="email" placeholder="your@email.com" className="flex-1 bg-white/5 border border-white/10 rounded-s px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#dc2626]" />
+                <button className="bg-[#dc2626] text-white px-4 py-2 rounded-e text-sm font-black uppercase hover:bg-[#b91c1c] transition">{t('theme.footer.newsletter_submit')}</button>
               </form>
             </div>
           </div>
           <div className="border-t border-gray-800 pt-6 text-center text-xs">
-            &copy; {new Date().getFullYear()} {store?.name || 'SportZone'}. All rights reserved.
+            {t('theme.footer.copyright_html', { year: new Date().getFullYear(), name: store?.name || 'SportZone' })}
           </div>
         </div>
       </footer>

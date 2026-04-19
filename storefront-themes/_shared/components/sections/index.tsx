@@ -12,6 +12,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useThemeSettings } from '../../theme/ThemeProvider';
 import { useFeaturedProducts, useProducts, useCategories } from '../../hooks/useProducts';
 import { ProductCard } from '../commerce/ProductCard';
@@ -38,6 +39,7 @@ export interface SectionComponentProps {
 // ─── Hero ────────────────────────────────────────────────────────
 
 export const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
   return (
     <section
@@ -57,7 +59,9 @@ export const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             {s.badge_text}
           </span>
         )}
-        <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">{s.heading || 'Welcome'}</h1>
+        <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+          {s.heading || t('section.hero.heading')}
+        </h1>
         {s.subheading && <p className="text-lg md:text-xl opacity-90 mb-8 max-w-2xl mx-auto">{s.subheading}</p>}
         <div className="flex gap-3 justify-center flex-wrap">
           {s.primary_button_text && (
@@ -85,6 +89,7 @@ export const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Banner (promo strip) ────────────────────────────────────────
 
 export const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
   return (
     <section
@@ -94,9 +99,9 @@ export const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
         color: s.text_color || '#ffffff',
       }}
     >
-      <span>{s.message || 'Free shipping on all orders over $50'}</span>
+      <span>{s.message || t('section.banner.default_message')}</span>
       {s.link_url && s.link_text && (
-        <Link to={s.link_url} className="ml-2 underline hover:no-underline">
+        <Link to={s.link_url} className="ms-2 underline hover:no-underline">
           {s.link_text}
         </Link>
       )}
@@ -129,6 +134,7 @@ export const RichTextSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Image with Text ─────────────────────────────────────────────
 
 export const ImageWithTextSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
   const reverse = s.layout === 'image-right';
   return (
@@ -139,7 +145,9 @@ export const ImageWithTextSection: React.FC<SectionComponentProps> = ({ id }) =>
         </div>
         <div className={reverse ? 'md:[direction:ltr]' : ''}>
           {s.eyebrow && <span className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--color-primary)' }}>{s.eyebrow}</span>}
-          <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-3">{s.heading || 'Our Story'}</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-3">
+            {s.heading || t('section.image_with_text.heading')}
+          </h2>
           {s.body && <p className="text-gray-600 leading-relaxed mb-6">{s.body}</p>}
           {s.button_text && (
             <Link
@@ -265,6 +273,7 @@ export const TestimonialsSection: React.FC<SectionComponentProps> = ({ id }) => 
 // ─── Newsletter ──────────────────────────────────────────────────
 
 export const NewsletterSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
   return (
     <section
@@ -276,19 +285,19 @@ export const NewsletterSection: React.FC<SectionComponentProps> = ({ id }) => {
       }}
     >
       <div className="max-w-2xl mx-auto px-4 text-center text-white">
-        <h2 className="text-3xl font-bold mb-2">{s.heading || 'Stay in the Loop'}</h2>
+        <h2 className="text-3xl font-bold mb-2">{s.heading || t('section.newsletter.heading')}</h2>
         {s.subheading && <p className="opacity-90 mb-8">{s.subheading}</p>}
         <form className="flex gap-2 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
           <input
             type="email"
-            placeholder={s.placeholder || 'Enter your email'}
+            placeholder={s.placeholder || t('storefront.enter_your_email')}
             className="flex-1 px-4 py-3.5 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50"
           />
           <button
             type="submit"
             className="px-6 py-3.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition border border-white/30"
           >
-            {s.button_text || 'Subscribe'}
+            {s.button_text || t('section.newsletter.subscribe')}
           </button>
         </form>
         {s.disclaimer && <p className="text-xs opacity-60 mt-3">{s.disclaimer}</p>}
@@ -325,6 +334,7 @@ export const SpacerSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Featured Products ───────────────────────────────────────────
 
 export const FeaturedProductsSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) => {
+  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
   const limit = Number(s.product_limit) || 8;
   const { products, loading } = useFeaturedProducts(limit);
@@ -334,7 +344,7 @@ export const FeaturedProductsSection: React.FC<SectionComponentProps> = ({ id, o
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold">{s.heading || 'Featured Products'}</h2>
+          <h2 className="text-3xl font-bold">{s.heading || t('section.featured_products.heading')}</h2>
           {s.subheading && <p className="text-gray-500 mt-1">{s.subheading}</p>}
         </div>
         <Link
@@ -342,7 +352,7 @@ export const FeaturedProductsSection: React.FC<SectionComponentProps> = ({ id, o
           className="text-sm font-medium hover:underline"
           style={{ color: 'var(--color-primary, #2563eb)' }}
         >
-          View All →
+          {t('section.featured_products.view_all')} →
         </Link>
       </div>
       {loading ? (
@@ -371,6 +381,7 @@ export const FeaturedProductsSection: React.FC<SectionComponentProps> = ({ id, o
 // ─── New Arrivals ────────────────────────────────────────────────
 
 export const NewArrivalsSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) => {
+  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
   const limit = Number(s.product_limit) || 8;
   const { products, loading } = useProducts({ sort: 'newest', limit });
@@ -379,7 +390,7 @@ export const NewArrivalsSection: React.FC<SectionComponentProps> = ({ id, onQuic
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold">{s.heading || 'New Arrivals'}</h2>
+          <h2 className="text-3xl font-bold">{s.heading || t('section.new_arrivals.heading')}</h2>
           {s.subheading && <p className="text-gray-500 mt-1">{s.subheading}</p>}
         </div>
         <Link
@@ -387,7 +398,7 @@ export const NewArrivalsSection: React.FC<SectionComponentProps> = ({ id, onQuic
           className="text-sm font-medium hover:underline"
           style={{ color: 'var(--color-primary, #2563eb)' }}
         >
-          See More →
+          {t('section.new_arrivals.see_more')} →
         </Link>
       </div>
       {loading ? (
@@ -400,7 +411,9 @@ export const NewArrivalsSection: React.FC<SectionComponentProps> = ({ id, onQuic
               <ProductCard.Body>
                 <ProductCard.Title />
                 <ProductCard.Price />
-                {s.show_add_to_cart !== false && <ProductCard.Actions addToCartText="Add to Cart" />}
+                {s.show_add_to_cart !== false && (
+                  <ProductCard.Actions addToCartText={t('section.new_arrivals.add_to_cart')} />
+                )}
               </ProductCard.Body>
             </ProductCard>
           ))}
@@ -413,6 +426,7 @@ export const NewArrivalsSection: React.FC<SectionComponentProps> = ({ id, onQuic
 // ─── Categories Grid ─────────────────────────────────────────────
 
 export const CategoriesSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
   const { categories } = useCategories();
   const max = Number(s.max_categories) || 6;
@@ -420,7 +434,7 @@ export const CategoriesSection: React.FC<SectionComponentProps> = ({ id }) => {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold mb-2">{s.heading || 'Shop by Category'}</h2>
+        <h2 className="text-3xl font-bold mb-2">{s.heading || t('section.categories.heading')}</h2>
         {s.subheading && <p className="text-gray-500">{s.subheading}</p>}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -439,7 +453,9 @@ export const CategoriesSection: React.FC<SectionComponentProps> = ({ id }) => {
             )}
             <span className="text-sm font-medium">{cat.name}</span>
             {s.show_product_count !== false && cat.productCount !== undefined && (
-              <span className="block text-xs text-gray-400 mt-1">{cat.productCount} items</span>
+              <span className="block text-xs text-gray-400 mt-1">
+                {t('section.categories.items_count', { count: cat.productCount })}
+              </span>
             )}
           </Link>
         ))}
@@ -451,13 +467,23 @@ export const CategoriesSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Trust Badges ────────────────────────────────────────────────
 
 export const TrustBadgesSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
   const badges = Array.isArray(s.badges) && s.badges.length > 0
     ? s.badges
     : [
-        { title: 'Free Shipping', description: 'On orders over $50' },
-        { title: 'Secure Payment', description: '256-bit SSL encryption' },
-        { title: 'Easy Returns', description: '30-day money back' },
+        {
+          title: t('section.trust.free_shipping_title'),
+          description: t('section.trust.free_shipping_desc'),
+        },
+        {
+          title: t('section.trust.secure_payment_title'),
+          description: t('section.trust.secure_payment_desc'),
+        },
+        {
+          title: t('section.trust.easy_returns_title'),
+          description: t('section.trust.easy_returns_desc'),
+        },
       ];
   return (
     <section style={{ backgroundColor: s.background_color || '#f9fafb' }}>

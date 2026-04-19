@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '@shared/contexts/CartContext';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useThemeSetting } from '@shared/theme/ThemeProvider';
@@ -19,6 +20,7 @@ const BG_FALLBACK = ['#2c4a4a', '#f7c1b7', '#5eaaa8', '#fdf6ed', '#ebe0ce'];
 const FG_FALLBACK = ['#2c4a4a', '#2c4a4a', '#fdf6ed', '#2c4a4a', '#2c4a4a'];
 
 export const MilmaaProductCard: React.FC<Props> = ({ product, onQuickView }) => {
+  const { t } = useTranslation('theme');
   const { formatPrice } = useStore();
   const { addItem } = useCart();
 
@@ -66,7 +68,7 @@ export const MilmaaProductCard: React.FC<Props> = ({ product, onQuickView }) => 
           {onSale && (
             <div className="absolute top-4 left-4">
               <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase rounded-full bg-white" style={{ color: fg }}>
-                SALE
+                {t('theme.product_card.sale')}
               </span>
             </div>
           )}
@@ -76,7 +78,7 @@ export const MilmaaProductCard: React.FC<Props> = ({ product, onQuickView }) => 
                 className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase rounded-full"
                 style={{ backgroundColor: fg, color: bg }}
               >
-                PRE-ORDER
+                {t('theme.product_card.preorder')}
               </span>
             </div>
           )}
@@ -134,7 +136,7 @@ export const MilmaaProductCard: React.FC<Props> = ({ product, onQuickView }) => 
             className="mt-3 inline-block px-6 py-2.5 rounded-full text-white text-xs font-bold hover:scale-105 transition"
             style={{ backgroundColor: 'var(--color-foreground)' }}
           >
-            Choose Options
+            {t('theme.product_card.choose_options')}
           </Link>
         ) : (
           <button
@@ -143,7 +145,7 @@ export const MilmaaProductCard: React.FC<Props> = ({ product, onQuickView }) => 
             className="mt-3 inline-block px-6 py-2.5 rounded-full text-white text-xs font-bold hover:scale-105 transition"
             style={{ backgroundColor: 'var(--color-foreground)' }}
           >
-            Add to Cart
+            {t('theme.product_card.add_to_cart')}
           </button>
         )}
       </div>

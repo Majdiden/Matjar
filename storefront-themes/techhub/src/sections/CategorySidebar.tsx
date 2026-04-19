@@ -14,8 +14,10 @@ import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useCategories, useProducts } from '@shared/hooks/useProducts';
 import { PriceDisplay } from '@shared/components/commerce/PriceDisplay';
 import type { SectionComponentProps } from '@shared/components/sections';
+import { useTranslation } from 'react-i18next';
 
 export const CategorySidebarSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   const { categories } = useCategories();
   const limit = Math.max(3, Math.min(12, Number(s.max_categories) || 8));
@@ -35,10 +37,10 @@ export const CategorySidebarSection: React.FC<SectionComponentProps> = ({ id }) 
       <div className="flex items-end justify-between mb-8">
         <div>
           <div className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--color-primary)' }}>
-            {s.eyebrow || 'Shop by department'}
+            {s.eyebrow || t('theme.section.category_sidebar.eyebrow')}
           </div>
           <h2 className="text-3xl md:text-4xl font-black" style={{ color: 'var(--color-foreground)' }}>
-            {s.heading || 'Find what you need, fast'}
+            {s.heading || t('theme.section.category_sidebar.title')}
           </h2>
         </div>
         <Link
@@ -46,8 +48,8 @@ export const CategorySidebarSection: React.FC<SectionComponentProps> = ({ id }) 
           className="text-sm font-semibold hidden md:inline-flex items-center gap-1"
           style={{ color: 'var(--color-primary)' }}
         >
-          {s.view_all_text || 'All categories'}
-          <span aria-hidden>→</span>
+          {s.view_all_text || t('theme.section.category_sidebar.view_all')}
+          <span aria-hidden className="rtl:rotate-180 inline-block">→</span>
         </Link>
       </div>
 
@@ -94,7 +96,7 @@ export const CategorySidebarSection: React.FC<SectionComponentProps> = ({ id }) 
                     )}
                     <span className="font-medium text-sm flex-1 line-clamp-1">{cat.name}</span>
                     <svg
-                      className={`w-4 h-4 transition-transform ${isActive ? 'translate-x-0.5' : ''}`}
+                      className={`w-4 h-4 transition-transform rtl:rotate-180 ${isActive ? 'translate-x-0.5 rtl:-translate-x-0.5' : ''}`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -121,10 +123,10 @@ export const CategorySidebarSection: React.FC<SectionComponentProps> = ({ id }) 
           <div className="flex items-start justify-between mb-6">
             <div>
               <div className="text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--color-primary)' }}>
-                Featured in
+                {t('theme.section.category_sidebar.featured_in')}
               </div>
               <h3 className="text-2xl font-bold" style={{ color: 'var(--color-foreground)' }}>
-                {displayed.find((c) => c.slug === active)?.name || 'All products'}
+                {displayed.find((c) => c.slug === active)?.name || t('theme.section.category_sidebar.view_all')}
               </h3>
             </div>
             <Link
@@ -132,8 +134,8 @@ export const CategorySidebarSection: React.FC<SectionComponentProps> = ({ id }) 
               className="text-sm font-semibold inline-flex items-center gap-1"
               style={{ color: 'var(--color-primary)' }}
             >
-              Browse
-              <span aria-hidden>→</span>
+              {t('theme.section.category_sidebar.browse')}
+              <span aria-hidden className="rtl:rotate-180 inline-block">→</span>
             </Link>
           </div>
 

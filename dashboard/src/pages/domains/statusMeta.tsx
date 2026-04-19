@@ -13,65 +13,71 @@ import type { DomainStatus, DomainKind } from './types';
 // Single source of truth for how each state-machine status is
 // presented. Every component that renders a status reads from here
 // — no ad-hoc if/else ladders for colors or labels.
+//
+// NOTE: labelKey and descriptionKey are i18n key paths under the
+// `domains` namespace. Use t(meta.labelKey) / t(meta.descriptionKey)
+// to render localised text.
 
 export interface StatusMeta {
-  label: string;
+  /** i18n key under the `domains` namespace — use t(labelKey) */
+  labelKey: string;
+  /** i18n key under the `domains` namespace — use t(descriptionKey) */
+  descriptionKey: string;
   tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'progress';
   icon: LucideIcon;
   /** Whether the icon should spin (in-flight states). */
   spin?: boolean;
-  description: string;
 }
 
 export const STATUS_META: Record<DomainStatus, StatusMeta> = {
   pending_dns: {
-    label: 'Pending DNS',
+    labelKey: 'domains:ssl.status.pending_dns',
+    descriptionKey: 'domains:ssl.description.pending_dns',
     tone: 'warning',
     icon: Clock,
-    description: 'Waiting for the ownership TXT record to appear in DNS.',
   },
   ownership_verified: {
-    label: 'Ownership Verified',
+    labelKey: 'domains:ssl.status.ownership_verified',
+    descriptionKey: 'domains:ssl.description.ownership_verified',
     tone: 'info',
     icon: CheckCircle,
-    description: 'TXT record confirmed. Checking that DNS routes to the platform edge.',
   },
   dns_verified: {
-    label: 'DNS Verified',
+    labelKey: 'domains:ssl.status.dns_verified',
+    descriptionKey: 'domains:ssl.description.dns_verified',
     tone: 'info',
     icon: CheckCircle,
-    description: 'DNS points at the edge. Ready to request an SSL certificate.',
   },
   provisioning_ssl: {
-    label: 'Issuing SSL',
+    labelKey: 'domains:ssl.status.provisioning_ssl',
+    descriptionKey: 'domains:ssl.description.provisioning_ssl',
     tone: 'progress',
     icon: Loader2,
     spin: true,
-    description: 'SSL certificate issuance in progress. This usually completes in a few minutes.',
   },
   active: {
-    label: 'Active',
+    labelKey: 'domains:ssl.status.active',
+    descriptionKey: 'domains:ssl.description.active',
     tone: 'success',
     icon: ShieldCheck,
-    description: 'Serving traffic with a valid SSL certificate.',
   },
   ssl_failed: {
-    label: 'SSL Failed',
+    labelKey: 'domains:ssl.status.ssl_failed',
+    descriptionKey: 'domains:ssl.description.ssl_failed',
     tone: 'danger',
     icon: XCircle,
-    description: 'Certificate issuance failed. Retry once the underlying issue is fixed.',
   },
   dns_misconfigured: {
-    label: 'DNS Misconfigured',
+    labelKey: 'domains:ssl.status.dns_misconfigured',
+    descriptionKey: 'domains:ssl.description.dns_misconfigured',
     tone: 'danger',
     icon: AlertCircle,
-    description: 'DNS no longer points at the platform edge. Traffic may be failing.',
   },
   disabled: {
-    label: 'Disabled',
+    labelKey: 'domains:ssl.status.disabled',
+    descriptionKey: 'domains:ssl.description.disabled',
     tone: 'neutral',
     icon: PowerOff,
-    description: 'Domain is disabled and not serving traffic.',
   },
 };
 
@@ -84,16 +90,16 @@ export const TONE_CLASSES: Record<StatusMeta['tone'], string> = {
   progress: 'bg-purple-50 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-200 dark:border-purple-900',
 };
 
-export const KIND_LABEL: Record<DomainKind, string> = {
-  platform_subdomain: 'Platform Subdomain',
-  custom_apex: 'Custom Apex',
-  custom_subdomain: 'Custom Subdomain',
+export const KIND_LABEL_KEY: Record<DomainKind, string> = {
+  platform_subdomain: 'domains:add.kind.subdomain',
+  custom_apex: 'domains:add.kind.apex',
+  custom_subdomain: 'domains:add.kind.subdomain',
 };
 
-export const KIND_SHORT: Record<DomainKind, string> = {
-  platform_subdomain: 'Subdomain',
-  custom_apex: 'Apex',
-  custom_subdomain: 'Subdomain',
+export const KIND_SHORT_KEY: Record<DomainKind, string> = {
+  platform_subdomain: 'domains:add.kind.subdomain',
+  custom_apex: 'domains:add.kind.apex',
+  custom_subdomain: 'domains:add.kind.subdomain',
 };
 
 /** The progression of states a healthy custom domain moves through.

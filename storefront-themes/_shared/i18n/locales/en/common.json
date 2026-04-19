@@ -161,5 +161,41 @@
     "made_with_love": "Made with love",
     "all_rights_reserved": "All rights reserved",
     "powered_by": "Powered by"
+  },
+  "section": {
+    "hero": {
+      "heading": "Welcome"
+    },
+    "banner": {
+      "default_message": "Free shipping on all orders over $50"
+    },
+    "featured_products": {
+      "heading": "Featured Products",
+      "view_all": "View All"
+    },
+    "new_arrivals": {
+      "heading": "New Arrivals",
+      "see_more": "See More",
+      "add_to_cart": "Add to Cart"
+    },
+    "image_with_text": {
+      "heading": "Our Story"
+    },
+    "newsletter": {
+      "heading": "Stay in the Loop",
+      "subscribe": "Subscribe"
+    },
+    "categories": {
+      "heading": "Shop by Category",
+      "items_count": "{{count}} items"
+    },
+    "trust": {
+      "free_shipping_title": "Free Shipping",
+      "free_shipping_desc": "On orders over $50",
+      "secure_payment_title": "Secure Payment",
+      "secure_payment_desc": "256-bit SSL encryption",
+      "easy_returns_title": "Easy Returns",
+      "easy_returns_desc": "30-day money back"
+    }
   }
 }

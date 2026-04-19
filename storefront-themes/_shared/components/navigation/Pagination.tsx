@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
@@ -16,6 +17,7 @@ interface PaginationProps {
 export function Pagination(props: PaginationProps) {
   const Override = useThemeSlot<React.ComponentType<PaginationProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
+  const { t } = useTranslation('nav');
   const {
     currentPage,
     totalPages,
@@ -49,14 +51,14 @@ export function Pagination(props: PaginationProps) {
   }
 
   return (
-    <nav aria-label="Pagination" className={cn('flex items-center gap-1', className)}>
+    <nav aria-label={t('pagination.aria')} className={cn('flex items-center gap-1', className)}>
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition"
-        aria-label="Previous page"
+        aria-label={t('pagination.previous')}
       >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
@@ -85,9 +87,9 @@ export function Pagination(props: PaginationProps) {
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition"
-        aria-label="Next page"
+        aria-label={t('pagination.next')}
       >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </button>

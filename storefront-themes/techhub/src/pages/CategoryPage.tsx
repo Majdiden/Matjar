@@ -8,13 +8,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useCategory, useCategories } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { TonmartProductCard } from '../components/TonmartProductCard';
-
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Date, new to old' },
-  { value: 'price_asc', label: 'Price, low to high' },
-  { value: 'price_desc', label: 'Price, high to low' },
-  { value: 'popular', label: 'Best selling' },
-];
+import { useTranslation } from 'react-i18next';
 
 const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -24,6 +18,14 @@ const CategoryPage: React.FC = () => {
 
   const { category, products, pagination, loading } = useCategory(slug!, { page, sort });
   const { categories } = useCategories();
+  const { t } = useTranslation(['theme']);
+
+  const SORT_OPTIONS = [
+    { value: 'newest', label: t('theme.category.sort_newest') },
+    { value: 'price_asc', label: t('theme.category.sort_price_asc') },
+    { value: 'price_desc', label: t('theme.category.sort_price_desc') },
+    { value: 'popular', label: t('theme.products.sort_popular') },
+  ];
 
   const updateParam = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams);
@@ -37,10 +39,10 @@ const CategoryPage: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
         <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-foreground)' }}>
-          Category Not Found
+          {t('theme.category.not_found_heading')}
         </h2>
         <Link to="/products" className="text-sm underline" style={{ color: 'var(--color-primary)' }}>
-          Browse all products
+          {t('theme.category.browse_all')}
         </Link>
       </div>
     );
@@ -61,9 +63,9 @@ const CategoryPage: React.FC = () => {
             {category?.name || 'Loading...'}
           </h1>
           <nav className="text-xs" style={{ color: 'var(--color-muted)' }}>
-            <Link to="/" className="hover:opacity-70">Home</Link>
+            <Link to="/" className="hover:opacity-70">{t('theme.category.breadcrumb_home')}</Link>
             <span className="mx-2">•</span>
-            <Link to="/products" className="hover:opacity-70">Products</Link>
+            <Link to="/products" className="hover:opacity-70">{t('theme.product_detail.breadcrumb_products')}</Link>
             <span className="mx-2">•</span>
             <span>{category?.name}</span>
           </nav>
@@ -86,7 +88,7 @@ const CategoryPage: React.FC = () => {
               className="text-xs font-bold uppercase tracking-wider mb-3"
               style={{ color: 'var(--color-foreground)' }}
             >
-              Categories
+              {t('theme.products.filter_categories')}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -95,7 +97,7 @@ const CategoryPage: React.FC = () => {
                   className="text-[13px] hover:opacity-80"
                   style={{ color: 'var(--color-foreground)' }}
                 >
-                  All Products
+                  {t('theme.products.filter_all_products')}
                 </Link>
               </li>
               {categories.map((cat) => {
@@ -126,10 +128,10 @@ const CategoryPage: React.FC = () => {
             style={{ borderColor: 'var(--color-border)' }}
           >
             <p className="text-xs" style={{ color: 'var(--color-muted)' }}>
-              {pagination?.total ?? products.length} products
+              {t('theme.products.product_count', { count: pagination?.total ?? products.length })}
             </p>
             <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-muted)' }}>
-              <span className="uppercase tracking-wider font-semibold">Sort by</span>
+              <span className="uppercase tracking-wider font-semibold">{t('theme.products.sort_by')}</span>
               <select
                 value={sort}
                 onChange={(e) => updateParam('sort', e.target.value)}
@@ -154,7 +156,7 @@ const CategoryPage: React.FC = () => {
               className="py-24 text-center rounded-lg border"
               style={{ borderColor: 'var(--color-border)', color: 'var(--color-muted)' }}
             >
-              No products in this category yet — check back soon.
+              {t('theme.category.no_products')}
             </div>
           ) : (
             <div className="grid gap-8 grid-cols-2 md:grid-cols-3">
@@ -172,7 +174,7 @@ const CategoryPage: React.FC = () => {
                 className="px-4 py-2 text-xs font-bold uppercase tracking-wider border rounded-full disabled:opacity-30 transition hover:opacity-80"
                 style={{ borderColor: 'var(--color-border)', color: 'var(--color-foreground)' }}
               >
-                ← Prev
+                {t('theme.products.prev')}
               </button>
               {Array.from({ length: pagination.pages }).slice(0, 7).map((_, i) => {
                 const n = i + 1;
@@ -198,7 +200,7 @@ const CategoryPage: React.FC = () => {
                 className="px-4 py-2 text-xs font-bold uppercase tracking-wider border rounded-full disabled:opacity-30 transition hover:opacity-80"
                 style={{ borderColor: 'var(--color-border)', color: 'var(--color-foreground)' }}
               >
-                Next →
+                {t('theme.products.next_arrow')}
               </button>
             </div>
           )}

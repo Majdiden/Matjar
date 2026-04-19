@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
@@ -12,6 +13,8 @@ import type { Product } from '@shared/types/commerce';
 const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'trust-badges', 'newsletter'];
 
 const Home: React.FC = () => {
+  const { t } = useTranslation(['theme', 'common']);
+
   // Section settings from manifest + tenant overrides
   const hero = useThemeSettings('hero');
   const catsSettings = useThemeSettings('categories');
@@ -45,17 +48,17 @@ const Home: React.FC = () => {
             fontFamily: 'var(--font-family-heading)',
           }}
         >
-          {hero.heading || 'Welcome to Our Store'}
+          {hero.heading || t('theme.hero.main.headline')}
         </h1>
         <p className="mb-6 max-w-md mx-auto" style={{ color: 'var(--color-muted)' }}>
-          {hero.subheading || 'Discover our curated collection of quality products.'}
+          {hero.subheading || t('theme.hero.main.subheadline')}
         </p>
         <Link
           to={hero.button_url || '/products'}
           className="inline-block text-white px-6 py-2.5 rounded-lg font-medium hover:opacity-90 transition"
           style={{ backgroundColor: 'var(--color-primary)' }}
         >
-          {hero.button_text || 'Shop Now'}
+          {hero.button_text || t('theme.hero.main.cta')}
         </Link>
       </div>
       )}
@@ -70,7 +73,7 @@ const Home: React.FC = () => {
               fontFamily: 'var(--font-family-heading)',
             }}
           >
-            {catsSettings.heading || 'Categories'}
+            {catsSettings.heading || t('theme.section.categories.title')}
           </h2>
           <div className="flex flex-wrap gap-3">
             {categories.slice(0, catsSettings.max_categories || 12).map((cat) => (
@@ -104,14 +107,14 @@ const Home: React.FC = () => {
               fontFamily: 'var(--font-family-heading)',
             }}
           >
-            {feat.heading || 'Featured Products'}
+            {feat.heading || t('theme.section.featured_products.title')}
           </h2>
           <Link
             to={feat.view_all_url || '/products'}
             className="text-sm transition hover:opacity-80"
             style={{ color: 'var(--color-muted)' }}
           >
-            {feat.view_all_text || 'View All'}
+            {feat.view_all_text || t('theme.section.featured_products.view_all')}
           </Link>
         </div>
 
@@ -130,7 +133,7 @@ const Home: React.FC = () => {
                   <ProductCard.Title />
                   {feat.show_rating !== false && <ProductCard.Rating />}
                   <ProductCard.Price showCompareAt />
-                  <ProductCard.Actions addToCartText={feat.add_to_cart_text || 'Add'} />
+                  <ProductCard.Actions addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
                 </ProductCard.Body>
               </ProductCard>
             ))}
@@ -171,15 +174,15 @@ const Home: React.FC = () => {
             fontFamily: 'var(--font-family-heading)',
           }}
         >
-          {news.heading || 'Stay Updated'}
+          {news.heading || t('theme.section.newsletter.title')}
         </h2>
         <p className="text-sm mb-4" style={{ color: 'var(--color-muted)' }}>
-          {news.subheading || 'Subscribe for new arrivals and offers.'}
+          {news.subheading || t('theme.section.newsletter.subtitle')}
         </p>
         <form onSubmit={(e) => e.preventDefault()} className="flex gap-2 max-w-sm mx-auto">
           <input
             type="email"
-            placeholder={news.placeholder || 'your@email.com'}
+            placeholder={news.placeholder || t('theme.section.newsletter.placeholder')}
             className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none"
             style={{ borderColor: 'var(--color-border)' }}
           />
@@ -188,7 +191,7 @@ const Home: React.FC = () => {
             className="text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition"
             style={{ backgroundColor: 'var(--color-primary)' }}
           >
-            {news.button_text || 'Subscribe'}
+            {news.button_text || t('theme.section.newsletter.cta')}
           </button>
         </form>
       </section>

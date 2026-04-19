@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProduct } from '@shared/hooks/useProducts';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
@@ -21,6 +22,7 @@ const HEADING_FONT = 'var(--font-family-heading)';
 type TabKey = 'description' | 'ingredients' | 'reviews';
 
 const ProductDetail: React.FC = () => {
+  const { t } = useTranslation('theme');
   const { slug } = useParams<{ slug: string }>();
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
@@ -54,10 +56,10 @@ const ProductDetail: React.FC = () => {
   if (error || !product) {
     return (
       <div className="max-w-3xl mx-auto px-6 py-32 text-center" style={{ color: DARK_TEAL }}>
-        <h1 className="font-serif text-5xl mb-4 font-semibold" style={{ fontFamily: HEADING_FONT }}>Not Found</h1>
-        <p className="opacity-60 mb-6">We couldn't find that product.</p>
+        <h1 className="font-serif text-5xl mb-4 font-semibold" style={{ fontFamily: HEADING_FONT }}>{t('theme.product_detail.not_found_heading')}</h1>
+        <p className="opacity-60 mb-6">{t('theme.product_detail.not_found_body')}</p>
         <Link to="/products" className="inline-block px-8 py-3 rounded-full text-white text-sm font-bold" style={{ backgroundColor: DARK_TEAL }}>
-          Back to Shop
+          {t('theme.product_detail.back_to_shop')}
         </Link>
       </div>
     );
@@ -103,9 +105,9 @@ const ProductDetail: React.FC = () => {
       {/* Breadcrumb */}
       <div className="py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-[11px] tracking-[0.2em] uppercase font-bold" style={{ color: DARK_TEAL, opacity: 0.7 }}>
-          <Link to="/" className="hover:opacity-100">HOME</Link>
+          <Link to="/" className="hover:opacity-100">{t('theme.products.breadcrumb_home')}</Link>
           <span className="mx-2">/</span>
-          <Link to="/products" className="hover:opacity-100">SHOP</Link>
+          <Link to="/products" className="hover:opacity-100">{t('theme.products.breadcrumb_shop')}</Link>
           <span className="mx-2">/</span>
           <span>{product.name}</span>
         </div>
@@ -127,7 +129,7 @@ const ProductDetail: React.FC = () => {
                 </div>
               )}
               <div className="absolute bottom-6 right-6 w-24 h-24 rounded-full flex items-center justify-center text-center text-[10px] font-bold shadow-lg" style={{ backgroundColor: CREAM, color: DARK_TEAL }}>
-                100%<br />NATURAL
+                {t('theme.product_detail.badge_natural')}
               </div>
             </div>
 
@@ -236,7 +238,7 @@ const ProductDetail: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full ${inStock ? 'bg-green-600' : 'bg-red-500'}`} />
                   <span className={inStock ? 'text-green-700' : 'text-red-600'}>
-                    {inStock ? 'In stock — ready to ship' : preState.mode === 'soldOut' ? 'Sold out' : 'Out of stock'}
+                    {inStock ? t('theme.product_detail.in_stock') : preState.mode === 'soldOut' ? t('theme.product_detail.sold_out') : t('theme.product_detail.out_of_stock')}
                   </span>
                 </div>
               )}
@@ -276,7 +278,7 @@ const ProductDetail: React.FC = () => {
                 className="w-full h-12 rounded-full text-sm font-bold transition hover:scale-[1.02]"
                 style={{ backgroundColor: PINK, color: DARK_TEAL }}
               >
-                ♡ Save to Wishlist
+                {t('theme.product_detail.save_to_wishlist')}
               </button>
             </div>
 
@@ -285,10 +287,10 @@ const ProductDetail: React.FC = () => {
             {/* Benefits */}
             <div className="space-y-3 pt-6 border-t border-current/10 text-sm" style={{ color: DARK_TEAL }}>
               {[
-                ['🌱', '100% plant-based & vegan'],
-                ['🚚', 'Free shipping on orders over $40'],
-                ['↺', '30-day free returns'],
-                ['🔒', 'Secure SSL checkout'],
+                ['🌱', t('theme.product_detail.benefit_plant_based')],
+                ['🚚', t('theme.product_detail.benefit_free_shipping')],
+                ['↺', t('theme.product_detail.benefit_returns')],
+                ['🔒', t('theme.product_detail.benefit_secure')],
               ].map(([icon, text]) => (
                 <div key={text} className="flex items-center gap-3">
                   <span className="text-base">{icon}</span>
@@ -303,9 +305,9 @@ const ProductDetail: React.FC = () => {
         <div className="mt-20">
           <div className="flex justify-center gap-3 flex-wrap">
             {([
-              ['description', 'Description'],
-              ['ingredients', 'Ingredients'],
-              ['reviews', 'Reviews'],
+              ['description', t('theme.product_detail.tab_description')],
+              ['ingredients', t('theme.product_detail.tab_ingredients')],
+              ['reviews', t('theme.product_detail.tab_reviews')],
             ] as [TabKey, string][]).map(([k, label]) => (
               <button
                 key={k}
@@ -342,7 +344,7 @@ const ProductDetail: React.FC = () => {
           <section className="mt-20">
             <div className="text-center mb-12">
               <h2 className="font-serif text-4xl md:text-5xl font-semibold" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
-                You May Also Love
+                {t('theme.product_detail.you_may_also_love')}
               </h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

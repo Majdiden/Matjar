@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
@@ -9,6 +10,7 @@ import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import CartDrawer from '@shared/components/CartDrawer';
 
 const Layout: React.FC = () => {
+  const { t } = useTranslation('theme');
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
@@ -41,7 +43,7 @@ const Layout: React.FC = () => {
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-8">
-              <Link to="/products" className="text-sm text-gray-500 hover:text-gray-900 transition">Shop All</Link>
+              <Link to="/products" className="text-sm text-gray-500 hover:text-gray-900 transition">{t('theme.nav.shop_all')}</Link>
               {categories.slice(0, 4).map(cat => (
                 <Link key={cat._id} to={`/categories/${cat.slug}`} className="text-sm text-gray-500 hover:text-gray-900 transition">
                   {cat.name}
@@ -80,28 +82,28 @@ const Layout: React.FC = () => {
                 </svg>
                 <h3 className="text-white font-semibold text-lg">{store?.name || 'HomeDecor'}</h3>
               </div>
-              <p className="text-sm">Curated home furnishings for modern living. Transform your space with timeless design.</p>
+              <p className="text-sm">{t('theme.footer.tagline')}</p>
             </div>
             <div>
-              <h4 className="text-white text-sm font-semibold mb-3">Shop</h4>
+              <h4 className="text-white text-sm font-semibold mb-3">{t('theme.footer.col_shop')}</h4>
               <div className="space-y-2 text-sm">
-                <Link to="/products" className="block hover:text-white transition">All Products</Link>
+                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.all_products')}</Link>
                 {categories.slice(0, 3).map(cat => (
                   <Link key={cat._id} to={`/categories/${cat.slug}`} className="block hover:text-white transition">{cat.name}</Link>
                 ))}
               </div>
             </div>
             <div>
-              <h4 className="text-white text-sm font-semibold mb-3">Help</h4>
+              <h4 className="text-white text-sm font-semibold mb-3">{t('theme.footer.col_help')}</h4>
               <div className="space-y-2 text-sm">
-                <p className="hover:text-white transition cursor-pointer">Shipping & Returns</p>
-                <p className="hover:text-white transition cursor-pointer">Care Instructions</p>
-                <Link to="/contact" className="hover:text-white transition block">Contact Us</Link>
+                <p className="hover:text-white transition cursor-pointer">{t('theme.footer.shipping_returns')}</p>
+                <p className="hover:text-white transition cursor-pointer">{t('theme.footer.care_instructions')}</p>
+                <Link to="/contact" className="hover:text-white transition block">{t('theme.footer.contact_us')}</Link>
               </div>
             </div>
           </div>
           <div className="border-t border-gray-700 pt-6 text-center text-xs">
-            &copy; {new Date().getFullYear()} {store?.name || 'HomeDecor'}. All rights reserved.
+            {t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'HomeDecor' })}
           </div>
         </div>
       </footer>
@@ -112,7 +114,7 @@ const Layout: React.FC = () => {
           <h2 className="text-lg font-semibold text-gray-800 mb-6">{store?.name || 'HomeDecor'}</h2>
           <nav className="space-y-4">
             <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block text-gray-600 hover:text-[#d4a76a] transition">
-              Shop All
+              {t('theme.mobile_menu.shop_all')}
             </Link>
             {categories.map(cat => (
               <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMobileMenuOpen(false)} className="block text-gray-600 hover:text-[#d4a76a] transition">

@@ -4,6 +4,7 @@ import { useCategory, useCategories } from '@shared/hooks/useProducts';
 import BeauxeProductCard from '../components/BeauxeProductCard';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { useTranslation } from 'react-i18next';
 
 const NAVY = 'var(--color-primary)';
 const BLUSH = 'var(--color-muted)';
@@ -16,6 +17,7 @@ const CategoryPage: React.FC = () => {
   const sort = searchParams.get('sort') || 'newest';
   const { category, products, loading } = useCategory(slug!, { sort, limit: 24 });
   const { categories: allCategories } = useCategories();
+  const { t } = useTranslation(['theme']);
 
   const setSort = (v: string) => {
     const next = new URLSearchParams(searchParams);
@@ -28,9 +30,9 @@ const CategoryPage: React.FC = () => {
       {/* Title banner */}
       <div className="text-center py-16" style={{ backgroundColor: BLUSH }}>
         <div className="text-[11px] tracking-[0.3em] uppercase mb-4" style={{ color: NAVY, opacity: 0.7 }}>
-          <Link to="/" className="hover:opacity-100">Home</Link>
+          <Link to="/" className="hover:opacity-100">{t('theme.category.breadcrumb_home')}</Link>
           <span className="mx-2">/</span>
-          <Link to="/products" className="hover:opacity-100">Shop</Link>
+          <Link to="/products" className="hover:opacity-100">{t('theme.category.breadcrumb_shop')}</Link>
           <span className="mx-2">/</span>
           <span style={{ opacity: 1 }}>{category?.name || slug}</span>
         </div>
@@ -53,12 +55,12 @@ const CategoryPage: React.FC = () => {
           <aside>
             <div className="bg-white rounded-3xl p-6 border border-pink-100">
               <h3 className="text-[11px] tracking-[0.22em] uppercase font-bold mb-5 pb-3 border-b border-pink-100" style={{ color: NAVY }}>
-                Collections
+                {t('theme.category.sidebar_collections')}
               </h3>
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link to="/products" className="opacity-75 hover:opacity-100" style={{ color: NAVY }}>
-                    All Products
+                    {t('theme.category.sidebar_all_products')}
                   </Link>
                 </li>
                 {allCategories.slice(0, 12).map((cat) => (
@@ -79,18 +81,18 @@ const CategoryPage: React.FC = () => {
           <div>
             <div className="flex items-center justify-between pb-5 mb-8 border-b border-pink-100">
               <span className="text-sm opacity-75" style={{ color: NAVY }}>
-                {loading ? 'Loading…' : `${products.length} products`}
+                {loading ? t('theme.category.loading') : t('theme.category.product_count', { count: products.length })}
               </span>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="text-sm border border-pink-200 bg-white rounded-full px-5 py-2 pr-8 focus:outline-none focus:border-[color:var(--color-secondary)]"
+                className="text-sm border border-pink-200 bg-white rounded-full px-5 py-2 pe-8 focus:outline-none focus:border-[color:var(--color-secondary)]"
                 style={{ color: NAVY }}
               >
-                <option value="newest">Sort: Newest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="popular">Most Popular</option>
+                <option value="newest">{t('theme.category.sort_newest')}</option>
+                <option value="price-asc">{t('theme.category.sort_price_asc')}</option>
+                <option value="price-desc">{t('theme.category.sort_price_desc')}</option>
+                <option value="popular">{t('theme.category.sort_popular')}</option>
               </select>
             </div>
 
@@ -102,7 +104,7 @@ const CategoryPage: React.FC = () => {
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-24 opacity-60" style={{ color: NAVY }}>
-                No products in this category yet.
+                {t('theme.category.no_products')}
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">

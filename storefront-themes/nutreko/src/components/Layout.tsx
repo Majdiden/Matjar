@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
@@ -21,6 +22,7 @@ const DARK = 'var(--color-secondary)';
 const LIME = 'var(--color-primary)';
 
 const Layout: React.FC = () => {
+  const { t } = useTranslation('theme');
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
@@ -72,14 +74,14 @@ const Layout: React.FC = () => {
 
             {/* Nav (hidden on mobile) */}
             <nav className="hidden md:flex items-center gap-7 text-[12px] tracking-[0.15em] uppercase font-bold">
-              <Link to="/" className={isActive('/') && location.pathname === '/' ? 'text-[var(--color-primary)]' : 'hover:text-[var(--color-primary)]'}>Home</Link>
-              <Link to="/products" className={isActive('/products') ? 'text-[var(--color-primary)]' : 'hover:text-[var(--color-primary)]'}>Shop All</Link>
+              <Link to="/" className={isActive('/') && location.pathname === '/' ? 'text-[var(--color-primary)]' : 'hover:text-[var(--color-primary)]'}>{t('theme.nav.home')}</Link>
+              <Link to="/products" className={isActive('/products') ? 'text-[var(--color-primary)]' : 'hover:text-[var(--color-primary)]'}>{t('theme.nav.shop_all')}</Link>
               {categories.slice(0, 4).map((cat) => (
                 <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[var(--color-primary)]">
                   {cat.name}
                 </Link>
               ))}
-              <Link to="/about" className="hover:text-[var(--color-primary)]">About</Link>
+              <Link to="/about" className="hover:text-[var(--color-primary)]">{t('theme.nav.about')}</Link>
             </nav>
 
             {/* Icons */}
@@ -116,13 +118,13 @@ const Layout: React.FC = () => {
 
         {menuOpen && (
           <nav className="md:hidden border-t border-white/10 px-6 py-4 space-y-3 text-sm uppercase tracking-wider font-bold">
-            <Link onClick={() => setMenuOpen(false)} to="/" className="block">Home</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/products" className="block">Shop All</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/" className="block">{t('theme.nav.home')}</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/products" className="block">{t('theme.nav.shop_all')}</Link>
             {categories.slice(0, 6).map((cat) => (
               <Link key={cat._id} onClick={() => setMenuOpen(false)} to={`/categories/${cat.slug}`} className="block">{cat.name}</Link>
             ))}
-            <Link onClick={() => setMenuOpen(false)} to="/about" className="block">About</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">Contact</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.nav.about')}</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.nav.contact')}</Link>
           </nav>
         )}
       </header>
@@ -140,7 +142,7 @@ const Layout: React.FC = () => {
                 {brand}<span style={{ color: LIME }}>.</span>
               </div>
               <p className="text-sm mb-5 max-w-xs text-white/60">
-                Premium supplements and sports nutrition for athletes who demand more. 100% authentic, lab-tested, guaranteed.
+                {t('theme.footer.tagline')}
               </p>
               <div className="flex gap-3">
                 {['f', 'i', 'y', 't'].map((s) => (
@@ -154,25 +156,36 @@ const Layout: React.FC = () => {
                 ))}
               </div>
             </div>
-            {[
-              { h: 'Shop', items: ['All Products', 'Protein', 'Pre-Workout', 'Recovery'] },
-              { h: 'Support', items: ['Shipping', 'Returns', 'FAQs', 'Contact'] },
-              { h: 'Company', items: ['About', 'Blog', 'Ambassadors', 'Careers'] },
-            ].map((col) => (
-              <div key={col.h}>
-                <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>
-                  {col.h}
-                </h4>
-                <div className="space-y-3 text-sm text-white/70">
-                  {col.items.map((item) => (
-                    <a key={item} href="#" className="block hover:text-white transition">{item}</a>
-                  ))}
-                </div>
+            <div>
+              <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{t('theme.footer.col_shop')}</h4>
+              <div className="space-y-3 text-sm text-white/70">
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_all_products')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_protein')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_pre_workout')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_recovery')}</a>
               </div>
-            ))}
+            </div>
+            <div>
+              <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{t('theme.footer.col_support')}</h4>
+              <div className="space-y-3 text-sm text-white/70">
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_shipping')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_returns')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_faqs')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_contact')}</a>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{t('theme.footer.col_company')}</h4>
+              <div className="space-y-3 text-sm text-white/70">
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_about')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_blog')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_ambassadors')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_careers')}</a>
+              </div>
+            </div>
           </div>
           <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-white/50">
-            <span>© {new Date().getFullYear()} {brand}. ALL RIGHTS RESERVED.</span>
+            <span>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), brand })}</span>
             <div className="flex gap-2">
               {['VISA', 'MC', 'AMEX', 'PP'].map((p) => (
                 <span key={p} className="h-5 px-2 border border-white/30 text-[9px] font-bold flex items-center">{p}</span>

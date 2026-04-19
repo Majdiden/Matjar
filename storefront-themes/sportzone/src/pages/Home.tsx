@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useThemeSettings, useSectionEnabled } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
@@ -14,6 +15,7 @@ import type { Product } from '@shared/types/commerce';
 const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'cta-banner', 'performance-gear', 'trust-badges'];
 
 const Home: React.FC = () => {
+  const { t } = useTranslation(['theme', 'common']);
   const { store } = useStore();
 
   // Read section settings from the manifest + tenant overrides
@@ -43,14 +45,15 @@ const Home: React.FC = () => {
   const trustObserver = useIntersectionObserver({ threshold: 0.1 });
 
   // Default trust badge blocks — overridden by manifest blocks when available
+  // Strings are resolved via t() so they work in both EN and AR
   const defaultBadges = [
-    { title: 'Free Returns', desc: '30-day no-questions-asked returns', icon: (
+    { title: t('theme.section.trust_badges.free_returns.title'), desc: t('theme.section.trust_badges.free_returns.description'), icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" /></svg>
     )},
-    { title: 'Pro Gear', desc: 'Used by professional athletes worldwide', icon: (
+    { title: t('theme.section.trust_badges.pro_gear.title'), desc: t('theme.section.trust_badges.pro_gear.description'), icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
     )},
-    { title: 'Fast Delivery', desc: 'Express shipping on all orders', icon: (
+    { title: t('theme.section.trust_badges.fast_delivery.title'), desc: t('theme.section.trust_badges.fast_delivery.description'), icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
     )},
   ];
@@ -65,7 +68,7 @@ const Home: React.FC = () => {
   const trustBlocks: Array<{ title: string; desc: string; icon: React.ReactNode }> =
     Array.isArray(trust.blocks) && trust.blocks.length > 0
       ? trust.blocks.map((b: any) => ({
-          title: b.settings?.title || 'Trust Badge',
+          title: b.settings?.title || t('theme.section.trust_badges.default_title'),
           desc: b.settings?.description || '',
           icon: iconMap[b.settings?.icon] ?? iconMap.lightning,
         }))
@@ -90,10 +93,10 @@ const Home: React.FC = () => {
       >
         {/* Diagonal accent line */}
         {hero.show_diagonal_accent !== false && (
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#dc2626]/10 to-transparent" />
+          <div className="absolute top-0 end-0 w-1/2 h-full bg-gradient-to-l from-[#dc2626]/10 to-transparent" />
         )}
         {hero.show_bottom_bar !== false && (
-          <div className="absolute bottom-0 left-0 w-64 h-1 bg-[#dc2626]" />
+          <div className="absolute bottom-0 start-0 w-64 h-1 bg-[#dc2626]" />
         )}
         <div className="max-w-7xl mx-auto text-center relative z-10">
           {hero.eyebrow_text && (
@@ -102,24 +105,24 @@ const Home: React.FC = () => {
             </p>
           )}
           <h1 className="text-5xl md:text-7xl font-black uppercase text-white mb-6 leading-none">
-            {hero.heading_line1 || 'Push Your'}<br />
-            <span className="text-[#dc2626]">{hero.heading_line2 || 'Limits'}</span>
+            {hero.heading_line1 || t('theme.hero.main.headline_line1')}<br />
+            <span className="text-[#dc2626]">{hero.heading_line2 || t('theme.hero.main.headline_line2')}</span>
           </h1>
           <p className="text-gray-400 text-lg mb-8 max-w-lg mx-auto">
-            {hero.subheading || 'Performance gear for athletes who demand the best. Train harder, go further.'}
+            {hero.subheading || t('theme.hero.main.subheadline')}
           </p>
           <div className="flex gap-4 justify-center">
             <Link
               to={hero.primary_button_url || '/products'}
               className="inline-block bg-[#dc2626] text-white px-10 py-4 font-black uppercase tracking-wider hover:bg-[#b91c1c] transition"
             >
-              {hero.primary_button_text || 'Shop Now'}
+              {hero.primary_button_text || t('theme.hero.main.cta_primary')}
             </Link>
             <Link
               to={hero.secondary_button_url || '/products'}
               className="inline-block border-2 border-white/20 text-white px-10 py-4 font-black uppercase tracking-wider hover:border-[#dc2626] hover:text-[#dc2626] transition"
             >
-              {hero.secondary_button_text || 'Browse All'}
+              {hero.secondary_button_text || t('theme.hero.main.cta_secondary')}
             </Link>
           </div>
         </div>
@@ -132,7 +135,7 @@ const Home: React.FC = () => {
           ref={categoriesObserver.ref as React.RefObject<HTMLElement>}
           className={`max-w-7xl mx-auto px-4 py-14 transition-all duration-700 ${categoriesObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h2 className="text-2xl font-black uppercase mb-8">{cats.heading || 'Shop by Sport'}</h2>
+          <h2 className="text-2xl font-black uppercase mb-8">{cats.heading || t('theme.section.categories.title')}</h2>
           <div className={`grid grid-cols-2 md:grid-cols-${cats.columns || '4'} gap-4`}>
             {categories.slice(0, cats.max_categories || 4).map((cat) => (
               <Link
@@ -144,11 +147,11 @@ const Home: React.FC = () => {
                 {cat.image && <img src={cat.image} alt={cat.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-500" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                 <div className="absolute inset-0 border-2 border-transparent group-hover:border-[#dc2626] transition-all duration-300 rounded" />
-                <div className="absolute bottom-0 left-0 p-4">
+                <div className="absolute bottom-0 start-0 p-4">
                   <span className="text-white font-black uppercase text-sm tracking-wider">{cat.name}</span>
                   {cats.show_shop_now_label !== false && (
                     <span className="block text-[#dc2626] text-xs font-bold uppercase mt-1 opacity-0 group-hover:opacity-100 transition">
-                      {cats.shop_now_text || 'Shop Now'} &rarr;
+                      {cats.shop_now_text || t('theme.section.categories.shop_now')} &rarr;
                     </span>
                   )}
                 </div>
@@ -166,9 +169,9 @@ const Home: React.FC = () => {
       >
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-black uppercase">{feat.heading || 'Top Picks'}</h2>
+            <h2 className="text-2xl font-black uppercase">{feat.heading || t('theme.section.featured_products.title')}</h2>
             <Link to={feat.view_all_url || '/products'} className="text-[#dc2626] font-bold text-sm uppercase hover:underline">
-              {feat.view_all_text || 'View All'} &rarr;
+              {feat.view_all_text || t('theme.section.featured_products.view_all')} &rarr;
             </Link>
           </div>
           {featuredLoading ? (
@@ -192,7 +195,7 @@ const Home: React.FC = () => {
                     {feat.show_rating !== false && <ProductCard.Rating />}
                     <ProductCard.Price showCompareAt />
                     {feat.show_add_to_cart !== false && (
-                      <ProductCard.Actions addToCartText={feat.add_to_cart_text || 'Add to Cart'} />
+                      <ProductCard.Actions addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
                     )}
                   </ProductCard.Body>
                 </ProductCard>
@@ -207,17 +210,17 @@ const Home: React.FC = () => {
       {ctaEnabled && (
       <section className="py-16 text-center px-4" style={{ backgroundColor: ctaBgColor }}>
         <h2 className="text-3xl md:text-4xl font-black uppercase text-white mb-4">
-          {cta.heading || 'Ready to Perform?'}
+          {cta.heading || t('theme.section.cta_banner.title')}
         </h2>
         <p className="text-red-100 mb-8 max-w-md mx-auto">
-          {cta.subheading || 'Free shipping on all orders over $75. No excuses.'}
+          {cta.subheading || t('theme.section.cta_banner.subtitle')}
         </p>
         <Link
           to={cta.button_url || '/products'}
           className="inline-block px-10 py-4 font-black uppercase tracking-wider hover:opacity-90 transition"
           style={{ backgroundColor: ctaBtnBg, color: ctaBtnTextColor }}
         >
-          {cta.button_text || 'Get Started'}
+          {cta.button_text || t('theme.section.cta_banner.cta')}
         </Link>
       </section>
       )}
@@ -229,7 +232,7 @@ const Home: React.FC = () => {
         className={`py-16 transition-all duration-700 ${carouselObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-black uppercase mb-8">{perfGear.heading || 'Performance Gear'}</h2>
+          <h2 className="text-2xl font-black uppercase mb-8">{perfGear.heading || t('theme.section.performance_gear.title')}</h2>
           {arrivalsLoading ? (
             <Skeleton className="h-72 rounded-lg" />
           ) : (

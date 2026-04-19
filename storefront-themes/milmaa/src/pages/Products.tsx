@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProducts, useCategories } from '@shared/hooks/useProducts';
 import MilmaaProductCard from '../components/MilmaaProductCard';
 import { QuickView } from '@shared/components/discovery/QuickView';
@@ -52,6 +53,7 @@ const Products: React.FC = () => {
     return p;
   }, [selectedCategory, availability, priceMin, priceMax, sort]);
 
+  const { t } = useTranslation('theme');
   const { products, loading } = useProducts(params);
   const { categories } = useCategories();
 
@@ -62,15 +64,15 @@ const Products: React.FC = () => {
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full opacity-60" style={{ backgroundColor: PINK }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <div className="text-[11px] tracking-[0.3em] uppercase mb-3 font-bold opacity-70" style={{ color: DARK_TEAL }}>
-            <Link to="/" className="hover:opacity-100">HOME</Link>
+            <Link to="/" className="hover:opacity-100">{t('theme.products.breadcrumb_home')}</Link>
             <span className="mx-2">/</span>
-            <span>SHOP</span>
+            <span>{t('theme.products.breadcrumb_shop')}</span>
           </div>
           <h1 className="font-serif text-5xl md:text-6xl font-semibold" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
-            All Our Milks
+            {t('theme.products.page_title')}
           </h1>
           <p className="mt-4 text-base max-w-md mx-auto opacity-75" style={{ color: DARK_TEAL }}>
-            Explore our creamy, dreamy range of plant-based milks — every bottle crafted with love.
+            {t('theme.products.page_subtitle')}
           </p>
         </div>
       </div>
@@ -79,7 +81,7 @@ const Products: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
           {/* Sidebar */}
           <aside>
-            <FilterBlock title="Category">
+            <FilterBlock title={t('theme.products.filter_category')}>
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <button
@@ -87,7 +89,7 @@ const Products: React.FC = () => {
                     className={`text-left transition ${selectedCategory === '' ? 'font-bold' : 'opacity-70 hover:opacity-100'}`}
                     style={{ color: DARK_TEAL }}
                   >
-                    All Products
+                    {t('theme.products.all_products')}
                   </button>
                 </li>
                 {categories.slice(0, 10).map((cat) => (
@@ -104,7 +106,7 @@ const Products: React.FC = () => {
               </ul>
             </FilterBlock>
 
-            <FilterBlock title="Availability">
+            <FilterBlock title={t('theme.products.filter_availability')}>
               <div className="space-y-3 text-sm" style={{ color: DARK_TEAL }}>
                 {[
                   { value: '', label: 'All' },
@@ -125,7 +127,7 @@ const Products: React.FC = () => {
               </div>
             </FilterBlock>
 
-            <FilterBlock title="Price">
+            <FilterBlock title={t('theme.products.filter_price')}>
               <div className="flex items-center gap-3">
                 <input
                   type="number"
@@ -151,17 +153,17 @@ const Products: React.FC = () => {
             <div className="relative overflow-hidden rounded-[32px] p-7 text-white" style={{ backgroundColor: TEAL }}>
               <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full opacity-30" style={{ backgroundColor: YELLOW }} />
               <div className="relative">
-                <div className="text-[10px] tracking-[0.3em] uppercase font-bold mb-3 opacity-90">OFFER</div>
+                <div className="text-[10px] tracking-[0.3em] uppercase font-bold mb-3 opacity-90">{t('theme.products.promo_eyebrow')}</div>
                 <h4 className="font-serif text-2xl font-bold leading-tight mb-3" style={{ fontFamily: HEADING_FONT }}>
-                  Free delivery on orders $40+
+                  {t('theme.products.promo_heading')}
                 </h4>
-                <p className="text-xs opacity-80 mb-4">Stock up and save on your favorite flavors.</p>
+                <p className="text-xs opacity-80 mb-4">{t('theme.products.promo_body')}</p>
                 <Link
                   to="/products"
                   className="inline-block px-5 py-2 rounded-full text-xs font-bold"
                   style={{ backgroundColor: '#fff', color: DARK_TEAL }}
                 >
-                  Shop Now →
+                  {t('theme.products.promo_cta')}
                 </Link>
               </div>
             </div>
@@ -171,7 +173,7 @@ const Products: React.FC = () => {
             {/* Toolbar */}
             <div className="flex items-center justify-between pb-5 mb-8 border-b-2 border-current/10">
               <span className="text-sm opacity-70" style={{ color: DARK_TEAL }}>
-                {loading ? 'Loading…' : `${products.length} products`}
+                {t('theme.products.count', { count: products.length })}
               </span>
               <select
                 value={sort}
@@ -179,10 +181,10 @@ const Products: React.FC = () => {
                 className="text-sm bg-white rounded-full px-5 py-2.5 pr-8 focus:outline-none font-medium"
                 style={{ color: DARK_TEAL }}
               >
-                <option value="newest">Sort: Newest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="popular">Most Popular</option>
+                <option value="newest">{t('theme.products.sort_newest')}</option>
+                <option value="price-asc">{t('theme.products.sort_price_asc')}</option>
+                <option value="price-desc">{t('theme.products.sort_price_desc')}</option>
+                <option value="popular">{t('theme.products.sort_popular')}</option>
               </select>
             </div>
 
@@ -194,7 +196,7 @@ const Products: React.FC = () => {
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-24 opacity-60" style={{ color: DARK_TEAL }}>
-                No products found. Try different filters.
+                {t('theme.products.empty')}
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">

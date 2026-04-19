@@ -25,7 +25,8 @@
         "warranty": {
           "title": "1 Year Warranty",
           "subtitle": "All of our products are made with care"
-        }
+        },
+        "default_title": "Free Shipping"
       },
       "promo_banner": {
         "pc_gaming": {
@@ -42,7 +43,9 @@
           "title": "GAMING MOUSE",
           "subtitle": "ULTRA LIGHTWEIGHT",
           "cta": "SHOP NOW"
-        }
+        },
+        "default_title": "PROMO TITLE",
+        "default_cta": "SHOP NOW"
       },
       "tabbed_products": {
         "title": "FEATURED PRODUCTS",
@@ -57,7 +60,14 @@
         "title": "Find what you need, fast",
         "view_all": "All categories",
         "featured_in": "Featured in",
-        "browse": "Browse"
+        "browse": "Browse",
+        "browse_all_products": "Browse all products"
+      },
+      "tonmart_feeds": {
+        "featured_heading": "FEATURED PRODUCTS",
+        "new_arrivals_heading": "NEW ARRIVALS",
+        "shop_products_heading": "SHOP PRODUCTS",
+        "view_all": "View all"
       }
     },
     "product_card": {
@@ -70,13 +80,91 @@
       "compare_added": "✓ Compare",
       "compare_full": "Compare list full",
       "hot_badge": "HOT",
-      "pre_order_badge": "Pre-order"
+      "pre_order_badge": "Pre-order",
+      "compare_remove": "Remove from compare",
+      "compare_add": "Add to compare",
+      "toggle_compare": "Toggle compare",
+      "add_to_wishlist": "Add to wishlist",
+      "quick_view": "Quick view"
     },
     "banner": {
       "announcement": {
         "text": "Free express shipping on orders over $200!",
         "cta": "Shop Now"
       }
+    },
+    "products": {
+      "page_title": "All Products",
+      "all_categories": "All Categories",
+      "filter_categories": "Categories",
+      "filter_all_products": "All Products",
+      "filter_by": "Filter by",
+      "filter_clear_all": "Clear all",
+      "filter_availability": "Availability",
+      "filter_in_stock": "In stock",
+      "filter_price": "Price",
+      "filter_brand": "Brand",
+      "sort_by": "Sort by",
+      "product_count": "{{count}} products",
+      "no_results_filters": "No products match your filters.",
+      "clear_all_filters": "Clear all filters",
+      "prev": "← Prev",
+      "next_arrow": "Next →",
+      "price_min_label": "Min",
+      "price_max_label": "Max",
+      "search_placeholder": "Search products...",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "no_results": "No products found",
+      "clear_search": "Clear search",
+      "previous": "Previous",
+      "next": "Next",
+      "page_of": "Page {{page}} of {{total}}"
+    },
+    "category": {
+      "not_found_heading": "Category Not Found",
+      "browse_all": "Browse all products",
+      "breadcrumb_home": "Home",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "no_products": "No products in this category yet",
+      "previous": "Previous",
+      "next": "Next",
+      "page_of": "Page {{page}} of {{total}}"
+    },
+    "product_detail": {
+      "breadcrumb_home": "Home",
+      "breadcrumb_products": "Products",
+      "product_not_found": "Product Not Found",
+      "back_to_shop": "Back to shop",
+      "select_option": "Select an option to see availability",
+      "in_stock": "In Stock ({{count}} available)",
+      "preorder": "Pre-order",
+      "preorder_ships": "Pre-order — ships {{date}}",
+      "only_left": "Only {{count}} left",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of Stock",
+      "description_heading": "Description"
+    },
+    "cart": {
+      "loading": "Loading cart...",
+      "empty_heading": "Your cart is empty",
+      "empty_subtext": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "page_heading": "Shopping Cart",
+      "clear_cart": "Clear Cart",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping_label": "Shipping",
+      "shipping_value": "Calculated at checkout",
+      "tax_label": "Tax",
+      "tax_value": "Calculated at checkout",
+      "total": "Total",
+      "checkout_button": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping",
+      "remove": "Remove"
     },
     "footer": {
       "tagline": "Your destination for the latest tech and gadgets. Curated quality, fast shipping, and 1-year warranty.",
@@ -113,7 +201,54 @@
       "search_placeholder": "Enter your keywords...",
       "account": "Account",
       "hello_login": "Hello, Login",
-      "call_us": "Call Us:"
+      "call_us": "Call Us:",
+      "buy_now": "Buy it now",
+      "share": "Share",
+      "compare": "Compare",
+      "comparing": "Comparing",
+      "ask_question": "Ask a question",
+      "faq": "FAQ",
+      "view_all_reviews": "View all {{count}} reviews"
+    },
+    "product_detail_extras": {
+      "tab_description": "Description",
+      "tab_specifications": "Specifications",
+      "tab_delivery": "Delivery & Shipping",
+      "tab_reviews": "Customer Reviews",
+      "no_description": "No description available.",
+      "delivery_policy_heading": "Delivery Policy",
+      "delivery_policy_line1": "Orders placed before 3 PM ship the same business day.",
+      "delivery_policy_line2": "Standard delivery: 3–5 business days.",
+      "delivery_policy_line3": "Express delivery: 1–2 business days (extra charge).",
+      "shipping_return_heading": "Shipping & Return",
+      "shipping_return_line1": "Free shipping on orders over $200.",
+      "shipping_return_line2": "30-day return window — items must be unused and in original packaging.",
+      "shipping_return_line3": "Contact support to initiate a return.",
+      "based_on_reviews": "Based on {{count}} review",
+      "based_on_reviews_plural": "Based on {{count}} reviews",
+      "write_review": "Write a review",
+      "sign_in_to_review": "Sign in to write a review",
+      "your_rating": "Your rating",
+      "title_optional": "Title (optional)",
+      "title_placeholder": "Sum it up in a few words",
+      "your_review": "Your review",
+      "review_placeholder": "What did you like or dislike?",
+      "submit_review": "Submit review",
+      "submitting": "Submitting…",
+      "cancel": "Cancel",
+      "no_reviews": "No reviews yet. Be the first to share your thoughts.",
+      "verified": "Verified",
+      "anonymous": "Anonymous",
+      "this_item": "This item",
+      "choose_options_link": "Choose options",
+      "frequently_bought_heading": "Frequently Bought Together",
+      "frequently_bought_subtitle": "Customers often pair these together.",
+      "addon_total_label": "Add-on total",
+      "extras_selected": "{{selected}} of {{total}} extras selected",
+      "add_selected_to_cart": "Add Selected to Cart",
+      "adding_bundle": "Adding…",
+      "similar_products_heading": "Similar Products",
+      "similar_products_subtitle": "More from this collection you might love."
     }
   }
 }

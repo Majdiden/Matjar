@@ -161,5 +161,46 @@
     "made_with_love": "صُنع بحب",
     "all_rights_reserved": "جميع الحقوق محفوظة",
     "powered_by": "مدعوم من"
+  },
+  "section": {
+    "hero": {
+      "heading": "أهلاً وسهلاً"
+    },
+    "banner": {
+      "default_message": "شحن مجاني على جميع الطلبات التي تتجاوز 50$"
+    },
+    "featured_products": {
+      "heading": "المنتجات المميّزة",
+      "view_all": "عرض الكل"
+    },
+    "new_arrivals": {
+      "heading": "الوصول حديثاً",
+      "see_more": "عرض المزيد",
+      "add_to_cart": "أضف إلى السلة"
+    },
+    "image_with_text": {
+      "heading": "قصتنا"
+    },
+    "newsletter": {
+      "heading": "ابقَ على اطلاع",
+      "subscribe": "اشتراك"
+    },
+    "categories": {
+      "heading": "تسوّق حسب الفئة",
+      "items_count_zero": "لا توجد عناصر",
+      "items_count_one": "عنصر واحد",
+      "items_count_two": "عنصران",
+      "items_count_few": "{{count}} عناصر",
+      "items_count_many": "{{count}} عنصراً",
+      "items_count_other": "{{count}} عناصر"
+    },
+    "trust": {
+      "free_shipping_title": "شحن مجاني",
+      "free_shipping_desc": "على الطلبات التي تتجاوز 50$",
+      "secure_payment_title": "دفع آمن",
+      "secure_payment_desc": "تشفير SSL بـ 256 بت",
+      "easy_returns_title": "إرجاع سهل",
+      "easy_returns_desc": "استرداد خلال 30 يوماً"
+    }
   }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
@@ -13,6 +14,7 @@ interface GridListToggleProps {
 export function GridListToggle(props: GridListToggleProps) {
   const Override = useThemeSlot<React.ComponentType<GridListToggleProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
+  const { t } = useTranslation('discovery');
   const { view, onChange, className } = props;
   return (
     <div className={cn('inline-flex border rounded-lg overflow-hidden', className)}>
@@ -22,7 +24,7 @@ export function GridListToggle(props: GridListToggleProps) {
           'p-2 transition-colors',
           view === 'grid' ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' : 'text-gray-500 hover:bg-gray-100'
         )}
-        aria-label="Grid view"
+        aria-label={t('toggle.grid_aria')}
         aria-pressed={view === 'grid'}
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
@@ -38,7 +40,7 @@ export function GridListToggle(props: GridListToggleProps) {
           'p-2 transition-colors',
           view === 'list' ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' : 'text-gray-500 hover:bg-gray-100'
         )}
-        aria-label="List view"
+        aria-label={t('toggle.list_aria')}
         aria-pressed={view === 'list'}
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">

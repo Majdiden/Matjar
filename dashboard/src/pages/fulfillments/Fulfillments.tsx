@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -49,6 +50,7 @@ const statusVariant = (status: string) => {
 };
 
 export const Fulfillments: React.FC = () => {
+  const { t } = useTranslation(['orders', 'common']);
   const [fulfillments, setFulfillments] = useState<Fulfillment[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
@@ -81,11 +83,11 @@ export const Fulfillments: React.FC = () => {
       setPagination(res.responseObject?.pagination || res.data?.pagination || { total: 0, pages: 1 });
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to load fulfillments');
+      toast.error(e?.message || t('orders:fulfillment.toast.load_failed'));
     } finally {
       setLoading(false);
     }
-  }, [page, statusFilter, search]);
+  }, [page, statusFilter, search, t]);
 
   useEffect(() => {
     loadFulfillments();
@@ -94,11 +96,11 @@ export const Fulfillments: React.FC = () => {
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
       await api.fulfillments.updateStatus(id, newStatus);
-      toast.success('Fulfillment status updated');
+      toast.success(t('orders:fulfillment.toast.status_updated'));
       setFulfillments(prev => prev.map(f => f._id === id ? { ...f, status: newStatus } : f));
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to update status');
+      toast.error(e?.message || t('orders:fulfillment.toast.status_update_failed'));
     }
   };
 
@@ -120,8 +122,8 @@ export const Fulfillments: React.FC = () => {
     const results = await Promise.allSettled(ids.map(id => api.fulfillments.updateStatus(id, status)));
     const ok = results.filter(r => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(`${ok} fulfillment${ok === 1 ? '' : 's'} updated to ${status}`);
-    if (failed) toast.error(`${failed} failed`);
+    if (ok) toast.success(t('orders:fulfillment.toast.bulk_updated_other', { count: ok, status }));
+    if (failed) toast.error(t('orders:fulfillment.toast.bulk_failed', { count: failed }));
     setSelected(new Set());
     loadFulfillments();
   };
@@ -134,17 +136,17 @@ export const Fulfillments: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Fulfillments</h1>
-        <p className="text-muted-foreground mt-1">Track and manage order fulfillments</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('orders:fulfillment.list.title')}</h1>
+        <p className="text-muted-foreground mt-1">{t('orders:fulfillment.list.description')}</p>
       </div>
 
       <FilterPills
         items={[
-          { id: '', label: 'All', icon: Inbox },
-          { id: 'pending', label: 'Pending', icon: Clock },
-          { id: 'shipped', label: 'Shipped', icon: Truck },
-          { id: 'delivered', label: 'Delivered', icon: CheckCircle2 },
-          { id: 'cancelled', label: 'Cancelled', icon: XCircle },
+          { id: '', label: t('orders:fulfillment.list.filter.all'), icon: Inbox },
+          { id: 'pending', label: t('orders:fulfillment.list.filter.pending'), icon: Clock },
+          { id: 'shipped', label: t('orders:fulfillment.list.filter.shipped'), icon: Truck },
+          { id: 'delivered', label: t('orders:fulfillment.list.filter.delivered'), icon: CheckCircle2 },
+          { id: 'cancelled', label: t('orders:fulfillment.list.filter.cancelled'), icon: XCircle },
         ]}
         value={statusFilter}
         onChange={(v) => { setStatusFilter(v); setPage(1); }}
@@ -154,7 +156,7 @@ export const Fulfillments: React.FC = () => {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by tracking, carrier, or order..."
+            placeholder={t('orders:fulfillment.list.search.placeholder')}
             className="pl-9"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
@@ -167,19 +169,19 @@ export const Fulfillments: React.FC = () => {
 
       {selected.size > 0 && (
         <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5">
-          <p className="text-sm font-medium">{selected.size} selected</p>
+          <p className="text-sm font-medium">{t('orders:fulfillment.list.bulk.selected', { count: selected.size })}</p>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 mr-1.5" />Clear
+              <X className="h-3.5 w-3.5 mr-1.5" />{t('orders:fulfillment.list.bulk.clear')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('shipped')}>
-              <Truck className="h-3.5 w-3.5 mr-1.5" />Mark shipped
+              <Truck className="h-3.5 w-3.5 mr-1.5" />{t('orders:fulfillment.list.bulk.mark_shipped')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('delivered')}>
-              <PackageCheck className="h-3.5 w-3.5 mr-1.5" />Mark delivered
+              <PackageCheck className="h-3.5 w-3.5 mr-1.5" />{t('orders:fulfillment.list.bulk.mark_delivered')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkStatus('cancelled')}>
-              <XCircle className="h-3.5 w-3.5 mr-1.5" />Cancel
+              <XCircle className="h-3.5 w-3.5 mr-1.5" />{t('orders:fulfillment.list.bulk.cancel')}
             </Button>
           </div>
         </div>
@@ -195,9 +197,9 @@ export const Fulfillments: React.FC = () => {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Truck className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">No fulfillments</h3>
+            <h3 className="text-lg font-semibold">{t('orders:fulfillment.list.empty.title')}</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Fulfillments will appear here when orders are processed.
+              {t('orders:fulfillment.list.empty.description')}
             </p>
           </CardContent>
         </Card>
@@ -214,13 +216,13 @@ export const Fulfillments: React.FC = () => {
                     className="h-4 w-4 rounded border-gray-300"
                   />
                 </TableHead>
-                <TableHead>Order</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Tracking</TableHead>
-                <TableHead>Carrier</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('orders:fulfillment.list.column.order')}</TableHead>
+                <TableHead>{t('orders:fulfillment.list.column.items')}</TableHead>
+                <TableHead>{t('orders:fulfillment.list.column.status')}</TableHead>
+                <TableHead>{t('orders:fulfillment.list.column.tracking')}</TableHead>
+                <TableHead>{t('orders:fulfillment.list.column.carrier')}</TableHead>
+                <TableHead>{t('orders:fulfillment.list.column.date')}</TableHead>
+                <TableHead className="text-right">{t('orders:fulfillment.list.column.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -240,7 +242,11 @@ export const Fulfillments: React.FC = () => {
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Package className="h-4 w-4 text-muted-foreground" />
-                      <span>{f.lineItems.length} item{f.lineItems.length !== 1 ? 's' : ''}</span>
+                      <span>
+                        {f.lineItems.length === 1
+                          ? t('orders:fulfillment.list.item_count_one', { count: f.lineItems.length })
+                          : t('orders:fulfillment.list.item_count_other', { count: f.lineItems.length })}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -261,10 +267,10 @@ export const Fulfillments: React.FC = () => {
                         value={f.status}
                         onChange={(e) => handleStatusUpdate(f._id, e.target.value)}
                         options={[
-                          { value: 'pending', label: 'Pending' },
-                          { value: 'shipped', label: 'Shipped' },
-                          { value: 'delivered', label: 'Delivered' },
-                          { value: 'cancelled', label: 'Cancelled' },
+                          { value: 'pending', label: t('orders:fulfillment.list.filter.pending') },
+                          { value: 'shipped', label: t('orders:fulfillment.list.filter.shipped') },
+                          { value: 'delivered', label: t('orders:fulfillment.list.filter.delivered') },
+                          { value: 'cancelled', label: t('orders:fulfillment.list.filter.cancelled') },
                         ]}
                       />
                     )}
@@ -299,16 +305,20 @@ export const Fulfillments: React.FC = () => {
                     <p className="font-mono font-semibold truncate">#{getOrderNumber(f.order)}</p>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                       <Package className="h-3.5 w-3.5" />
-                      <span>{f.lineItems.length} item{f.lineItems.length !== 1 ? 's' : ''}</span>
+                      <span>
+                        {f.lineItems.length === 1
+                          ? t('orders:fulfillment.list.item_count_one', { count: f.lineItems.length })
+                          : t('orders:fulfillment.list.item_count_other', { count: f.lineItems.length })}
+                      </span>
                     </div>
                   </div>
                   <div className="space-y-1 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Tracking</span>
+                      <span className="text-muted-foreground">{t('orders:fulfillment.list.card.tracking')}</span>
                       <span className="font-mono truncate ml-2">{f.trackingNumber || '—'}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Carrier</span>
+                      <span className="text-muted-foreground">{t('orders:fulfillment.list.card.carrier')}</span>
                       <span className="truncate ml-2">{f.carrier || '—'}</span>
                     </div>
                   </div>
@@ -319,10 +329,10 @@ export const Fulfillments: React.FC = () => {
                         value={f.status}
                         onChange={(e) => handleStatusUpdate(f._id, e.target.value)}
                         options={[
-                          { value: 'pending', label: 'Pending' },
-                          { value: 'shipped', label: 'Shipped' },
-                          { value: 'delivered', label: 'Delivered' },
-                          { value: 'cancelled', label: 'Cancelled' },
+                          { value: 'pending', label: t('orders:fulfillment.list.filter.pending') },
+                          { value: 'shipped', label: t('orders:fulfillment.list.filter.shipped') },
+                          { value: 'delivered', label: t('orders:fulfillment.list.filter.delivered') },
+                          { value: 'cancelled', label: t('orders:fulfillment.list.filter.cancelled') },
                         ]}
                       />
                     )}
@@ -337,13 +347,12 @@ export const Fulfillments: React.FC = () => {
       {pagination.pages > 1 && !loading && (
         <div className="flex items-center justify-between pt-2">
           <p className="text-sm text-muted-foreground">
-            Page <span className="font-medium text-foreground">{page}</span> of{' '}
-            <span className="font-medium text-foreground">{pagination.pages}</span>
-            {pagination.total > 0 && <> · {pagination.total} total</>}
+            {t('orders:fulfillment.list.pagination.page_of', { page, pages: pagination.pages })}
+            {pagination.total > 0 && <> {t('orders:fulfillment.list.pagination.total', { total: pagination.total })}</>}
           </p>
           <div className="flex items-center gap-1">
             <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              Previous
+              {t('common:action.previous')}
             </Button>
             {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => i + 1).map((p) => (
               <Button
@@ -362,7 +371,7 @@ export const Fulfillments: React.FC = () => {
               disabled={page >= pagination.pages}
               onClick={() => setPage((p) => p + 1)}
             >
-              Next
+              {t('common:action.next')}
             </Button>
           </div>
         </div>

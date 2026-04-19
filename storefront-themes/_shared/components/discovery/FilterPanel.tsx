@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { Accordion } from '../primitives/Accordion';
 import type { FilterGroup, ActiveFilter } from '../../types/components';
@@ -17,6 +18,7 @@ interface FilterPanelProps {
 export function FilterPanel(props: FilterPanelProps) {
   const Override = useThemeSlot<React.ComponentType<FilterPanelProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
+  const { t } = useTranslation('discovery');
   const { groups, active, onChange, onClear, className } = props;
   const isActive = (groupId: string, value: string) =>
     active.some(f => f.groupId === groupId && f.value === value);
@@ -36,8 +38,8 @@ export function FilterPanel(props: FilterPanelProps) {
       {active.length > 0 && (
         <div className="pb-4 border-b mb-2">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Active Filters</span>
-            <button onClick={onClear} className="text-xs text-red-600 hover:underline">Clear All</button>
+            <span className="text-sm font-medium">{t('filter.active_filters')}</span>
+            <button onClick={onClear} className="text-xs text-red-600 hover:underline">{t('filter.clear_all')}</button>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {active.map((f, i) => (
@@ -76,7 +78,7 @@ export function FilterPanel(props: FilterPanelProps) {
                         {option.label}
                       </span>
                       {option.count !== undefined && (
-                        <span className="text-xs text-gray-400 ml-auto">({option.count})</span>
+                        <span className="text-xs text-gray-400 ms-auto">({option.count})</span>
                       )}
                     </label>
                   ))}
@@ -128,6 +130,7 @@ function PriceRangeFilter({
   active: ActiveFilter[];
   onChange: (filters: ActiveFilter[]) => void;
 }) {
+  const { t } = useTranslation('discovery');
   const min = group.min ?? 0;
   const max = group.max ?? 1000;
   const step = group.step ?? 1;
@@ -160,7 +163,7 @@ function PriceRangeFilter({
           max={range[1]}
           step={step}
           className="w-20 px-2 py-1 border rounded text-sm"
-          aria-label="Min price"
+          aria-label={t('filter.price.min_aria')}
         />
         <span className="text-gray-400">—</span>
         <input
@@ -171,7 +174,7 @@ function PriceRangeFilter({
           max={max}
           step={step}
           className="w-20 px-2 py-1 border rounded text-sm"
-          aria-label="Max price"
+          aria-label={t('filter.price.max_aria')}
         />
       </div>
       <input
@@ -187,7 +190,7 @@ function PriceRangeFilter({
         onClick={applyRange}
         className="text-xs font-medium px-3 py-1.5 bg-gray-900 text-white rounded hover:bg-gray-800 transition"
       >
-        Apply
+        {t('filter.apply')}
       </button>
     </div>
   );

@@ -156,6 +156,12 @@
       "total": "Total",
       "proceed_to_checkout": "Proceed to Checkout",
       "continue_shopping": "Continue Shopping"
+    },
+    "product_card": {
+      "sale": "SALE",
+      "preorder": "PRE-ORDER",
+      "choose_options": "Choose Options",
+      "add_to_cart": "+ Add to Cart"
     }
   }
 }

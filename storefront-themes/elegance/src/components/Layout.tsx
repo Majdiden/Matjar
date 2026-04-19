@@ -96,33 +96,33 @@ const Layout: React.FC = () => {
               <p className="text-sm leading-relaxed">{store?.description || 'Luxury fashion and accessories.'}</p>
             </div>
             <div>
-              <h4 className="text-white text-xs tracking-[0.15em] uppercase mb-4">Shop</h4>
+              <h4 className="text-white text-xs tracking-[0.15em] uppercase mb-4">{t('theme.footer.shop_heading')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/products" className="hover:text-white transition">All Collections</Link></li>
+                <li><Link to="/products" className="hover:text-white transition">{t('theme.footer.all_collections')}</Link></li>
                 {categories.slice(0, 4).map(cat => (
                   <li key={cat._id}><Link to={`/categories/${cat.slug}`} className="hover:text-white transition">{cat.name}</Link></li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="text-white text-xs tracking-[0.15em] uppercase mb-4">Help</h4>
+              <h4 className="text-white text-xs tracking-[0.15em] uppercase mb-4">{t('theme.footer.help_heading')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><span className="cursor-pointer hover:text-white">Size Guide</span></li>
-                <li><span className="cursor-pointer hover:text-white">Shipping & Returns</span></li>
-                <li><Link to="/contact" className="hover:text-white transition">Contact Us</Link></li>
+                <li><span className="cursor-pointer hover:text-white">{t('theme.footer.size_guide')}</span></li>
+                <li><span className="cursor-pointer hover:text-white">{t('theme.footer.shipping_returns')}</span></li>
+                <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.contact')}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white text-xs tracking-[0.15em] uppercase mb-4">Newsletter</h4>
-              <p className="text-sm mb-3">Be first to know about new arrivals.</p>
+              <h4 className="text-white text-xs tracking-[0.15em] uppercase mb-4">{t('theme.footer.newsletter_heading')}</h4>
+              <p className="text-sm mb-3">{t('theme.footer.newsletter_subtext')}</p>
               <form onSubmit={e => e.preventDefault()} className="flex">
-                <input type="email" placeholder="Email address" className="flex-1 px-3 py-2 bg-transparent border border-gray-700 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400" />
-                <button type="submit" className="px-4 py-2 bg-white text-gray-900 text-xs tracking-wider uppercase">Join</button>
+                <input type="email" placeholder={t('theme.footer.email_placeholder')} className="flex-1 px-3 py-2 bg-transparent border border-gray-700 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400" />
+                <button type="submit" className="px-4 py-2 bg-white text-gray-900 text-xs tracking-wider uppercase">{t('theme.footer.join_button')}</button>
               </form>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-xs text-gray-600 tracking-wider">
-            &copy; {new Date().getFullYear()} {store?.name || 'Elegance'}. All rights reserved.
+            {t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'Elegance' })}
           </div>
         </div>
       </footer>

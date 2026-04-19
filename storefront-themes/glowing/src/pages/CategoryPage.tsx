@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCategory, useCategories } from '@shared/hooks/useProducts';
 import GlowingProductCard from '../components/GlowingProductCard';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 
 const CategoryPage: React.FC = () => {
+  const { t } = useTranslation(['theme', 'common']);
   const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [quick, setQuick] = useState<any>(null);
@@ -25,9 +27,9 @@ const CategoryPage: React.FC = () => {
       {/* Title banner */}
       <div className="text-center py-16 border-b border-neutral-100">
         <div className="text-[11px] tracking-[0.3em] uppercase text-neutral-500 mb-4">
-          <Link to="/" className="hover:text-black">Home</Link>
+          <Link to="/" className="hover:text-black">{t('theme.products.breadcrumb_home')}</Link>
           <span className="mx-2">/</span>
-          <Link to="/products" className="hover:text-black">Shop</Link>
+          <Link to="/products" className="hover:text-black">{t('theme.products.breadcrumb_shop')}</Link>
           <span className="mx-2">/</span>
           <span className="text-black">{category?.name || slug}</span>
         </div>
@@ -47,12 +49,12 @@ const CategoryPage: React.FC = () => {
           {/* Sidebar — sibling categories */}
           <aside>
             <h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-black mb-5 pb-3 border-b border-neutral-200">
-              Collections
+              {t('theme.category.collections_sidebar')}
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link to="/products" className="text-neutral-600 hover:text-black">
-                  All Products
+                  {t('theme.category.all_products')}
                 </Link>
               </li>
               {allCategories.slice(0, 12).map((cat) => (
@@ -72,17 +74,17 @@ const CategoryPage: React.FC = () => {
             {/* Toolbar */}
             <div className="flex items-center justify-between pb-6 mb-8 border-b border-neutral-100">
               <span className="text-sm text-neutral-600">
-                {loading ? 'Loading…' : `${products.length} products`}
+                {loading ? t('theme.products.loading') : t('theme.products.showing_count', { count: products.length })}
               </span>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="text-sm border-b border-neutral-300 bg-transparent py-1 pr-6 focus:outline-none focus:border-black"
+                className="text-sm border-b border-neutral-300 bg-transparent py-1 pe-6 focus:outline-none focus:border-black"
               >
-                <option value="newest">Newest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="popular">Most Popular</option>
+                <option value="newest">{t('theme.products.sort_newest')}</option>
+                <option value="price-asc">{t('theme.products.sort_price_asc')}</option>
+                <option value="price-desc">{t('theme.products.sort_price_desc')}</option>
+                <option value="popular">{t('theme.products.sort_popular')}</option>
               </select>
             </div>
 
@@ -94,7 +96,7 @@ const CategoryPage: React.FC = () => {
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="text-center py-24 text-neutral-500">No products in this category yet.</div>
+              <div className="text-center py-24 text-neutral-500">{t('theme.category.empty')}</div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
                 {products.map((p) => (

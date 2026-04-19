@@ -13,17 +13,19 @@ import { useProducts, useFeaturedProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { TonmartProductCard } from '../components/TonmartProductCard';
 import type { SectionComponentProps } from '@shared/components/sections';
+import { useTranslation } from 'react-i18next';
 
 type TabKey = 'featured' | 'newest' | 'best-sellers' | 'on-sale';
 
-const TAB_LABELS: Record<TabKey, string> = {
-  featured: 'All Products',
-  newest: 'New Arrivals',
-  'best-sellers': 'Best Seller',
-  'on-sale': 'On Sale',
+const TAB_LABEL_KEYS: Record<TabKey, string> = {
+  featured: 'theme.section.tabbed_products.tab_all',
+  newest: 'theme.section.tabbed_products.tab_new',
+  'best-sellers': 'theme.section.tabbed_products.tab_best_sellers',
+  'on-sale': 'theme.section.tabbed_products.tab_on_sale',
 };
 
 export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   const limit = Math.max(4, Math.min(24, Number(s.product_limit) || 8));
   const columns = Number(s.columns) || 5;
@@ -34,7 +36,7 @@ export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, 
   const tabs: TabKey[] = (rawTabs.length
     ? rawTabs
     : ['featured', 'newest', 'best-sellers', 'on-sale']
-  ).filter((t): t is TabKey => t in TAB_LABELS);
+  ).filter((tab): tab is TabKey => tab in TAB_LABEL_KEYS);
 
   const [active, setActive] = useState<TabKey>(tabs[0] || 'featured');
 
@@ -61,7 +63,7 @@ export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, 
           className="text-xl md:text-2xl font-black uppercase tracking-wide"
           style={{ color: 'var(--color-foreground)' }}
         >
-          {s.heading || 'FEATURED PRODUCTS'}
+          {s.heading || t('theme.section.tabbed_products.title')}
         </h2>
 
         {/* Pill-tab switcher */}
@@ -83,7 +85,7 @@ export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, 
                   border: `1px solid ${isActive ? 'color-mix(in srgb, var(--color-primary) 40%, transparent)' : 'var(--color-border)'}`,
                 }}
               >
-                {TAB_LABELS[tab]}
+                {t(TAB_LABEL_KEYS[tab])}
               </button>
             );
           })}
@@ -104,7 +106,7 @@ export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, 
           className="py-16 text-center rounded-2xl border"
           style={{ borderColor: 'var(--color-border)', color: 'var(--color-muted)' }}
         >
-          No products in this feed yet — check back soon.
+          {t('theme.section.tabbed_products.empty')}
         </div>
       ) : (
         <div

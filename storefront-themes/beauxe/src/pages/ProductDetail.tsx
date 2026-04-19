@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useProduct } from '@shared/hooks/useProducts';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
+import { useTranslation } from 'react-i18next';
 import { VariantPicker, type Variant } from '@shared/components/commerce/VariantPicker';
 import GuaranteedCheckout from '@shared/components/commerce/GuaranteedCheckout';
 import { getPreorderState } from '@shared/utils/preorder';
@@ -39,6 +40,7 @@ const ProductDetail: React.FC = () => {
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
+  const { t } = useTranslation(['theme']);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
@@ -68,10 +70,10 @@ const ProductDetail: React.FC = () => {
   if (error || !product) {
     return (
       <div className="max-w-3xl mx-auto px-6 py-32 text-center" style={{ color: NAVY }}>
-        <h1 className="font-serif text-5xl mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>Not Found</h1>
-        <p className="opacity-60 mb-6">We couldn't find that product.</p>
+        <h1 className="font-serif text-5xl mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>{t('theme.product_detail.not_found_heading')}</h1>
+        <p className="opacity-60 mb-6">{t('theme.product_detail.not_found_body')}</p>
         <Link to="/products" className="inline-block px-8 py-3 rounded-full text-white text-[11px] tracking-[0.22em] uppercase" style={{ backgroundColor: NAVY }}>
-          Back to Shop
+          {t('theme.product_detail.back_to_shop')}
         </Link>
       </div>
     );
@@ -113,9 +115,9 @@ const ProductDetail: React.FC = () => {
       {/* Breadcrumb strip */}
       <div className="py-6" style={{ backgroundColor: CREAM }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-[11px] tracking-[0.2em] uppercase" style={{ color: NAVY, opacity: 0.7 }}>
-          <Link to="/" className="hover:opacity-100">Home</Link>
+          <Link to="/" className="hover:opacity-100">{t('theme.product_detail.breadcrumb_home')}</Link>
           <span className="mx-2">/</span>
-          <Link to="/products" className="hover:opacity-100">Shop</Link>
+          <Link to="/products" className="hover:opacity-100">{t('theme.product_detail.breadcrumb_shop')}</Link>
           <span className="mx-2">/</span>
           <span style={{ color: NAVY, opacity: 1 }}>{product.name}</span>
         </div>
@@ -132,7 +134,7 @@ const ProductDetail: React.FC = () => {
               {onSale && (
                 <div className="absolute top-6 left-6">
                   <span className="inline-block px-4 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-full text-white" style={{ backgroundColor: 'var(--color-error)' }}>
-                    -{pct}% Sale
+                    {t('theme.product_detail.sale_badge', { pct })}
                   </span>
                 </div>
               )}
@@ -176,7 +178,7 @@ const ProductDetail: React.FC = () => {
                 ))}
               </div>
               <span className="text-xs opacity-70" style={{ color: NAVY }}>
-                ({reviews?.length || 0} reviews)
+                {t('theme.product_detail.reviews_count', { count: reviews?.length || 0 })}
               </span>
             </div>
 
@@ -191,7 +193,7 @@ const ProductDetail: React.FC = () => {
                     {formatPrice(preState.savingsPct > 0 ? price : compareAt)}
                   </span>
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-error)' }}>
-                    Save {formatPrice((preState.savingsPct > 0 ? price : compareAt) - effectivePrice)}
+                    {t('theme.product_detail.save_amount', { amount: formatPrice((preState.savingsPct > 0 ? price : compareAt) - effectivePrice) })}
                   </span>
                 </>
               )}
@@ -227,11 +229,11 @@ const ProductDetail: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-amber-500" />
                     <span className="text-amber-700">
-                      Pre-order{preState.shipByLabel ? ` — ${preState.shipByLabel.toLowerCase()}` : ''}
+                      {t('theme.product_detail.preorder_label')}{preState.shipByLabel ? ` — ${preState.shipByLabel.toLowerCase()}` : ''}
                     </span>
                   </div>
                   {preState.lowRemaining && preState.remaining !== null && (
-                    <p className="mt-1 font-semibold text-amber-700">Only {preState.remaining} left</p>
+                    <p className="mt-1 font-semibold text-amber-700">{t('theme.product_detail.only_left', { count: preState.remaining })}</p>
                   )}
                   {preState.depositLabel && <p className="mt-1 text-amber-700">{preState.depositLabel}</p>}
                   {preState.policyNote && <p className="mt-1 opacity-70" style={{ color: NAVY }}>{preState.policyNote}</p>}
@@ -240,7 +242,7 @@ const ProductDetail: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full ${inStock ? 'bg-green-600' : 'bg-red-500'}`} />
                   <span className={inStock ? 'text-green-700' : 'text-red-600'}>
-                    {inStock ? 'In stock — ready to ship' : preState.mode === 'soldOut' ? 'Sold out' : 'Out of stock'}
+                    {inStock ? t('theme.product_detail.in_stock') : preState.mode === 'soldOut' ? t('theme.product_detail.sold_out') : t('theme.product_detail.out_of_stock')}
                   </span>
                 </div>
               )}
@@ -252,7 +254,7 @@ const ProductDetail: React.FC = () => {
                 <div className="flex items-center rounded-full border-2" style={{ borderColor: NAVY }}>
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="w-11 h-12 text-lg rounded-l-full"
+                    className="w-11 h-12 text-lg rounded-s-full"
                     style={{ color: NAVY }}
                   >
                     −
@@ -260,7 +262,7 @@ const ProductDetail: React.FC = () => {
                   <span className="w-11 text-center text-sm font-bold" style={{ color: NAVY }}>{qty}</span>
                   <button
                     onClick={() => setQty(qty + 1)}
-                    className="w-11 h-12 text-lg rounded-r-full"
+                    className="w-11 h-12 text-lg rounded-e-full"
                     style={{ color: NAVY }}
                   >
                     +
@@ -280,7 +282,7 @@ const ProductDetail: React.FC = () => {
                 className="w-full h-12 rounded-full border-2 text-[11px] tracking-[0.22em] uppercase font-semibold transition hover:bg-[color:var(--color-primary)] hover:text-white"
                 style={{ borderColor: NAVY, color: NAVY }}
               >
-                ♡ Add to Wishlist
+                {t('theme.product_detail.add_to_wishlist')}
               </button>
             </div>
 
@@ -288,12 +290,12 @@ const ProductDetail: React.FC = () => {
 
             {/* Benefits */}
             <div className="space-y-3 pt-6 border-t border-pink-100 text-xs" style={{ color: NAVY }}>
-              {[
-                ['🌿', 'Vegan · Cruelty-free · Paraben-free'],
-                ['🚚', 'Free shipping on orders over $50'],
-                ['↺', '30-day free returns'],
-                ['🔒', 'Secure SSL checkout'],
-              ].map(([icon, text]) => (
+              {([
+                ['🌿', t('theme.product_detail.benefit_vegan')],
+                ['🚚', t('theme.product_detail.benefit_shipping')],
+                ['↺', t('theme.product_detail.benefit_returns')],
+                ['🔒', t('theme.product_detail.benefit_secure')],
+              ] as [string, string][]).map(([icon, text]) => (
                 <div key={text} className="flex items-center gap-3">
                   <span className="text-base">{icon}</span>
                   <span>{text}</span>
@@ -307,9 +309,9 @@ const ProductDetail: React.FC = () => {
         <div className="mt-20 border-b border-pink-100">
           <div className="flex justify-center gap-12">
             {([
-              ['description', 'Description'],
-              ['how-to-use', 'How to Use'],
-              ['reviews', 'Reviews'],
+              ['description', t('theme.product_detail.tab_description')],
+              ['how-to-use', t('theme.product_detail.tab_how_to_use')],
+              ['reviews', t('theme.product_detail.tab_reviews')],
             ] as [TabKey, string][]).map(([k, label]) => (
               <button
                 key={k}
@@ -329,7 +331,7 @@ const ProductDetail: React.FC = () => {
         <div className="max-w-3xl mx-auto pt-10 pb-16 text-sm leading-relaxed" style={{ color: NAVY, opacity: 0.85 }}>
           {tab === 'description' && <ProductDescription product={product} />}
           {tab === 'how-to-use' && (
-            <p>Apply to clean, dry skin morning and night. Gently massage into face and neck, avoiding the eye area. Follow with moisturizer.</p>
+            <p>{t('theme.product_detail.how_to_use_text')}</p>
           )}
           {tab === 'reviews' && (
             <ProductReviews
@@ -346,10 +348,10 @@ const ProductDetail: React.FC = () => {
           <section className="mt-20">
             <div className="text-center mb-12">
               <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-3" style={{ color: PINK }}>
-                YOU MAY ALSO LOVE
+                {t('theme.product_detail.related_eyebrow')}
               </div>
               <h2 className="font-serif text-4xl md:text-5xl" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
-                Complete the Routine
+                {t('theme.product_detail.related_heading')}
               </h2>
               <div className="w-16 h-[2px] mx-auto mt-5" style={{ backgroundColor: PINK }} />
             </div>

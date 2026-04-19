@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
@@ -20,6 +21,7 @@ const BORDER = 'var(--color-border)';
 const HEADING_FONT = 'var(--font-family-heading)';
 
 const Layout: React.FC = () => {
+  const { t } = useTranslation('theme');
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
@@ -69,15 +71,15 @@ const Layout: React.FC = () => {
 
             {/* Nav */}
             <nav className="hidden md:flex items-center gap-8 text-sm font-medium" style={{ color: DARK_TEAL }}>
-              <Link to="/" className={isActive('/') && location.pathname === '/' ? 'font-bold' : 'hover:opacity-70'}>Home</Link>
-              <Link to="/products" className={isActive('/products') ? 'font-bold' : 'hover:opacity-70'}>Shop</Link>
+              <Link to="/" className={isActive('/') && location.pathname === '/' ? 'font-bold' : 'hover:opacity-70'}>{t('theme.nav.home')}</Link>
+              <Link to="/products" className={isActive('/products') ? 'font-bold' : 'hover:opacity-70'}>{t('theme.nav.shop')}</Link>
               {categories.slice(0, 2).map((cat) => (
                 <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:opacity-70">
                   {cat.name}
                 </Link>
               ))}
-              <Link to="/about" className="hover:opacity-70">About</Link>
-              <Link to="/contact" className="hover:opacity-70">Contact</Link>
+              <Link to="/about" className="hover:opacity-70">{t('theme.nav.about')}</Link>
+              <Link to="/contact" className="hover:opacity-70">{t('theme.nav.contact')}</Link>
             </nav>
 
             {/* Icons */}
@@ -104,13 +106,13 @@ const Layout: React.FC = () => {
 
         {menuOpen && (
           <nav className="md:hidden border-t px-6 py-4 space-y-3 text-sm" style={{ color: DARK_TEAL, borderColor: BORDER }}>
-            <Link onClick={() => setMenuOpen(false)} to="/" className="block">Home</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/products" className="block">Shop</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/" className="block">{t('theme.nav.home')}</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/products" className="block">{t('theme.nav.shop')}</Link>
             {categories.slice(0, 6).map((cat) => (
               <Link key={cat._id} onClick={() => setMenuOpen(false)} to={`/categories/${cat.slug}`} className="block">{cat.name}</Link>
             ))}
-            <Link onClick={() => setMenuOpen(false)} to="/about" className="block">About</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">Contact</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.nav.about')}</Link>
+            <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.nav.contact')}</Link>
           </nav>
         )}
       </header>
@@ -128,7 +130,7 @@ const Layout: React.FC = () => {
                 {brand.toLowerCase()}
               </div>
               <p className="text-sm mb-5 max-w-xs opacity-80">
-                Creamy, dreamy plant-based milk crafted with love. Made for families, farmers and the planet.
+                {t('theme.footer.tagline')}
               </p>
               <div className="flex gap-3">
                 {['f', 'i', 'p', 't'].map((s) => (
@@ -142,23 +144,36 @@ const Layout: React.FC = () => {
                 ))}
               </div>
             </div>
-            {[
-              { h: 'Shop', items: ['All Milks', 'Banana', 'Badam', 'Cashewnut'] },
-              { h: 'Company', items: ['About Us', 'Our Farmers', 'Sustainability', 'Blog'] },
-              { h: 'Help', items: ['Shipping', 'Returns', 'FAQs', 'Contact'] },
-            ].map((col) => (
-              <div key={col.h}>
-                <h4 className="text-sm font-bold mb-5">{col.h}</h4>
-                <div className="space-y-3 text-sm opacity-80">
-                  {col.items.map((item) => (
-                    <a key={item} href="#" className="block hover:opacity-100 hover:underline">{item}</a>
-                  ))}
-                </div>
+            <div>
+              <h4 className="text-sm font-bold mb-5">{t('theme.footer.col_shop')}</h4>
+              <div className="space-y-3 text-sm opacity-80">
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_all_milks')}</a>
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_banana')}</a>
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_badam')}</a>
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_cashewnut')}</a>
               </div>
-            ))}
+            </div>
+            <div>
+              <h4 className="text-sm font-bold mb-5">{t('theme.footer.col_company')}</h4>
+              <div className="space-y-3 text-sm opacity-80">
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_about_us')}</a>
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_our_farmers')}</a>
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_sustainability')}</a>
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_blog')}</a>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-sm font-bold mb-5">{t('theme.footer.col_help')}</h4>
+              <div className="space-y-3 text-sm opacity-80">
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_shipping')}</a>
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_returns')}</a>
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_faqs')}</a>
+                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_contact')}</a>
+              </div>
+            </div>
           </div>
           <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs opacity-70">
-            <span>© {new Date().getFullYear()} {brand}. Made with 🌱 love.</span>
+            <span>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), brand })}</span>
             <div className="flex gap-2">
               {['VISA', 'MC', 'AMEX', 'PP'].map((p) => (
                 <span key={p} className="h-5 px-2 border border-current/30 text-[9px] font-bold flex items-center">{p}</span>

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -48,6 +49,7 @@ interface ApiErrorLike {
 }
 
 export const Payments: React.FC = () => {
+  const { t } = useTranslation(['payments', 'common']);
   const navigate = useNavigate();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,30 +85,30 @@ export const Payments: React.FC = () => {
       });
     } catch (err) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to load payments');
+      toast.error(e?.message || t('payments:list.empty.title'));
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, t]);
 
   useEffect(() => { loadPayments(); }, [loadPayments]);
 
   const handleRefund = async () => {
     if (!refundDialog.payment) return;
     const amount = refundAmount ? parseFloat(refundAmount) : undefined;
-    if (amount && amount <= 0) { toast.error('Refund amount must be positive'); return; }
-    if (amount && amount > refundDialog.payment.amount) { toast.error('Refund amount exceeds payment'); return; }
+    if (amount && amount <= 0) { toast.error(t('payments:refund.form.toast.amount_positive')); return; }
+    if (amount && amount > refundDialog.payment.amount) { toast.error(t('payments:refund.form.toast.exceeds_payment')); return; }
 
     try {
       setRefunding(true);
       await api.payments.refund(refundDialog.payment.orderId, amount);
-      toast.success('Refund processed successfully');
+      toast.success(t('payments:refund.form.toast.success'));
       setRefundDialog({ open: false, payment: null });
       setRefundAmount('');
       await loadPayments();
     } catch (err) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to process refund');
+      toast.error(e?.message || t('payments:refund.form.toast.failed'));
     } finally {
       setRefunding(false);
     }
@@ -114,11 +116,11 @@ export const Payments: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
-      pending: { variant: 'outline', label: 'Pending' },
-      succeeded: { variant: 'default', label: 'Succeeded' },
-      failed: { variant: 'destructive', label: 'Failed' },
-      refunded: { variant: 'secondary', label: 'Refunded' },
-      partially_refunded: { variant: 'secondary', label: 'Partial Refund' },
+      pending: { variant: 'outline', label: t('payments:transaction.detail.status.pending') },
+      succeeded: { variant: 'default', label: t('payments:transaction.detail.status.succeeded') },
+      failed: { variant: 'destructive', label: t('payments:transaction.detail.status.failed') },
+      refunded: { variant: 'secondary', label: t('payments:transaction.detail.status.refunded') },
+      partially_refunded: { variant: 'secondary', label: t('payments:transaction.detail.status.partial_refund') },
     };
     const s = map[status] || { variant: 'outline' as const, label: status };
     return <Badge variant={s.variant}>{s.label}</Badge>;
@@ -142,15 +144,15 @@ export const Payments: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Payments</h1>
-        <p className="text-muted-foreground">Manage payments and process refunds</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('payments:list.title')}</h1>
+        <p className="text-muted-foreground">{t('payments:list.description')}</p>
       </div>
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('payments:list.stat.total_revenue')}</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -159,7 +161,7 @@ export const Payments: React.FC = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Refunded</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('payments:list.stat.total_refunded')}</CardTitle>
             <ArrowDownLeft className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -168,7 +170,7 @@ export const Payments: React.FC = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Successful</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('payments:list.stat.successful')}</CardTitle>
             <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -177,7 +179,7 @@ export const Payments: React.FC = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('payments:list.stat.pending')}</CardTitle>
             <RefreshCw className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -191,7 +193,7 @@ export const Payments: React.FC = () => {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by order or transaction..."
+            placeholder={t('payments:list.search.placeholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && loadPayments()}
@@ -200,7 +202,7 @@ export const Payments: React.FC = () => {
         </div>
         <Button variant="outline" onClick={loadPayments}>
           <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
+          {t('common:action.refresh')}
         </Button>
       </div>
 
@@ -210,12 +212,12 @@ export const Payments: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Method</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>{t('payments:list.column.order')}</TableHead>
+                <TableHead>{t('payments:list.column.customer')}</TableHead>
+                <TableHead>{t('payments:list.column.amount')}</TableHead>
+                <TableHead>{t('payments:list.column.method')}</TableHead>
+                <TableHead>{t('payments:list.column.status')}</TableHead>
+                <TableHead>{t('payments:list.column.date')}</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
@@ -225,7 +227,7 @@ export const Payments: React.FC = () => {
                   <TableCell colSpan={7} className="text-center py-12">
                     <div className="flex flex-col items-center">
                       <Receipt className="h-10 w-10 text-muted-foreground mb-3" />
-                      <p className="text-muted-foreground">No payments found</p>
+                      <p className="text-muted-foreground">{t('payments:list.empty.title')}</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -255,7 +257,7 @@ export const Payments: React.FC = () => {
                       {formatCurrency(payment.amount, payment.currency)}
                       {payment.refundedAmount ? (
                         <p className="text-xs text-destructive">
-                          -{formatCurrency(payment.refundedAmount, payment.currency)} refunded
+                          {t('payments:list.refunded_badge', { amount: formatCurrency(payment.refundedAmount, payment.currency) })}
                         </p>
                       ) : null}
                     </TableCell>
@@ -278,10 +280,10 @@ export const Payments: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem asChild>
-                            <Link to={`/dashboard/payments/${payment._id}`}>View details</Link>
+                            <Link to={`/dashboard/payments/${payment._id}`}>{t('payments:list.dropdown.view_details')}</Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link to={`/dashboard/orders/${payment.orderId}`}>View Order</Link>
+                            <Link to={`/dashboard/orders/${payment.orderId}`}>{t('payments:list.dropdown.view_order')}</Link>
                           </DropdownMenuItem>
                           {payment.status === 'succeeded' && (
                             <DropdownMenuItem
@@ -291,7 +293,7 @@ export const Payments: React.FC = () => {
                               }}
                               className="text-destructive"
                             >
-                              Process Refund
+                              {t('payments:list.dropdown.process_refund')}
                             </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
@@ -309,20 +311,24 @@ export const Payments: React.FC = () => {
       <Dialog open={refundDialog.open} onOpenChange={open => !open && setRefundDialog({ open: false, payment: null })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Process Refund</DialogTitle>
+            <DialogTitle>{t('payments:refund.form.title')}</DialogTitle>
             <DialogDescription>
-              Refund payment for order #{refundDialog.payment?.orderNumber ? String(refundDialog.payment.orderNumber).replace(/^#+/, '') : refundDialog.payment?.orderId.slice(-8)}
+              {t('payments:refund.form.description', {
+                orderNumber: refundDialog.payment?.orderNumber
+                  ? String(refundDialog.payment.orderNumber).replace(/^#+/, '')
+                  : refundDialog.payment?.orderId.slice(-8),
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Original Amount</span>
+              <span className="text-muted-foreground">{t('payments:refund.form.field.original_amount.label')}</span>
               <span className="font-medium">
                 {refundDialog.payment && formatCurrency(refundDialog.payment.amount, refundDialog.payment.currency)}
               </span>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Refund Amount (leave empty for full refund)</label>
+              <label className="text-sm font-medium">{t('payments:refund.form.field.refund_amount.label')}</label>
               <Input
                 type="number"
                 step="0.01"
@@ -335,15 +341,17 @@ export const Payments: React.FC = () => {
             </div>
             <div className="flex items-start gap-2 p-3 bg-destructive/10 rounded-lg text-sm">
               <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-              <span className="text-destructive">This action cannot be undone. The refund will be processed immediately.</span>
+              <span className="text-destructive">{t('payments:refund.form.warning')}</span>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRefundDialog({ open: false, payment: null })} disabled={refunding}>
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleRefund} disabled={refunding}>
-              {refunding ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Processing...</> : 'Process Refund'}
+              {refunding
+                ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('payments:refund.form.processing')}</>
+                : t('payments:refund.form.submit')}
             </Button>
           </DialogFooter>
         </DialogContent>

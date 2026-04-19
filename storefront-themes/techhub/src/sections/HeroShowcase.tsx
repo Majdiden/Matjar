@@ -24,8 +24,10 @@ import {
 import { useCollections } from '@shared/hooks/useCollections';
 import { PriceDisplay } from '@shared/components/commerce/PriceDisplay';
 import type { SectionComponentProps } from '@shared/components/sections';
+import { useTranslation } from 'react-i18next';
 
 export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
 
   const maxCategories = Math.max(4, Math.min(14, Number(s.max_categories) || 10));
@@ -78,19 +80,19 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
               </svg>
             </span>
-            <span className="hidden sm:inline">{s.hotline_label || 'HOTLINE'}</span>
+            <span className="hidden sm:inline">{s.hotline_label || t('theme.hero.showcase.hotline_label')}</span>
             <span style={{ color: 'var(--color-foreground)' }}>{s.hotline_phone || '+1 (555) 456-7890'}</span>
           </div>
           <div className="hidden md:block text-center">
             <Link to="/products" className="hover:opacity-80 transition">
-              {s.shipping_strip || 'FREE SHIPPING FOR ORDER ABOVE $200. SHOP NOW'}
+              {s.shipping_strip || t('theme.hero.showcase.shipping_strip')}
             </Link>
           </div>
           <div className="flex items-center gap-2" style={{ color: 'var(--color-primary)' }}>
             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
             </svg>
-            {s.flash_deal_label || 'FLASH DEAL'}
+            {s.flash_deal_label || t('theme.hero.showcase.flash_deal_label')}
           </div>
         </div>
       </div>
@@ -106,7 +108,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-            {s.sidebar_heading || 'BROWSE ALL COLLECTION'}
+            {s.sidebar_heading || t('theme.hero.showcase.sidebar_heading')}
           </div>
           <ul
             className="rounded-b-md border border-t-0 divide-y"
@@ -129,7 +131,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               </li>
             )) : (
               <li className="px-4 py-4 text-[12px]" style={{ color: 'var(--color-muted)' }}>
-                <Link to="/products" className="hover:underline">Browse all products</Link>
+                <Link to="/products" className="hover:underline">{t('theme.section.category_sidebar.browse_all_products')}</Link>
               </li>
             )}
           </ul>
@@ -172,8 +174,8 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
                   backgroundColor: 'var(--color-foreground)',
                 }}
               >
-                {s.primary_button_text || 'SHOP NOW'}
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                {s.primary_button_text || t('theme.hero.showcase.cta')}
+                <svg className="w-3.5 h-3.5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </Link>

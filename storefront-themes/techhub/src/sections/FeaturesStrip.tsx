@@ -6,6 +6,7 @@
 import React from 'react';
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import type { SectionComponentProps } from '@shared/components/sections';
+import { useTranslation } from 'react-i18next';
 
 interface FeatureBlock {
   id: string;
@@ -36,6 +37,7 @@ const ICONS: Record<string, React.ReactNode> = {
 };
 
 export const FeaturesStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
+  const { t } = useTranslation(['theme']);
   useThemeSettings(id);
   const blocks = (section?.blocks || []) as FeatureBlock[];
 
@@ -79,7 +81,7 @@ export const FeaturesStripSection: React.FC<SectionComponentProps> = ({ id, sect
                     className="text-sm font-bold uppercase tracking-wide"
                     style={{ color: 'var(--color-foreground)' }}
                   >
-                    {block.settings.title || 'Free Shipping'}
+                    {block.settings.title || t('theme.section.features_strip.default_title')}
                   </h3>
                   <p className="text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
                     {block.settings.subtitle || ''}

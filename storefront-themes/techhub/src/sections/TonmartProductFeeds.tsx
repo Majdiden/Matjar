@@ -14,43 +14,49 @@ import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import type { SectionComponentProps } from '@shared/components/sections';
 import { TonmartProductCard } from '../components/TonmartProductCard';
+import { useTranslation } from 'react-i18next';
 
 const Header: React.FC<{ title: string; subtitle?: string; viewAllHref?: string }> = ({
   title,
   subtitle,
   viewAllHref,
-}) => (
-  <div className="flex items-end justify-between mb-8">
-    <div>
-      <h2
-        className="text-xl md:text-2xl font-black uppercase tracking-wide"
-        style={{ color: 'var(--color-foreground)' }}
-      >
-        {title}
-      </h2>
-      {subtitle && (
-        <p className="text-xs mt-1" style={{ color: 'var(--color-muted)' }}>
-          {subtitle}
-        </p>
+}) => {
+  const { t } = useTranslation(['theme']);
+  return (
+    <div className="flex items-end justify-between mb-8">
+      <div>
+        <h2
+          className="text-xl md:text-2xl font-black uppercase tracking-wide"
+          style={{ color: 'var(--color-foreground)' }}
+        >
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="text-xs mt-1" style={{ color: 'var(--color-muted)' }}>
+            {subtitle}
+          </p>
+        )}
+      </div>
+      {viewAllHref && (
+        <Link
+          to={viewAllHref}
+          className="text-[11px] font-bold uppercase tracking-wider hover:opacity-70 inline-flex items-center gap-1"
+          style={{ color: 'var(--color-primary)' }}
+        >
+          {t('theme.section.tonmart_feeds.view_all')}
+          <span aria-hidden className="rtl:rotate-180 inline-block">→</span>
+        </Link>
       )}
     </div>
-    {viewAllHref && (
-      <Link
-        to={viewAllHref}
-        className="text-[11px] font-bold uppercase tracking-wider hover:opacity-70"
-        style={{ color: 'var(--color-primary)' }}
-      >
-        View all →
-      </Link>
-    )}
-  </div>
-);
+  );
+};
 
 /** Drop-in replacement for FeaturedProductsSection. */
 export const TonmartFeaturedProductsSection: React.FC<SectionComponentProps> = ({
   id,
   onQuickView,
 }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   const limit = Number(s.product_limit) || 8;
   const { products, loading } = useFeaturedProducts(limit);
@@ -59,7 +65,7 @@ export const TonmartFeaturedProductsSection: React.FC<SectionComponentProps> = (
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
       <Header
-        title={s.heading || 'FEATURED PRODUCTS'}
+        title={s.heading || t('theme.section.tonmart_feeds.featured_heading')}
         subtitle={s.subheading}
         viewAllHref={s.view_all_url || '/products'}
       />
@@ -91,6 +97,7 @@ export const TonmartNewArrivalsSection: React.FC<SectionComponentProps> = ({
   id,
   onQuickView,
 }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   const limit = Number(s.product_limit) || 8;
   const { products, loading } = useProducts({ sort: 'newest', limit });
@@ -99,7 +106,7 @@ export const TonmartNewArrivalsSection: React.FC<SectionComponentProps> = ({
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
       <Header
-        title={s.heading || 'NEW ARRIVALS'}
+        title={s.heading || t('theme.section.tonmart_feeds.new_arrivals_heading')}
         subtitle={s.subheading}
         viewAllHref={s.view_all_url || '/products?sort=newest'}
       />
@@ -131,6 +138,7 @@ export const TonmartProductGridSection: React.FC<SectionComponentProps> = ({
   id,
   onQuickView,
 }) => {
+  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   const limit = Number(s.product_limit) || 8;
   const sort = (s.sort as string) || 'newest';
@@ -140,7 +148,7 @@ export const TonmartProductGridSection: React.FC<SectionComponentProps> = ({
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
       <Header
-        title={s.heading || 'SHOP PRODUCTS'}
+        title={s.heading || t('theme.section.tonmart_feeds.shop_products_heading')}
         subtitle={s.subheading}
         viewAllHref={s.view_all_url || '/products'}
       />

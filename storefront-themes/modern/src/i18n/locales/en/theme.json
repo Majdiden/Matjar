@@ -20,7 +20,8 @@
       "featured-products": {
         "heading": "Featured Products",
         "subheading": "Hand-picked for you",
-        "view_all": "View All"
+        "view_all": "View All",
+        "add_to_cart": "Add"
       },
       "trust-badges": {
         "free_shipping_title": "Free Shipping",
@@ -33,7 +34,8 @@
       "new-arrivals": {
         "heading": "New Arrivals",
         "subheading": "Just landed in store",
-        "see_more": "See More"
+        "see_more": "See More",
+        "add_to_cart": "Add to Cart"
       },
       "newsletter": {
         "heading": "Stay in the Loop",

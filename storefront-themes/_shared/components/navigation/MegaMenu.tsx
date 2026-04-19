@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import type { MegaMenuCategory } from '../../types/components';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
@@ -14,11 +15,12 @@ interface MegaMenuProps {
 export function MegaMenu(props: MegaMenuProps) {
   const Override = useThemeSlot<React.ComponentType<MegaMenuProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
+  const { t } = useTranslation('nav');
   const { categories, className } = props;
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   return (
-    <nav className={cn('relative', className)}>
+    <nav aria-label={t('megamenu.aria')} className={cn('relative', className)}>
       <ul className="flex items-center gap-1">
         {categories.map(cat => (
           <li
@@ -42,7 +44,7 @@ export function MegaMenu(props: MegaMenuProps) {
             {/* Mega dropdown */}
             {cat.children && cat.children.length > 0 && activeCategory === cat.slug && (
               <div
-                className="absolute left-0 top-full pt-2 z-50"
+                className="absolute start-0 top-full pt-2 z-50"
                 onMouseEnter={() => setActiveCategory(cat.slug)}
                 onMouseLeave={() => setActiveCategory(null)}
               >
@@ -67,7 +69,7 @@ export function MegaMenu(props: MegaMenuProps) {
                       to={`/categories/${cat.slug}`}
                       className="inline-block mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
                     >
-                      View All {cat.name} &rarr;
+                      {t('megamenu.view_all', { name: cat.name })}
                     </Link>
                   </div>
 

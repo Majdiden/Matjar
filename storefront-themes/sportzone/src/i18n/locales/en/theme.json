@@ -29,6 +29,7 @@
         "title": "Performance Gear"
       },
       "trust_badges": {
+        "default_title": "Trust Badge",
         "free_returns": {
           "title": "Free Returns",
           "description": "30-day no-questions-asked returns"
@@ -48,6 +49,63 @@
         "text": "Free shipping on orders over $75 — No excuses.",
         "cta": "Shop Now"
       }
+    },
+    "products": {
+      "page_title": "All Products",
+      "all_categories": "All Categories",
+      "search_placeholder": "Search products...",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "no_results": "No products found",
+      "clear_search": "Clear search",
+      "previous": "Previous",
+      "next": "Next",
+      "page_of": "Page {{page}} of {{total}}"
+    },
+    "category": {
+      "not_found_heading": "Category Not Found",
+      "browse_all": "Browse all products",
+      "breadcrumb_home": "Home",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "no_products": "No products in this category yet",
+      "previous": "Previous",
+      "next": "Next",
+      "page_of": "Page {{page}} of {{total}}"
+    },
+    "product_detail": {
+      "breadcrumb_home": "Home",
+      "breadcrumb_products": "Products",
+      "product_not_found": "Product Not Found",
+      "back_to_shop": "Back to shop",
+      "select_option": "Select an option to see availability",
+      "in_stock": "In Stock ({{count}} available)",
+      "preorder": "Pre-order",
+      "preorder_ships": "Pre-order — ships {{date}}",
+      "only_left": "Only {{count}} left",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of Stock",
+      "description_heading": "Description"
+    },
+    "cart": {
+      "loading": "Loading cart...",
+      "empty_heading": "Your cart is empty",
+      "empty_subtext": "Looks like you haven't added anything yet",
+      "start_shopping": "Start Shopping",
+      "page_heading": "Shopping Cart",
+      "clear_cart": "Clear Cart",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping_label": "Shipping",
+      "shipping_value": "Calculated at checkout",
+      "tax_label": "Tax",
+      "tax_value": "Calculated at checkout",
+      "total": "Total",
+      "checkout_button": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping",
+      "remove": "Remove"
     },
     "footer": {
       "tagline": "Gear up. Get moving. No limits.",

@@ -112,7 +112,9 @@
       "not_found_title": "غير موجود",
       "not_found_body": "تعذّر العثور على هذا المنتج.",
       "back_to_shop": "العودة إلى المتجر",
-      "save": "وفّري {{amount}}"
+      "save": "وفّري {{amount}}",
+      "qty_decrease": "تقليل الكمية",
+      "qty_increase": "زيادة الكمية"
     },
     "product_card": {
       "sale_badge": "تخفيض -{{pct}}%",

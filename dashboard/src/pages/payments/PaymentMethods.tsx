@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -92,6 +93,7 @@ const emptyProvider = (): ManualProvider => ({
 });
 
 export const PaymentMethods: React.FC = () => {
+  const { t } = useTranslation(['payments', 'common']);
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingMap, setSavingMap] = useState<Record<string, boolean>>({});
@@ -117,7 +119,7 @@ export const PaymentMethods: React.FC = () => {
       const url = res?.data?.url || res?.responseObject?.url || res?.url;
       if (!url) throw new Error('Upload did not return a URL');
       setProviderDraft(d => ({ ...d, logo: url }));
-      toast.success('Logo uploaded');
+      toast.success(t('payments:method.toast.logo_uploaded'));
     } catch (err) {
       toast.error(getError(err));
     } finally {
@@ -149,7 +151,11 @@ export const PaymentMethods: React.FC = () => {
     try {
       setSavingMap(s => ({ ...s, [m._id]: true }));
       await api.patch(`/payment-methods/${m._id}`, { enabled: !m.enabled });
-      toast.success(`${m.label} ${!m.enabled ? 'enabled' : 'disabled'}`);
+      toast.success(
+        !m.enabled
+          ? t('payments:method.toast.enabled', { label: m.label })
+          : t('payments:method.toast.disabled', { label: m.label })
+      );
       setMethods(ms => ms.map(x => x._id === m._id ? { ...x, enabled: !m.enabled } : x));
     } catch (e) {
       toast.error(getError(e));
@@ -164,7 +170,7 @@ export const PaymentMethods: React.FC = () => {
     );
     const target = providers.find(p => p.code === code);
     if (target?.enabled && !target.accountNumber?.trim() && !target.phone?.trim()) {
-      toast.error(`${target.label}: add account number or phone before enabling.`);
+      toast.error(t('payments:method.toast.missing_account_error', { label: target.label }));
       return;
     }
     try {
@@ -184,7 +190,7 @@ export const PaymentMethods: React.FC = () => {
       await api.patch(`/payment-methods/${m._id}`, {
         instructions: instructionDrafts[m._id] ?? '',
       });
-      toast.success('Saved');
+      toast.success(t('payments:method.toast.saved'));
       setMethods(ms => ms.map(x => x._id === m._id ? { ...x, instructions: instructionDrafts[m._id] ?? '' } : x));
     } catch (e) {
       toast.error(getError(e));
@@ -211,18 +217,18 @@ export const PaymentMethods: React.FC = () => {
     const m = methods.find(x => x._id === providerDialog.methodId);
     if (!m) return;
     const d = providerDraft;
-    if (!d.label?.trim()) { toast.error('Label is required'); return; }
+    if (!d.label?.trim()) { toast.error(t('payments:method.validation.label_required')); return; }
     if (providerDialog.isNew) {
       const code = slugify(d.code || d.label);
-      if (!code) { toast.error('Invalid name'); return; }
+      if (!code) { toast.error(t('payments:method.validation.invalid_name')); return; }
       if ((m.providers || []).some(p => p.code === code)) {
-        toast.error('A provider with that name already exists.');
+        toast.error(t('payments:method.validation.duplicate_provider'));
         return;
       }
       d.code = code;
     }
     if (d.enabled && !d.accountNumber?.trim() && !d.phone?.trim()) {
-      toast.error('Add account number or phone before enabling.');
+      toast.error(t('payments:method.toast.enable_before_save'));
       return;
     }
 
@@ -233,7 +239,7 @@ export const PaymentMethods: React.FC = () => {
     try {
       setProviderSaving(true);
       await api.patch(`/payment-methods/${m._id}`, { providers: next });
-      toast.success(providerDialog.isNew ? 'Provider added' : 'Provider updated');
+      toast.success(providerDialog.isNew ? t('payments:method.toast.provider_added') : t('payments:method.toast.provider_updated'));
       closeProvider();
       await load();
     } catch (e) {
@@ -248,14 +254,14 @@ export const PaymentMethods: React.FC = () => {
     if (!m || !providerDialog.provider) return;
     const code = providerDialog.provider.code;
     if (SYSTEM_PROVIDER_CODES.has(code)) {
-      toast.error('System providers cannot be removed — disable instead.');
+      toast.error(t('payments:method.toast.system_provider_remove_error'));
       return;
     }
     const next = (m.providers || []).filter(p => p.code !== code);
     try {
       setProviderSaving(true);
       await api.patch(`/payment-methods/${m._id}`, { providers: next });
-      toast.success('Provider removed');
+      toast.success(t('payments:method.toast.provider_removed'));
       closeProvider();
       await load();
     } catch (e) {
@@ -276,7 +282,7 @@ export const PaymentMethods: React.FC = () => {
     setChooserOpen(false);
     const manualMethod = methods.find(m => m.type === 'manual');
     if (!manualMethod) {
-      toast.error('Manual Transfer is not installed.');
+      toast.error(t('payments:method.toast.manual_not_installed'));
       return;
     }
     openNewProvider(manualMethod);
@@ -296,13 +302,13 @@ export const PaymentMethods: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Payment Methods</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('payments:method.list.title')}</h1>
           <p className="text-muted-foreground">
-            Enable how customers pay at checkout.
+            {t('payments:method.list.description')}
           </p>
         </div>
         <Button onClick={openChooser}>
-          <Plus className="h-4 w-4 mr-2" /> Add payment method
+          <Plus className="h-4 w-4 mr-2" /> {t('payments:method.list.add')}
         </Button>
       </div>
 
@@ -310,7 +316,7 @@ export const PaymentMethods: React.FC = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <Wallet className="h-10 w-10 text-muted-foreground mb-3" />
-            <p className="text-muted-foreground">No payment methods configured.</p>
+            <p className="text-muted-foreground">{t('payments:method.list.empty')}</p>
           </CardContent>
         </Card>
       ) : (
@@ -334,7 +340,7 @@ export const PaymentMethods: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {m.enabled ? 'Enabled' : 'Disabled'}
+                    {m.enabled ? t('payments:method.status.enabled') : t('payments:method.status.disabled')}
                   </span>
                   <Switch
                     checked={!!m.enabled}
@@ -349,33 +355,33 @@ export const PaymentMethods: React.FC = () => {
                   <div className="flex items-start gap-2 p-3 rounded-md bg-muted/50 text-sm text-muted-foreground">
                     <Info className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>
-                      Tap a provider to fill your receiving account. Enabled providers are shown to customers at checkout.
+                      {t('payments:method.type.manual_info')}
                     </span>
                   </div>
 
                   <div>
-                    <Label>Instructions for customer</Label>
+                    <Label>{t('payments:method.instructions.label')}</Label>
                     <div className="flex gap-2 mt-1">
                       <Textarea
                         rows={2}
                         className="flex-1"
                         value={instructionDrafts[m._id] ?? ''}
                         onChange={e => setInstructionDrafts(s => ({ ...s, [m._id]: e.target.value }))}
-                        placeholder="Shown under the provider details on checkout."
+                        placeholder={t('payments:method.instructions.placeholder')}
                       />
                       <Button
                         variant="outline"
                         onClick={() => saveInstructions(m)}
                         disabled={savingMap[m._id] || (instructionDrafts[m._id] ?? '') === (m.instructions ?? '')}
                       >
-                        Save
+                        {t('common:action.save')}
                       </Button>
                     </div>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <Label>Providers</Label>
+                      <Label>{t('payments:method.provider.label')}</Label>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                       {(m.providers || []).map(p => {
@@ -417,18 +423,18 @@ export const PaymentMethods: React.FC = () => {
                               {p.enabled ? (
                                 configured ? (
                                   <Badge variant="secondary" className="gap-1 text-[10px]">
-                                    <Check className="h-3 w-3" /> Configured
+                                    <Check className="h-3 w-3" /> {t('payments:method.provider.configured_badge')}
                                   </Badge>
                                 ) : (
                                   <Badge variant="destructive" className="gap-1 text-[10px]">
-                                    <CircleAlert className="h-3 w-3" /> Missing info
+                                    <CircleAlert className="h-3 w-3" /> {t('payments:method.provider.missing_badge')}
                                   </Badge>
                                 )
                               ) : (
-                                <Badge variant="outline" className="text-[10px]">Off</Badge>
+                                <Badge variant="outline" className="text-[10px]">{t('payments:method.provider.off_badge')}</Badge>
                               )}
                               {!isSystem && (
-                                <Badge variant="outline" className="text-[10px]">Custom</Badge>
+                                <Badge variant="outline" className="text-[10px]">{t('payments:method.provider.custom_badge')}</Badge>
                               )}
                             </div>
                             {configured && (
@@ -446,7 +452,7 @@ export const PaymentMethods: React.FC = () => {
                         className="flex flex-col items-center justify-center gap-1 rounded-lg border border-dashed p-4 text-muted-foreground hover:bg-muted/40 transition"
                       >
                         <Plus className="h-5 w-5" />
-                        <span className="text-xs font-medium">Add provider</span>
+                        <span className="text-xs font-medium">{t('payments:method.provider.add')}</span>
                       </button>
                     </div>
                   </div>
@@ -457,7 +463,7 @@ export const PaymentMethods: React.FC = () => {
                 <CardContent className="border-t pt-4">
                   <div className="flex items-start gap-2 text-sm text-muted-foreground">
                     <Info className="h-4 w-4 mt-0.5 shrink-0" />
-                    <span>Customers pay when the order is delivered. No further configuration required.</span>
+                    <span>{t('payments:method.type.cod_info')}</span>
                   </div>
                 </CardContent>
               )}
@@ -470,9 +476,9 @@ export const PaymentMethods: React.FC = () => {
       <Dialog open={chooserOpen} onOpenChange={setChooserOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Add payment method</DialogTitle>
+            <DialogTitle>{t('payments:method.chooser.title')}</DialogTitle>
             <DialogDescription>
-              Choose how your customer will pay.
+              {t('payments:method.chooser.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 py-2">
@@ -482,9 +488,9 @@ export const PaymentMethods: React.FC = () => {
             >
               <Building2 className="h-6 w-6 text-primary mt-0.5" />
               <div>
-                <div className="font-medium">Manual transfer provider</div>
+                <div className="font-medium">{t('payments:method.chooser.manual_transfer_title')}</div>
                 <div className="text-xs text-muted-foreground">
-                  Add a bank or mobile-money option — customers see your account details at checkout and upload a receipt.
+                  {t('payments:method.chooser.manual_transfer_desc')}
                 </div>
               </div>
             </button>
@@ -497,27 +503,29 @@ export const PaymentMethods: React.FC = () => {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {providerDialog.isNew ? 'Add provider' : `Edit ${providerDialog.provider?.label || 'provider'}`}
+              {providerDialog.isNew
+                ? t('payments:method.form.title_new')
+                : t('payments:method.form.title_edit', { name: providerDialog.provider?.label || '' })}
             </DialogTitle>
             <DialogDescription>
               {providerDialog.isNew
-                ? 'Add a manual-transfer option customers can pay through.'
-                : 'Update your receiving account details for this provider.'}
+                ? t('payments:method.form.desc_new')
+                : t('payments:method.form.desc_edit')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
             {providerDialog.isNew && (
               <div>
-                <Label>Provider name *</Label>
+                <Label>{t('payments:method.form.field.provider_name.label')}</Label>
                 <Input
                   value={providerDraft.label}
                   onChange={e => setProviderDraft(d => ({ ...d, label: e.target.value }))}
-                  placeholder="e.g. Bank of Khartoum"
+                  placeholder={t('payments:method.form.field.provider_name.placeholder')}
                 />
               </div>
             )}
             <div>
-              <Label className="text-xs">Icon</Label>
+              <Label className="text-xs">{t('payments:method.form.field.icon.label')}</Label>
               <div className="flex items-center gap-3 mt-1">
                 <div className="w-16 h-16 rounded-md border bg-muted flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                   {providerDraft.logo && /^(https?:|\/)/.test(providerDraft.logo) ? (
@@ -556,9 +564,9 @@ export const PaymentMethods: React.FC = () => {
                     disabled={logoUploading}
                   >
                     {logoUploading ? (
-                      <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />Uploading…</>
+                      <><Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />{t('payments:method.form.uploading')}</>
                     ) : (
-                      <><Upload className="h-3.5 w-3.5 mr-2" />{providerDraft.logo ? 'Replace' : 'Upload'}</>
+                      <><Upload className="h-3.5 w-3.5 mr-2" />{providerDraft.logo ? t('payments:method.form.replace_logo') : t('payments:method.form.upload')}</>
                     )}
                   </Button>
                   {providerDraft.logo && (
@@ -569,47 +577,47 @@ export const PaymentMethods: React.FC = () => {
                       onClick={() => setProviderDraft(d => ({ ...d, logo: '' }))}
                       disabled={logoUploading}
                     >
-                      <X className="h-3.5 w-3.5 mr-1" />Remove
+                      <X className="h-3.5 w-3.5 mr-1" />{t('payments:method.form.remove_logo')}
                     </Button>
                   )}
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Shown to customers at checkout and in product trust badges. PNG/SVG with transparent background recommended.
+                {t('payments:method.form.field.icon.help')}
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs">Beneficiary name</Label>
+                <Label className="text-xs">{t('payments:method.form.field.beneficiary_name.label')}</Label>
                 <Input
                   value={providerDraft.beneficiaryName || ''}
                   onChange={e => setProviderDraft(d => ({ ...d, beneficiaryName: e.target.value }))}
-                  placeholder="Account holder"
+                  placeholder={t('payments:method.form.field.beneficiary_name.placeholder')}
                 />
               </div>
               <div>
-                <Label className="text-xs">Account number</Label>
+                <Label className="text-xs">{t('payments:method.form.field.account_number.label')}</Label>
                 <Input
                   value={providerDraft.accountNumber || ''}
                   onChange={e => setProviderDraft(d => ({ ...d, accountNumber: e.target.value }))}
-                  placeholder="e.g. 1234-5678"
+                  placeholder={t('payments:method.form.field.account_number.placeholder')}
                 />
               </div>
             </div>
             <div>
-              <Label className="text-xs">Phone</Label>
+              <Label className="text-xs">{t('payments:method.form.field.phone.label')}</Label>
               <Input
                 value={providerDraft.phone || ''}
                 onChange={e => setProviderDraft(d => ({ ...d, phone: e.target.value }))}
-                placeholder="e.g. +249..."
+                placeholder={t('payments:method.form.field.phone.placeholder')}
               />
             </div>
             <div>
-              <Label className="text-xs">Notes for customer (optional)</Label>
+              <Label className="text-xs">{t('payments:method.form.field.notes.label')}</Label>
               <Input
                 value={providerDraft.instructions || ''}
                 onChange={e => setProviderDraft(d => ({ ...d, instructions: e.target.value }))}
-                placeholder="e.g. Reference the order number in the transfer note."
+                placeholder={t('payments:method.form.field.notes.placeholder')}
               />
             </div>
             <label className="flex items-center gap-2 pt-1">
@@ -617,21 +625,21 @@ export const PaymentMethods: React.FC = () => {
                 checked={!!providerDraft.enabled}
                 onCheckedChange={v => setProviderDraft(d => ({ ...d, enabled: !!v }))}
               />
-              <span className="text-sm">Enabled — show to customers at checkout</span>
+              <span className="text-sm">{t('payments:method.form.field.enabled.label')}</span>
             </label>
           </div>
           <DialogFooter className="sm:justify-between">
             <div>
               {!providerDialog.isNew && providerDialog.provider && !SYSTEM_PROVIDER_CODES.has(providerDialog.provider.code) && (
                 <Button variant="ghost" className="text-destructive" onClick={removeProvider} disabled={providerSaving}>
-                  <Trash2 className="h-4 w-4 mr-2" /> Remove
+                  <Trash2 className="h-4 w-4 mr-2" /> {t('common:action.remove')}
                 </Button>
               )}
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={closeProvider} disabled={providerSaving}>Cancel</Button>
+              <Button variant="outline" onClick={closeProvider} disabled={providerSaving}>{t('common:action.cancel')}</Button>
               <Button onClick={saveProvider} disabled={providerSaving}>
-                {providerSaving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving…</> : 'Save'}
+                {providerSaving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t('common:state.saving')}</> : t('common:action.save')}
               </Button>
             </div>
           </DialogFooter>

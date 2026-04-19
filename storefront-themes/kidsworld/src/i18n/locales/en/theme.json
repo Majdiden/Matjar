@@ -9,20 +9,26 @@
     "section": {
       "categories": {
         "title": "Shop by Category",
+        "heading_highlight": "Shop",
+        "heading_suffix": "by Category",
         "subtitle": "Something amazing for every little explorer"
       },
       "shop_by_age": {
         "title": "Shop by Age",
+        "heading_highlight": "Age",
+        "heading_prefix": "Shop by",
         "subtitle": "Find the perfect toy for any age"
       },
       "featured_products": {
         "title": "Best Sellers",
         "subtitle": "The toys kids love most",
-        "view_all": "See All"
+        "view_all": "See All",
+        "add_to_cart": "Add to Cart"
       },
       "new_arrivals": {
         "title": "New Adventures",
-        "subtitle": "Just arrived and ready for playtime"
+        "subtitle": "Just arrived and ready for playtime",
+        "add_to_cart": "Add"
       },
       "newsletter": {
         "title": "Join the Fun Club!",

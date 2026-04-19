@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCategory, useCategories } from '@shared/hooks/useProducts';
 import MilmaaProductCard from '../components/MilmaaProductCard';
 import { QuickView } from '@shared/components/discovery/QuickView';
@@ -12,6 +13,7 @@ const MUTED = 'var(--color-muted)';
 const HEADING_FONT = 'var(--font-family-heading)';
 
 const CategoryPage: React.FC = () => {
+  const { t } = useTranslation('theme');
   const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [quick, setQuick] = useState<any>(null);
@@ -33,9 +35,9 @@ const CategoryPage: React.FC = () => {
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full opacity-60" style={{ backgroundColor: PINK }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <div className="text-[11px] tracking-[0.3em] uppercase mb-3 font-bold opacity-70" style={{ color: DARK_TEAL }}>
-            <Link to="/" className="hover:opacity-100">HOME</Link>
+            <Link to="/" className="hover:opacity-100">{t('theme.products.breadcrumb_home')}</Link>
             <span className="mx-2">/</span>
-            <Link to="/products" className="hover:opacity-100">SHOP</Link>
+            <Link to="/products" className="hover:opacity-100">{t('theme.products.breadcrumb_shop')}</Link>
             <span className="mx-2">/</span>
             <span>{category?.name || slug}</span>
           </div>
@@ -53,12 +55,12 @@ const CategoryPage: React.FC = () => {
           <aside>
             <div className="bg-white rounded-[28px] p-6">
               <h3 className="font-serif text-lg font-bold mb-4 pb-3 border-b border-current/10" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
-                Collections
+                {t('theme.category.collections_label')}
               </h3>
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link to="/products" className="opacity-70 hover:opacity-100" style={{ color: DARK_TEAL }}>
-                    All Products
+                    {t('theme.category.all_products')}
                   </Link>
                 </li>
                 {allCategories.slice(0, 12).map((cat) => (
@@ -79,7 +81,7 @@ const CategoryPage: React.FC = () => {
           <div>
             <div className="flex items-center justify-between pb-5 mb-8 border-b-2 border-current/10">
               <span className="text-sm opacity-70" style={{ color: DARK_TEAL }}>
-                {loading ? 'Loading…' : `${products.length} products`}
+                {loading ? '…' : t('theme.products.count', { count: products.length })}
               </span>
               <select
                 value={sort}
@@ -87,10 +89,10 @@ const CategoryPage: React.FC = () => {
                 className="text-sm bg-white rounded-full px-5 py-2.5 pr-8 focus:outline-none font-medium"
                 style={{ color: DARK_TEAL }}
               >
-                <option value="newest">Sort: Newest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="popular">Most Popular</option>
+                <option value="newest">{t('theme.products.sort_newest')}</option>
+                <option value="price-asc">{t('theme.products.sort_price_asc')}</option>
+                <option value="price-desc">{t('theme.products.sort_price_desc')}</option>
+                <option value="popular">{t('theme.products.sort_popular')}</option>
               </select>
             </div>
 
@@ -102,7 +104,7 @@ const CategoryPage: React.FC = () => {
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-24 opacity-60" style={{ color: DARK_TEAL }}>
-                No products in this category yet.
+                {t('theme.category.empty')}
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">

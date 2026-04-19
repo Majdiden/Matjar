@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProduct } from '@shared/hooks/useProducts';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
@@ -22,6 +23,7 @@ const headingFont = { fontFamily: 'var(--font-family-heading)' } as const;
 type TabKey = 'description' | 'nutrition' | 'reviews';
 
 const ProductDetail: React.FC = () => {
+  const { t } = useTranslation('theme');
   const { slug } = useParams<{ slug: string }>();
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
@@ -55,10 +57,10 @@ const ProductDetail: React.FC = () => {
   if (error || !product) {
     return (
       <div className="max-w-3xl mx-auto px-6 py-32 text-center">
-        <h1 className="font-display text-6xl uppercase mb-4" style={headingFont}>Not Found</h1>
-        <p className="opacity-60 mb-6">We couldn't find that product.</p>
+        <h1 className="font-display text-6xl uppercase mb-4" style={headingFont}>{t('theme.product_detail.not_found_heading')}</h1>
+        <p className="opacity-60 mb-6">{t('theme.product_detail.not_found_body')}</p>
         <Link to="/products" className="inline-block px-8 py-3 text-[11px] tracking-[0.22em] uppercase font-black border-2 border-black hover:text-black" style={{ backgroundColor: DARK, color: '#fff' }}>
-          Back to Shop
+          {t('theme.product_detail.back_to_shop')}
         </Link>
       </div>
     );
@@ -80,7 +82,7 @@ const ProductDetail: React.FC = () => {
     price,
     requiresSelection: needsSelection,
     adding,
-    buyLabel: '+ ADD TO CART',
+    buyLabel: t('theme.product_detail.add_to_cart'),
   });
   const isPreorder = preorder.mode === 'preorder';
   const canAddToCart =
@@ -100,9 +102,9 @@ const ProductDetail: React.FC = () => {
       {/* Breadcrumb */}
       <div className="bg-black text-white py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-[11px] tracking-[0.2em] uppercase font-bold">
-          <Link to="/" className="hover:text-[var(--color-primary)] opacity-70">HOME</Link>
+          <Link to="/" className="hover:text-[var(--color-primary)] opacity-70">{t('theme.category.breadcrumb_home')}</Link>
           <span className="mx-2 opacity-50">/</span>
-          <Link to="/products" className="hover:text-[var(--color-primary)] opacity-70">SHOP</Link>
+          <Link to="/products" className="hover:text-[var(--color-primary)] opacity-70">{t('theme.category.breadcrumb_shop')}</Link>
           <span className="mx-2 opacity-50">/</span>
           <span>{product.name}</span>
         </div>
@@ -124,11 +126,11 @@ const ProductDetail: React.FC = () => {
               <div className="absolute top-4 right-4">
                 {isPreorder ? (
                   <span className="inline-block px-4 py-2 text-[11px] font-black tracking-wider uppercase text-white" style={{ backgroundColor: ORANGE }}>
-                    PRE-ORDER
+                    {t('theme.product_detail.pre_order')}
                   </span>
                 ) : (
                   <span className="inline-block px-4 py-2 text-[11px] font-black tracking-wider uppercase" style={{ backgroundColor: LIME, color: DARK }}>
-                    IN STOCK
+                    {t('theme.product_detail.in_stock_badge')}
                   </span>
                 )}
               </div>
@@ -219,7 +221,7 @@ const ProductDetail: React.FC = () => {
             <div className="flex items-center gap-2 mb-5 text-xs font-bold uppercase tracking-wider">
               <span className={`w-2 h-2 ${inStock ? 'bg-[var(--color-primary)]' : 'bg-red-500'}`} />
               <span className={inStock ? 'text-black' : 'text-red-600'}>
-                {inStock ? 'In Stock · Ships Within 24H' : 'Out of Stock'}
+                {inStock ? t('theme.product_detail.in_stock_ships') : t('theme.product_detail.out_of_stock')}
               </span>
             </div>
 
@@ -247,7 +249,7 @@ const ProductDetail: React.FC = () => {
                   className="flex-1 h-14 text-[12px] tracking-[0.22em] uppercase font-black border-2 border-black disabled:opacity-50 transition"
                   style={{ backgroundColor: ORANGE, color: '#fff' }}
                 >
-                  {adding ? 'ADDING…' : needsSelection ? 'SELECT OPTIONS' : '+ ADD TO CART'}
+                  {adding ? t('theme.product_detail.adding') : needsSelection ? t('theme.product_detail.select_options') : t('theme.product_detail.add_to_cart')}
                 </button>
               </div>
               <button
@@ -257,7 +259,7 @@ const ProductDetail: React.FC = () => {
                 onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = LIME; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = DARK; }}
               >
-                BUY IT NOW
+                {t('theme.product_detail.buy_now')}
               </button>
             </div>
 
@@ -265,7 +267,7 @@ const ProductDetail: React.FC = () => {
 
             {/* Share */}
             <div className="flex items-center gap-4 pt-5 pb-5 border-t-2 border-black">
-              <span className="text-[11px] tracking-[0.22em] uppercase font-black">SHARE</span>
+              <span className="text-[11px] tracking-[0.22em] uppercase font-black">{t('theme.product_detail.share_label')}</span>
               <SocialShare
                 url={typeof window !== 'undefined' ? window.location.href : ''}
                 title={product.name}
@@ -277,10 +279,10 @@ const ProductDetail: React.FC = () => {
             {/* Trust/benefits */}
             <div className="grid grid-cols-2 gap-3 pt-6 border-t-2 border-black text-xs font-bold uppercase tracking-wider">
               {[
-                ['🚚', 'Free Shipping $75+'],
-                ['🔒', 'Secure Checkout'],
-                ['↺', '30-Day Returns'],
-                ['🏆', 'Authentic Guarantee'],
+                ['🚚', t('theme.product_detail.benefit_shipping')],
+                ['🔒', t('theme.product_detail.benefit_secure')],
+                ['↺', t('theme.product_detail.benefit_returns')],
+                ['🏆', t('theme.product_detail.benefit_authentic')],
               ].map(([icon, text]) => (
                 <div key={text} className="flex items-center gap-2">
                   <span className="text-base">{icon}</span>
@@ -295,9 +297,9 @@ const ProductDetail: React.FC = () => {
         <div className="mt-20 border-y-2 border-black">
           <div className="flex">
             {([
-              ['description', 'DESCRIPTION'],
-              ['nutrition', 'NUTRITION FACTS'],
-              ['reviews', 'REVIEWS'],
+              ['description', t('theme.product_detail.tab_description')],
+              ['nutrition', t('theme.product_detail.tab_nutrition')],
+              ['reviews', t('theme.product_detail.tab_reviews')],
             ] as [TabKey, string][]).map(([k, label]) => (
               <button
                 key={k}
@@ -314,7 +316,7 @@ const ProductDetail: React.FC = () => {
           {tab === 'description' && <ProductDescription product={product} />}
           {tab === 'nutrition' && (
             <div className="space-y-4">
-              <h3 className="font-display text-2xl uppercase" style={headingFont}>Supplement Facts</h3>
+              <h3 className="font-display text-2xl uppercase" style={headingFont}>{t('theme.product_detail.nutrition_heading')}</h3>
               <div className="border-2 border-black">
                 {[
                   ['Serving Size', '1 Scoop (30g)'],
@@ -347,7 +349,7 @@ const ProductDetail: React.FC = () => {
           <section className="mt-20">
             <div className="flex items-end justify-between mb-10 border-b-2 border-black pb-5">
               <h2 className="font-display text-4xl md:text-5xl uppercase" style={headingFont}>
-                YOU MAY <span style={{ color: LIME }}>ALSO LIKE</span>
+                {t('theme.product_detail.you_may_also_like')}
               </h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-5">

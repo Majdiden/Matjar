@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '../ui/dialog';
@@ -26,6 +27,7 @@ export interface PaymentFieldFileValue {
 export type PaymentFieldValue = string | number | boolean | PaymentFieldFileValue | null | undefined;
 
 export const PaymentFieldDisplay: React.FC<{ field: PaymentFieldShape; value: unknown }> = ({ field, value }) => {
+  const { t } = useTranslation(['payments']);
   const [previewOpen, setPreviewOpen] = React.useState(false);
   const label = field.label || field.name || '';
   const missing = value == null || value === '';
@@ -47,7 +49,7 @@ export const PaymentFieldDisplay: React.FC<{ field: PaymentFieldShape; value: un
       <div className="rounded-md border p-3 text-sm">
         <p className="text-xs text-muted-foreground">{label}</p>
         {missing ? (
-          <p className="italic text-muted-foreground text-xs mt-0.5">Not provided</p>
+          <p className="italic text-muted-foreground text-xs mt-0.5">{t('payments:field_display.not_provided')}</p>
         ) : field.type === 'file' && fileData ? (
           <div className="mt-1 space-y-1">
             {isImage && (
@@ -68,13 +70,13 @@ export const PaymentFieldDisplay: React.FC<{ field: PaymentFieldShape; value: un
               onClick={() => setPreviewOpen(true)}
               className="text-xs text-primary underline cursor-pointer"
             >
-              {fileValue?.name || 'Open attachment'}
+              {fileValue?.name || t('payments:transaction.detail.open_attachment')}
               {fileValue?.size ? ` (${Math.round((fileValue.size || 0) / 1024)} KB)` : ''}
             </button>
           </div>
         ) : field.type === 'file' && !fileData ? (
           <p className="text-xs text-muted-foreground italic mt-0.5">
-            {fileValue?.name || 'File reference'} — no inline data
+            {fileValue?.name || ''}{t('payments:field_display.file_no_data')}
           </p>
         ) : (
           <p className="font-medium break-words mt-0.5">{String(value as string | number | boolean)}</p>
@@ -106,14 +108,14 @@ export const PaymentFieldDisplay: React.FC<{ field: PaymentFieldShape; value: un
               ) : (
                 <div className="p-6 text-sm text-center space-y-2">
                   <p className="text-muted-foreground">
-                    Preview not available for this file type.
+                    {t('payments:field_display.preview_unavailable')}
                   </p>
                   <a
                     href={fileData}
                     download={fileValue?.name}
                     className="text-primary underline"
                   >
-                    Download {fileValue?.name || 'file'}
+                    {t('payments:field_display.download', { name: fileValue?.name || '' })}
                   </a>
                 </div>
               )}
@@ -124,7 +126,7 @@ export const PaymentFieldDisplay: React.FC<{ field: PaymentFieldShape; value: un
                 download={fileValue?.name}
                 className="text-xs text-primary underline"
               >
-                Download
+                {t('payments:transaction.detail.download')}
               </a>
             </DialogFooter>
           </DialogContent>

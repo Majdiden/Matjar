@@ -2,12 +2,14 @@ import React from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useCategory } from '@shared/hooks/useProducts';
 import ProductCard from '@shared/components/ProductCard';
+import { useTranslation } from 'react-i18next';
 
 const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get('page') || '1');
   const sort = searchParams.get('sort') || 'newest';
+  const { t } = useTranslation(['theme']);
 
   const { category, products, pagination, loading } = useCategory(slug!, { page, sort });
 
@@ -34,9 +36,9 @@ const CategoryPage: React.FC = () => {
   if (!category) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
-        <h2 className="text-2xl font-bold mb-2">Category Not Found</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('theme.category.not_found_heading')}</h2>
         <Link to="/products" className="text-sm underline" style={{ color: 'var(--color-primary)' }}>
-          Browse all products
+          {t('theme.category.browse_all')}
         </Link>
       </div>
     );
@@ -45,7 +47,7 @@ const CategoryPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <nav className="text-sm text-gray-500 mb-4">
-        <Link to="/" className="hover:text-gray-700">Home</Link>
+        <Link to="/" className="hover:text-gray-700">{t('theme.category.breadcrumb_home')}</Link>
         <span className="mx-2">/</span>
         <span className="text-gray-900">{category.name}</span>
       </nav>
@@ -60,15 +62,15 @@ const CategoryPage: React.FC = () => {
           onChange={(e) => updateParam('sort', e.target.value)}
           className="px-4 py-2 border rounded-lg bg-white text-sm"
         >
-          <option value="newest">Newest</option>
-          <option value="price_asc">Price: Low to High</option>
-          <option value="price_desc">Price: High to Low</option>
+          <option value="newest">{t('theme.category.sort_newest')}</option>
+          <option value="price_asc">{t('theme.category.sort_price_asc')}</option>
+          <option value="price_desc">{t('theme.category.sort_price_desc')}</option>
         </select>
       </div>
 
       {products.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-gray-500">No products in this category yet</p>
+          <p className="text-gray-500">{t('theme.category.no_products')}</p>
         </div>
       ) : (
         <>
@@ -85,15 +87,15 @@ const CategoryPage: React.FC = () => {
                 disabled={page <= 1}
                 className="px-4 py-2 border rounded-lg disabled:opacity-30 hover:bg-gray-50"
               >
-                Previous
+                {t('theme.category.previous')}
               </button>
-              <span className="text-sm text-gray-500">Page {page} of {pagination.pages}</span>
+              <span className="text-sm text-gray-500">{t('theme.category.page_of', { page, total: pagination.pages })}</span>
               <button
                 onClick={() => updateParam('page', String(page + 1))}
                 disabled={page >= pagination.pages}
                 className="px-4 py-2 border rounded-lg disabled:opacity-30 hover:bg-gray-50"
               >
-                Next
+                {t('theme.category.next')}
               </button>
             </div>
           )}

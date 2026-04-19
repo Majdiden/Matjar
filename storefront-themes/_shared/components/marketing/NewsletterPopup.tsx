@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { Modal } from '../primitives/Modal';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
@@ -21,11 +22,12 @@ interface NewsletterPopupProps {
 export function NewsletterPopup(props: NewsletterPopupProps) {
   const Override = useThemeSlot<React.ComponentType<NewsletterPopupProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
+  const { t } = useTranslation('marketing');
   const {
     delay = 5000,
     storageKey = 'matjar_newsletter_dismissed',
-    title = 'Stay in the loop',
-    description = 'Subscribe to get special offers, free giveaways, and new arrivals.',
+    title,
+    description,
     image,
     className,
     onSubmit,
@@ -70,25 +72,25 @@ export function NewsletterPopup(props: NewsletterPopupProps) {
           </div>
         )}
         <div className="p-8 flex-1">
-          <button onClick={handleClose} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+          <button onClick={handleClose} className="absolute top-3 end-3 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
 
           {status === 'success' ? (
             <div className="text-center py-8">
               <div className="text-4xl mb-3">&#127881;</div>
-              <h3 className="text-xl font-bold mb-1">You're in!</h3>
-              <p className="text-gray-500 text-sm">Thanks for subscribing.</p>
+              <h3 className="text-xl font-bold mb-1">{t('newsletter.success_title')}</h3>
+              <p className="text-gray-500 text-sm">{t('newsletter.success')}</p>
             </div>
           ) : (
             <>
-              <h3 className="text-2xl font-bold mb-2">{title}</h3>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">{description}</p>
+              <h3 className="text-2xl font-bold mb-2">{title ?? t('newsletter.title')}</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">{description ?? t('newsletter.description')}</p>
 
               <form onSubmit={handleSubmit} className="space-y-3">
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="Enter your email"
+                  placeholder={t('newsletter.placeholder')}
                   required
                   className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
@@ -98,15 +100,15 @@ export function NewsletterPopup(props: NewsletterPopupProps) {
                   className="w-full py-3 rounded-lg text-white font-medium transition disabled:opacity-50"
                   style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
                 >
-                  {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
+                  {status === 'loading' ? t('newsletter.subscribing') : t('newsletter.submit')}
                 </button>
                 {status === 'error' && (
-                  <p className="text-red-500 text-xs text-center">Something went wrong. Please try again.</p>
+                  <p className="text-red-500 text-xs text-center">{t('newsletter.error')}</p>
                 )}
               </form>
 
               <button onClick={handleClose} className="w-full text-center text-xs text-gray-400 mt-4 hover:text-gray-600">
-                No thanks
+                {t('newsletter.no_thanks')}
               </button>
             </>
           )}

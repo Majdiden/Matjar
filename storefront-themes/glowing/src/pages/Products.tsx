@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProducts, useCategories } from '@shared/hooks/useProducts';
 import GlowingProductCard from '../components/GlowingProductCard';
 import { QuickView } from '@shared/components/discovery/QuickView';
@@ -24,87 +25,92 @@ const Sidebar: React.FC<{
   priceMax: number;
   onPriceMin: (v: number) => void;
   onPriceMax: (v: number) => void;
-}> = ({ categories, selectedCategory, onSelectCategory, availability, onAvailability, priceMin, priceMax, onPriceMin, onPriceMax }) => (
-  <aside className="space-y-10 lg:sticky lg:top-32 self-start">
-    {/* Categories */}
-    <div>
-      <h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-black mb-5 pb-3 border-b border-neutral-200">
-        Categories
-      </h3>
-      <ul className="space-y-2.5 text-sm">
-        <li>
-          <button
-            onClick={() => onSelectCategory('')}
-            className={`text-left transition ${selectedCategory === '' ? 'text-black font-semibold' : 'text-neutral-600 hover:text-black'}`}
-          >
-            All Products
-          </button>
-        </li>
-        {categories.slice(0, 12).map((cat) => (
-          <li key={cat._id}>
+}> = ({ categories, selectedCategory, onSelectCategory, availability, onAvailability, priceMin, priceMax, onPriceMin, onPriceMax }) => {
+  const { t } = useTranslation(['theme']);
+
+  return (
+    <aside className="space-y-10 lg:sticky lg:top-32 self-start">
+      {/* Categories */}
+      <div>
+        <h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-black mb-5 pb-3 border-b border-neutral-200">
+          {t('theme.products.sidebar_categories')}
+        </h3>
+        <ul className="space-y-2.5 text-sm">
+          <li>
             <button
-              onClick={() => onSelectCategory(cat.slug)}
-              className={`text-left transition ${selectedCategory === cat.slug ? 'text-black font-semibold' : 'text-neutral-600 hover:text-black'}`}
+              onClick={() => onSelectCategory('')}
+              className={`text-start transition ${selectedCategory === '' ? 'text-black font-semibold' : 'text-neutral-600 hover:text-black'}`}
             >
-              {cat.name}
+              {t('theme.products.all_products')}
             </button>
           </li>
-        ))}
-      </ul>
-    </div>
-
-    {/* Availability */}
-    <div>
-      <h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-black mb-5 pb-3 border-b border-neutral-200">
-        Availability
-      </h3>
-      <div className="space-y-3 text-sm">
-        {[
-          { value: '', label: 'All' },
-          { value: 'in-stock', label: 'In stock' },
-          { value: 'out-of-stock', label: 'Out of stock' },
-        ].map((opt) => (
-          <label key={opt.value} className="flex items-center gap-3 cursor-pointer text-neutral-700 hover:text-black">
-            <input
-              type="radio"
-              name="availability"
-              checked={availability === opt.value}
-              onChange={() => onAvailability(opt.value)}
-              className="accent-black"
-            />
-            {opt.label}
-          </label>
-        ))}
+          {categories.slice(0, 12).map((cat) => (
+            <li key={cat._id}>
+              <button
+                onClick={() => onSelectCategory(cat.slug)}
+                className={`text-start transition ${selectedCategory === cat.slug ? 'text-black font-semibold' : 'text-neutral-600 hover:text-black'}`}
+              >
+                {cat.name}
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
 
-    {/* Price */}
-    <div>
-      <h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-black mb-5 pb-3 border-b border-neutral-200">
-        Price
-      </h3>
-      <div className="flex items-center gap-3">
-        <input
-          type="number"
-          value={priceMin}
-          onChange={(e) => onPriceMin(Number(e.target.value))}
-          placeholder="Min"
-          className="w-full border-b border-neutral-300 py-2 text-sm focus:outline-none focus:border-black"
-        />
-        <span className="text-neutral-400">—</span>
-        <input
-          type="number"
-          value={priceMax}
-          onChange={(e) => onPriceMax(Number(e.target.value))}
-          placeholder="Max"
-          className="w-full border-b border-neutral-300 py-2 text-sm focus:outline-none focus:border-black"
-        />
+      {/* Availability */}
+      <div>
+        <h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-black mb-5 pb-3 border-b border-neutral-200">
+          {t('theme.products.sidebar_availability')}
+        </h3>
+        <div className="space-y-3 text-sm">
+          {[
+            { value: '', labelKey: 'theme.products.availability_all' },
+            { value: 'in-stock', labelKey: 'theme.products.availability_in_stock' },
+            { value: 'out-of-stock', labelKey: 'theme.products.availability_out_of_stock' },
+          ].map((opt) => (
+            <label key={opt.value} className="flex items-center gap-3 cursor-pointer text-neutral-700 hover:text-black">
+              <input
+                type="radio"
+                name="availability"
+                checked={availability === opt.value}
+                onChange={() => onAvailability(opt.value)}
+                className="accent-black"
+              />
+              {t(opt.labelKey)}
+            </label>
+          ))}
+        </div>
       </div>
-    </div>
-  </aside>
-);
+
+      {/* Price */}
+      <div>
+        <h3 className="text-[11px] tracking-[0.22em] uppercase font-semibold text-black mb-5 pb-3 border-b border-neutral-200">
+          {t('theme.products.sidebar_price')}
+        </h3>
+        <div className="flex items-center gap-3">
+          <input
+            type="number"
+            value={priceMin}
+            onChange={(e) => onPriceMin(Number(e.target.value))}
+            placeholder={t('theme.products.price_min')}
+            className="w-full border-b border-neutral-300 py-2 text-sm focus:outline-none focus:border-black"
+          />
+          <span className="text-neutral-400">—</span>
+          <input
+            type="number"
+            value={priceMax}
+            onChange={(e) => onPriceMax(Number(e.target.value))}
+            placeholder={t('theme.products.price_max')}
+            className="w-full border-b border-neutral-300 py-2 text-sm focus:outline-none focus:border-black"
+          />
+        </div>
+      </div>
+    </aside>
+  );
+};
 
 const Products: React.FC = () => {
+  const { t } = useTranslation(['theme', 'common']);
   const [searchParams, setSearchParams] = useSearchParams();
   const [quick, setQuick] = useState<any>(null);
 
@@ -138,16 +144,16 @@ const Products: React.FC = () => {
       {/* Title banner */}
       <div className="text-center py-16 border-b border-neutral-100">
         <div className="text-[11px] tracking-[0.3em] uppercase text-neutral-500 mb-4">
-          Home / <span className="text-black">Shop</span>
+          {t('theme.products.breadcrumb_home')} / <span className="text-black">{t('theme.products.breadcrumb_shop')}</span>
         </div>
         <h1
           className="font-display text-5xl md:text-6xl text-black"
           style={{ fontFamily: 'var(--font-family-heading)' }}
         >
-          All Products
+          {t('theme.products.title')}
         </h1>
         <p className="mt-3 text-sm text-neutral-500 max-w-md mx-auto">
-          Discover our complete collection of clean, vegan beauty essentials
+          {t('theme.products.subtitle')}
         </p>
       </div>
 
@@ -169,17 +175,17 @@ const Products: React.FC = () => {
             {/* Toolbar */}
             <div className="flex items-center justify-between pb-6 mb-8 border-b border-neutral-100">
               <span className="text-sm text-neutral-600">
-                Showing {products.length} products
+                {t('theme.products.showing_count', { count: products.length })}
               </span>
               <select
                 value={sort}
                 onChange={(e) => setParam('sort', e.target.value)}
-                className="text-sm border-b border-neutral-300 bg-transparent py-1 pr-6 focus:outline-none focus:border-black"
+                className="text-sm border-b border-neutral-300 bg-transparent py-1 pe-6 focus:outline-none focus:border-black"
               >
-                <option value="newest">Sort: Newest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="popular">Most Popular</option>
+                <option value="newest">{t('theme.products.sort_newest')}</option>
+                <option value="price-asc">{t('theme.products.sort_price_asc')}</option>
+                <option value="price-desc">{t('theme.products.sort_price_desc')}</option>
+                <option value="popular">{t('theme.products.sort_popular')}</option>
               </select>
             </div>
 
@@ -192,7 +198,7 @@ const Products: React.FC = () => {
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-24 text-neutral-500">
-                No products found. Try different filters.
+                {t('theme.products.empty')}
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">

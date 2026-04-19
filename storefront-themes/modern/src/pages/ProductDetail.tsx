@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProduct } from '@shared/hooks/useProducts';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
@@ -31,6 +32,7 @@ const ProductDetail: React.FC = () => {
     loading,
     error,
   } = useProduct(slug!);
+  const { t } = useTranslation('theme');
   const { formatPrice } = useStore();
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -68,9 +70,9 @@ const ProductDetail: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
         <div className="text-5xl mb-4">&#128533;</div>
-        <h2 className="text-2xl font-bold mb-2">Product Not Found</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('theme.product_detail.not_found_heading')}</h2>
         <Link to="/products" className="text-sm underline" style={{ color: 'var(--color-primary, #2563eb)' }}>
-          Back to shop
+          {t('theme.product_detail.back_to_shop')}
         </Link>
       </div>
     );
@@ -242,12 +244,12 @@ const ProductDetail: React.FC = () => {
           {requiresVariantSelection ? (
             <p className="text-sm text-gray-500 font-medium mb-6 flex items-center gap-1.5">
               <span className="w-2 h-2 bg-gray-400 rounded-full" />
-              Select an option to see availability
+              {t('theme.product_detail.select_option_availability')}
             </p>
           ) : displayStock > 0 ? (
             <p className="text-sm text-green-600 font-medium mb-6 flex items-center gap-1.5">
               <span className="w-2 h-2 bg-green-500 rounded-full" />
-              In Stock ({displayStock} available)
+              {t('theme.product_detail.in_stock', { count: displayStock })}
             </p>
           ) : isPreorderable ? (
             <div className="mb-6">
@@ -270,12 +272,12 @@ const ProductDetail: React.FC = () => {
           ) : isPreorderSoldOut ? (
             <p className="text-sm text-red-500 font-medium mb-6 flex items-center gap-1.5">
               <span className="w-2 h-2 bg-red-500 rounded-full" />
-              Sold out
+              {t('theme.product_detail.sold_out')}
             </p>
           ) : (
             <p className="text-sm text-red-500 font-medium mb-6 flex items-center gap-1.5">
               <span className="w-2 h-2 bg-red-500 rounded-full" />
-              Out of Stock
+              {t('theme.product_detail.out_of_stock')}
             </p>
           )}
 
@@ -315,7 +317,7 @@ const ProductDetail: React.FC = () => {
 
           {/* Share */}
           <div className="flex items-center gap-3 pt-4 border-t">
-            <span className="text-sm text-gray-500">Share:</span>
+            <span className="text-sm text-gray-500">{t('theme.product_detail.share')}</span>
             <SocialShare
               url={window.location.href}
               title={product.name}

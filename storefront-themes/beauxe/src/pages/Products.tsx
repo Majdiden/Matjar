@@ -5,6 +5,7 @@ import BeauxeProductCard from '../components/BeauxeProductCard';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { useStore } from '@shared/contexts/StoreContext';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Beauxe Products page — pink sidebar filters + rounded grid.
@@ -30,9 +31,10 @@ const FilterCard: React.FC<{ title: string; children: React.ReactNode }> = ({ ti
 const BestSellerModule: React.FC = () => {
   const { products, loading } = useFeaturedProducts(3);
   const { formatPrice } = useStore();
+  const { t } = useTranslation(['theme']);
   if (loading) return <Skeleton className="h-64 rounded-3xl" />;
   return (
-    <FilterCard title="Best Sellers">
+    <FilterCard title={t('theme.products.best_sellers')}>
       <div className="space-y-4">
         {products.slice(0, 3).map((p: any) => (
           <Link key={p._id} to={`/products/${p.slug}`} className="flex gap-3 group">
@@ -70,6 +72,7 @@ const BestSellerModule: React.FC = () => {
 const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [quick, setQuick] = useState<any>(null);
+  const { t } = useTranslation(['theme']);
 
   const selectedCategory = searchParams.get('category') || '';
   const availability = searchParams.get('availability') || '';
@@ -101,18 +104,18 @@ const Products: React.FC = () => {
       {/* Title banner */}
       <div className="text-center py-16" style={{ backgroundColor: BLUSH }}>
         <div className="text-[11px] tracking-[0.3em] uppercase mb-4" style={{ color: NAVY, opacity: 0.7 }}>
-          <Link to="/" className="hover:opacity-100">Home</Link>
+          <Link to="/" className="hover:opacity-100">{t('theme.products.breadcrumb_home')}</Link>
           <span className="mx-2">/</span>
-          <span>Shop</span>
+          <span>{t('theme.products.breadcrumb_shop')}</span>
         </div>
         <h1
           className="font-serif text-5xl md:text-6xl"
           style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
         >
-          All Products
+          {t('theme.products.page_title')}
         </h1>
         <p className="mt-3 text-sm max-w-md mx-auto" style={{ color: NAVY, opacity: 0.7 }}>
-          Discover clean, conscious beauty crafted with love
+          {t('theme.products.page_subtitle')}
         </p>
       </div>
 
@@ -120,22 +123,22 @@ const Products: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
           {/* Sidebar */}
           <aside>
-            <FilterCard title="Categories">
+            <FilterCard title={t('theme.products.filter_categories')}>
               <ul className="space-y-2.5 text-sm">
                 <li>
                   <button
                     onClick={() => setParam('category', '')}
-                    className={`text-left transition ${selectedCategory === '' ? 'font-bold' : 'opacity-75 hover:opacity-100'}`}
+                    className={`text-start transition ${selectedCategory === '' ? 'font-bold' : 'opacity-75 hover:opacity-100'}`}
                     style={{ color: NAVY }}
                   >
-                    All Products
+                    {t('theme.products.filter_all_products')}
                   </button>
                 </li>
                 {categories.slice(0, 10).map((cat) => (
                   <li key={cat._id}>
                     <button
                       onClick={() => setParam('category', cat.slug)}
-                      className={`text-left transition ${selectedCategory === cat.slug ? 'font-bold' : 'opacity-75 hover:opacity-100'}`}
+                      className={`text-start transition ${selectedCategory === cat.slug ? 'font-bold' : 'opacity-75 hover:opacity-100'}`}
                       style={{ color: NAVY }}
                     >
                       {cat.name}
@@ -145,12 +148,12 @@ const Products: React.FC = () => {
               </ul>
             </FilterCard>
 
-            <FilterCard title="Availability">
+            <FilterCard title={t('theme.products.filter_availability')}>
               <div className="space-y-3 text-sm" style={{ color: NAVY }}>
                 {[
-                  { value: '', label: 'All' },
-                  { value: 'in-stock', label: 'In stock' },
-                  { value: 'out-of-stock', label: 'Out of stock' },
+                  { value: '', label: t('theme.products.filter_all') },
+                  { value: 'in-stock', label: t('theme.products.filter_in_stock') },
+                  { value: 'out-of-stock', label: t('theme.products.filter_out_of_stock') },
                 ].map((opt) => (
                   <label key={opt.value} className="flex items-center gap-3 cursor-pointer">
                     <input
@@ -166,13 +169,13 @@ const Products: React.FC = () => {
               </div>
             </FilterCard>
 
-            <FilterCard title="Price">
+            <FilterCard title={t('theme.products.filter_price')}>
               <div className="flex items-center gap-3">
                 <input
                   type="number"
                   value={priceMin}
                   onChange={(e) => setParam('min', Number(e.target.value))}
-                  placeholder="Min"
+                  placeholder={t('theme.products.price_min_placeholder')}
                   className="w-full border-b border-pink-200 py-2 text-sm focus:outline-none focus:border-[color:var(--color-secondary)] bg-transparent"
                 />
                 <span className="opacity-40">—</span>
@@ -180,7 +183,7 @@ const Products: React.FC = () => {
                   type="number"
                   value={priceMax}
                   onChange={(e) => setParam('max', Number(e.target.value))}
-                  placeholder="Max"
+                  placeholder={t('theme.products.price_max_placeholder')}
                   className="w-full border-b border-pink-200 py-2 text-sm focus:outline-none focus:border-[color:var(--color-secondary)] bg-transparent"
                 />
               </div>
@@ -193,18 +196,18 @@ const Products: React.FC = () => {
             {/* Toolbar */}
             <div className="flex items-center justify-between pb-5 mb-8 border-b border-pink-100">
               <span className="text-sm opacity-75" style={{ color: NAVY }}>
-                {loading ? 'Loading…' : `Showing ${products.length} products`}
+                {loading ? t('theme.products.loading') : t('theme.products.showing_products', { count: products.length })}
               </span>
               <select
                 value={sort}
                 onChange={(e) => setParam('sort', e.target.value)}
-                className="text-sm border border-pink-200 bg-white rounded-full px-5 py-2 pr-8 focus:outline-none focus:border-[color:var(--color-secondary)]"
+                className="text-sm border border-pink-200 bg-white rounded-full px-5 py-2 pe-8 focus:outline-none focus:border-[color:var(--color-secondary)]"
                 style={{ color: NAVY }}
               >
-                <option value="newest">Sort: Newest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="popular">Most Popular</option>
+                <option value="newest">{t('theme.products.sort_newest')}</option>
+                <option value="price-asc">{t('theme.products.sort_price_asc')}</option>
+                <option value="price-desc">{t('theme.products.sort_price_desc')}</option>
+                <option value="popular">{t('theme.products.sort_popular')}</option>
               </select>
             </div>
 
@@ -216,7 +219,7 @@ const Products: React.FC = () => {
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-24 opacity-60" style={{ color: NAVY }}>
-                No products found. Try different filters.
+                {t('theme.products.no_results')}
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">

@@ -39,6 +39,7 @@
     "select": "Select"
   },
   "image": {
+    "alt_rating": "{{rating}} out of {{max}} stars",
     "zoom_aria": "Zoom image",
     "thumbnail_aria": "View image {{index}}"
   },
@@ -129,5 +130,13 @@
     "title": "Similar Products",
     "subtitle": "More from this collection you might love."
   },
-  "featured_badge": "Featured"
+  "featured_badge": "Featured",
+  "card": {
+    "options": "Options",
+    "add": "Add",
+    "adding": "...",
+    "preorder": "Pre-order",
+    "sold_out": "Sold out",
+    "out_of_stock": "Out of stock"
+  }
 }

@@ -47,7 +47,7 @@ const CategoryPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <nav className="text-sm text-gray-500 mb-4">
-        <Link to="/" className="hover:text-gray-700">Home</Link>
+        <Link to="/" className="hover:text-gray-700">{t('theme.category.breadcrumb_home')}</Link>
         <span className="mx-2">/</span>
         <span className="text-gray-900">{category.name}</span>
       </nav>

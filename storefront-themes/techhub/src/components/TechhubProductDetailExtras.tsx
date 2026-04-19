@@ -14,6 +14,7 @@ import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { reviewsApi } from '@shared/api/client';
 import { useThemeCard } from '@shared/theme/ThemeCardProvider';
+import { useTranslation } from 'react-i18next';
 
 interface Spec { key: string; value: string }
 
@@ -82,11 +83,11 @@ const Stars: React.FC<{ rating: number; size?: 'sm' | 'md' }> = ({ rating, size 
   );
 };
 
-const reviewerName = (r: Review) => {
+const reviewerName = (r: Review, anonymous: string) => {
   const u = r.user;
-  if (!u) return 'Anonymous';
+  if (!u) return anonymous;
   if (u.firstName || u.lastName) return `${u.firstName || ''} ${u.lastName || ''}`.trim();
-  return u.name || 'Anonymous';
+  return u.name || anonymous;
 };
 
 const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
@@ -97,6 +98,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
   relatedProducts,
   className = '',
 }) => {
+  const { t } = useTranslation(['theme']);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
   const themeCard = useThemeCard();
@@ -137,10 +139,10 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
 
   // Build tab list — hide specs tab when no specs exist.
   const tabs: Array<{ id: TabKey; label: string }> = [
-    { id: 'description', label: 'Description' },
-    ...(specs.length > 0 ? [{ id: 'specifications' as TabKey, label: 'Specifications' }] : []),
-    { id: 'delivery', label: 'Delivery & Shipping' },
-    { id: 'reviews', label: 'Customer Reviews' },
+    { id: 'description', label: t('theme.product_detail_extras.tab_description') },
+    ...(specs.length > 0 ? [{ id: 'specifications' as TabKey, label: t('theme.product_detail_extras.tab_specifications') }] : []),
+    { id: 'delivery', label: t('theme.product_detail_extras.tab_delivery') },
+    { id: 'reviews', label: t('theme.product_detail_extras.tab_reviews') },
   ];
   const [tab, setTab] = useState<TabKey>('description');
 
@@ -242,7 +244,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                 {product.shortDescription}
               </p>
             )}
-            {product.description || 'No description available.'}
+            {product.description || t('theme.product_detail_extras.no_description')}
             {product.tags && product.tags.length > 0 && (
               <div className="flex gap-2 flex-wrap mt-6">
                 {product.tags.map((tag: string) => (
@@ -282,19 +284,19 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
           <div className="max-w-3xl space-y-4">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-foreground)' }}>
-                Delivery Policy
+                {t('theme.product_detail_extras.delivery_policy_heading')}
               </p>
-              <p className="mb-1">Orders placed before 3 PM ship the same business day.</p>
-              <p className="mb-1">Standard delivery: 3–5 business days.</p>
-              <p>Express delivery: 1–2 business days (extra charge).</p>
+              <p className="mb-1">{t('theme.product_detail_extras.delivery_policy_line1')}</p>
+              <p className="mb-1">{t('theme.product_detail_extras.delivery_policy_line2')}</p>
+              <p>{t('theme.product_detail_extras.delivery_policy_line3')}</p>
             </div>
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-foreground)' }}>
-                Shipping & Return
+                {t('theme.product_detail_extras.shipping_return_heading')}
               </p>
-              <p className="mb-1">Free shipping on orders over $200.</p>
-              <p className="mb-1">30-day return window — items must be unused and in original packaging.</p>
-              <p>Contact support to initiate a return.</p>
+              <p className="mb-1">{t('theme.product_detail_extras.shipping_return_line1')}</p>
+              <p className="mb-1">{t('theme.product_detail_extras.shipping_return_line2')}</p>
+              <p>{t('theme.product_detail_extras.shipping_return_line3')}</p>
             </div>
           </div>
         )}
@@ -312,7 +314,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                 </div>
                 <Stars rating={product.rating || 0} size="md" />
                 <p className="text-[11px] uppercase tracking-wider mt-2" style={{ color: 'var(--color-muted)' }}>
-                  Based on {totalReviews} review{totalReviews === 1 ? '' : 's'}
+                  {totalReviews === 1 ? t('theme.product_detail_extras.based_on_reviews', { count: totalReviews }) : t('theme.product_detail_extras.based_on_reviews_plural', { count: totalReviews })}
                 </p>
               </div>
 
@@ -349,7 +351,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                     className="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider text-white hover:opacity-90 transition"
                     style={{ backgroundColor: accent }}
                   >
-                    Write a review
+                    {t('theme.product_detail_extras.write_review')}
                   </button>
                 ) : (
                   <Link
@@ -357,7 +359,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                     className="inline-block px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider border hover:opacity-80 transition"
                     style={{ borderColor: accent, color: accent }}
                   >
-                    Sign in to write a review
+                    {t('theme.product_detail_extras.sign_in_to_review')}
                   </Link>
                 )
               ) : (
@@ -371,7 +373,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                 >
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-foreground)' }}>
-                      Your rating
+                      {t('theme.product_detail_extras.your_rating')}
                     </p>
                     <div className="flex items-center gap-1">
                       {[1, 2, 3, 4, 5].map((n) => {
@@ -397,7 +399,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
 
                   <div>
                     <label htmlFor="review-title" className="block text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--color-foreground)' }}>
-                      Title (optional)
+                      {t('theme.product_detail_extras.title_optional')}
                     </label>
                     <input
                       id="review-title"
@@ -405,7 +407,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                       value={reviewTitle}
                       onChange={(e) => setReviewTitle(e.target.value)}
                       maxLength={200}
-                      placeholder="Sum it up in a few words"
+                      placeholder={t('theme.product_detail_extras.title_placeholder')}
                       className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none"
                       style={{ borderColor: 'var(--color-border)', color: 'var(--color-foreground)' }}
                     />
@@ -413,7 +415,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
 
                   <div>
                     <label htmlFor="review-comment" className="block text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--color-foreground)' }}>
-                      Your review
+                      {t('theme.product_detail_extras.your_review')}
                     </label>
                     <textarea
                       id="review-comment"
@@ -421,7 +423,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                       onChange={(e) => setReviewComment(e.target.value)}
                       rows={4}
                       maxLength={5000}
-                      placeholder="What did you like or dislike?"
+                      placeholder={t('theme.product_detail_extras.review_placeholder')}
                       className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none resize-y"
                       style={{ borderColor: 'var(--color-border)', color: 'var(--color-foreground)' }}
                       required
@@ -439,7 +441,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                       className="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider text-white hover:opacity-90 transition disabled:opacity-50"
                       style={{ backgroundColor: accent }}
                     >
-                      {submittingReview ? 'Submitting…' : 'Submit review'}
+                      {submittingReview ? t('theme.product_detail_extras.submitting') : t('theme.product_detail_extras.submit_review')}
                     </button>
                     <button
                       type="button"
@@ -447,7 +449,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                       className="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider border hover:opacity-80 transition"
                       style={{ borderColor: 'var(--color-border)', color: 'var(--color-foreground)' }}
                     >
-                      Cancel
+                      {t('theme.product_detail_extras.cancel')}
                     </button>
                   </div>
                 </form>
@@ -457,7 +459,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
             {/* Review list */}
             {totalReviews === 0 ? (
               <div className="text-center py-12 text-sm" style={{ color: 'var(--color-muted)' }}>
-                No reviews yet. Be the first to share your thoughts.
+                {t('theme.product_detail_extras.no_reviews')}
               </div>
             ) : (
               <div className="space-y-5">
@@ -477,16 +479,16 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                         </div>
                         <div>
                           <p className="text-sm font-bold leading-tight" style={{ color: 'var(--color-foreground)' }}>
-                            {reviewerName(r)}
+                            {reviewerName(r, t('theme.product_detail_extras.anonymous'))}
                             {(r.isVerifiedPurchase || r.isVerified) && (
                               <span
-                                className="ml-2 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider"
+                                className="ms-2 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider"
                                 style={{
                                   color: 'var(--color-primary)',
                                   backgroundColor: 'color-mix(in srgb, var(--color-primary) 12%, transparent)',
                                 }}
                               >
-                                Verified
+                                {t('theme.product_detail_extras.verified')}
                               </span>
                             )}
                           </p>
@@ -515,10 +517,10 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
       {frequentlyBoughtWith.length > 0 && (
         <section className="mt-12">
           <h2 className="text-xl sm:text-2xl font-black mb-1" style={{ color: 'var(--color-foreground)' }}>
-            Frequently Bought Together
+            {t('theme.product_detail_extras.frequently_bought_heading')}
           </h2>
           <p className="text-xs uppercase tracking-wider mb-6" style={{ color: 'var(--color-muted)' }}>
-            Customers often pair these together.
+            {t('theme.product_detail_extras.frequently_bought_subtitle')}
           </p>
 
           <div
@@ -554,7 +556,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                             onChange={(e) =>
                               setBundleSelection({ ...bundleSelection, [item._id]: e.target.checked })
                             }
-                            className="absolute top-2 left-2 w-4 h-4"
+                            className="absolute top-2 start-2 w-4 h-4"
                             style={{ accentColor: 'var(--color-primary)' }}
                           />
                         )}
@@ -562,7 +564,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                       <p className="text-xs font-bold truncate" style={{ color: 'var(--color-foreground)' }}>{item.name}</p>
                       {isCurrent ? (
                         <p className="text-[11px] uppercase tracking-wider italic mt-0.5" style={{ color: 'var(--color-muted)' }}>
-                          This item
+                          {t('theme.product_detail_extras.this_item')}
                         </p>
                       ) : needsOptions ? (
                         <Link
@@ -570,7 +572,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                           className="text-[11px] font-bold uppercase tracking-wider mt-0.5 inline-block hover:opacity-70"
                           style={{ color: 'var(--color-primary)' }}
                         >
-                          Choose options
+                          {t('theme.product_detail_extras.choose_options_link')}
                         </Link>
                       ) : (
                         <p className="text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>{formatPrice(item.price)}</p>
@@ -581,15 +583,15 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
               })}
             </div>
 
-            <div className="lg:col-span-1 lg:border-l lg:pl-6" style={{ borderColor: 'var(--color-border)' }}>
+            <div className="lg:col-span-1 lg:border-s lg:ps-6" style={{ borderColor: 'var(--color-border)' }}>
               <p className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--color-muted)' }}>
-                Add-on total
+                {t('theme.product_detail_extras.addon_total_label')}
               </p>
               <p className="text-2xl font-black mb-3" style={{ color: 'var(--color-foreground)' }}>
                 {formatPrice(bundleTotal)}
               </p>
               <p className="text-[11px] uppercase tracking-wider mb-4" style={{ color: 'var(--color-muted)' }}>
-                {selectedAddable.length} of {addableExtras.length} extras selected
+                {t('theme.product_detail_extras.extras_selected', { selected: selectedAddable.length, total: addableExtras.length })}
               </p>
               <button
                 onClick={handleBundleAdd}
@@ -597,7 +599,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                 className="w-full py-3 rounded-full text-xs font-bold uppercase tracking-wider text-white hover:opacity-90 transition disabled:opacity-50"
                 style={{ backgroundColor: 'var(--color-primary)' }}
               >
-                {addingBundle ? 'Adding…' : 'Add Selected to Cart'}
+                {addingBundle ? t('theme.product_detail_extras.adding_bundle') : t('theme.product_detail_extras.add_selected_to_cart')}
               </button>
             </div>
           </div>
@@ -608,10 +610,10 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
       {relatedProducts.length > 0 && (
         <section className="mt-12">
           <h2 className="text-xl sm:text-2xl font-black mb-1" style={{ color: 'var(--color-foreground)' }}>
-            Similar Products
+            {t('theme.product_detail_extras.similar_products_heading')}
           </h2>
           <p className="text-xs uppercase tracking-wider mb-6" style={{ color: 'var(--color-muted)' }}>
-            More from this collection you might love.
+            {t('theme.product_detail_extras.similar_products_subtitle')}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {relatedProducts.slice(0, 8).map((p) => {

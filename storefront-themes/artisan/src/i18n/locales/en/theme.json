@@ -24,7 +24,8 @@
       },
       "categories": {
         "heading": "Browse by Craft",
-        "subheading": "Explore our curated categories"
+        "subheading": "Explore our curated categories",
+        "pieces_label": "pieces"
       },
       "new_arrivals": {
         "heading": "New Arrivals",
@@ -84,6 +85,7 @@
     "category": {
       "not_found_heading": "Category Not Found",
       "browse_all": "Browse all products",
+      "breadcrumb_home": "Home",
       "no_products": "No products in this category yet"
     },
     "product_detail": {

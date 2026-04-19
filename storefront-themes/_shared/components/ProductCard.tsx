@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '../contexts/StoreContext';
 import { useCart } from '../contexts/CartContext';
 import { getPreorderState } from '../utils/preorder';
@@ -36,6 +37,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   showAddToCart = true,
   layout = 'grid',
 }) => {
+  const { t } = useTranslation('product');
   const { formatPrice } = useStore();
   const { addItem } = useCart();
   const [adding, setAdding] = React.useState(false);
@@ -86,9 +88,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </div>
           {pre.mode === 'preorder' && (
-            <span className="text-xs text-amber-600 mt-1 block">Pre-order{pre.shipByLabel ? ` — ${pre.shipByLabel}` : ''}</span>
+            <span className="text-xs text-amber-600 mt-1 block">
+              {t('card.preorder')}{pre.shipByLabel ? ` — ${pre.shipByLabel}` : ''}
+            </span>
           )}
-          {soldOut && <span className="text-xs text-red-500 mt-1">{pre.mode === 'soldOut' ? 'Sold out' : 'Out of stock'}</span>}
+          {soldOut && (
+            <span className="text-xs text-red-500 mt-1">
+              {pre.mode === 'soldOut' ? t('card.sold_out') : t('card.out_of_stock')}
+            </span>
+          )}
         </div>
       </Link>
     );
@@ -103,7 +111,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${imageClassName}`}
           loading="lazy"
         />
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
+        <div className="absolute top-2 start-2 flex flex-col gap-1">
           {discount > 0 && (
             <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
               -{discount}%
@@ -111,14 +119,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
           )}
           {pre.mode === 'preorder' && (
             <span className="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded">
-              Pre-order
+              {t('card.preorder')}
             </span>
           )}
         </div>
         {soldOut && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="bg-white text-gray-800 px-3 py-1 rounded font-medium text-sm">
-              {pre.mode === 'soldOut' ? 'Sold out' : 'Out of Stock'}
+              {pre.mode === 'soldOut' ? t('card.sold_out') : t('card.out_of_stock')}
             </span>
           </div>
         )}
@@ -138,9 +146,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
               disabled={adding || pre.ctaDisabled}
               className="text-xs bg-primary text-white px-3 py-1.5 rounded hover:bg-primary/90 transition disabled:opacity-50"
               style={{ backgroundColor: 'var(--color-primary, #667eea)' }}
-              title={requiresOptions ? 'Select options on the product page' : pre.mode === 'preorder' ? [pre.shipByLabel, pre.depositLabel].filter(Boolean).join(' · ') || undefined : undefined}
+              title={
+                requiresOptions
+                  ? t('select_options_hint')
+                  : pre.mode === 'preorder'
+                  ? [pre.shipByLabel, pre.depositLabel].filter(Boolean).join(' · ') || undefined
+                  : undefined
+              }
             >
-              {requiresOptions ? 'Options' : adding ? '...' : pre.mode === 'preorder' ? 'Pre-order' : pre.mode === 'soldOut' ? 'Sold out' : 'Add'}
+              {requiresOptions
+                ? t('card.options')
+                : adding
+                ? t('card.adding')
+                : pre.mode === 'preorder'
+                ? t('card.preorder')
+                : pre.mode === 'soldOut'
+                ? t('card.sold_out')
+                : t('card.add')}
             </button>
           )}
         </div>
@@ -155,7 +177,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {pre.shipByLabel && <div>{pre.shipByLabel}</div>}
             {pre.depositLabel && <div>{pre.depositLabel}</div>}
             {pre.lowRemaining && pre.remaining !== null && (
-              <div className="font-semibold">Only {pre.remaining} left</div>
+              <div className="font-semibold">{t('only_remaining', { count: pre.remaining })}</div>
             )}
           </div>
         )}

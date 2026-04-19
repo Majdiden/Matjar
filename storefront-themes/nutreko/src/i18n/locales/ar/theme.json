@@ -171,6 +171,12 @@
       "total": "الإجمالي",
       "proceed_to_checkout": "المتابعة إلى الدفع",
       "continue_shopping": "متابعة التسوق"
+    },
+    "product_card": {
+      "sale": "تخفيض",
+      "preorder": "طلب مسبق",
+      "choose_options": "اختر الخيارات",
+      "add_to_cart": "+ أضف إلى السلة"
     }
   }
 }

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Card,
   CardContent,
@@ -60,24 +61,9 @@ const errMsg = (err: unknown, fallback: string): string => {
 // =============================================================================
 // Main page
 // =============================================================================
-//
-// Design notes
-// ------------
-// This page is written for merchants, not DevOps engineers. Everything a
-// merchant needs to know about a domain is visible inline — no drawer,
-// no tabs, no data tables. Each custom domain is a full card that
-// renders its own status-specific body (DNS records when pending,
-// progress indicator while provisioning, SSL details when live, error
-// + retry when failed). Technical labels like "CNAME mismatch" or
-// "provisioning_ssl" are translated into plain English.
-//
-// Structure:
-//   1. Hero card — "Your store is live at <primary hostname>"
-//   2. Platform subdomain card — the free <slug>.platform host
-//   3. Custom domains — one expanded card per row, or empty-state CTA
-//   4. Plan gate card if the tenant isn't on Pro/Enterprise
 
 export const Domains: React.FC = () => {
+  const { t } = useTranslation(['domains', 'common']);
   const [domainInfo, setDomainInfo] = useState<DomainInfoResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string>('');
@@ -99,21 +85,20 @@ export const Domains: React.FC = () => {
         setNewSubdomain(data?.subdomain?.name || '');
       } catch (err) {
         if (!opts.silent) {
-          toast.error(errMsg(err, 'Failed to load domains'));
+          toast.error(errMsg(err, t('domains:toast.error_load')));
         }
       } finally {
         if (!opts.silent) setLoading(false);
       }
     },
-    []
+    [t]
   );
 
   useEffect(() => {
     loadDomainInfo();
   }, [loadDomainInfo]);
 
-  // Poll while any row is in an intermediate state. Clears the
-  // interval as soon as everything settles.
+  // Poll while any row is in an intermediate state.
   useEffect(() => {
     const rows = domainInfo?.registry || [];
     const anyTransitional = rows.some((r) => isTransitional(r.status));
@@ -149,9 +134,6 @@ export const Domains: React.FC = () => {
       rows
         .filter((r) => r.kind !== 'platform_subdomain')
         .sort((a, b) => {
-          // Live domains first, then hostname alpha — this keeps the
-          // "one I actually care about right now" at the top while
-          // in-progress domains sit directly below.
           if (a.status !== b.status) {
             if (a.status === 'active') return -1;
             if (b.status === 'active') return 1;
@@ -173,10 +155,10 @@ export const Domains: React.FC = () => {
     try {
       setActionLoading(`primary:${row._id}`);
       await api.domains.setPrimaryDomain(type);
-      toast.success(`${row.hostname} is now your main storefront address`);
+      toast.success(t('domains:toast.set_primary', { hostname: row.hostname }));
       await loadDomainInfo({ silent: true });
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to update main address'));
+      toast.error(errMsg(err, t('domains:toast.error_primary')));
     } finally {
       setActionLoading('');
     }
@@ -186,10 +168,10 @@ export const Domains: React.FC = () => {
     try {
       setActionLoading(`retry:${row._id}`);
       await api.domains.enableSSL();
-      toast.success(`Retrying setup for ${row.hostname}`);
+      toast.success(t('domains:toast.retry_ssl', { hostname: row.hostname }));
       await loadDomainInfo({ silent: true });
     } catch (err) {
-      toast.error(errMsg(err, 'Retry failed'));
+      toast.error(errMsg(err, t('domains:toast.error_retry')));
     } finally {
       setActionLoading('');
     }
@@ -199,10 +181,10 @@ export const Domains: React.FC = () => {
     try {
       setActionLoading(`recheck:${row._id}`);
       await api.domains.verifyCustomDomain();
-      toast.success(`Checked DNS for ${row.hostname}`);
+      toast.success(t('domains:toast.recheck_dns', { hostname: row.hostname }));
       await loadDomainInfo({ silent: true });
     } catch (err) {
-      toast.error(errMsg(err, 'DNS check failed'));
+      toast.error(errMsg(err, t('domains:toast.error_recheck')));
     } finally {
       setActionLoading('');
     }
@@ -211,10 +193,9 @@ export const Domains: React.FC = () => {
   const handleRemove = async (row: DomainRegistryRow) => {
     if (
       !(await confirm({
-        title: `Remove ${row.hostname}?`,
-        description:
-          'Your store will stop responding at this address and the security certificate will be revoked. You can add the domain back later.',
-        confirmText: 'Remove domain',
+        title: t('domains:confirm.remove_title', { hostname: row.hostname }),
+        description: t('domains:confirm.remove_description'),
+        confirmText: t('domains:confirm.remove_confirm'),
         variant: 'destructive',
       }))
     ) {
@@ -223,10 +204,10 @@ export const Domains: React.FC = () => {
     try {
       setActionLoading(`remove:${row._id}`);
       await api.domains.removeCustomDomain(row._id);
-      toast.success(`${row.hostname} removed`);
+      toast.success(t('domains:toast.removed', { hostname: row.hostname }));
       await loadDomainInfo({ silent: true });
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to remove domain'));
+      toast.error(errMsg(err, t('domains:toast.error_remove')));
     } finally {
       setActionLoading('');
     }
@@ -240,17 +221,17 @@ export const Domains: React.FC = () => {
     try {
       setActionLoading('subdomain');
       await api.domains.updateSubdomain(newSubdomain);
-      toast.success('Address updated');
+      toast.success(t('domains:subdomain_dialog.toast.updated'));
       setSubdomainDialog(false);
       await loadDomainInfo({ silent: true });
     } catch (err) {
-      toast.error(errMsg(err, 'Failed to update address'));
+      toast.error(errMsg(err, t('domains:subdomain_dialog.toast.error')));
     } finally {
       setActionLoading('');
     }
   };
 
-  const copyText = (text: string, label = 'Copied') => {
+  const copyText = (text: string, label = t('domains:toast.address_copied')) => {
     navigator.clipboard.writeText(text);
     toast.success(label);
   };
@@ -273,9 +254,9 @@ export const Domains: React.FC = () => {
       {/* -- Header --------------------------------------------------- */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Domains</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('domains:list.title')}</h1>
           <p className="text-muted-foreground mt-1">
-            The web addresses people use to visit your store.
+            {t('domains:list.subtitle')}
           </p>
         </div>
         <Button
@@ -284,14 +265,15 @@ export const Domains: React.FC = () => {
           size="lg"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Connect a domain
+          {t('domains:list.action.connect')}
         </Button>
       </div>
 
       {/* -- Hero: your store is live at ------------------------------ */}
       <PrimaryDomainHero
         hostname={primary?.hostname || domainInfo?.activeDomain || ''}
-        onCopy={(h) => copyText(h, 'Address copied')}
+        onCopy={(h) => copyText(h, t('domains:toast.address_copied'))}
+        t={t}
       />
 
       {/* -- Platform subdomain --------------------------------------- */}
@@ -301,28 +283,28 @@ export const Domains: React.FC = () => {
           rows.find((r) => r.kind === 'platform_subdomain')?.isPrimary ?? false
         }
         onRename={() => setSubdomainDialog(true)}
-        onCopy={(h) => copyText(h, 'Address copied')}
+        onCopy={(h) => copyText(h, t('domains:toast.address_copied'))}
         onSetPrimary={() => {
           const row = rows.find((r) => r.kind === 'platform_subdomain');
           if (row) handleSetPrimary(row);
         }}
         loading={actionLoading.startsWith('primary')}
+        t={t}
       />
 
       {/* -- Custom domains ------------------------------------------- */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold">Your custom domains</h2>
+            <h2 className="text-lg font-semibold">{t('domains:list.custom.section_title')}</h2>
             <p className="text-sm text-muted-foreground">
-              Connect a domain you already own — we'll handle the security
-              certificate automatically.
+              {t('domains:list.custom.section_hint')}
             </p>
           </div>
           {customDomains.length > 0 && domainInfo?.canUseCustomDomain && (
             <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
               <Plus className="h-3.5 w-3.5 mr-1.5" />
-              Add another
+              {t('domains:list.custom.add_another')}
             </Button>
           )}
         </div>
@@ -331,6 +313,7 @@ export const Domains: React.FC = () => {
           <CustomDomainEmptyState
             canAdd={!!domainInfo?.canUseCustomDomain}
             onAdd={() => setAddOpen(true)}
+            t={t}
           />
         ) : (
           <div className="space-y-4">
@@ -344,6 +327,7 @@ export const Domains: React.FC = () => {
                 onRecheckDns={() => handleRecheckDns(row)}
                 onRemove={() => handleRemove(row)}
                 onCopy={copyText}
+                t={t}
               />
             ))}
           </div>
@@ -358,13 +342,12 @@ export const Domains: React.FC = () => {
               <Globe className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="font-medium">Custom domains are a Pro feature</p>
+              <p className="font-medium">{t('domains:list.plan_gate.title')}</p>
               <p className="text-sm text-muted-foreground">
-                You're on the <span className="capitalize">{domainInfo?.subscriptionPlan}</span> plan.
-                Upgrade to connect a domain you already own.
+                {t('domains:list.plan_gate.hint', { plan: domainInfo?.subscriptionPlan })}
               </p>
             </div>
-            <Button>Upgrade plan</Button>
+            <Button>{t('domains:list.plan_gate.upgrade')}</Button>
           </CardContent>
         </Card>
       )}
@@ -379,15 +362,13 @@ export const Domains: React.FC = () => {
       <Dialog open={subdomainDialog} onOpenChange={setSubdomainDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Change your free address</DialogTitle>
+            <DialogTitle>{t('domains:subdomain_dialog.title')}</DialogTitle>
             <DialogDescription>
-              This will change the slug used for your free{' '}
-              <span className="font-mono">.{platformSuffix}</span> address. Any
-              bookmarks to your old address will stop working.
+              {t('domains:subdomain_dialog.description', { suffix: platformSuffix })}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-2">
-            <Label>New address</Label>
+            <Label>{t('domains:subdomain_dialog.field.new_address.label')}</Label>
             <div className="flex items-center gap-2">
               <Input
                 value={newSubdomain}
@@ -405,7 +386,7 @@ export const Domains: React.FC = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSubdomainDialog(false)}>
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button
               onClick={handleUpdateSubdomain}
@@ -414,7 +395,7 @@ export const Domains: React.FC = () => {
               {actionLoading === 'subdomain' && (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               )}
-              Save
+              {t('common:action.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -430,9 +411,11 @@ export const Domains: React.FC = () => {
 function PrimaryDomainHero({
   hostname,
   onCopy,
+  t,
 }: {
   hostname: string;
   onCopy: (h: string) => void;
+  t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
   if (!hostname) return null;
   return (
@@ -444,7 +427,7 @@ function PrimaryDomainHero({
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-muted-foreground">
-              Your store is live at
+              {t('domains:list.hero.live_at')}
             </p>
             <p
               className="font-mono text-xl md:text-2xl font-semibold truncate mt-0.5"
@@ -456,14 +439,14 @@ function PrimaryDomainHero({
           <div className="flex items-center gap-2 shrink-0">
             <Button variant="outline" size="sm" onClick={() => onCopy(hostname)}>
               <Copy className="h-3.5 w-3.5 mr-1.5" />
-              Copy
+              {t('domains:list.hero.copy')}
             </Button>
             <Button
               size="sm"
               onClick={() => window.open(`https://${hostname}`, '_blank')}
             >
               <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-              Visit store
+              {t('domains:list.hero.visit')}
             </Button>
           </div>
         </div>
@@ -483,6 +466,7 @@ function PlatformSubdomainCard({
   onCopy,
   onSetPrimary,
   loading,
+  t,
 }: {
   fullDomain: string;
   isPrimary: boolean;
@@ -490,6 +474,7 @@ function PlatformSubdomainCard({
   onCopy: (h: string) => void;
   onSetPrimary: () => void;
   loading: boolean;
+  t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
   return (
     <Card>
@@ -497,21 +482,21 @@ function PlatformSubdomainCard({
         <div className="flex items-start justify-between gap-2 flex-wrap">
           <div>
             <CardTitle className="text-base flex items-center gap-2">
-              Free platform address
+              {t('domains:list.platform.title')}
               {isPrimary && (
                 <Badge variant="secondary" className="gap-1 text-[10px] h-5">
                   <Star className="h-2.5 w-2.5 fill-current" />
-                  Main address
+                  {t('domains:list.platform.badge_main')}
                 </Badge>
               )}
             </CardTitle>
             <CardDescription>
-              Always available. No DNS setup needed. Free forever.
+              {t('domains:list.platform.description')}
             </CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={onRename}>
             <Pencil className="h-3.5 w-3.5 mr-1.5" />
-            Rename
+            {t('domains:list.platform.rename')}
           </Button>
         </div>
       </CardHeader>
@@ -524,7 +509,7 @@ function PlatformSubdomainCard({
             size="icon"
             className="h-7 w-7"
             onClick={() => onCopy(fullDomain)}
-            aria-label="Copy address"
+            aria-label={t('domains:list.platform.copy_aria')}
           >
             <Copy className="h-3.5 w-3.5" />
           </Button>
@@ -533,7 +518,7 @@ function PlatformSubdomainCard({
             size="icon"
             className="h-7 w-7"
             onClick={() => window.open(`https://${fullDomain}`, '_blank')}
-            aria-label="Visit store"
+            aria-label={t('domains:list.platform.visit_aria')}
           >
             <ExternalLink className="h-3.5 w-3.5" />
           </Button>
@@ -541,7 +526,7 @@ function PlatformSubdomainCard({
         {!isPrimary && (
           <div className="mt-3 flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
-              Not currently your main address.
+              {t('domains:list.platform.not_primary')}
             </p>
             <Button
               variant="outline"
@@ -554,7 +539,7 @@ function PlatformSubdomainCard({
               ) : (
                 <Star className="h-3 w-3 mr-1.5" />
               )}
-              Use as main address
+              {t('domains:list.platform.use_as_main')}
             </Button>
           </div>
         )}
@@ -575,73 +560,64 @@ type PlainStatus = {
   spin?: boolean;
 };
 
-// Translate state-machine statuses into plain English. The dashboard
-// face of the Domain state machine — terms a merchant reads, not the
-// backend enum values.
-function toPlainStatus(row: DomainRegistryRow): PlainStatus {
+function toPlainStatus(row: DomainRegistryRow, t: (key: string) => string): PlainStatus {
   switch (row.status) {
     case 'active':
       return {
-        label: 'Live',
-        description: 'Your store is serving visitors at this address.',
+        label: t('domains:ssl.status.active'),
+        description: t('domains:ssl.description.active'),
         tone: 'success',
         Icon: CheckCircle2,
       };
     case 'pending_dns':
       return {
-        label: 'Waiting for DNS records',
-        description:
-          'Add the DNS records shown below at your domain provider. This proves you own the domain.',
+        label: t('domains:ssl.status.pending_dns'),
+        description: t('domains:ssl.description.pending_dns'),
         tone: 'warning',
         Icon: Clock,
       };
     case 'ownership_verified':
       return {
-        label: 'Checking DNS routing',
-        description:
-          'Ownership confirmed. Now checking that your domain points to our servers.',
+        label: t('domains:ssl.status.ownership_verified'),
+        description: t('domains:ssl.description.ownership_verified'),
         tone: 'progress',
         Icon: Loader2,
         spin: true,
       };
     case 'dns_verified':
       return {
-        label: 'Requesting security certificate',
-        description:
-          'DNS is pointing at us. Preparing to issue an SSL certificate.',
+        label: t('domains:ssl.status.dns_verified'),
+        description: t('domains:ssl.description.dns_verified'),
         tone: 'progress',
         Icon: Loader2,
         spin: true,
       };
     case 'provisioning_ssl':
       return {
-        label: 'Setting up security certificate',
-        description:
-          "This usually takes a few minutes. You don't need to do anything.",
+        label: t('domains:ssl.status.provisioning_ssl'),
+        description: t('domains:ssl.description.provisioning_ssl'),
         tone: 'progress',
         Icon: Loader2,
         spin: true,
       };
     case 'ssl_failed':
       return {
-        label: "Couldn't issue certificate",
-        description:
-          "We weren't able to get a security certificate for this domain. You can try again.",
+        label: t('domains:ssl.status.ssl_failed'),
+        description: t('domains:ssl.description.ssl_failed'),
         tone: 'danger',
         Icon: AlertTriangle,
       };
     case 'dns_misconfigured':
       return {
-        label: 'DNS is no longer pointing at us',
-        description:
-          'Your DNS records changed and no longer point to our servers. Update them and re-check.',
+        label: t('domains:ssl.status.dns_misconfigured'),
+        description: t('domains:ssl.description.dns_misconfigured'),
         tone: 'danger',
         Icon: AlertTriangle,
       };
     case 'disabled':
       return {
-        label: 'Disabled',
-        description: 'This domain is turned off and not serving traffic.',
+        label: t('domains:ssl.status.disabled'),
+        description: t('domains:ssl.description.disabled'),
         tone: 'neutral',
         Icon: CircleDot,
       };
@@ -675,11 +651,11 @@ const TONE_PILL: Record<PlainStatus['tone'], string> = {
 };
 
 // Healthy lifecycle steps the merchant sees during provisioning.
-const SETUP_STEPS = [
-  { key: 'pending_dns', label: 'Verify ownership' },
-  { key: 'ownership_verified', label: 'Check DNS routing' },
-  { key: 'dns_verified', label: 'Issue certificate' },
-  { key: 'active', label: 'Live' },
+const SETUP_STEP_KEYS = [
+  { key: 'pending_dns', labelKey: 'domains:setup_steps.verify_ownership' },
+  { key: 'ownership_verified', labelKey: 'domains:setup_steps.check_routing' },
+  { key: 'dns_verified', labelKey: 'domains:setup_steps.issue_cert' },
+  { key: 'active', labelKey: 'domains:setup_steps.live' },
 ] as const;
 
 function stepIndex(status: DomainRegistryRow['status']): number {
@@ -706,6 +682,7 @@ function CustomDomainCard({
   onRecheckDns,
   onRemove,
   onCopy,
+  t,
 }: {
   row: DomainRegistryRow;
   actionLoading: string;
@@ -714,8 +691,9 @@ function CustomDomainCard({
   onRecheckDns: () => void;
   onRemove: () => void;
   onCopy: (text: string, label?: string) => void;
+  t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
-  const plain = toPlainStatus(row);
+  const plain = toPlainStatus(row, t);
   const { Icon } = plain;
   const inProgress = stepIndex(row.status) >= 0;
   const sslDays = daysUntilExpiry(row.ssl?.expiresAt);
@@ -738,14 +716,14 @@ function CustomDomainCard({
               {row.isPrimary && (
                 <Badge variant="secondary" className="gap-1 text-[10px] h-5">
                   <Star className="h-2.5 w-2.5 fill-current" />
-                  Main address
+                  {t('domains:list.custom.main_address_badge')}
                 </Badge>
               )}
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6"
-                onClick={() => onCopy(row.hostname, 'Address copied')}
+                onClick={() => onCopy(row.hostname, t('domains:toast.address_copied'))}
                 aria-label="Copy hostname"
               >
                 <Copy className="h-3 w-3" />
@@ -767,30 +745,30 @@ function CustomDomainCard({
       <CardContent className="space-y-4">
         {/* ---- Setup progress stepper (only during setup) ---- */}
         {inProgress && row.status !== 'active' && (
-          <SetupProgress currentStatus={row.status} />
+          <SetupProgress currentStatus={row.status} t={t} />
         )}
 
         {/* ---- Pending DNS: show records to add ---- */}
         {row.status === 'pending_dns' && (
-          <DnsRecordsBlock row={row} onCopy={onCopy} />
+          <DnsRecordsBlock row={row} onCopy={onCopy} t={t} />
         )}
 
         {/* ---- DNS misconfigured: show what we expected vs. got ---- */}
         {row.status === 'dns_misconfigured' && (
-          <DnsMismatchBlock row={row} onCopy={onCopy} />
+          <DnsMismatchBlock row={row} onCopy={onCopy} t={t} />
         )}
 
         {/* ---- SSL failure: show the error in plain language ---- */}
         {row.status === 'ssl_failed' && row.ssl?.error && (
           <ErrorBlock
-            title="Why it failed"
+            title={t('domains:ssl.status.ssl_failed')}
             message={friendlySslError(row.ssl.error)}
           />
         )}
 
         {/* ---- Live: SSL certificate details ---- */}
         {row.status === 'active' && (
-          <LiveDetailsBlock sslDays={sslDays} row={row} />
+          <LiveDetailsBlock sslDays={sslDays} row={row} t={t} />
         )}
 
         {/* ---- Action buttons ---- */}
@@ -806,7 +784,7 @@ function CustomDomainCard({
               ) : (
                 <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
               )}
-              I've added the records — check now
+              {t('domains:dns.check_now')}
             </Button>
           )}
 
@@ -824,7 +802,7 @@ function CustomDomainCard({
               ) : (
                 <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
               )}
-              Try again
+              {t('domains:dns.recheck')}
             </Button>
           )}
 
@@ -840,7 +818,7 @@ function CustomDomainCard({
               ) : (
                 <Star className="h-3.5 w-3.5 mr-1.5" />
               )}
-              Use as main address
+              {t('domains:list.custom.use_as_main')}
             </Button>
           )}
 
@@ -851,7 +829,7 @@ function CustomDomainCard({
               onClick={() => window.open(`https://${row.hostname}`, '_blank')}
             >
               <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-              Visit
+              {t('domains:list.custom.visit')}
             </Button>
           )}
 
@@ -869,7 +847,7 @@ function CustomDomainCard({
             ) : (
               <Trash2 className="h-3.5 w-3.5 mr-1.5" />
             )}
-            Remove
+            {t('domains:list.custom.remove')}
           </Button>
         </div>
       </CardContent>
@@ -883,14 +861,16 @@ function CustomDomainCard({
 
 function SetupProgress({
   currentStatus,
+  t,
 }: {
   currentStatus: DomainRegistryRow['status'];
+  t: (key: string) => string;
 }) {
   const currentIdx = stepIndex(currentStatus);
   return (
     <div className="pt-1">
       <div className="flex items-center">
-        {SETUP_STEPS.map((step, i) => {
+        {SETUP_STEP_KEYS.map((step, i) => {
           const done = i < currentIdx;
           const active = i === currentIdx;
           return (
@@ -918,10 +898,10 @@ function SetupProgress({
                     done || active ? 'font-medium' : 'text-muted-foreground'
                   }`}
                 >
-                  {step.label}
+                  {t(step.labelKey)}
                 </span>
               </div>
-              {i < SETUP_STEPS.length - 1 && (
+              {i < SETUP_STEP_KEYS.length - 1 && (
                 <div
                   className={`flex-1 h-0.5 mx-1 -mt-4 rounded ${
                     done ? 'bg-green-500' : 'bg-muted-foreground/20'
@@ -939,13 +919,12 @@ function SetupProgress({
 function DnsRecordsBlock({
   row,
   onCopy,
+  t,
 }: {
   row: DomainRegistryRow;
   onCopy: (text: string, label?: string) => void;
+  t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
-  // Two records the merchant needs:
-  //   1. TXT (ownership verification) — always required
-  //   2. CNAME or A (routing to our edge) — always required
   const records: Array<{
     type: string;
     name: string;
@@ -958,7 +937,7 @@ function DnsRecordsBlock({
       type: 'TXT',
       name: row.verification.recordName,
       value: row.verification.recordValue,
-      purpose: 'Proves you own the domain',
+      purpose: t('domains:dns.purpose_ownership'),
     });
   }
   if (row.dns?.expectedTarget) {
@@ -966,7 +945,7 @@ function DnsRecordsBlock({
       type: row.dns.targetType || 'CNAME',
       name: row.hostname,
       value: row.dns.expectedTarget,
-      purpose: 'Routes visitors to your store',
+      purpose: t('domains:dns.purpose_routing'),
     });
   }
 
@@ -975,9 +954,9 @@ function DnsRecordsBlock({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">Add these records in your DNS settings</p>
+        <p className="text-sm font-medium">{t('domains:dns.records_title')}</p>
         <span className="text-xs text-muted-foreground">
-          Usually takes 5–30 minutes to take effect
+          {t('domains:dns.propagation_hint')}
         </span>
       </div>
       <div className="space-y-2">
@@ -992,8 +971,8 @@ function DnsRecordsBlock({
               </Badge>
               <span className="text-xs text-muted-foreground">{rec.purpose}</span>
             </div>
-            <DnsField label="Name" value={rec.name} onCopy={onCopy} />
-            <DnsField label="Value" value={rec.value} onCopy={onCopy} />
+            <DnsField label={t('domains:dns.field.name')} value={rec.name} onCopy={onCopy} />
+            <DnsField label={t('domains:dns.field.value')} value={rec.value} onCopy={onCopy} />
           </div>
         ))}
       </div>
@@ -1032,20 +1011,22 @@ function DnsField({
 function DnsMismatchBlock({
   row,
   onCopy,
+  t,
 }: {
   row: DomainRegistryRow;
   onCopy: (text: string, label?: string) => void;
+  t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
   return (
     <div className="space-y-2">
       <div className="rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/20 p-3">
         <p className="text-sm font-medium text-red-900 dark:text-red-200">
-          DNS no longer points at our servers
+          {t('domains:dns.mismatch_title')}
         </p>
         <div className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-          <span className="text-muted-foreground">Should point at:</span>
+          <span className="text-muted-foreground">{t('domains:dns.should_point')}</span>
           <code className="font-mono">{row.dns?.expectedTarget || '—'}</code>
-          <span className="text-muted-foreground">Currently resolves to:</span>
+          <span className="text-muted-foreground">{t('domains:dns.currently_resolves')}</span>
           <code className="font-mono">{row.dns?.lastResolved || 'nothing'}</code>
         </div>
       </div>
@@ -1054,11 +1035,11 @@ function DnsMismatchBlock({
           variant="outline"
           size="sm"
           onClick={() =>
-            onCopy(row.dns!.expectedTarget!, 'Target copied')
+            onCopy(row.dns!.expectedTarget!, t('domains:toast.target_copied'))
           }
         >
           <Copy className="h-3.5 w-3.5 mr-1.5" />
-          Copy correct target
+          {t('domains:dns.copy_target')}
         </Button>
       )}
     </div>
@@ -1077,9 +1058,11 @@ function ErrorBlock({ title, message }: { title: string; message: string }) {
 function LiveDetailsBlock({
   sslDays,
   row,
+  t,
 }: {
   sslDays: number | null;
   row: DomainRegistryRow;
+  t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
   const issuedAt = row.ssl?.issuedAt
     ? new Date(row.ssl.issuedAt).toLocaleDateString()
@@ -1089,22 +1072,22 @@ function LiveDetailsBlock({
     <div className="rounded-lg border bg-muted/20 p-3">
       <div className="flex items-center gap-2 mb-2">
         <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
-        <span className="text-sm font-medium">Security certificate</span>
+        <span className="text-sm font-medium">{t('domains:ssl.title')}</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
         <div>
-          <p className="text-muted-foreground">Status</p>
-          <p className="font-medium">Issued & valid</p>
+          <p className="text-muted-foreground">{t('domains:ssl.status_label')}</p>
+          <p className="font-medium">{t('domains:ssl.issued_valid')}</p>
         </div>
         {issuedAt && (
           <div>
-            <p className="text-muted-foreground">Issued on</p>
+            <p className="text-muted-foreground">{t('domains:ssl.issued_on')}</p>
             <p className="font-medium">{issuedAt}</p>
           </div>
         )}
         {sslDays !== null && (
           <div>
-            <p className="text-muted-foreground">Expires in</p>
+            <p className="text-muted-foreground">{t('domains:ssl.expires_in')}</p>
             <p
               className={`font-medium ${
                 sslDays < 14
@@ -1114,8 +1097,8 @@ function LiveDetailsBlock({
                     : ''
               }`}
             >
-              {sslDays} days
-              {sslDays < 30 && ' (will auto-renew)'}
+              {t('domains:ssl.days', { count: sslDays })}
+              {sslDays < 30 && ` ${t('domains:ssl.auto_renew')}`}
             </p>
           </div>
         )}
@@ -1150,9 +1133,11 @@ function friendlySslError(raw: string): string {
 function CustomDomainEmptyState({
   canAdd,
   onAdd,
+  t,
 }: {
   canAdd: boolean;
   onAdd: () => void;
+  t: (key: string) => string;
 }) {
   return (
     <Card className="border-dashed">
@@ -1161,17 +1146,15 @@ function CustomDomainEmptyState({
           <Globe className="h-6 w-6 text-muted-foreground" />
         </div>
         <div className="space-y-1">
-          <p className="font-medium">No custom domains yet</p>
+          <p className="font-medium">{t('domains:list.empty.title')}</p>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Connect a domain like <span className="font-mono">mystore.com</span>{' '}
-            to give your store a professional address. We'll handle the SSL
-            certificate automatically.
+            {t('domains:list.empty.hint')}
           </p>
         </div>
         {canAdd && (
           <Button onClick={onAdd}>
             <Plus className="h-4 w-4 mr-1.5" />
-            Connect a domain
+            {t('domains:list.empty.action')}
           </Button>
         )}
       </CardContent>

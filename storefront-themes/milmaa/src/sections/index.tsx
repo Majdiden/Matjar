@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@shared/components/sections';
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
@@ -33,6 +34,7 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Embrace Hero ─────────────────────────────────────────────────
 
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   return (
     <section className="relative overflow-hidden" style={{ backgroundColor: CREAM }}>
@@ -72,7 +74,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
               style={{ color: DARK_TEAL }}
             >
               <span className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow">▶</span>
-              Watch Story
+              {t('theme.section.milmaa-hero.watch_story')}
             </Link>
           </div>
         </div>
@@ -98,6 +100,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Flavor panels ────────────────────────────────────────────────
 
 const FlavorsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
@@ -142,7 +145,7 @@ const FlavorsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 </div>
               )}
               <div className="relative h-full flex flex-col justify-end">
-                <div className="text-[10px] tracking-[0.3em] uppercase mb-2 opacity-70">Flavor</div>
+                <div className="text-[10px] tracking-[0.3em] uppercase mb-2 opacity-70">{t('theme.section.milmaa-flavors.flavor_label')}</div>
                 <h3
                   className="font-serif text-3xl md:text-4xl font-bold leading-tight"
                   style={{ fontFamily: HEADING_FONT }}
@@ -151,7 +154,7 @@ const FlavorsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 </h3>
                 {bs.subtitle && <p className="text-sm mt-2 opacity-80 max-w-xs">{bs.subtitle}</p>}
                 <div className="mt-5 inline-flex items-center gap-2 text-xs font-bold">
-                  <span className="underline">Shop now</span>
+                  <span className="underline">{t('theme.section.milmaa-flavors.shop_now')}</span>
                   <span>→</span>
                 </div>
               </div>
@@ -262,6 +265,7 @@ const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 // ─── Blog ─────────────────────────────────────────────────────────
 
 const BlogSection: React.FC<SectionComponentProps> = ({ id, section }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
@@ -285,7 +289,7 @@ const BlogSection: React.FC<SectionComponentProps> = ({ id, section }) => {
           className="text-sm font-bold underline hover:opacity-60"
           style={{ color: DARK_TEAL }}
         >
-          View all articles →
+          {t('theme.section.milmaa-blog.view_all')}
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -303,7 +307,7 @@ const BlogSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 )}
               </div>
               <div className="text-[11px] tracking-[0.2em] uppercase font-bold mb-2" style={{ color: TEAL }}>
-                {bs.date || 'Jun 12'} · RECIPE
+                {bs.date || 'Jun 12'} · {t('theme.section.milmaa-blog.post_label')}
               </div>
               <h3 className="font-serif text-xl font-semibold mb-2 line-clamp-2 group-hover:opacity-70" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
                 {bs.title}

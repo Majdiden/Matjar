@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '@shared/contexts/CartContext';
 import { useStore } from '@shared/contexts/StoreContext';
 import { getPreorderState } from '@shared/utils/preorder';
@@ -21,6 +22,7 @@ const LIME = 'var(--color-primary)';
 const DARK = 'var(--color-secondary)';
 
 export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) => {
+  const { t } = useTranslation('theme');
   const { formatPrice } = useStore();
   const { addItem } = useCart();
 
@@ -66,7 +68,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
                   className="inline-block px-4 py-2 text-[11px] font-black tracking-widest uppercase text-white"
                   style={{ backgroundColor: 'var(--color-accent)' }}
                 >
-                  PRE-ORDER
+                  {t('theme.product_card.preorder')}
                 </span>
               </div>
             )}
@@ -143,7 +145,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = LIME; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = DARK; }}
           >
-            Choose Options
+            {t('theme.product_card.choose_options')}
           </Link>
         ) : (
           <button
@@ -154,7 +156,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = LIME; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = DARK; }}
           >
-            + Add to Cart
+            {t('theme.product_card.add_to_cart')}
           </button>
         )}
       </div>

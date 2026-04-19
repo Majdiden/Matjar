@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useProducts, useCategories } from '@shared/hooks/useProducts';
 import ProductCard from '@shared/components/ProductCard';
+import { useTranslation } from 'react-i18next';
 
 const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -9,6 +10,7 @@ const Products: React.FC = () => {
   const sort = searchParams.get('sort') || 'newest';
   const search = searchParams.get('search') || '';
   const category = searchParams.get('category') || '';
+  const { t } = useTranslation(['theme']);
 
   const { products, pagination, loading } = useProducts({ page, sort, search, ...(category && { category }) });
   const { categories } = useCategories();
@@ -31,7 +33,7 @@ const Products: React.FC = () => {
           fontFamily: 'var(--font-family-heading)',
         }}
       >
-        {category ? categories.find(c => c._id === category)?.name || 'Products' : 'All Products'}
+        {category ? categories.find(c => c._id === category)?.name || t('theme.products.page_title') : t('theme.products.page_title')}
       </h1>
 
       {/* Filters Bar */}
@@ -44,12 +46,12 @@ const Products: React.FC = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder={t('theme.products.search_placeholder')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full px-4 py-2.5 border rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full px-4 py-2.5 border rounded-lg pe-10 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
-            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <button type="submit" className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -63,7 +65,7 @@ const Products: React.FC = () => {
           onChange={(e) => updateParam('category', e.target.value)}
           className="px-4 py-2.5 border rounded-lg bg-white focus:outline-none"
         >
-          <option value="">All Categories</option>
+          <option value="">{t('theme.products.all_categories')}</option>
           {categories.map(cat => (
             <option key={cat._id} value={cat._id}>{cat.name}</option>
           ))}
@@ -75,10 +77,10 @@ const Products: React.FC = () => {
           onChange={(e) => updateParam('sort', e.target.value)}
           className="px-4 py-2.5 border rounded-lg bg-white focus:outline-none"
         >
-          <option value="newest">Newest</option>
-          <option value="price_asc">Price: Low to High</option>
-          <option value="price_desc">Price: High to Low</option>
-          <option value="popular">Most Popular</option>
+          <option value="newest">{t('theme.products.sort_newest')}</option>
+          <option value="price_asc">{t('theme.products.sort_price_asc')}</option>
+          <option value="price_desc">{t('theme.products.sort_price_desc')}</option>
+          <option value="popular">{t('theme.products.sort_popular')}</option>
         </select>
       </div>
 
@@ -92,14 +94,14 @@ const Products: React.FC = () => {
       ) : products.length === 0 ? (
         <div className="text-center py-16">
           <svg className="w-14 h-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
-          <p className="text-gray-500 text-lg">No products found</p>
+          <p className="text-gray-500 text-lg">{t('theme.products.no_results')}</p>
           {search && (
             <button
               onClick={() => { setSearchInput(''); updateParam('search', ''); }}
               className="mt-4 text-sm underline"
               style={{ color: 'var(--color-primary)' }}
             >
-              Clear search
+              {t('theme.products.clear_search')}
             </button>
           )}
         </div>
@@ -119,17 +121,17 @@ const Products: React.FC = () => {
                 disabled={page <= 1}
                 className="px-4 py-2 border rounded-lg disabled:opacity-30 hover:bg-gray-50"
               >
-                Previous
+                {t('theme.products.previous')}
               </button>
               <span className="text-sm text-gray-500">
-                Page {page} of {pagination.pages}
+                {t('theme.products.page_of', { page, total: pagination.pages })}
               </span>
               <button
                 onClick={() => updateParam('page', String(page + 1))}
                 disabled={page >= pagination.pages}
                 className="px-4 py-2 border rounded-lg disabled:opacity-30 hover:bg-gray-50"
               >
-                Next
+                {t('theme.products.next')}
               </button>
             </div>
           )}

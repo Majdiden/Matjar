@@ -9,6 +9,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import type { SectionComponentProps } from '@shared/components/sections';
+import { useTranslation } from 'react-i18next';
 
 interface PromoBlock {
   id?: string;
@@ -24,6 +25,7 @@ interface PromoBlock {
 }
 
 const Card: React.FC<{ block: PromoBlock }> = ({ block }) => {
+  const { t } = useTranslation(['theme']);
   const b = block.settings || {};
   return (
     <Link
@@ -48,7 +50,7 @@ const Card: React.FC<{ block: PromoBlock }> = ({ block }) => {
           className="text-lg font-black uppercase tracking-wide mb-1"
           style={{ color: 'var(--color-foreground)' }}
         >
-          {b.title || 'PROMO TITLE'}
+          {b.title || t('theme.section.promo_banner.default_title')}
         </h3>
         <p className="text-[11px] uppercase tracking-wider mb-4" style={{ color: 'var(--color-muted)' }}>
           {b.subtitle || ''}
@@ -60,7 +62,7 @@ const Card: React.FC<{ block: PromoBlock }> = ({ block }) => {
             borderColor: 'var(--color-foreground)',
           }}
         >
-          {b.cta_text || 'SHOP NOW'}
+          {b.cta_text || t('theme.section.promo_banner.default_cta')}
         </span>
       </div>
       <div className="shrink-0 w-28 h-28 flex items-center justify-center">

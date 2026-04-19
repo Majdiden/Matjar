@@ -22,6 +22,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useProduct } from '@shared/hooks/useProducts';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
+import { useTranslation } from 'react-i18next';
 import ProductDetailExtras from '@shared/components/commerce/ProductDetailExtras';
 import GuaranteedCheckout from '@shared/components/commerce/GuaranteedCheckout';
 import { VariantPicker, type Variant } from '@shared/components/commerce/VariantPicker';
@@ -44,6 +45,7 @@ const ProductDetail: React.FC = () => {
   const { formatPrice } = useStore();
   const { addItem } = useCart();
   const compare = useCompare();
+  const { t } = useTranslation(['theme']);
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -74,9 +76,9 @@ const ProductDetail: React.FC = () => {
   if (error || !product) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
-        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-foreground)' }}>Product Not Found</h2>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-foreground)' }}>{t('theme.product_detail.product_not_found')}</h2>
         <Link to="/products" className="text-sm underline" style={{ color: 'var(--color-primary)' }}>
-          Back to shop
+          {t('theme.product_detail.back_to_shop')}
         </Link>
       </div>
     );
@@ -142,9 +144,9 @@ const ProductDetail: React.FC = () => {
       <div className="border-b" style={{ borderColor: 'var(--color-border)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <nav className="text-xs" style={{ color: 'var(--color-muted)' }}>
-            <Link to="/" className="hover:opacity-70">Home</Link>
+            <Link to="/" className="hover:opacity-70">{t('theme.product_detail.breadcrumb_home')}</Link>
             <span className="mx-2">•</span>
-            <Link to="/products" className="hover:opacity-70">Products</Link>
+            <Link to="/products" className="hover:opacity-70">{t('theme.product_detail.breadcrumb_products')}</Link>
             <span className="mx-2">•</span>
             <span style={{ color: 'var(--color-foreground)' }}>{product.name}</span>
           </nav>
@@ -226,7 +228,7 @@ const ProductDetail: React.FC = () => {
                 className="text-[11px] font-bold uppercase tracking-wider hover:opacity-70"
                 style={{ color: 'var(--color-muted)' }}
               >
-                View all {reviewCount} reviews
+                {t('theme.nav.view_all_reviews', { count: reviewCount })}
               </button>
             </div>
 
@@ -259,7 +261,7 @@ const ProductDetail: React.FC = () => {
                     color: 'var(--color-accent)',
                   }}
                 >
-                  Pre-order
+                  {t('theme.product_detail.preorder')}
                 </span>
               )}
             </div>
@@ -287,19 +289,19 @@ const ProductDetail: React.FC = () => {
             {/* Stock indicator */}
             {requiresVariantSelection ? (
               <p className="text-xs mb-5" style={{ color: 'var(--color-muted)' }}>
-                Select an option to see availability
+                {t('theme.product_detail.select_option')}
               </p>
             ) : displayStock > 0 ? (
               <p className="text-xs mb-5 font-semibold" style={{ color: 'var(--color-primary)' }}>
-                ● In Stock — Ready to ship
+                ● {t('theme.product_detail.in_stock', { count: displayStock })}
               </p>
             ) : isPreorderable ? (
               <p className="text-xs mb-5 font-semibold" style={{ color: 'var(--color-accent)' }}>
-                ● Pre-order{shipDateLabel ? ` — ships ${shipDateLabel}` : ''}
+                ● {t('theme.product_detail.preorder')}{shipDateLabel ? ` — ${shipDateLabel}` : ''}
               </p>
             ) : (
               <p className="text-xs mb-5 font-semibold" style={{ color: 'var(--color-error)' }}>
-                ● Out of Stock
+                ● {t('theme.product_detail.out_of_stock')}
               </p>
             )}
 
@@ -339,7 +341,7 @@ const ProductDetail: React.FC = () => {
                       backgroundColor: 'transparent',
                     }}
                   >
-                    {adding ? 'Adding...' : isPreorder ? 'Pre-order' : 'Add to Bag'}
+                    {preState.ctaLabel}
                   </button>
                 </div>
                 <button
@@ -348,7 +350,7 @@ const ProductDetail: React.FC = () => {
                   className="w-full py-3 rounded-full text-xs font-bold uppercase tracking-wider text-white transition hover:-translate-y-0.5 disabled:opacity-50"
                   style={{ backgroundColor: 'var(--color-foreground)' }}
                 >
-                  Buy it now
+                  {t('theme.nav.buy_now') || 'Buy it now'}
                 </button>
               </div>
             )}
@@ -359,7 +361,7 @@ const ProductDetail: React.FC = () => {
               style={{ borderColor: 'var(--color-border)', color: 'var(--color-muted)' }}
             >
               <div className="flex items-center gap-2">
-                <span>Share</span>
+                <span>{t('theme.nav.share')}</span>
                 <SocialShare
                   url={typeof window !== 'undefined' ? window.location.href : ''}
                   title={product.name}
@@ -376,19 +378,19 @@ const ProductDetail: React.FC = () => {
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01" />
                 </svg>
-                {compare.isComparing(product._id) ? 'Comparing' : 'Compare'}
+                {compare.isComparing(product._id) ? t('theme.nav.comparing') : t('theme.nav.compare')}
               </button>
               <button className="flex items-center gap-1.5 hover:opacity-70">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
-                Ask a question
+                {t('theme.nav.ask_question')}
               </button>
               <button className="flex items-center gap-1.5 hover:opacity-70">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                FAQ
+                {t('theme.nav.faq')}
               </button>
             </div>
 

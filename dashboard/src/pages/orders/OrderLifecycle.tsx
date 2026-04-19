@@ -13,6 +13,7 @@
  * down-across-down between lanes.
  */
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { useSetBreadcrumbs } from '../../contexts/breadcrumb-context';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -45,18 +46,15 @@ interface TreeNode {
 
 const FLOW_STATES: OrderStatus[] = ['Pending', 'Processing', 'Shipped', 'Delivered'];
 
-const STATE_META: Record<
-  OrderStatus,
-  { label: string; icon: React.ElementType }
-> = {
-  Pending: { label: 'Pending', icon: Clock },
-  Confirmed: { label: 'Confirmed', icon: Check },
-  Processing: { label: 'Processing', icon: Package },
-  Shipped: { label: 'Shipped', icon: Truck },
-  Delivered: { label: 'Delivered', icon: Check },
-  Cancelled: { label: 'Cancelled', icon: XCircle },
-  Refunded: { label: 'Refunded', icon: Undo2 },
-  Archived: { label: 'Archived', icon: XCircle },
+const STATE_ICON: Record<OrderStatus, React.ElementType> = {
+  Pending: Clock,
+  Confirmed: Check,
+  Processing: Package,
+  Shipped: Truck,
+  Delivered: Check,
+  Cancelled: XCircle,
+  Refunded: Undo2,
+  Archived: XCircle,
 };
 
 const formatPrice = (n: number) =>
@@ -89,11 +87,7 @@ const paymentDotClass = (s?: PaymentStatus) => {
 };
 
 /**
- * Build a replacement-chain tree rooted at the given order. We do NOT
- * walk up to the original root — the tree starts from `startId` so
- * you see only "this order and its replacements forward". The parent
- * chain is reachable by clicking the "Order replaced" strip on the
- * starting order, which navigates to that parent's lifecycle page.
+ * Build a replacement-chain tree rooted at the given order.
  */
 /** The /orders/:id endpoint wraps the order in either `data` (legacy)
  * or `responseObject` (modern). Either one can contain the order
@@ -152,9 +146,7 @@ const findStateTimestamp = (
 };
 
 /**
- * Index into FLOW_STATES the order has reached. For live orders this
- * is the current status; for terminal orders it's the last happy-path
- * state touched before the branch — i.e. where it diverged.
+ * Index into FLOW_STATES the order has reached.
  */
 const computeReachedIdx = (order: Order): number => {
   const history = order.history || [];
@@ -165,7 +157,7 @@ const computeReachedIdx = (order: Order): number => {
     for (let i = 0; i < FLOW_STATES.length; i++) {
       if (findStateTimestamp(history, order.createdAt, FLOW_STATES[i])) hi = i;
     }
-    return hi; // may be -1 if the order was cancelled before any history
+    return hi;
   }
   const idx = FLOW_STATES.indexOf(order.status);
   return idx === -1 ? 0 : idx;
@@ -181,14 +173,6 @@ interface FlowNode {
   isDivergence: boolean;
 }
 
-/**
- * Build the chronological sequence of state nodes for a single order.
- * Happy-path states that were actually traversed come first; if the
- * order ended in a Cancelled/Refunded terminal state, that is appended
- * as the final node. When the order has replacements the final node is
- * marked as the divergence point so the layout can draw a step-path
- * from it to the child's first node.
- */
 const buildFlowNodes = (order: Order, hasReplacements: boolean): FlowNode[] => {
   const history = order.history || [];
   const isTerminalBranch =
@@ -196,7 +180,6 @@ const buildFlowNodes = (order: Order, hasReplacements: boolean): FlowNode[] => {
   const reachedIdx = computeReachedIdx(order);
 
   const nodes: FlowNode[] = [];
-  // Happy-path nodes — traversed so far (and the rest as "future" if not terminal)
   const cutoff = isTerminalBranch ? reachedIdx : FLOW_STATES.length - 1;
   for (let i = 0; i < FLOW_STATES.length; i++) {
     const s = FLOW_STATES[i];
@@ -226,8 +209,6 @@ const buildFlowNodes = (order: Order, hasReplacements: boolean): FlowNode[] => {
       isDivergence: hasReplacements,
     });
   } else if (hasReplacements && nodes.length > 0) {
-    // Unusual but handle: replacement from a non-terminal order. Mark
-    // the last reached node as the divergence so the path still routes.
     for (let i = nodes.length - 1; i >= 0; i--) {
       if (nodes[i].reached) {
         nodes[i].isDivergence = true;
@@ -243,27 +224,19 @@ interface StateNodeViewProps {
   orderId: string;
   index: number;
   isLaneCurrent: boolean;
+  stateLabel: string;
 }
 
-/**
- * Single state node. Pill-shaped box with icon + label + timestamp.
- * The divergence attribute tells the SVG overlay this is the source
- * of a replacement connector.
- */
 const StateNodeView: React.FC<StateNodeViewProps> = ({
   node,
   orderId,
   index,
   isLaneCurrent,
+  stateLabel,
 }) => {
-  const meta = STATE_META[node.status];
-  const Icon = meta.icon;
+  const Icon = STATE_ICON[node.status];
   const isHere = isLaneCurrent && node.isCurrent;
 
-  // Color strategy:
-  //   terminal (Cancelled/Refunded) → rose
-  //   reached (past or current)     → primary filled
-  //   future                         → muted outline
   let nodeClass: string;
   if (node.isTerminal) {
     nodeClass =
@@ -294,7 +267,7 @@ const StateNodeView: React.FC<StateNodeViewProps> = ({
       >
         <Icon className="h-4 w-4 shrink-0" />
         <div className="flex flex-col leading-tight min-w-0">
-          <span className="text-xs font-semibold whitespace-nowrap">{meta.label}</span>
+          <span className="text-xs font-semibold whitespace-nowrap">{stateLabel}</span>
           <span
             className={
               'text-[10px] whitespace-nowrap ' +
@@ -309,8 +282,6 @@ const StateNodeView: React.FC<StateNodeViewProps> = ({
           </span>
         </div>
       </div>
-      {/* Divergence badge — a little fork icon floating at the top-right
-          of the node to signal "a replacement was created from here" */}
       {node.isDivergence && (
         <div
           className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-indigo-500 text-white shadow"
@@ -328,42 +299,25 @@ interface OrderNodeViewProps {
   isCurrent: boolean;
   parentOnCanvas: boolean;
   onRevealParent?: () => void;
+  labelOrderPlaced: string;
+  labelOrderReplaced: string;
 }
 
-/**
- * Order node — entry point for an order's chain. Has a top "origin
- * strip" that reads "Order placed" for a fresh order or "Order
- * replaced" for a replacement; clicking the replaced strip navigates
- * to the parent order's lifecycle, revealing its history. The node
- * itself holds the metadata (number, customer, total, payment badge)
- * and is the target for incoming replacement connectors.
- */
 const OrderNodeView: React.FC<OrderNodeViewProps> = ({
   order,
   isCurrent,
   parentOnCanvas,
   onRevealParent,
+  labelOrderPlaced,
+  labelOrderReplaced,
 }) => {
   const isReplacement = !!order.replacementOf;
-  // Show the "Order replaced" wording on the feeder line only when the
-  // parent isn't visible on canvas. When it IS visible, the same label
-  // gets drawn directly on the SVG connector that runs between the
-  // parent's Refunded/Cancelled pill and this order — so the feeder
-  // line stays short and unlabeled, just like a fresh order's stub.
   const showReplacedLabel = isReplacement && !parentOnCanvas;
   const subtitle =
     (order.user?.name || order.guestCustomer?.firstName || 'Guest') +
     ' · ' +
     formatPrice(order.totalAmount);
 
-  // Labeled feeder line — replaces the old origin chip. Renders as a
-  // horizontal line with the origin label sitting "on" the line (the
-  // text is just inline between two stub segments, so it visually
-  // breaks the line at the label without needing to mask anything).
-  // For replacement orders the whole element is a clickable button
-  // that navigates to the parent order's lifecycle. The wrapper still
-  // carries `data-is-first` so the SVG replacement connectors land on
-  // it instead of the order body.
   const lineColor = isReplacement
     ? 'bg-indigo-500'
     : 'bg-slate-400 dark:bg-slate-600';
@@ -374,12 +328,8 @@ const OrderNodeView: React.FC<OrderNodeViewProps> = ({
     ? 'fill-indigo-500'
     : 'fill-slate-400 dark:fill-slate-600';
 
-  // The label only appears on the feeder line for fresh orders, or for
-  // replacements whose parent is NOT on canvas. Otherwise the line is
-  // an unlabeled stub and the "Order replaced" wording is rendered on
-  // the SVG connector instead (computed in computeConnectors).
   const showLabel = !isReplacement || showReplacedLabel;
-  const labelText = isReplacement ? 'Order replaced' : 'Order placed';
+  const labelText = isReplacement ? labelOrderReplaced : labelOrderPlaced;
 
   const labeledLineInner = (
     <>
@@ -421,10 +371,6 @@ const OrderNodeView: React.FC<OrderNodeViewProps> = ({
 
   return (
     <div className="flex items-center shrink-0">
-      {/* When the parent IS on canvas, drop the feeder stub entirely and
-          let the SVG replacement connector land directly on the order
-          body (data-is-first moves there). Otherwise show the labeled
-          feeder line as the entry point. */}
       {!parentOnCanvas && labeledLine}
       <div
         data-flow-order={order._id}
@@ -470,19 +416,20 @@ interface OrderRowProps {
   isCurrent: boolean;
   parentOnCanvas: boolean;
   onRevealParent?: () => void;
+  stateLabelFor: (status: OrderStatus) => string;
+  labelOrderPlaced: string;
+  labelOrderReplaced: string;
 }
 
-/**
- * One chronological row per order: the order node (metadata) followed
- * by its state nodes. Rows stack vertically with enough gap for the
- * orthogonal replacement connectors to route between them.
- */
 const OrderRow: React.FC<OrderRowProps> = ({
   order,
   hasReplacements,
   isCurrent,
   parentOnCanvas,
   onRevealParent,
+  stateLabelFor,
+  labelOrderPlaced,
+  labelOrderReplaced,
 }) => {
   const nodes = useMemo(
     () => buildFlowNodes(order, hasReplacements),
@@ -500,16 +447,9 @@ const OrderRow: React.FC<OrderRowProps> = ({
         isCurrent={isCurrent}
         parentOnCanvas={parentOnCanvas}
         onRevealParent={onRevealParent}
+        labelOrderPlaced={labelOrderPlaced}
+        labelOrderReplaced={labelOrderReplaced}
       />
-      {/* State chain — laid out as a fixed 3-column grid so the chain
-          always spans multiple rows, even on wide viewports. The
-          connecting lines are NOT static divs; they're drawn by the
-          SVG overlay in `computeConnectors`, which traces orthogonal
-          step paths between consecutive nodes. When a pair lives on
-          the same grid row the line is straight; when the next node
-          wraps to the row below, the line U-turns across the gap
-          (right out, down to mid-gap, left across, down, right in),
-          so the lifecycle reads continuously through the wrap. */}
       <div className="grid flex-1 min-w-0 grid-cols-3 items-center justify-items-start gap-x-12 gap-y-14">
         {nodes.map((n, i) => (
           <StateNodeView
@@ -518,6 +458,7 @@ const OrderRow: React.FC<OrderRowProps> = ({
             orderId={order._id}
             index={i}
             isLaneCurrent={isCurrent}
+            stateLabel={stateLabelFor(n.status)}
           />
         ))}
       </div>
@@ -539,36 +480,17 @@ interface ConnectorPath {
   d: string;
   cls: string;
   arrow: boolean;
-  /** Optional text rendered on the path's horizontal middle segment.
-   * Used by replacement edges to label the connector with "Order
-   * replaced" so the parent → child relationship reads inline. */
   label?: string;
   labelX?: number;
   labelY?: number;
   labelCls?: string;
 }
 
-/**
- * Build connector paths for the canvas. Two flavours:
- *
- *   1. Chain paths — for each order, walk its [data-flow-order=ID]
- *      elements in order of [data-flow-idx] and connect each consecutive
- *      pair. Same-row pairs get a straight horizontal line; cross-row
- *      pairs (caused by flex-wrap) get a U-turn step (right out, down,
- *      across, down, left in) so the line "traces" through the wrap
- *      like text. This makes the lifecycle read continuously even when
- *      it spans multiple rows.
- *   2. Replacement paths — between a parent's divergence node (the
- *      Cancelled/Refunded pill) and the child order's "Order replaced"
- *      origin chip. These keep the existing down→across→down step
- *      shape and an arrow head, since they jump lanes.
- *
- * All paths are H/V-only — no curves — to keep the wireframe feel.
- */
 const computeConnectors = (
   container: HTMLDivElement,
   root: TreeNode,
   flat: FlatNode[],
+  replacementLabel: string,
 ): { width: number; height: number; paths: ConnectorPath[] } => {
   const cRect = container.getBoundingClientRect();
 
@@ -582,7 +504,6 @@ const computeConnectors = (
     return 'stroke-slate-300 dark:stroke-slate-700';
   };
 
-  // Chain paths for each order's nodes (order body → state 0 → state 1 → ...)
   for (const { node } of flat) {
     const orderId = node.order._id;
     const els = Array.from(
@@ -608,8 +529,6 @@ const computeConnectors = (
       if (sameRow) {
         d = `M ${Ax} ${Ay} L ${Bx} ${By}`;
       } else {
-        // U-turn around the row gap. padOut buys a small horizontal
-        // stub so the line breaks cleanly off the node edge.
         const padOut = 14;
         const midY = (Ay + By) / 2;
         d =
@@ -624,7 +543,6 @@ const computeConnectors = (
     }
   }
 
-  // Replacement paths — divergence pill → child's "Order replaced" chip.
   const walk = (n: TreeNode) => {
     for (const child of n.children) {
       const fromEl = container.querySelector<HTMLElement>(
@@ -646,7 +564,7 @@ const computeConnectors = (
           d,
           cls: 'stroke-indigo-500',
           arrow: true,
-          label: 'Order replaced',
+          label: replacementLabel,
           labelX: (fromX + toX) / 2,
           labelY: midY,
           labelCls: 'fill-indigo-600 dark:fill-indigo-300',
@@ -665,6 +583,7 @@ const computeConnectors = (
 };
 
 const OrderLifecycle: React.FC = () => {
+  const { t } = useTranslation(['orders', 'common']);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [root, setRoot] = useState<TreeNode | null>(null);
@@ -676,15 +595,20 @@ const OrderLifecycle: React.FC = () => {
   }>({ width: 0, height: 0, paths: [] });
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const stateLabelFor = (status: OrderStatus): string =>
+    t(`orders:lifecycle.state.${status}`);
+
+  const labelOrderPlaced = t('orders:lifecycle.label.order_placed');
+  const labelOrderReplaced = t('orders:lifecycle.label.order_replaced');
   useSetBreadcrumbs(
     root
       ? [
-          { label: 'Orders', href: '/dashboard/orders' },
+          { label: t('orders:list.title'), href: '/dashboard/orders' },
           {
             label: `#${String(root.order.orderNumber || root.order._id).replace(/^#+/, '')}`,
             href: `/dashboard/orders/${root.order._id}`,
           },
-          { label: 'Timeline' },
+          { label: t('orders:lifecycle.title') },
         ]
       : null
   );
@@ -698,12 +622,12 @@ const OrderLifecycle: React.FC = () => {
         setRoot(tree);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : null;
-        toast.error(msg || 'Failed to load order lifecycle');
+        toast.error(msg || t('orders:lifecycle_load_failed'));
       } finally {
         setLoading(false);
       }
     })();
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     if (!root || !id) return;
@@ -714,26 +638,20 @@ const OrderLifecycle: React.FC = () => {
   }, [root, id]);
 
   const flat = useMemo(() => (root ? flatten(root) : []), [root]);
-  // IDs of every order currently rendered on the canvas — used to
-  // decide whether a replacement order's parent is also visible. If
-  // the parent is on canvas, the "Order replaced" wording moves from
-  // the child's feeder line onto the SVG connector that links them.
   const onCanvasIds = useMemo(
     () => new Set(flat.map((f) => f.node.order._id)),
     [flat],
   );
 
-  // Measure & route the SVG connectors after layout. ResizeObserver
-  // reruns on any size change so the overlay stays pinned to the nodes.
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el || !root) return;
-    const recompute = () => setConnectors(computeConnectors(el, root, flat));
+    const recompute = () => setConnectors(computeConnectors(el, root, flat, labelOrderReplaced));
     recompute();
     const ro = new ResizeObserver(recompute);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [root, flat]);
+  }, [root, flat, labelOrderReplaced]);
 
   if (loading) {
     return (
@@ -746,7 +664,7 @@ const OrderLifecycle: React.FC = () => {
   if (!root) {
     return (
       <div className="text-center py-24 text-muted-foreground">
-        Could not load order lifecycle.
+        {t('orders:lifecycle.could_not_load')}
       </div>
     );
   }
@@ -760,22 +678,20 @@ const OrderLifecycle: React.FC = () => {
           </Button>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-              <Clock className="h-5 w-5" /> Order timeline
+              <Clock className="h-5 w-5" /> {t('orders:lifecycle.title')}
             </h1>
             <p className="text-sm text-muted-foreground">
               {flat.length === 1
-                ? 'Standalone order — no replacements linked.'
-                : `${flat.length} orders in this case, rooted at ${displayNumber(root.order)}.`}
+                ? t('orders:lifecycle.standalone')
+                : t('orders:lifecycle.case_summary', {
+                    count: flat.length,
+                    root: displayNumber(root.order),
+                  })}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Canvas — full-width scroll wrapper. The inner board is what
-          the connector layout measures; its padding gives divergence
-          badges and SVG arrow heads breathing room so nothing is
-          clipped by the scroll container's implicit overflow-y. The
-          subtle dot-grid background evokes a design canvas. */}
       <div
         className="w-full rounded-lg border bg-muted/20"
         style={{
@@ -830,9 +746,6 @@ const OrderLifecycle: React.FC = () => {
                         (p.labelCls || '')
                       }
                       style={{
-                        // paint-order trick: stroke first with the canvas
-                        // bg color so the text "punches through" the line
-                        // behind it without needing a separate mask rect.
                         paintOrder: 'stroke',
                         stroke: 'hsl(var(--background))',
                         strokeWidth: 8,
@@ -866,6 +779,9 @@ const OrderLifecycle: React.FC = () => {
                         )
                     : undefined
                 }
+                stateLabelFor={stateLabelFor}
+                labelOrderPlaced={labelOrderPlaced}
+                labelOrderReplaced={labelOrderReplaced}
               />
             ))}
           </div>

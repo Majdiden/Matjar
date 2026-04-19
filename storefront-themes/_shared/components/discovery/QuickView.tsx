@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { Modal } from '../primitives/Modal';
 import { PriceDisplay } from '../commerce/PriceDisplay';
@@ -33,6 +34,7 @@ interface QuickViewProps {
 export function QuickView(props: QuickViewProps) {
   const Override = useThemeSlot<React.ComponentType<QuickViewProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
+  const { t } = useTranslation(['discovery', 'product']);
   const { product, isOpen, onClose, className } = props;
   const { addItem } = useCart();
   const open = isOpen ?? !!product;
@@ -73,7 +75,7 @@ export function QuickView(props: QuickViewProps) {
     : ['https://placehold.co/600x600?text=No+Image'];
 
   const variantLabel = (v: typeof selectedVariant) =>
-    v?.optionValues?.map((o) => o.value).join(' / ') || v?.sku || 'Variant';
+    v?.optionValues?.map((o) => o.value).join(' / ') || v?.sku || t('discovery:quickview.variant_label');
 
   const handleAddToCart = async () => {
     setAdding(true);
@@ -99,8 +101,8 @@ export function QuickView(props: QuickViewProps) {
       {/* Floating close button — overlays the gallery for an edge-to-edge look */}
       <button
         onClick={onClose}
-        aria-label="Close quick view"
-        className="absolute top-3 right-3 z-20 h-9 w-9 rounded-full bg-white/90 backdrop-blur shadow-md flex items-center justify-center text-gray-700 hover:bg-white hover:scale-105 transition"
+        aria-label={t('discovery:quickview.close_aria')}
+        className="absolute top-3 end-3 z-20 h-9 w-9 rounded-full bg-white/90 backdrop-blur shadow-md flex items-center justify-center text-gray-700 hover:bg-white hover:scale-105 transition"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -112,8 +114,8 @@ export function QuickView(props: QuickViewProps) {
         <div className="relative bg-gray-50 dark:bg-gray-800">
           {/* Sale badge */}
           {savingsPct !== null && (
-            <div className="absolute top-4 left-4 z-10 bg-rose-600 text-white text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg">
-              -{savingsPct}%
+            <div className="absolute top-4 start-4 z-10 bg-rose-600 text-white text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg">
+              {t('discovery:quickview.save_percent', { percent: savingsPct })}
             </div>
           )}
 
@@ -134,7 +136,7 @@ export function QuickView(props: QuickViewProps) {
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  aria-label={`View image ${i + 1}`}
+                  aria-label={t('discovery:quickview.image_dot_aria', { index: i + 1 })}
                   className={cn(
                     'h-2 rounded-full transition-all',
                     i === selectedImage ? 'w-6 bg-gray-900' : 'w-2 bg-gray-400 hover:bg-gray-600'
@@ -149,19 +151,19 @@ export function QuickView(props: QuickViewProps) {
             <>
               <button
                 onClick={() => setSelectedImage((i) => (i === 0 ? images.length - 1 : i - 1))}
-                aria-label="Previous image"
-                className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 backdrop-blur shadow-md items-center justify-center text-gray-700 hover:bg-white transition"
+                aria-label={t('product:image.thumbnail_aria', { index: selectedImage })}
+                className="hidden md:flex absolute start-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 backdrop-blur shadow-md items-center justify-center text-gray-700 hover:bg-white transition"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <button
                 onClick={() => setSelectedImage((i) => (i === images.length - 1 ? 0 : i + 1))}
-                aria-label="Next image"
-                className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 backdrop-blur shadow-md items-center justify-center text-gray-700 hover:bg-white transition"
+                aria-label={t('product:image.thumbnail_aria', { index: selectedImage + 2 })}
+                className="hidden md:flex absolute end-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/90 backdrop-blur shadow-md items-center justify-center text-gray-700 hover:bg-white transition"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -191,11 +193,11 @@ export function QuickView(props: QuickViewProps) {
             />
             {savingsPct !== null && (
               <span className="text-sm font-semibold text-rose-600">
-                Save {savingsPct}%
+                {t('discovery:quickview.save_percent', { percent: savingsPct })}
               </span>
             )}
           </div>
-          <div className="text-xs text-gray-500 mb-5">Tax included. Shipping calculated at checkout.</div>
+          <div className="text-xs text-gray-500 mb-5">{t('discovery:quickview.tax_shipping')}</div>
 
           {/* Short description */}
           {product.shortDescription && (
@@ -208,7 +210,8 @@ export function QuickView(props: QuickViewProps) {
           {product.variants && product.variants.length > 1 && (
             <div className="mb-5">
               <div className="text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">
-                Variant: <span className="font-normal text-gray-500">{variantLabel(selectedVariant)}</span>
+                {t('discovery:quickview.variant_label')}:{' '}
+                <span className="font-normal text-gray-500">{variantLabel(selectedVariant)}</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {product.variants.map((v) => (
@@ -236,17 +239,17 @@ export function QuickView(props: QuickViewProps) {
             {!inStock ? (
               <div className="inline-flex items-center gap-1.5 text-sm text-rose-600 font-medium">
                 <span className="h-2 w-2 rounded-full bg-rose-600" />
-                Out of stock
+                {t('discovery:quickview.out_of_stock')}
               </div>
             ) : lowStock ? (
               <div className="inline-flex items-center gap-1.5 text-sm text-amber-600 font-medium">
                 <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-                Only {effectiveStock} left in stock
+                {t('discovery:quickview.low_stock', { count: effectiveStock })}
               </div>
             ) : (
               <div className="inline-flex items-center gap-1.5 text-sm text-emerald-600 font-medium">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                In stock
+                {t('discovery:quickview.in_stock')}
               </div>
             )}
           </div>
@@ -254,7 +257,7 @@ export function QuickView(props: QuickViewProps) {
           {/* Quantity */}
           <div className="flex items-center gap-3 mb-5">
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-              Quantity
+              {t('discovery:quickview.quantity_label')}
             </span>
             <QuantitySelector
               value={quantity}
@@ -277,13 +280,13 @@ export function QuickView(props: QuickViewProps) {
               style={justAdded ? undefined : { backgroundColor: 'var(--color-primary, #111827)' }}
             >
               {!inStock ? (
-                'Out of stock'
+                t('discovery:quickview.out_of_stock')
               ) : justAdded ? (
                 <span className="inline-flex items-center justify-center gap-2">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  Added to cart
+                  {t('discovery:quickview.added')}
                 </span>
               ) : adding ? (
                 <span className="inline-flex items-center justify-center gap-2">
@@ -291,10 +294,10 @@ export function QuickView(props: QuickViewProps) {
                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
                     <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                   </svg>
-                  Adding…
+                  {t('discovery:quickview.adding')}
                 </span>
               ) : (
-                'Add to cart'
+                t('discovery:quickview.add_to_cart')
               )}
             </button>
 
@@ -307,7 +310,7 @@ export function QuickView(props: QuickViewProps) {
             onClick={onClose}
             className="mt-3 text-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white underline underline-offset-4 transition"
           >
-            View full details &rarr;
+            {t('discovery:quickview.view_full_details')}
           </Link>
         </div>
       </div>

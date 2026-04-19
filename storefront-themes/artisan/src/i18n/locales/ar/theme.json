@@ -24,7 +24,8 @@
       },
       "categories": {
         "heading": "تصفّح حسب الحرفة",
-        "subheading": "استكشف فئاتنا المنتقاة"
+        "subheading": "استكشف فئاتنا المنتقاة",
+        "pieces_label": "قطع"
       },
       "new_arrivals": {
         "heading": "وصول حديثاً",
@@ -84,6 +85,7 @@
     "category": {
       "not_found_heading": "الفئة غير موجودة",
       "browse_all": "تصفّح جميع المنتجات",
+      "breadcrumb_home": "الرئيسية",
       "no_products": "لا توجد منتجات في هذه الفئة بعد"
     },
     "product_detail": {
