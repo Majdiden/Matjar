@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/auth-context';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -167,7 +168,10 @@ export const Login: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-background relative">
+      <div className="absolute top-3 end-3 z-10">
+        <LanguageSwitcher />
+      </div>
       {/* Left — marketing panel */}
       <div className="hidden lg:flex relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 text-white p-12 flex-col justify-between">
         <div className="absolute inset-0 opacity-20" style={{

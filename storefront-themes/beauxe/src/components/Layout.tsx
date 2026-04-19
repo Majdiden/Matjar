@@ -8,6 +8,7 @@ import CartDrawer from '@shared/components/CartDrawer';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 
 /**
  * Beauxe Layout — navy announcement + pink-accent header.
@@ -94,6 +95,7 @@ const Layout: React.FC = () => {
             <div className="flex items-center gap-4 md:gap-5 justify-end" style={{ color: NAVY }}>
               <Link to="/about" className="hidden md:block hover:text-[var(--color-primary)] text-[12px] tracking-[0.15em] uppercase">{t('theme.layout.nav.about')}</Link>
               <Link to="/contact" className="hidden md:block hover:text-[var(--color-primary)] text-[12px] tracking-[0.15em] uppercase">{t('theme.layout.nav.contact')}</Link>
+              <LanguageSwitcher />
               <SearchBar variant="compact" className="hover:text-[var(--color-primary)] hover:bg-pink-50" />
               <Link to="/wishlist" aria-label="Wishlist" className="hover:text-[var(--color-primary)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
@@ -123,6 +125,7 @@ const Layout: React.FC = () => {
             ))}
             <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.layout.nav.about')}</Link>
             <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.layout.nav.contact')}</Link>
+            <LanguageSwitcher />
           </nav>
         )}
       </header>

@@ -7,6 +7,7 @@ import { useCategories } from '@shared/hooks/useProducts';
 import { useWishlist } from '@shared/hooks/useWishlist';
 import { useThemeSetting } from '@shared/theme/ThemeProvider';
 import CartDrawer from '@shared/components/CartDrawer';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 
@@ -86,6 +87,7 @@ const Layout: React.FC = () => {
 
             {/* Icons */}
             <div className="flex items-center gap-4 md:gap-5">
+              <LanguageSwitcher />
               <SearchBar variant="compact" className="text-white hover:text-[var(--color-primary)] hover:bg-white/10" />
               <Link to="/wishlist" aria-label="Wishlist" className="relative hover:text-[var(--color-primary)] hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -125,6 +127,7 @@ const Layout: React.FC = () => {
             ))}
             <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.nav.about')}</Link>
             <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.nav.contact')}</Link>
+            <LanguageSwitcher />
           </nav>
         )}
       </header>

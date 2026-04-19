@@ -8,6 +8,7 @@ import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@shared/components/CartDrawer';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
@@ -65,6 +66,9 @@ const Layout: React.FC = () => {
               {/* Mobile Search */}
               <SearchBar variant="compact" className="md:hidden text-gray-500 hover:text-gray-700 hover:bg-gray-50" />
 
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+
               {/* Cart */}
               <button
                 onClick={openCart}
@@ -115,6 +119,7 @@ const Layout: React.FC = () => {
                   {cat.name}
                 </Link>
               ))}
+              <div className="px-3 pt-1"><LanguageSwitcher /></div>
             </nav>
           )}
         </div>

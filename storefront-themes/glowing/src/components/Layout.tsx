@@ -6,6 +6,7 @@ import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
 import { useThemeSetting } from '@shared/theme/ThemeProvider';
 import CartDrawer from '@shared/components/CartDrawer';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 
@@ -72,6 +73,7 @@ const Layout: React.FC = () => {
 
             {/* Right: account / wishlist / cart */}
             <div className="flex items-center gap-5 justify-end text-neutral-700">
+              <LanguageSwitcher />
               <Link to="/account" aria-label="Account" className="hover:text-black">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 1115 0v.75H4.5v-.75z" />
@@ -123,6 +125,7 @@ const Layout: React.FC = () => {
             ))}
             <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.nav.about')}</Link>
             <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.nav.contact')}</Link>
+            <LanguageSwitcher />
           </nav>
         )}
       </header>

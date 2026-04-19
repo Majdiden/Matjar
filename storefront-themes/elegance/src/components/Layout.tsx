@@ -7,6 +7,7 @@ import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import CartDrawer from '@shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -47,6 +48,7 @@ const Layout: React.FC = () => {
             </Link>
 
             <div className="flex items-center gap-4">
+              <LanguageSwitcher />
               <Link to="/account" className="hidden md:block text-gray-700">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" />
@@ -82,6 +84,7 @@ const Layout: React.FC = () => {
               {categories.slice(0, 6).map(cat => (
                 <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">{cat.name}</Link>
               ))}
+              <LanguageSwitcher />
             </nav>
           )}
         </div>

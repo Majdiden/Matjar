@@ -70,6 +70,8 @@ import { NotificationsProvider } from '../../contexts/NotificationsContext';
 import { useNotifications } from '../../hooks/useNotifications';
 import { fireNativeNotification } from '../../lib/notification-effects';
 import { NotificationBell } from '../NotificationBell';
+import { LanguageSwitcher } from '../LanguageSwitcher';
+import { useLanguage } from '../../i18n/LanguageProvider';
 import { toast } from 'sonner';
 
 interface NavItem {
@@ -451,6 +453,7 @@ const DashboardLayoutInner: React.FC = () => {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const { t } = useTranslation(['nav']);
+  const { dir } = useLanguage();
 
   // Side-effect hooks for notifications. Both are mounted here so they
   // live for the entire lifetime of an authenticated dashboard session.
@@ -551,7 +554,7 @@ const DashboardLayoutInner: React.FC = () => {
                   <span className="sr-only">{t('nav:toggle_menu')}</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0">
+              <SheetContent side={dir === 'rtl' ? 'right' : 'left'} className="w-64 p-0">
                 <SidebarContent onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>
@@ -613,6 +616,7 @@ const DashboardLayoutInner: React.FC = () => {
             </Breadcrumb>
 
             <div className="ms-auto flex items-center gap-2">
+              <LanguageSwitcher />
               <NotificationBell />
 
               {/* Mobile user menu */}

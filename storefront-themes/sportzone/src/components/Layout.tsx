@@ -4,6 +4,7 @@ import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
 import CartDrawer from '@shared/components/CartDrawer';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
@@ -54,6 +55,8 @@ const Layout: React.FC = () => {
               {/* Mobile search */}
               <SearchBar variant="compact" className="md:hidden text-gray-300 hover:text-[#dc2626] hover:bg-white/10" />
 
+              <LanguageSwitcher />
+
               <button onClick={openCart} className="relative text-white hover:text-[#dc2626] transition">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -82,6 +85,7 @@ const Layout: React.FC = () => {
                 {cat.name}
               </Link>
             ))}
+            <LanguageSwitcher />
           </nav>
         )}
       </header>

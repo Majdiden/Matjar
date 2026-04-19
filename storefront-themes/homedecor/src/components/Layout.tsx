@@ -8,6 +8,7 @@ import { Drawer } from '@shared/components/primitives/Drawer';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import CartDrawer from '@shared/components/CartDrawer';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
@@ -53,6 +54,7 @@ const Layout: React.FC = () => {
 
             {/* Actions */}
             <div className="flex items-center gap-4">
+              <LanguageSwitcher />
               <SearchBar variant="compact" className="text-gray-500 hover:text-gray-900 hover:bg-gray-100" />
               <button onClick={openCart} className="relative text-gray-500 hover:text-gray-900">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,6 +123,7 @@ const Layout: React.FC = () => {
                 {cat.name}
               </Link>
             ))}
+            <LanguageSwitcher />
           </nav>
         </div>
       </Drawer>

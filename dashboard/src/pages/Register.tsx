@@ -26,6 +26,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { api } from '../lib/api-client';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { toast } from 'sonner';
 
 interface ThemeOption {
@@ -340,7 +341,9 @@ export const Register: React.FC = () => {
               {t('auth.register.step_of', { current: stepIndex + 1, total: STEPS.length })}
             </div>
           </div>
-          <div />
+          <div className="justify-self-end">
+            <LanguageSwitcher />
+          </div>
         </div>
       </header>
 

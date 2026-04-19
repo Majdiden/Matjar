@@ -7,6 +7,7 @@ import { Label } from '../components/ui/label';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Store, ArrowLeft, Loader2, AlertCircle, MailCheck } from 'lucide-react';
 import { api } from '../lib/api-client';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -40,7 +41,10 @@ export const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-6">
+    <div className="min-h-screen flex items-center justify-center bg-background p-6 relative">
+      <div className="absolute top-3 end-3">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-md space-y-8">
         <div className="flex items-center gap-2">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">

@@ -9,6 +9,7 @@ import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -72,6 +73,9 @@ const Layout: React.FC = () => {
 
               {/* Mobile search */}
               <SearchBar variant="compact" className="md:hidden text-gray-600 hover:text-[#7c3aed] hover:bg-violet-50" />
+
+              {/* Language Switcher */}
+              <LanguageSwitcher />
 
               {/* Cart button */}
               <button
@@ -162,6 +166,7 @@ const Layout: React.FC = () => {
                 {cat.name}
               </Link>
             ))}
+            <LanguageSwitcher />
           </nav>
         </div>
       </Drawer>

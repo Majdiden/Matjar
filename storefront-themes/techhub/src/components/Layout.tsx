@@ -5,6 +5,7 @@ import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
 import { useThemeSetting } from '@shared/theme/ThemeProvider';
 import CartDrawer from '@shared/components/CartDrawer';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
@@ -122,6 +123,8 @@ const Layout: React.FC = () => {
                 <SearchBar placeholder={t('theme.nav.search_placeholder')} variant="expanded" />
               </div>
 
+              <LanguageSwitcher />
+
               <Link
                 to="/account"
                 className="hidden lg:flex items-center gap-2 text-xs shrink-0"
@@ -205,6 +208,7 @@ const Layout: React.FC = () => {
                 {cat.name}
               </Link>
             ))}
+            <LanguageSwitcher />
           </nav>
         )}
       </header>

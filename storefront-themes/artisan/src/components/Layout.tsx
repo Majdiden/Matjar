@@ -8,6 +8,7 @@ import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -63,6 +64,9 @@ const Layout: React.FC = () => {
               {/* Mobile Search */}
               <SearchBar variant="compact" className="md:hidden text-[var(--color-primary)]/60 hover:text-[var(--color-primary)]" />
 
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+
               {/* Cart */}
               <button
                 onClick={openCart}
@@ -111,6 +115,7 @@ const Layout: React.FC = () => {
                 </Link>
               ))}
               <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">{t('theme.layout.nav.our_story')}</Link>
+              <div className="px-3 pt-1"><LanguageSwitcher /></div>
             </nav>
           )}
         </div>

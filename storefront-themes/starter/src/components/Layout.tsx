@@ -6,6 +6,7 @@ import { useCategories } from '@shared/hooks/useProducts';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import CartDrawer from '@shared/components/CartDrawer';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 
 const Layout: React.FC = () => {
@@ -54,6 +55,7 @@ const Layout: React.FC = () => {
             </nav>
 
             <div className="flex items-center gap-3">
+              <LanguageSwitcher />
               <SearchBar variant="compact" className="hover:opacity-80" />
               <button onClick={openCart} className="relative hover:opacity-80" style={{ color: 'var(--color-muted)' }}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -6,6 +6,7 @@ import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
 import { useThemeSetting } from '@shared/theme/ThemeProvider';
 import CartDrawer from '@shared/components/CartDrawer';
+import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 
@@ -84,6 +85,7 @@ const Layout: React.FC = () => {
 
             {/* Icons */}
             <div className="flex items-center gap-4" style={{ color: DARK_TEAL }}>
+              <LanguageSwitcher />
               <SearchBar variant="compact" className="hover:opacity-70 hover:bg-black/5" />
               <Link to="/account" aria-label="Account" className="hover:opacity-70 hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
@@ -113,6 +115,7 @@ const Layout: React.FC = () => {
             ))}
             <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.nav.about')}</Link>
             <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.nav.contact')}</Link>
+            <LanguageSwitcher />
           </nav>
         )}
       </header>

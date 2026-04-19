@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { api } from '../lib/api-client';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 // Mirrors the backend regex in validators/auth.validator.js: 64 hex chars.
 // Validated client-side so we can show a helpful error before hitting the
@@ -88,7 +89,10 @@ export const ResetPassword: React.FC = () => {
   // the user can't submit; point them back at the forgot-password flow.
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+      <div className="min-h-screen flex items-center justify-center bg-background p-6 relative">
+        <div className="absolute top-3 end-3">
+          <LanguageSwitcher />
+        </div>
         <div className="w-full max-w-md space-y-6 text-center">
           <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto" />
           <h1 className="text-2xl font-bold tracking-tight">{t('auth.reset.missing_token_title')}</h1>
@@ -107,7 +111,10 @@ export const ResetPassword: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-6">
+    <div className="min-h-screen flex items-center justify-center bg-background p-6 relative">
+      <div className="absolute top-3 end-3">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-md space-y-8">
         <div className="flex items-center gap-2">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
