@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -47,27 +48,19 @@ interface CustomFieldsListResponse {
 
 interface ApiErrorLike { message?: string; error?: string }
 
-const FIELD_TYPES = [
-  { value: 'string', label: 'String' },
-  { value: 'number', label: 'Number' },
-  { value: 'boolean', label: 'Boolean' },
-  { value: 'date', label: 'Date' },
-  { value: 'json', label: 'JSON' },
-  { value: 'url', label: 'URL' },
-  { value: 'color', label: 'Color' },
-  { value: 'richtext', label: 'Rich Text' },
-];
-
-const RESOURCES = [
-  { value: '', label: 'All Resources' },
-  { value: 'product', label: 'Product' },
-  { value: 'category', label: 'Category' },
-  { value: 'order', label: 'Order' },
-  { value: 'customer', label: 'Customer' },
-  { value: 'store', label: 'Store' },
-];
+const FIELD_TYPE_VALUES = ['string', 'number', 'boolean', 'date', 'json', 'url', 'color', 'richtext'] as const;
+const RESOURCE_VALUES = ['product', 'category', 'order', 'customer', 'store'] as const;
 
 export const CustomFields: React.FC = () => {
+  const { t } = useTranslation(['settings', 'common']);
+  const cf = (key: string, opts?: Record<string, unknown>) => t(`settings.custom_fields.${key}`, opts);
+
+  const FIELD_TYPES = FIELD_TYPE_VALUES.map((v) => ({ value: v, label: cf(`type.${v}`) }));
+  const RESOURCES = [
+    { value: '', label: cf('resource.all') },
+    ...RESOURCE_VALUES.map((v) => ({ value: v, label: cf(`resource.${v}`) })),
+  ];
+
   const [fields, setFields] = useState<CustomField[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -99,7 +92,7 @@ export const CustomFields: React.FC = () => {
       setFields(list);
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to load custom fields');
+      toast.error(e?.message || cf('toast.load_failed'));
     } finally {
       setLoading(false);
     }
@@ -125,22 +118,22 @@ export const CustomFields: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!form.key || !form.resource) { toast.error('Resource and key are required'); return; }
+    if (!form.key || !form.resource) { toast.error(cf('validation.resource_key_required')); return; }
     setSaving(true);
     try {
       const data = { ...form, value: form.type === 'json' ? JSON.parse(form.value) : form.type === 'number' ? Number(form.value) : form.type === 'boolean' ? form.value === 'true' : form.value };
       if (editingField) {
         await api.customFields.update(editingField._id, data);
-        toast.success('Custom field updated');
+        toast.success(cf('toast.updated'));
       } else {
         await api.customFields.create(data);
-        toast.success('Custom field created');
+        toast.success(cf('toast.created'));
       }
       setDialogOpen(false);
       loadFields();
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to save custom field');
+      toast.error(e?.message || cf('toast.save_failed'));
     } finally {
       setSaving(false);
     }
@@ -148,18 +141,18 @@ export const CustomFields: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!(await confirm({
-      title: 'Delete custom field?',
-      description: 'This removes the metafield from the resource it\'s attached to.',
-      confirmText: 'Delete',
+      title: cf('confirm.delete_title'),
+      description: cf('confirm.delete_description'),
+      confirmText: cf('confirm.delete_confirm'),
       variant: 'destructive',
     }))) return;
     try {
       await api.customFields.delete(id);
-      toast.success('Custom field deleted');
+      toast.success(cf('toast.deleted'));
       setFields(prev => prev.filter(f => f._id !== id));
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || 'Failed to delete');
+      toast.error(e?.message || cf('toast.delete_failed'));
     }
   };
 
@@ -172,49 +165,49 @@ export const CustomFields: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Custom Fields</h1>
-          <p className="text-muted-foreground">Manage metafields for products, orders, customers, and more</p>
+          <h1 className="text-3xl font-bold tracking-tight">{cf('title')}</h1>
+          <p className="text-muted-foreground">{cf('description')}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4 me-2" />
-              Add Field
+              {cf('add_button')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingField ? 'Edit Custom Field' : 'Create Custom Field'}</DialogTitle>
+              <DialogTitle>{editingField ? cf('dialog.title_edit') : cf('dialog.title_create')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Resource</Label>
+                  <Label>{cf('field.resource')}</Label>
                   <Select value={form.resource} onChange={e => setForm(f => ({ ...f, resource: e.target.value }))}
                     options={RESOURCES.filter(r => r.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Type</Label>
+                  <Label>{cf('field.type')}</Label>
                   <Select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
                     options={FIELD_TYPES} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Namespace</Label>
+                  <Label>{cf('field.namespace')}</Label>
                   <Input value={form.namespace} onChange={e => setForm(f => ({ ...f, namespace: e.target.value }))} placeholder="custom" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Key</Label>
+                  <Label>{cf('field.key')}</Label>
                   <Input value={form.key} onChange={e => setForm(f => ({ ...f, key: e.target.value }))} placeholder="my_field" />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Resource ID (optional)</Label>
-                <Input value={form.resourceId} onChange={e => setForm(f => ({ ...f, resourceId: e.target.value }))} placeholder="Leave empty for resource-level defaults" />
+                <Label>{cf('field.resource_id')}</Label>
+                <Input value={form.resourceId} onChange={e => setForm(f => ({ ...f, resourceId: e.target.value }))} placeholder={cf('field.resource_id_placeholder')} />
               </div>
               <div className="space-y-2">
-                <Label>Value</Label>
+                <Label>{cf('field.value')}</Label>
                 {form.type === 'json' || form.type === 'richtext' ? (
                   <Textarea value={form.value} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} rows={4} />
                 ) : form.type === 'color' ? (
@@ -223,7 +216,7 @@ export const CustomFields: React.FC = () => {
                     <Input value={form.value} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} placeholder="#000000" />
                   </div>
                 ) : form.type === 'boolean' ? (
-                  <Select value={form.value || 'false'} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} />
+                  <Select value={form.value || 'false'} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} options={[{ value: 'true', label: cf('boolean.true') }, { value: 'false', label: cf('boolean.false') }]} />
                 ) : (
                   <Input type={form.type === 'number' ? 'number' : form.type === 'date' ? 'date' : 'text'}
                     value={form.value} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} />
@@ -231,9 +224,9 @@ export const CustomFields: React.FC = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.action.cancel')}</Button>
               <Button onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : editingField ? 'Update' : 'Create'}
+                {saving ? cf('saving') : editingField ? t('common.action.update') : t('common.action.create')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -243,7 +236,7 @@ export const CustomFields: React.FC = () => {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base">All Custom Fields</CardTitle>
+            <CardTitle className="text-base">{cf('table_title')}</CardTitle>
             <div className="w-48">
               <Select
                 value={resourceFilter}
@@ -261,19 +254,19 @@ export const CustomFields: React.FC = () => {
           ) : fields.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <FileCode className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold">No custom fields</h3>
-              <p className="text-sm text-muted-foreground mb-4">Add metafields to extend your data model.</p>
-              <Button onClick={openCreate}><Plus className="h-4 w-4 me-2" />Add Field</Button>
+              <h3 className="text-lg font-semibold">{cf('empty.title')}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{cf('empty.description')}</p>
+              <Button onClick={openCreate}><Plus className="h-4 w-4 me-2" />{cf('add_button')}</Button>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Resource</TableHead>
-                  <TableHead>Namespace / Key</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead className="text-end">Actions</TableHead>
+                  <TableHead>{cf('column.resource')}</TableHead>
+                  <TableHead>{cf('column.namespace_key')}</TableHead>
+                  <TableHead>{cf('column.type')}</TableHead>
+                  <TableHead>{cf('column.value')}</TableHead>
+                  <TableHead className="text-end">{cf('column.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

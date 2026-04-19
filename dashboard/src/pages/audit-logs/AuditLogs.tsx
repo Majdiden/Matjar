@@ -174,7 +174,7 @@ export const AuditLogs: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={actionColor(log.action)}>{log.action}</Badge>
+                      <Badge variant={actionColor(log.action)}>{t(`audit.action.${log.action}.label`, { defaultValue: log.action })}</Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{log.resource}</Badge>
@@ -219,7 +219,7 @@ export const AuditLogs: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-muted-foreground">{t('audit.detail.field.action')}</p>
-                  <Badge variant={actionColor(selectedLog.action)}>{selectedLog.action}</Badge>
+                  <Badge variant={actionColor(selectedLog.action)}>{t(`audit.action.${selectedLog.action}.label`, { defaultValue: selectedLog.action })}</Badge>
                 </div>
                 <div>
                   <p className="text-muted-foreground">{t('audit.detail.field.resource')}</p>

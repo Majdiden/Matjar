@@ -368,6 +368,124 @@
     "zone_rates_badge_plural": "{{count}} تعرفات",
     "fx_missing_warning": "لا يوجد سعر صرف لـ {{currency}} → {{base}}. أضفه في تبويب العملات وإلا سيرجع العرض إلى {{base}}.",
     "market_badge_disabled": "معطّل",
-    "market_badge_default": "افتراضي"
+    "market_badge_default": "افتراضي",
+    "shipping_zone": {
+      "page_title_new": "منطقة شحن جديدة",
+      "page_title_edit": "تعديل منطقة الشحن",
+      "subtitle": "تعرفات حسب المنطقة مع نطاقات وزن اختيارية.",
+      "section": {
+        "details": "تفاصيل المنطقة",
+        "rates": "التعرفات",
+        "summary": "الملخص"
+      },
+      "field": {
+        "zone_name": "اسم المنطقة",
+        "zone_name_placeholder": "أمريكا الشمالية",
+        "countries": "الدول",
+        "countries_placeholder": "إضافة دولة…",
+        "countries_hint": "اختر دولة أو أكثر تنطبق عليها هذه المنطقة.",
+        "rate_name": "الاسم",
+        "rate_name_placeholder": "قياسي",
+        "rate_price": "السعر ($)",
+        "rate_min_weight": "الحد الأدنى للوزن (كجم)",
+        "rate_max_weight": "الحد الأقصى للوزن (كجم، اتركه فارغاً لعدم وضع حد)",
+        "estimated_days": "الأيام المقدّرة",
+        "estimated_days_placeholder": "3-5"
+      },
+      "rate_n": "تعرفة #{{n}}",
+      "add_rate": "إضافة تعرفة",
+      "summary": {
+        "name": "الاسم",
+        "countries": "الدول",
+        "rates": "التعرفات"
+      },
+      "button": {
+        "create": "إنشاء المنطقة",
+        "update": "تحديث المنطقة"
+      },
+      "toast": {
+        "created": "تم إنشاء المنطقة",
+        "updated": "تم تحديث المنطقة",
+        "not_found": "منطقة الشحن غير موجودة",
+        "load_failed": "فشل تحميل المنطقة",
+        "save_failed": "فشل حفظ المنطقة"
+      },
+      "validation": {
+        "name_required": "اسم المنطقة مطلوب",
+        "country_required": "يجب إضافة دولة واحدة على الأقل",
+        "rate_required": "يجب إضافة تعرفة واحدة على الأقل",
+        "rate_name_required": "اسم التعرفة مطلوب",
+        "rate_price_negative": "لا يمكن أن يكون سعر التعرفة سالباً"
+      }
+    },
+    "custom_fields": {
+      "title": "الحقول المخصصة",
+      "description": "إدارة الحقول الوصفية للمنتجات والطلبات والعملاء والمزيد",
+      "add_button": "إضافة حقل",
+      "table_title": "جميع الحقول المخصصة",
+      "column": {
+        "resource": "المورد",
+        "namespace_key": "مساحة الاسم / المفتاح",
+        "type": "النوع",
+        "value": "القيمة",
+        "actions": "الإجراءات"
+      },
+      "empty": {
+        "title": "لا توجد حقول مخصصة",
+        "description": "أضف حقولاً وصفية لتوسيع نموذج البيانات."
+      },
+      "dialog": {
+        "title_create": "إنشاء حقل مخصص",
+        "title_edit": "تعديل الحقل المخصص"
+      },
+      "field": {
+        "resource": "المورد",
+        "type": "النوع",
+        "namespace": "مساحة الاسم",
+        "key": "المفتاح",
+        "resource_id": "معرّف المورد (اختياري)",
+        "resource_id_placeholder": "اتركه فارغاً للإعدادات الافتراضية على مستوى المورد",
+        "value": "القيمة"
+      },
+      "resource": {
+        "all": "جميع الموارد",
+        "product": "منتج",
+        "category": "فئة",
+        "order": "طلب",
+        "customer": "عميل",
+        "store": "متجر"
+      },
+      "type": {
+        "string": "نص",
+        "number": "رقم",
+        "boolean": "منطقي",
+        "date": "تاريخ",
+        "json": "JSON",
+        "url": "رابط",
+        "color": "لون",
+        "richtext": "نص منسق"
+      },
+      "boolean": {
+        "true": "صحيح",
+        "false": "خطأ"
+      },
+      "toast": {
+        "created": "تم إنشاء الحقل المخصص",
+        "updated": "تم تحديث الحقل المخصص",
+        "deleted": "تم حذف الحقل المخصص",
+        "load_failed": "فشل تحميل الحقول المخصصة",
+        "save_failed": "فشل حفظ الحقل المخصص",
+        "delete_failed": "فشل الحذف"
+      },
+      "confirm": {
+        "delete_title": "حذف الحقل المخصص؟",
+        "delete_description": "سيؤدي هذا إلى إزالة الحقل الوصفي من المورد المرتبط به.",
+        "delete_confirm": "حذف"
+      },
+      "saving": "جاري الحفظ...",
+      "validation": {
+        "resource_key_required": "المورد والمفتاح مطلوبان"
+      }
+    }
   }
 }

@@ -108,7 +108,8 @@
       "new_replacement": "بديل جديد",
       "view_original_order": "عرض الطلب الأصلي",
       "view_replacement_order": "عرض الطلب البديل",
-      "view_replacement_n": "عرض البديل #{{n}}"
+      "view_replacement_n": "عرض البديل #{{n}}",
+      "move_to_status": "نقل إلى {{status}}"
     },
     "item": {
       "sku": "رمز المنتج: {{sku}}",
@@ -488,6 +489,12 @@
       "title": "قسيمة التعبئة",
       "bill_to": "فاتورة إلى",
       "ship_to": "الشحن إلى",
+      "no_shipping_address": "لا يوجد عنوان شحن",
+      "shipment_section": "الشحنة",
+      "carrier": "الناقل",
+      "tracking": "رقم التتبع",
+      "method": "الطريقة",
+      "omits_prices": "لا تتضمن قسيمة التعبئة هذه أسعاراً بشكل مقصود.",
       "column": {
         "item": "العنصر",
         "sku": "رمز المنتج",
@@ -498,7 +505,18 @@
     },
     "refund_receipt": {
       "title": "إيصال الاسترداد",
+      "refund_amount_label": "مبلغ الاسترداد",
       "original_order": "الطلب الأصلي",
+      "refund_details": "تفاصيل الاسترداد",
+      "order_prefix": "طلب",
+      "placed": "تم الطلب {{date}}",
+      "order_total": "إجمالي الطلب: {{amount}}",
+      "method": "الطريقة: {{value}}",
+      "reason": "السبب: {{value}}",
+      "tx_id": "رقم المعاملة: {{id}}",
+      "event_id": "معرّف الحدث: {{id}}",
+      "not_found": "الاسترداد غير موجود.",
+      "refund_not_found_for_order": "الاسترداد غير موجود لهذا الطلب",
       "column": {
         "item": "العنصر",
         "sku": "رمز المنتج",

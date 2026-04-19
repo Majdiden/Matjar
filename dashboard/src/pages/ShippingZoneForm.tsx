@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -27,6 +28,8 @@ interface ShippingZone {
 const EMPTY_RATE = { name: '', price: 0, minWeight: 0, maxWeight: null as number | null, estimatedDays: '' };
 
 const ShippingZoneForm: React.FC = () => {
+  const { t } = useTranslation(['settings', 'common']);
+  const sz = (key: string, opts?: Record<string, unknown>) => t(`settings.shipping_zone.${key}`, opts);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
@@ -52,7 +55,7 @@ const ShippingZoneForm: React.FC = () => {
         const list: ShippingZone[] = res.data || [];
         const zone = list.find((z) => z._id === id);
         if (!zone) {
-          toast.error('Shipping zone not found');
+          toast.error(sz('toast.not_found'));
           navigate('/dashboard/settings');
           return;
         }
@@ -69,7 +72,7 @@ const ShippingZoneForm: React.FC = () => {
         });
       } catch (err) {
         const e = err as { message?: string };
-        toast.error(e?.message || 'Failed to load zone');
+        toast.error(e?.message || sz('toast.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -90,12 +93,12 @@ const ShippingZoneForm: React.FC = () => {
     setForm((f) => ({ ...f, rates: f.rates.map((r, j) => (j === i ? { ...r, ...patch } : r)) }));
 
   const handleSave = async () => {
-    if (!form.name.trim()) return toast.error('Zone name is required');
-    if (form.countries.length === 0) return toast.error('At least one country is required');
-    if (form.rates.length === 0) return toast.error('At least one rate is required');
+    if (!form.name.trim()) return toast.error(sz('validation.name_required'));
+    if (form.countries.length === 0) return toast.error(sz('validation.country_required'));
+    if (form.rates.length === 0) return toast.error(sz('validation.rate_required'));
     for (const r of form.rates) {
-      if (!r.name.trim()) return toast.error('Rate name is required');
-      if (r.price < 0) return toast.error('Rate price cannot be negative');
+      if (!r.name.trim()) return toast.error(sz('validation.rate_name_required'));
+      if (r.price < 0) return toast.error(sz('validation.rate_price_negative'));
     }
     const payload = {
       name: form.name.trim(),
@@ -112,15 +115,15 @@ const ShippingZoneForm: React.FC = () => {
     try {
       if (isEdit && id) {
         await api.settings.updateShippingZone(id, payload);
-        toast.success('Zone updated');
+        toast.success(sz('toast.updated'));
       } else {
         await api.settings.createShippingZone(payload);
-        toast.success('Zone created');
+        toast.success(sz('toast.created'));
       }
       navigate('/dashboard/settings?tab=shipping');
     } catch (err) {
       const e = err as { message?: string };
-      toast.error(e?.message || 'Failed to save zone');
+      toast.error(e?.message || sz('toast.save_failed'));
     } finally {
       setSaving(false);
     }
@@ -143,16 +146,16 @@ const ShippingZoneForm: React.FC = () => {
           </Button>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              {isEdit ? 'Edit shipping zone' : 'New shipping zone'}
+              {isEdit ? sz('page_title_edit') : sz('page_title_new')}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Per-region rates with optional weight bands.
+              {sz('subtitle')}
             </p>
           </div>
         </div>
         <Button onClick={handleSave} disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
-          {isEdit ? 'Update zone' : 'Create zone'}
+          {isEdit ? sz('button.update') : sz('button.create')}
         </Button>
       </div>
 
@@ -160,20 +163,20 @@ const ShippingZoneForm: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Zone details</CardTitle>
+              <CardTitle className="text-base">{sz('section.details')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Zone name</Label>
+                <Label>{sz('field.zone_name')}</Label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="North America"
+                  placeholder={sz('field.zone_name_placeholder')}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Countries</Label>
-                <CountryPicker value="" onChange={addCountry} placeholder="Add a country..." />
+                <Label>{sz('field.countries')}</Label>
+                <CountryPicker value="" onChange={addCountry} placeholder={sz('field.countries_placeholder')} />
                 {form.countries.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {form.countries.map((code) => (
@@ -192,7 +195,7 @@ const ShippingZoneForm: React.FC = () => {
                   </div>
                 )}
                 <p className="text-[11px] text-muted-foreground">
-                  Pick one or more countries this zone applies to.
+                  {sz('field.countries_hint')}
                 </p>
               </div>
             </CardContent>
@@ -200,9 +203,9 @@ const ShippingZoneForm: React.FC = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">Rates</CardTitle>
+              <CardTitle className="text-base">{sz('section.rates')}</CardTitle>
               <Button variant="outline" size="sm" onClick={addRate}>
-                <Plus className="h-3.5 w-3.5 me-1" />Add rate
+                <Plus className="h-3.5 w-3.5 me-1" />{sz('add_rate')}
               </Button>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -210,7 +213,7 @@ const ShippingZoneForm: React.FC = () => {
                 <div key={i} className="border rounded-md p-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase text-muted-foreground">
-                      Rate #{i + 1}
+                      {sz('rate_n', { n: i + 1 })}
                     </span>
                     {form.rates.length > 1 && (
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeRate(i)}>
@@ -220,11 +223,11 @@ const ShippingZoneForm: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label className="text-xs">Name</Label>
-                      <Input value={rate.name} onChange={(e) => updateRate(i, { name: e.target.value })} placeholder="Standard" />
+                      <Label className="text-xs">{sz('field.rate_name')}</Label>
+                      <Input value={rate.name} onChange={(e) => updateRate(i, { name: e.target.value })} placeholder={sz('field.rate_name_placeholder')} />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Price ($)</Label>
+                      <Label className="text-xs">{sz('field.rate_price')}</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -234,7 +237,7 @@ const ShippingZoneForm: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Min weight (kg)</Label>
+                      <Label className="text-xs">{sz('field.rate_min_weight')}</Label>
                       <Input
                         type="number"
                         step="0.1"
@@ -244,7 +247,7 @@ const ShippingZoneForm: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Max weight (kg, blank for no cap)</Label>
+                      <Label className="text-xs">{sz('field.rate_max_weight')}</Label>
                       <Input
                         type="number"
                         step="0.1"
@@ -254,11 +257,11 @@ const ShippingZoneForm: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-1 col-span-2">
-                      <Label className="text-xs">Estimated days</Label>
+                      <Label className="text-xs">{sz('field.estimated_days')}</Label>
                       <Input
                         value={rate.estimatedDays}
                         onChange={(e) => updateRate(i, { estimatedDays: e.target.value })}
-                        placeholder="3-5"
+                        placeholder={sz('field.estimated_days_placeholder')}
                       />
                     </div>
                   </div>
@@ -271,19 +274,19 @@ const ShippingZoneForm: React.FC = () => {
         <div className="lg:col-span-1">
           <Card className="sticky top-4">
             <CardHeader>
-              <CardTitle className="text-base">Summary</CardTitle>
+              <CardTitle className="text-base">{sz('section.summary')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div>
-                <div className="text-xs text-muted-foreground">Name</div>
+                <div className="text-xs text-muted-foreground">{sz('summary.name')}</div>
                 <div className="font-medium">{form.name || '—'}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Countries</div>
+                <div className="text-xs text-muted-foreground">{sz('summary.countries')}</div>
                 <div className="font-medium">{form.countries.length}</div>
               </div>
               <div>
-                <div className="text-xs text-muted-foreground">Rates</div>
+                <div className="text-xs text-muted-foreground">{sz('summary.rates')}</div>
                 <div className="font-medium">{form.rates.length}</div>
               </div>
             </CardContent>

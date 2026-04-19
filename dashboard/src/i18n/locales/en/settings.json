@@ -368,6 +368,124 @@
     "zone_rates_badge_plural": "{{count}} rates",
     "fx_missing_warning": "No FX rate for {{currency}} → {{base}}. Add one on the Currencies tab or presentment will fall back to {{base}}.",
     "market_badge_disabled": "Disabled",
-    "market_badge_default": "Default"
+    "market_badge_default": "Default",
+    "shipping_zone": {
+      "page_title_new": "New shipping zone",
+      "page_title_edit": "Edit shipping zone",
+      "subtitle": "Per-region rates with optional weight bands.",
+      "section": {
+        "details": "Zone details",
+        "rates": "Rates",
+        "summary": "Summary"
+      },
+      "field": {
+        "zone_name": "Zone name",
+        "zone_name_placeholder": "North America",
+        "countries": "Countries",
+        "countries_placeholder": "Add a country…",
+        "countries_hint": "Pick one or more countries this zone applies to.",
+        "rate_name": "Name",
+        "rate_name_placeholder": "Standard",
+        "rate_price": "Price ($)",
+        "rate_min_weight": "Min weight (kg)",
+        "rate_max_weight": "Max weight (kg, blank for no cap)",
+        "estimated_days": "Estimated days",
+        "estimated_days_placeholder": "3-5"
+      },
+      "rate_n": "Rate #{{n}}",
+      "add_rate": "Add rate",
+      "summary": {
+        "name": "Name",
+        "countries": "Countries",
+        "rates": "Rates"
+      },
+      "button": {
+        "create": "Create zone",
+        "update": "Update zone"
+      },
+      "toast": {
+        "created": "Zone created",
+        "updated": "Zone updated",
+        "not_found": "Shipping zone not found",
+        "load_failed": "Failed to load zone",
+        "save_failed": "Failed to save zone"
+      },
+      "validation": {
+        "name_required": "Zone name is required",
+        "country_required": "At least one country is required",
+        "rate_required": "At least one rate is required",
+        "rate_name_required": "Rate name is required",
+        "rate_price_negative": "Rate price cannot be negative"
+      }
+    },
+    "custom_fields": {
+      "title": "Custom Fields",
+      "description": "Manage metafields for products, orders, customers, and more",
+      "add_button": "Add Field",
+      "table_title": "All Custom Fields",
+      "column": {
+        "resource": "Resource",
+        "namespace_key": "Namespace / Key",
+        "type": "Type",
+        "value": "Value",
+        "actions": "Actions"
+      },
+      "empty": {
+        "title": "No custom fields",
+        "description": "Add metafields to extend your data model."
+      },
+      "dialog": {
+        "title_create": "Create Custom Field",
+        "title_edit": "Edit Custom Field"
+      },
+      "field": {
+        "resource": "Resource",
+        "type": "Type",
+        "namespace": "Namespace",
+        "key": "Key",
+        "resource_id": "Resource ID (optional)",
+        "resource_id_placeholder": "Leave empty for resource-level defaults",
+        "value": "Value"
+      },
+      "resource": {
+        "all": "All Resources",
+        "product": "Product",
+        "category": "Category",
+        "order": "Order",
+        "customer": "Customer",
+        "store": "Store"
+      },
+      "type": {
+        "string": "String",
+        "number": "Number",
+        "boolean": "Boolean",
+        "date": "Date",
+        "json": "JSON",
+        "url": "URL",
+        "color": "Color",
+        "richtext": "Rich Text"
+      },
+      "boolean": {
+        "true": "True",
+        "false": "False"
+      },
+      "toast": {
+        "created": "Custom field created",
+        "updated": "Custom field updated",
+        "deleted": "Custom field deleted",
+        "load_failed": "Failed to load custom fields",
+        "save_failed": "Failed to save custom field",
+        "delete_failed": "Failed to delete"
+      },
+      "confirm": {
+        "delete_title": "Delete custom field?",
+        "delete_description": "This removes the metafield from the resource it's attached to.",
+        "delete_confirm": "Delete"
+      },
+      "saving": "Saving...",
+      "validation": {
+        "resource_key_required": "Resource and key are required"
+      }
+    }
   }
 }

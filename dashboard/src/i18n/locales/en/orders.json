@@ -125,7 +125,8 @@
       "new_replacement": "New replacement",
       "view_original_order": "View original order",
       "view_replacement_order": "View replacement order",
-      "view_replacement_n": "View replacement #{{n}}"
+      "view_replacement_n": "View replacement #{{n}}",
+      "move_to_status": "Move to {{status}}"
     },
     "item": {
       "sku": "SKU: {{sku}}",
@@ -524,6 +525,12 @@
       "title": "Packing slip",
       "bill_to": "Bill to",
       "ship_to": "Ship to",
+      "no_shipping_address": "No shipping address",
+      "shipment_section": "Shipment",
+      "carrier": "Carrier",
+      "tracking": "Tracking",
+      "method": "Method",
+      "omits_prices": "This packing slip intentionally omits prices.",
       "column": {
         "item": "Item",
         "sku": "SKU",
@@ -533,8 +540,19 @@
       "error": "Failed to load order"
     },
     "refund_receipt": {
-      "title": "Refund receipt",
+      "title": "Refund Receipt",
+      "refund_amount_label": "Refund amount",
       "original_order": "Original order",
+      "refund_details": "Refund details",
+      "order_prefix": "Order",
+      "placed": "Placed {{date}}",
+      "order_total": "Order total: {{amount}}",
+      "method": "Method: {{value}}",
+      "reason": "Reason: {{value}}",
+      "tx_id": "Tx: {{id}}",
+      "event_id": "Event: {{id}}",
+      "not_found": "Refund not found.",
+      "refund_not_found_for_order": "Refund not found for this order",
       "column": {
         "item": "Item",
         "sku": "SKU",

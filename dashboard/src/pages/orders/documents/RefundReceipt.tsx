@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useOrderAndStore, useAutoPrint } from './shared';
 import { api } from '../../../lib/api-client';
@@ -22,6 +23,8 @@ interface PaymentsListEnvelope {
  * refund and an accountant needs for reconciliation.
  */
 const RefundReceipt: React.FC = () => {
+  const { t } = useTranslation(['orders', 'common']);
+  const rr = (key: string, opts?: Record<string, unknown>) => t(`orders:document.refund_receipt.${key}`, opts);
   const { id, refundId } = useParams<{ id: string; refundId: string }>();
   const { loading, error, order, store } = useOrderAndStore(id);
   const [refund, setRefund] = useState<Payment | null>(null);
@@ -40,7 +43,7 @@ const RefundReceipt: React.FC = () => {
         const match = list.find((p) => String(p._id) === String(refundId));
         if (cancelled) return;
         if (!match) {
-          setRefundErr('Refund not found for this order');
+          setRefundErr(rr('refund_not_found_for_order'));
           setRefund(null);
         } else {
           setRefund(match);
@@ -58,9 +61,9 @@ const RefundReceipt: React.FC = () => {
   const ready = !loading && !refundLoading && !!order && !!refund;
   useAutoPrint(ready);
 
-  if (loading || refundLoading) return <div className="p-8 text-sm">Loading refund receipt…</div>;
-  if (error || !order) return <div className="p-8 text-sm text-red-600">Failed to load order{error ? `: ${error}` : ''}.</div>;
-  if (refundErr || !refund) return <div className="p-8 text-sm text-red-600">{refundErr || 'Refund not found.'}</div>;
+  if (loading || refundLoading) return <div className="p-8 text-sm">{rr('loading')}</div>;
+  if (error || !order) return <div className="p-8 text-sm text-red-600">{rr('error')}{error ? `: ${error}` : ''}.</div>;
+  if (refundErr || !refund) return <div className="p-8 text-sm text-red-600">{refundErr || rr('not_found')}</div>;
 
   const orderNumber = order.orderNumber || `#${String(order._id).slice(-6).toUpperCase()}`;
   const reason = refund?.metadata?.reason || refund?.reason || '—';
@@ -85,37 +88,37 @@ const RefundReceipt: React.FC = () => {
           </div>
         </div>
         <div className="doc-header-right">
-          <div className="doc-title">Refund Receipt</div>
+          <div className="doc-title">{rr('title')}</div>
           <div className="doc-muted">Refund {String(refund._id).slice(-8).toUpperCase()}</div>
           <div className="doc-muted">{when.toLocaleString()}</div>
         </div>
       </header>
 
       <section className="doc-refund-amount">
-        <div className="doc-muted">Refund amount</div>
+        <div className="doc-muted">{rr('refund_amount_label')}</div>
         <div className="doc-refund-value">{formatPrice(amount, currency)}</div>
       </section>
 
       <section className="doc-grid">
         <div>
-          <div className="doc-section-title">Original order</div>
-          <div>Order {orderNumber}</div>
+          <div className="doc-section-title">{rr('original_order')}</div>
+          <div>{rr('order_prefix')} {orderNumber}</div>
           <div className="doc-muted doc-small">
-            Placed {new Date(order.createdAt).toLocaleString()}
+            {rr('placed', { date: new Date(order.createdAt).toLocaleString() })}
           </div>
           <div className="doc-muted doc-small">
-            Order total: {formatPrice(order.totalAmount || 0, currency)}
+            {rr('order_total', { amount: formatPrice(order.totalAmount || 0, currency) })}
           </div>
         </div>
         <div>
-          <div className="doc-section-title">Refund details</div>
-          <div>Method: {method}</div>
-          <div>Reason: {reason}</div>
+          <div className="doc-section-title">{rr('refund_details')}</div>
+          <div>{rr('method', { value: method })}</div>
+          <div>{rr('reason', { value: reason })}</div>
           {refund?.providerTransactionId ? (
-            <div className="doc-muted doc-small">Tx: {refund.providerTransactionId}</div>
+            <div className="doc-muted doc-small">{rr('tx_id', { id: refund.providerTransactionId })}</div>
           ) : null}
           {refund?.eventId ? (
-            <div className="doc-muted doc-small">Event: {refund.eventId}</div>
+            <div className="doc-muted doc-small">{rr('event_id', { id: refund.eventId })}</div>
           ) : null}
         </div>
       </section>

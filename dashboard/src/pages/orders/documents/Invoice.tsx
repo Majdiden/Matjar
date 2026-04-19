@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useOrderAndStore, useAutoPrint, formatAddress } from './shared';
 import { formatPrice } from '../../../lib/format';
@@ -18,12 +19,14 @@ import './print.css';
  * clutter simple orders with zero rows.
  */
 const Invoice: React.FC = () => {
+  const { t } = useTranslation(['orders', 'common']);
+  const inv = (key: string) => t(`orders:document.invoice.${key}`);
   const { id } = useParams<{ id: string }>();
   const { loading, error, order, store } = useOrderAndStore(id);
   useAutoPrint(!loading && !!order);
 
-  if (loading) return <div className="p-8 text-sm">Loading invoice…</div>;
-  if (error || !order) return <div className="p-8 text-sm text-red-600">Failed to load order{error ? `: ${error}` : ''}.</div>;
+  if (loading) return <div className="p-8 text-sm">{inv('loading')}</div>;
+  if (error || !order) return <div className="p-8 text-sm text-red-600">{inv('error')}{error ? `: ${error}` : ''}.</div>;
 
   const orderNumber = order.orderNumber || `#${String(order._id).slice(-6).toUpperCase()}`;
   const o = order as OrderWithExtras;
@@ -81,7 +84,7 @@ const Invoice: React.FC = () => {
           </div>
         </div>
         <div className="doc-header-right">
-          <div className="doc-title">Invoice</div>
+          <div className="doc-title">{inv('title')}</div>
           <div className="doc-muted">Order {orderNumber}</div>
           <div className="doc-muted">{new Date(order.createdAt).toLocaleString()}</div>
         </div>
@@ -89,7 +92,7 @@ const Invoice: React.FC = () => {
 
       <section className="doc-grid">
         <div>
-          <div className="doc-section-title">Bill to</div>
+          <div className="doc-section-title">{inv('bill_to')}</div>
           {customerName ? <div>{customerName}</div> : null}
           {customer.email ? <div className="doc-muted doc-small">{customer.email}</div> : null}
           {(billLines.length > 0 ? billLines : shipLines).map((l, i) => (
@@ -97,7 +100,7 @@ const Invoice: React.FC = () => {
           ))}
         </div>
         <div>
-          <div className="doc-section-title">Ship to</div>
+          <div className="doc-section-title">{inv('ship_to')}</div>
           {shipLines.map((l, i) => (
             <div key={i}>{l}</div>
           ))}
@@ -107,11 +110,11 @@ const Invoice: React.FC = () => {
       <table className="doc-table">
         <thead>
           <tr>
-            <th style={{ width: '50%' }}>Item</th>
-            <th>SKU</th>
-            <th style={{ textAlign: 'right' }}>Qty</th>
-            <th style={{ textAlign: 'right' }}>Price</th>
-            <th style={{ textAlign: 'right' }}>Line total</th>
+            <th style={{ width: '50%' }}>{inv('column.item')}</th>
+            <th>{inv('column.sku')}</th>
+            <th style={{ textAlign: 'right' }}>{inv('column.qty')}</th>
+            <th style={{ textAlign: 'right' }}>{inv('column.price')}</th>
+            <th style={{ textAlign: 'right' }}>{inv('column.line_total')}</th>
           </tr>
         </thead>
         <tbody>
@@ -145,26 +148,26 @@ const Invoice: React.FC = () => {
 
       <section className="doc-totals">
         <dl>
-          <dt>Subtotal</dt>
+          <dt>{inv('totals.subtotal')}</dt>
           <dd>{formatPrice(subtotal, currency)}</dd>
 
           {discount > 0 && (
             <>
-              <dt>Discount</dt>
+              <dt>{inv('totals.discount')}</dt>
               <dd>−{formatPrice(discount, currency)}</dd>
             </>
           )}
 
           {shipping > 0 && (
             <>
-              <dt>Shipping</dt>
+              <dt>{inv('totals.shipping')}</dt>
               <dd>{formatPrice(shipping, currency)}</dd>
             </>
           )}
 
           {tax > 0 && (
             <>
-              <dt>Tax</dt>
+              <dt>{inv('totals.tax')}</dt>
               <dd>{formatPrice(tax, currency)}</dd>
             </>
           )}
@@ -180,7 +183,7 @@ const Invoice: React.FC = () => {
             </React.Fragment>
           ))}
 
-          <dt className="doc-grand">Total</dt>
+          <dt className="doc-grand">{inv('totals.total')}</dt>
           <dd className="doc-grand">{formatPrice(total, currency)}</dd>
         </dl>
       </section>
@@ -194,8 +197,10 @@ const Invoice: React.FC = () => {
           </div>
         ) : null}
         <div className="doc-muted doc-small">
-          Payment: {order.paymentMethod || '—'} ·{' '}
-          Status: {order.paymentStatus}
+          {t('orders:document.invoice.payment_line', {
+            method: order.paymentMethod || '—',
+            status: t(`common.status.${order.paymentStatus}`, { ns: 'common', defaultValue: order.paymentStatus }),
+          })}
         </div>
       </footer>
     </div>

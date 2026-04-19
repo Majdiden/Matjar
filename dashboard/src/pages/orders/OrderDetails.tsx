@@ -2065,6 +2065,7 @@ const ReturnsAndReplacements: React.FC<{
   busyReturnId: string | null;
   formatPrice: (n: number) => string;
 }> = ({ order, onNewReplacement, onNewReturn, onAdvanceReturn, busyReturnId, formatPrice }) => {
+  const { t: tR } = useTranslation(['orders', 'common']);
   const returns: OrderReturn[] = (order.returns || []) as OrderReturn[];
   const replacements = order.replacementOrders || [];
   const replacementOf = order.replacementOf;
@@ -2184,7 +2185,7 @@ const ReturnsAndReplacements: React.FC<{
                   <div className="flex items-center gap-2">
                     <ArrowDownLeft className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium text-sm">Return</span>
-                    <Badge variant={returnStatusVariant(ret.status)}>{ret.status}</Badge>
+                    <Badge variant={returnStatusVariant(ret.status)}>{tR(`common.status.${ret.status}`, { ns: 'common', defaultValue: ret.status })}</Badge>
                     {typeof ret.refundAmount === 'number' && ret.refundAmount > 0 && (
                       <Badge variant="outline" className="text-[10px]">
                         {formatPrice(ret.refundAmount)}
@@ -2602,6 +2603,7 @@ const OperationsCard: React.FC<{
   onPrintPackingSlip,
   onMarkDelivered,
 }) => {
+  const { t: tOC } = useTranslation(['orders', 'common']);
   const busy = paymentActionBusy || updatingStatus;
   const orderStatus = order.status;
   const paymentStatus = order.paymentStatus;
@@ -2733,7 +2735,7 @@ const OperationsCard: React.FC<{
                 <DropdownMenuContent align="start">
                   {STATUS_OPTIONS.filter(s => s !== orderStatus).map(status => (
                     <DropdownMenuItem key={status} onClick={() => onStatusChange(status)}>
-                      Move to {status}
+                      {tOC('orders:detail.action.move_to_status', { status: tOC(`common.status.${status}`, { ns: 'common', defaultValue: status }) })}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>

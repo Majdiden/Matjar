@@ -869,6 +869,45 @@ shared components/sections.
 | Enter your keywords... (placeholder) | أدخل كلماتك البحثية... |
 | Hello, Login | مرحباً، سجّل الدخول |
 
+## G. Additional status labels (added during Phase B i18n pass)
+
+| English              | Arabic                  |
+| -------------------- | ----------------------- |
+| Partially paid       | مدفوع جزئياً            |
+| Authorized           | مفوّض                   |
+| Captured             | محصّل                   |
+| Out for delivery     | في الطريق إليك          |
+| Returned             | تم الإرجاع              |
+| On hold              | معلّق                   |
+| Unpublished          | غير منشور               |
+| Pending review       | بانتظار المراجعة        |
+| Pending payment      | في انتظار الدفع         |
+| Completed            | مكتمل                   |
+| Expired              | منتهي الصلاحية          |
+| Redeemed             | تم الاسترداد            |
+| Manual               | يدوي                    |
+| Automatic            | تلقائي                  |
+| Custom field         | حقل مخصص                |
+| Custom fields        | الحقول المخصصة          |
+| Metafield            | حقل وصفي                |
+| Metafields           | الحقول الوصفية          |
+| Namespace            | مساحة الاسم             |
+| Shipping zone        | منطقة الشحن             |
+| Shipping zones       | مناطق الشحن             |
+| Shipping rate        | تعرفة الشحن             |
+| Zone name            | اسم المنطقة             |
+| Weight band          | نطاق الوزن              |
+| Estimated days       | الأيام المقدّرة         |
+| Packing slip         | قسيمة التعبئة           |
+| Refund receipt       | إيصال الاسترداد         |
+| Invoice              | فاتورة                  |
+| Bill to              | فاتورة إلى              |
+| Ship to              | الشحن إلى               |
+| Carrier              | الناقل                  |
+| Tracking number      | رقم التتبع              |
+| Line total           | إجمالي السطر            |
+| Shipment             | الشحنة                  |
+
 ---
 
 ## Style notes

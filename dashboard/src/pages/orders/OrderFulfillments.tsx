@@ -190,7 +190,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
                   <div className="flex items-center gap-2">
                     <Package className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium text-sm">{t('orders:fulfillment.card.shipment_n', { n: idx + 1 })}</span>
-                    <Badge variant={statusVariant(f.status)}>{f.status}</Badge>
+                    <Badge variant={statusVariant(f.status)}>{t(`common.status.${f.status}`, { ns: 'common', defaultValue: f.status })}</Badge>
                   </div>
                   <div className="flex gap-1">
                     {f.status === 'Pending' && (

@@ -549,7 +549,7 @@ const GiftCards: React.FC = () => {
                       <TableCell>{formatMoney(card.balance, card.currency)}</TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[card.status] ?? ''}`}>
-                          {card.status}
+                          {t(`common.status.${card.status}`, { ns: 'common', defaultValue: card.status })}
                         </span>
                       </TableCell>
                       <TableCell>{formatDate(card.expiresAt)}</TableCell>
@@ -592,7 +592,7 @@ const GiftCards: React.FC = () => {
                       className="h-4 w-4 rounded border-gray-300 flex-shrink-0 mt-1"
                     />
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[card.status] ?? ''}`}>
-                      {card.status}
+                      {t(`common.status.${card.status}`, { ns: 'common', defaultValue: card.status })}
                     </span>
                   </div>
                   <div>
