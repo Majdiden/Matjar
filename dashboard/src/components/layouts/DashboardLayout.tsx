@@ -42,6 +42,14 @@ import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -398,54 +406,66 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 const NOTIF_PROMPT_DISMISSED_KEY = 'matjar.notifPromptDismissed.v1';
 
 /**
- * One-shot Notification API permission prompt. We check `Notification.permission`
+ * One-shot Notification API permission prompt. Checks Notification.permission
  * on mount and, if it's `default` AND the user hasn't previously dismissed
- * the offer, surface a dismissible sonner toast with an "Enable" action.
- * Dismissal is remembered in localStorage so we don't nag on every page
- * load. Re-asking after explicit denial is pointless — most browsers
- * silently no-op `requestPermission()` once denied.
+ * the offer, opens a centered modal so the prompt sits visually in the middle
+ * of the screen instead of getting lost in a corner toast. Dismissal is
+ * remembered in localStorage so we don't nag on every page load.
  */
-const useNotificationPermissionPrompt = () => {
+const NotificationPermissionPrompt: React.FC = () => {
   const { t } = useTranslation(['nav']);
+  const [open, setOpen] = React.useState(false);
+
   React.useEffect(() => {
     if (typeof Notification === 'undefined') return;
     if (Notification.permission !== 'default') return;
     if (localStorage.getItem(NOTIF_PROMPT_DISMISSED_KEY) === '1') return;
+    setOpen(true);
+  }, []);
 
-    const id = toast(t('nav:browser_notifications.prompt_title'), {
-      id: 'notif-permission-prompt',
-      description: t('nav:browser_notifications.prompt_description'),
-      duration: Infinity,
-      action: {
-        label: t('nav:browser_notifications.enable'),
-        onClick: () => {
-          Notification.requestPermission()
-            .then((result) => {
-              if (result === 'granted') {
-                fireNativeNotification(
-                  t('nav:browser_notifications.native_title'),
-                  t('nav:browser_notifications.native_body'),
-                );
-                toast.success(t('nav:browser_notifications.enabled_success'));
-              }
-            })
-            .catch(() => {})
-            .finally(() => {
-              localStorage.setItem(NOTIF_PROMPT_DISMISSED_KEY, '1');
-            });
-        },
-      },
-      cancel: {
-        label: t('nav:browser_notifications.not_now'),
-        onClick: () => {
-          localStorage.setItem(NOTIF_PROMPT_DISMISSED_KEY, '1');
-        },
-      },
-    });
-    return () => {
-      toast.dismiss(id);
-    };
-  }, [t]);
+  const dismiss = () => {
+    localStorage.setItem(NOTIF_PROMPT_DISMISSED_KEY, '1');
+    setOpen(false);
+  };
+
+  const enable = () => {
+    Notification.requestPermission()
+      .then((result) => {
+        if (result === 'granted') {
+          fireNativeNotification(
+            t('nav:browser_notifications.native_title'),
+            t('nav:browser_notifications.native_body'),
+          );
+          toast.success(t('nav:browser_notifications.enabled_success'));
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        localStorage.setItem(NOTIF_PROMPT_DISMISSED_KEY, '1');
+        setOpen(false);
+      });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) dismiss(); }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t('nav:browser_notifications.prompt_title')}</DialogTitle>
+          <DialogDescription>
+            {t('nav:browser_notifications.prompt_description')}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={dismiss}>
+            {t('nav:browser_notifications.not_now')}
+          </Button>
+          <Button onClick={enable}>
+            {t('nav:browser_notifications.enable')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 const DashboardLayoutInner: React.FC = () => {
@@ -456,10 +476,10 @@ const DashboardLayoutInner: React.FC = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const { t } = useTranslation(['nav']);
 
-  // Side-effect hooks for notifications. Both are mounted here so they
-  // live for the entire lifetime of an authenticated dashboard session.
+  // Side-effect hook for notifications — mounted here so it lives for the
+  // entire lifetime of an authenticated dashboard session. The permission
+  // prompt itself is rendered below as a centered modal.
   useNotifications();
-  useNotificationPermissionPrompt();
 
   const handleLogout = () => {
     logout();
@@ -653,6 +673,7 @@ const DashboardLayoutInner: React.FC = () => {
           </main>
         </div>
       </div>
+      <NotificationPermissionPrompt />
     </TooltipProvider>
   );
 };
