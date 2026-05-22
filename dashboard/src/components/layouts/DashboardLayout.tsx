@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/auth-context';
+import { useLanguage } from '../../i18n/LanguageProvider';
 import {
   LayoutDashboard,
   Package,
@@ -475,6 +476,7 @@ const DashboardLayoutInner: React.FC = () => {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const { t } = useTranslation(['nav']);
+  const { dir } = useLanguage();
 
   // Side-effect hook for notifications — mounted here so it lives for the
   // entire lifetime of an authenticated dashboard session. The permission
@@ -519,7 +521,7 @@ const DashboardLayoutInner: React.FC = () => {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="flex h-screen overflow-hidden bg-background">
+      <div dir={dir} className="flex h-screen overflow-hidden bg-background">
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-e">
           <SidebarContent />
