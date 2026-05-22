@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), emitManifest()],
   resolve: {
     alias: { '@shared': path.resolve(__dirname, '../_shared') },
-    dedupe: ['react', 'react-dom', 'react-router-dom'],
+    dedupe: ['react', 'react-dom', 'react-router-dom', 'i18next', 'react-i18next', 'i18next-browser-languagedetector'],
   },
   build: { outDir: 'dist', emptyOutDir: true },
   server: {
