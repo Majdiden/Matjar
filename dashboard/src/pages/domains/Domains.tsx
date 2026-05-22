@@ -724,7 +724,7 @@ function CustomDomainCard({
                 size="icon"
                 className="h-6 w-6"
                 onClick={() => onCopy(row.hostname, t('domains:toast.address_copied'))}
-                aria-label="Copy hostname"
+                aria-label={t('domains.list.copy_aria')}
               >
                 <Copy className="h-3 w-3" />
               </Button>

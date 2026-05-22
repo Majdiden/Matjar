@@ -714,7 +714,7 @@ export const CollectionForm: React.FC = () => {
 
             {/* Rule rows */}
             {form.rules.length === 0 && (
-              <p className="text-sm text-muted-foreground">No rules yet. Add a condition below.</p>
+              <p className="text-sm text-muted-foreground">{t('products.collections.form.rules.no_rules')}</p>
             )}
             {form.rules.map((rule, i) => {
               const ops = operatorsFor(rule.field);

@@ -188,6 +188,18 @@
   "confirm": {
     "default_title": "هل أنت متأكد؟"
   },
+  "image_upload": {
+    "empty": "لم يتم رفع أي صور بعد",
+    "uploading": "جاري الرفع…",
+    "click_or_drop": "انقر للرفع أو اسحب وأفلِت",
+    "drop_files": "أفلِت الملفات هنا",
+    "max_size": "(الحد الأقصى {{size}} ميغابايت)",
+    "maximum_files": "الحد الأقصى {{count}} ملفات"
+  },
+  "aria": {
+    "close": "إغلاق",
+    "more": "المزيد"
+  },
   "language": {
     "switch": "تغيير اللغة",
     "english": "English",

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Upload, X, Loader2, ImageIcon } from 'lucide-react';
 import { Button } from './button';
 import { api } from '../../lib/api-client';
@@ -37,6 +38,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   className = '',
   fieldName,
 }) => {
+  const { t } = useTranslation('common');
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string>('');
@@ -216,7 +218,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             {uploading ? (
               <>
                 <Loader2 className="h-10 w-10 text-primary animate-spin" />
-                <p className="text-sm text-muted-foreground">Uploading...</p>
+                <p className="text-sm text-muted-foreground">{t('common:image_upload.uploading')}</p>
               </>
             ) : (
               <>
@@ -225,14 +227,14 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                 </div>
                 <div>
                   <p className="text-sm font-medium">
-                    {dragActive ? 'Drop files here' : 'Click to upload or drag and drop'}
+                    {dragActive ? t('common:image_upload.drop_files') : t('common:image_upload.click_or_drop')}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {accept.split(',').join(', ')} (max {maxSizeMB}MB)
+                    {accept.split(',').join(', ')} {t('common:image_upload.max_size', { size: maxSizeMB })}
                   </p>
                   {multiple && (
                     <p className="text-xs text-muted-foreground">
-                      Maximum {maxFiles} files
+                      {t('common:image_upload.maximum_files', { count: maxFiles })}
                     </p>
                   )}
                 </div>
@@ -275,7 +277,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                     }}
                   >
                     <X className="h-4 w-4 me-1" />
-                    Remove
+                    {t('common:action.remove')}
                   </Button>
                 </div>
               )}
@@ -288,7 +290,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       {multiple && images.length === 0 && !uploading && (
         <div className="text-center py-8 text-muted-foreground">
           <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">No images uploaded yet</p>
+          <p className="text-sm">{t('common:image_upload.empty')}</p>
         </div>
       )}
     </div>

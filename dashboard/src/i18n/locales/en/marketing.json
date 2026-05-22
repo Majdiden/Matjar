@@ -234,7 +234,8 @@
             "search_placeholder": "Search by name, email, or phone…",
             "searching": "Searching…",
             "no_customers": "No customers found.",
-            "no_name": "(no name)"
+            "no_name": "(no name)",
+            "clear_aria": "Clear customer"
           }
         },
         "issue_button": "Issue Card"

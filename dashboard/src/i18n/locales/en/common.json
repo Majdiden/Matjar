@@ -188,6 +188,18 @@
   "confirm": {
     "default_title": "Are you sure?"
   },
+  "image_upload": {
+    "empty": "No images uploaded yet",
+    "uploading": "Uploading…",
+    "click_or_drop": "Click to upload or drag and drop",
+    "drop_files": "Drop files here",
+    "max_size": "(max {{size}}MB)",
+    "maximum_files": "Maximum {{count}} files"
+  },
+  "aria": {
+    "close": "Close",
+    "more": "More"
+  },
   "language": {
     "switch": "Change language",
     "english": "English",

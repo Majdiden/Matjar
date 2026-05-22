@@ -165,7 +165,7 @@ const CustomerSelect: React.FC<CustomerSelectProps> = ({ value, onChange }) => {
         {selected && (
           <button
             type="button"
-            aria-label="Clear customer"
+            aria-label={t('marketing.gift_card.issue.field.customer.clear_aria')}
             onClick={() => { onChange('', null); setSelected(null); setQuery(''); }}
             className="absolute end-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
