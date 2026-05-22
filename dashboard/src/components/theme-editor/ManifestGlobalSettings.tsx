@@ -3,6 +3,7 @@
  * and theme-level settings from the manifest schema.
  */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronRight, Palette, Type, Layout, Settings2 } from 'lucide-react';
 import SettingControl from './SettingControl';
 import type { SectionSetting } from './types';
@@ -21,16 +22,16 @@ interface ManifestGlobalSettingsProps {
   onUpdateThemeSetting?: (key: string, value: unknown) => void;
 }
 
-const COLOR_LABELS: Record<string, string> = {
-  primary: 'Primary',
-  secondary: 'Secondary',
-  accent: 'Accent',
-  background: 'Background',
-  foreground: 'Text',
-  muted: 'Muted Text',
-  border: 'Border',
-  error: 'Error',
-  success: 'Success',
+const COLOR_LABEL_KEYS: Record<string, string> = {
+  primary: 'primary',
+  secondary: 'secondary',
+  accent: 'accent',
+  background: 'background',
+  foreground: 'foreground',
+  muted: 'muted',
+  border: 'border',
+  error: 'error',
+  success: 'success',
 };
 
 const FONT_OPTIONS = [
@@ -90,6 +91,7 @@ export default function ManifestGlobalSettings({
   onUpdate,
   onUpdateThemeSetting,
 }: ManifestGlobalSettingsProps) {
+  const { t } = useTranslation('themes');
   const [expandedSection, setExpandedSection] = useState<string | null>('colors');
 
   const toggle = (section: string) => {
@@ -105,7 +107,7 @@ export default function ManifestGlobalSettings({
       {/* Theme-level settings (from manifest) */}
       {themeSettings && themeSettings.length > 0 && (
         <CollapsibleSection
-          title="Theme Settings"
+          title={t('themes.editor.global_settings.title')}
           icon={<Settings2 className="w-4 h-4 text-gray-500" />}
           expanded={expandedSection === 'theme'}
           onToggle={() => toggle('theme')}
@@ -125,7 +127,7 @@ export default function ManifestGlobalSettings({
 
       {/* Colors */}
       <CollapsibleSection
-        title="Colors"
+        title={t('themes.editor.global_settings.colors')}
         icon={<Palette className="w-4 h-4 text-gray-500" />}
         expanded={expandedSection === 'colors'}
         onToggle={() => toggle('colors')}
@@ -134,7 +136,9 @@ export default function ManifestGlobalSettings({
           {Object.entries(displayColors).map(([key, value]) => (
             <div key={key} className="flex items-center justify-between">
               <label className="text-sm text-gray-600">
-                {COLOR_LABELS[key] || key.replace(/([A-Z])/g, ' $1').replace(/^\w/, c => c.toUpperCase())}
+                {COLOR_LABEL_KEYS[key]
+                  ? t(`themes.editor.color_labels.${COLOR_LABEL_KEYS[key]}`)
+                  : key.replace(/([A-Z])/g, ' $1').replace(/^\w/, c => c.toUpperCase())}
               </label>
               <div className="flex items-center gap-2">
                 <div className="relative w-8 h-8 rounded-full border border-gray-200 overflow-hidden shadow-sm">
@@ -159,14 +163,14 @@ export default function ManifestGlobalSettings({
 
       {/* Typography */}
       <CollapsibleSection
-        title="Typography"
+        title={t('themes.editor.global_settings.typography')}
         icon={<Type className="w-4 h-4 text-gray-500" />}
         expanded={expandedSection === 'typography'}
         onToggle={() => toggle('typography')}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Body Font</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.body_font')}</label>
             <select
               value={resolveFontValue(displayTypography?.fontFamily, 'Inter, system-ui, sans-serif')}
               onChange={(e) => onUpdate('typography', { fontFamily: e.target.value })}
@@ -178,7 +182,7 @@ export default function ManifestGlobalSettings({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Heading Font</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.heading_font')}</label>
             <select
               value={resolveFontValue(
                 displayTypography?.headingFontFamily || displayTypography?.fontFamily,
@@ -193,7 +197,7 @@ export default function ManifestGlobalSettings({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Base Font Size</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.base_font_size')}</label>
             <input
               type="text"
               value={displayTypography?.baseFontSize || '16px'}
@@ -202,7 +206,7 @@ export default function ManifestGlobalSettings({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Line Height</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.line_height')}</label>
             <input
               type="text"
               value={displayTypography?.lineHeight || '1.5'}
@@ -215,14 +219,14 @@ export default function ManifestGlobalSettings({
 
       {/* Layout */}
       <CollapsibleSection
-        title="Layout"
+        title={t('themes.editor.global_settings.layout')}
         icon={<Layout className="w-4 h-4 text-gray-500" />}
         expanded={expandedSection === 'layout'}
         onToggle={() => toggle('layout')}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Max Content Width</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.max_content_width')}</label>
             <input
               type="text"
               value={settings.layout?.containerWidth || settings.layout?.maxWidth || '1280px'}

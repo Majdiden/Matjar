@@ -112,9 +112,9 @@ const Invoice: React.FC = () => {
           <tr>
             <th style={{ width: '50%' }}>{inv('column.item')}</th>
             <th>{inv('column.sku')}</th>
-            <th style={{ textAlign: 'right' }}>{inv('column.qty')}</th>
-            <th style={{ textAlign: 'right' }}>{inv('column.price')}</th>
-            <th style={{ textAlign: 'right' }}>{inv('column.line_total')}</th>
+            <th style={{ textAlign: 'end' }}>{inv('column.qty')}</th>
+            <th style={{ textAlign: 'end' }}>{inv('column.price')}</th>
+            <th style={{ textAlign: 'end' }}>{inv('column.line_total')}</th>
           </tr>
         </thead>
         <tbody>
@@ -137,9 +137,9 @@ const Invoice: React.FC = () => {
                   )}
                 </td>
                 <td>{sku}</td>
-                <td style={{ textAlign: 'right' }}>{qty}</td>
-                <td style={{ textAlign: 'right' }}>{formatPrice(price, currency)}</td>
-                <td style={{ textAlign: 'right' }}>{formatPrice(price * qty, currency)}</td>
+                <td style={{ textAlign: 'end' }}>{qty}</td>
+                <td style={{ textAlign: 'end' }}>{formatPrice(price, currency)}</td>
+                <td style={{ textAlign: 'end' }}>{formatPrice(price * qty, currency)}</td>
               </tr>
             );
           })}

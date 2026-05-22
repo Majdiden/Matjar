@@ -60,8 +60,19 @@
     "loading": "جاري تحميل المحرر…",
     "no_data": "لا تتوفر بيانات تخصيص",
     "back_to_themes": "العودة إلى القوالب",
+    "preview_unavailable": "المعاينة غير متاحة",
+    "generate_preview": "إنشاء معاينة",
     "topbar": {
       "back": "العودة إلى القوالب",
+      "exit": "الخروج إلى القوالب",
+      "title": "مخصص القالب",
+      "unsaved_changes": "تغييرات غير محفوظة",
+      "view_desktop": "عرض الحاسوب",
+      "view_tablet": "عرض الجهاز اللوحي",
+      "view_mobile": "عرض الجوال",
+      "preview_iframe": "معاينة القالب",
+      "publishing_ellipsis": "جاري النشر…",
+      "reset_short": "إعادة تعيين",
       "hide_sections": "إخفاء الأقسام",
       "show_sections": "إظهار الأقسام",
       "hide_settings": "إخفاء الإعدادات",
@@ -100,6 +111,7 @@
       "empty_title": "لا توجد أقسام",
       "empty_hint": "جرّب بحثًا مختلفًا أو فئة أخرى",
       "add": "إضافة",
+      "add_section": "إضافة قسم",
       "category": {
         "all": "الكل",
         "content": "المحتوى",
@@ -108,6 +120,11 @@
         "media": "الوسائط",
         "layout": "التخطيط"
       }
+    },
+    "custom_css": {
+      "title": "CSS مخصص",
+      "description": "أضف أنماطاً مخصصة لتجاوز إعدادات القالب الافتراضية. تنطبق التغييرات على متجرك فقط.",
+      "save": "حفظ CSS"
     },
     "global_settings": {
       "title": "إعدادات القالب",

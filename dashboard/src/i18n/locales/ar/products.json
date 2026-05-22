@@ -319,7 +319,9 @@
           "smart": "ذكي",
           "all_statuses": "جميع الحالات",
           "published": "منشور",
-          "unpublished": "غير منشور"
+          "unpublished": "غير منشور",
+          "type_placeholder": "النوع",
+          "published_placeholder": "النشر"
         },
         "column": {
           "title": "العنوان",

@@ -312,7 +312,7 @@ export const Orders: React.FC = () => {
         <Button variant="outline" size="sm">
           <Filter className="h-4 w-4 me-2" /> {t('common:action.filter')}
         </Button>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ms-auto flex items-center gap-2">
           <div className="inline-flex rounded-md border bg-background p-0.5">
             <button
               type="button"

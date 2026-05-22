@@ -234,6 +234,7 @@ const StateNodeView: React.FC<StateNodeViewProps> = ({
   isLaneCurrent,
   stateLabel,
 }) => {
+  const { t } = useTranslation('orders');
   const Icon = STATE_ICON[node.status];
   const isHere = isLaneCurrent && node.isCurrent;
 
@@ -285,7 +286,7 @@ const StateNodeView: React.FC<StateNodeViewProps> = ({
       {node.isDivergence && (
         <div
           className="absolute -end-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-indigo-500 text-white shadow"
-          title="Replacement created from here"
+          title={t('orders.lifecycle.label.replacement_created')}
         >
           <GitBranch className="h-3 w-3" />
         </div>
@@ -311,6 +312,7 @@ const OrderNodeView: React.FC<OrderNodeViewProps> = ({
   labelOrderPlaced,
   labelOrderReplaced,
 }) => {
+  const { t } = useTranslation(['orders']);
   const isReplacement = !!order.replacementOf;
   const showReplacedLabel = isReplacement && !parentOnCanvas;
   const subtitle =
@@ -359,7 +361,7 @@ const OrderNodeView: React.FC<OrderNodeViewProps> = ({
       data-is-first="true"
       onClick={onRevealParent}
       className="group flex h-14 items-center transition hover:opacity-80"
-      title="View the original order's lifecycle"
+      title={t('orders.lifecycle.label.view_original_order')}
     >
       {labeledLineInner}
     </button>

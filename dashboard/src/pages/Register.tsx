@@ -597,7 +597,7 @@ export const Register: React.FC = () => {
                           {colors?.primary && <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: colors.primary }} />}
                           {colors?.secondary && <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: colors.secondary }} />}
                           {colors?.accent && <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: colors.accent }} />}
-                          <Badge variant="secondary" className="ml-auto text-[10px]">{theme.categories?.[0] || 'general'}</Badge>
+                          <Badge variant="secondary" className="ms-auto text-[10px]">{theme.categories?.[0] || t('auth.register.category_general')}</Badge>
                         </div>
                       </div>
                     </button>

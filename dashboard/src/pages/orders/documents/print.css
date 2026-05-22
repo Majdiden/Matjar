@@ -29,7 +29,7 @@
 }
 
 .doc-header-right {
-  text-align: right;
+  text-align: end;
 }
 
 .doc-logo {
@@ -81,7 +81,7 @@
 }
 
 .doc-table thead th {
-  text-align: left;
+  text-align: start;
   font-size: 11px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -114,7 +114,7 @@
 }
 
 .doc-totals dd {
-  text-align: right;
+  text-align: end;
   font-variant-numeric: tabular-nums;
   margin: 0;
 }

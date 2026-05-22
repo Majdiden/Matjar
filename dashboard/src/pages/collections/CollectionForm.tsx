@@ -592,7 +592,7 @@ export const CollectionForm: React.FC = () => {
 
           {/* Sort order */}
           <div className="space-y-1">
-            <Label>Sort order</Label>
+            <Label>{t('products.collections.form.field.sort_order.label')}</Label>
             <Select value={form.sortOrder} onValueChange={(v) => setField('sortOrder', v)}>
               <SelectTrigger className="w-56">
                 <SelectValue />
@@ -612,24 +612,24 @@ export const CollectionForm: React.FC = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Products</CardTitle>
+              <CardTitle>{t('products.collections.form.section.products')}</CardTitle>
               <Button size="sm" variant="secondary" onClick={() => setPickerOpen(true)}>
-                <Plus className="h-4 w-4 me-1" />Add products
+                <Plus className="h-4 w-4 me-1" />{t('products.collections.form.products.add_button')}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {collectionProducts.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">
-                No products added yet. Click "Add products" to start.
+                {t('products.collections.form.products.no_products')}
               </p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead className="w-28">Order</TableHead>
+                    <TableHead>{t('products.collections.form.products.column.product')}</TableHead>
+                    <TableHead>{t('products.collections.form.products.column.price')}</TableHead>
+                    <TableHead className="w-28">{t('products.collections.form.products.column.order')}</TableHead>
                     <TableHead className="w-10" />
                   </TableRow>
                 </TableHeader>
@@ -685,10 +685,10 @@ export const CollectionForm: React.FC = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Rules</CardTitle>
+              <CardTitle>{t('products.collections.form.section.rules')}</CardTitle>
               {isEdit && (
                 <Button size="sm" variant="outline" onClick={handlePreview}>
-                  <Eye className="h-4 w-4 me-1" />Preview products
+                  <Eye className="h-4 w-4 me-1" />{t('products.collections.form.preview.button')}
                 </Button>
               )}
             </div>
@@ -696,7 +696,7 @@ export const CollectionForm: React.FC = () => {
           <CardContent className="space-y-4">
             {/* Match toggle */}
             <div className="flex items-center gap-3 text-sm">
-              <span>Products must match</span>
+              <span>{t('products.collections.form.rules.match_prefix')}</span>
               <Select
                 value={form.rulesMatch}
                 onValueChange={(v: 'all' | 'any') => setField('rulesMatch', v)}
@@ -769,14 +769,14 @@ export const CollectionForm: React.FC = () => {
 
       {/* Publish status */}
       <Card>
-        <CardHeader><CardTitle>Visibility</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('products.collections.form.section.visibility')}</CardTitle></CardHeader>
         <CardContent>
           <div className="flex items-center gap-3">
             <Switch
               checked={form.isPublished}
               onCheckedChange={(v) => setField('isPublished', v)}
             />
-            <Label>{form.isPublished ? 'Published' : 'Hidden from storefront'}</Label>
+            <Label>{form.isPublished ? t('products.collections.form.visibility.published') : t('products.collections.form.visibility.hidden')}</Label>
           </div>
         </CardContent>
       </Card>
@@ -787,7 +787,7 @@ export const CollectionForm: React.FC = () => {
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer select-none">
               <div className="flex items-center justify-between">
-                <CardTitle>SEO</CardTitle>
+                <CardTitle>{t('products.collections.form.section.seo')}</CardTitle>
                 {seoOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </div>
             </CardHeader>
@@ -795,7 +795,7 @@ export const CollectionForm: React.FC = () => {
           <CollapsibleContent>
             <CardContent className="space-y-4">
               <div className="space-y-1">
-                <Label>Meta title</Label>
+                <Label>{t('products.collections.form.field.meta_title.label')}</Label>
                 <Input
                   value={form.seo.title}
                   onChange={(e) => setField('seo', { ...form.seo, title: e.target.value })}
@@ -803,12 +803,12 @@ export const CollectionForm: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Meta description</Label>
+                <Label>{t('products.collections.form.field.meta_description.label')}</Label>
                 <textarea
                   className="w-full min-h-20 rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   value={form.seo.description}
                   onChange={(e) => setField('seo', { ...form.seo, description: e.target.value })}
-                  placeholder="Brief description for search engines..."
+                  placeholder={t('products.collections.form.field.meta_description.placeholder')}
                 />
               </div>
             </CardContent>
@@ -820,13 +820,13 @@ export const CollectionForm: React.FC = () => {
       <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Add products</DialogTitle>
+            <DialogTitle>{t('products.collections.picker.title')}</DialogTitle>
           </DialogHeader>
           <div className="relative mb-3">
             <Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               className="ps-8"
-              placeholder="Search products..."
+              placeholder={t('products.collections.picker.search_placeholder')}
               value={pickerSearch}
               onChange={(e) => setPickerSearch(e.target.value)}
             />
@@ -837,7 +837,7 @@ export const CollectionForm: React.FC = () => {
                 {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
               </div>
             ) : pickerResults.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">No products found</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t('products.collections.picker.no_products')}</p>
             ) : (
               <Table>
                 <TableBody>
@@ -873,9 +873,11 @@ export const CollectionForm: React.FC = () => {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPickerOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setPickerOpen(false)}>{t('common:action.cancel')}</Button>
             <Button onClick={confirmAddProducts} disabled={pickerSelected.size === 0}>
-              Add {pickerSelected.size > 0 ? `(${pickerSelected.size})` : ''} products
+              {pickerSelected.size > 0
+                ? t('products.collections.picker.add_button', { count: pickerSelected.size })
+                : t('products.collections.picker.add_button_empty')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -885,7 +887,7 @@ export const CollectionForm: React.FC = () => {
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Preview — matching products</DialogTitle>
+            <DialogTitle>{t('products.collections.preview.title')}</DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto flex-1 min-h-0">
             {previewLoading ? (
@@ -894,14 +896,14 @@ export const CollectionForm: React.FC = () => {
               </div>
             ) : previewProducts.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">
-                No products match the current rules
+                {t('products.collections.preview.no_products')}
               </p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Price</TableHead>
+                    <TableHead>{t('products.collections.preview.column.product')}</TableHead>
+                    <TableHead>{t('products.collections.preview.column.price')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -923,7 +925,7 @@ export const CollectionForm: React.FC = () => {
             )}
           </div>
           <DialogFooter>
-            <Button onClick={() => setPreviewOpen(false)}>Close</Button>
+            <Button onClick={() => setPreviewOpen(false)}>{t('common:action.close')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

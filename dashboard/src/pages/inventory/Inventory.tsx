@@ -176,7 +176,7 @@ export default function Inventory() {
             />
           </div>
         )}
-        <div className="ml-auto">
+        <div className="ms-auto">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
         </div>
       </div>

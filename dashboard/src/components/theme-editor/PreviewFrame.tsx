@@ -4,6 +4,7 @@
  * scales width responsively to the active device mode.
  */
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Eye, Loader2 } from 'lucide-react';
 import type { DeviceMode } from './EditorTopBar';
 
@@ -31,6 +32,7 @@ const DEVICE_HEIGHT: Record<DeviceMode, string> = {
 };
 
 export default function PreviewFrame({ url, deviceMode, reloadKey = 0, iframeRef }: PreviewFrameProps) {
+  const { t } = useTranslation('themes');
   const frameStyle = useMemo(
     () => ({
       width: DEVICE_WIDTH[deviceMode],
@@ -85,7 +87,7 @@ export default function PreviewFrame({ url, deviceMode, reloadKey = 0, iframeRef
                 }}
                 key={`${url}-${reloadKey}`}
                 src={url}
-                title="Theme preview"
+                title={t('themes.editor.topbar.preview_iframe')}
                 className="w-full h-full border-0 block"
                 style={{ minHeight: deviceMode === 'desktop' ? 800 : undefined }}
                 onLoad={() => setFading(false)}

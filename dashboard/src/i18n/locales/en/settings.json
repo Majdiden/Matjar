@@ -131,6 +131,7 @@
         "exchange_rates": {
           "label": "Exchange Rates"
         },
+        "currency_placeholder": "Currency",
         "rate_placeholder": "0.92"
       },
       "markets": {

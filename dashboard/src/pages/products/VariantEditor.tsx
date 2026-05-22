@@ -254,7 +254,7 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
                         </td>
                         <td className="p-2">
                           <Input
-                            placeholder="SKU"
+                            placeholder={t('products.column.sku')}
                             value={variant.sku || ''}
                             onChange={(e) => updateVariant(idx, { sku: e.target.value })}
                             className="h-8 text-xs"

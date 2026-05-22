@@ -73,7 +73,7 @@ const PackingSlip: React.FC = () => {
           <tr>
             <th style={{ width: '60%' }}>{ps('column.item')}</th>
             <th>{ps('column.sku')}</th>
-            <th style={{ textAlign: 'right' }}>{ps('column.qty')}</th>
+            <th style={{ textAlign: 'end' }}>{ps('column.qty')}</th>
           </tr>
         </thead>
         <tbody>
@@ -94,7 +94,7 @@ const PackingSlip: React.FC = () => {
                   )}
                 </td>
                 <td>{sku}</td>
-                <td style={{ textAlign: 'right' }}>{item.quantity}</td>
+                <td style={{ textAlign: 'end' }}>{item.quantity}</td>
               </tr>
             );
           })}

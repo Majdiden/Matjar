@@ -901,7 +901,7 @@ const CurrenciesPanel: React.FC = () => {
                     <CurrencyPicker
                       value={row.code}
                       onChange={v => updateRow(i, { code: v })}
-                      placeholder="Currency"
+                      placeholder={t('settings.field.currencies.currency_placeholder')}
                     />
                   </div>
                   <Input

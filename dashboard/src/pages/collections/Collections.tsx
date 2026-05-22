@@ -204,7 +204,7 @@ export const Collections: React.FC = () => {
 
         <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v as 'all' | 'manual' | 'smart'); setPage(1); }}>
           <SelectTrigger className="w-36">
-            <SelectValue placeholder="Type" />
+            <SelectValue placeholder={t('products.collections.list.filter.type_placeholder')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('products.collections.list.filter.all_types')}</SelectItem>
@@ -215,7 +215,7 @@ export const Collections: React.FC = () => {
 
         <Select value={publishedFilter} onValueChange={(v) => { setPublishedFilter(v as 'all' | 'published' | 'unpublished'); setPage(1); }}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Published" />
+            <SelectValue placeholder={t('products.collections.list.filter.published_placeholder')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('products.collections.list.filter.all_statuses')}</SelectItem>

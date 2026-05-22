@@ -214,7 +214,7 @@ export default function Discounts() {
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
-        <div className="ml-auto">
+        <div className="ms-auto">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
         </div>
       </div>

@@ -401,7 +401,7 @@ export default function Customers() {
         <Button variant="outline" size="sm">
           <Filter className="h-4 w-4 me-2" /> {t('common:action.filter')}
         </Button>
-        <div className="ml-auto">
+        <div className="ms-auto">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
         </div>
       </div>

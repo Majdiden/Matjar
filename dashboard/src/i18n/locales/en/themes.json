@@ -57,8 +57,19 @@
     "loading": "Loading editor…",
     "no_data": "No customization data available",
     "back_to_themes": "Back to themes",
+    "preview_unavailable": "Preview not available",
+    "generate_preview": "Generate Preview",
     "topbar": {
       "back": "Back to themes",
+      "exit": "Exit to themes",
+      "title": "Theme Customizer",
+      "unsaved_changes": "Unsaved Changes",
+      "view_desktop": "Desktop View",
+      "view_tablet": "Tablet View",
+      "view_mobile": "Mobile View",
+      "preview_iframe": "Theme preview",
+      "publishing_ellipsis": "Publishing…",
+      "reset_short": "Reset",
       "hide_sections": "Hide sections",
       "show_sections": "Show sections",
       "hide_settings": "Hide settings",
@@ -97,6 +108,7 @@
       "empty_title": "No sections found",
       "empty_hint": "Try a different search or category",
       "add": "Add",
+      "add_section": "Add Section",
       "category": {
         "all": "All",
         "content": "Content",
@@ -105,6 +117,11 @@
         "media": "Media",
         "layout": "Layout"
       }
+    },
+    "custom_css": {
+      "title": "Custom CSS",
+      "description": "Add custom styles to override theme defaults. Changes apply to your storefront only.",
+      "save": "Save CSS"
     },
     "global_settings": {
       "title": "Theme Settings",

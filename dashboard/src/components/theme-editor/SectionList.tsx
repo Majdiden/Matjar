@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GripVertical, Eye, EyeOff, Plus } from 'lucide-react';
 
 interface Section {
@@ -18,6 +19,7 @@ interface SectionListProps {
 }
 
 export default function SectionList({ sections, onReorder, onToggle, onEdit, onAdd }: SectionListProps) {
+    const { t } = useTranslation('themes');
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
     // Sort sections by order
@@ -134,7 +136,7 @@ export default function SectionList({ sections, onReorder, onToggle, onEdit, onA
                 className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 font-medium text-sm hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center space-x-2"
             >
                 <Plus className="w-4 h-4" />
-                <span>Add Section</span>
+                <span>{t('themes.editor.section_library.add_section')}</span>
             </button>
         </div>
     );

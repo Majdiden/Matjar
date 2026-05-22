@@ -117,7 +117,7 @@ export const PaymentMethods: React.FC = () => {
       setLogoUploading(true);
       const res = await api.upload.providerLogo(file) as UploadResponse;
       const url = res?.data?.url || res?.responseObject?.url || res?.url;
-      if (!url) throw new Error('Upload did not return a URL');
+      if (!url) throw new Error(t('payments:method.toast.upload_no_url'));
       setProviderDraft(d => ({ ...d, logo: url }));
       toast.success(t('payments:method.toast.logo_uploaded'));
     } catch (err) {

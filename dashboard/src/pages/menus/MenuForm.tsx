@@ -227,7 +227,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   return (
     <div
       className="border rounded-lg p-3 bg-card"
-      style={{ marginLeft: `${item.depth * 24}px` }}
+      style={{ marginInlineStart: `${item.depth * 24}px` }}
     >
       <div className="flex items-center gap-2 mb-2">
         {hasChildren && (
@@ -238,7 +238,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
         {!hasChildren && <span className="w-5" />}
         <Input
           className="h-7 text-sm flex-1"
-          placeholder="Label"
+          placeholder={t('menus.form.item.label_placeholder')}
           value={item.label}
           onChange={e => onChange(index, { label: e.target.value })}
         />
@@ -321,7 +321,7 @@ const PreviewTree: React.FC<{ items: MenuItem[]; depth?: number }> = ({ items, d
           <div className="flex items-center gap-1 text-sm py-0.5">
             <span className={item.children?.length ? 'font-medium' : ''}>{item.label || <em className="text-muted-foreground">{t('menus:form.preview.untitled')}</em>}</span>
             {item.target === '_blank' && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
-            <span className="text-xs text-muted-foreground ml-auto">{item.url || item.resourceId || item.type}</span>
+            <span className="text-xs text-muted-foreground ms-auto">{item.url || item.resourceId || item.type}</span>
           </div>
           {item.children?.length > 0 && <PreviewTree items={item.children} depth={depth + 1} />}
         </li>

@@ -433,7 +433,8 @@
     "label": {
       "order_placed": "ORDER PLACED",
       "order_replaced": "ORDER REPLACED",
-      "replacement_created": "Replacement created from here"
+      "replacement_created": "Replacement created from here",
+      "view_original_order": "View the original order's lifecycle"
     },
     "could_not_load": "Could not load order lifecycle."
   },

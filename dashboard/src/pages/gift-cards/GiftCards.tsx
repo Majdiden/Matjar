@@ -447,7 +447,7 @@ const GiftCards: React.FC = () => {
             onChange={e => { setSearchLast4(e.target.value.replace(/\D/g, '')); setPage(1); }}
           />
         </div>
-        <div className="ml-auto">
+        <div className="ms-auto">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
         </div>
       </div>

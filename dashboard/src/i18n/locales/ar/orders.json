@@ -433,7 +433,8 @@
     "label": {
       "order_placed": "تم تقديم الطلب",
       "order_replaced": "تم استبدال الطلب",
-      "replacement_created": "تم إنشاء بديل من هنا"
+      "replacement_created": "تم إنشاء بديل من هنا",
+      "view_original_order": "عرض دورة حياة الطلب الأصلي"
     },
     "could_not_load": "تعذّر تحميل دورة حياة الطلب."
   },

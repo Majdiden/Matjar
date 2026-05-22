@@ -131,6 +131,7 @@
         "exchange_rates": {
           "label": "أسعار الصرف"
         },
+        "currency_placeholder": "العملة",
         "rate_placeholder": "0.92"
       },
       "markets": {

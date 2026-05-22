@@ -4,6 +4,7 @@
  * and allows search + category filter.
  */
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Plus } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
@@ -26,6 +27,7 @@ interface SectionLibraryProps {
 }
 
 export default function SectionLibrary({ isOpen, onClose, onAddSection }: SectionLibraryProps) {
+  const { t } = useTranslation('themes');
   const [sections, setSections] = useState<SectionType[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,9 +66,9 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
     <Sheet open={isOpen} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="w-[400px] sm:w-[420px] p-0 flex flex-col">
         <SheetHeader className="px-5 py-4 border-b border-slate-200 space-y-1">
-          <SheetTitle className="text-base">Add a section</SheetTitle>
+          <SheetTitle className="text-base">{t('themes.editor.section_library.title')}</SheetTitle>
           <SheetDescription className="text-xs">
-            Choose a section type to add to your page.
+            {t('themes.editor.section_library.subtitle')}
           </SheetDescription>
         </SheetHeader>
 
@@ -77,7 +79,7 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search sections…"
+              placeholder={t('themes.editor.section_library.search_placeholder')}
               className="h-9 ps-8 text-sm"
             />
           </div>
@@ -92,7 +94,7 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                {c.label}
+                {t(`themes.editor.section_library.category.${c.id}`, c.label)}
               </button>
             ))}
           </div>
@@ -109,8 +111,8 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
               </div>
             ) : filtered.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-sm text-slate-500">No sections found</p>
-                <p className="text-xs text-slate-400 mt-1">Try a different search or category</p>
+                <p className="text-sm text-slate-500">{t('themes.editor.section_library.empty_title')}</p>
+                <p className="text-xs text-slate-400 mt-1">{t('themes.editor.section_library.empty_hint')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2">

@@ -110,6 +110,8 @@
       "provider_updated": "تم تحديث المزوّد",
       "provider_removed": "تمت إزالة المزوّد",
       "logo_uploaded": "تم رفع الشعار",
+      "upload_no_url": "لم يُرجع الرفع عنوان URL",
+      "something_went_wrong": "حدث خطأ ما",
       "system_provider_remove_error": "لا يمكن إزالة مزوّدات النظام — قم بتعطيلها بدلاً من ذلك.",
       "manual_not_installed": "التحويل اليدوي غير مثبّت.",
       "missing_account_error": "{{label}}: أضف رقم حساب أو هاتف قبل التفعيل.",

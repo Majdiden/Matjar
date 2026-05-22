@@ -110,6 +110,8 @@
       "provider_updated": "Provider updated",
       "provider_removed": "Provider removed",
       "logo_uploaded": "Logo uploaded",
+      "upload_no_url": "Upload did not return a URL",
+      "something_went_wrong": "Something went wrong",
       "system_provider_remove_error": "System providers cannot be removed — disable instead.",
       "manual_not_installed": "Manual Transfer is not installed.",
       "missing_account_error": "{{label}}: add account number or phone before enabling.",

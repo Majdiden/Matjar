@@ -315,7 +315,9 @@
           "smart": "Smart",
           "all_statuses": "All statuses",
           "published": "Published",
-          "unpublished": "Unpublished"
+          "unpublished": "Unpublished",
+          "type_placeholder": "Type",
+          "published_placeholder": "Published"
         },
         "column": {
           "title": "Title",
