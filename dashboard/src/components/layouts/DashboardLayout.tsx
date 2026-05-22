@@ -64,6 +64,7 @@ import {
   CollapsibleTrigger,
 } from '../ui/collapsible';
 import { TooltipProvider } from '../ui/tooltip';
+import { DirectionProvider } from '@radix-ui/react-direction';
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -520,8 +521,9 @@ const DashboardLayoutInner: React.FC = () => {
   const breadcrumbs = breadcrumbOverride ?? getBreadcrumbs();
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <div dir={dir} className="flex h-screen overflow-hidden bg-background">
+    <DirectionProvider dir={dir}>
+      <TooltipProvider delayDuration={0}>
+        <div dir={dir} className="flex h-screen overflow-hidden bg-background">
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-e">
           <SidebarContent />
@@ -674,9 +676,10 @@ const DashboardLayoutInner: React.FC = () => {
             <Outlet />
           </main>
         </div>
-      </div>
-      <NotificationPermissionPrompt />
-    </TooltipProvider>
+        </div>
+        <NotificationPermissionPrompt />
+      </TooltipProvider>
+    </DirectionProvider>
   );
 };
 
