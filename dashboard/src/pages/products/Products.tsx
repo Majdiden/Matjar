@@ -115,7 +115,7 @@ export const Products: React.FC = () => {
     if (!(await confirm({
       title: t('products.confirm.delete.title', { name }),
       description: t('products.confirm.delete.description'),
-      confirmText: t('common.action.delete'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
@@ -134,7 +134,7 @@ export const Products: React.FC = () => {
     if (!(await confirm({
       title: t('products.confirm.delete.title_bulk', { count: selected.size }),
       description: t('products.confirm.delete.description_bulk'),
-      confirmText: t('common.action.delete'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
@@ -216,7 +216,7 @@ export const Products: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 me-2" />{t('common.action.export')}
+            <Download className="h-4 w-4 me-2" />{t('common:action.export')}
           </Button>
           <Button asChild>
             <Link to="/dashboard/products/new">
@@ -277,7 +277,7 @@ export const Products: React.FC = () => {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>{t('products.bulk.clear')}</Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('common.action.delete')}
+              <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('common:action.delete')}
             </Button>
           </div>
         </div>
@@ -364,7 +364,7 @@ export const Products: React.FC = () => {
                           <p className="font-medium text-sm truncate">{product.name}</p>
                           {product.featured && (
                             <Badge variant="outline" className="text-[10px] h-4 px-1.5 gap-1 mt-0.5">
-                              <Star className="h-2.5 w-2.5" />{t('common.state.featured')}
+                              <Star className="h-2.5 w-2.5" />{t('common:state.featured')}
                             </Badge>
                           )}
                         </div>
@@ -410,13 +410,13 @@ export const Products: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/products/${product._id}/edit`); }}>
-                            <Edit className="me-2 h-4 w-4" />{t('common.action.edit')}
+                            <Edit className="me-2 h-4 w-4" />{t('common:action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
                             onClick={(e) => { e.stopPropagation(); handleDelete(product._id, product.name); }}
                           >
-                            <Trash2 className="me-2 h-4 w-4" />{t('common.action.delete')}
+                            <Trash2 className="me-2 h-4 w-4" />{t('common:action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -476,7 +476,7 @@ export const Products: React.FC = () => {
                     <p className="font-semibold truncate">{product.name}</p>
                     {product.featured && (
                       <Badge variant="outline" className="text-[10px] h-5 px-1.5 gap-1">
-                        <Star className="h-2.5 w-2.5" />{t('common.state.featured')}
+                        <Star className="h-2.5 w-2.5" />{t('common:state.featured')}
                       </Badge>
                     )}
                     <Badge
@@ -524,13 +524,13 @@ export const Products: React.FC = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/products/${product._id}/edit`); }}>
-                      <Edit className="me-2 h-4 w-4" />{t('common.action.edit')}
+                      <Edit className="me-2 h-4 w-4" />{t('common:action.edit')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive"
                       onClick={(e) => { e.stopPropagation(); handleDelete(product._id, product.name); }}
                     >
-                      <Trash2 className="me-2 h-4 w-4" />{t('common.action.delete')}
+                      <Trash2 className="me-2 h-4 w-4" />{t('common:action.delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -544,11 +544,11 @@ export const Products: React.FC = () => {
       {pagination.pages > 1 && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
           <p className="text-sm text-muted-foreground">
-            {t('common.pagination.showing', { from: ((page - 1) * pagination.limit) + 1, to: Math.min(page * pagination.limit, pagination.total), total: pagination.total })}
+            {t('common:pagination.showing', { from: ((page - 1) * pagination.limit) + 1, to: Math.min(page * pagination.limit, pagination.total), total: pagination.total })}
           </p>
           <div className="flex items-center gap-1">
             <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-              {t('common.action.previous')}
+              {t('common:action.previous')}
             </Button>
             {Array.from({ length: Math.min(5, pagination.pages) }).map((_, i) => {
               const pageNum = i + 1;
@@ -565,7 +565,7 @@ export const Products: React.FC = () => {
               );
             })}
             <Button variant="outline" size="sm" disabled={page === pagination.pages} onClick={() => setPage((p) => p + 1)}>
-              {t('common.action.next')}
+              {t('common:action.next')}
             </Button>
           </div>
         </div>

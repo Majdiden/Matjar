@@ -162,6 +162,29 @@
     "all_rights_reserved": "جميع الحقوق محفوظة",
     "powered_by": "مدعوم من"
   },
+  "aria": {
+    "cart": "السلة",
+    "menu": "القائمة",
+    "open_menu": "فتح القائمة",
+    "close_menu": "إغلاق القائمة",
+    "toggle_menu": "تبديل القائمة",
+    "open_cart": "فتح السلة",
+    "close_cart": "إغلاق السلة",
+    "account": "الحساب",
+    "wishlist": "المفضلة",
+    "search": "البحث",
+    "quick_view": "عرض سريع",
+    "categories": "الفئات",
+    "grid_view": "عرض الشبكة",
+    "list_view": "عرض القائمة",
+    "close": "إغلاق",
+    "dismiss": "تجاهل",
+    "remove": "إزالة",
+    "rating": "التقييم",
+    "carousel": "عرض دوّار",
+    "previous_slide": "الشريحة السابقة",
+    "next_slide": "الشريحة التالية"
+  },
   "section": {
     "hero": {
       "heading": "أهلاً وسهلاً"
@@ -183,7 +206,8 @@
     },
     "newsletter": {
       "heading": "ابقَ على اطلاع",
-      "subscribe": "اشتراك"
+      "subscribe": "اشتراك",
+      "email_placeholder": "بريدك@example.com"
     },
     "categories": {
       "heading": "تسوّق حسب الفئة",

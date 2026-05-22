@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
@@ -9,9 +9,14 @@
       (function () {
         try {
           var stored = localStorage.getItem('matjar.dashboard.lang');
-          var lang = stored === 'ar' ? 'ar' : 'en';
+          var nav = (navigator.language || '').toLowerCase();
+          var lang = stored === 'ar' || stored === 'en'
+            ? stored
+            : (nav.startsWith('ar') ? 'ar' : 'en');
+          var dir = lang === 'ar' ? 'rtl' : 'ltr';
           document.documentElement.lang = lang;
-          document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+          document.documentElement.dir = dir;
+          document.documentElement.setAttribute('dir', dir);
         } catch (e) {}
       })();
     </script>

@@ -95,7 +95,10 @@
       "gift_card_applied": "بطاقة الهدايا •••• {{last4}} مطبّقة",
       "gift_card_balance": "(الرصيد {{balance}})",
       "preorder_notice_title": "يتضمن عناصر الطلب المسبق",
-      "preorder_ships_by": "يُشحن بحلول {{date}}"
+      "preorder_ships_by": "يُشحن بحلول {{date}}",
+      "preorder_badge": "طلب مسبق",
+      "preorder_ships_inline": "— يُشحن {{date}}",
+      "price_each": "{{price}} للقطعة"
     },
     "error": {
       "choose_payment": "يرجى اختيار طريقة دفع.",

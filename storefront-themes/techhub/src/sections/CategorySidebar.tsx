@@ -58,7 +58,7 @@ export const CategorySidebarSection: React.FC<SectionComponentProps> = ({ id }) 
         <nav
           className="rounded-2xl border p-2 h-fit sticky top-24"
           style={{ borderColor: 'var(--color-border)', backgroundColor: 'color-mix(in srgb, var(--color-background) 80%, transparent)' }}
-          aria-label="Categories"
+          aria-label={t('common:aria.categories')}
         >
           <ul className="flex flex-col">
             {displayed.map((cat) => {

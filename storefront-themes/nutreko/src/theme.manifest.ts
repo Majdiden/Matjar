@@ -18,7 +18,7 @@ export const nutrekoTopStripSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'text', type: 'text', label: 'Text', default: 'FREE SHIPPING ON ORDERS OVER $75  ·  100% AUTHENTIC PRODUCTS' },
+    { id: 'text', type: 'text', label: 'Text', default: '' },
   ],
 });
 
@@ -29,12 +29,12 @@ export const nutrekoHeroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: 'SUPPLEMENTS THAT WORK' },
-    { id: 'heading', type: 'text', label: 'Heading', default: 'FUEL YOUR PERFORMANCE' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Premium protein, pre-workout and recovery formulas built for athletes who refuse to settle.' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: 'SHOP NOW' },
+    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
-    { id: 'secondary_cta_text', type: 'text', label: 'Secondary CTA', default: 'VIEW DEALS' },
+    { id: 'secondary_cta_text', type: 'text', label: 'Secondary CTA', default: '' },
     { id: 'image', type: 'image', label: 'Hero Image' },
   ],
 });
@@ -50,8 +50,8 @@ export const nutrekoGuaranteeSection: SectionDefinition = defineSection({
       type: 'panel',
       name: 'Guarantee',
       settings: [
-        { id: 'title', type: 'text', label: 'Title', default: '100% AUTHENTIC' },
-        { id: 'subtitle', type: 'text', label: 'Subtitle', default: 'Sourced direct from brands' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
+        { id: 'subtitle', type: 'text', label: 'Subtitle', default: '' },
       ],
     },
   ],
@@ -69,15 +69,15 @@ export const nutrekoCategoryStripSection: SectionDefinition = defineSection({
   description: 'Horizontal category pills',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'EXPLORE THE RANGE' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Built for every stage of your training' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
   ],
   blocks: [
     {
       type: 'category',
       name: 'Category',
       settings: [
-        { id: 'title', type: 'text', label: 'Title', default: 'Protein' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
         { id: 'cta_url', type: 'url', label: 'URL', default: '/products' },
         { id: 'image', type: 'image', label: 'Image' },
       ],
@@ -97,8 +97,8 @@ export const nutrekoProductGridSection: SectionDefinition = defineSection({
   name: 'Product Grid',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'TOP SELLERS' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'The essentials every athlete needs' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'source', type: 'select', label: 'Source', default: 'featured', options: [
       { value: 'featured', label: 'Featured' },
       { value: 'newest', label: 'Newest' },
@@ -114,10 +114,10 @@ export const nutrekoBannerSection: SectionDefinition = defineSection({
   description: 'Full-width dark banner with lime accent and CTA',
   target: 'body',
   settings: [
-    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: 'LIMITED TIME' },
-    { id: 'heading', type: 'text', label: 'Heading', default: 'BUY 2 GET 1 FREE' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'On all whey protein — this week only.' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: 'SHOP DEAL' },
+    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
   ],
 });
@@ -171,7 +171,7 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Top Strip', default: true },
-    { id: 'announcement_text', type: 'text', label: 'Top Strip Text', default: 'FREE SHIPPING ON ORDERS OVER $75' },
+    { id: 'announcement_text', type: 'text', label: 'Top Strip Text', default: '' },
     { id: 'enable_quick_view', type: 'checkbox', label: 'Enable Quick View', default: true },
   ],
 

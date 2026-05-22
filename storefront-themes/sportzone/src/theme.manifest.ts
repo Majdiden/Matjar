@@ -11,13 +11,13 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: 'New Season', info: 'Small uppercase label above the heading' },
-    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', default: 'Push Your' },
-    { id: 'heading_line2', type: 'text', label: 'Heading Line 2 (accented)', default: 'Limits' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Performance gear for athletes who demand the best. Train harder, go further.' },
-    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: 'Shop Now' },
+    { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '', info: 'Small uppercase label above the heading' },
+    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', default: '' },
+    { id: 'heading_line2', type: 'text', label: 'Heading Line 2 (accented)', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
-    { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: 'Browse All' },
+    { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: '' },
     { id: 'secondary_button_url', type: 'url', label: 'Secondary Button URL', default: '/products' },
     { id: 'background_color', type: 'color', label: 'Background Color', default: '#111827' },
     { id: 'show_diagonal_accent', type: 'checkbox', label: 'Show Diagonal Accent', default: true },
@@ -33,7 +33,7 @@ export const categoriesSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Shop by Sport' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 4, min: 2, max: 8 },
     { id: 'card_height', type: 'number', label: 'Card Height (px)', default: 192, min: 120, max: 320 },
     { id: 'columns', type: 'select', label: 'Columns', default: '4', options: [
@@ -42,7 +42,7 @@ export const categoriesSection: SectionDefinition = defineSection({
       { value: '4', label: '4 Columns' },
     ]},
     { id: 'show_shop_now_label', type: 'checkbox', label: 'Show "Shop Now" on Hover', default: true },
-    { id: 'shop_now_text', type: 'text', label: '"Shop Now" Label Text', default: 'Shop Now' },
+    { id: 'shop_now_text', type: 'text', label: '"Shop Now" Label Text', default: '' },
   ],
 });
 
@@ -52,18 +52,18 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   description: 'Featured products grid on a light background with red accent hover',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Top Picks' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 2, max: 16 },
     { id: 'show_rating', type: 'checkbox', label: 'Show Rating', default: true },
     { id: 'show_quick_view', type: 'checkbox', label: 'Show Quick View', default: true },
     { id: 'show_add_to_cart', type: 'checkbox', label: 'Show Add to Cart', default: true },
-    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: 'Add to Cart' },
+    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: '' },
     { id: 'columns', type: 'select', label: 'Columns', default: '4', options: [
       { value: '2', label: '2 Columns' },
       { value: '3', label: '3 Columns' },
       { value: '4', label: '4 Columns' },
     ]},
-    { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: 'View All' },
+    { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
     { id: 'view_all_url', type: 'url', label: 'View All URL', default: '/products' },
   ],
 });
@@ -75,9 +75,9 @@ export const ctaBannerSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Ready to Perform?' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Free shipping on all orders over $75. No excuses.' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: 'Get Started' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
     { id: 'background_color', type: 'color', label: 'Background Color', default: '#dc2626' },
     { id: 'button_bg_color', type: 'color', label: 'Button Background Color', default: '#ffffff' },
@@ -92,7 +92,7 @@ export const performanceGearCarouselSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Performance Gear' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 4, max: 16 },
     { id: 'slides_per_view', type: 'number', label: 'Slides Per View', default: 4, min: 2, max: 6 },
     { id: 'autoplay', type: 'checkbox', label: 'Auto-play', default: true },
@@ -115,8 +115,8 @@ export const trustBadgesSection: SectionDefinition = defineSection({
       type: 'badge',
       name: 'Trust Badge',
       settings: [
-        { id: 'title', type: 'text', label: 'Title', default: 'Badge Title' },
-        { id: 'description', type: 'text', label: 'Description', default: 'Short description' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
+        { id: 'description', type: 'text', label: 'Description', default: '' },
         { id: 'icon', type: 'select', label: 'Icon', default: 'lightning', options: [
           { value: 'lightning', label: 'Lightning / Fast Delivery' },
           { value: 'returns', label: 'Returns' },
@@ -169,7 +169,7 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
-    { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: 'Free shipping on all orders over $75!' },
+    { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: '' },
     { id: 'announcement_bg', type: 'color', label: 'Announcement Background', default: '#dc2626' },
     { id: 'enable_quick_view', type: 'checkbox', label: 'Enable Quick View', default: true },
     { id: 'border_radius', type: 'range', label: 'Card Border Radius', min: 0, max: 16, step: 2, default: 4, unit: 'px', info: 'SportZone uses sharper corners by default' },

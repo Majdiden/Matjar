@@ -224,9 +224,9 @@ export const CustomFields: React.FC = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.action.cancel')}</Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common:action.cancel')}</Button>
               <Button onClick={handleSave} disabled={saving}>
-                {saving ? cf('saving') : editingField ? t('common.action.update') : t('common.action.create')}
+                {saving ? cf('saving') : editingField ? t('common:action.update') : t('common:action.create')}
               </Button>
             </DialogFooter>
           </DialogContent>

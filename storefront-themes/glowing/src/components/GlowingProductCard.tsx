@@ -69,7 +69,7 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
           <div className="absolute top-3 end-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               type="button"
-              aria-label="Wishlist"
+              aria-label={t('common:aria.wishlist')}
               onClick={(e) => { e.preventDefault(); }}
               className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center hover:bg-black hover:text-white transition"
             >
@@ -80,7 +80,7 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             {onQuickView && (
               <button
                 type="button"
-                aria-label="Quick view"
+                aria-label={t('common:aria.quick_view')}
                 onClick={(e) => { e.preventDefault(); onQuickView(product); }}
                 className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center hover:bg-black hover:text-white transition"
               >

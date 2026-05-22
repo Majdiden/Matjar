@@ -18,6 +18,12 @@
     "results_count_many": "{{count}} منتجاً",
     "results_count_other": "{{count}} منتج",
     "loading": "جاري التحميل…",
+    "filter": {
+      "price_min": "من",
+      "price_max": "إلى",
+      "price_min_currency": "0 ج.م",
+      "price_max_currency": "بلا حد"
+    },
     "empty": {
       "title": "لا توجد منتجات في هذه الفئة بعد."
     }

@@ -184,5 +184,13 @@
     "per_page": "لكل صفحة",
     "first": "الأولى",
     "last": "الأخيرة"
+  },
+  "confirm": {
+    "default_title": "هل أنت متأكد؟"
+  },
+  "language": {
+    "switch": "تغيير اللغة",
+    "english": "English",
+    "arabic": "العربية"
   }
 }

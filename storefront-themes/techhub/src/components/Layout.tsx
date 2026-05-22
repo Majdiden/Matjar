@@ -95,7 +95,7 @@ const Layout: React.FC = () => {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="lg:hidden text-white"
-              aria-label="Toggle menu"
+              aria-label={t('common:aria.toggle_menu')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
@@ -128,7 +128,7 @@ const Layout: React.FC = () => {
               <Link
                 to="/account"
                 className="hidden lg:flex items-center gap-2 text-xs shrink-0"
-                aria-label="Account"
+                aria-label={t('common:aria.account')}
                 style={{ color: 'var(--color-foreground)' }}
               >
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
@@ -143,7 +143,7 @@ const Layout: React.FC = () => {
               <Link
                 to="/wishlist"
                 className="relative h-10 w-10 flex items-center justify-center shrink-0"
-                aria-label="Wishlist"
+                aria-label={t('common:aria.wishlist')}
                 style={{ color: 'var(--color-foreground)' }}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
@@ -155,7 +155,7 @@ const Layout: React.FC = () => {
               <button
                 onClick={openCart}
                 className="relative h-10 w-10 flex items-center justify-center shrink-0"
-                aria-label="Open cart"
+                aria-label={t('common:aria.open_cart')}
                 style={{ color: 'var(--color-foreground)' }}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>

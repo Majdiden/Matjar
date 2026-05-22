@@ -18,7 +18,7 @@ export const milmaaTopStripSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'text', type: 'text', label: 'Text', default: '🌱 100% Plant-Based · Free Shipping on Orders Over $40' },
+    { id: 'text', type: 'text', label: 'Text', default: '' },
   ],
 });
 
@@ -29,10 +29,10 @@ export const milmaaHeroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '100% PLANT-BASED' },
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Embracing the power of strength' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Creamy, dreamy plant-based milk crafted from the finest nuts, oats and seeds — for a healthier, tastier you.' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: 'Shop Milk' },
+    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'image', type: 'image', label: 'Hero Image' },
   ],
@@ -44,16 +44,16 @@ export const milmaaFlavorsSection: SectionDefinition = defineSection({
   description: '3 colorful flavor panels (Banana, Badam, Cashewnut)',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Our Delicious Flavors' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Pick your favorite and feel the goodness' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
   ],
   blocks: [
     {
       type: 'flavor',
       name: 'Flavor',
       settings: [
-        { id: 'title', type: 'text', label: 'Title', default: 'BANANA MILK' },
-        { id: 'subtitle', type: 'text', label: 'Subtitle', default: 'Sweet, creamy, naturally energizing' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
+        { id: 'subtitle', type: 'text', label: 'Subtitle', default: '' },
         { id: 'cta_url', type: 'url', label: 'URL', default: '/products' },
         { id: 'background', type: 'color', label: 'Background', default: '#f6dc68' },
         { id: 'image', type: 'image', label: 'Image' },
@@ -72,8 +72,8 @@ export const milmaaProductGridSection: SectionDefinition = defineSection({
   name: 'Product Grid',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Shop Our Milks' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Every carton is a small sip of happiness' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'source', type: 'select', label: 'Source', default: 'featured', options: [
       { value: 'featured', label: 'Featured' },
       { value: 'newest', label: 'Newest' },
@@ -89,8 +89,8 @@ export const milmaaBenefitsSection: SectionDefinition = defineSection({
   description: 'Split image + bullet benefits list',
   target: 'body',
   settings: [
-    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: 'WHY MILMAA' },
-    { id: 'heading', type: 'text', label: 'Heading', default: 'A healthier start to every day' },
+    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
     { id: 'image', type: 'image', label: 'Image' },
   ],
   blocks: [
@@ -98,8 +98,8 @@ export const milmaaBenefitsSection: SectionDefinition = defineSection({
       type: 'benefit',
       name: 'Benefit',
       settings: [
-        { id: 'title', type: 'text', label: 'Title', default: 'Rich in calcium' },
-        { id: 'description', type: 'textarea', label: 'Description', default: 'Each serving delivers your daily dose of essential minerals.' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
+        { id: 'description', type: 'textarea', label: 'Description', default: '' },
       ],
     },
   ],
@@ -115,17 +115,17 @@ export const milmaaBlogSection: SectionDefinition = defineSection({
   name: 'Blog Row',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'From The Journal' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Recipes, stories and a sprinkle of goodness' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
   ],
   blocks: [
     {
       type: 'post',
       name: 'Post',
       settings: [
-        { id: 'title', type: 'text', label: 'Title', default: 'Smoothie bowl recipe' },
-        { id: 'excerpt', type: 'textarea', label: 'Excerpt', default: 'A quick way to start your morning right.' },
-        { id: 'date', type: 'text', label: 'Date', default: 'Jun 12' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
+        { id: 'excerpt', type: 'textarea', label: 'Excerpt', default: '' },
+        { id: 'date', type: 'text', label: 'Date', default: '' },
         { id: 'image', type: 'image', label: 'Image' },
         { id: 'cta_url', type: 'url', label: 'URL', default: '#' },
       ],
@@ -143,17 +143,17 @@ export const milmaaTestimonialsSection: SectionDefinition = defineSection({
   name: 'Customers Talk',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Customers Talk' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Real words from real milk lovers' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
   ],
   blocks: [
     {
       type: 'testimonial',
       name: 'Testimonial',
       settings: [
-        { id: 'quote', type: 'textarea', label: 'Quote', default: 'Absolutely love it!' },
-        { id: 'author', type: 'text', label: 'Author', default: 'Anna' },
-        { id: 'role', type: 'text', label: 'Role', default: 'Milk Enthusiast' },
+        { id: 'quote', type: 'textarea', label: 'Quote', default: '' },
+        { id: 'author', type: 'text', label: 'Author', default: '' },
+        { id: 'role', type: 'text', label: 'Role', default: '' },
       ],
     },
   ],
@@ -169,8 +169,8 @@ export const milmaaInstagramSection: SectionDefinition = defineSection({
   name: 'Instagram Strip',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '@milmaa_milk' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Follow our daily dose of plant-powered goodness' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
   ],
 });
 
@@ -223,7 +223,7 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Top Strip', default: true },
-    { id: 'announcement_text', type: 'text', label: 'Top Strip Text', default: '🌱 100% Plant-Based · Free Shipping on Orders Over $40' },
+    { id: 'announcement_text', type: 'text', label: 'Top Strip Text', default: '' },
     { id: 'enable_quick_view', type: 'checkbox', label: 'Enable Quick View', default: true },
     { id: 'product_tile_bg_1', type: 'color', label: 'Product Tile Background 1 (Teal)', default: '#2c4a4a' },
     { id: 'product_tile_bg_2', type: 'color', label: 'Product Tile Background 2 (Pink)', default: '#f7c1b7' },

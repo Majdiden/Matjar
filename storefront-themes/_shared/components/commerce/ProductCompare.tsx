@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 import { useStore } from '../../contexts/StoreContext';
@@ -31,6 +32,7 @@ interface CompareContextValue {
 const CompareContext = createContext<CompareContextValue | null>(null);
 
 export function useCompare() {
+  const { t } = useTranslation(['common']);
   const ctx = useContext(CompareContext);
   if (!ctx) throw new Error('useCompare must be used within CompareProvider');
   return ctx;
@@ -125,7 +127,7 @@ function ProductCompareDrawer() {
                         <button
                           onClick={() => remove(p._id)}
                           className="absolute -top-2 -end-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
-                          aria-label="Remove"
+                          aria-label={t('common:aria.remove')}
                         >
                           &times;
                         </button>

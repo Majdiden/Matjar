@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import i18nInstance from './index'
 import { STORAGE_KEY_LANG } from './index'
 
 type Lang = 'en' | 'ar'
@@ -21,18 +22,28 @@ interface LanguageProviderProps {
   children: ReactNode
 }
 
+const resolveInitialLang = (): Lang => {
+  // i18n is initialized before this provider mounts, so its detected
+  // language is the authoritative source. Falling back to localStorage
+  // alone misses the navigator-detector path used when no preference
+  // has been stored yet.
+  const detected = i18nInstance.language || ''
+  if (detected.startsWith('ar')) return 'ar'
+  if (detected.startsWith('en')) return 'en'
+  const stored = localStorage.getItem(STORAGE_KEY_LANG)
+  return stored === 'ar' ? 'ar' : 'en'
+}
+
 export function LanguageProvider({ children }: LanguageProviderProps) {
   const { i18n } = useTranslation()
-  const [lang, setLangState] = useState<Lang>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY_LANG)
-    return (stored === 'ar' || stored === 'en') ? stored : 'en'
-  })
+  const [lang, setLangState] = useState<Lang>(resolveInitialLang)
 
   const dir: Dir = lang === 'ar' ? 'rtl' : 'ltr'
 
   useEffect(() => {
     document.documentElement.lang = lang
     document.documentElement.dir = dir
+    document.body.dir = dir
   }, [lang, dir])
 
   useEffect(() => {

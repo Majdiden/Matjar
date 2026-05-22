@@ -87,7 +87,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             {onQuickView && (
               <button
                 type="button"
-                aria-label="Quick view"
+                aria-label={t('common:aria.quick_view')}
                 onClick={(e) => { e.preventDefault(); onQuickView(product); }}
                 className="absolute top-3 end-3 w-10 h-10 bg-white border-2 border-black flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-[var(--color-primary)] transition"
               >

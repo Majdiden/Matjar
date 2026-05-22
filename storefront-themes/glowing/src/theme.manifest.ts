@@ -19,7 +19,7 @@ export const topStripSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'text', type: 'text', label: 'Text', default: 'FREE SHIPPING ON ALL U.S. ORDERS $50+' },
+    { id: 'text', type: 'text', label: 'Text', default: '' },
   ],
 });
 
@@ -30,10 +30,10 @@ export const glowingHeroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: 'NATURAL BEAUTY' },
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Reveal The Beauty of Skin' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Clean, vegan and dermatologist-approved formulas crafted to nourish and reveal your natural glow.' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: 'SHOP NOW' },
+    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'image', type: 'image', label: 'Hero Image' },
   ],
@@ -51,8 +51,8 @@ export const glowingPromoCardsSection: SectionDefinition = defineSection({
       name: 'Promo Card',
       settings: [
         { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-        { id: 'title', type: 'text', label: 'Title', default: 'Summer Collection' },
-        { id: 'cta_text', type: 'text', label: 'CTA', default: 'SHOP NOW' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
+        { id: 'cta_text', type: 'text', label: 'CTA', default: '' },
         { id: 'cta_url', type: 'url', label: 'URL', default: '/products' },
         { id: 'background_color', type: 'color', label: 'Background', default: '#f7efe6' },
         { id: 'image', type: 'image', label: 'Image' },
@@ -72,8 +72,8 @@ export const glowingProductGridSection: SectionDefinition = defineSection({
   description: 'Clean grid of products with SALE badges',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'BEST SELLERS' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Hand-picked favourites loved by our community' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'source', type: 'select', label: 'Source', default: 'featured', options: [
       { value: 'featured', label: 'Featured' },
       { value: 'newest', label: 'Newest' },
@@ -92,8 +92,8 @@ export const glowingQuoteSection: SectionDefinition = defineSection({
   name: 'Centered Quote',
   target: 'body',
   settings: [
-    { id: 'quote', type: 'textarea', label: 'Quote', default: '"Beauty begins the moment you decide to be yourself."' },
-    { id: 'author', type: 'text', label: 'Author', default: 'COCO CHANEL' },
+    { id: 'quote', type: 'textarea', label: 'Quote', default: '' },
+    { id: 'author', type: 'text', label: 'Author', default: '' },
   ],
 });
 
@@ -102,8 +102,8 @@ export const glowingInstagramSection: SectionDefinition = defineSection({
   name: 'Instagram Row',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '@GLOWINGBEAUTY' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Follow us on Instagram for daily inspiration' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
   ],
   blocks: [
     {
@@ -174,7 +174,7 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Top Strip', default: true },
-    { id: 'announcement_text', type: 'text', label: 'Top Strip Text', default: 'FREE SHIPPING ON ALL U.S. ORDERS $50+' },
+    { id: 'announcement_text', type: 'text', label: 'Top Strip Text', default: '' },
     { id: 'enable_quick_view', type: 'checkbox', label: 'Enable Quick View', default: true },
   ],
 

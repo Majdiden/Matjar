@@ -39,7 +39,7 @@
         "label": "Email",
         "hint": "Contact support to change the email tied to this account."
       },
-      "phone": { "label": "Phone" },
+      "phone": { "label": "Phone", "placeholder": "+1 555 555 5555" },
       "marketing_opt_in": "Send me promotional emails about new products and offers.",
       "marketing_opt_in_hint": "You can unsubscribe at any time.",
       "current_password": { "label": "Current password" },
@@ -83,13 +83,27 @@
       "cancel_confirm_title": "Cancel this order?",
       "cancel_confirm_description": "This cannot be undone — any reserved stock will be released.",
       "cancel_confirm_text": "Cancel order",
-      "cancel_keep_text": "Keep order"
+      "cancel_keep_text": "Keep order",
+      "item_count_one": "{{count}} item",
+      "item_count_other": "{{count}} items",
+      "more": "+{{count}} more",
+      "status": {
+        "Pending": "Order received",
+        "Processing": "Being prepared",
+        "Shipped": "On its way",
+        "Delivered": "Delivered",
+        "Cancelled": "Cancelled",
+        "Refunded": "Refunded"
+      }
     },
     "wishlist": {
       "empty": "Your wishlist is empty.",
       "browse": "Browse products →",
       "open_full": "Open full wishlist page →",
-      "removing": "Removing…"
+      "removing": "Removing…",
+      "remove": "Remove",
+      "loading": "Loading wishlist…",
+      "no_image": "No image"
     },
     "reviews": {
       "empty": "You haven't written any reviews yet.",
@@ -100,7 +114,8 @@
       "empty": "You don't have any gift cards yet.",
       "loading": "Loading gift cards…",
       "card": "Gift card •••• {{last4}}",
-      "balance": "Balance {{balance}} of {{initial}}"
+      "balance": "Balance {{balance}} of {{initial}}",
+      "expires": "· expires {{date}}"
     },
     "action": {
       "sign_out": "Sign out",

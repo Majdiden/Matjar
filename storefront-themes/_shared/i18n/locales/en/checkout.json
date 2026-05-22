@@ -95,7 +95,10 @@
       "gift_card_applied": "Gift card •••• {{last4}} applied",
       "gift_card_balance": "(balance {{balance}})",
       "preorder_notice_title": "Includes pre-order items",
-      "preorder_ships_by": "Ships by {{date}}"
+      "preorder_ships_by": "Ships by {{date}}",
+      "preorder_badge": "Pre-order",
+      "preorder_ships_inline": "— ships {{date}}",
+      "price_each": "{{price}} each"
     },
     "error": {
       "choose_payment": "Please choose a payment method.",

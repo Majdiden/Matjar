@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { RatingStars } from './RatingStars';
 import { useSubmitReview } from '../../hooks/useReviews';
@@ -57,6 +58,7 @@ interface ReviewsProps {
  * Card component.
  */
 export function Reviews(props: ReviewsProps) {
+  const { t } = useTranslation(['product', 'common']);
   const Override = useThemeSlot<React.ComponentType<ReviewsProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
   const {
@@ -80,7 +82,7 @@ export function Reviews(props: ReviewsProps) {
   return (
     <section className={cn('space-y-8', className)}>
       <header>
-        <h2 className="text-2xl font-bold tracking-tight">Customer reviews</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{t('product:review.title')}</h2>
       </header>
 
       {/* Summary */}
@@ -92,7 +94,11 @@ export function Reviews(props: ReviewsProps) {
           </div>
           <RatingStars rating={averageRating} size="lg" showCount={false} />
           <p className="text-sm text-gray-500">
-            Based on {totalReviews} review{totalReviews === 1 ? '' : 's'}
+            {totalReviews === 0
+              ? t('product:review.based_on_zero')
+              : totalReviews === 1
+                ? t('product:review.based_on_one', { count: totalReviews })
+                : t('product:review.based_on_other', { count: totalReviews })}
           </p>
         </div>
 
@@ -120,7 +126,7 @@ export function Reviews(props: ReviewsProps) {
       {/* Reviews list */}
       {reviews.length === 0 ? (
         <div className="border border-dashed rounded-xl p-8 text-center text-gray-500">
-          No reviews yet. Be the first to share your experience.
+          {t('product:review.empty')}
         </div>
       ) : (
         <ul className="space-y-6">
@@ -132,7 +138,7 @@ export function Reviews(props: ReviewsProps) {
                     <RatingStars rating={r.rating} size="sm" showCount={false} />
                     {r.verifiedPurchase && (
                       <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">
-                        Verified
+                        {t('product:review.verified')}
                       </span>
                     )}
                   </div>
@@ -144,7 +150,7 @@ export function Reviews(props: ReviewsProps) {
               </div>
               <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{r.comment}</p>
               <p className="text-xs text-gray-500 mt-2">
-                — {r.customerName || r.user?.name || 'Anonymous'}
+                — {r.customerName || r.user?.name || t('product:review.anonymous')}
               </p>
             </li>
           ))}
@@ -156,7 +162,7 @@ export function Reviews(props: ReviewsProps) {
         <ReviewForm productId={productId} onSubmitted={onSubmitted} />
       ) : (
         <div className="border rounded-xl p-6 text-center text-sm text-gray-600 bg-gray-50 dark:bg-gray-900/40">
-          <a href="/login" className="font-semibold underline">Sign in</a> to write a review.
+          {t('product:review.sign_in_to_review')}
         </div>
       )}
     </section>
@@ -175,6 +181,7 @@ export function ReviewForm({
   productId: string;
   onSubmitted?: () => void;
 }) {
+  const { t } = useTranslation(['product', 'common']);
   const [rating, setRating] = useState(5);
   const [title, setTitle] = useState('');
   const [comment, setComment] = useState('');
@@ -196,11 +203,11 @@ export function ReviewForm({
 
   return (
     <form onSubmit={handleSubmit} className="border rounded-xl p-6 space-y-4">
-      <h3 className="font-semibold text-lg">Write a review</h3>
+      <h3 className="font-semibold text-lg">{t('product:review.write_review')}</h3>
 
       <div>
-        <label className="text-sm font-medium mb-1 block">Your rating</label>
-        <div className="flex items-center gap-1" role="radiogroup" aria-label="Rating">
+        <label className="text-sm font-medium mb-1 block">{t('product:review.your_rating')}</label>
+        <div className="flex items-center gap-1" role="radiogroup" aria-label={t('common:aria.rating')}>
           {[1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}
@@ -225,33 +232,33 @@ export function ReviewForm({
       </div>
 
       <div>
-        <label htmlFor="rev-title" className="text-sm font-medium mb-1 block">Title (optional)</label>
+        <label htmlFor="rev-title" className="text-sm font-medium mb-1 block">{t('product:review.title_field')} {t('product:review.title_optional')}</label>
         <input
           id="rev-title"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Sums it up in a few words"
+          placeholder={t('product:review.title_placeholder')}
           className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div>
-        <label htmlFor="rev-comment" className="text-sm font-medium mb-1 block">Your review *</label>
+        <label htmlFor="rev-comment" className="text-sm font-medium mb-1 block">{t('product:review.comment_required')}</label>
         <textarea
           id="rev-comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           required
           rows={4}
-          placeholder="What did you like or dislike?"
+          placeholder={t('product:review.comment_placeholder')}
           className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       {showSuccess && (
-        <p className="text-sm text-emerald-600">Thanks! Your review was submitted.</p>
+        <p className="text-sm text-emerald-600">{t('product:review.success')}</p>
       )}
 
       <button
@@ -259,7 +266,7 @@ export function ReviewForm({
         disabled={submitting || !comment.trim()}
         className="px-5 py-2.5 rounded-lg bg-gray-900 text-white font-medium text-sm hover:bg-gray-800 disabled:opacity-50"
       >
-        {submitting ? 'Submitting…' : 'Submit review'}
+        {submitting ? t('product:review.submitting') : t('product:review.submit')}
       </button>
     </form>
   );

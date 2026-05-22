@@ -180,7 +180,7 @@ export const ProductForm: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/products')}>
-            <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" />{t('common.action.back')}
+            <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" />{t('common:action.back')}
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{isEditMode ? t('products.form.title.edit') : t('products.form.title.create')}</h1>

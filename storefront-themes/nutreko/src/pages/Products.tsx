@@ -23,7 +23,7 @@ const FilterBlock: React.FC<{ title: string; children: React.ReactNode }> = ({ t
 );
 
 const Products: React.FC = () => {
-  const { t } = useTranslation('theme');
+  const { t } = useTranslation(['theme', 'category']);
   const [searchParams, setSearchParams] = useSearchParams();
   const [quick, setQuick] = useState<any>(null);
 
@@ -125,7 +125,7 @@ const Products: React.FC = () => {
                   type="number"
                   value={priceMin}
                   onChange={(e) => setParam('min', Number(e.target.value))}
-                  placeholder="Min"
+                  placeholder={t('category:category.filter.price_min')}
                   className="w-full border-2 border-black px-3 py-2 text-sm font-bold focus:outline-none"
                   onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)'; }}
                   onBlur={(e) => { e.currentTarget.style.borderColor = ''; }}
@@ -135,7 +135,7 @@ const Products: React.FC = () => {
                   type="number"
                   value={priceMax}
                   onChange={(e) => setParam('max', Number(e.target.value))}
-                  placeholder="Max"
+                  placeholder={t('category:category.filter.price_max')}
                   className="w-full border-2 border-black px-3 py-2 text-sm font-bold focus:outline-none"
                   onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)'; }}
                   onBlur={(e) => { e.currentTarget.style.borderColor = ''; }}

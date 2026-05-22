@@ -123,7 +123,7 @@ const Layout: React.FC = () => {
               <h4 className="text-white font-bold text-sm uppercase mb-3">{t('theme.footer.stay_connected_heading')}</h4>
               <p className="text-sm mb-3">{t('theme.footer.newsletter_teaser')}</p>
               <form className="flex" onSubmit={e => e.preventDefault()}>
-                <input type="email" placeholder="your@email.com" className="flex-1 bg-white/5 border border-white/10 rounded-s px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#dc2626]" />
+                <input type="email" placeholder={t('common:section.newsletter.email_placeholder')} className="flex-1 bg-white/5 border border-white/10 rounded-s px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#dc2626]" />
                 <button className="bg-[#dc2626] text-white px-4 py-2 rounded-e text-sm font-black uppercase hover:bg-[#b91c1c] transition">{t('theme.footer.newsletter_submit')}</button>
               </form>
             </div>

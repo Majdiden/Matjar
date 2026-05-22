@@ -74,14 +74,31 @@
     "placed": "تم الطلب {{date}}",
     "back": "رجوع",
     "section": {
-      "items": { "title": "عناصر الطلب" },
-      "payments": { "title": "المدفوعات والاستردادات" },
-      "customer": { "title": "العميل" },
-      "timeline": { "title": "الجدول الزمني" },
-      "tags": { "title": "العلامات" },
-      "notes": { "title": "الملاحظات الداخلية", "subtitle": "داخلية — غير مرئية للعميل" },
-      "order_notes": { "title": "ملاحظات الطلب" },
-      "returns": { "title": "الإرجاعات والبدائل" }
+      "items": {
+        "title": "عناصر الطلب"
+      },
+      "payments": {
+        "title": "المدفوعات والاستردادات"
+      },
+      "customer": {
+        "title": "العميل"
+      },
+      "timeline": {
+        "title": "الجدول الزمني"
+      },
+      "tags": {
+        "title": "العلامات"
+      },
+      "notes": {
+        "title": "الملاحظات الداخلية",
+        "subtitle": "داخلية — غير مرئية للعميل"
+      },
+      "order_notes": {
+        "title": "ملاحظات الطلب"
+      },
+      "returns": {
+        "title": "الإرجاعات والبدائل"
+      }
     },
     "action": {
       "print": "طباعة",
@@ -109,7 +126,14 @@
       "view_original_order": "عرض الطلب الأصلي",
       "view_replacement_order": "عرض الطلب البديل",
       "view_replacement_n": "عرض البديل #{{n}}",
-      "move_to_status": "نقل إلى {{status}}"
+      "move_to_status": "نقل إلى {{status}}",
+      "cannot_be_undone": "لا يمكن التراجع عن هذا الإجراء.",
+      "change_status": "تغيير الحالة",
+      "no_permission": "تفتقر إلى صلاحية orders.write",
+      "capture": "تحصيل الدفعة",
+      "void": "إلغاء التفويض",
+      "mark_failed": "تحديد كفاشل",
+      "fulfill_remaining": "تنفيذ المتبقي"
     },
     "item": {
       "sku": "رمز المنتج: {{sku}}",
@@ -144,6 +168,7 @@
     },
     "customer": {
       "guest": "ضيف",
+      "not_available": "غير متوفر",
       "customer": "عميل",
       "lifetime_orders": "إجمالي الطلبات",
       "lifetime_spend": "إجمالي الإنفاق",
@@ -167,7 +192,8 @@
       "add_placeholder": "أضف ملاحظة داخلية…",
       "pin_to_top": "تثبيت في الأعلى",
       "add_button": "إضافة ملاحظة",
-      "staff": "موظف"
+      "staff": "موظف",
+      "delete_note_aria": "حذف الملاحظة"
     },
     "address": {
       "shipping": "عنوان الشحن",
@@ -181,6 +207,78 @@
       "is_replacement": "هذا طلب بديل.",
       "has_one": "هذا الطلب لديه طلب بديل.",
       "has_many": "هذا الطلب لديه {{count}} طلبات بديلة."
+    },
+    "order_title": "الطلب {{number}}",
+    "status_card": {
+      "order": "الطلب",
+      "payment": "الدفع",
+      "fulfillment": "التنفيذ",
+      "via_method": "عبر {{method}}"
+    },
+    "next_action": {
+      "label": "الإجراء التالي",
+      "more": "المزيد",
+      "more_title": "مزيد من إجراءات الدفع",
+      "cancelled_summary": "تم إلغاء الطلب — لا توجد إجراءات إضافية متاحة.",
+      "voided_summary": "تم إلغاء الدفع — أوقف الطلب أو سجّل دفعة جديدة.",
+      "no_pending": "لا توجد إجراءات معلّقة.",
+      "retry_mark_paid": "إعادة المحاولة / تحديد كمدفوع",
+      "fulfill_remaining": "تنفيذ المتبقي"
+    },
+    "documents": {
+      "label": "المستندات",
+      "invoice": "فاتورة",
+      "packing_slip": "قسيمة التعبئة",
+      "refund_receipt": "إيصال الاسترداد"
+    },
+    "timeline": {
+      "state_pending": "الطلب معلّق",
+      "state_processing": "الطلب قيد المعالجة",
+      "state_shipped": "تم شحن الطلب",
+      "state_delivered": "تم تسليم الطلب",
+      "state_cancelled": "تم إلغاء الطلب",
+      "state_refunded": "تم استرداد الطلب",
+      "event_created": "تم تقديم الطلب",
+      "event_tracking_updated": "تم تحديث التتبع",
+      "event_note_added": "تمت إضافة ملاحظة",
+      "event_note_deleted": "تمت إزالة ملاحظة",
+      "event_fulfillment_created": "تم إنشاء الشحنة",
+      "event_fulfillment_status_changed": "تم تحديث الشحنة",
+      "event_fulfillment_delivered": "تم تسليم الشحنة",
+      "event_refund_issued": "تم إصدار الاسترداد",
+      "event_manual_refund": "تم تسجيل الاسترداد",
+      "event_refund_failed": "فشل الاسترداد",
+      "event_replacement_created": "تم إنشاء طلب بديل",
+      "event_return_created": "تم طلب الإرجاع",
+      "event_return_status_changed": "تم تحديث الإرجاع",
+      "event_payment_authorized": "تم تفويض الدفع",
+      "event_payment_captured": "تم تحصيل الدفع",
+      "event_payment_failed": "فشل الدفع",
+      "event_payment_status_changed": "تم تحديث حالة الدفع",
+      "event_status_changed": "تم تحديث حالة الطلب",
+      "event_cancelled": "تم إلغاء الطلب",
+      "event_order_notified": "تم إشعار العميل",
+      "event_address_edited": "تم تعديل العنوان",
+      "event_discount_adjusted": "تم تعديل الخصم",
+      "event_tag_added": "تمت إضافة علامة",
+      "event_tag_removed": "تمت إزالة علامة",
+      "shipment_shipped": "تم تحديد الشحنة كمشحونة",
+      "shipment_delivered": "تم تحديد الشحنة كمسلّمة",
+      "shipment_cancelled": "تم إلغاء الشحنة"
+    },
+    "returns": {
+      "none": "لا توجد إرجاعات بعد. سجّل واحدة عند إعادة العميل للعناصر.",
+      "return_label": "إرجاع",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "mark_received": "تحديد كمستلم",
+      "mark_refunded": "تحديد كمسترد",
+      "refund_amount_desc": "أدخل مبلغ الاسترداد لهذا الإرجاع. القيمة المقترحة محسوبة من أسعار العناصر المُرجعة."
+    },
+    "line_picker": {
+      "label_max_ordered": "مطلوب",
+      "label_max_received": "مستلم",
+      "max_label": "الحد الأقصى {{max}} {{labelMax}}"
     }
   },
   "dialog": {
@@ -431,13 +529,32 @@
         "summary": "الملخص"
       },
       "field": {
-        "zone_name": { "label": "اسم المنطقة", "placeholder": "أمريكا الشمالية" },
-        "countries": { "label": "الدول", "placeholder": "أضف دولة...", "help": "اختر دولة أو أكثر تنطبق عليها هذه المنطقة." },
-        "rate_name": { "label": "الاسم", "placeholder": "قياسي" },
-        "rate_price": { "label": "السعر ($)" },
-        "rate_min_weight": { "label": "الحد الأدنى للوزن (كغ)" },
-        "rate_max_weight": { "label": "الحد الأقصى للوزن (كغ، اتركه فارغاً لعدم التحديد)" },
-        "rate_estimated_days": { "label": "الأيام المقدّرة", "placeholder": "3-5" }
+        "zone_name": {
+          "label": "اسم المنطقة",
+          "placeholder": "أمريكا الشمالية"
+        },
+        "countries": {
+          "label": "الدول",
+          "placeholder": "أضف دولة...",
+          "help": "اختر دولة أو أكثر تنطبق عليها هذه المنطقة."
+        },
+        "rate_name": {
+          "label": "الاسم",
+          "placeholder": "قياسي"
+        },
+        "rate_price": {
+          "label": "السعر ($)"
+        },
+        "rate_min_weight": {
+          "label": "الحد الأدنى للوزن (كغ)"
+        },
+        "rate_max_weight": {
+          "label": "الحد الأقصى للوزن (كغ، اتركه فارغاً لعدم التحديد)"
+        },
+        "rate_estimated_days": {
+          "label": "الأيام المقدّرة",
+          "placeholder": "3-5"
+        }
       },
       "rate_n": "التعرفة #{{n}}",
       "add_rate": "إضافة تعرفة",

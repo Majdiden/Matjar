@@ -4,6 +4,7 @@ import { authApi, ordersApi, wishlistApi, reviewsApi, giftCardApi } from '../api
 import { useStore } from '../contexts/StoreContext';
 import { RatingStars } from '../components/commerce/RatingStars';
 import { useConfirm } from '../components/primitives/ConfirmDialog';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Customer account page (/account).
@@ -80,14 +81,7 @@ const STATUS_TINT: Record<string, string> = {
   Refunded:   'bg-rose-50 text-rose-700 border-rose-200',
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  Pending:    'Order received',
-  Processing: 'Being prepared',
-  Shipped:    'On its way',
-  Delivered:  'Delivered',
-  Cancelled:  'Cancelled',
-  Refunded:   'Refunded',
-};
+// STATUS_LABEL is now resolved via i18n keys in OrdersTab
 
 const fieldLabel = 'block text-[11px] uppercase tracking-wider font-semibold text-gray-500 mb-1';
 const inputCls =
@@ -98,6 +92,7 @@ const btnGhost =
 const Account: React.FC<AccountProps> = ({ className = '', accentColor }) => {
   const navigate = useNavigate();
   const { formatPrice, store } = useStore();
+  const { t } = useTranslation(['account']);
   const accent = accentColor || 'var(--color-primary, #2563eb)';
   const giftCardsEnabled = store?.giftCards?.enabled !== false;
 
@@ -182,24 +177,24 @@ const Account: React.FC<AccountProps> = ({ className = '', accentColor }) => {
             {(user.name || user.email).charAt(0).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-3xl font-bold">My Account</h1>
+            <h1 className="text-3xl font-bold">{t('account.title')}</h1>
             <p className="text-gray-500 text-sm mt-1">
-              Welcome back, {user.name || user.firstName || user.email.split('@')[0]}
-              {memberSince ? ` · Member since ${memberSince}` : ''}
+              {t('account.welcome_back', { name: user.name || user.firstName || user.email.split('@')[0] })}
+              {memberSince ? ` · ${t('account.member_since', { date: memberSince })}` : ''}
             </p>
           </div>
         </div>
         <button onClick={handleLogout} className={btnGhost}>
-          Sign out
+          {t('account.action.sign_out')}
         </button>
       </div>
 
       {/* ── Stat strip ─────────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-3 mb-8">
-        <StatCard label="Orders" value={String(orders.length)} accent={accent} />
-        <StatCard label="Lifetime spend" value={formatPrice(lifetimeSpent)} accent={accent} />
+        <StatCard label={t('account.stat.orders')} value={String(orders.length)} accent={accent} />
+        <StatCard label={t('account.stat.lifetime_spend')} value={formatPrice(lifetimeSpent)} accent={accent} />
         <StatCard
-          label="Saved addresses"
+          label={t('account.stat.saved_addresses')}
           value={String(user.addresses?.length || 0)}
           accent={accent}
         />
@@ -208,23 +203,23 @@ const Account: React.FC<AccountProps> = ({ className = '', accentColor }) => {
       {/* ── Tabs ───────────────────────────────────────────────── */}
       <div className="border-b mb-6 flex gap-1 overflow-x-auto">
         {((['profile', 'orders', 'wishlist', 'reviews', 'giftcards', 'addresses', 'security'] as const).filter(
-          (t) => t !== 'giftcards' || giftCardsEnabled
-        )).map((t) => (
+          (tabKey) => tabKey !== 'giftcards' || giftCardsEnabled
+        )).map((tabKey) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={tabKey}
+            onClick={() => setTab(tabKey)}
             className={`px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap transition ${
-              tab === t ? 'border-current' : 'border-transparent text-gray-500 hover:text-gray-700'
+              tab === tabKey ? 'border-current' : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
-            style={tab === t ? { color: accent } : undefined}
+            style={tab === tabKey ? { color: accent } : undefined}
           >
-            {t === 'profile' && 'Profile'}
-            {t === 'orders' && `Orders (${orders.length})`}
-            {t === 'wishlist' && 'Wishlist'}
-            {t === 'reviews' && 'Reviews'}
-            {t === 'giftcards' && 'Gift cards'}
-            {t === 'addresses' && `Addresses (${user.addresses?.length || 0})`}
-            {t === 'security' && 'Security'}
+            {tabKey === 'profile' && t('account.tab.profile')}
+            {tabKey === 'orders' && t('account.tab.orders', { count: orders.length })}
+            {tabKey === 'wishlist' && t('account.tab.wishlist')}
+            {tabKey === 'reviews' && t('account.tab.reviews')}
+            {tabKey === 'giftcards' && t('account.tab.giftcards')}
+            {tabKey === 'addresses' && t('account.tab.addresses', { count: user.addresses?.length || 0 })}
+            {tabKey === 'security' && t('account.tab.security')}
           </button>
         ))}
       </div>
@@ -244,7 +239,7 @@ const Account: React.FC<AccountProps> = ({ className = '', accentColor }) => {
 
       {/* ── Tab content ────────────────────────────────────────── */}
       {tab === 'profile' && (
-        <ProfileTab user={user} onSaved={(u) => { setUser(u); flash('ok', 'Profile updated'); }} onError={(m) => flash('err', m)} accent={accent} />
+        <ProfileTab user={user} onSaved={(u) => { setUser(u); flash('ok', t('account.toast.profile_updated')); }} onError={(m) => flash('err', m)} accent={accent} />
       )}
       {tab === 'orders' && (
         <OrdersTab
@@ -307,6 +302,7 @@ const ProfileTab: React.FC<{
   onError: (m: string) => void;
   accent: string;
 }> = ({ user, onSaved, onError, accent }) => {
+  const { t } = useTranslation(['account']);
   const [form, setForm] = useState({
     name: user.name || '',
     firstName: user.firstName || '',
@@ -325,7 +321,7 @@ const ProfileTab: React.FC<{
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) {
-      onError('Name is required');
+      onError(t('account.toast.name_required'));
       return;
     }
     setSaving(true);
@@ -335,7 +331,7 @@ const ProfileTab: React.FC<{
         res?.data?.user || res?.responseObject || res?.user || { ...user, ...form };
       onSaved(updated);
     } catch (err: any) {
-      onError(err?.message || 'Failed to update profile');
+      onError(err?.message || t('account.toast.profile_error'));
     } finally {
       setSaving(false);
     }
@@ -344,13 +340,13 @@ const ProfileTab: React.FC<{
   return (
     <form onSubmit={submit} className="border rounded-2xl bg-white shadow-sm p-6 space-y-5 max-w-2xl">
       <div>
-        <h3 className="font-semibold text-lg">Personal information</h3>
+        <h3 className="font-semibold text-lg">{t('account.section.profile.title')}</h3>
         <p className="text-sm text-gray-500 mt-0.5">
-          This information is used at checkout and on your order receipts.
+          {t('account.section.profile.subtitle')}
         </p>
       </div>
       <div>
-        <label className={fieldLabel}>Full name *</label>
+        <label className={fieldLabel}>{t('account.field.full_name.label')}</label>
         <input
           className={inputCls}
           style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -361,7 +357,7 @@ const ProfileTab: React.FC<{
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className={fieldLabel}>First name</label>
+          <label className={fieldLabel}>{t('account.field.first_name.label')}</label>
           <input
             className={inputCls}
             style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -370,7 +366,7 @@ const ProfileTab: React.FC<{
           />
         </div>
         <div>
-          <label className={fieldLabel}>Last name</label>
+          <label className={fieldLabel}>{t('account.field.last_name.label')}</label>
           <input
             className={inputCls}
             style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -380,21 +376,21 @@ const ProfileTab: React.FC<{
         </div>
       </div>
       <div>
-        <label className={fieldLabel}>Email</label>
+        <label className={fieldLabel}>{t('account.field.email.label')}</label>
         <input className={`${inputCls} bg-gray-50 cursor-not-allowed`} value={user.email} disabled />
         <p className="text-xs text-gray-500 mt-1">
-          Contact support to change the email tied to this account.
+          {t('account.field.email.hint')}
         </p>
       </div>
       <div>
-        <label className={fieldLabel}>Phone</label>
+        <label className={fieldLabel}>{t('account.field.phone.label')}</label>
         <input
           type="tel"
           className={inputCls}
           style={{ '--tw-ring-color': accent } as React.CSSProperties}
           value={form.phone}
           onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          placeholder="+1 555 555 5555"
+          placeholder={t('account.field.phone.placeholder')}
         />
       </div>
       <label className="flex items-start gap-2 text-sm cursor-pointer select-none">
@@ -405,9 +401,9 @@ const ProfileTab: React.FC<{
           className="mt-0.5"
         />
         <span>
-          Send me promotional emails about new products and offers.
+          {t('account.field.marketing_opt_in')}
           <span className="block text-xs text-gray-500 mt-0.5">
-            You can unsubscribe at any time.
+            {t('account.field.marketing_opt_in_hint')}
           </span>
         </span>
       </label>
@@ -418,7 +414,7 @@ const ProfileTab: React.FC<{
           className="px-5 py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ backgroundColor: accent }}
         >
-          {saving ? 'Saving…' : 'Save changes'}
+          {saving ? t('account.action.saving') : t('account.action.save_changes')}
         </button>
       </div>
     </form>
@@ -433,6 +429,7 @@ const OrdersTab: React.FC<{
   flash: (kind: 'ok' | 'err', msg: string) => void;
 }> = ({ orders, accent, onCancelled, flash }) => {
   const { formatPrice } = useStore();
+  const { t } = useTranslation(['account']);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const confirm = useConfirm();
 
@@ -444,10 +441,10 @@ const OrdersTab: React.FC<{
 
   const handleCancel = async (id: string) => {
     const confirmed = await confirm({
-      title: 'Cancel this order?',
-      description: 'This cannot be undone — any reserved stock will be released.',
-      confirmText: 'Cancel order',
-      cancelText: 'Keep order',
+      title: t('account.order.cancel_confirm_title'),
+      description: t('account.order.cancel_confirm_description'),
+      confirmText: t('account.order.cancel_confirm_text'),
+      cancelText: t('account.order.cancel_keep_text'),
       variant: 'destructive',
     });
     if (!confirmed) return;
@@ -455,9 +452,9 @@ const OrdersTab: React.FC<{
       setCancellingId(id);
       await ordersApi.cancel(id);
       onCancelled(id);
-      flash('ok', 'Order cancelled');
+      flash('ok', t('account.toast.order_cancelled'));
     } catch (err: any) {
-      flash('err', err?.message || 'Failed to cancel order');
+      flash('err', err?.message || t('account.toast.cancel_error'));
     } finally {
       setCancellingId(null);
     }
@@ -469,14 +466,14 @@ const OrdersTab: React.FC<{
         <svg className="w-14 h-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
         </svg>
-        <h3 className="text-lg font-semibold mb-1">No orders yet</h3>
-        <p className="text-gray-500 text-sm mb-6">When you place an order, it will appear here.</p>
+        <h3 className="text-lg font-semibold mb-1">{t('account.order.empty_title')}</h3>
+        <p className="text-gray-500 text-sm mb-6">{t('account.order.empty_description')}</p>
         <Link
           to="/products"
           className="inline-block px-6 py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90 transition"
           style={{ backgroundColor: accent }}
         >
-          Start shopping
+          {t('account.order.start_shopping')}
         </Link>
       </div>
     );
@@ -486,11 +483,11 @@ const OrdersTab: React.FC<{
     <div className="space-y-3">
       {orders.map((order) => {
         const tint = STATUS_TINT[order.status] || 'bg-gray-100 text-gray-700 border-gray-200';
-        const label = STATUS_LABEL[order.status] || order.status;
+        const label = t(`account.order.status.${order.status}`, { defaultValue: order.status });
         const itemCount = order.products?.reduce((s, p) => s + (p.quantity || 0), 0) || 0;
         const summary = (order.products || [])
           .slice(0, 2)
-          .map((p) => p.name || (typeof p.product === 'object' && p.product?.name) || 'Item')
+          .map((p) => p.name || (typeof p.product === 'object' && p.product?.name) || t('account.order.item_fallback', { defaultValue: 'Item' }))
           .join(', ');
         const moreCount = (order.products?.length || 0) - 2;
         return (
@@ -511,8 +508,8 @@ const OrdersTab: React.FC<{
                 {new Date(order.createdAt).toLocaleDateString(undefined, {
                   month: 'short', day: 'numeric', year: 'numeric',
                 })}{' '}
-                · {itemCount} item{itemCount === 1 ? '' : 's'}
-                {summary && <span className="hidden sm:inline"> · {summary}{moreCount > 0 ? ` +${moreCount} more` : ''}</span>}
+                · {t(`account.order.item_count_${itemCount === 1 ? 'one' : 'other'}`, { count: itemCount })}
+                {summary && <span className="hidden sm:inline"> · {summary}{moreCount > 0 ? ` ${t('account.order.more', { count: moreCount })}` : ''}</span>}
               </p>
             </div>
             <p className="font-bold text-base">{formatPrice(order.totalAmount)}</p>
@@ -522,7 +519,7 @@ const OrdersTab: React.FC<{
                 className="text-sm font-medium hover:underline"
                 style={{ color: accent }}
               >
-                Track order →
+                {t('account.order.track')}
               </Link>
               {isCancellable(order.status) && (
                 <button
@@ -531,7 +528,7 @@ const OrdersTab: React.FC<{
                   disabled={cancellingId === order._id}
                   className="text-sm font-medium text-red-600 hover:text-red-700 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {cancellingId === order._id ? 'Cancelling…' : 'Cancel'}
+                  {cancellingId === order._id ? t('account.order.cancelling') : t('account.order.cancel')}
                 </button>
               )}
             </div>
@@ -563,6 +560,7 @@ const AddressesTab: React.FC<{
   flash: (kind: 'ok' | 'err', msg: string) => void;
   accent: string;
 }> = ({ user, onChanged, flash, accent }) => {
+  const { t } = useTranslation(['account']);
   const [editing, setEditing] = useState<Address | null>(null);
   const [saving, setSaving] = useState(false);
   const confirm = useConfirm();
@@ -572,7 +570,7 @@ const AddressesTab: React.FC<{
   const save = async () => {
     if (!editing) return;
     if (!editing.addressLine1 || !editing.city || !editing.postalCode || !editing.country) {
-      flash('err', 'Address line, city, postal code and country are required');
+      flash('err', t('account.address.error.required_fields'));
       return;
     }
     setSaving(true);
@@ -588,9 +586,9 @@ const AddressesTab: React.FC<{
       const next: Address[] = res?.data?.addresses || res?.responseObject?.addresses || [];
       onChanged(next);
       setEditing(null);
-      flash('ok', editing._id ? 'Address updated' : 'Address added');
+      flash('ok', editing._id ? t('account.toast.address_updated') : t('account.toast.address_added'));
     } catch (err: any) {
-      flash('err', err?.message || 'Failed to save address');
+      flash('err', err?.message || t('account.toast.address_save_error'));
     } finally {
       setSaving(false);
     }
@@ -599,17 +597,17 @@ const AddressesTab: React.FC<{
   const remove = async (id?: string) => {
     if (!id) return;
     if (!(await confirm({
-      title: 'Delete this address?',
-      description: 'This cannot be undone.',
-      confirmText: 'Delete',
+      title: t('account.delete_address_confirm.title'),
+      description: t('account.delete_address_confirm.description'),
+      confirmText: t('account.delete_address_confirm.confirm'),
       variant: 'destructive',
     }))) return;
     try {
       const res: any = await authApi.deleteAddress(id);
       onChanged(res?.data?.addresses || res?.responseObject?.addresses || []);
-      flash('ok', 'Address deleted');
+      flash('ok', t('account.toast.address_deleted'));
     } catch (err: any) {
-      flash('err', err?.message || 'Failed to delete address');
+      flash('err', err?.message || t('account.toast.address_delete_error'));
     }
   };
 
@@ -618,9 +616,9 @@ const AddressesTab: React.FC<{
     try {
       const res: any = await authApi.updateAddress(id, { isDefault: true });
       onChanged(res?.data?.addresses || res?.responseObject?.addresses || []);
-      flash('ok', 'Default address updated');
+      flash('ok', t('account.toast.default_address_updated'));
     } catch (err: any) {
-      flash('err', err?.message || 'Failed to set default address');
+      flash('err', err?.message || t('account.toast.address_default_error'));
     }
   };
 
@@ -630,7 +628,7 @@ const AddressesTab: React.FC<{
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-600">
-          Saved addresses are pre-filled at checkout. Your default address is selected first.
+          {t('account.address.hint')}
         </p>
         {!editing && (
           <button
@@ -638,14 +636,14 @@ const AddressesTab: React.FC<{
             className="px-4 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90 transition"
             style={{ backgroundColor: accent }}
           >
-            + Add address
+            {t('account.address.add')}
           </button>
         )}
       </div>
 
       {addresses.length === 0 && !editing && (
         <div className="text-center py-12 border rounded-2xl bg-white shadow-sm">
-          <p className="text-gray-500 text-sm">No addresses saved yet.</p>
+          <p className="text-gray-500 text-sm">{t('account.address.empty')}</p>
         </div>
       )}
 
@@ -660,7 +658,7 @@ const AddressesTab: React.FC<{
                     className="ms-2 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full"
                     style={{ backgroundColor: `${accent}15`, color: accent }}
                   >
-                    Default
+                    {t('account.address.default_badge')}
                   </span>
                 )}
               </p>
@@ -682,15 +680,15 @@ const AddressesTab: React.FC<{
             </div>
             <div className="flex gap-2 pt-2 border-t">
               <button onClick={() => setEditing(a)} className="text-xs hover:underline" style={{ color: accent }}>
-                Edit
+                {t('checkout.action.edit', { ns: 'checkout', defaultValue: 'Edit' })}
               </button>
               {!a.isDefault && (
                 <button onClick={() => setDefault(a._id)} className="text-xs text-gray-600 hover:underline">
-                  Set default
+                  {t('account.address.set_default')}
                 </button>
               )}
               <button onClick={() => remove(a._id)} className="text-xs text-red-600 hover:underline ml-auto">
-                Delete
+                {t('account.delete_address_confirm.confirm')}
               </button>
             </div>
           </div>
@@ -699,20 +697,20 @@ const AddressesTab: React.FC<{
 
       {editing && (
         <div className="border rounded-2xl bg-white shadow-sm p-5 space-y-4">
-          <h3 className="font-semibold">{editing._id ? 'Edit address' : 'New address'}</h3>
+          <h3 className="font-semibold">{editing._id ? t('account.address.edit_title') : t('account.address.new_title')}</h3>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className={fieldLabel}>Label</label>
+              <label className={fieldLabel}>{t('account.address.field.label.label')}</label>
               <input
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
-                placeholder="Home, Work…"
+                placeholder={t('account.address.field.label.placeholder')}
                 value={editing.label || ''}
                 onChange={(e) => setEditing({ ...editing, label: e.target.value })}
               />
             </div>
             <div>
-              <label className={fieldLabel}>First name</label>
+              <label className={fieldLabel}>{t('account.address.field.first_name.label')}</label>
               <input
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -721,7 +719,7 @@ const AddressesTab: React.FC<{
               />
             </div>
             <div>
-              <label className={fieldLabel}>Last name</label>
+              <label className={fieldLabel}>{t('account.address.field.last_name.label')}</label>
               <input
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -730,7 +728,7 @@ const AddressesTab: React.FC<{
               />
             </div>
             <div className="sm:col-span-2">
-              <label className={fieldLabel}>Address line 1 *</label>
+              <label className={fieldLabel}>{t('account.address.field.address_line1.label')}</label>
               <input
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -740,7 +738,7 @@ const AddressesTab: React.FC<{
               />
             </div>
             <div className="sm:col-span-2">
-              <label className={fieldLabel}>Address line 2</label>
+              <label className={fieldLabel}>{t('account.address.field.address_line2.label')}</label>
               <input
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -749,7 +747,7 @@ const AddressesTab: React.FC<{
               />
             </div>
             <div>
-              <label className={fieldLabel}>City *</label>
+              <label className={fieldLabel}>{t('account.address.field.city.label')}</label>
               <input
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -759,7 +757,7 @@ const AddressesTab: React.FC<{
               />
             </div>
             <div>
-              <label className={fieldLabel}>State / Province</label>
+              <label className={fieldLabel}>{t('account.address.field.state.label')}</label>
               <input
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -768,7 +766,7 @@ const AddressesTab: React.FC<{
               />
             </div>
             <div>
-              <label className={fieldLabel}>Postal code *</label>
+              <label className={fieldLabel}>{t('account.address.field.postal_code.label')}</label>
               <input
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -778,7 +776,7 @@ const AddressesTab: React.FC<{
               />
             </div>
             <div>
-              <label className={fieldLabel}>Country *</label>
+              <label className={fieldLabel}>{t('account.address.field.country.label')}</label>
               <input
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
@@ -788,7 +786,7 @@ const AddressesTab: React.FC<{
               />
             </div>
             <div className="sm:col-span-2">
-              <label className={fieldLabel}>Phone</label>
+              <label className={fieldLabel}>{t('account.address.field.phone.label')}</label>
               <input
                 type="tel"
                 className={inputCls}
@@ -803,7 +801,7 @@ const AddressesTab: React.FC<{
                 checked={!!editing.isDefault}
                 onChange={(e) => setEditing({ ...editing, isDefault: e.target.checked })}
               />
-              Set as default shipping address
+              {t('account.address.field.set_default')}
             </label>
           </div>
           <div className="flex gap-2">
@@ -813,10 +811,10 @@ const AddressesTab: React.FC<{
               className="px-4 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
               style={{ backgroundColor: accent }}
             >
-              {saving ? 'Saving…' : editing._id ? 'Save changes' : 'Add address'}
+              {saving ? t('account.action.saving') : editing._id ? t('account.action.save_changes') : t('account.action.add_address')}
             </button>
             <button onClick={() => setEditing(null)} className={btnGhost}>
-              Cancel
+              {t('account.order.cancel_keep_text')}
             </button>
           </div>
         </div>
@@ -831,6 +829,7 @@ const SecurityTab: React.FC<{
   accent: string;
   onDeactivated: () => void;
 }> = ({ flash, accent, onDeactivated }) => {
+  const { t } = useTranslation(['account']);
   const [pwd, setPwd] = useState({ current: '', next: '', confirm: '' });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -838,15 +837,15 @@ const SecurityTab: React.FC<{
 
   const submitPwd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pwd.next.length < 8) return flash('err', 'New password must be at least 8 characters');
-    if (pwd.next !== pwd.confirm) return flash('err', 'New passwords do not match');
+    if (pwd.next.length < 8) return flash('err', t('account.toast.password_error_min'));
+    if (pwd.next !== pwd.confirm) return flash('err', t('account.toast.password_error_match'));
     setSaving(true);
     try {
       await authApi.changePassword(pwd.current, pwd.next);
       setPwd({ current: '', next: '', confirm: '' });
-      flash('ok', 'Password updated');
+      flash('ok', t('account.toast.password_updated'));
     } catch (err: any) {
-      flash('err', err?.message || 'Failed to change password');
+      flash('err', err?.message || t('account.toast.password_error_change'));
     } finally {
       setSaving(false);
     }
@@ -854,9 +853,9 @@ const SecurityTab: React.FC<{
 
   const deactivate = async () => {
     if (!(await confirm({
-      title: 'Deactivate your account?',
-      description: 'You will be signed out and your sign-in will be disabled. Your order history will be preserved.',
-      confirmText: 'Deactivate',
+      title: t('account.deactivate_confirm.title'),
+      description: t('account.deactivate_confirm.description'),
+      confirmText: t('account.deactivate_confirm.confirm'),
       variant: 'destructive',
     }))) return;
     setDeleting(true);
@@ -864,7 +863,7 @@ const SecurityTab: React.FC<{
       await authApi.deleteAccount();
       onDeactivated();
     } catch (err: any) {
-      flash('err', err?.message || 'Failed to deactivate account');
+      flash('err', err?.message || t('account.toast.deactivate_error'));
       setDeleting(false);
     }
   };
@@ -873,13 +872,13 @@ const SecurityTab: React.FC<{
     <div className="space-y-6 max-w-2xl">
       <form onSubmit={submitPwd} className="border rounded-2xl bg-white shadow-sm p-6 space-y-4">
         <div>
-          <h3 className="font-semibold text-lg">Change password</h3>
+          <h3 className="font-semibold text-lg">{t('account.section.password.title')}</h3>
           <p className="text-sm text-gray-500 mt-0.5">
-            Choose a strong password — at least 8 characters.
+            {t('account.section.password.subtitle')}
           </p>
         </div>
         <div>
-          <label className={fieldLabel}>Current password</label>
+          <label className={fieldLabel}>{t('account.field.current_password.label')}</label>
           <input
             type="password"
             className={inputCls}
@@ -891,7 +890,7 @@ const SecurityTab: React.FC<{
           />
         </div>
         <div>
-          <label className={fieldLabel}>New password</label>
+          <label className={fieldLabel}>{t('account.field.new_password.label')}</label>
           <input
             type="password"
             className={inputCls}
@@ -904,7 +903,7 @@ const SecurityTab: React.FC<{
           />
         </div>
         <div>
-          <label className={fieldLabel}>Confirm new password</label>
+          <label className={fieldLabel}>{t('account.field.confirm_new_password.label')}</label>
           <input
             type="password"
             className={inputCls}
@@ -922,15 +921,15 @@ const SecurityTab: React.FC<{
           className="px-5 py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
           style={{ backgroundColor: accent }}
         >
-          {saving ? 'Updating…' : 'Update password'}
+          {saving ? t('account.action.updating') : t('account.action.update_password')}
         </button>
       </form>
 
       <div className="border border-red-200 rounded-2xl bg-red-50/40 p-6 space-y-3">
         <div>
-          <h3 className="font-semibold text-lg text-red-700">Deactivate account</h3>
+          <h3 className="font-semibold text-lg text-red-700">{t('account.section.deactivate.title')}</h3>
           <p className="text-sm text-red-600/80 mt-0.5">
-            This signs you out and disables sign-in. Your order history is preserved so receipts and refunds remain available.
+            {t('account.section.deactivate.subtitle')}
           </p>
         </div>
         <button
@@ -938,7 +937,7 @@ const SecurityTab: React.FC<{
           disabled={deleting}
           className="px-4 py-2 rounded-lg border border-red-300 text-red-700 text-sm font-medium bg-white hover:bg-red-50 transition disabled:opacity-50"
         >
-          {deleting ? 'Deactivating…' : 'Deactivate my account'}
+          {deleting ? t('account.action.deactivating') : t('account.action.deactivate')}
         </button>
       </div>
     </div>
@@ -950,6 +949,7 @@ const SecurityTab: React.FC<{
 // endpoint populates the product, so each row can link straight to the
 // PDP and a "Remove" button calls the idempotent toggle endpoint.
 const WishlistTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string) => void }> = ({ accent, flash }) => {
+  const { t } = useTranslation(['account']);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | null>(null);
@@ -960,7 +960,7 @@ const WishlistTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string
       const res = await wishlistApi.get();
       setItems(res?.data?.items || res?.items || []);
     } catch (e: any) {
-      flash('err', e.message || 'Could not load wishlist');
+      flash('err', e.message || t('account.toast.wishlist_load_error'));
     } finally {
       setLoading(false);
     }
@@ -976,24 +976,24 @@ const WishlistTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string
     try {
       await wishlistApi.toggle(productId);
       setItems((prev) => prev.filter((it) => (it.product?._id || it.productId) !== productId));
-      flash('ok', 'Removed from wishlist');
+      flash('ok', t('account.toast.wishlist_removed'));
     } catch (e: any) {
-      flash('err', e.message || 'Could not remove item');
+      flash('err', e.message || t('account.toast.wishlist_remove_error'));
     } finally {
       setRemoving(null);
     }
   };
 
   if (loading) {
-    return <div className="text-sm text-gray-500">Loading wishlist…</div>;
+    return <div className="text-sm text-gray-500">{t('account.wishlist.loading')}</div>;
   }
 
   if (items.length === 0) {
     return (
       <div className="text-center py-12 border border-dashed rounded-2xl">
-        <p className="text-gray-500 text-sm">Your wishlist is empty.</p>
+        <p className="text-gray-500 text-sm">{t('account.wishlist.empty')}</p>
         <Link to="/products" className="inline-block mt-3 text-sm font-medium" style={{ color: accent }}>
-          Browse products →
+          {t('account.wishlist.browse')}
         </Link>
       </div>
     );
@@ -1004,7 +1004,7 @@ const WishlistTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string
     <div>
       <div className="flex justify-end mb-3">
         <Link to="/wishlist" className="text-xs font-medium hover:underline" style={{ color: accent }}>
-          Open full wishlist page →
+          {t('account.wishlist.open_full')}
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1019,7 +1019,7 @@ const WishlistTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string
               {image ? (
                 <img src={image} alt={product.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">No image</div>
+                <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">{t('account.wishlist.no_image')}</div>
               )}
             </Link>
             <div className="p-3 flex-1 flex flex-col">
@@ -1039,7 +1039,7 @@ const WishlistTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string
                 disabled={removing === productId}
                 className="mt-3 text-xs px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50"
               >
-                {removing === productId ? 'Removing…' : 'Remove'}
+                {removing === productId ? t('account.wishlist.removing') : t('account.wishlist.remove')}
               </button>
             </div>
           </div>
@@ -1054,6 +1054,7 @@ const WishlistTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string
 // Lists every review the customer has posted. The backend populates
 // the product so we can link back to it and show a thumbnail.
 const ReviewsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string) => void }> = ({ accent, flash }) => {
+  const { t } = useTranslation(['account']);
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -1063,7 +1064,7 @@ const ReviewsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string)
         const res = await reviewsApi.mine();
         setReviews(res?.data?.reviews || []);
       } catch (e: any) {
-        flash('err', e.message || 'Could not load reviews');
+        flash('err', e.message || t('account.toast.reviews_load_error'));
       } finally {
         setLoading(false);
       }
@@ -1072,15 +1073,15 @@ const ReviewsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string)
   }, []);
 
   if (loading) {
-    return <div className="text-sm text-gray-500">Loading reviews…</div>;
+    return <div className="text-sm text-gray-500">{t('account.reviews.loading')}</div>;
   }
 
   if (reviews.length === 0) {
     return (
       <div className="text-center py-12 border border-dashed rounded-2xl">
-        <p className="text-gray-500 text-sm">You haven't written any reviews yet.</p>
+        <p className="text-gray-500 text-sm">{t('account.reviews.empty')}</p>
         <Link to="/products" className="inline-block mt-3 text-sm font-medium" style={{ color: accent }}>
-          Find something to review →
+          {t('account.reviews.browse')}
         </Link>
       </div>
     );
@@ -1137,6 +1138,7 @@ interface GiftCardSummary {
 
 const GiftCardsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string) => void }> = ({ accent, flash }) => {
   const { formatPrice } = useStore();
+  const { t } = useTranslation(['account']);
   const [cards, setCards] = useState<GiftCardSummary[] | null>(null);
 
   useEffect(() => {
@@ -1147,19 +1149,19 @@ const GiftCardsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: strin
           res?.data?.cards || res?.cards || res?.responseObject?.cards || [];
         setCards(list);
       } catch (err: any) {
-        flash('err', err?.message || 'Failed to load gift cards');
+        flash('err', err?.message || t('account.toast.giftcards_load_error'));
         setCards([]);
       }
     })();
   }, [flash]);
 
   if (cards === null) {
-    return <div className="text-sm text-gray-500">Loading gift cards…</div>;
+    return <div className="text-sm text-gray-500">{t('account.giftcards.loading')}</div>;
   }
   if (cards.length === 0) {
     return (
       <div className="text-center py-12 text-sm text-gray-500">
-        You don't have any gift cards yet.
+        {t('account.giftcards.empty')}
       </div>
     );
   }
@@ -1180,11 +1182,11 @@ const GiftCardsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: strin
         >
           <div>
             <div className="text-sm font-semibold">
-              Gift card •••• {c.codeLast4 || '????'}
+              {t('account.giftcards.card', { last4: c.codeLast4 || '????' })}
             </div>
             <div className="text-xs text-gray-500 mt-0.5">
-              Balance {formatPrice(c.balance)} of {formatPrice(c.initialAmount)}
-              {c.expiresAt && ` · expires ${new Date(c.expiresAt).toLocaleDateString()}`}
+              {t('account.giftcards.balance', { balance: formatPrice(c.balance), initial: formatPrice(c.initialAmount) })}
+              {c.expiresAt && ` ${t('account.giftcards.expires', { date: new Date(c.expiresAt).toLocaleDateString() })}`}
             </div>
           </div>
           <span

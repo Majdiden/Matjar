@@ -659,7 +659,7 @@ export const OrderDetails: React.FC = () => {
         onClick={() => openAddressDialog(kind)}
       >
         <Pencil className="h-3.5 w-3.5 me-1.5" />
-        Edit
+        {t('common:action.edit')}
       </Button>
     );
     return (
@@ -810,9 +810,9 @@ export const OrderDetails: React.FC = () => {
 
   const customerName = order.user?.name
     || (order.guestCustomer ? `${order.guestCustomer.firstName} ${order.guestCustomer.lastName}` : '')
-    || (order.shippingAddress?.firstName ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : 'Guest');
-  const customerEmail = order.user?.email || order.guestCustomer?.email || 'N/A';
-  const customerPhone = order.user?.phone || order.guestCustomer?.phone || order.shippingAddress?.phone || 'N/A';
+    || (order.shippingAddress?.firstName ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : t('orders:detail.customer.guest'));
+  const customerEmail = order.user?.email || order.guestCustomer?.email || t('orders:detail.customer.not_available');
+  const customerPhone = order.user?.phone || order.guestCustomer?.phone || order.shippingAddress?.phone || t('orders:detail.customer.not_available');
 
   return (
     <div className="space-y-6">
@@ -820,14 +820,14 @@ export const OrderDetails: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/orders')}>
-            <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" />Back
+            <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" />{t('orders:detail.back')}
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Order {order.orderNumber || `#${order._id.slice(-6).toUpperCase()}`}
+              {t('orders:detail.order_title', { number: order.orderNumber || `#${order._id.slice(-6).toUpperCase()}` })}
             </h1>
             <p className="text-muted-foreground text-sm">
-              Placed {new Date(order.createdAt).toLocaleString()}
+              {t('orders:detail.placed', { date: new Date(order.createdAt).toLocaleString() })}
             </p>
           </div>
         </div>
@@ -837,7 +837,7 @@ export const OrderDetails: React.FC = () => {
             size="sm"
             onClick={() => window.open(`/dashboard/orders/${order._id}/packing-slip`, '_blank', 'noopener,noreferrer')}
           >
-            <Printer className="h-4 w-4 me-2" />Print
+            <Printer className="h-4 w-4 me-2" />{t('orders:detail.action.print')}
           </Button>
           <DocumentsMenu order={order} payments={payments} />
         </div>
@@ -857,7 +857,7 @@ export const OrderDetails: React.FC = () => {
           if (dangerous) {
             const ok = await confirm({
               title: `${label}?`,
-              description: 'This action cannot be undone.',
+              description: t('orders:detail.action.cannot_be_undone'),
               variant: 'destructive',
               confirmText: label,
             });
@@ -866,11 +866,11 @@ export const OrderDetails: React.FC = () => {
           try {
             setPaymentActionBusy(true);
             await api.orders.paymentAction(order._id, { action });
-            toast.success(`${label} — updated`);
+            toast.success(t('orders:toast.payment_action_updated', { label }));
             await loadOrder(order._id);
           } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : null;
-            toast.error(msg || `Failed: ${label}`);
+            toast.error(msg || t('orders:toast.payment_action_failed', { label }));
           } finally {
             setPaymentActionBusy(false);
           }
@@ -891,7 +891,7 @@ export const OrderDetails: React.FC = () => {
             await loadOrder(order._id);
           } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : null;
-            toast.error(msg || 'Failed to cancel order');
+            toast.error(msg || t('orders:toast.cancel_failed'));
           } finally {
             setPaymentActionBusy(false);
           }
@@ -910,15 +910,14 @@ export const OrderDetails: React.FC = () => {
       <Dialog open={recordManualOpen} onOpenChange={setRecordManualOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Record manual payment</DialogTitle>
+            <DialogTitle>{t('orders:dialog.record_manual_payment.title')}</DialogTitle>
             <DialogDescription>
-              Log a payment collected outside of the gateway (bank transfer,
-              cash, wallet). The order will be marked as paid.
+              {t('orders:dialog.record_manual_payment.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <Label htmlFor="record-manual-amount">Amount</Label>
+              <Label htmlFor="record-manual-amount">{t('orders:dialog.record_manual_payment.amount_label')}</Label>
               <Input
                 id="record-manual-amount"
                 type="number"
@@ -929,16 +928,16 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="record-manual-reference">Reference (optional)</Label>
+              <Label htmlFor="record-manual-reference">{t('orders:dialog.record_manual_payment.reference_label')}</Label>
               <Input
                 id="record-manual-reference"
-                placeholder="Transfer ID, receipt #, etc."
+                placeholder={t('orders:dialog.record_manual_payment.reference_placeholder')}
                 value={recordManualReference}
                 onChange={(e) => setRecordManualReference(e.target.value)}
               />
             </div>
             <div>
-              <Label htmlFor="record-manual-note">Internal note (optional)</Label>
+              <Label htmlFor="record-manual-note">{t('orders:dialog.record_manual_payment.note_label')}</Label>
               <Textarea
                 id="record-manual-note"
                 value={recordManualNote}
@@ -953,11 +952,11 @@ export const OrderDetails: React.FC = () => {
               onClick={() => setRecordManualOpen(false)}
               disabled={paymentActionBusy}
             >
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={submitRecordManual} disabled={paymentActionBusy}>
               {paymentActionBusy && <Loader2 className="h-3 w-3 me-2 animate-spin" />}
-              Record payment
+              {t('orders:dialog.record_manual_payment.submit')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -970,7 +969,7 @@ export const OrderDetails: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Package className="h-5 w-5" />Order Items
+                <Package className="h-5 w-5" />{t('orders:detail.section.items.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -1022,11 +1021,11 @@ export const OrderDetails: React.FC = () => {
                           <div className="min-w-0">
                             <p className="font-semibold text-base leading-tight truncate">{name}</p>
                             <p className="text-sm text-muted-foreground mt-1">
-                              SKU: {sku || '—'}
+                              {t('orders:detail.item.sku', { sku: sku || '—' })}
                             </p>
                             {variantLabel && (
                               <p className="text-sm text-muted-foreground mt-0.5">
-                                Variant: {variantLabel}
+                                {t('orders:detail.item.variant', { label: variantLabel })}
                               </p>
                             )}
                           </div>
@@ -1037,55 +1036,55 @@ export const OrderDetails: React.FC = () => {
 
                         <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2 text-sm text-muted-foreground">
                           <span>
-                            Qty: <span className="text-foreground font-medium">{qty}</span>
+                            {t('orders:detail.item.qty', { count: qty })}
                           </span>
                           <span>
-                            Fulfilled: <span className="text-foreground font-medium">{fulfilled}/{qty}</span>
+                            {t('orders:detail.item.fulfilled', { done: fulfilled, total: qty })}
                           </span>
                           <span>
-                            Refunded: <span className="text-foreground font-medium">{refunded}/{qty}</span>
+                            {t('orders:detail.item.refunded', { done: refunded, total: qty })}
                           </span>
                           {returnable > 0 && (
                             <span>
-                              Returnable: <span className="text-foreground font-medium">{returnable}</span>
+                              {t('orders:detail.item.returnable', { count: returnable })}
                             </span>
                           )}
                         </div>
 
                         <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1 text-sm text-muted-foreground">
                           <span>
-                            Unit: <span className="text-foreground font-medium tabular-nums">{formatPrice(item.price)}</span>
+                            {t('orders:detail.item.unit', { price: formatPrice(item.price) })}
                           </span>
                           <span>
-                            Subtotal: <span className="text-foreground font-medium tabular-nums">{formatPrice(subtotal)}</span>
+                            {t('orders:detail.item.subtotal', { price: formatPrice(subtotal) })}
                           </span>
                           {discount > 0 && (
                             <span className="text-green-600 dark:text-green-500">
-                              Discount: <span className="font-medium tabular-nums">-{formatPrice(discount)}</span>
+                              {t('orders:detail.item.discount', { price: formatPrice(discount) })}
                             </span>
                           )}
                           {tax > 0 && (
                             <span>
-                              Tax: <span className="text-foreground font-medium tabular-nums">{formatPrice(tax)}</span>
+                              {t('orders:detail.item.tax', { price: formatPrice(tax) })}
                             </span>
                           )}
                         </div>
 
                         <div className="flex items-center flex-wrap gap-2 mt-2">
                           {isFullyFulfilled && (
-                            <Badge variant="default" className="h-5 text-[10px]">Fulfilled</Badge>
+                            <Badge variant="default" className="h-5 text-[10px]">{t('common:status.Fulfilled')}</Badge>
                           )}
                           {isPartial && (
                             <Badge variant="secondary" className="h-5 text-[10px]">
-                              {fulfilled}/{qty} shipped
+                              {t('orders:detail.item.shipped', { done: fulfilled, total: qty })}
                             </Badge>
                           )}
                           {item.isPreorder && (
                             <Badge variant="outline" className="h-5 text-[10px] border-amber-500 text-amber-700 dark:text-amber-400">
                               <Clock className="h-3 w-3 me-0.5" />
-                              Pre-order
+                              {t('orders:detail.item.pre_order')}
                               {item.preorderExpectedShipDate && (
-                                <> · ships {new Date(item.preorderExpectedShipDate).toLocaleDateString()}</>
+                                <>{t('orders:detail.item.ships', { date: new Date(item.preorderExpectedShipDate).toLocaleDateString() })}</>
                               )}
                             </Badge>
                           )}
@@ -1099,32 +1098,32 @@ export const OrderDetails: React.FC = () => {
               {/* Totals */}
               <div className="border-t p-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-muted-foreground">{t('orders:detail.totals.subtotal')}</span>
                   <span>{formatPrice(order.subtotal || 0)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Shipping</span>
+                  <span className="text-muted-foreground">{t('orders:detail.totals.shipping')}</span>
                   <span>{formatPrice(order.shippingCost || 0)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax</span>
+                  <span className="text-muted-foreground">{t('orders:detail.totals.tax')}</span>
                   <span>{formatPrice(order.tax || 0)}</span>
                 </div>
                 {(order.discount ?? 0) > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
-                    <span>Discount</span>
+                    <span>{t('orders:detail.totals.discount')}</span>
                     <span>-{formatPrice(order.discount!)}</span>
                   </div>
                 )}
                 {(order.giftCardRedemption?.amount ?? 0) > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
-                    <span>Gift card{order.giftCardRedemption?.codeLast4 ? ` (•••• ${order.giftCardRedemption.codeLast4})` : ''}</span>
+                    <span>{t('orders:detail.totals.gift_card')}{order.giftCardRedemption?.codeLast4 ? ` (•••• ${order.giftCardRedemption.codeLast4})` : ''}</span>
                     <span>-{formatPrice(order.giftCardRedemption!.amount!)}</span>
                   </div>
                 )}
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
-                  <span>Total</span>
+                  <span>{t('orders:detail.totals.total')}</span>
                   <span>{formatPrice(order.totalAmount)}</span>
                 </div>
               </div>
@@ -1135,27 +1134,27 @@ export const OrderDetails: React.FC = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base flex items-center gap-2">
-                <Receipt className="h-5 w-5" /> Payments & refunds
+                <Receipt className="h-5 w-5" /> {t('orders:detail.section.payments.title')}
               </CardTitle>
               {maxRefundable > 0 && (
                 <Button size="sm" variant="outline" onClick={openRefundDialog}>
                   <ArrowDownLeft className="h-4 w-4 me-2" />
-                  {isManualRefund ? 'Record manual refund' : 'Issue refund'}
+                  {isManualRefund ? t('orders:detail.action.record_manual_refund') : t('orders:detail.action.refund')}
                 </Button>
               )}
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <p className="text-muted-foreground text-sm">Paid</p>
+                  <p className="text-muted-foreground text-sm">{t('orders:detail.payment.paid')}</p>
                   <p className="font-semibold text-base">{formatPrice(totalPaid)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-sm">Refunded</p>
+                  <p className="text-muted-foreground text-sm">{t('orders:detail.payment.refunded')}</p>
                   <p className="font-semibold text-base">{formatPrice(totalRefunded)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-sm">Refundable</p>
+                  <p className="text-muted-foreground text-sm">{t('orders:detail.payment.refundable')}</p>
                   <p className="font-semibold text-base">{formatPrice(maxRefundable)}</p>
                 </div>
               </div>
@@ -1163,7 +1162,7 @@ export const OrderDetails: React.FC = () => {
                 <Skeleton className="h-16 w-full" />
               ) : payments.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No payment records. Refund history will appear here once a payment is captured.
+                  {t('orders:detail.payment.no_records')}
                 </p>
               ) : (
                 <div className="border rounded-md divide-y">
@@ -1179,7 +1178,7 @@ export const OrderDetails: React.FC = () => {
                         )}
                         <div>
                           <p className="font-semibold capitalize text-base">
-                            {p.status === 'refunded' ? 'Refund' : 'Payment'}
+                            {p.status === 'refunded' ? t('orders:detail.payment.record_type_refund') : t('orders:detail.payment.record_type_payment')}
                           </p>
                           <p className="text-sm text-muted-foreground">
                             {p.provider} · {new Date(p.createdAt).toLocaleString()}
@@ -1236,7 +1235,7 @@ export const OrderDetails: React.FC = () => {
           {/* Notes */}
           {order.notes && (
             <Card>
-              <CardHeader><CardTitle className="text-base">Order Notes</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base">{t('orders:detail.section.order_notes.title')}</CardTitle></CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">{order.notes}</p>
               </CardContent>
@@ -1253,7 +1252,7 @@ export const OrderDetails: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <User className="h-5 w-5" />Customer
+                <User className="h-5 w-5" />{t('orders:detail.section.customer.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -1266,7 +1265,7 @@ export const OrderDetails: React.FC = () => {
                       : !order.user;
                     return (
                       <Badge variant={isGuest ? 'secondary' : 'default'} className="text-xs">
-                        {isGuest ? 'Guest' : 'Customer'}
+                        {isGuest ? t('orders:detail.customer.guest') : t('orders:detail.customer.customer')}
                       </Badge>
                     );
                   })()}
@@ -1291,37 +1290,37 @@ export const OrderDetails: React.FC = () => {
                 </div>
               ) : customerContext ? (
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-                  <dt className="text-muted-foreground">Lifetime orders</dt>
+                  <dt className="text-muted-foreground">{t('orders:detail.customer.lifetime_orders')}</dt>
                   <dd className="text-end font-medium">{customerContext.lifetimeOrderCount}</dd>
-                  <dt className="text-muted-foreground">Lifetime spend</dt>
+                  <dt className="text-muted-foreground">{t('orders:detail.customer.lifetime_spend')}</dt>
                   <dd className="text-end font-medium">{formatPrice(customerContext.lifetimeSpend)}</dd>
-                  <dt className="text-muted-foreground">Previous refunds</dt>
+                  <dt className="text-muted-foreground">{t('orders:detail.customer.previous_refunds')}</dt>
                   <dd className="text-end font-medium">{customerContext.previousRefunds}</dd>
-                  <dt className="text-muted-foreground">Previous cancellations</dt>
+                  <dt className="text-muted-foreground">{t('orders:detail.customer.previous_cancellations')}</dt>
                   <dd className="text-end font-medium">{customerContext.previousCancellations}</dd>
-                  <dt className="text-muted-foreground">Last order</dt>
+                  <dt className="text-muted-foreground">{t('orders:detail.customer.last_order')}</dt>
                   <dd className="text-end">
                     {customerContext.lastOrderDate
                       ? new Date(customerContext.lastOrderDate).toLocaleDateString()
                       : '—'}
                   </dd>
-                  <dt className="text-muted-foreground">Customer since</dt>
+                  <dt className="text-muted-foreground">{t('orders:detail.customer.customer_since')}</dt>
                   <dd className="text-end">
                     {customerContext.customerSince
                       ? new Date(customerContext.customerSince).toLocaleDateString()
                       : '—'}
                   </dd>
-                  <dt className="text-muted-foreground">Marketing consent</dt>
+                  <dt className="text-muted-foreground">{t('orders:detail.customer.marketing_consent')}</dt>
                   <dd className="text-end">
                     {customerContext.marketingConsent === true
-                      ? 'Yes'
+                      ? t('orders:detail.customer.yes')
                       : customerContext.marketingConsent === false
-                      ? 'No'
-                      : 'Unknown'}
+                      ? t('orders:detail.customer.no')
+                      : t('orders:detail.customer.unknown')}
                   </dd>
                 </dl>
               ) : (
-                <p className="text-sm text-muted-foreground">No customer context available.</p>
+                <p className="text-sm text-muted-foreground">{t('orders:detail.customer.no_context')}</p>
               )}
 
               <div className="flex flex-col gap-2 pt-1">
@@ -1338,7 +1337,7 @@ export const OrderDetails: React.FC = () => {
                       className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
-                      View all orders
+                      {t('orders:detail.action.view_all_orders')}
                     </Link>
                   );
                 })()}
@@ -1348,7 +1347,7 @@ export const OrderDetails: React.FC = () => {
                     className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
                   >
                     <User className="h-3.5 w-3.5" />
-                    View profile
+                    {t('orders:detail.action.view_profile')}
                   </Link>
                 )}
               </div>
@@ -1359,7 +1358,7 @@ export const OrderDetails: React.FC = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base flex items-center gap-2">
-                <Calendar className="h-5 w-5" />Timeline
+                <Calendar className="h-5 w-5" />{t('orders:detail.section.timeline.title')}
               </CardTitle>
               {(order.replacementOf ||
                 (order.replacementOrders && order.replacementOrders.length > 0)) && (
@@ -1370,7 +1369,7 @@ export const OrderDetails: React.FC = () => {
                   onClick={() => navigate(`/dashboard/orders/${order._id}/lifecycle`)}
                 >
                   <GitBranch className="h-3.5 w-3.5 me-1.5" />
-                  View timeline
+                  {t('orders:detail.action.view_timeline')}
                 </Button>
               )}
             </CardHeader>
@@ -1383,7 +1382,7 @@ export const OrderDetails: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <TagIcon className="h-5 w-5" />Tags
+                <TagIcon className="h-5 w-5" />{t('orders:detail.section.tags.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -1413,7 +1412,7 @@ export const OrderDetails: React.FC = () => {
                     </span>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground">No tags yet.</p>
+                  <p className="text-sm text-muted-foreground">{t('orders:detail.tags.none')}</p>
                 )}
               </div>
               {canWriteOrders && (
@@ -1421,7 +1420,7 @@ export const OrderDetails: React.FC = () => {
                   <Input
                     value={tagDraft}
                     onChange={(e) => setTagDraft(e.target.value)}
-                    placeholder="Add tag…"
+                    placeholder={t('orders:detail.tags.add_placeholder')}
                     maxLength={32}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !tagSubmitting) {
@@ -1436,7 +1435,7 @@ export const OrderDetails: React.FC = () => {
                     onClick={handleAddTag}
                     disabled={tagSubmitting || !tagDraft.trim()}
                   >
-                    {tagSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
+                    {tagSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('orders:detail.tags.add')}
                   </Button>
                 </div>
               )}
@@ -1447,10 +1446,10 @@ export const OrderDetails: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <StickyNote className="h-5 w-5" />Internal Notes
+                <StickyNote className="h-5 w-5" />{t('orders:detail.section.notes.title')}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Internal — not visible to customer
+                {t('orders:detail.section.notes.subtitle')}
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -1459,7 +1458,7 @@ export const OrderDetails: React.FC = () => {
                   <Textarea
                     value={noteDraft}
                     onChange={(e) => setNoteDraft(e.target.value)}
-                    placeholder="Add an internal note…"
+                    placeholder={t('orders:detail.notes.add_placeholder')}
                     maxLength={2000}
                     rows={3}
                   />
@@ -1471,14 +1470,14 @@ export const OrderDetails: React.FC = () => {
                         onChange={(e) => setNotePinned(e.target.checked)}
                         className="h-3.5 w-3.5"
                       />
-                      Pin to top
+                      {t('orders:detail.notes.pin_to_top')}
                     </label>
                     <Button
                       size="sm"
                       onClick={handleAddNote}
                       disabled={noteSubmitting || !noteDraft.trim()}
                     >
-                      {noteSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add note'}
+                      {noteSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('orders:detail.notes.add_button')}
                     </Button>
                   </div>
                 </div>
@@ -1488,7 +1487,7 @@ export const OrderDetails: React.FC = () => {
                   const visible = (order.internalNotes || []).filter((n) => !n.deletedAt);
                   if (visible.length === 0) {
                     return (
-                      <p className="text-xs text-muted-foreground">No internal notes yet.</p>
+                      <p className="text-xs text-muted-foreground">{t('orders:detail.notes.none')}</p>
                     );
                   }
                   const sorted = [...visible].sort((a, b) => {
@@ -1506,7 +1505,7 @@ export const OrderDetails: React.FC = () => {
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           {n.pinned && <Pin className="h-3 w-3 text-amber-500" />}
                           <span className="font-medium text-foreground">
-                            {n.createdByName || 'Staff'}
+                            {n.createdByName || t('orders:detail.notes.staff')}
                           </span>
                           <span>·</span>
                           <span>{new Date(n.createdAt).toLocaleString()}</span>
@@ -1517,7 +1516,7 @@ export const OrderDetails: React.FC = () => {
                             onClick={() => handleDeleteNote(n._id)}
                             disabled={noteBusy === n._id}
                             className="text-muted-foreground hover:text-destructive disabled:opacity-50"
-                            aria-label="Delete note"
+                            aria-label={t('orders:detail.notes.delete_note_aria')}
                           >
                             {noteBusy === n._id ? (
                               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1542,33 +1541,29 @@ export const OrderDetails: React.FC = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {isManualRefund ? 'Record manual refund' : 'Issue refund'}
+              {isManualRefund ? t('orders:dialog.refund.title_manual') : t('orders:dialog.refund.title_gateway')}
             </DialogTitle>
             <DialogDescription>
               {isManualRefund ? (
-                <>
-                  This order was paid via <span className="font-medium">{order.paymentMethod}</span>.
-                  Mark it refunded in the books — no payment provider will be
-                  charged. Use this for cash, bank transfer, or store credit.
-                </>
+                t('orders:dialog.refund.desc_manual', { method: order.paymentMethod })
               ) : (
-                <>Refund up to {formatPrice(maxRefundable)} back to the original payment method.</>
+                t('orders:dialog.refund.desc_gateway', { max: formatPrice(maxRefundable) })
               )}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-muted-foreground text-xs">Order total</p>
+                <p className="text-muted-foreground text-xs">{t('orders:dialog.refund.order_total')}</p>
                 <p className="font-semibold">{formatPrice(order.totalAmount)}</p>
               </div>
               <div>
-                <p className="text-muted-foreground text-xs">Already refunded</p>
+                <p className="text-muted-foreground text-xs">{t('orders:dialog.refund.already_refunded')}</p>
                 <p className="font-semibold">{formatPrice(totalRefunded)}</p>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="refund-amount">Refund amount</Label>
+              <Label htmlFor="refund-amount">{t('orders:dialog.refund.amount_label')}</Label>
               <Input
                 id="refund-amount"
                 type="number"
@@ -1579,25 +1574,24 @@ export const OrderDetails: React.FC = () => {
                 onChange={(e) => setRefundAmount(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Max refundable: {formatPrice(maxRefundable)}
+                {t('orders:dialog.refund.max_refundable', { amount: formatPrice(maxRefundable) })}
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="refund-reason">Reason (optional)</Label>
+              <Label htmlFor="refund-reason">{t('orders:dialog.refund.reason_label')}</Label>
               <Input
                 id="refund-reason"
                 value={refundReason}
                 onChange={(e) => setRefundReason(e.target.value)}
-                placeholder="e.g. Damaged on arrival"
+                placeholder={t('orders:dialog.refund.reason_placeholder')}
               />
             </div>
             {isManualRefund && isManualMethod && customerFields.length > 0 && (
               <div className="space-y-3 pt-3 border-t">
                 <div>
-                  <p className="text-sm font-medium">Refund payment details</p>
+                  <p className="text-sm font-medium">{t('orders:dialog.refund.details_title')}</p>
                   <p className="text-xs text-muted-foreground">
-                    Record how the refund was sent to the customer — mirrors
-                    the fields they filled at checkout.
+                    {t('orders:dialog.refund.details_desc')}
                   </p>
                 </div>
                 {customerFields.map((f: PaymentMethodField) => (
@@ -1615,11 +1609,11 @@ export const OrderDetails: React.FC = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRefundOpen(false)} disabled={refunding}>
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={submitRefund} disabled={refunding}>
               {refunding && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
-              {isManualRefund ? 'Record' : 'Refund'}{' '}
+              {isManualRefund ? t('orders:dialog.refund.submit_manual') : t('orders:dialog.refund.submit_gateway')}{' '}
               {refundAmount && Number(refundAmount) > 0 ? formatPrice(Number(refundAmount)) : ''}
             </Button>
           </DialogFooter>
@@ -1630,10 +1624,9 @@ export const OrderDetails: React.FC = () => {
       <Dialog open={replacementOpen} onOpenChange={setReplacementOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Create replacement order</DialogTitle>
+            <DialogTitle>{t('orders:dialog.replacement.title')}</DialogTitle>
             <DialogDescription>
-              Creates a new $0 order with the items you pick, linked to this order.
-              Fulfill it just like a regular order — useful for damaged or lost items.
+              {t('orders:dialog.replacement.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -1642,15 +1635,15 @@ export const OrderDetails: React.FC = () => {
               picks={replacementPicks}
               onChange={setReplacementPicks}
               maxOf={(line: OrderItem) => Number(line.quantity) || 0}
-              labelMax="ordered"
+              labelMax={t('orders:detail.line_picker.label_max_ordered')}
             />
             <div className="space-y-2">
-              <Label htmlFor="replacement-reason">Reason (optional)</Label>
+              <Label htmlFor="replacement-reason">{t('orders:dialog.replacement.reason_label')}</Label>
               <Textarea
                 id="replacement-reason"
                 value={replacementReason}
                 onChange={(e) => setReplacementReason(e.target.value)}
-                placeholder="e.g. Damaged in transit — re-shipping same items"
+                placeholder={t('orders:dialog.replacement.reason_placeholder')}
                 rows={2}
               />
             </div>
@@ -1661,11 +1654,11 @@ export const OrderDetails: React.FC = () => {
               onClick={() => setReplacementOpen(false)}
               disabled={creatingReplacement}
             >
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={submitReplacement} disabled={creatingReplacement}>
               {creatingReplacement && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
-              Create replacement
+              {t('orders:dialog.replacement.submit')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1675,10 +1668,9 @@ export const OrderDetails: React.FC = () => {
       <Dialog open={returnOpen} onOpenChange={setReturnOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>New return request</DialogTitle>
+            <DialogTitle>{t('orders:dialog.return.title')}</DialogTitle>
             <DialogDescription>
-              Record which items the customer wants to return. You can approve,
-              mark received, and refund from the returns list.
+              {t('orders:dialog.return.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -1687,15 +1679,15 @@ export const OrderDetails: React.FC = () => {
               picks={returnPicks}
               onChange={setReturnPicks}
               maxOf={(line: OrderItem) => getReturnableQuantity(order, line)}
-              labelMax="received"
+              labelMax={t('orders:detail.line_picker.label_max_received')}
             />
             <div className="space-y-2">
-              <Label htmlFor="return-reason">Reason (optional)</Label>
+              <Label htmlFor="return-reason">{t('orders:dialog.return.reason_label')}</Label>
               <Textarea
                 id="return-reason"
                 value={returnReason}
                 onChange={(e) => setReturnReason(e.target.value)}
-                placeholder="e.g. Wrong size"
+                placeholder={t('orders:dialog.return.reason_placeholder')}
                 rows={2}
               />
             </div>
@@ -1706,11 +1698,11 @@ export const OrderDetails: React.FC = () => {
               onClick={() => setReturnOpen(false)}
               disabled={creatingReturn}
             >
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={submitReturn} disabled={creatingReturn}>
               {creatingReturn && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
-              Request return
+              {t('orders:dialog.return.submit')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1721,24 +1713,21 @@ export const OrderDetails: React.FC = () => {
       <Dialog open={verifyOpen} onOpenChange={setVerifyOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Verify manual payment</DialogTitle>
+            <DialogTitle>{t('orders:dialog.verify.title')}</DialogTitle>
             <DialogDescription>
-              Review the payment details the customer submitted for{' '}
-              <span className="font-medium">{order.paymentMethod}</span>.
-              Marking verified sets the order to Paid.
+              {t('orders:dialog.verify.description', { method: order.paymentMethod })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
             {typeof submittedDetails.providerLabel === 'string' && submittedDetails.providerLabel && (
               <div className="flex items-center justify-between rounded-md border bg-muted/40 px-3 py-2">
-                <span className="text-xs text-muted-foreground">Provider</span>
+                <span className="text-xs text-muted-foreground">{t('orders:dialog.verify.provider')}</span>
                 <span className="text-sm font-medium">{submittedDetails.providerLabel}</span>
               </div>
             )}
             {customerFields.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                This method has no customer-submitted fields — verify
-                payment out-of-band, then confirm below.
+                {t('orders:dialog.verify.no_fields')}
               </p>
             ) : (
               customerFields.map((f: PaymentMethodField) => (
@@ -1750,22 +1739,22 @@ export const OrderDetails: React.FC = () => {
               ))
             )}
             <div className="space-y-2 pt-3 border-t">
-              <Label htmlFor="verify-note">Verification note (optional)</Label>
+              <Label htmlFor="verify-note">{t('orders:dialog.verify.note_label')}</Label>
               <Textarea
                 id="verify-note"
                 value={verifyNote}
                 onChange={(e) => setVerifyNote(e.target.value)}
-                placeholder="e.g. Matched $120.00 received via bank transfer ref #8827"
+                placeholder={t('orders:dialog.verify.note_placeholder')}
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setVerifyOpen(false)} disabled={verifying}>
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={submitVerify} disabled={verifying}>
               {verifying && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
-              Mark as verified
+              {t('orders:dialog.verify.submit')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1776,10 +1765,10 @@ export const OrderDetails: React.FC = () => {
         <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>
-              Edit {addressDialogKind === 'shipping' ? 'shipping' : 'billing'} address
+              {addressDialogKind === 'shipping' ? t('orders:dialog.address_edit.title_shipping') : t('orders:dialog.address_edit.title_billing')}
             </DialogTitle>
             <DialogDescription>
-              Updates are written immediately to the order and recorded in the timeline.
+              {t('orders:dialog.address_edit.description')}
             </DialogDescription>
           </DialogHeader>
 
@@ -1787,15 +1776,14 @@ export const OrderDetails: React.FC = () => {
             <Alert variant="destructive" className="mb-2">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                This order is already <strong>{String(order.fulfillmentStatus).toLowerCase()}</strong>.
-                Changing the address here will not redirect packages already handed to the carrier.
+                {t('orders:dialog.address_edit.fulfillment_warning', { status: String(order.fulfillmentStatus).toLowerCase() })}
               </AlertDescription>
             </Alert>
           )}
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="addr-firstName">First name</Label>
+              <Label htmlFor="addr-firstName">{t('orders:dialog.address_edit.field.first_name')}</Label>
               <Input
                 id="addr-firstName"
                 value={addressForm.firstName || ''}
@@ -1803,7 +1791,7 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="addr-lastName">Last name</Label>
+              <Label htmlFor="addr-lastName">{t('orders:dialog.address_edit.field.last_name')}</Label>
               <Input
                 id="addr-lastName"
                 value={addressForm.lastName || ''}
@@ -1811,7 +1799,7 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="addr-line1">Address line 1</Label>
+              <Label htmlFor="addr-line1">{t('orders:dialog.address_edit.field.line1')}</Label>
               <Input
                 id="addr-line1"
                 value={addressForm.addressLine1 || ''}
@@ -1819,7 +1807,7 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="addr-line2">Address line 2</Label>
+              <Label htmlFor="addr-line2">{t('orders:dialog.address_edit.field.line2')}</Label>
               <Input
                 id="addr-line2"
                 value={addressForm.addressLine2 || ''}
@@ -1827,7 +1815,7 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="addr-city">City</Label>
+              <Label htmlFor="addr-city">{t('orders:dialog.address_edit.field.city')}</Label>
               <Input
                 id="addr-city"
                 value={addressForm.city || ''}
@@ -1835,7 +1823,7 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="addr-state">State / Region</Label>
+              <Label htmlFor="addr-state">{t('orders:dialog.address_edit.field.state')}</Label>
               <Input
                 id="addr-state"
                 value={addressForm.state || ''}
@@ -1843,7 +1831,7 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="addr-postal">Postal code</Label>
+              <Label htmlFor="addr-postal">{t('orders:dialog.address_edit.field.postal')}</Label>
               <Input
                 id="addr-postal"
                 value={addressForm.postalCode || ''}
@@ -1851,7 +1839,7 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="addr-country">Country</Label>
+              <Label htmlFor="addr-country">{t('orders:dialog.address_edit.field.country')}</Label>
               <Input
                 id="addr-country"
                 value={addressForm.country || ''}
@@ -1859,7 +1847,7 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="addr-phone">Phone</Label>
+              <Label htmlFor="addr-phone">{t('orders:dialog.address_edit.field.phone')}</Label>
               <Input
                 id="addr-phone"
                 value={addressForm.phone || ''}
@@ -1867,7 +1855,7 @@ export const OrderDetails: React.FC = () => {
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="addr-delivery">Delivery instructions</Label>
+              <Label htmlFor="addr-delivery">{t('orders:dialog.address_edit.field.delivery_instructions')}</Label>
               <Textarea
                 id="addr-delivery"
                 value={addressForm.deliveryInstructions || ''}
@@ -1879,11 +1867,11 @@ export const OrderDetails: React.FC = () => {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddressDialogOpen(false)} disabled={savingAddress}>
-              Cancel
+              {t('common:action.cancel')}
             </Button>
             <Button onClick={submitAddress} disabled={savingAddress || !canWriteOrders}>
               {savingAddress && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
-              Save changes
+              {t('orders:dialog.address_edit.submit')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2012,6 +2000,7 @@ const LinePicker: React.FC<{
   maxOf: (line: OrderItem) => number;
   labelMax: string;
 }> = ({ order, picks, onChange, maxOf, labelMax }) => {
+  const { t: tLP } = useTranslation(['orders', 'common']);
   const rows = order.products
     .map((line) => ({ line, id: String(line._id), max: maxOf(line) }))
     .filter((row) => row.id && row.max > 0);
@@ -2019,7 +2008,7 @@ const LinePicker: React.FC<{
   if (rows.length === 0) {
     return (
       <div className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-        No eligible items found for this request.
+        {tLP('orders:validation.no_eligible_items')}
       </div>
     );
   }
@@ -2036,7 +2025,7 @@ const LinePicker: React.FC<{
           >
             <span className="flex-1 truncate">{name}</span>
             <span className="text-xs text-muted-foreground whitespace-nowrap">
-              max {max} {labelMax}
+              {tLP('orders:detail.line_picker.max_label', { max, labelMax })}
             </span>
             <Input
               type="number"
@@ -2088,7 +2077,7 @@ const ReturnsAndReplacements: React.FC<{
     if (!refundDialog) return;
     const amt = Number(refundDialog.amount);
     if (isNaN(amt) || amt < 0) {
-      toast.error('Invalid amount');
+      toast.error(tR('orders:validation.refund_amount_invalid'));
       return;
     }
     onAdvanceReturn(refundDialog.returnId, 'Refunded', amt);
@@ -2126,14 +2115,14 @@ const ReturnsAndReplacements: React.FC<{
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-base flex items-center gap-2">
-          <RefreshCw className="h-5 w-5" /> Returns & replacements
+          <RefreshCw className="h-5 w-5" /> {tR('orders:detail.section.returns.title')}
         </CardTitle>
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={onNewReturn}>
-            New return
+            {tR('orders:detail.action.new_return')}
           </Button>
           <Button size="sm" variant="outline" onClick={onNewReplacement}>
-            New replacement
+            {tR('orders:detail.action.new_replacement')}
           </Button>
         </div>
       </CardHeader>
@@ -2141,13 +2130,13 @@ const ReturnsAndReplacements: React.FC<{
         {replacementOf && (
           <div className="rounded-md bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 p-3 text-sm">
             <p className="font-medium text-indigo-900 dark:text-indigo-200">
-              This is a replacement order.
+              {tR('orders:detail.replacement_info.is_replacement')}
             </p>
             <Link
               to={`/dashboard/orders/${replacementOf}`}
               className="text-xs text-indigo-700 dark:text-indigo-300 underline"
             >
-              View original order
+              {tR('orders:detail.action.view_original_order')}
             </Link>
           </div>
         )}
@@ -2156,8 +2145,8 @@ const ReturnsAndReplacements: React.FC<{
           <div className="rounded-md bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 p-3 text-sm space-y-1">
             <p className="font-medium text-indigo-900 dark:text-indigo-200">
               {replacements.length === 1
-                ? 'This order has a replacement order.'
-                : `This order has ${replacements.length} replacement orders.`}
+                ? tR('orders:detail.replacement_info.has_one')
+                : tR('orders:detail.replacement_info.has_many', { count: replacements.length })}
             </p>
             <div className="flex flex-wrap gap-x-3 gap-y-1">
               {replacements.map((r, i) => (
@@ -2166,7 +2155,7 @@ const ReturnsAndReplacements: React.FC<{
                   to={`/dashboard/orders/${String(r)}`}
                   className="text-xs text-indigo-700 dark:text-indigo-300 underline"
                 >
-                  {replacements.length === 1 ? 'View replacement order' : `View replacement #${i + 1}`}
+                  {replacements.length === 1 ? tR('orders:detail.action.view_replacement_order') : tR('orders:detail.action.view_replacement_n', { n: i + 1 })}
                 </Link>
               ))}
             </div>
@@ -2175,7 +2164,7 @@ const ReturnsAndReplacements: React.FC<{
 
         {returns.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No returns yet. Record one when a customer sends items back.
+            {tR('orders:detail.returns.none')}
           </p>
         ) : (
           <div className="space-y-3">
@@ -2184,7 +2173,7 @@ const ReturnsAndReplacements: React.FC<{
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2">
                     <ArrowDownLeft className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium text-sm">Return</span>
+                    <span className="font-medium text-sm">{tR('orders:detail.returns.return_label')}</span>
                     <Badge variant={returnStatusVariant(ret.status)}>{tR(`common.status.${ret.status}`, { ns: 'common', defaultValue: ret.status })}</Badge>
                     {typeof ret.refundAmount === 'number' && ret.refundAmount > 0 && (
                       <Badge variant="outline" className="text-[10px]">
@@ -2202,7 +2191,7 @@ const ReturnsAndReplacements: React.FC<{
                           disabled={busyReturnId === ret._id}
                           onClick={() => onAdvanceReturn(ret._id, 'Approved')}
                         >
-                          Approve
+                          {tR('orders:detail.returns.approve')}
                         </Button>
                         <Button
                           size="sm"
@@ -2211,7 +2200,7 @@ const ReturnsAndReplacements: React.FC<{
                           disabled={busyReturnId === ret._id}
                           onClick={() => onAdvanceReturn(ret._id, 'Rejected')}
                         >
-                          Reject
+                          {tR('orders:detail.returns.reject')}
                         </Button>
                       </>
                     )}
@@ -2223,7 +2212,7 @@ const ReturnsAndReplacements: React.FC<{
                         disabled={busyReturnId === ret._id}
                         onClick={() => onAdvanceReturn(ret._id, 'Received')}
                       >
-                        Mark received
+                        {tR('orders:detail.returns.mark_received')}
                       </Button>
                     )}
                     {(ret.status === 'Approved' || ret.status === 'Received') && (
@@ -2234,7 +2223,7 @@ const ReturnsAndReplacements: React.FC<{
                         disabled={busyReturnId === ret._id}
                         onClick={() => openRefundAmountDialog(ret)}
                       >
-                        Mark refunded
+                        {tR('orders:detail.returns.mark_refunded')}
                       </Button>
                     )}
                   </div>
@@ -2260,9 +2249,9 @@ const ReturnsAndReplacements: React.FC<{
     <Dialog open={!!refundDialog} onOpenChange={(open) => { if (!open) setRefundDialog(null); }}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Refund amount</DialogTitle>
+          <DialogTitle>{tR('orders:dialog.return_refund_amount.title')}</DialogTitle>
           <DialogDescription>
-            Enter the amount to refund for this return. The suggested value is calculated from the returned items' prices.
+            {tR('orders:detail.returns.refund_amount_desc')}
           </DialogDescription>
         </DialogHeader>
         <div className="py-2">
@@ -2276,8 +2265,8 @@ const ReturnsAndReplacements: React.FC<{
           />
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setRefundDialog(null)}>Cancel</Button>
-          <Button onClick={confirmRefundAmount}>Confirm refund</Button>
+          <Button variant="outline" onClick={() => setRefundDialog(null)}>{tR('common:action.cancel')}</Button>
+          <Button onClick={confirmRefundAmount}>{tR('orders:dialog.return_refund_amount.submit')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -2292,64 +2281,74 @@ const ReturnsAndReplacements: React.FC<{
 // model is "where is my order now", not "what button was pressed".
 
 // Maps the *new* status of a status_changed event (or the event name for
-// other event types) to the icon, color, and human label that describes
-// the state the order is now in.
-const STATE_META: Record<string, { icon: React.ComponentType<{ className?: string }>; label: string; color: string }> = {
-  Pending:    { icon: PackagePlus,  label: 'Order is pending',          color: 'bg-amber-500'   },
-  Processing: { icon: RefreshCw,    label: 'Order is being processed',  color: 'bg-violet-500'  },
-  Shipped:    { icon: Truck,        label: 'Order has shipped',         color: 'bg-sky-500'     },
-  Delivered:  { icon: PackageCheck, label: 'Order delivered',           color: 'bg-emerald-500' },
-  Cancelled:  { icon: Ban,          label: 'Order cancelled',           color: 'bg-red-500'     },
-  Refunded:   { icon: RefreshCw,    label: 'Order refunded',            color: 'bg-rose-500'    },
+// other event types) to the icon and color that describes the state the
+// order is now in. Labels are resolved in the component via t().
+const STATE_META_ICONS: Record<string, { icon: React.ComponentType<{ className?: string }>; color: string }> = {
+  Pending:    { icon: PackagePlus,  color: 'bg-amber-500'   },
+  Processing: { icon: RefreshCw,    color: 'bg-violet-500'  },
+  Shipped:    { icon: Truck,        color: 'bg-sky-500'     },
+  Delivered:  { icon: PackageCheck, color: 'bg-emerald-500' },
+  Cancelled:  { icon: Ban,          color: 'bg-red-500'     },
+  Refunded:   { icon: RefreshCw,    color: 'bg-rose-500'    },
 };
 
-const EVENT_META: Record<string, { icon: React.ComponentType<{ className?: string }>; label: string; color: string }> = {
-  created:                    { icon: PackagePlus,  label: 'Order placed',              color: 'bg-blue-500'    },
-  tracking_updated:           { icon: Truck,        label: 'Tracking updated',          color: 'bg-sky-500'     },
-  note_added:                 { icon: FileText,     label: 'Note added',                color: 'bg-slate-500'   },
-  note_deleted:               { icon: FileText,     label: 'Note removed',              color: 'bg-slate-400'   },
-  fulfillment_created:        { icon: PackagePlus,  label: 'Shipment created',          color: 'bg-violet-500'  },
-  fulfillment_status_changed: { icon: Truck,        label: 'Shipment updated',          color: 'bg-sky-500'     },
-  fulfillment_delivered:      { icon: PackageCheck, label: 'Shipment delivered',        color: 'bg-emerald-500' },
-  refund_issued:              { icon: ArrowDownLeft, label: 'Refund issued',            color: 'bg-amber-500'   },
-  manual_refund:              { icon: ArrowDownLeft, label: 'Refund recorded',          color: 'bg-amber-500'   },
-  refund_failed:              { icon: AlertCircle,  label: 'Refund failed',             color: 'bg-red-500'     },
-  replacement_created:        { icon: RefreshCw,    label: 'Replacement order created', color: 'bg-indigo-500'  },
-  return_created:             { icon: ArrowDownLeft, label: 'Return requested',         color: 'bg-orange-500'  },
-  return_status_changed:      { icon: ArrowDownLeft, label: 'Return updated',           color: 'bg-orange-500'  },
-  payment_authorized:         { icon: CreditCard,   label: 'Payment authorized',        color: 'bg-indigo-500'  },
-  payment_captured:           { icon: CreditCard,   label: 'Payment captured',          color: 'bg-emerald-500' },
-  payment_failed:             { icon: AlertCircle,  label: 'Payment failed',            color: 'bg-red-500'     },
-  payment_status_changed:     { icon: CreditCard,   label: 'Payment status updated',    color: 'bg-slate-500'   },
-  status_changed:             { icon: RefreshCw,    label: 'Order status updated',      color: 'bg-violet-500'  },
-  cancelled:                  { icon: Ban,          label: 'Order cancelled',           color: 'bg-red-500'     },
-  order_notified:             { icon: Mail,         label: 'Customer notified',         color: 'bg-sky-500'     },
-  address_edited:             { icon: MapPin,       label: 'Address edited',            color: 'bg-slate-500'   },
-  discount_adjusted:          { icon: TagIcon,      label: 'Discount adjusted',         color: 'bg-amber-500'   },
-  tag_added:                  { icon: TagIcon,      label: 'Tag added',                 color: 'bg-slate-500'   },
-  tag_removed:                { icon: TagIcon,      label: 'Tag removed',               color: 'bg-slate-400'   },
+const EVENT_META_ICONS: Record<string, { icon: React.ComponentType<{ className?: string }>; color: string }> = {
+  created:                    { icon: PackagePlus,  color: 'bg-blue-500'    },
+  tracking_updated:           { icon: Truck,        color: 'bg-sky-500'     },
+  note_added:                 { icon: FileText,     color: 'bg-slate-500'   },
+  note_deleted:               { icon: FileText,     color: 'bg-slate-400'   },
+  fulfillment_created:        { icon: PackagePlus,  color: 'bg-violet-500'  },
+  fulfillment_status_changed: { icon: Truck,        color: 'bg-sky-500'     },
+  fulfillment_delivered:      { icon: PackageCheck, color: 'bg-emerald-500' },
+  refund_issued:              { icon: ArrowDownLeft, color: 'bg-amber-500'   },
+  manual_refund:              { icon: ArrowDownLeft, color: 'bg-amber-500'   },
+  refund_failed:              { icon: AlertCircle,  color: 'bg-red-500'     },
+  replacement_created:        { icon: RefreshCw,    color: 'bg-indigo-500'  },
+  return_created:             { icon: ArrowDownLeft, color: 'bg-orange-500'  },
+  return_status_changed:      { icon: ArrowDownLeft, color: 'bg-orange-500'  },
+  payment_authorized:         { icon: CreditCard,   color: 'bg-indigo-500'  },
+  payment_captured:           { icon: CreditCard,   color: 'bg-emerald-500' },
+  payment_failed:             { icon: AlertCircle,  color: 'bg-red-500'     },
+  payment_status_changed:     { icon: CreditCard,   color: 'bg-slate-500'   },
+  status_changed:             { icon: RefreshCw,    color: 'bg-violet-500'  },
+  cancelled:                  { icon: Ban,          color: 'bg-red-500'     },
+  order_notified:             { icon: Mail,         color: 'bg-sky-500'     },
+  address_edited:             { icon: MapPin,       color: 'bg-slate-500'   },
+  discount_adjusted:          { icon: TagIcon,      color: 'bg-amber-500'   },
+  tag_added:                  { icon: TagIcon,      color: 'bg-slate-500'   },
+  tag_removed:                { icon: TagIcon,      color: 'bg-slate-400'   },
 };
 
 // Turn "fulfillment_status_changed" payloads into a friendlier label that
 // names the new shipment state instead of the raw event.
-const humanizeFulfillmentNote = (entry: OrderHistoryEntry) => {
+const humanizeFulfillmentNote = (entry: OrderHistoryEntry, t: (k: string) => string) => {
   const note = entry.note || '';
   if (entry.event === 'fulfillment_status_changed') {
-    if (/shipped/i.test(note)) return 'Shipment marked as shipped';
-    if (/delivered/i.test(note)) return 'Shipment marked as delivered';
-    if (/cancel/i.test(note)) return 'Shipment cancelled';
+    if (/shipped/i.test(note)) return t('orders:detail.timeline.shipment_shipped');
+    if (/delivered/i.test(note)) return t('orders:detail.timeline.shipment_delivered');
+    if (/cancel/i.test(note)) return t('orders:detail.timeline.shipment_cancelled');
   }
   return note;
 };
 
-const resolveMeta = (entry: OrderHistoryEntry) => {
+const resolveMeta = (entry: OrderHistoryEntry, t: (k: string, opts?: object) => string) => {
   // Status transitions describe themselves through the new state.
-  if (entry.event === 'status_changed' && entry.status && STATE_META[entry.status]) {
-    return STATE_META[entry.status];
+  if (entry.event === 'status_changed' && entry.status && STATE_META_ICONS[entry.status]) {
+    return {
+      ...STATE_META_ICONS[entry.status],
+      label: t(`orders:detail.timeline.state_${entry.status.toLowerCase()}`),
+    };
   }
   // Cancelled is a terminal status transition but emitted as its own event.
-  if (entry.event === 'cancelled') return STATE_META.Cancelled;
-  return EVENT_META[entry.event] || {
+  if (entry.event === 'cancelled') return { ...STATE_META_ICONS.Cancelled, label: t('orders:detail.timeline.state_cancelled') };
+  const icons = EVENT_META_ICONS[entry.event];
+  if (icons) {
+    return {
+      ...icons,
+      label: t(`orders:detail.timeline.event_${entry.event}`),
+    };
+  }
+  return {
     icon: Calendar,
     label: entry.event.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
     color: 'bg-slate-400',
@@ -2362,6 +2361,7 @@ const resolveMeta = (entry: OrderHistoryEntry) => {
 // print from there without losing the order detail view. Refund receipt
 // entries are generated per-refund so staff can reprint any past refund.
 const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order, payments }) => {
+  const { t: tDM } = useTranslation(['orders', 'common']);
   const refunds = (payments || []).filter((p) => p?.status === 'refunded');
   const base = `/dashboard/orders/${order._id}`;
   const open = (path: string) => window.open(path, '_blank', 'noopener,noreferrer');
@@ -2370,20 +2370,20 @@ const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order,
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
           <FileText className="h-4 w-4 me-2" />
-          Documents
+          {tDM('orders:detail.documents.label')}
           <ChevronDown className="h-3 w-3 ms-2" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem onClick={() => open(`${base}/invoice`)}>
-          <Receipt className="h-4 w-4 me-2" /> Invoice
+          <Receipt className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.invoice')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => open(`${base}/packing-slip`)}>
-          <Package className="h-4 w-4 me-2" /> Packing slip
+          <Package className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.packing_slip')}
         </DropdownMenuItem>
         {refunds.length === 0 ? (
           <DropdownMenuItem disabled>
-            <ArrowDownLeft className="h-4 w-4 me-2" /> Refund receipt
+            <ArrowDownLeft className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.refund_receipt')}
           </DropdownMenuItem>
         ) : (
           refunds.map((r) => (
@@ -2392,7 +2392,7 @@ const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order,
               onClick={() => open(`${base}/refund-receipt/${r._id}`)}
             >
               <ArrowDownLeft className="h-4 w-4 me-2" />
-              Refund receipt · {formatRefundLabel(r)}
+              {tDM('orders:detail.documents.refund_receipt')} · {formatRefundLabel(r)}
             </DropdownMenuItem>
           ))
         )}
@@ -2408,6 +2408,7 @@ const formatRefundLabel = (r: Payment) => {
 };
 
 const OrderTimeline: React.FC<{ order: Order }> = ({ order }) => {
+  const { t: tTL } = useTranslation(['orders', 'common']);
   const events: OrderHistoryEntry[] = (order.history && order.history.length > 0)
     ? [...order.history].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
     : [
@@ -2447,7 +2448,7 @@ const OrderTimeline: React.FC<{ order: Order }> = ({ order }) => {
         className="relative max-h-[440px] overflow-y-auto scrollbar-hide"
       >
       {events.map((entry, idx) => {
-        const meta = resolveMeta(entry);
+        const meta = resolveMeta(entry, tTL);
         const Icon = meta.icon;
         const isLast = idx === events.length - 1;
         return (
@@ -2463,7 +2464,7 @@ const OrderTimeline: React.FC<{ order: Order }> = ({ order }) => {
             <div className="pt-1">
               <p className="text-base font-semibold leading-tight">{meta.label}</p>
               {(() => {
-                const note = humanizeFulfillmentNote(entry);
+                const note = humanizeFulfillmentNote(entry, tTL);
                 return note ? (
                   <p className="text-sm text-muted-foreground mt-1">{note}</p>
                 ) : null;
@@ -2611,7 +2612,7 @@ const OperationsCard: React.FC<{
   const paymentMethodLc = (order.paymentMethod || '').toLowerCase();
   const isCod = paymentMethodLc === 'cod' || paymentMethodLc.includes('cash on delivery');
 
-  const noPermReason = 'You lack the orders.write permission';
+  const noPermReason = tOC('orders:detail.action.no_permission');
 
   // ── Next-action decision tree ────────────────────────────────────
   let summary: string | null = null;
@@ -2625,47 +2626,47 @@ const OperationsCard: React.FC<{
   const paymentSettled = paymentStatus === 'Paid' || paymentStatus === 'Partially Refunded';
 
   if (orderStatus === 'Cancelled') {
-    summary = 'Order cancelled — no further actions available.';
+    summary = tOC('orders:detail.next_action.cancelled_summary');
   } else if (paymentStatus === 'Not Paid') {
     // Manual transfer methods (bank transfer, etc.) must be verified against
     // the customer-supplied proof before marking paid — surface Verify as the
     // primary action so admins don't short-circuit the review step.
     if (isManualMethod) {
       primary = {
-        label: 'Verify payment',
+        label: tOC('orders:detail.action.verify_payment'),
         onClick: onVerifyPayment,
         disabled: !canWrite,
         disabledReason: noPermReason,
       };
     } else {
       primary = {
-        label: 'Mark as paid',
-        onClick: () => onPaymentAction('mark_paid', 'Mark as paid'),
+        label: tOC('orders:detail.action.mark_paid'),
+        onClick: () => onPaymentAction('mark_paid', tOC('orders:detail.action.mark_paid')),
         disabled: !canWrite,
         disabledReason: noPermReason,
       };
     }
-    secondary.push({ label: 'Cancel order', onClick: onCancelOrder, variant: 'outline', disabled: !canWrite, disabledReason: noPermReason });
+    secondary.push({ label: tOC('orders:detail.action.cancel'), onClick: onCancelOrder, variant: 'outline', disabled: !canWrite, disabledReason: noPermReason });
   } else if (paymentStatus === 'Authorized') {
-    primary = { label: 'Capture payment', onClick: () => onPaymentAction('capture', 'Capture payment'), disabled: !canWrite, disabledReason: noPermReason };
-    secondary.push({ label: 'Void authorization', onClick: () => onPaymentAction('void', 'Void authorization', true), variant: 'outline', disabled: !canWrite, disabledReason: noPermReason });
+    primary = { label: tOC('orders:detail.action.capture'), onClick: () => onPaymentAction('capture', tOC('orders:detail.action.capture')), disabled: !canWrite, disabledReason: noPermReason };
+    secondary.push({ label: tOC('orders:detail.action.void'), onClick: () => onPaymentAction('void', tOC('orders:detail.action.void'), true), variant: 'outline', disabled: !canWrite, disabledReason: noPermReason });
   } else if (paymentStatus === 'Failed') {
     primary = isManualMethod
-      ? { label: 'Verify payment', onClick: onVerifyPayment, disabled: !canWrite, disabledReason: noPermReason }
-      : { label: 'Retry / Mark paid', onClick: () => onPaymentAction('mark_paid', 'Mark as paid'), disabled: !canWrite, disabledReason: noPermReason };
-    secondary.push({ label: 'Cancel order', onClick: onCancelOrder, variant: 'outline', disabled: !canWrite, disabledReason: noPermReason });
+      ? { label: tOC('orders:detail.action.verify_payment'), onClick: onVerifyPayment, disabled: !canWrite, disabledReason: noPermReason }
+      : { label: tOC('orders:detail.next_action.retry_mark_paid'), onClick: () => onPaymentAction('mark_paid', tOC('orders:detail.action.mark_paid')), disabled: !canWrite, disabledReason: noPermReason };
+    secondary.push({ label: tOC('orders:detail.action.cancel'), onClick: onCancelOrder, variant: 'outline', disabled: !canWrite, disabledReason: noPermReason });
   } else if (paymentStatus === 'Voided') {
-    summary = 'Payment voided — cancel the order or record a new payment.';
-    secondary.push({ label: 'Cancel order', onClick: onCancelOrder, variant: 'outline', disabled: !canWrite, disabledReason: noPermReason });
+    summary = tOC('orders:detail.next_action.voided_summary');
+    secondary.push({ label: tOC('orders:detail.action.cancel'), onClick: onCancelOrder, variant: 'outline', disabled: !canWrite, disabledReason: noPermReason });
   } else if (paymentSettled && fulfillmentStatus === 'Unfulfilled') {
-    primary = { label: 'Create fulfillment', onClick: onCreateFulfillment, disabled: !canWrite, disabledReason: noPermReason };
-    secondary.push({ label: 'Print packing slip', onClick: onPrintPackingSlip, variant: 'outline' });
+    primary = { label: tOC('orders:detail.action.create_fulfillment'), onClick: onCreateFulfillment, disabled: !canWrite, disabledReason: noPermReason };
+    secondary.push({ label: tOC('orders:detail.action.print_packing_slip'), onClick: onPrintPackingSlip, variant: 'outline' });
   } else if (paymentSettled && fulfillmentStatus === 'Partially Fulfilled') {
-    primary = { label: 'Fulfill remaining', onClick: onCreateFulfillment, disabled: !canWrite, disabledReason: noPermReason };
+    primary = { label: tOC('orders:detail.next_action.fulfill_remaining'), onClick: onCreateFulfillment, disabled: !canWrite, disabledReason: noPermReason };
   } else if (fulfillmentStatus === 'Fulfilled' && orderStatus !== 'Delivered') {
-    primary = { label: 'Mark as delivered', onClick: onMarkDelivered, disabled: !canWrite, disabledReason: noPermReason };
+    primary = { label: tOC('orders:detail.action.mark_delivered'), onClick: onMarkDelivered, disabled: !canWrite, disabledReason: noPermReason };
   } else {
-    summary = 'No pending actions.';
+    summary = tOC('orders:detail.next_action.no_pending');
   }
 
   // ── Overflow payment transitions (everything legal from the current
@@ -2673,13 +2674,13 @@ const OperationsCard: React.FC<{
   const moreActions: { label: string; onClick: () => void; dangerous?: boolean }[] = [];
   if (canWrite) {
     if (paymentStatus === 'Not Paid') {
-      if (!isCod) moreActions.push({ label: 'Mark as paid', onClick: () => onPaymentAction('mark_paid', 'Mark as paid') });
-      moreActions.push({ label: 'Mark as failed', onClick: () => onPaymentAction('mark_failed', 'Mark as failed', true), dangerous: true });
-      moreActions.push({ label: 'Record manual payment', onClick: onRecordManual });
+      if (!isCod) moreActions.push({ label: tOC('orders:detail.action.mark_paid'), onClick: () => onPaymentAction('mark_paid', tOC('orders:detail.action.mark_paid')) });
+      moreActions.push({ label: tOC('orders:detail.action.mark_failed'), onClick: () => onPaymentAction('mark_failed', tOC('orders:detail.action.mark_failed'), true), dangerous: true });
+      moreActions.push({ label: tOC('orders:detail.action.record_manual_payment'), onClick: onRecordManual });
     } else if (paymentStatus === 'Authorized') {
-      moreActions.push({ label: 'Mark as failed', onClick: () => onPaymentAction('mark_failed', 'Mark as failed', true), dangerous: true });
+      moreActions.push({ label: tOC('orders:detail.action.mark_failed'), onClick: () => onPaymentAction('mark_failed', tOC('orders:detail.action.mark_failed'), true), dangerous: true });
     } else if (paymentStatus === 'Failed') {
-      moreActions.push({ label: 'Record manual payment', onClick: onRecordManual });
+      moreActions.push({ label: tOC('orders:detail.action.record_manual_payment'), onClick: onRecordManual });
     }
   }
 
@@ -2715,20 +2716,20 @@ const OperationsCard: React.FC<{
         <Card>
           <CardContent className={statusCardCls}>
             <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <Package className="h-5 w-5" /> Order
+              <Package className="h-5 w-5" /> {tOC('orders:detail.status_card.order')}
             </span>
             <Badge
               variant={orderStatusVariant(orderStatus)}
               className="justify-center min-w-[120px] self-start text-xs font-medium px-2.5 py-1"
             >
-              {orderStatus}
+              {tOC(`common.status.${orderStatus}`, { ns: 'common', defaultValue: orderStatus })}
             </Badge>
             {canChangeStatus && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" disabled={updatingStatus} className="self-start">
                     {updatingStatus && <Loader2 className="h-3 w-3 me-2 animate-spin" />}
-                    Change status
+                    {tOC('orders:detail.action.change_status')}
                     <ChevronDown className="h-3 w-3 ms-2" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -2748,20 +2749,20 @@ const OperationsCard: React.FC<{
         <Card>
           <CardContent className={statusCardCls}>
             <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <CreditCard className="h-5 w-5" /> Payment
+              <CreditCard className="h-5 w-5" /> {tOC('orders:detail.status_card.payment')}
             </span>
             <Badge
               variant={paymentStatusVariant(paymentStatus)}
               className="justify-center min-w-[120px] self-start text-xs font-medium px-2.5 py-1"
             >
-              {paymentStatus}
+              {tOC(`common.status.${paymentStatus}`, { ns: 'common', defaultValue: paymentStatus })}
             </Badge>
             <p className="text-sm text-muted-foreground">
-              via <span className="font-medium text-foreground">{order.paymentMethod}</span>
+              {tOC('orders:detail.status_card.via_method', { method: order.paymentMethod })}
             </p>
             {showVerify && (
               <Button size="sm" variant="outline" onClick={onVerifyPayment} disabled={busy} className="self-start">
-                Verify payment
+                {tOC('orders:detail.action.verify_payment')}
               </Button>
             )}
           </CardContent>
@@ -2771,13 +2772,13 @@ const OperationsCard: React.FC<{
         <Card>
           <CardContent className={statusCardCls}>
             <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <Truck className="h-5 w-5" /> Fulfillment
+              <Truck className="h-5 w-5" /> {tOC('orders:detail.status_card.fulfillment')}
             </span>
             <Badge
               variant={fulfillmentStatusVariant(fulfillmentStatus)}
               className="justify-center min-w-[120px] self-start text-xs font-medium px-2.5 py-1"
             >
-              {fulfillmentStatus}
+              {tOC(`common.status.${fulfillmentStatus}`, { ns: 'common', defaultValue: fulfillmentStatus })}
             </Badge>
           </CardContent>
         </Card>
@@ -2788,7 +2789,7 @@ const OperationsCard: React.FC<{
         <Card>
           <CardContent className="flex items-center flex-wrap gap-3 px-5 py-4">
             <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Next action
+              {tOC('orders:detail.next_action.label')}
             </span>
             <span className="h-4 w-px bg-border" aria-hidden />
             {summary && <span className="text-sm text-muted-foreground">{summary}</span>}
@@ -2797,8 +2798,8 @@ const OperationsCard: React.FC<{
             {moreActions.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" disabled={busy} title="More payment actions">
-                    More <ChevronDown className="h-3 w-3 ms-1" />
+                  <Button variant="outline" size="sm" disabled={busy} title={tOC('orders:detail.next_action.more_title')}>
+                    {tOC('orders:detail.next_action.more')} <ChevronDown className="h-3 w-3 ms-1" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

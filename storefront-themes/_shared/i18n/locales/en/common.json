@@ -162,6 +162,29 @@
     "all_rights_reserved": "All rights reserved",
     "powered_by": "Powered by"
   },
+  "aria": {
+    "cart": "Cart",
+    "menu": "Menu",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu",
+    "toggle_menu": "Toggle menu",
+    "open_cart": "Open cart",
+    "close_cart": "Close cart",
+    "account": "Account",
+    "wishlist": "Wishlist",
+    "search": "Search",
+    "quick_view": "Quick view",
+    "categories": "Categories",
+    "grid_view": "Grid view",
+    "list_view": "List view",
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "remove": "Remove",
+    "rating": "Rating",
+    "carousel": "Carousel",
+    "previous_slide": "Previous slide",
+    "next_slide": "Next slide"
+  },
   "section": {
     "hero": {
       "heading": "Welcome"
@@ -183,7 +206,8 @@
     },
     "newsletter": {
       "heading": "Stay in the Loop",
-      "subscribe": "Subscribe"
+      "subscribe": "Subscribe",
+      "email_placeholder": "your@email.com"
     },
     "categories": {
       "heading": "Shop by Category",

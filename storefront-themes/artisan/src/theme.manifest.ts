@@ -11,13 +11,13 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: 'Handmade & Authentic' },
-    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', default: 'Crafted by Hand,' },
-    { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: 'Made with Heart' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Discover one-of-a-kind pieces from independent makers and artisans around the world.' },
-    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: 'Explore Collection' },
+    { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '' },
+    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', default: '' },
+    { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
-    { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: 'Browse Crafts' },
+    { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: '' },
     { id: 'secondary_button_url', type: 'url', label: 'Secondary Button URL', default: '/categories' },
   ],
 });
@@ -29,8 +29,8 @@ export const philosophySection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Our Philosophy' },
-    { id: 'body_text', type: 'textarea', label: 'Body Text', default: 'Every item in our collection tells a story -- of tradition, craftsmanship, and the human touch that no machine can replicate. We partner directly with artisans to bring you authentic, sustainable, and beautiful creations.' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'body_text', type: 'textarea', label: 'Body Text', default: '' },
     { id: 'show_dividers', type: 'checkbox', label: 'Show Decorative Dividers', default: true },
   ],
 });
@@ -41,14 +41,14 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   description: 'Showcase curated featured products in a 3-column grid',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Hand-Picked Pieces' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Curated with care from our finest makers' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 6, min: 2, max: 12 },
     { id: 'show_rating', type: 'checkbox', label: 'Show Rating', default: true },
     { id: 'show_quick_view', type: 'checkbox', label: 'Show Quick View', default: true },
     { id: 'show_add_to_cart', type: 'checkbox', label: 'Show Add to Cart', default: true },
-    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: 'Add' },
-    { id: 'view_all_text', type: 'text', label: 'View All Button Text', default: 'View All Pieces' },
+    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: '' },
+    { id: 'view_all_text', type: 'text', label: 'View All Button Text', default: '' },
     { id: 'view_all_url', type: 'url', label: 'View All URL', default: '/products' },
   ],
 });
@@ -60,17 +60,17 @@ export const artisanSpotlightSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Artisan Spotlight' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Meet the hands behind the craft' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
   ],
   blocks: [
     {
       type: 'maker',
       name: 'Maker',
       settings: [
-        { id: 'name', type: 'text', label: 'Name', default: 'Maria Santos' },
-        { id: 'craft', type: 'text', label: 'Craft', default: 'Ceramics' },
-        { id: 'quote', type: 'textarea', label: 'Quote', default: 'Every piece carries the warmth of the kiln and the patience of my hands.' },
+        { id: 'name', type: 'text', label: 'Name', default: '' },
+        { id: 'craft', type: 'text', label: 'Craft', default: '' },
+        { id: 'quote', type: 'textarea', label: 'Quote', default: '' },
       ],
     },
   ],
@@ -88,11 +88,11 @@ export const categoriesSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Browse by Craft' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Explore our curated categories' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 4, min: 2, max: 8 },
     { id: 'show_product_count', type: 'checkbox', label: 'Show Product Count', default: true },
-    { id: 'product_count_label', type: 'text', label: 'Product Count Label', default: 'pieces', info: 'Unit label appended to the product count (e.g. "4 pieces")' },
+    { id: 'product_count_label', type: 'text', label: 'Product Count Label', default: '', info: 'Unit label appended to the product count (e.g. "4 pieces")' },
   ],
 });
 
@@ -103,12 +103,12 @@ export const newArrivalsSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'New Arrivals' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Fresh from the workshop' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 4, max: 16 },
     { id: 'show_add_to_cart', type: 'checkbox', label: 'Show Add to Cart', default: true },
-    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: 'Add to Cart' },
-    { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: 'See More' },
+    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: '' },
+    { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
     { id: 'view_all_url', type: 'url', label: 'View All URL', default: '/products?sort=newest' },
     { id: 'autoplay', type: 'checkbox', label: 'Auto-play Carousel', default: false },
   ],
@@ -121,11 +121,11 @@ export const newsletterSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Handcrafted with Love' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Join our community of craft lovers. Get early access to new collections, maker stories, and exclusive artisan offers.' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: 'Subscribe' },
-    { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: 'Enter your email' },
-    { id: 'disclaimer', type: 'text', label: 'Disclaimer Text', default: 'No spam, unsubscribe anytime.' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: '' },
+    { id: 'disclaimer', type: 'text', label: 'Disclaimer Text', default: '' },
   ],
 });
 
@@ -166,7 +166,7 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
-    { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: 'Free shipping on all handcrafted orders over $60!' },
+    { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: '' },
     { id: 'announcement_bg', type: 'color', label: 'Announcement Background', default: '#92400e' },
     { id: 'enable_quick_view', type: 'checkbox', label: 'Enable Quick View', default: true },
     { id: 'border_radius', type: 'range', label: 'Border Radius', min: 0, max: 16, step: 2, default: 4, unit: 'px' },

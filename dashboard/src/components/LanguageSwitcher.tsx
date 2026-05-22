@@ -19,7 +19,7 @@ export function LanguageSwitcher() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label={t('common.language.switch', { defaultValue: 'Change language' })}
+          aria-label={t('language.switch', { defaultValue: 'Change language' })}
         >
           <Languages className="h-5 w-5" />
         </Button>

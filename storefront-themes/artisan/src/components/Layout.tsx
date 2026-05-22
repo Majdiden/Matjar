@@ -71,7 +71,7 @@ const Layout: React.FC = () => {
               <button
                 onClick={openCart}
                 className="relative p-2 text-[var(--color-primary)]/60 hover:text-[var(--color-primary)] transition"
-                aria-label="Cart"
+                aria-label={t('common:aria.cart')}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -87,7 +87,7 @@ const Layout: React.FC = () => {
               <button
                 className="lg:hidden p-2 text-[var(--color-primary)]/60 hover:text-[var(--color-primary)] transition"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Menu"
+                aria-label={t('common:aria.menu')}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {mobileMenuOpen

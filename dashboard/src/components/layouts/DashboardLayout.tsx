@@ -71,7 +71,6 @@ import { useNotifications } from '../../hooks/useNotifications';
 import { fireNativeNotification } from '../../lib/notification-effects';
 import { NotificationBell } from '../NotificationBell';
 import { LanguageSwitcher } from '../LanguageSwitcher';
-import { useLanguage } from '../../i18n/LanguageProvider';
 import { toast } from 'sonner';
 
 interface NavItem {
@@ -273,7 +272,10 @@ function NavGroupItem({
         <item.icon className="h-4 w-4 shrink-0" />
         <span className="truncate flex-1 text-start">{item.name}</span>
         <ChevronRight
-          className={cn('h-3.5 w-3.5 shrink-0 transition-transform rtl:rotate-180', open && 'rotate-90')}
+          className={cn(
+            'h-3.5 w-3.5 shrink-0 transition-transform',
+            open ? 'rotate-90' : 'rtl:rotate-180'
+          )}
         />
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-1 space-y-1 ps-7">
@@ -453,7 +455,6 @@ const DashboardLayoutInner: React.FC = () => {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const { t } = useTranslation(['nav']);
-  const { dir } = useLanguage();
 
   // Side-effect hooks for notifications. Both are mounted here so they
   // live for the entire lifetime of an authenticated dashboard session.
@@ -554,7 +555,7 @@ const DashboardLayoutInner: React.FC = () => {
                   <span className="sr-only">{t('nav:toggle_menu')}</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side={dir === 'rtl' ? 'right' : 'left'} className="w-64 p-0">
+              <SheetContent side="left" className="w-64 p-0">
                 <SidebarContent onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>

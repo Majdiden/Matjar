@@ -8,3 +8,10 @@ body { font-family: var(--font-app); }
 body { font-family: 'Crimson Pro', 'Georgia', serif; background: #faf5ff; }
 
 h1, h2, h3, h4, h5, h6 { font-family: 'Lora', 'Georgia', serif; }
+
+/* Arabic shaping breaks under any non-zero letter-spacing — Tailwind's
+   tracking-tight/tracking-tighter etc. visually disconnect ligatures.
+   Reset every descendant to normal letter-spacing in Arabic mode. */
+html[lang='ar'], html[lang='ar'] * { letter-spacing: 0 !important; }
+html[dir='rtl'], html[dir='rtl'] body { direction: rtl; }
+html[dir='ltr'], html[dir='ltr'] body { direction: ltr; }

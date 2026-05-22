@@ -53,7 +53,7 @@ const Products: React.FC = () => {
     return p;
   }, [selectedCategory, availability, priceMin, priceMax, sort]);
 
-  const { t } = useTranslation('theme');
+  const { t } = useTranslation(['theme', 'category']);
   const { products, loading } = useProducts(params);
   const { categories } = useCategories();
 
@@ -133,7 +133,7 @@ const Products: React.FC = () => {
                   type="number"
                   value={priceMin}
                   onChange={(e) => setParam('min', Number(e.target.value))}
-                  placeholder="Min"
+                  placeholder={t('category:category.filter.price_min')}
                   className="w-full border-b-2 border-current/20 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)] bg-transparent"
                   style={{ color: DARK_TEAL }}
                 />
@@ -142,7 +142,7 @@ const Products: React.FC = () => {
                   type="number"
                   value={priceMax}
                   onChange={(e) => setParam('max', Number(e.target.value))}
-                  placeholder="Max"
+                  placeholder={t('category:category.filter.price_max')}
                   className="w-full border-b-2 border-current/20 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)] bg-transparent"
                   style={{ color: DARK_TEAL }}
                 />

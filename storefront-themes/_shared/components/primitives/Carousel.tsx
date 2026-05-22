@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect, Children } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 
 interface CarouselProps {
@@ -33,6 +34,7 @@ export function Carousel({
   dotClassName,
   dotActiveClassName,
 }: CarouselProps) {
+  const { t } = useTranslation(['common']);
   const slides = Children.toArray(children);
   const total = slides.length;
   const [current, setCurrent] = useState(0);
@@ -99,7 +101,7 @@ export function Carousel({
       onKeyDown={onKeyDown}
       tabIndex={0}
       role="region"
-      aria-label="Carousel"
+      aria-label={t('common:aria.carousel')}
       aria-roledescription="carousel"
     >
       {/* Track */}
@@ -142,7 +144,7 @@ export function Carousel({
               arrowClassName
             )}
             disabled={!loop && current === 0}
-            aria-label="Previous slide"
+            aria-label={t('common:aria.previous_slide')}
           >
             <svg className="w-5 h-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -160,7 +162,7 @@ export function Carousel({
               arrowClassName
             )}
             disabled={!loop && current >= maxIndex}
-            aria-label="Next slide"
+            aria-label={t('common:aria.next_slide')}
           >
             <svg className="w-5 h-5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

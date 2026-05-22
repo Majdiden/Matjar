@@ -62,7 +62,7 @@ export const Categories: React.FC = () => {
     if (!(await confirm({
       title: t('products.categories.confirm.delete_bulk.title', { count: selected.size }),
       description: t('products.categories.confirm.delete_bulk.description'),
-      confirmText: t('common.action.delete'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     const ids = [...selected];
@@ -170,7 +170,7 @@ export const Categories: React.FC = () => {
     if (!(await confirm({
       title: t('products.categories.confirm.delete.title', { name }),
       description: t('products.categories.confirm.delete.description'),
-      confirmText: t('common.action.delete'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
@@ -236,10 +236,10 @@ export const Categories: React.FC = () => {
           <p className="text-sm font-medium">{t('products.categories.list.selected_count', { count: selected.size })}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
-              <X className="h-3.5 w-3.5 me-1.5" />{t('common.action.close')}
+              <X className="h-3.5 w-3.5 me-1.5" />{t('common:action.close')}
             </Button>
             <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-              <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('common.action.delete')}
+              <Trash2 className="h-3.5 w-3.5 me-1.5" />{t('common:action.delete')}
             </Button>
           </div>
         </div>
@@ -321,13 +321,13 @@ export const Categories: React.FC = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => openEditDialog(category)}>
-                        <Edit className="me-2 h-4 w-4" /> {t('common.action.edit')}
+                        <Edit className="me-2 h-4 w-4" /> {t('common:action.edit')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDelete(category._id, category.name)}
                         className="text-destructive focus:text-destructive"
                       >
-                        <Trash2 className="me-2 h-4 w-4" /> {t('common.action.delete')}
+                        <Trash2 className="me-2 h-4 w-4" /> {t('common:action.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -409,13 +409,13 @@ export const Categories: React.FC = () => {
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={closeDialog} disabled={saving}>
-                {t('common.action.cancel')}
+                {t('common:action.cancel')}
               </Button>
               <Button type="submit" disabled={saving}>
                 {saving ? (
-                  <><Loader2 className="h-4 w-4 me-2 animate-spin" /> {t('common.state.saving_ellipsis')}</>
+                  <><Loader2 className="h-4 w-4 me-2 animate-spin" /> {t('common:state.saving_ellipsis')}</>
                 ) : (
-                  <><Save className="h-4 w-4 me-2" /> {editingCategory ? t('common.action.update') : t('common.action.create')}</>
+                  <><Save className="h-4 w-4 me-2" /> {editingCategory ? t('common:action.update') : t('common:action.create')}</>
                 )}
               </Button>
             </DialogFooter>

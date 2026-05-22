@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ type Resolver = (value: boolean) => void;
 export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { t } = useTranslation('common');
   const [options, setOptions] = React.useState<ConfirmOptions | null>(null);
   const resolverRef = React.useRef<Resolver | null>(null);
 
@@ -65,7 +67,7 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({
                 </div>
               )}
               <div className="flex-1 space-y-1.5">
-                <DialogTitle>{options?.title || 'Are you sure?'}</DialogTitle>
+                <DialogTitle>{options?.title || t('confirm.default_title')}</DialogTitle>
                 {options?.description && (
                   <DialogDescription>{options.description}</DialogDescription>
                 )}
@@ -74,13 +76,13 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-2">
             <Button variant="outline" onClick={() => close(false)}>
-              {options?.cancelText || 'Cancel'}
+              {options?.cancelText || t('action.cancel')}
             </Button>
             <Button
               variant={isDestructive ? 'destructive' : 'default'}
               onClick={() => close(true)}
             >
-              {options?.confirmText || 'Confirm'}
+              {options?.confirmText || t('action.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

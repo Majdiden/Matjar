@@ -132,33 +132,87 @@
       "success": "النجاح"
     },
     "section": {
-      "header": { "label": "الترويسة" },
-      "announcement_bar": { "label": "شريط الإعلانات" },
-      "footer": { "label": "التذييل" },
-      "hero": { "label": "بانر الرئيسي" },
-      "banner": { "label": "بانر ترويجي" },
-      "slideshow": { "label": "عرض الشرائح" },
-      "image_banner": { "label": "بانر صورة" },
-      "featured_products": { "label": "المنتجات المميزة" },
-      "best_sellers": { "label": "الأكثر مبيعًا" },
-      "new_arrivals": { "label": "الوصول حديثًا" },
-      "product_grid": { "label": "شبكة المنتجات" },
-      "top_rated_carousel": { "label": "الأعلى تقييمًا" },
-      "categories": { "label": "الفئات" },
-      "collection_list": { "label": "قائمة المجموعات" },
-      "product_recommendations": { "label": "قد يعجبك أيضًا" },
-      "newsletter": { "label": "النشرة البريدية" },
-      "newsletter_cta": { "label": "الاشتراك في النشرة" },
-      "testimonials": { "label": "شهادات العملاء" },
-      "brands": { "label": "شعارات العلامات" },
-      "features": { "label": "أبرز الميزات" },
-      "tech_features": { "label": "شارات الميزات" },
-      "video": { "label": "فيديو" },
-      "image_gallery": { "label": "معرض الصور" },
-      "text_block": { "label": "كتلة نصية" },
-      "rich_text": { "label": "نص منسّق" },
-      "blog": { "label": "المقالات" },
-      "fallback": { "label": "قسم" }
+      "header": {
+        "label": "الترويسة"
+      },
+      "announcement_bar": {
+        "label": "شريط الإعلانات"
+      },
+      "footer": {
+        "label": "التذييل"
+      },
+      "hero": {
+        "label": "بانر الرئيسي"
+      },
+      "banner": {
+        "label": "بانر ترويجي"
+      },
+      "slideshow": {
+        "label": "عرض الشرائح"
+      },
+      "image_banner": {
+        "label": "بانر صورة"
+      },
+      "featured_products": {
+        "label": "المنتجات المميزة"
+      },
+      "best_sellers": {
+        "label": "الأكثر مبيعًا"
+      },
+      "new_arrivals": {
+        "label": "الوصول حديثًا"
+      },
+      "product_grid": {
+        "label": "شبكة المنتجات"
+      },
+      "top_rated_carousel": {
+        "label": "الأعلى تقييمًا"
+      },
+      "categories": {
+        "label": "الفئات"
+      },
+      "collection_list": {
+        "label": "قائمة المجموعات"
+      },
+      "product_recommendations": {
+        "label": "قد يعجبك أيضًا"
+      },
+      "newsletter": {
+        "label": "النشرة البريدية"
+      },
+      "newsletter_cta": {
+        "label": "الاشتراك في النشرة"
+      },
+      "testimonials": {
+        "label": "شهادات العملاء"
+      },
+      "brands": {
+        "label": "شعارات العلامات"
+      },
+      "features": {
+        "label": "أبرز الميزات"
+      },
+      "tech_features": {
+        "label": "شارات الميزات"
+      },
+      "video": {
+        "label": "فيديو"
+      },
+      "image_gallery": {
+        "label": "معرض الصور"
+      },
+      "text_block": {
+        "label": "كتلة نصية"
+      },
+      "rich_text": {
+        "label": "نص منسّق"
+      },
+      "blog": {
+        "label": "المقالات"
+      },
+      "fallback": {
+        "label": "قسم"
+      }
     },
     "section_editor": {
       "no_settings": "لا توجد إعدادات قابلة للتعديل في هذا القسم.",
@@ -190,15 +244,34 @@
       "no_changes": "لا توجد تغييرات"
     },
     "control": {
-      "text": { "label": "نص" },
-      "textarea": { "label": "منطقة نص" },
-      "number": { "label": "رقم" },
-      "color": { "label": "لون" },
-      "image": { "label": "صورة", "change": "تغيير الصورة" },
-      "range": { "label": "نطاق" },
-      "select": { "label": "قائمة" },
-      "toggle": { "label": "تبديل" },
-      "url": { "label": "رابط" }
+      "text": {
+        "label": "نص"
+      },
+      "textarea": {
+        "label": "منطقة نص"
+      },
+      "number": {
+        "label": "رقم"
+      },
+      "color": {
+        "label": "لون"
+      },
+      "image": {
+        "label": "صورة",
+        "change": "تغيير الصورة"
+      },
+      "range": {
+        "label": "نطاق"
+      },
+      "select": {
+        "label": "قائمة"
+      },
+      "toggle": {
+        "label": "تبديل"
+      },
+      "url": {
+        "label": "رابط"
+      }
     },
     "custom_css": {
       "title": "CSS مخصص",

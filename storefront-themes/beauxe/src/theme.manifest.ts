@@ -19,8 +19,8 @@ export const beauxeTopBarSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'text', type: 'text', label: 'Text', default: 'SUMMER SALE · UP TO 40% OFF SELECTED ITEMS' },
-    { id: 'link_text', type: 'text', label: 'Link Text', default: 'SHOP NOW' },
+    { id: 'text', type: 'text', label: 'Text', default: '' },
+    { id: 'link_text', type: 'text', label: 'Link Text', default: '' },
     { id: 'link_url', type: 'url', label: 'Link URL', default: '/products' },
   ],
 });
@@ -32,10 +32,10 @@ export const beauxeHeroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: 'NEW COLLECTION' },
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Natural Beauty, Redefined' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Discover our clean, cruelty-free skincare crafted with the purest ingredients nature has to offer.' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: 'Shop the Collection' },
+    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'image', type: 'image', label: 'Model Image' },
   ],
@@ -58,8 +58,8 @@ export const beauxeFeatureStripSection: SectionDefinition = defineSection({
           { value: 'heart', label: 'Heart' },
           { value: 'shield', label: 'Shield' },
         ]},
-        { id: 'title', type: 'text', label: 'Title', default: 'Free Shipping' },
-        { id: 'subtitle', type: 'text', label: 'Subtitle', default: 'Over $50' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
+        { id: 'subtitle', type: 'text', label: 'Subtitle', default: '' },
       ],
     },
   ],
@@ -77,15 +77,15 @@ export const beauxeCategoryTilesSection: SectionDefinition = defineSection({
   description: 'Shop by category: 3 pink/cream tiles with product imagery',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Shop By Category' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Find what your skin is craving' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
   ],
   blocks: [
     {
       type: 'tile',
       name: 'Category Tile',
       settings: [
-        { id: 'title', type: 'text', label: 'Title', default: 'Skincare' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
         { id: 'cta_url', type: 'url', label: 'URL', default: '/products' },
         { id: 'background', type: 'color', label: 'Background', default: '#f8e4e4' },
         { id: 'image', type: 'image', label: 'Image' },
@@ -104,8 +104,8 @@ export const beauxeProductGridSection: SectionDefinition = defineSection({
   name: 'Product Grid',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'BEST SELLERS' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Loved by our community' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'source', type: 'select', label: 'Source', default: 'featured', options: [
       { value: 'featured', label: 'Featured' },
       { value: 'newest', label: 'Newest' },
@@ -121,10 +121,10 @@ export const beauxeBannerSection: SectionDefinition = defineSection({
   description: 'Full-width pink banner with serif heading and CTA',
   target: 'body',
   settings: [
-    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: 'LIMITED TIME' },
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Buy 1 Get 1 Free' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'On all skincare sets this weekend only.' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: 'Shop the Offer' },
+    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'background_color', type: 'color', label: 'Background', default: '#f8e4e4' },
   ],
@@ -135,16 +135,16 @@ export const beauxeTestimonialsSection: SectionDefinition = defineSection({
   name: 'Testimonials',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'What Our Customers Say' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
   ],
   blocks: [
     {
       type: 'quote',
       name: 'Quote',
       settings: [
-        { id: 'quote', type: 'textarea', label: 'Quote', default: 'Absolutely love this product! My skin has never felt better.' },
-        { id: 'author', type: 'text', label: 'Author', default: 'Emma R.' },
-        { id: 'role', type: 'text', label: 'Role', default: 'Verified Buyer' },
+        { id: 'quote', type: 'textarea', label: 'Quote', default: '' },
+        { id: 'author', type: 'text', label: 'Author', default: '' },
+        { id: 'role', type: 'text', label: 'Role', default: '' },
       ],
     },
   ],
@@ -204,7 +204,7 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Top Bar', default: true },
-    { id: 'announcement_text', type: 'text', label: 'Top Bar Text', default: 'SUMMER SALE · UP TO 40% OFF' },
+    { id: 'announcement_text', type: 'text', label: 'Top Bar Text', default: '' },
     { id: 'enable_quick_view', type: 'checkbox', label: 'Enable Quick View', default: true },
     { id: 'product_tile_bg_1', type: 'color', label: 'Product tile background 1', default: '#f8e4e4' },
     { id: 'product_tile_bg_2', type: 'color', label: 'Product tile background 2', default: '#faf3ec' },

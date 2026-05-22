@@ -126,7 +126,14 @@
       "view_original_order": "View original order",
       "view_replacement_order": "View replacement order",
       "view_replacement_n": "View replacement #{{n}}",
-      "move_to_status": "Move to {{status}}"
+      "move_to_status": "Move to {{status}}",
+      "cannot_be_undone": "This action cannot be undone.",
+      "change_status": "Change status",
+      "no_permission": "You lack the orders.write permission",
+      "capture": "Capture payment",
+      "void": "Void authorization",
+      "mark_failed": "Mark as failed",
+      "fulfill_remaining": "Fulfill remaining"
     },
     "item": {
       "sku": "SKU: {{sku}}",
@@ -161,6 +168,7 @@
     },
     "customer": {
       "guest": "Guest",
+      "not_available": "N/A",
       "customer": "Customer",
       "lifetime_orders": "Lifetime orders",
       "lifetime_spend": "Lifetime spend",
@@ -184,7 +192,8 @@
       "add_placeholder": "Add an internal note…",
       "pin_to_top": "Pin to top",
       "add_button": "Add note",
-      "staff": "Staff"
+      "staff": "Staff",
+      "delete_note_aria": "Delete note"
     },
     "address": {
       "shipping": "Shipping address",
@@ -198,6 +207,78 @@
       "is_replacement": "This is a replacement order.",
       "has_one": "This order has a replacement order.",
       "has_many": "This order has {{count}} replacement orders."
+    },
+    "order_title": "Order {{number}}",
+    "status_card": {
+      "order": "Order",
+      "payment": "Payment",
+      "fulfillment": "Fulfillment",
+      "via_method": "via {{method}}"
+    },
+    "next_action": {
+      "label": "Next action",
+      "more": "More",
+      "more_title": "More payment actions",
+      "cancelled_summary": "Order cancelled — no further actions available.",
+      "voided_summary": "Payment voided — cancel the order or record a new payment.",
+      "no_pending": "No pending actions.",
+      "retry_mark_paid": "Retry / Mark paid",
+      "fulfill_remaining": "Fulfill remaining"
+    },
+    "documents": {
+      "label": "Documents",
+      "invoice": "Invoice",
+      "packing_slip": "Packing slip",
+      "refund_receipt": "Refund receipt"
+    },
+    "timeline": {
+      "state_pending": "Order is pending",
+      "state_processing": "Order is being processed",
+      "state_shipped": "Order has shipped",
+      "state_delivered": "Order delivered",
+      "state_cancelled": "Order cancelled",
+      "state_refunded": "Order refunded",
+      "event_created": "Order placed",
+      "event_tracking_updated": "Tracking updated",
+      "event_note_added": "Note added",
+      "event_note_deleted": "Note removed",
+      "event_fulfillment_created": "Shipment created",
+      "event_fulfillment_status_changed": "Shipment updated",
+      "event_fulfillment_delivered": "Shipment delivered",
+      "event_refund_issued": "Refund issued",
+      "event_manual_refund": "Refund recorded",
+      "event_refund_failed": "Refund failed",
+      "event_replacement_created": "Replacement order created",
+      "event_return_created": "Return requested",
+      "event_return_status_changed": "Return updated",
+      "event_payment_authorized": "Payment authorized",
+      "event_payment_captured": "Payment captured",
+      "event_payment_failed": "Payment failed",
+      "event_payment_status_changed": "Payment status updated",
+      "event_status_changed": "Order status updated",
+      "event_cancelled": "Order cancelled",
+      "event_order_notified": "Customer notified",
+      "event_address_edited": "Address edited",
+      "event_discount_adjusted": "Discount adjusted",
+      "event_tag_added": "Tag added",
+      "event_tag_removed": "Tag removed",
+      "shipment_shipped": "Shipment marked as shipped",
+      "shipment_delivered": "Shipment marked as delivered",
+      "shipment_cancelled": "Shipment cancelled"
+    },
+    "returns": {
+      "none": "No returns yet. Record one when a customer sends items back.",
+      "return_label": "Return",
+      "approve": "Approve",
+      "reject": "Reject",
+      "mark_received": "Mark received",
+      "mark_refunded": "Mark refunded",
+      "refund_amount_desc": "Enter the amount to refund for this return. The suggested value is calculated from the returned items' prices."
+    },
+    "line_picker": {
+      "label_max_ordered": "ordered",
+      "label_max_received": "received",
+      "max_label": "max {{max}} {{labelMax}}"
     }
   },
   "dialog": {

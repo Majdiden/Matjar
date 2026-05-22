@@ -184,5 +184,13 @@
     "per_page": "Per page",
     "first": "First",
     "last": "Last"
+  },
+  "confirm": {
+    "default_title": "Are you sure?"
+  },
+  "language": {
+    "switch": "Change language",
+    "english": "English",
+    "arabic": "العربية"
   }
 }

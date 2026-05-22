@@ -508,7 +508,11 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 </span>
                 <span className="uppercase tracking-wider">{s.label}</span>
               </li>
-              {i < STEPS.length - 1 && <span className="text-gray-300">→</span>}
+              {i < STEPS.length - 1 && (
+                <svg className="w-3 h-3 text-gray-300 rtl:rotate-180 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              )}
             </React.Fragment>
           );
         })}
@@ -816,7 +820,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   <p className="font-semibold uppercase text-xs text-gray-500">{t('checkout.field.review.payment_label')}</p>
                   <button onClick={() => setStep(3)} className="text-xs underline" style={{ color: accent }}>{t('checkout.action.edit')}</button>
                 </div>
-                <p>{isZeroTotal ? 'Gift Card' : (availablePaymentMethods.find((m) => m.code === paymentMethodCode)?.label || paymentMethodCode || '—')}</p>
+                <p>{isZeroTotal ? t('checkout.summary.gift_card') : (availablePaymentMethods.find((m) => m.code === paymentMethodCode)?.label || paymentMethodCode || '—')}</p>
                 {notes && <p className="text-gray-600 mt-2 text-xs italic">"{notes}"</p>}
               </div>
 
@@ -920,13 +924,13 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                     )}
                     {(item as any).isPreorder && (
                       <p className="text-amber-600 text-xs font-medium">
-                        Pre-order
+                        {t('checkout.summary.preorder_badge')}
                         {(item as any).preorderExpectedShipDate
-                          ? ` — ships ${new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+                          ? ` ${t('checkout.summary.preorder_ships_inline', { date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) })}`
                           : ''}
                       </p>
                     )}
-                    <p className="text-gray-500 text-xs">{formatPrice(item.price)} each</p>
+                    <p className="text-gray-500 text-xs">{t('checkout.summary.price_each', { price: formatPrice(item.price) })}</p>
                   </div>
                   <p className="font-semibold whitespace-nowrap">{formatPrice(item.lineTotal)}</p>
                 </div>

@@ -84,7 +84,7 @@ export const Collections: React.FC = () => {
     if (!(await confirm({
       title: t('products.collections.confirm.delete.title'),
       description: t('products.collections.confirm.delete.description_bulk'),
-      confirmText: t('common.action.delete'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     const ids = [...selected];
@@ -145,7 +145,7 @@ export const Collections: React.FC = () => {
     if (!(await confirm({
       title: t('products.collections.confirm.delete.title'),
       description: t('products.collections.confirm.delete.description', { title: collection.title }),
-      confirmText: t('common.action.delete'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
@@ -199,7 +199,7 @@ export const Collections: React.FC = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <Button type="submit" variant="secondary" size="sm">{t('common.action.search')}</Button>
+          <Button type="submit" variant="secondary" size="sm">{t('common:action.search')}</Button>
         </form>
 
         <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v as 'all' | 'manual' | 'smart'); setPage(1); }}>
@@ -331,13 +331,13 @@ export const Collections: React.FC = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => navigate(`/dashboard/collections/${col._id}/edit`)}>
-                            <Edit className="h-4 w-4 me-2" />{t('common.action.edit')}
+                            <Edit className="h-4 w-4 me-2" />{t('common:action.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDelete(col)}
                             className="text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 me-2" />{t('common.action.delete')}
+                            <Trash2 className="h-4 w-4 me-2" />{t('common:action.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -361,16 +361,16 @@ export const Collections: React.FC = () => {
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
-              {t('common.action.previous')}
+              {t('common:action.previous')}
             </Button>
-            <span className="py-1">{t('common.pagination.page_of', { n: page, total: pagination.pages })}</span>
+            <span className="py-1">{t('common:pagination.page_of', { n: page, total: pagination.pages })}</span>
             <Button
               variant="outline"
               size="sm"
               disabled={page >= pagination.pages}
               onClick={() => setPage((p) => p + 1)}
             >
-              {t('common.action.next')}
+              {t('common:action.next')}
             </Button>
           </div>
         </div>

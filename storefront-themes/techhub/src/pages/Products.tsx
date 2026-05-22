@@ -49,7 +49,7 @@ const Products: React.FC = () => {
     ...(inStockParam === '1' && { inStock: 1 }),
   });
 
-  const { t } = useTranslation(['theme']);
+  const { t } = useTranslation(['theme', 'category']);
 
   const SORT_OPTIONS: Array<{ value: string; label: string }> = [
     { value: 'newest', label: t('theme.products.sort_newest') },
@@ -231,7 +231,7 @@ const Products: React.FC = () => {
                   value={minPriceInput}
                   onChange={(e) => setMinPriceInput(e.target.value)}
                   onBlur={() => updateParam('minPrice', minPriceInput)}
-                  placeholder="$0"
+                  placeholder={t('category:category.filter.price_min_currency')}
                   className="w-full px-3 py-2 border rounded text-sm focus:outline-none"
                   style={{ borderColor: 'var(--color-border)' }}
                 />
@@ -245,7 +245,7 @@ const Products: React.FC = () => {
                   value={maxPriceInput}
                   onChange={(e) => setMaxPriceInput(e.target.value)}
                   onBlur={() => updateParam('maxPrice', maxPriceInput)}
-                  placeholder="$∞"
+                  placeholder={t('category:category.filter.price_max_currency')}
                   className="w-full px-3 py-2 border rounded text-sm focus:outline-none"
                   style={{ borderColor: 'var(--color-border)' }}
                 />
@@ -306,7 +306,7 @@ const Products: React.FC = () => {
                 <button
                   onClick={() => setView('grid')}
                   className="p-2 transition"
-                  aria-label="Grid view"
+                  aria-label={t('common:aria.grid_view')}
                   style={{
                     backgroundColor: view === 'grid' ? 'var(--color-primary)' : 'transparent',
                     color: view === 'grid' ? '#fff' : 'var(--color-muted)',
@@ -319,7 +319,7 @@ const Products: React.FC = () => {
                 <button
                   onClick={() => setView('list')}
                   className="p-2 transition"
-                  aria-label="List view"
+                  aria-label={t('common:aria.list_view')}
                   style={{
                     backgroundColor: view === 'list' ? 'var(--color-primary)' : 'transparent',
                     color: view === 'list' ? '#fff' : 'var(--color-muted)',

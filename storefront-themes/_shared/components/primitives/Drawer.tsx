@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 
 type DrawerSide = 'left' | 'right' | 'bottom';
@@ -44,6 +45,7 @@ export function Drawer({
   side = 'right',
   width = 'max-w-md',
 }: DrawerProps) {
+  const { t } = useTranslation(['common']);
   // Lock body scroll when open
   useEffect(() => {
     if (isOpen) {
@@ -113,7 +115,7 @@ Drawer.Header = function DrawerHeader({
         <button
           onClick={onClose}
           className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-          aria-label="Close"
+          aria-label={t('common:aria.close')}
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

@@ -1,4 +1,5 @@
 import React, { useState, useCallback, createContext, useContext, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 
 type ToastType = 'success' | 'error' | 'info' | 'warning';
@@ -17,6 +18,7 @@ interface ToastContextValue {
 const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function useToast() {
+  const { t } = useTranslation(['common']);
   const ctx = useContext(ToastContext);
   if (!ctx) throw new Error('useToast must be used within ToastProvider');
   return ctx;
@@ -80,7 +82,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <button
               onClick={() => removeToast(t.id)}
               className="opacity-70 hover:opacity-100 transition-opacity text-lg leading-none"
-              aria-label="Dismiss"
+              aria-label={t('common:aria.dismiss')}
             >
               &times;
             </button>

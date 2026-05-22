@@ -438,10 +438,10 @@ export const Orders: React.FC = () => {
                       {(order.replacementOf || (order.replacementOrders && order.replacementOrders.length > 0)) && (
                         <span
                           className="inline-flex items-center gap-1 h-5 px-1.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30"
-                          title={order.replacementOf ? 'Replacement order' : `Has ${order.replacementOrders!.length} replacement(s)`}
+                          title={order.replacementOf ? t('orders:list.replacement.label') : t('orders:list.replacement.has_replacements_plural', { count: order.replacementOrders!.length })}
                         >
                           <GitBranch className="h-3 w-3" />
-                          {order.replacementOf ? 'Replacement' : `${order.replacementOrders!.length}×`}
+                          {order.replacementOf ? t('orders:list.replacement.label') : `${order.replacementOrders!.length}×`}
                         </span>
                       )}
                     </div>
@@ -498,7 +498,7 @@ export const Orders: React.FC = () => {
                                   key={s}
                                   onClick={(e) => { e.stopPropagation(); handleStatusChange(order._id, s); }}
                                 >
-                                  {s}
+                                  {t(`common.status.${s}`, { ns: 'common', defaultValue: s })}
                                 </DropdownMenuItem>
                               ))}
                           </>
@@ -616,7 +616,7 @@ export const Orders: React.FC = () => {
                                   key={s}
                                   onClick={(e) => { e.stopPropagation(); handleStatusChange(order._id, s); }}
                                 >
-                                  {s}
+                                  {t(`common.status.${s}`, { ns: 'common', defaultValue: s })}
                                 </DropdownMenuItem>
                               ))}
                           </>

@@ -160,6 +160,7 @@
       "preorder": "طلب مسبق",
       "new": "جديد",
       "choose_options": "اختر الخيارات",
+      "select_options_tooltip": "اختر الخيارات من صفحة المنتج",
       "add_to_cart": "+ أضيفي إلى السلة",
       "sold_out": "نفد المخزون",
       "only_left": "{{count}} فقط متبقية"

@@ -96,7 +96,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
           <div className="absolute top-4 end-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition">
             <button
               type="button"
-              aria-label="Wishlist"
+              aria-label={t('common:aria.wishlist')}
               onClick={(e) => { e.preventDefault(); }}
               className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-white transition"
             >
@@ -107,7 +107,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
             {onQuickView && (
               <button
                 type="button"
-                aria-label="Quick view"
+                aria-label={t('common:aria.quick_view')}
                 onClick={(e) => { e.preventDefault(); onQuickView(product); }}
                 className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-white transition"
               >
@@ -126,7 +126,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
               onClick={(e) => { if (requiresOptions) return; e.preventDefault(); if (!pre.ctaDisabled) addItem(product._id || product.id, 1); }}
               disabled={!requiresOptions && pre.ctaDisabled}
               className="px-7 py-3 rounded-full bg-[color:var(--color-primary)] text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--color-secondary)] transition disabled:opacity-60"
-              title={requiresOptions ? 'Select options on the product page' : pre.mode === 'preorder' ? [pre.shipByLabel, pre.depositLabel].filter(Boolean).join(' · ') || undefined : undefined}
+              title={requiresOptions ? t('theme.product_card.select_options_tooltip') : pre.mode === 'preorder' ? [pre.shipByLabel, pre.depositLabel].filter(Boolean).join(' · ') || undefined : undefined}
             >
               {requiresOptions ? t('theme.product_card.choose_options') : pre.mode === 'preorder' ? `+ ${t('theme.product_card.preorder')}` : pre.mode === 'soldOut' ? t('theme.product_card.sold_out') : t('theme.product_card.add_to_cart')}
             </button>

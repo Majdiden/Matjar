@@ -39,7 +39,7 @@
         "label": "البريد الإلكتروني",
         "hint": "تواصل مع الدعم لتغيير البريد الإلكتروني المرتبط بهذا الحساب."
       },
-      "phone": { "label": "الهاتف" },
+      "phone": { "label": "الهاتف", "placeholder": "+966 5 0123 4567" },
       "marketing_opt_in": "أرسل لي رسائل ترويجية عن المنتجات والعروض الجديدة.",
       "marketing_opt_in_hint": "يمكنك إلغاء الاشتراك في أي وقت.",
       "current_password": { "label": "كلمة المرور الحالية" },
@@ -83,13 +83,27 @@
       "cancel_confirm_title": "إلغاء هذا الطلب؟",
       "cancel_confirm_description": "لا يمكن التراجع عن هذا — سيتم الإفراج عن المخزون المحجوز.",
       "cancel_confirm_text": "إلغاء الطلب",
-      "cancel_keep_text": "الاحتفاظ بالطلب"
+      "cancel_keep_text": "الاحتفاظ بالطلب",
+      "item_count_one": "{{count}} منتج",
+      "item_count_other": "{{count}} منتجات",
+      "more": "+{{count}} أخرى",
+      "status": {
+        "Pending": "تم استلام الطلب",
+        "Processing": "قيد التجهيز",
+        "Shipped": "في الطريق",
+        "Delivered": "تم التسليم",
+        "Cancelled": "ملغى",
+        "Refunded": "مسترد"
+      }
     },
     "wishlist": {
       "empty": "قائمة أمنياتك فارغة.",
       "browse": "تصفح المنتجات ←",
       "open_full": "فتح صفحة قائمة الأمنيات الكاملة ←",
-      "removing": "جاري الإزالة…"
+      "removing": "جاري الإزالة…",
+      "remove": "إزالة",
+      "loading": "جاري تحميل قائمة الأمنيات…",
+      "no_image": "لا توجد صورة"
     },
     "reviews": {
       "empty": "لم تكتب أي مراجعات بعد.",
@@ -100,7 +114,8 @@
       "empty": "لا تمتلك أي بطاقات هدايا بعد.",
       "loading": "جاري تحميل بطاقات الهدايا…",
       "card": "بطاقة الهدايا •••• {{last4}}",
-      "balance": "الرصيد {{balance}} من {{initial}}"
+      "balance": "الرصيد {{balance}} من {{initial}}",
+      "expires": "· تنتهي {{date}}"
     },
     "action": {
       "sign_out": "تسجيل الخروج",

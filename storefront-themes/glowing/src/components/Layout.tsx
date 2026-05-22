@@ -53,7 +53,7 @@ const Layout: React.FC = () => {
               <SearchBar variant="compact" className="text-neutral-600 hover:text-black hover:bg-neutral-100" />
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                aria-label="Menu"
+                aria-label={t('common:aria.menu')}
                 className="md:hidden text-neutral-700"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
@@ -74,17 +74,17 @@ const Layout: React.FC = () => {
             {/* Right: account / wishlist / cart */}
             <div className="flex items-center gap-5 justify-end text-neutral-700">
               <LanguageSwitcher />
-              <Link to="/account" aria-label="Account" className="hover:text-black">
+              <Link to="/account" aria-label={t('common:aria.account')} className="hover:text-black">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 1115 0v.75H4.5v-.75z" />
                 </svg>
               </Link>
-              <Link to="/wishlist" aria-label="Wishlist" className="hover:text-black hidden sm:block">
+              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="hover:text-black hidden sm:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
               </Link>
-              <button onClick={openCart} aria-label="Cart" className="relative hover:text-black">
+              <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hover:text-black">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>

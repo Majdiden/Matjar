@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 
 interface ModalProps {
@@ -33,6 +34,7 @@ export function Modal({
   closeOnEscape = true,
   size = 'md',
 }: ModalProps) {
+  const { t } = useTranslation(['common']);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
@@ -117,7 +119,7 @@ Modal.Header = function ModalHeader({
         <button
           onClick={onClose}
           className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-          aria-label="Close"
+          aria-label={t('common:aria.close')}
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

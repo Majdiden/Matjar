@@ -160,6 +160,7 @@
       "preorder": "Pre-order",
       "new": "New",
       "choose_options": "Choose Options",
+      "select_options_tooltip": "Select options on the product page",
       "add_to_cart": "+ Add to Cart",
       "sold_out": "Sold out",
       "only_left": "Only {{count}} left"

@@ -18,6 +18,12 @@
     "results_count_many": "{{count}} products",
     "results_count_other": "{{count}} products",
     "loading": "Loading…",
+    "filter": {
+      "price_min": "Min",
+      "price_max": "Max",
+      "price_min_currency": "$0",
+      "price_max_currency": "$∞"
+    },
     "empty": {
       "title": "No products in this category yet."
     }

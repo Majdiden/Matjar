@@ -440,7 +440,7 @@ export const CollectionForm: React.FC = () => {
     if (!(await confirm({
       title: t('products.collections.confirm.delete.title'),
       description: t('products.collections.confirm.delete.description_bulk'),
-      confirmText: t('common.action.delete'),
+      confirmText: t('common:action.delete'),
       variant: 'destructive',
     }))) return;
     try {
@@ -487,7 +487,7 @@ export const CollectionForm: React.FC = () => {
             </Button>
           )}
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common.state.saving_ellipsis')}</> : <><Save className="h-4 w-4 me-2" />{t('common.action.save')}</>}
+            {saving ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common:state.saving_ellipsis')}</> : <><Save className="h-4 w-4 me-2" />{t('common:action.save')}</>}
           </Button>
         </div>
       </div>

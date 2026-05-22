@@ -11,9 +11,9 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Welcome to Our Store' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Discover our curated collection of quality products.' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: 'Shop Now' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
   ],
 });
@@ -24,11 +24,11 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   description: 'Clean product grid with a view-all link',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Featured Products' },
-    { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: 'View All' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
     { id: 'view_all_url', type: 'url', label: 'View All URL', default: '/products' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 6, min: 2, max: 12 },
-    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Text', default: 'Add' },
+    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Text', default: '' },
     { id: 'show_rating', type: 'checkbox', label: 'Show Rating', default: true },
     { id: 'show_quick_view', type: 'checkbox', label: 'Show Quick View', default: true },
   ],
@@ -46,8 +46,8 @@ export const trustBadgesSection: SectionDefinition = defineSection({
       type: 'badge',
       name: 'Badge',
       settings: [
-        { id: 'title', type: 'text', label: 'Title', default: 'Free Shipping' },
-        { id: 'description', type: 'text', label: 'Description', default: 'On orders over $50' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
+        { id: 'description', type: 'text', label: 'Description', default: '' },
       ],
     },
   ],
@@ -65,7 +65,7 @@ export const categoriesSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Categories' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 12, min: 2, max: 30 },
   ],
 });
@@ -77,10 +77,10 @@ export const newsletterSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Stay Updated' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Subscribe for new arrivals and offers.' },
-    { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: 'your@email.com' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: 'Subscribe' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
   ],
 });
 
@@ -121,7 +121,7 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: false },
-    { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: 'Free shipping on orders over $50!' },
+    { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: '' },
   ],
 
   sections: [

@@ -11,11 +11,11 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: 'Curated reads for curious minds' },
-    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', default: 'Discover Your' },
-    { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: 'Next Read' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Hand-picked books across every genre, delivered to your door.' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: 'Browse Collection' },
+    { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '' },
+    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', default: '' },
+    { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
     { id: 'gradient_from', type: 'color', label: 'Gradient From', default: '#7c3aed' },
     { id: 'gradient_via', type: 'color', label: 'Gradient Via', default: '#6d28d9' },
@@ -30,8 +30,8 @@ export const genresSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Browse by Genre' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Find your next adventure in any category' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 6, min: 2, max: 12 },
   ],
   blocks: [
@@ -39,8 +39,8 @@ export const genresSection: SectionDefinition = defineSection({
       type: 'genre',
       name: 'Genre',
       settings: [
-        { id: 'name', type: 'text', label: 'Genre Name', default: 'Fiction' },
-        { id: 'icon', type: 'text', label: 'Icon Letter', default: 'F' },
+        { id: 'name', type: 'text', label: 'Genre Name', default: '' },
+        { id: 'icon', type: 'text', label: 'Icon Letter', default: '' },
       ],
     },
   ],
@@ -61,11 +61,11 @@ export const staffPicksSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Staff Picks' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'Handpicked by our team of bibliophiles' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 6, min: 2, max: 12 },
-    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: 'Add to Shelf' },
-    { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: 'See All' },
+    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: '' },
+    { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
     { id: 'view_all_url', type: 'url', label: 'View All URL', default: '/products' },
     { id: 'show_rating', type: 'checkbox', label: 'Show Rating', default: true },
     { id: 'columns', type: 'select', label: 'Columns', default: '3', options: [
@@ -82,8 +82,8 @@ export const readingQuoteSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'quote_text', type: 'textarea', label: 'Quote Text', default: 'A reader lives a thousand lives before he dies. The man who never reads lives only one.' },
-    { id: 'quote_author', type: 'text', label: 'Quote Author', default: 'George R.R. Martin' },
+    { id: 'quote_text', type: 'textarea', label: 'Quote Text', default: '' },
+    { id: 'quote_author', type: 'text', label: 'Quote Author', default: '' },
     { id: 'background_color', type: 'color', label: 'Background Color', default: '#ede9fe' },
   ],
 });
@@ -95,10 +95,10 @@ export const bestsellersSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Bestsellers' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: 'The books everyone is reading right now' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 9, min: 4, max: 16 },
-    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: 'Add' },
+    { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: '' },
     { id: 'autoplay', type: 'checkbox', label: 'Auto-play', default: false },
     { id: 'show_arrows', type: 'checkbox', label: 'Show Arrows', default: true },
     { id: 'show_dots', type: 'checkbox', label: 'Show Dots', default: true },
@@ -112,10 +112,10 @@ export const newsletterSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: 'Start Your Reading List' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: 'Sign up for curated recommendations, exclusive deals, and early access to new arrivals.' },
-    { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: 'your@email.com' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: 'Subscribe' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'gradient_from', type: 'color', label: 'Gradient From', default: '#7c3aed' },
     { id: 'gradient_to', type: 'color', label: 'Gradient To', default: '#4c1d95' },
   ],
@@ -158,7 +158,7 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
-    { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: 'Free shipping on orders over $35!' },
+    { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: '' },
     { id: 'announcement_bg', type: 'color', label: 'Announcement Background', default: '#4c1d95' },
     { id: 'enable_quick_view', type: 'checkbox', label: 'Enable Quick View', default: true },
     { id: 'border_radius', type: 'range', label: 'Border Radius', min: 0, max: 24, step: 2, default: 12, unit: 'px' },
