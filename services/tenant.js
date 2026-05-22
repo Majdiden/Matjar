@@ -128,32 +128,44 @@ const addATenantService = async (tenantData) => {
       // tenants collection well after register returns). Tests that
       // need post-setup state should drive the setup explicitly.
       //
-      // If Redis is unreachable (dev laptop without redis running) we
-      // fall back to an in-process invocation so the developer experience
-      // doesn't require standing up the worker stack just to register
-      // a tenant. Production always has Redis — env validation enforces
-      // it — so the fallback is a local-dev convenience, not a silent
-      // downgrade of the production retry contract.
+      // In dev we always run inline rather than enqueuing. Enqueuing
+      // succeeds whenever Redis is up, but jobs only progress when a
+      // separate `npm run worker` process is also running — that's a
+      // confusing dev experience where registration silently hangs at
+      // "registering domain" because the API process never sees the
+      // job get picked up. Inline execution in dev keeps registration
+      // self-contained; production always uses the queue so the web
+      // dyno can be recycled without losing in-flight setups.
       if (!config.isTest) {
         logger.info(`Triggering store setup for: ${data.name}`, { tenantId: data._id.toString() });
-        enqueueStoreSetup(data._id, { source: "register" })
-          .then((job) => {
-            logger.info("Store setup enqueued", {
-              tenantId: data._id.toString(),
-              jobId: job.id,
-            });
-          })
-          .catch((error) => {
-            logger.warn(
-              `Failed to enqueue store setup (${error.message}); running inline as fallback`,
-              { tenantId: data._id.toString() }
-            );
-            initializeStoreSetup(data, models).catch((err) => {
-              logger.error(`Store setup failed for ${data.name}: ${err.message}`, {
+        if (config.isProduction) {
+          enqueueStoreSetup(data._id, { source: "register" })
+            .then((job) => {
+              logger.info("Store setup enqueued", {
                 tenantId: data._id.toString(),
+                jobId: job.id,
+              });
+            })
+            .catch((error) => {
+              logger.warn(
+                `Failed to enqueue store setup (${error.message}); running inline as fallback`,
+                { tenantId: data._id.toString() }
+              );
+              initializeStoreSetup(data, models).catch((err) => {
+                logger.error(`Store setup failed for ${data.name}: ${err.message}`, {
+                  tenantId: data._id.toString(),
+                });
               });
             });
+        } else {
+          // Dev: run inline so the registration flow doesn't depend on a
+          // separately-launched worker process.
+          initializeStoreSetup(data, models).catch((err) => {
+            logger.error(`Store setup failed for ${data.name}: ${err.message}`, {
+              tenantId: data._id.toString(),
+            });
           });
+        }
       }
     }
 
