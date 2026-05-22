@@ -49,7 +49,7 @@ const AnimatedTitle: React.FC<{ text: string; perLetter?: number; className?: st
       <h1 className={titleClass}>
         {words.map((word, i) => (
           <Fragment key={i}>
-            {i > 0 && <span className="onb-letter-space" />}
+            {i > 0 && ' '}
             <span
               className="onb-letter"
               style={{ animationDelay: `${i * perLetter * 4}ms` }}

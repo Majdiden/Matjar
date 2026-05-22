@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { Fragment, useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/button';
@@ -363,9 +363,16 @@ export const Register: React.FC = () => {
 
         {step === 'welcome' && (() => {
           const title = t('auth.register.welcome_title');
-          const letters = [...title];
-          const perLetter = 55;
-          const buttonDelay = letters.length * perLetter + 200;
+          // Arabic letters require contextual shaping across adjacent
+          // characters in the same text run. Splitting per-glyph into
+          // inline-block <span>s forces every letter into isolated form
+          // (the visible bug: "\u0645\u062A\u062C\u0631\u0643" rendering as "\u0645 \u062A \u062C \u0631 \u0643"). When
+          // Arabic codepoints are present, cascade per-word instead so
+          // each word stays a single shapeable run.
+          const hasArabic = /[\u0600-\u06FF]/.test(title);
+          const units = hasArabic ? title.split(' ') : [...title];
+          const perUnit = hasArabic ? 220 : 55;
+          const buttonDelay = units.length * perUnit + 200;
           const linkDelay = buttonDelay + 250;
           return (
             <div className="min-h-[70vh] flex flex-col items-center justify-center text-center">
@@ -382,16 +389,28 @@ export const Register: React.FC = () => {
                 .onb-letter-space { width: 0.28em; }
                 .onb-fade { opacity: 0; animation: onboardFadeIn 600ms cubic-bezier(.2,.7,.2,1) forwards; }
               `}</style>
-              <h1 className="font-bold tracking-tight leading-[1.02] whitespace-nowrap text-[clamp(1.75rem,6vw,5rem)] px-4">
-                {letters.map((ch, i) => (
-                  <span
-                    key={i}
-                    className={`onb-letter${ch === ' ' ? ' onb-letter-space' : ''}`}
-                    style={{ animationDelay: `${i * perLetter}ms` }}
-                  >
-                    {ch === ' ' ? '\u00A0' : ch}
-                  </span>
-                ))}
+              <h1 className={`font-bold leading-[1.02] whitespace-nowrap text-[clamp(1.75rem,6vw,5rem)] px-4 ${hasArabic ? '' : 'tracking-tight'}`}>
+                {hasArabic
+                  ? units.map((word, i) => (
+                      <Fragment key={i}>
+                        {i > 0 && ' '}
+                        <span
+                          className="onb-letter"
+                          style={{ animationDelay: `${i * perUnit}ms` }}
+                        >
+                          {word}
+                        </span>
+                      </Fragment>
+                    ))
+                  : units.map((ch, i) => (
+                      <span
+                        key={i}
+                        className={`onb-letter${ch === ' ' ? ' onb-letter-space' : ''}`}
+                        style={{ animationDelay: `${i * perUnit}ms` }}
+                      >
+                        {ch === ' ' ? '\u00A0' : ch}
+                      </span>
+                    ))}
               </h1>
               <div
                 className="onb-fade mt-10"
