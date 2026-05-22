@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Check, Store } from 'lucide-react';
@@ -33,11 +33,38 @@ const AnimatedTitle: React.FC<{ text: string; perLetter?: number; className?: st
   perLetter = 55,
   className = '',
 }) => {
+  // Arabic ligatures are shaped by the browser across adjacent characters in
+  // the same text node \u2014 wrapping each glyph in its own inline-block <span>
+  // forces every letter into isolated form and breaks the connection. Detect
+  // Arabic and fall back to per-word animation so each word stays intact;
+  // English continues to cascade letter-by-letter.
+  const hasArabic = /[\u0600-\u06FF]/.test(text);
+  const titleClass = `font-bold leading-[1.02] whitespace-nowrap text-[clamp(1.75rem,6vw,5rem)] px-4 ${
+    hasArabic ? '' : 'tracking-tight'
+  } ${className}`;
+
+  if (hasArabic) {
+    const words = text.split(' ');
+    return (
+      <h1 className={titleClass}>
+        {words.map((word, i) => (
+          <Fragment key={i}>
+            {i > 0 && <span className="onb-letter-space" />}
+            <span
+              className="onb-letter"
+              style={{ animationDelay: `${i * perLetter * 4}ms` }}
+            >
+              {word}
+            </span>
+          </Fragment>
+        ))}
+      </h1>
+    );
+  }
+
   const letters = text.split('');
   return (
-    <h1
-      className={`font-bold tracking-tight leading-[1.02] whitespace-nowrap text-[clamp(1.75rem,6vw,5rem)] px-4 ${className}`}
-    >
+    <h1 className={titleClass}>
       {letters.map((ch, i) => (
         <span
           key={i}
