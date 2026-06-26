@@ -31,7 +31,7 @@ services:
     preDeployCommand: npm run migrate:production
     startCommand: node ./index.js
     healthCheckPath: /health
-    numInstances: 2
+    numInstances: 1
     autoDeploy: true
     envVars:
       - key: NODE_ENV
@@ -128,7 +128,7 @@ services:
   - type: worker
     name: matjar-worker
     runtime: node
-    plan: standard
+    plan: starter
     region: oregon
     branch: master
     buildCommand: npm ci
