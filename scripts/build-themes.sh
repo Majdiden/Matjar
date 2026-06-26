@@ -26,9 +26,13 @@ for theme in "${THEMES[@]}"; do
 
   cd "$THEME_DIR"
 
-  # Install deps if needed
+  # Install deps if needed. Use `npm ci --include=dev` so the build is
+  # deterministic (matches the committed lockfile) AND pulls vite /
+  # @vitejs/plugin-react, which live in devDependencies — without
+  # --include=dev they are skipped under NODE_ENV=production (Render),
+  # leaving `npx vite build` to auto-download an unpinned vite or fail.
   if [ ! -d "node_modules" ]; then
-    npm install --silent 2>/dev/null
+    npm ci --include=dev --silent
   fi
 
   # Build
