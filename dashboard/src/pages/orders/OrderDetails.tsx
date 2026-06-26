@@ -459,7 +459,7 @@ export const OrderDetails: React.FC = () => {
         status: nextStatus,
         refundAmount: refundAmt,
       });
-      toast.success(t('orders:toast.return_updated', { status: nextStatus.toLowerCase() }));
+      toast.success(t('orders:toast.return_updated', { status: t(`common:status.${nextStatus}`, { defaultValue: nextStatus }) }));
       await loadOrder(order._id);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
@@ -478,7 +478,7 @@ export const OrderDetails: React.FC = () => {
       // entry — prefer it over a local merge so the timeline reflects truth.
       const updated = res?.responseObject;
       setOrder(updated || { ...order, status: newStatus });
-      toast.success(t('orders:toast.status_updated', { status: newStatus }));
+      toast.success(t('orders:toast.status_updated', { status: t(`common:status.${newStatus}`, { defaultValue: newStatus }) }));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : null;
       toast.error(msg || t('orders:toast.status_update_failed'));
@@ -2174,7 +2174,7 @@ const ReturnsAndReplacements: React.FC<{
                   <div className="flex items-center gap-2">
                     <ArrowDownLeft className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium text-sm">{tR('orders:detail.returns.return_label')}</span>
-                    <Badge variant={returnStatusVariant(ret.status)}>{tR(`common.status.${ret.status}`, { ns: 'common', defaultValue: ret.status })}</Badge>
+                    <Badge variant={returnStatusVariant(ret.status)}>{tR(`common:status.${ret.status}`, { defaultValue: ret.status })}</Badge>
                     {typeof ret.refundAmount === 'number' && ret.refundAmount > 0 && (
                       <Badge variant="outline" className="text-[10px]">
                         {formatPrice(ret.refundAmount)}
@@ -2331,7 +2331,7 @@ const humanizeFulfillmentNote = (entry: OrderHistoryEntry, t: (k: string) => str
   return note;
 };
 
-const resolveMeta = (entry: OrderHistoryEntry, t: (k: string, opts?: object) => string) => {
+const resolveMeta = (entry: OrderHistoryEntry, t: (k: string) => string) => {
   // Status transitions describe themselves through the new state.
   if (entry.event === 'status_changed' && entry.status && STATE_META_ICONS[entry.status]) {
     return {
@@ -2722,7 +2722,7 @@ const OperationsCard: React.FC<{
               variant={orderStatusVariant(orderStatus)}
               className="justify-center min-w-[120px] self-start text-xs font-medium px-2.5 py-1"
             >
-              {tOC(`common.status.${orderStatus}`, { ns: 'common', defaultValue: orderStatus })}
+              {tOC(`common:status.${orderStatus}`, { defaultValue: orderStatus })}
             </Badge>
             {canChangeStatus && (
               <DropdownMenu>
@@ -2736,7 +2736,7 @@ const OperationsCard: React.FC<{
                 <DropdownMenuContent align="start">
                   {STATUS_OPTIONS.filter(s => s !== orderStatus).map(status => (
                     <DropdownMenuItem key={status} onClick={() => onStatusChange(status)}>
-                      {tOC('orders:detail.action.move_to_status', { status: tOC(`common.status.${status}`, { ns: 'common', defaultValue: status }) })}
+                      {tOC('orders:detail.action.move_to_status', { status: tOC(`common:status.${status}`, { defaultValue: status }) })}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -2755,7 +2755,7 @@ const OperationsCard: React.FC<{
               variant={paymentStatusVariant(paymentStatus)}
               className="justify-center min-w-[120px] self-start text-xs font-medium px-2.5 py-1"
             >
-              {tOC(`common.status.${paymentStatus}`, { ns: 'common', defaultValue: paymentStatus })}
+              {tOC(`common:status.${paymentStatus}`, { defaultValue: paymentStatus })}
             </Badge>
             <p className="text-sm text-muted-foreground">
               {tOC('orders:detail.status_card.via_method', { method: order.paymentMethod })}
@@ -2778,7 +2778,7 @@ const OperationsCard: React.FC<{
               variant={fulfillmentStatusVariant(fulfillmentStatus)}
               className="justify-center min-w-[120px] self-start text-xs font-medium px-2.5 py-1"
             >
-              {tOC(`common.status.${fulfillmentStatus}`, { ns: 'common', defaultValue: fulfillmentStatus })}
+              {tOC(`common:status.${fulfillmentStatus}`, { defaultValue: fulfillmentStatus })}
             </Badge>
           </CardContent>
         </Card>
