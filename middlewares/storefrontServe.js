@@ -3,6 +3,7 @@ import fs from "fs";
 import express from "express";
 import { fileURLToPath } from "url";
 import logger from "../utils/logger.js";
+import config from "../config/index.js";
 import { resolveTenantByHost } from "../services/domainRegistry.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -114,6 +115,25 @@ export function createStorefrontMiddleware() {
       req.path.startsWith("/platform")
     ) {
       return next();
+    }
+
+    // Platform hosts (apex, www, app) are NOT storefronts — they front the
+    // merchant dashboard. Redirect them into the dashboard SPA instead of
+    // resolving them as a (non-existent) tenant and serving the default
+    // theme. /api, /dashboard, /platform and /storefront are already
+    // handled above, so only stray non-app paths reach here. Real tenant
+    // subdomains and custom domains fall through to normal theme serving.
+    const platformDomain = (config.platformDomain || "").toLowerCase();
+    const reqHost = (req.hostname || req.headers.host || "")
+      .toLowerCase()
+      .split(":")[0];
+    if (
+      platformDomain &&
+      (reqHost === platformDomain ||
+        reqHost === `www.${platformDomain}` ||
+        reqHost === `app.${platformDomain}`)
+    ) {
+      return res.redirect(302, "/dashboard" + req.originalUrl);
     }
 
     // When the dashboard editor loads the storefront inside its preview

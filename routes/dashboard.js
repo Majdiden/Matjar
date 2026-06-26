@@ -1,8 +1,6 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import { authenticate } from "../middlewares/auth.js";
-import { requirePermission } from "../middlewares/authorize.js";
 import logger from "../utils/logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,10 +11,14 @@ const router = express.Router();
 // Get the dashboard build directory
 const dashboardBuildPath = path.join(__dirname, "..", "dashboard", "dist");
 
-// All dashboard routes require authentication AND a merchant role.
-// A customer token must not load the dashboard SPA — that shell ships
-// admin UI code and fetches admin endpoints, so gate at the shell.
-router.use(authenticate, requirePermission("dashboard.read"));
+// The dashboard SPA shell (index.html + content-hashed JS/CSS) is served
+// PUBLICLY and unauthenticated. It carries no tenant data, and a browser
+// navigating to the page cannot attach the `Authorization: Bearer` header
+// the API requires (the JWT lives in localStorage and is only sent on
+// /api calls). Auth is enforced where it matters — every /api route runs
+// `authenticate`, and the SPA itself redirects to the login screen when
+// no valid token is present. Gating the static shell here previously made
+// the dashboard unreachable: a 401 on the very page that performs login.
 
 // Serve dashboard static assets (CSS, JS, images)
 router.use(
@@ -27,8 +29,12 @@ router.use(
   })
 );
 
-// Serve dashboard HTML for all dashboard routes (SPA fallback)
+// Serve dashboard HTML for all dashboard routes (SPA fallback).
+// index.html is NOT content-hashed, so it must revalidate on every load —
+// otherwise a cached shell keeps referencing stale asset hashes after a
+// deploy. The hashed files under /assets stay immutable (cached above).
 router.get("*", (req, res) => {
+  res.set("Cache-Control", "no-cache");
   res.sendFile(path.join(dashboardBuildPath, "index.html"), (err) => {
     if (err) {
       logger.error("Error serving dashboard", { error: err.message });
