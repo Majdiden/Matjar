@@ -34,8 +34,8 @@
  *   - output at `dist/manifest.json`
  */
 
-import { build as esbuild } from "esbuild";
 import { pathToFileURL } from "node:url";
+import { createRequire } from "node:module";
 import path from "node:path";
 import fs from "node:fs";
 import os from "node:os";
@@ -63,6 +63,23 @@ export default function emitManifestPlugin(options = {}) {
       const tmpFile = path.join(tmpDir, `manifest-${Date.now()}.mjs`);
 
       try {
+        // Resolve esbuild from the THEME being built, not from _shared/.
+        // _shared is never `npm install`ed in CI, but every theme installs
+        // vite — which declares esbuild as a direct dependency — so esbuild
+        // is always present in the theme's dependency tree. A static
+        // top-level `import ... from "esbuild"` resolves against _shared/
+        // and dies with ERR_MODULE_NOT_FOUND on a clean checkout (Render).
+        const themeRequire = createRequire(path.join(themeRoot, "package.json"));
+        let esbuildEntry;
+        try {
+          esbuildEntry = themeRequire.resolve("esbuild");
+        } catch {
+          // esbuild not hoisted to the theme root — resolve it through
+          // vite, which always has it as a direct dependency.
+          esbuildEntry = createRequire(themeRequire.resolve("vite")).resolve("esbuild");
+        }
+        const { build: esbuild } = await import(pathToFileURL(esbuildEntry).href);
+
         await esbuild({
           entryPoints: [entryPath],
           bundle: true,
