@@ -579,7 +579,11 @@ const DashboardLayoutInner: React.FC = () => {
                   <span className="sr-only">{t('nav:toggle_menu')}</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0">
+              {/* flex flex-col + overflow-hidden so SidebarContent's
+                  `flex-1 min-h-0` resolves against the sheet's full height and
+                  its inner ScrollArea actually scrolls on mobile (the nav is
+                  taller than the viewport on small screens). */}
+              <SheetContent side="left" className="w-64 p-0 flex flex-col overflow-hidden">
                 <SidebarContent onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>

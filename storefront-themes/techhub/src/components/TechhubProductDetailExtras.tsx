@@ -107,9 +107,9 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
   const specs: Spec[] = useMemo(() => {
     if (product.specifications && product.specifications.length > 0) return product.specifications;
     const fallback: Spec[] = [];
-    if (product.sku) fallback.push({ key: 'SKU', value: product.sku });
-    if (product.weight) fallback.push({ key: 'Weight', value: `${product.weight} ${product.weightUnit || 'kg'}` });
-    if (product.tags && product.tags.length > 0) fallback.push({ key: 'Tags', value: product.tags.join(', ') });
+    if (product.sku) fallback.push({ key: t('theme.product_detail_extras.spec_sku', { defaultValue: 'SKU' }), value: product.sku });
+    if (product.weight) fallback.push({ key: t('theme.product_detail_extras.spec_weight', { defaultValue: 'Weight' }), value: `${product.weight} ${product.weightUnit || 'kg'}` });
+    if (product.tags && product.tags.length > 0) fallback.push({ key: t('theme.product_detail_extras.spec_tags', { defaultValue: 'Tags' }), value: product.tags.join(', ') });
     return fallback;
   }, [product]);
 
@@ -150,7 +150,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
     e.preventDefault();
     setReviewError(null);
     if (reviewComment.trim().length < 5) {
-      setReviewError('Please write at least a few words about the product.');
+      setReviewError(t('theme.product_detail_extras.review_min_length', { defaultValue: 'Please write at least a few words about the product.' }));
       return;
     }
     try {
@@ -168,7 +168,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
       setReviewComment('');
       setReviewRating(5);
     } catch (err: any) {
-      setReviewError(err?.message || 'Failed to submit review');
+      setReviewError(err?.message || t('theme.product_detail_extras.review_submit_failed', { defaultValue: 'Failed to submit review' }));
     } finally {
       setSubmittingReview(false);
     }
@@ -475,7 +475,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                           className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
                           style={{ backgroundColor: accent }}
                         >
-                          {reviewerName(r).charAt(0).toUpperCase()}
+                          {reviewerName(r, t('theme.product_detail_extras.anonymous')).charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="text-sm font-bold leading-tight" style={{ color: 'var(--color-foreground)' }}>

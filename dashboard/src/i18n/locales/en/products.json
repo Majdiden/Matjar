@@ -1,5 +1,8 @@
 {
   "products": {
+    "column": {
+      "sku": "SKU"
+    },
     "list": {
       "title": "Products",
       "subtitle": "Manage your catalog, inventory, and product information",
@@ -482,6 +485,9 @@
         "visibility": {
           "published": "Published",
           "hidden": "Hidden from storefront"
+        },
+        "preview": {
+          "button": "Preview products"
         },
         "title_required": "Title is required",
         "rules_required": "All rule values are required"

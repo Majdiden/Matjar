@@ -63,16 +63,15 @@ const Layout: React.FC = () => {
                 <SearchBar placeholder={t('theme.products.search_placeholder')} className="w-full" />
               </div>
 
-              {/* Mobile Search */}
-              <SearchBar variant="compact" className="md:hidden text-gray-500 hover:text-[#16a34a] hover:bg-green-50" />
-
-              {/* Language Switcher */}
-              <LanguageSwitcher />
+              {/* Language Switcher — desktop only; mobile users get it in the drawer */}
+              <div className="hidden md:flex items-center">
+                <LanguageSwitcher />
+              </div>
 
               {/* Cart */}
               <button
                 onClick={openCart}
-                className="relative p-2 text-gray-500 hover:text-[#16a34a] rounded-lg hover:bg-green-50 transition"
+                className="relative hidden md:inline-flex p-2 text-gray-500 hover:text-[#16a34a] rounded-lg hover:bg-green-50 transition"
                 aria-label={t('common:aria.cart')}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

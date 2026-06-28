@@ -5,6 +5,7 @@
  * and quick actions (toggle visibility, duplicate, delete).
  */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GripVertical, Eye, EyeOff, Copy, Trash2, Plus, MoreHorizontal } from 'lucide-react';
 import { getSectionMeta } from './sectionMeta';
 import {
@@ -53,6 +54,7 @@ export default function Canvas({
   selectedSectionId,
   onAddSection,
 }: CanvasProps) {
+  const { t } = useTranslation('themes');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
 
@@ -113,9 +115,9 @@ export default function Canvas({
   return (
     <div className="flex flex-col h-full">
       {/* Header bucket */}
-      <SectionGroup label="Header">
+      <SectionGroup label={t('themes:editor.canvas.area_header')}>
         {buckets.header.length === 0 ? (
-          <EmptyRow text="No header sections" />
+          <EmptyRow text={t('themes:editor.canvas.empty_header')} />
         ) : (
           buckets.header.map((s) => (
             <SectionRow
@@ -133,10 +135,10 @@ export default function Canvas({
       </SectionGroup>
 
       {/* Template bucket — draggable */}
-      <SectionGroup label="Template">
+      <SectionGroup label={t('themes:editor.canvas.area_template')}>
         <div onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
           {buckets.template.length === 0 ? (
-            <EmptyRow text="No sections yet — click + Add section below" />
+            <EmptyRow text={t('themes:editor.canvas.empty_template')} />
           ) : (
             buckets.template.map((s, idx) => (
               <div key={s.id}>
@@ -170,15 +172,15 @@ export default function Canvas({
             style={{ width: 'calc(100% - 1rem)' }}
           >
             <Plus className="h-3.5 w-3.5" />
-            Add section
+            {t('themes:editor.canvas.add_section')}
           </button>
         )}
       </SectionGroup>
 
       {/* Footer bucket */}
-      <SectionGroup label="Footer">
+      <SectionGroup label={t('themes:editor.canvas.area_footer')}>
         {buckets.footer.length === 0 ? (
-          <EmptyRow text="No footer sections" />
+          <EmptyRow text={t('themes:editor.canvas.empty_footer')} />
         ) : (
           buckets.footer.map((s) => (
             <SectionRow
@@ -246,9 +248,11 @@ function SectionRow({
   onDragOver,
   onDragEnd,
 }: SectionRowProps) {
+  const { t } = useTranslation('themes');
   const confirm = useConfirm();
   const meta = getSectionMeta(section.type);
   const Icon = meta.icon;
+  const sectionName = t(`themes:sections.${section.type}.name`, { defaultValue: meta.name });
   // Sections declared in home variants can ship without a `settings` object
   // (settings fall through to the section-type defaults at render time).
   // The editor row just needs a display hint, so default to an empty bag.
@@ -284,7 +288,7 @@ function SectionRow({
             selected ? 'text-blue-700' : 'text-slate-700'
           }`}
         >
-          {meta.name}
+          {sectionName}
         </p>
         {subtitle && <p className="text-[10px] text-slate-400 truncate">{subtitle}</p>}
       </div>
@@ -297,7 +301,7 @@ function SectionRow({
             onToggle();
           }}
           className="h-6 w-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-600 hover:bg-white"
-          title={section.enabled ? 'Hide' : 'Show'}
+          title={section.enabled ? t('themes:editor.canvas.hide') : t('themes:editor.canvas.show')}
         >
           {section.enabled ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
         </button>
@@ -316,33 +320,33 @@ function SectionRow({
               {section.enabled ? (
                 <>
                   <EyeOff className="h-3.5 w-3.5 me-2" />
-                  Hide section
+                  {t('themes:editor.canvas.hide_section')}
                 </>
               ) : (
                 <>
                   <Eye className="h-3.5 w-3.5 me-2" />
-                  Show section
+                  {t('themes:editor.canvas.show_section')}
                 </>
               )}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onDuplicate}>
               <Copy className="h-3.5 w-3.5 me-2" />
-              Duplicate
+              {t('themes:editor.canvas.duplicate')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={async () => {
                 if (await confirm({
-                  title: 'Delete this section?',
-                  description: 'The section and its settings will be removed from the draft.',
-                  confirmText: 'Delete',
+                  title: t('themes:editor.canvas.delete_confirm_title'),
+                  description: t('themes:editor.canvas.delete_confirm_description'),
+                  confirmText: t('themes:editor.canvas.delete'),
                   variant: 'destructive',
                 })) onDelete();
               }}
               className="text-red-600 focus:text-red-600"
             >
               <Trash2 className="h-3.5 w-3.5 me-2" />
-              Delete
+              {t('themes:editor.canvas.delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

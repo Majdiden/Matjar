@@ -6,8 +6,11 @@ import { useStore } from '../../contexts/StoreContext';
 import { Drawer } from '../primitives/Drawer';
 import type { Product } from '../../types/commerce';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
+import { THUMB_PLACEHOLDER } from '../../utils/placeholder';
 
 export const SLOT_KEY = 'productCompare';
+
+const COMPARE_PLACEHOLDER = THUMB_PLACEHOLDER;
 
 interface ProductCompareProps {
   product: Product;
@@ -90,6 +93,7 @@ export function CompareProvider({ children, maxItems = MAX_COMPARE_ITEMS }: { ch
 // ─── Compare Drawer ──────────────────────────────────────────────
 
 function ProductCompareDrawer() {
+  const { t } = useTranslation(['product', 'common']);
   const { items, remove, clear, isOpen, close } = useCompare();
   const { formatPrice } = useStore();
 
@@ -102,70 +106,80 @@ function ProductCompareDrawer() {
     );
   }
 
+  const cellPad = 'p-3 align-middle';
+  const rowLabel = 'p-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted,#6b7280)] whitespace-nowrap';
+
   return (
     <Drawer isOpen={isOpen} onClose={close} side="bottom" width="max-w-full">
       <Drawer.Header onClose={close}>
-        Compare Products ({items.length})
+        <span style={{ fontFamily: 'var(--font-family-heading)' }}>{t('product:compare.title', { count: items.length })}</span>
       </Drawer.Header>
       <Drawer.Body>
         {items.length === 0 ? (
-          <p className="text-center text-gray-500 py-8">Add products to compare</p>
+          <p className="text-center text-[var(--color-muted,#6b7280)] py-10">{t('product:compare.empty')}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px]">
+          <div className="overflow-x-auto -mx-1 px-1">
+            <table className="w-full min-w-[560px] border-separate border-spacing-0">
               <thead>
                 <tr>
-                  <th className="text-start p-2 text-sm font-medium text-gray-500 w-32">Product</th>
+                  <th className="text-start p-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted,#6b7280)] w-28" />
                   {items.map(p => (
-                    <td key={p._id} className="p-2 text-center">
+                    <td key={p._id} className="p-3 text-center align-top">
                       <div className="relative inline-block">
                         <img
-                          src={p.images?.[0] || 'https://placehold.co/100x100'}
+                          src={p.images?.[0] || COMPARE_PLACEHOLDER}
                           alt={p.name}
-                          className="w-20 h-20 object-cover rounded-lg mx-auto"
+                          onError={(e) => { const el = e.currentTarget; if (el.src !== COMPARE_PLACEHOLDER) el.src = COMPARE_PLACEHOLDER; }}
+                          className="w-24 h-24 object-cover rounded-[var(--radius,12px)] mx-auto border border-[var(--color-border,#e5e7eb)] bg-black/[0.03]"
                         />
                         <button
                           onClick={() => remove(p._id)}
-                          className="absolute -top-2 -end-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
                           aria-label={t('common:aria.remove')}
+                          className="absolute -top-2 -end-2 grid place-items-center w-6 h-6 rounded-full text-white shadow-[var(--shadow-sm)] hover:scale-110 active:scale-95 transition"
+                          style={{ backgroundColor: 'var(--color-error, #ef4444)' }}
                         >
-                          &times;
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                       </div>
-                      <Link to={`/products/${p.slug}`} className="block text-sm font-medium mt-1 hover:underline truncate max-w-[150px] mx-auto">
+                      <Link to={`/products/${p.slug}`} onClick={close} className="block text-sm font-semibold mt-2 hover:text-[var(--color-primary,#2563eb)] line-clamp-2 max-w-[160px] mx-auto transition-colors">
                         {p.name}
                       </Link>
                     </td>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y">
-                <tr>
-                  <td className="p-2 text-sm font-medium text-gray-500">Price</td>
+              <tbody>
+                <tr className="border-t border-[var(--color-border,#e5e7eb)]">
+                  <td className={rowLabel}>{t('product:compare.row.price')}</td>
                   {items.map(p => (
-                    <td key={p._id} className="p-2 text-center font-bold">
+                    <td key={p._id} className={cn(cellPad, 'text-center font-bold text-[var(--color-foreground,#111)]')}>
                       {formatPrice(p.price)}
                     </td>
                   ))}
                 </tr>
-                <tr>
-                  <td className="p-2 text-sm font-medium text-gray-500">Rating</td>
+                <tr className="border-t border-[var(--color-border,#e5e7eb)]">
+                  <td className={rowLabel}>{t('product:compare.row.rating')}</td>
                   {items.map(p => (
-                    <td key={p._id} className="p-2 text-center">
+                    <td key={p._id} className={cn(cellPad, 'text-center')}>
                       {p.rating ? (
-                        <span>{'★'.repeat(Math.round(p.rating))} {p.rating.toFixed(1)}</span>
-                      ) : 'N/A'}
+                        <span className="inline-flex items-center gap-1 text-sm font-medium">
+                          <span style={{ color: 'var(--color-accent, #f59e0b)' }}>★</span>
+                          {p.rating.toFixed(1)}
+                        </span>
+                      ) : (
+                        <span className="text-[var(--color-muted,#9ca3af)]">{t('product:compare.na')}</span>
+                      )}
                     </td>
                   ))}
                 </tr>
-                <tr>
-                  <td className="p-2 text-sm font-medium text-gray-500">Availability</td>
+                <tr className="border-t border-[var(--color-border,#e5e7eb)]">
+                  <td className={rowLabel}>{t('product:compare.row.availability')}</td>
                   {items.map(p => (
-                    <td key={p._id} className="p-2 text-center">
+                    <td key={p._id} className={cn(cellPad, 'text-center text-sm font-semibold')}>
                       {p.stock > 0 ? (
-                        <span className="text-green-600 font-medium">In Stock</span>
+                        <span style={{ color: 'var(--color-success, #16a34a)' }}>{t('product:in_stock')}</span>
                       ) : (
-                        <span className="text-red-500 font-medium">Out of Stock</span>
+                        <span style={{ color: 'var(--color-error, #dc2626)' }}>{t('product:out_of_stock')}</span>
                       )}
                     </td>
                   ))}
@@ -176,7 +190,9 @@ function ProductCompareDrawer() {
         )}
       </Drawer.Body>
       <Drawer.Footer>
-        <button onClick={clear} className="text-sm text-red-600 hover:underline">Clear All</button>
+        <button onClick={clear} className="text-sm font-medium hover:underline" style={{ color: 'var(--color-error, #dc2626)' }}>
+          {t('product:compare.clear_all')}
+        </button>
       </Drawer.Footer>
     </Drawer>
   );
@@ -185,28 +201,41 @@ function ProductCompareDrawer() {
 // ─── Floating Bar ────────────────────────────────────────────────
 
 function CompareFloatingBar() {
+  const { t } = useTranslation(['product', 'common']);
   const { items, open, clear } = useCompare();
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-white dark:bg-gray-800 shadow-xl rounded-full px-6 py-3 flex items-center gap-4 border">
-      <div className="flex -space-x-2">
-        {items.map(p => (
-          <img
-            key={p._id}
-            src={p.images?.[0] || 'https://placehold.co/32x32'}
-            alt={p.name}
-            className="w-8 h-8 rounded-full border-2 border-white object-cover"
-          />
-        ))}
+    <div className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:start-1/2 sm:-translate-x-1/2 rtl:sm:translate-x-1/2 z-40 mx-auto w-auto sm:w-max max-w-[640px]">
+      <div className="flex items-center gap-3 sm:gap-4 bg-[var(--color-background,#fff)] border border-[var(--color-border,#e5e7eb)] shadow-[var(--shadow-xl)] rounded-[var(--radius-pill,9999px)] px-3 sm:px-5 py-2.5">
+        <div className="flex -space-x-2 shrink-0">
+          {items.map(p => (
+            <img
+              key={p._id}
+              src={p.images?.[0] || COMPARE_PLACEHOLDER}
+              alt={p.name}
+              onError={(e) => { const el = e.currentTarget; if (el.src !== COMPARE_PLACEHOLDER) el.src = COMPARE_PLACEHOLDER; }}
+              className="w-9 h-9 rounded-full border-2 border-[var(--color-background,#fff)] object-cover bg-black/[0.03]"
+            />
+          ))}
+        </div>
+        <span className="text-sm font-medium text-[var(--color-foreground,#111)] truncate hidden xs:inline sm:inline">
+          {t('product:compare.items_to_compare', { count: items.length })}
+        </span>
+        <button
+          onClick={open}
+          className="ms-auto shrink-0 text-white text-sm font-semibold px-4 sm:px-5 h-10 rounded-[var(--radius-pill,9999px)] hover:brightness-110 active:scale-95 transition"
+          style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
+        >
+          {t('product:compare.add')}
+        </button>
+        <button
+          onClick={clear}
+          aria-label={t('common:action.close')}
+          className="shrink-0 grid place-items-center w-8 h-8 rounded-full text-[var(--color-muted,#9ca3af)] hover:text-[var(--color-foreground,#111)] hover:bg-black/[0.05] transition"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
       </div>
-      <span className="text-sm font-medium">{items.length} items to compare</span>
-      <button
-        onClick={open}
-        className="bg-gray-900 text-white text-sm px-4 py-1.5 rounded-full font-medium hover:bg-gray-800 transition"
-      >
-        Compare
-      </button>
-      <button onClick={clear} className="text-gray-400 hover:text-gray-600 text-sm">&times;</button>
     </div>
   );
 }
@@ -215,7 +244,7 @@ function CompareFloatingBar() {
 
 export function ProductCompare(props: ProductCompareProps) {
   const Override = useThemeSlot<React.ComponentType<ProductCompareProps>>(SLOT_KEY);
-  if (Override) return <Override {...props} />;
+  const { t } = useTranslation('product');
   const { product, className } = props;
   const { add, remove, isComparing, count, maxItems } = useCompare();
   const comparing = isComparing(product._id);
@@ -226,20 +255,25 @@ export function ProductCompare(props: ProductCompareProps) {
     comparing ? remove(product._id) : add(product);
   };
 
+  // Theme override comes after hooks so hook order stays stable.
+  if (Override) return <Override {...props} />;
+
   return (
     <button
       onClick={handleToggle}
       disabled={!comparing && count >= maxItems}
+      aria-pressed={comparing}
       className={cn(
-        'text-xs px-2 py-1 rounded border transition',
-        comparing
-          ? 'border-blue-500 bg-blue-50 text-blue-600'
-          : 'border-gray-200 hover:border-gray-300 text-gray-600',
+        'inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-[var(--radius-sm,6px)] border transition-colors duration-[var(--duration-fast,150ms)]',
         'disabled:opacity-30 disabled:cursor-not-allowed',
+        comparing
+          ? 'text-white border-transparent'
+          : 'text-[var(--color-muted,#6b7280)] border-[var(--color-border,#e5e7eb)] hover:border-[var(--color-primary,#2563eb)] hover:text-[var(--color-foreground,#111)]',
         className
       )}
+      style={comparing ? { backgroundColor: 'var(--color-primary, #2563eb)' } : undefined}
     >
-      {comparing ? 'Comparing' : 'Compare'}
+      {comparing ? t('compare.remove', 'Comparing') : t('compare.add', 'Compare')}
     </button>
   );
 }

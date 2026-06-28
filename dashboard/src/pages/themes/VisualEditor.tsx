@@ -124,7 +124,7 @@ export default function VisualEditor() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [currentPage, setCurrentPage] = useState('index');
   const [pageOptions, setPageOptions] = useState<Array<{ id: string; label: string }>>([
-    { id: 'index', label: TEMPLATE_LABELS.index },
+    { id: 'index', label: t('themes:editor.template.index', { defaultValue: TEMPLATE_LABELS.index }) },
   ]);
   const [previewReloadKey, setPreviewReloadKey] = useState(0);
   const [rightPanel, setRightPanel] = useState<RightPanelTab>('theme');
@@ -196,9 +196,11 @@ export default function VisualEditor() {
           tplRes.data?.templates || [];
         if (Array.isArray(list) && list.length > 0) {
           setPageOptions(
-            list.map((t) => ({
-              id: t.id,
-              label: TEMPLATE_LABELS[t.id] || t.id,
+            list.map((tpl) => ({
+              id: tpl.id,
+              label: t(`themes:editor.template.${tpl.id}`, {
+                defaultValue: TEMPLATE_LABELS[tpl.id] || tpl.id,
+              }),
             }))
           );
         }

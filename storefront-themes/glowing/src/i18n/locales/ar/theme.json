@@ -114,12 +114,15 @@
       "back_to_shop": "العودة إلى المتجر",
       "save": "وفّري {{amount}}",
       "qty_decrease": "تقليل الكمية",
-      "qty_increase": "زيادة الكمية"
+      "qty_increase": "زيادة الكمية",
+      "pre_order": "طلب مسبق",
+      "only_left": "بقي {{count}} فقط"
     },
     "product_card": {
       "sale_badge": "تخفيض -{{pct}}%",
       "choose_options": "اختر الخيارات",
-      "add_to_cart": "+ إضافة إلى السلة"
+      "add_to_cart": "+ إضافة إلى السلة",
+      "pre_order": "طلب مسبق"
     },
     "cart": {
       "loading": "جاري تحميل السلة...",

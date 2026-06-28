@@ -175,7 +175,21 @@
     "Delivered": "Delivered",
     "Cancelled": "Cancelled",
     "Refunded": "Refunded",
-    "Archived": "Archived"
+    "Archived": "Archived",
+    "Not Paid": "Not paid",
+    "Paid": "Paid",
+    "Authorized": "Authorized",
+    "Failed": "Failed",
+    "Partially Refunded": "Partially refunded",
+    "Voided": "Voided",
+    "Unfulfilled": "Unfulfilled",
+    "Partially Fulfilled": "Partially fulfilled",
+    "Fulfilled": "Fulfilled",
+    "Returned": "Returned",
+    "Requested": "Requested",
+    "Approved": "Approved",
+    "Rejected": "Rejected",
+    "Received": "Received"
   },
   "pagination": {
     "page_of": "Page {{n}} of {{total}}",

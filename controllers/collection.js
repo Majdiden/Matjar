@@ -1,5 +1,10 @@
 import * as CollectionService from "../services/collection.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
+import {
+  getPreviewThemeSlug,
+  demoCollectionsList,
+  demoCollectionByHandle,
+} from "../services/themeDemoPreview.js";
 
 // ─── Admin controllers ────────────────────────────────────────────────────────
 
@@ -75,6 +80,12 @@ export const preview = asyncHandler(async (req, res) => {
 // ─── Storefront controllers ───────────────────────────────────────────────────
 
 export const storefrontListCollections = asyncHandler(async (req, res) => {
+  // Theme PREVIEW — ephemeral demo collections from memory, never the DB.
+  const demoSlug = getPreviewThemeSlug(req);
+  if (demoSlug) {
+    return res.json({ success: true, data: demoCollectionsList(demoSlug, req.query) });
+  }
+
   const { page = 1, limit = 20, search } = req.query;
   const { collections, total } = await CollectionService.listCollections(req.models, {
     page,
@@ -99,6 +110,15 @@ export const storefrontListCollections = asyncHandler(async (req, res) => {
 });
 
 export const storefrontGetCollectionByHandle = asyncHandler(async (req, res) => {
+  const demoSlug = getPreviewThemeSlug(req);
+  if (demoSlug) {
+    const payload = demoCollectionByHandle(demoSlug, req.params.handle, req.query);
+    if (!payload) {
+      return res.status(404).json({ success: false, message: "Collection not found" });
+    }
+    return res.json({ success: true, data: payload });
+  }
+
   const collection = await CollectionService.getCollectionByHandle(req.models, req.params.handle);
   if (!collection.isPublished) {
     return res.status(404).json({ success: false, message: "Collection not found" });

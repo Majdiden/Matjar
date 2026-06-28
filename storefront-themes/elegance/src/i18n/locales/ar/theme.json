@@ -39,6 +39,9 @@
     },
     "layout": {
       "announcement": "شحن مجاني تكميلي للطلبات التي تتجاوز 200$",
+      "menu_aria": "فتح القائمة",
+      "cart_aria": "السلة",
+      "account_aria": "الحساب",
       "nav": {
         "home": "الرئيسية",
         "shop_all": "تسوّق الكل"
@@ -85,7 +88,8 @@
       "description_heading": "الوصف",
       "view_all": "عرض الكل",
       "explore": "استكشف ←",
-      "just_in": "وصل للتو"
+      "just_in": "وصل للتو",
+      "sku_label": "رمز المنتج: {{sku}}"
     },
     "cart": {
       "loading": "جاري تحميل السلة...",
@@ -102,7 +106,8 @@
       "total": "الإجمالي",
       "checkout_button": "المتابعة إلى الدفع",
       "continue_shopping": "متابعة التسوق",
-      "remove": "إزالة"
+      "remove": "إزالة",
+      "price_each": "{{price}} للقطعة"
     },
     "footer": {
       "tagline": "أزياء وإكسسوارات فاخرة.",

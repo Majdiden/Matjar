@@ -87,6 +87,9 @@
         "delete": "حذف"
       }
     },
+    "item": {
+      "label_placeholder": "التسمية"
+    },
     "preview": {
       "empty": "أضف عناصر لرؤية المعاينة.",
       "untitled": "بلا عنوان"

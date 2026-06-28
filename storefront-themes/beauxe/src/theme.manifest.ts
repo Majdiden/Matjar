@@ -180,8 +180,8 @@ const manifest = defineTheme({
   categories: ['cosmetics', 'beauty'],
 
   colors: {
-    primary: '#d4a8b3',
-    secondary: '#1d1d3b',
+    primary: '#1d1d3b',
+    secondary: '#d4a8b3',
     accent: '#f8e4e4',
     background: '#fffdfb',
     foreground: '#1d1d3b',
@@ -200,6 +200,10 @@ const manifest = defineTheme({
 
   layout: {
     maxWidth: '1280px',
+  },
+
+  designTokens: {
+    motion: { durationFast: '160ms', durationBase: '320ms', durationSlow: '600ms', easeEntrance: 'cubic-bezier(0.22, 1, 0.36, 1)', hoverLift: 'translateY(-3px)' },
   },
 
   settings: [

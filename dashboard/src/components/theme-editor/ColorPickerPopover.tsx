@@ -4,6 +4,7 @@
  * Used by SettingControl for `color` settings.
  */
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Input } from '../ui/input';
 import { Pipette } from 'lucide-react';
@@ -25,6 +26,7 @@ function isValidHex(v: string) {
 }
 
 export default function ColorPickerPopover({ value, onChange, recentColors = [] }: ColorPickerPopoverProps) {
+  const { t } = useTranslation('themes');
   const safeValue = value || '#000000';
   const [hexInput, setHexInput] = useState(safeValue);
 
@@ -85,7 +87,7 @@ export default function ColorPickerPopover({ value, onChange, recentColors = [] 
           {/* Palette */}
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
-              Palette
+              {t('themes:editor.color_picker.palette')}
             </p>
             <div className="grid grid-cols-9 gap-1">
               {PALETTE.map((c) => (
@@ -105,7 +107,7 @@ export default function ColorPickerPopover({ value, onChange, recentColors = [] 
           {recentColors.length > 0 && (
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
-                Currently used
+                {t('themes:editor.color_picker.recent')}
               </p>
               <div className="grid grid-cols-9 gap-1">
                 {recentColors.slice(0, 9).map((c) => (

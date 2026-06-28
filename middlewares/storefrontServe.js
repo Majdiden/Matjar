@@ -75,6 +75,25 @@ export function clearThemeCache() {
 }
 
 /**
+ * Read a theme's built `index.html` and rewrite its absolute `/assets/...`
+ * references so each carries `?previewTheme=<slug>`. Theme bundles ship as a
+ * single JS + single CSS file (no runtime code-splitting), so rewriting the
+ * document's own asset URLs is sufficient for the browser to fetch THIS
+ * theme's bundle during a preview — without a cookie (which would leak the
+ * preview into the live store on other tabs) or the `Referer` header (which
+ * helmet strips via its default `no-referrer` policy). The asset handler then
+ * resolves the bundle from `req.query.previewTheme`.
+ */
+function readPreviewIndexHtml(distPath, previewSlug) {
+  const html = fs.readFileSync(path.join(distPath, "index.html"), "utf8");
+  const q = `previewTheme=${encodeURIComponent(previewSlug)}`;
+  return html.replace(
+    /(\s(?:src|href)=")(\/assets\/[^"]+)(")/g,
+    (_m, pre, url, post) => `${pre}${url}${url.includes("?") ? "&" : "?"}${q}${post}`
+  );
+}
+
+/**
  * Resolve which theme slug a tenant should use.
  */
 async function resolveThemeSlug(tenant) {
@@ -166,8 +185,21 @@ export function createStorefrontMiddleware() {
         return res.status(404).send("No store found. Register a store first.");
       }
 
-      const themeSlug = await resolveThemeSlug(tenant);
-      let distPath = getThemeDistPath(themeSlug);
+      // ─── Theme PREVIEW override ─────────────────────────────────
+      //
+      // `?previewTheme=<slug>` serves a DIFFERENT theme's bundle WITHOUT
+      // changing the tenant's active theme — the merchant previews any theme
+      // rendered with ephemeral demo data (the /storefront data endpoints
+      // return demo content for the same flag). The param rides on the index
+      // request and, because we rewrite the index's asset URLs, on the asset
+      // requests too. Defensive: an unknown or unbuilt preview slug falls
+      // straight back to the tenant's real active theme.
+      const previewSlug =
+        typeof req.query.previewTheme === "string" ? req.query.previewTheme.trim() : "";
+      const previewDist = previewSlug ? getThemeDistPath(previewSlug) : null;
+
+      const themeSlug = previewDist ? previewSlug : await resolveThemeSlug(tenant);
+      let distPath = previewDist || getThemeDistPath(themeSlug);
 
       // Graceful degradation: if the tenant's active theme isn't built,
       // fall back to the platform default rather than 500ing the shopper.
@@ -227,7 +259,13 @@ export function createStorefrontMiddleware() {
         }
       }
 
-      // SPA fallback — serve index.html for all non-asset routes
+      // SPA fallback — serve index.html for all non-asset routes. In preview
+      // mode, serve a copy whose asset URLs carry `?previewTheme=<slug>` so the
+      // browser fetches THIS theme's bundle rather than the active theme's.
+      if (previewDist) {
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.send(readPreviewIndexHtml(distPath, previewSlug));
+      }
       return res.sendFile(path.join(distPath, "index.html"));
     } catch (error) {
       logger.error("Storefront error serving theme", { error: error.message });

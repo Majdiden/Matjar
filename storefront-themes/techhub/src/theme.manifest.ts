@@ -233,6 +233,16 @@ const manifest = defineTheme({
     maxWidth: '1280px',
   },
 
+  designTokens: {
+    motion: {
+      durationFast: '120ms',
+      durationBase: '210ms',
+      durationSlow: '360ms',
+      easeEntrance: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      hoverLift: 'translateY(-4px) scale(1.01)',
+    },
+  },
+
   settings: [
     { id: 'color_mode', type: 'select', label: 'Color Mode', default: 'light', options: [
       { value: 'light', label: 'Light' },

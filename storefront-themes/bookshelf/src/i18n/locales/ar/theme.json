@@ -80,7 +80,8 @@
       "only_left": "{{count}} فقط متبقية",
       "sold_out": "نفد المخزون",
       "out_of_stock": "غير متوفر",
-      "description_heading": "الوصف"
+      "description_heading": "الوصف",
+      "sku": "رمز المنتج: {{sku}}"
     },
     "cart": {
       "loading": "جاري تحميل السلة...",
@@ -97,7 +98,8 @@
       "total": "الإجمالي",
       "checkout_button": "المتابعة إلى الدفع",
       "continue_shopping": "متابعة التسوق",
-      "remove": "إزالة"
+      "remove": "إزالة",
+      "price_each": "{{price}} للقطعة"
     },
     "footer": {
       "tagline": "قراءتك الرائعة القادمة في انتظارك. اختيارات منتقاة لكل قارئ.",

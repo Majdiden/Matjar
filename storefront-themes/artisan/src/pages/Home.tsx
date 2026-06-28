@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '@shared/contexts/StoreContext';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
-import { Carousel } from '@shared/components/primitives/Carousel';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
 import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
+import CraftedHero from '../components/CraftedHero';
 import type { Product } from '@shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'philosophy', 'featured-products', 'artisan-spotlight', 'categories', 'new-arrivals', 'newsletter'];
 
 const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
-  const { store } = useStore();
 
   // Read section settings from the manifest + tenant overrides
-  const hero = useThemeSettings('hero');
   const philosophy = useThemeSettings('philosophy');
   const feat = useThemeSettings('featured-products');
   const spotlight = useThemeSettings('artisan-spotlight');
@@ -50,47 +48,19 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* Hero */}
+      {/* Hero — bespoke crafted/tactile hero (reads the same hero settings +
+          i18n keys this theme always fed the shared Hero, so merchant
+          customizations + translations keep working). The featured-product
+          photo becomes the polaroid showcase. */}
       {heroEnabled && (
-      <section className="relative bg-[var(--color-primary)] py-28 md:py-36 px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 start-10 w-64 h-64 border border-[var(--color-border)] rounded-full" />
-          <div className="absolute bottom-10 end-10 w-48 h-48 border border-[var(--color-border)] rounded-full" />
-          <div className="absolute top-1/2 left-1/2 w-96 h-96 border border-[var(--color-border)] rounded-full -translate-x-1/2 -translate-y-1/2" />
-        </div>
-        <div className="max-w-2xl mx-auto relative z-10">
-          <p className="text-[var(--color-border)] text-xs uppercase tracking-[0.4em] mb-4">
-            {hero.eyebrow_text || t('theme.section.hero.eyebrow')}
-          </p>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 italic leading-tight">
-            {hero.heading_line1 || t('theme.section.hero.heading_line1')}<br />{hero.heading_line2 || t('theme.section.hero.heading_line2')}
-          </h1>
-          <p className="text-[var(--color-border)] mb-8 max-w-md mx-auto leading-relaxed">
-            {hero.subheading || t('theme.section.hero.subheading')}
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Link
-              to={hero.primary_button_url || '/products'}
-              className="inline-block bg-[var(--color-accent)] text-white px-8 py-3.5 rounded font-semibold hover:bg-[var(--color-secondary)] transition shadow-lg"
-            >
-              {hero.primary_button_text || t('theme.section.hero.primary_cta')}
-            </Link>
-            <Link
-              to={hero.secondary_button_url || '/categories'}
-              className="inline-block border-2 border-[var(--color-border)]/40 text-[var(--color-border)] px-8 py-3.5 rounded font-semibold hover:bg-white/10 transition"
-            >
-              {hero.secondary_button_text || t('theme.section.hero.secondary_cta')}
-            </Link>
-          </div>
-        </div>
-      </section>
+        <CraftedHero media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
       )}
 
       {/* Our Philosophy */}
       {philosophyEnabled && (
       <section
         ref={storyRef as React.RefObject<HTMLElement>}
-        className={`max-w-3xl mx-auto px-6 py-20 text-center transition-all duration-700 ${storyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`max-w-3xl mx-auto px-6 py-20 text-center transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${storyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         {philosophy.show_dividers !== false && <div className="w-16 h-px bg-[var(--color-accent)] mx-auto mb-6" />}
         <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-primary)] mb-6 italic">
@@ -107,7 +77,7 @@ const Home: React.FC = () => {
       {featEnabled && (
       <section
         ref={featuredRef as React.RefObject<HTMLElement>}
-        className={`bg-white py-16 transition-all duration-700 ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`bg-white py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
@@ -117,21 +87,19 @@ const Home: React.FC = () => {
           {featuredLoading ? (
             <Skeleton.ProductGrid count={3} />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <ProductRail columns={3}>
               {featured.map((product) => (
                 <ProductCard key={product._id} product={product} onQuickView={feat.show_quick_view !== false ? setQuickViewProduct : undefined}>
                   <ProductCard.Image showBadge showQuickView={feat.show_quick_view !== false} hoverSwap />
                   <ProductCard.Body>
                     <ProductCard.Title />
                     {feat.show_rating !== false && <ProductCard.Rating />}
-                    <div className="flex items-center justify-between mt-2">
-                      <ProductCard.Price showCompareAt />
-                      {feat.show_add_to_cart !== false && <ProductCard.Actions addToCartText={feat.add_to_cart_text || t('common.action.add')} />}
-                    </div>
+                    <ProductCard.Price showCompareAt showDiscount className="mt-2" />
+                    {feat.show_add_to_cart !== false && <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('common.action.add')} />}
                   </ProductCard.Body>
                 </ProductCard>
               ))}
-            </div>
+            </ProductRail>
           )}
           <div className="text-center mt-10">
             <Link
@@ -149,7 +117,7 @@ const Home: React.FC = () => {
       {spotlightEnabled && (
       <section
         ref={makerRef as React.RefObject<HTMLElement>}
-        className={`bg-[var(--color-muted)]/20/30 py-16 transition-all duration-700 ${makerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`bg-[var(--color-muted)]/20/30 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${makerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-10">
@@ -179,7 +147,7 @@ const Home: React.FC = () => {
       {catsEnabled && categories.length > 0 && (
         <section
           ref={categoriesRef as React.RefObject<HTMLElement>}
-          className={`max-w-6xl mx-auto px-6 py-16 transition-all duration-700 ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          className={`max-w-6xl mx-auto px-6 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold italic text-[var(--color-primary)] mb-2">{cats.heading || t('theme.section.categories.heading')}</h2>
@@ -211,7 +179,7 @@ const Home: React.FC = () => {
       {arrivalsEnabled && (
       <section
         ref={newArrivalsRef as React.RefObject<HTMLElement>}
-        className={`bg-white py-16 transition-all duration-700 ${newArrivalsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`bg-white py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${newArrivalsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between mb-8">
@@ -229,7 +197,7 @@ const Home: React.FC = () => {
           {newLoading ? (
             <Skeleton.ProductGrid count={4} />
           ) : (
-            <Carousel slidesPerView={4} gap={16} showArrows showDots={false} loop autoPlay={arrivals.autoplay ? 5000 : undefined}>
+            <ProductRail columns={4}>
               {newArrivals.map((product) => (
                 <ProductCard key={product._id} product={product} onQuickView={setQuickViewProduct}>
                   <ProductCard.Image showBadge showQuickView />
@@ -240,7 +208,7 @@ const Home: React.FC = () => {
                   </ProductCard.Body>
                 </ProductCard>
               ))}
-            </Carousel>
+            </ProductRail>
           )}
         </div>
       </section>

@@ -30,9 +30,13 @@ const slideClasses: Record<DrawerSide, { open: string; container: string }> = {
   },
 };
 
+// Closed-state transforms MUST be direction-aware. The container uses
+// logical `start-0`/`end-0`, so the panel's physical edge flips under RTL;
+// the off-screen transform has to flip with it or a "right" drawer ends up
+// sliding INTO view from the left in Arabic (the mid-screen menu bug).
 const closedClasses: Record<DrawerSide, string> = {
-  right: 'translate-x-full',
-  left: '-translate-x-full',
+  right: 'translate-x-full rtl:-translate-x-full',
+  left: '-translate-x-full rtl:translate-x-full',
   bottom: 'translate-y-full',
 };
 
@@ -85,11 +89,12 @@ export function Drawer({
         role="dialog"
         aria-modal={isOpen}
         className={cn(
-          'fixed z-50 bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-300 ease-in-out flex flex-col',
+          'fixed z-50 bg-[var(--color-background,#fff)] shadow-[var(--shadow-xl)] flex flex-col',
+          'transition-transform ease-[var(--ease-emphasized,cubic-bezier(0.2,0,0,1))] duration-[var(--duration-base,250ms)] will-change-transform',
           slideClasses[side].container,
           isOpen ? slideClasses[side].open : closedClasses[side],
           side !== 'bottom' && `w-full ${width}`,
-          side === 'bottom' && 'max-h-[85vh] rounded-t-2xl',
+          side === 'bottom' && 'max-h-[85vh] rounded-t-[var(--radius-lg,20px)]',
           className
         )}
       >
@@ -108,13 +113,15 @@ Drawer.Header = function DrawerHeader({
   className?: string;
   onClose?: () => void;
 }) {
+  // Own translation hook — sub-components don't share the parent's `t`.
+  const { t } = useTranslation(['common']);
   return (
-    <div className={cn('flex items-center justify-between p-4 border-b shrink-0', className)}>
-      <div className="font-semibold text-lg">{children}</div>
+    <div className={cn('flex items-center justify-between gap-3 px-5 h-16 border-b border-[var(--color-border,#e5e7eb)] shrink-0', className)}>
+      <div className="font-bold text-lg text-[var(--color-foreground,#111)]">{children}</div>
       {onClose && (
         <button
           onClick={onClose}
-          className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          className="grid place-items-center w-10 h-10 -me-2 rounded-full text-[var(--color-foreground,#111)] hover:bg-black/[0.05] transition-colors"
           aria-label={t('common:aria.close')}
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -127,9 +134,9 @@ Drawer.Header = function DrawerHeader({
 };
 
 Drawer.Body = function DrawerBody({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('flex-1 overflow-y-auto p-4', className)}>{children}</div>;
+  return <div className={cn('flex-1 overflow-y-auto overscroll-contain p-5', className)}>{children}</div>;
 };
 
 Drawer.Footer = function DrawerFooter({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('p-4 border-t shrink-0', className)}>{children}</div>;
+  return <div className={cn('px-5 py-4 border-t border-[var(--color-border,#e5e7eb)] shrink-0', className)}>{children}</div>;
 };

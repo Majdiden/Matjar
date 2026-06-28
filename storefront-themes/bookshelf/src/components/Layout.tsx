@@ -28,17 +28,7 @@ const Layout: React.FC = () => {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-violet-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden text-gray-600 hover:text-[#7c3aed]"
-              aria-label={t('common:aria.open_menu')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-
+            {/* Logo — sits at the start of the header row */}
             <Link to="/" className="text-xl font-bold text-[#7c3aed] tracking-tight flex items-center gap-2">
               <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
@@ -63,7 +53,7 @@ const Layout: React.FC = () => {
             </nav>
 
             <div className="flex items-center gap-3">
-              {/* Desktop search */}
+              {/* Desktop search (search on mobile lives in the bottom nav) */}
               <div className="hidden md:block w-48">
                 <SearchBar
                   placeholder={t('theme.layout.nav.browse')}
@@ -71,16 +61,16 @@ const Layout: React.FC = () => {
                 />
               </div>
 
-              {/* Mobile search */}
-              <SearchBar variant="compact" className="md:hidden text-gray-600 hover:text-[#7c3aed] hover:bg-violet-50" />
-
-              {/* Language Switcher */}
-              <LanguageSwitcher />
+              {/* Language Switcher — desktop only; on mobile it lives inside
+                  the hamburger side-menu drawer (below). */}
+              <div className="hidden md:flex items-center">
+                <LanguageSwitcher />
+              </div>
 
               {/* Cart button */}
               <button
                 onClick={openCart}
-                className="relative text-gray-600 hover:text-[#7c3aed] transition"
+                className="relative hidden md:inline-flex text-gray-600 hover:text-[#7c3aed] transition"
                 aria-label={t('common:aria.cart')}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,6 +81,17 @@ const Layout: React.FC = () => {
                     {cart.itemCount}
                   </span>
                 )}
+              </button>
+
+              {/* Mobile menu toggle — sits at the opposite end from the logo */}
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="md:hidden text-gray-600 hover:text-[#7c3aed]"
+                aria-label={t('common:aria.open_menu')}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
               </button>
             </div>
           </div>
@@ -143,7 +144,7 @@ const Layout: React.FC = () => {
       </footer>
 
       {/* Mobile menu drawer */}
-      <Drawer isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} position="left">
+      <Drawer isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} side="left">
         <div className="p-6 bg-white h-full">
           <h2 className="text-lg font-bold text-[#7c3aed] mb-6 flex items-center gap-2" aria-label={t('theme.layout.nav.menu_heading')}>
             <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">

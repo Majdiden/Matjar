@@ -286,7 +286,7 @@ const StateNodeView: React.FC<StateNodeViewProps> = ({
       {node.isDivergence && (
         <div
           className="absolute -end-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-indigo-500 text-white shadow"
-          title={t('orders.lifecycle.label.replacement_created')}
+          title={t('orders:lifecycle.label.replacement_created')}
         >
           <GitBranch className="h-3 w-3" />
         </div>
@@ -361,7 +361,7 @@ const OrderNodeView: React.FC<OrderNodeViewProps> = ({
       data-is-first="true"
       onClick={onRevealParent}
       className="group flex h-14 items-center transition hover:opacity-80"
-      title={t('orders.lifecycle.label.view_original_order')}
+      title={t('orders:lifecycle.label.view_original_order')}
     >
       {labeledLineInner}
     </button>
@@ -624,7 +624,7 @@ const OrderLifecycle: React.FC = () => {
         setRoot(tree);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : null;
-        toast.error(msg || t('orders:lifecycle_load_failed'));
+        toast.error(msg || t('orders:lifecycle.could_not_load'));
       } finally {
         setLoading(false);
       }

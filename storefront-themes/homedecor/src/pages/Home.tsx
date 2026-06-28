@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
-import { Carousel } from '@shared/components/primitives/Carousel';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
 import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
+import InteriorHero from '../components/InteriorHero';
 import type { Product } from '@shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'philosophy', 'trending-carousel', 'newsletter'];
@@ -61,59 +62,20 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* Dark Hero with Interior Design Feel */}
+      {/* Hero — bespoke architectural interior hero (reads the same hero
+          settings + i18n keys this theme always fed the shared Hero, so
+          merchant customizations + translations keep working) */}
       {heroEnabled && (
-      <section
-        className="relative py-28 px-6 overflow-hidden"
-        style={{ backgroundColor: hero.background_color || '#2d2d2d' }}
-      >
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 start-10 w-64 h-64 border border-[#d4a76a] rounded-full" />
-          <div className="absolute bottom-10 end-20 w-96 h-96 border border-[#d4a76a] rounded-full" />
-        </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 relative z-10">
-          <div className="flex-1">
-            <p className="text-[#d4a76a] text-xs uppercase tracking-[0.3em] mb-4">
-              {hero.badge_text || t('theme.hero.badge_text')}
-            </p>
-            <h1 className="text-4xl md:text-6xl font-semibold text-white mb-6 leading-tight">
-              {hero.heading_line1 || t('theme.hero.heading_line1')}<br />{hero.heading_line2 || t('theme.hero.heading_line2')}
-            </h1>
-            <p className="text-gray-400 mb-8 max-w-md leading-relaxed">
-              {hero.subheading || t('theme.hero.subheading')}
-            </p>
-            <div className="flex gap-4">
-              <Link
-                to={hero.primary_button_url || '/products'}
-                className="inline-block bg-[#d4a76a] text-white px-8 py-3 font-medium hover:bg-[#c49a5f] transition"
-              >
-                {hero.primary_button_text || t('theme.hero.primary_cta')}
-              </Link>
-              <Link
-                to={hero.secondary_button_url || '/categories'}
-                className="inline-block border border-gray-500 text-gray-300 px-8 py-3 font-medium hover:border-white hover:text-white transition"
-              >
-                {hero.secondary_button_text || t('theme.hero.secondary_cta')}
-              </Link>
-            </div>
-          </div>
-          <div className="flex-1 hidden md:flex justify-center">
-            <div className="w-80 h-80 bg-[#3d3d3d] rounded-lg flex items-center justify-center relative">
-              <svg className="w-28 h-28 text-[#d4a76a]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <div className="absolute -bottom-4 -end-4 w-24 h-24 bg-[#d4a76a]/10 border border-[#d4a76a]/20 rounded-lg" />
-            </div>
-          </div>
-        </div>
-      </section>
+        <InteriorHero
+          media={!hero.background_image ? featured?.find((p) => p.images?.[0])?.images?.[0] : undefined}
+        />
       )}
 
       {/* Shop by Room - Category Grid */}
       {catsEnabled && (
       <section
         ref={categoriesRef}
-        className={`max-w-7xl mx-auto px-6 py-20 transition-all duration-700 ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`max-w-7xl mx-auto px-6 py-20 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="text-center mb-12">
           <p className="text-[#d4a76a] text-xs uppercase tracking-[0.3em] mb-2">
@@ -151,7 +113,7 @@ const Home: React.FC = () => {
       {featEnabled && (
       <section
         ref={productsRef}
-        className={`bg-white py-20 transition-all duration-700 ${productsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`bg-white py-20 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${productsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between mb-12">
@@ -173,19 +135,19 @@ const Home: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className={`grid grid-cols-1 md:grid-cols-${feat.columns || '3'} gap-8`}>
+            <ProductRail columns={(Number(feat.columns) || 3) as 2 | 3 | 4 | 5}>
               {featured.map((p) => (
                 <ProductCard key={p._id} product={p} onQuickView={feat.show_quick_view !== false ? setQuickViewProduct : undefined}>
                   <ProductCard.Image showBadge showQuickView={feat.show_quick_view !== false} hoverSwap />
                   <ProductCard.Body>
                     <ProductCard.Title />
                     {feat.show_rating !== false && <ProductCard.Rating />}
-                    <ProductCard.Price showCompareAt />
-                    <ProductCard.Actions addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
+                    <ProductCard.Price showCompareAt showDiscount className="mt-2" />
+                    <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
                   </ProductCard.Body>
                 </ProductCard>
               ))}
-            </div>
+            </ProductRail>
           )}
         </div>
       </section>
@@ -195,7 +157,7 @@ const Home: React.FC = () => {
       {philosophyEnabled && (
       <section
         ref={philosophyRef}
-        className={`py-24 transition-all duration-700 ${philosophyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`py-24 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${philosophyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         style={{ backgroundColor: philosophy.background_color || '#f9f7f4' }}
       >
         <div className="max-w-4xl mx-auto px-6 text-center">
@@ -231,7 +193,7 @@ const Home: React.FC = () => {
               </p>
               <h2 className="text-3xl font-semibold">{trending.heading || t('theme.section.trending.title')}</h2>
             </div>
-            <Carousel>
+            <ProductRail columns={4}>
               {featured.slice(0, trendingLimit).map((p) => (
                 <ProductCard key={p._id} product={p} onQuickView={setQuickViewProduct}>
                   <ProductCard.Image showBadge hoverSwap />
@@ -241,7 +203,7 @@ const Home: React.FC = () => {
                   </ProductCard.Body>
                 </ProductCard>
               ))}
-            </Carousel>
+            </ProductRail>
           </div>
         </section>
       )}
@@ -250,7 +212,7 @@ const Home: React.FC = () => {
       {newsEnabled && (
       <section
         ref={newsletterRef}
-        className={`py-20 transition-all duration-700 ${newsletterVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`py-20 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${newsletterVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         style={{ backgroundColor: news.background_color || '#2d2d2d' }}
       >
         <div className="max-w-xl mx-auto px-6 text-center">
@@ -258,7 +220,7 @@ const Home: React.FC = () => {
             {news.eyebrow || t('theme.section.newsletter.eyebrow')}
           </p>
           <h2 className="text-2xl font-semibold text-white mb-4">{news.heading || t('theme.section.newsletter.title')}</h2>
-          <p className="text-gray-400 mb-8">
+          <p className="text-gray-300 mb-8">
             {news.subheading || t('theme.section.newsletter.subtitle')}
           </p>
           <form onSubmit={(e) => e.preventDefault()} className="flex gap-3 max-w-md mx-auto">
@@ -267,7 +229,7 @@ const Home: React.FC = () => {
               placeholder={news.placeholder || t('theme.section.newsletter.placeholder')}
               className="flex-1 bg-[#3d3d3d] text-white px-4 py-3 border border-gray-600 focus:border-[#d4a76a] focus:outline-none placeholder-gray-500"
             />
-            <button type="submit" className="bg-[#d4a76a] text-white px-6 py-3 font-medium hover:bg-[#c49a5f] transition whitespace-nowrap">
+            <button type="submit" className="bg-[#d4a76a] text-[#2d2d2d] px-6 py-3 font-medium hover:bg-[#c49a5f] transition whitespace-nowrap">
               {news.button_text || t('theme.section.newsletter.button')}
             </button>
           </form>

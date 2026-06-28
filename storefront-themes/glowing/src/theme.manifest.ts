@@ -172,6 +172,16 @@ const manifest = defineTheme({
     maxWidth: '1280px',
   },
 
+  designTokens: {
+    motion: {
+      durationFast: '170ms',
+      durationBase: '320ms',
+      durationSlow: '560ms',
+      easeEntrance: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      hoverLift: 'translateY(-4px) scale(1.01)',
+    },
+  },
+
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Top Strip', default: true },
     { id: 'announcement_text', type: 'text', label: 'Top Strip Text', default: '' },

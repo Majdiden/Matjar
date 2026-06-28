@@ -106,6 +106,7 @@
       "contact": "Contact"
     },
     "nav": {
+      "home": "Home",
       "products": "Products"
     }
   }

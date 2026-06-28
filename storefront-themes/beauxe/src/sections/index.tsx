@@ -7,6 +7,7 @@ import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentP
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import BeauxeProductCard from '../components/BeauxeProductCard';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +25,7 @@ const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
     <div className="text-white text-[11px] tracking-[0.2em] py-2.5 text-center" style={{ backgroundColor: NAVY }}>
       {s.text || t('theme.section.top_bar.text')}
       {s.link_text && (
-        <Link to={s.link_url || '/products'} className="ms-3 underline hover:text-[var(--color-primary)]">
+        <Link to={s.link_url || '/products'} className="ms-3 underline hover:text-[var(--color-secondary)]">
           {s.link_text}
         </Link>
       )}
@@ -92,8 +93,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             )}
           </div>
           {/* Decorative product badges */}
-          <div className="absolute -top-4 -end-4 w-24 h-24 rounded-full flex items-center justify-center text-center text-[10px] font-bold leading-tight uppercase tracking-wider shadow-lg" style={{ backgroundColor: NAVY, color: 'white' }}>
-            Clean<br />Beauty<br />2024
+          <div className="absolute -top-4 -end-4 w-24 h-24 rounded-full flex items-center justify-center text-center text-[10px] font-bold leading-tight uppercase tracking-wider shadow-lg whitespace-pre-line" style={{ backgroundColor: NAVY, color: 'white' }}>
+            {t('theme.section.hero.badge')}
           </div>
         </div>
       </div>
@@ -151,9 +152,9 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
   const { t } = useTranslation(['theme']);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { title: 'Skincare', background: '#f8e4e4' } },
-    { id: 'b', settings: { title: 'Makeup', background: '#faf3ec' } },
-    { id: 'c', settings: { title: 'Fragrance', background: '#f3ddd1' } },
+    { id: 'a', settings: { title: t('theme.section.category_tiles.default_skincare', { defaultValue: 'Skincare' }), background: '#f8e4e4' } },
+    { id: 'b', settings: { title: t('theme.section.category_tiles.default_makeup', { defaultValue: 'Makeup' }), background: '#faf3ec' } },
+    { id: 'c', settings: { title: t('theme.section.category_tiles.default_fragrance', { defaultValue: 'Fragrance' }), background: '#f3ddd1' } },
   ];
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
@@ -221,11 +222,11 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <ProductRail columns={4}>
           {products.map((p: any) => (
             <BeauxeProductCard key={p._id} product={p} onQuickView={onQuickView} />
           ))}
-        </div>
+        </ProductRail>
       )}
       <div className="text-center mt-12">
         <Link
@@ -283,9 +284,9 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
   const { t } = useTranslation(['theme']);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { quote: 'Absolutely love this serum!', author: 'Emma R.', role: 'Verified Buyer' } },
-    { id: 'b', settings: { quote: 'Clean ingredients, amazing results.', author: 'Sophie L.', role: 'Verified Buyer' } },
-    { id: 'c', settings: { quote: 'A new staple in my routine.', author: 'Mia K.', role: 'Verified Buyer' } },
+    { id: 'a', settings: { quote: t('theme.section.testimonials.default_quote_1', { defaultValue: 'Absolutely love this serum!' }), author: 'Emma R.', role: t('theme.section.testimonials.verified_buyer') } },
+    { id: 'b', settings: { quote: t('theme.section.testimonials.default_quote_2', { defaultValue: 'Clean ingredients, amazing results.' }), author: 'Sophie L.', role: t('theme.section.testimonials.verified_buyer') } },
+    { id: 'c', settings: { quote: t('theme.section.testimonials.default_quote_3', { defaultValue: 'A new staple in my routine.' }), author: 'Mia K.', role: t('theme.section.testimonials.verified_buyer') } },
   ];
   return (
     <section className="py-20" style={{ backgroundColor: CREAM }}>

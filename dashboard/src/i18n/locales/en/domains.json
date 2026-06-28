@@ -2,6 +2,7 @@
   "list": {
     "title": "Domains",
     "subtitle": "The web addresses people use to visit your store.",
+    "copy_aria": "Copy address",
     "hero": {
       "live_at": "Your store is live at",
       "copy": "Copy",

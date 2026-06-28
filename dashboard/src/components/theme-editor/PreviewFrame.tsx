@@ -72,7 +72,7 @@ export default function PreviewFrame({ url, deviceMode, reloadKey = 0, iframeRef
           </div>
           <div className="flex-1 mx-3">
             <div className="h-5 bg-white rounded border border-slate-200 px-2 flex items-center text-[11px] text-slate-500 truncate">
-              {url ? new URL(url, window.location.origin).pathname : 'Preview'}
+              {url ? new URL(url, window.location.origin).pathname : t('themes:editor.preview.url_fallback')}
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function PreviewFrame({ url, deviceMode, reloadKey = 0, iframeRef
                 }}
                 key={`${url}-${reloadKey}`}
                 src={url}
-                title={t('themes.editor.topbar.preview_iframe')}
+                title={t('themes:editor.topbar.preview_iframe')}
                 className="w-full h-full border-0 block"
                 style={{ minHeight: deviceMode === 'desktop' ? 800 : undefined }}
                 onLoad={() => setFading(false)}
@@ -100,7 +100,7 @@ export default function PreviewFrame({ url, deviceMode, reloadKey = 0, iframeRef
               />
             </>
           ) : (
-            <PreviewSkeleton />
+            <PreviewSkeleton label={t('themes:editor.preview.generating')} />
           )}
         </div>
       </div>
@@ -108,13 +108,13 @@ export default function PreviewFrame({ url, deviceMode, reloadKey = 0, iframeRef
   );
 }
 
-function PreviewSkeleton() {
+function PreviewSkeleton({ label }: { label: string }) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3">
       <Eye className="h-10 w-10" />
       <div className="flex items-center gap-2 text-sm">
         <Loader2 className="h-4 w-4 animate-spin" />
-        Generating preview…
+        {label}
       </div>
     </div>
   );

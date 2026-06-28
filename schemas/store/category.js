@@ -21,6 +21,9 @@ const categorySchema = new Schema({
   image: String,
   productCount: { type: Number, default: 0 },
   sortOrder: { type: Number, default: 0 },
+  // Marks a demo category auto-seeded on theme activation (see
+  // services/themeDemoData.js). Used to find & remove demo content on switch.
+  isDemo: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

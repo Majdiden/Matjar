@@ -58,21 +58,21 @@ const Layout: React.FC = () => {
 
             {/* Right Actions */}
             <div className="flex items-center gap-2">
-              {/* Desktop Search */}
+              {/* Desktop Search (search on mobile lives in the bottom nav) */}
               <div className="hidden md:block w-64">
                 <SearchBar placeholder={t('theme.products.search_placeholder')} className="w-full" />
               </div>
 
-              {/* Mobile Search */}
-              <SearchBar variant="compact" className="md:hidden text-gray-500 hover:text-gray-700 hover:bg-gray-50" />
-
-              {/* Language Switcher */}
-              <LanguageSwitcher />
+              {/* Language Switcher — desktop only; on mobile it lives inside
+                  the hamburger side menu (below). */}
+              <div className="hidden md:flex items-center">
+                <LanguageSwitcher />
+              </div>
 
               {/* Cart */}
               <button
                 onClick={openCart}
-                className="relative p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                className="relative p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 transition hidden md:block"
                 aria-label={t('common:aria.cart')}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

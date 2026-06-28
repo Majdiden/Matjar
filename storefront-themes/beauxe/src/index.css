@@ -6,8 +6,8 @@ body { font-family: var(--font-app); }
 @tailwind utilities;
 
 :root {
-  --color-primary: #d4a8b3;
-  --color-secondary: #1d1d3b;
+  --color-primary: #1d1d3b;
+  --color-secondary: #d4a8b3;
   --color-accent: #f8e4e4;
   --color-cream: #faf3ec;
   --color-pink: #f8e4e4;

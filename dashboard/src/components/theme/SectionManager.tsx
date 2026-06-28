@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GripVertical, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
@@ -17,6 +18,7 @@ interface SectionManagerProps {
 }
 
 export default function SectionManager({ sections, onUpdate }: SectionManagerProps) {
+  const { t } = useTranslation('themes');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
@@ -63,7 +65,7 @@ export default function SectionManager({ sections, onUpdate }: SectionManagerPro
       await api.themeCustomization.reorderSections(sectionIds);
     } catch (error) {
       console.error('Failed to save section order:', error);
-      toast.error('Failed to save section order. Please try again.');
+      toast.error(t('themes:editor.section_manager.error_reorder'));
     } finally {
       setSaving(false);
       setDraggedIndex(null);
@@ -83,7 +85,7 @@ export default function SectionManager({ sections, onUpdate }: SectionManagerPro
       onUpdate(updatedSections);
     } catch (error) {
       console.error('Failed to toggle section:', error);
-      toast.error('Failed to toggle section visibility. Please try again.');
+      toast.error(t('themes:editor.section_manager.error_toggle'));
     } finally {
       setSaving(false);
     }
@@ -124,9 +126,9 @@ export default function SectionManager({ sections, onUpdate }: SectionManagerPro
   if (sections.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 mb-2">No sections available</p>
+        <p className="text-gray-500 mb-2">{t('themes:editor.section_manager.no_sections')}</p>
         <p className="text-sm text-gray-400">
-          Install a theme to manage its sections
+          {t('themes:editor.section_manager.no_sections_hint')}
         </p>
       </div>
     );
@@ -136,10 +138,10 @@ export default function SectionManager({ sections, onUpdate }: SectionManagerPro
     <div className="space-y-3">
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-gray-600">
-          Drag sections to reorder them. Toggle visibility using the eye icon.
+          {t('themes:editor.section_manager.drag_hint')}
         </p>
         {saving && (
-          <span className="text-sm text-blue-600">Saving...</span>
+          <span className="text-sm text-blue-600">{t('themes:editor.section_manager.saving')}</span>
         )}
       </div>
 
@@ -171,10 +173,10 @@ export default function SectionManager({ sections, onUpdate }: SectionManagerPro
                     <span className="text-2xl">{getSectionIcon(section.type)}</span>
                     <div>
                       <h3 className={`font-medium ${!section.enabled ? 'text-gray-400' : 'text-gray-900'}`}>
-                        {getSectionDisplayName(section.type)}
+                        {t(`themes:sections.${section.type}.name`, { defaultValue: getSectionDisplayName(section.type) })}
                       </h3>
                       <p className="text-xs text-gray-500">
-                        Order: {section.order + 1} • ID: {section.id}
+                        {t('themes:editor.section_manager.order_id', { order: section.order + 1, id: section.id })}
                       </p>
                     </div>
                   </div>
@@ -193,7 +195,7 @@ export default function SectionManager({ sections, onUpdate }: SectionManagerPro
                         : 'text-gray-400 hover:bg-gray-100'}
                       disabled:opacity-50
                     `}
-                    title={section.enabled ? 'Hide section' : 'Show section'}
+                    title={section.enabled ? t('themes:editor.section_manager.hide_section') : t('themes:editor.section_manager.show_section')}
                   >
                     {section.enabled ? (
                       <Eye className="w-4 h-4" />
@@ -207,7 +209,7 @@ export default function SectionManager({ sections, onUpdate }: SectionManagerPro
                     <button
                       onClick={() => toggleExpanded(section.id)}
                       className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
-                      title={expandedSections.has(section.id) ? 'Collapse' : 'Expand'}
+                      title={expandedSections.has(section.id) ? t('themes:editor.section_manager.collapse') : t('themes:editor.section_manager.expand')}
                     >
                       {expandedSections.has(section.id) ? (
                         <ChevronUp className="w-4 h-4" />
@@ -222,7 +224,7 @@ export default function SectionManager({ sections, onUpdate }: SectionManagerPro
               {/* Expanded settings */}
               {expandedSections.has(section.id) && section.settings && Object.keys(section.settings).length > 0 && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">Section Settings</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">{t('themes:editor.section_editor.settings_title')}</h4>
                   <div className="space-y-2">
                     {Object.entries(section.settings).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between text-sm">
@@ -249,12 +251,12 @@ export default function SectionManager({ sections, onUpdate }: SectionManagerPro
 
       {/* Instructions */}
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h4 className="text-sm font-medium text-blue-900 mb-2">💡 Tips</h4>
+        <h4 className="text-sm font-medium text-blue-900 mb-2">💡 {t('themes:editor.section_manager.tips_title')}</h4>
         <ul className="text-xs text-blue-800 space-y-1">
-          <li>• Drag sections up or down to change their order on your storefront</li>
-          <li>• Click the eye icon to show/hide sections without deleting them</li>
-          <li>• Changes are saved automatically as drafts</li>
-          <li>• Click "Publish" to make your changes visible to customers</li>
+          <li>• {t('themes:editor.section_manager.tips.reorder')}</li>
+          <li>• {t('themes:editor.section_manager.tips.visibility')}</li>
+          <li>• {t('themes:editor.section_manager.tips.drafts')}</li>
+          <li>• {t('themes:editor.section_manager.tips.publish')}</li>
         </ul>
       </div>
     </div>

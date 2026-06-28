@@ -217,7 +217,7 @@ export const Dashboard: React.FC = () => {
                     <div className="text-end">
                       <p className="text-sm font-medium">{formatPrice(order.totalAmount)}</p>
                       <Badge variant={order.status === 'Delivered' ? 'default' : order.status === 'Cancelled' ? 'destructive' : 'secondary'} className="text-xs">
-                        {t(`common.status.${order.status}`, { ns: 'common', defaultValue: order.status })}
+                        {t(`common:status.${order.status}`, { defaultValue: order.status })}
                       </Badge>
                     </div>
                   </Link>

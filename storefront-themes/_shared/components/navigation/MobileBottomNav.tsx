@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useCart } from '../../contexts/CartContext';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
+import { SearchOverlay } from './SearchBar';
 
 export const SLOT_KEY = 'mobileBottomNav';
 
@@ -30,6 +31,10 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
   const { items, className, onCartClick, onSearchClick } = props;
   const location = useLocation();
   const { cart } = useCart();
+  // The search tab opens an in-place search OVERLAY (input + live results)
+  // rather than jumping straight to the results page — otherwise tapping
+  // Search dumps the customer on an empty /search page with no input.
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const defaultItems: NavItem[] = [
     {
@@ -95,9 +100,13 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
               e.preventDefault();
               onCartClick();
             }
-            if (isSearch && onSearchClick) {
+            if (isSearch) {
+              // Always open a search input first (never navigate straight to
+              // the results page). Prefer the theme's handler if it wires its
+              // own overlay; otherwise open the shared one.
               e.preventDefault();
-              onSearchClick();
+              if (onSearchClick) onSearchClick();
+              else setSearchOpen(true);
             }
           };
 
@@ -124,6 +133,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
           );
         })}
       </div>
+      {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </nav>
   );
 }

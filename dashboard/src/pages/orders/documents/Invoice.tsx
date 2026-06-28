@@ -199,7 +199,7 @@ const Invoice: React.FC = () => {
         <div className="doc-muted doc-small">
           {t('orders:document.invoice.payment_line', {
             method: order.paymentMethod || '—',
-            status: t(`common.status.${order.paymentStatus}`, { ns: 'common', defaultValue: order.paymentStatus }),
+            status: t(`common:status.${order.paymentStatus}`, { defaultValue: order.paymentStatus }),
           })}
         </div>
       </footer>

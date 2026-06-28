@@ -11,23 +11,27 @@
     "section": {
       "categories": {
         "title": "تسوّق حسب الفئة",
-        "subtitle": "اختيارات طازجة من كل قسم"
+        "subtitle": "اختيارات طازجة من كل قسم",
+        "items_count": "{{count}} عنصر"
       },
       "weekly_deals": {
         "badge": "هذا الأسبوع فقط",
         "title": "عروض الأسبوع الطازجة",
         "subtitle": "وفّر حتى 40% على اختيارات هذا الأسبوع المنتقاة بعناية",
-        "cta": "تسوّق العروض"
+        "cta": "تسوّق العروض",
+        "ends_in": "ينتهي خلال"
       },
       "featured_products": {
         "title": "اختيارات اليوم",
         "subtitle": "منتقاة بعناية لك",
-        "view_all": "عرض الكل"
+        "view_all": "عرض الكل",
+        "add_to_cart": "إضافة"
       },
       "new_arrivals": {
         "title": "الوصول حديثاً",
         "subtitle": "طازج ومتوفر في المخزون",
-        "view_all": "عرض المزيد"
+        "view_all": "عرض المزيد",
+        "add_to_cart": "إضافة إلى السلة"
       },
       "newsletter": {
         "title": "وصفات ونصائح طازجة",
@@ -87,6 +91,10 @@
       "in_stock": "متوفر ({{count}} متاح)",
       "sold_out": "نفد المخزون",
       "out_of_stock": "غير متوفر",
+      "preorder": "طلب مسبق",
+      "ships_on": "يُشحن {{date}}",
+      "only_left": "بقي {{count}} فقط",
+      "sku": "رمز المنتج",
       "description": "الوصف",
       "not_found": "المنتج غير موجود",
       "back_to_shop": "العودة إلى المتجر"

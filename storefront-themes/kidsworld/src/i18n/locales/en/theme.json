@@ -80,8 +80,15 @@
       "browse_all": "Browse all products",
       "empty": "No products in this category yet"
     },
+    "breadcrumb": {
+      "home": "Home"
+    },
     "product_detail": {
       "breadcrumb_products": "Products",
+      "pre_order": "Pre-order",
+      "pre_order_ships": "Pre-order — ships {{date}}",
+      "only_left": "Only {{count}} left",
+      "sku": "SKU: {{sku}}",
       "select_option": "Select an option to see availability",
       "in_stock": "In Stock ({{count}} available)",
       "sold_out": "Sold out",

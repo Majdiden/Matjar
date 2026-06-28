@@ -1,4 +1,7 @@
 {
+  "preview": {
+    "purchasing_disabled": "وضع المعاينة — الشراء معطّل"
+  },
   "action": {
     "save": "حفظ",
     "cancel": "إلغاء",

@@ -10,6 +10,7 @@ import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentP
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import MilmaaProductCard from '../components/MilmaaProductCard';
 
 const TEAL = 'var(--color-primary)';
@@ -88,7 +89,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             )}
             {/* Floating badge */}
             <div className="absolute top-6 end-6 w-24 h-24 rounded-full flex items-center justify-center text-center text-xs font-bold shadow-lg" style={{ backgroundColor: PINK, color: DARK_TEAL }}>
-              100%<br />NATURAL
+              {t('theme.section.milmaa-hero.badge')}
             </div>
           </div>
         </div>
@@ -192,11 +193,11 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <ProductRail columns={4}>
           {products.map((p: any) => (
             <MilmaaProductCard key={p._id} product={p} onQuickView={onQuickView} />
           ))}
-        </div>
+        </ProductRail>
       )}
     </section>
   );
@@ -205,6 +206,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
 // ─── Benefits ─────────────────────────────────────────────────────
 
 const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
@@ -224,8 +226,8 @@ const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
               <img src="https://placehold.co/600x600/f7c1b7/2c4a4a?text=Why+Milmaa" alt="" className="w-full h-full object-cover" />
             )}
           </div>
-          <div className="absolute -bottom-4 -end-4 w-28 h-28 rounded-full flex items-center justify-center text-center font-bold text-xs shadow-lg" style={{ backgroundColor: YELLOW, color: DARK_TEAL }}>
-            CERTIFIED<br />ORGANIC
+          <div className="absolute -bottom-4 -end-4 w-28 h-28 rounded-full flex items-center justify-center text-center font-bold text-xs shadow-lg" style={{ backgroundColor: YELLOW, color: CREAM }}>
+            {t('theme.section.milmaa-benefits.badge')}
           </div>
         </div>
 

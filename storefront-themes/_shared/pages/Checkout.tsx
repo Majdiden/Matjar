@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useStore } from '../contexts/StoreContext';
-import { ordersApi, authApi, checkoutApi, giftCardApi, paymentMethodsApi, PaymentMethodPublic } from '../api/client';
+import { ordersApi, authApi, checkoutApi, giftCardApi, paymentMethodsApi, PaymentMethodPublic, isPreviewMode, notifyPreviewDisabled } from '../api/client';
 import PaymentMethodPicker from '../components/commerce/PaymentMethodPicker';
 import { useTranslation } from 'react-i18next';
 
@@ -385,6 +385,14 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   };
 
   const placeOrder = async () => {
+    // Preview mode: demo products aren't in the DB, so a real order would fail.
+    // Short-circuit with the same notice the cart shows — never hits the API.
+    if (isPreviewMode()) {
+      notifyPreviewDisabled(
+        t('common:preview.purchasing_disabled', 'Preview mode — purchasing is disabled')
+      );
+      return;
+    }
     if (!cart || cart.items.length === 0) return;
     if (!paymentMethodCode && !isZeroTotal) {
       setPaymentSubmitted(true);

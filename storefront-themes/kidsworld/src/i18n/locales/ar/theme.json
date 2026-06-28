@@ -80,8 +80,15 @@
       "browse_all": "تصفّح جميع المنتجات",
       "empty": "لا توجد منتجات في هذه الفئة بعد"
     },
+    "breadcrumb": {
+      "home": "الرئيسية"
+    },
     "product_detail": {
       "breadcrumb_products": "المنتجات",
+      "pre_order": "طلب مسبق",
+      "pre_order_ships": "طلب مسبق — يُشحن {{date}}",
+      "only_left": "بقي {{count}} فقط",
+      "sku": "رمز المنتج: {{sku}}",
       "select_option": "اختر خياراً لرؤية التوفر",
       "in_stock": "متوفر ({{count}} متاح)",
       "sold_out": "نفد المخزون",

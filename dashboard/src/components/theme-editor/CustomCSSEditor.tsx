@@ -49,9 +49,9 @@ export default function CustomCSSEditor({ css, onSave }: CustomCSSEditorProps) {
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-gray-200">
-        <h3 className="font-semibold text-sm text-gray-900">{t('themes.editor.custom_css.title')}</h3>
+        <h3 className="font-semibold text-sm text-gray-900">{t('themes:editor.custom_css.title')}</h3>
         <p className="text-xs text-gray-500 mt-1">
-          {t('themes.editor.custom_css.description')}
+          {t('themes:editor.custom_css.description')}
         </p>
       </div>
 
@@ -74,7 +74,7 @@ export default function CustomCSSEditor({ css, onSave }: CustomCSSEditorProps) {
           className="flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          {t('themes.editor.topbar.reset_short')}
+          {t('themes:editor.topbar.reset_short')}
         </button>
         <button
           onClick={handleSave}
@@ -86,7 +86,7 @@ export default function CustomCSSEditor({ css, onSave }: CustomCSSEditorProps) {
           }`}
         >
           <Save className="w-3.5 h-3.5" />
-          {t('themes.editor.custom_css.save')}
+          {t('themes:editor.custom_css.save')}
         </button>
       </div>
     </div>

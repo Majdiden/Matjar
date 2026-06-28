@@ -81,7 +81,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               </svg>
             </span>
             <span className="hidden sm:inline">{s.hotline_label || t('theme.hero.showcase.hotline_label')}</span>
-            <span style={{ color: 'var(--color-foreground)' }}>{s.hotline_phone || '+1 (555) 456-7890'}</span>
+            <span style={{ color: 'var(--color-foreground)' }}>{s.hotline_phone || t('theme.contact.phone', { defaultValue: '+1 (555) 456-7890' })}</span>
           </div>
           <div className="hidden md:block text-center">
             <Link to="/products" className="hover:opacity-80 transition">
@@ -159,7 +159,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
                 className="text-4xl md:text-5xl font-black leading-none tracking-tight mb-6"
                 style={{ color: 'var(--color-foreground)', fontFamily: 'var(--font-family-heading)' }}
               >
-                {s.heading_line1 || 'WIRELESS'}
+                {s.heading_line1 || t('theme.hero.showcase.headline_line1')}
                 {s.heading_line2 && (
                   <>
                     <br />
@@ -233,7 +233,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               </div>
               <div className="p-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
                 <p className="text-xs mb-1" style={{ color: 'var(--color-muted)' }}>
-                  {deal.brand || 'Manufacturer'}
+                  {deal.brand || t('theme.product.manufacturer', { defaultValue: 'Manufacturer' })}
                 </p>
                 <h3 className="text-sm font-semibold line-clamp-2 mb-2" style={{ color: 'var(--color-foreground)' }}>
                   {deal.name}

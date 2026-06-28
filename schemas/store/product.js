@@ -83,6 +83,12 @@ const productSchema = new Schema({
   onSale: { type: Boolean, default: false },
   newArrival: { type: Boolean, default: false },
 
+  // Marks a storefront demo product auto-seeded when a tenant activates a
+  // theme (see services/themeDemoData.js). Demo docs are removed/replaced on
+  // the next theme switch and are never created once the store has any real
+  // merchant products, so this flag is how we find them again.
+  isDemo: { type: Boolean, default: false },
+
   // Social proof
   rating: { type: Number, min: 0, max: 5, default: 0 },
   reviewCount: { type: Number, default: 0 },

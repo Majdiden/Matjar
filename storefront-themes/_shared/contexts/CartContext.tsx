@@ -1,5 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { cartApi } from '../api/client';
+import { useTranslation } from 'react-i18next';
+import { cartApi, isPreviewMode, notifyPreviewDisabled } from '../api/client';
+
+// Theme preview shows ephemeral demo products that don't exist in the DB, so
+// any cart write would 404 on the backend. This empty cart keeps the drawer
+// and badges in a sane state without ever calling the cart API.
+const PREVIEW_EMPTY_CART: Cart = {
+  id: 'preview',
+  items: [],
+  itemCount: 0,
+  subtotal: 0,
+  total: 0,
+  savings: 0,
+};
 
 export interface CartItem {
   id: string;
@@ -57,6 +70,7 @@ export const useCart = () => {
 };
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { t } = useTranslation(['common']);
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -65,7 +79,23 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const closeCart = useCallback(() => setIsOpen(false), []);
   const toggleCart = useCallback(() => setIsOpen((v) => !v), []);
 
+  // Single guard covering every theme's add-to-cart / quantity controls: in
+  // preview mode the cart is purely local and read-only — no API calls, so
+  // nothing is ever written to the DB. Returns true when the action was blocked.
+  const blockedInPreview = useCallback((): boolean => {
+    if (!isPreviewMode()) return false;
+    notifyPreviewDisabled(
+      t('common:preview.purchasing_disabled', 'Preview mode — purchasing is disabled')
+    );
+    return true;
+  }, [t]);
+
   const refresh = useCallback(async () => {
+    if (isPreviewMode()) {
+      setCart(PREVIEW_EMPTY_CART);
+      setLoading(false);
+      return;
+    }
     try {
       const res = await cartApi.get();
       setCart(res.data?.cart || null);
@@ -79,6 +109,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => { refresh(); }, [refresh]);
 
   const addItem = async (productId: string, quantity = 1, variantId?: string) => {
+    if (blockedInPreview()) return;
     await cartApi.addItem(productId, quantity, variantId);
     await refresh();
     // Auto-open the drawer so the customer immediately sees the item land.
@@ -86,16 +117,19 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const updateItem = async (productId: string, quantity: number, variantId?: string) => {
+    if (blockedInPreview()) return;
     await cartApi.updateItem(productId, quantity, variantId);
     await refresh();
   };
 
   const removeItem = async (productId: string, variantId?: string) => {
+    if (blockedInPreview()) return;
     await cartApi.removeItem(productId, variantId);
     await refresh();
   };
 
   const clearCartFn = async () => {
+    if (blockedInPreview()) return;
     await cartApi.clear();
     await refresh();
   };

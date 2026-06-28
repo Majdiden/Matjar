@@ -21,9 +21,24 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import type { Theme } from '../../types';
+import type { DomainInfoResponse } from '../domains/types';
 import { useConfirm } from '../../components/ui/use-confirm';
 
 type Filter = 'all' | 'free' | 'popular';
+
+/**
+ * Build the tenant's storefront origin from its domain host, mirroring how the
+ * Domains page opens the live store (`https://<host>`). In local dev the
+ * storefront is reached on the same port the dashboard is, over http.
+ */
+function storefrontOriginFromHost(host: string | null | undefined): string {
+  if (!host) return window.location.origin;
+  const isLocal =
+    host === 'localhost' || host.endsWith('.localhost') || host === '127.0.0.1';
+  const protocol = isLocal ? 'http:' : 'https:';
+  const port = isLocal && window.location.port ? `:${window.location.port}` : '';
+  return `${protocol}//${host}${port}`;
+}
 
 interface ThemesListResponse {
   data?: {
@@ -54,11 +69,37 @@ export const Themes: React.FC = () => {
   const [actionLoading, setActionLoading] = useState('');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const [storefrontOrigin, setStorefrontOrigin] = useState<string | null>(null);
   const confirm = useConfirm();
 
   useEffect(() => {
     loadThemes();
+    loadStorefrontOrigin();
   }, []);
+
+  // Resolve the tenant's storefront origin (same source the Domains page uses)
+  // so the Preview button can open the live store on the right host. Prefer the
+  // platform subdomain — it always has SSL and is always reachable, even when a
+  // custom domain is still verifying.
+  const loadStorefrontOrigin = async () => {
+    try {
+      const res = (await api.domains.getInfo()) as {
+        data?: DomainInfoResponse;
+        responseObject?: DomainInfoResponse;
+      };
+      const info = res.data || res.responseObject;
+      const host = info?.subdomain?.fullDomain || info?.activeDomain || '';
+      setStorefrontOrigin(storefrontOriginFromHost(host));
+    } catch {
+      // Fall back to the current origin at click time — non-fatal.
+      setStorefrontOrigin(null);
+    }
+  };
+
+  // `<storefront origin>/?previewTheme=<slug>` — opens the storefront rendered
+  // with this theme's bundle + ephemeral demo data (nothing is persisted).
+  const previewUrl = (slug: string) =>
+    `${storefrontOrigin || window.location.origin}/?previewTheme=${encodeURIComponent(slug)}`;
 
   const loadThemes = async () => {
     try {
@@ -432,30 +473,41 @@ export const Themes: React.FC = () => {
                         {t('themes:list.action.customize')}
                       </Button>
                     ) : (
-                      <>
-                        <Button
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => handleInstall(theme._id)}
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <Loader2 className="h-4 w-4 me-1.5 animate-spin" />
-                          ) : (
-                            <Download className="h-4 w-4 me-1.5" />
-                          )}
-                          {t('themes:list.action.activate')}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleUninstall(theme._id)}
-                          disabled={isLoading}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </>
+                      <Button
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleInstall(theme._id)}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <Loader2 className="h-4 w-4 me-1.5 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4 me-1.5" />
+                        )}
+                        {t('themes:list.action.activate')}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="outline" asChild>
+                      <a
+                        href={previewUrl(theme.slug)}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={t('themes:list.preview')}
+                      >
+                        <Eye className="h-4 w-4 me-1.5" />
+                        {t('themes:list.preview')}
+                      </a>
+                    </Button>
+                    {!isActive && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleUninstall(theme._id)}
+                        disabled={isLoading}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     )}
                   </div>
                 </CardContent>

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
-import { Carousel } from '@shared/components/primitives/Carousel';
+import BookHero from '../components/BookHero';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
@@ -30,7 +31,6 @@ const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
 
   // Section settings from manifest + tenant overrides
-  const hero = useThemeSettings('hero');
   const genres = useThemeSettings('genres');
   const genreBlocks = useSectionBlocks('genres');
   const staffPicks = useThemeSettings('staff-picks');
@@ -67,51 +67,18 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* Hero */}
+      {/* Hero — bespoke literary "reading nook" hero. Reads the same hero.*
+          settings + i18n keys internally; a featured book cover is passed in
+          as the standing-cover showcase. */}
       {heroEnabled && (
-      <section
-        className="relative py-24 px-6 text-center overflow-hidden"
-        style={{
-          background: `linear-gradient(to bottom right, ${hero.gradient_from || '#7c3aed'}, ${hero.gradient_via || '#6d28d9'}, ${hero.gradient_to || '#4c1d95'})`,
-        }}
-      >
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="absolute top-10 start-10 w-24 h-24" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-            <path d="M4 19.5A2.5 2.5 0 016.5 17H20V2H6.5A2.5 2.5 0 004 4.5v15z" />
-            <path d="M6.5 17H20v2H6.5a.5.5 0 010-1z" opacity="0.5" />
-          </svg>
-          <svg className="absolute bottom-10 end-10 w-24 h-24" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-            <path d="M4 19.5A2.5 2.5 0 016.5 17H20V2H6.5A2.5 2.5 0 004 4.5v15z" />
-          </svg>
-          <svg className="absolute top-1/2 start-1/4 w-16 h-16" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-            <path d="M4 19.5A2.5 2.5 0 016.5 17H20V2H6.5A2.5 2.5 0 004 4.5v15z" />
-          </svg>
-        </div>
-        <div className="max-w-2xl mx-auto relative z-10">
-          <p className="text-violet-200 text-sm mb-4 tracking-wider uppercase">
-            {hero.eyebrow_text || t('theme.section.hero.eyebrow')}
-          </p>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            {hero.heading_line1 || t('theme.section.hero.heading_line1')}<br />{hero.heading_line2 || t('theme.section.hero.heading_line2')}
-          </h1>
-          <p className="text-violet-200 text-lg mb-8 max-w-md mx-auto">
-            {hero.subheading || t('theme.section.hero.subheading')}
-          </p>
-          <Link
-            to={hero.button_url || '/products'}
-            className="inline-block bg-white text-[#7c3aed] px-8 py-3 rounded-lg font-semibold hover:bg-violet-50 transition shadow-lg"
-          >
-            {hero.button_text || t('theme.section.hero.cta')}
-          </Link>
-        </div>
-      </section>
+        <BookHero media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
       )}
 
       {/* Genre Cards */}
       {genresEnabled && (
       <section
         ref={genresRef}
-        className={`max-w-6xl mx-auto px-6 py-16 transition-all duration-700 ${
+        className={`max-w-6xl mx-auto px-6 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
           genresVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
@@ -157,7 +124,7 @@ const Home: React.FC = () => {
       {staffPicksEnabled && (
       <section
         ref={staffPicksRef}
-        className={`bg-white py-16 transition-all duration-700 ${
+        className={`bg-white py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
           staffPicksVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
@@ -183,19 +150,19 @@ const Home: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className={`grid grid-cols-2 md:grid-cols-${staffPicks.columns || '3'} gap-6`}>
+            <ProductRail columns={(Number(staffPicks.columns) || 3) as 2 | 3 | 4 | 5}>
               {staffPickProducts.map((p) => (
                 <ProductCard key={p._id} product={p} onQuickView={setQuickViewProduct}>
                   <ProductCard.Image showBadge showQuickView hoverSwap />
                   <ProductCard.Body>
                     <ProductCard.Title />
                     {staffPicks.show_rating !== false && <ProductCard.Rating />}
-                    <ProductCard.Price showCompareAt />
-                    <ProductCard.Actions addToCartText={staffPicks.add_to_cart_text || t('theme.section.staff_picks.add_to_shelf')} />
+                    <ProductCard.Price showCompareAt showDiscount className="mt-2" />
+                    <ProductCard.Actions fullWidth className="mt-3" addToCartText={staffPicks.add_to_cart_text || t('theme.section.staff_picks.add_to_shelf')} />
                   </ProductCard.Body>
                 </ProductCard>
               ))}
-            </div>
+            </ProductRail>
           )}
         </div>
       </section>
@@ -205,7 +172,7 @@ const Home: React.FC = () => {
       {quoteEnabled && (
       <section
         ref={quoteRef}
-        className={`py-16 transition-all duration-700 ${
+        className={`py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
           quoteVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
         style={{ backgroundColor: quote.background_color || '#ede9fe' }}
@@ -221,7 +188,7 @@ const Home: React.FC = () => {
           <blockquote className="text-2xl italic text-gray-700 mb-4 leading-relaxed">
             &ldquo;{quote.quote_text || t('theme.section.reading_quote.text')}&rdquo;
           </blockquote>
-          <p className="text-sm text-gray-400 font-medium">&mdash; {quote.quote_author || t('theme.section.reading_quote.author')}</p>
+          <p className="text-sm text-gray-600 font-medium">&mdash; {quote.quote_author || t('theme.section.reading_quote.author')}</p>
         </div>
       </section>
       )}
@@ -230,7 +197,7 @@ const Home: React.FC = () => {
       {bestsellersEnabled && (
       <section
         ref={bestsellersRef}
-        className={`max-w-6xl mx-auto px-6 py-16 transition-all duration-700 ${
+        className={`max-w-6xl mx-auto px-6 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
           bestsellersVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
@@ -245,13 +212,7 @@ const Home: React.FC = () => {
             ))}
           </div>
         ) : (
-          <Carousel
-            itemsPerView={{ base: 2, md: 3, lg: 4 }}
-            gap={24}
-            showArrows={bestsellers.show_arrows !== false}
-            showDots={bestsellers.show_dots !== false}
-            autoPlay={bestsellers.autoplay ? 5000 : undefined}
-          >
+          <ProductRail columns={4}>
             {bestsellerProducts.map((p) => (
               <ProductCard key={p._id} product={p} onQuickView={setQuickViewProduct}>
                 <ProductCard.Image showBadge showQuickView hoverSwap />
@@ -262,7 +223,7 @@ const Home: React.FC = () => {
                 </ProductCard.Body>
               </ProductCard>
             ))}
-          </Carousel>
+          </ProductRail>
         )}
       </section>
       )}
@@ -271,7 +232,7 @@ const Home: React.FC = () => {
       {newsletterEnabled && (
       <section
         ref={ctaRef}
-        className={`py-16 transition-all duration-700 ${
+        className={`py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
           ctaVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
         style={{

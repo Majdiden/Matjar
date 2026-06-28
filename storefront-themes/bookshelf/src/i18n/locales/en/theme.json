@@ -80,7 +80,8 @@
       "only_left": "Only {{count}} left",
       "sold_out": "Sold out",
       "out_of_stock": "Out of Stock",
-      "description_heading": "Description"
+      "description_heading": "Description",
+      "sku": "SKU: {{sku}}"
     },
     "cart": {
       "loading": "Loading cart...",
@@ -97,7 +98,8 @@
       "total": "Total",
       "checkout_button": "Proceed to Checkout",
       "continue_shopping": "Continue Shopping",
-      "remove": "Remove"
+      "remove": "Remove",
+      "price_each": "{{price}} each"
     },
     "footer": {
       "tagline": "Your next great read awaits. Curated selections for every reader.",

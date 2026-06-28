@@ -266,7 +266,7 @@ export const Webhooks: React.FC = () => {
                             <XCircle className="h-3.5 w-3.5 text-destructive" />
                           )}
                           <span className="text-xs">
-                            {t(`common.status.${webhook.lastDelivery.status}`, { ns: 'common', defaultValue: webhook.lastDelivery.status })} - {new Date(webhook.lastDelivery.timestamp).toLocaleString()}
+                            {t(`common:status.${webhook.lastDelivery.status}`, { defaultValue: webhook.lastDelivery.status })} - {new Date(webhook.lastDelivery.timestamp).toLocaleString()}
                           </span>
                         </div>
                       ) : (

@@ -209,7 +209,7 @@ const GiftCardDetail: React.FC = () => {
           ••••-••••-••••-{card.codeLast4}
         </h1>
         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[card.status]}`}>
-          {t(`common.status.${card.status}`, { ns: 'common', defaultValue: card.status })}
+          {t(`common:status.${card.status}`, { defaultValue: card.status })}
         </span>
         {card.coverShipping && (
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
@@ -245,7 +245,7 @@ const GiftCardDetail: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.status')}</p>
-                  <p className="font-medium">{t(`common.status.${card.status}`, { ns: 'common', defaultValue: card.status })}</p>
+                  <p className="font-medium">{t(`common:status.${card.status}`, { defaultValue: card.status })}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">{t('marketing.gift_card.detail.field.recipient')}</p>

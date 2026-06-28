@@ -60,7 +60,7 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
                 className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase rounded-full text-white"
                 style={{ backgroundColor: 'var(--color-primary, #111)' }}
               >
-                Pre-order
+                {t('theme.product_card.pre_order', { defaultValue: 'Pre-order' })}
               </span>
             </div>
           )}
@@ -110,7 +110,7 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
         >
           {product.name}
         </Link>
-        <div className="mt-1.5 flex items-center justify-center gap-3 font-display text-lg">
+        <div className="mt-1.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-display text-lg">
           {onSale && (
             <span className="text-neutral-400 line-through text-sm">{formatPrice(compareAt)}</span>
           )}

@@ -175,7 +175,21 @@
     "Delivered": "تم التسليم",
     "Cancelled": "ملغى",
     "Refunded": "تم الاسترداد",
-    "Archived": "مؤرشف"
+    "Archived": "مؤرشف",
+    "Not Paid": "غير مدفوع",
+    "Paid": "مدفوع",
+    "Authorized": "مفوّض",
+    "Failed": "فشل",
+    "Partially Refunded": "مسترد جزئياً",
+    "Voided": "ملغى",
+    "Unfulfilled": "لم يتم التنفيذ",
+    "Partially Fulfilled": "تنفيذ جزئي",
+    "Fulfilled": "تم التنفيذ",
+    "Returned": "تم الإرجاع",
+    "Requested": "مطلوب",
+    "Approved": "موافق عليه",
+    "Rejected": "مرفوض",
+    "Received": "تم الاستلام"
   },
   "pagination": {
     "page_of": "صفحة {{n}} من {{total}}",

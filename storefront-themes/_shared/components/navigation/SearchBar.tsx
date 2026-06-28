@@ -75,22 +75,6 @@ export function SearchBar(props: SearchBarProps) {
     onClose?.();
   }, [onClose]);
 
-  // Global hotkey: "/" opens the overlay (Google/GitHub-style). Ignored when
-  // focus is already in an input/textarea/contenteditable so typing "/" in a
-  // form field doesn't hijack.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== '/') return;
-      const el = document.activeElement as HTMLElement | null;
-      const tag = el?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || el?.isContentEditable) return;
-      e.preventDefault();
-      setOpen(true);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
   return (
     <>
       {/* Header trigger — looks like a search input, acts as a button. */}
@@ -136,20 +120,23 @@ export function SearchBar(props: SearchBarProps) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Overlay — portaled so it escapes any header `overflow:hidden` ancestor.
 
-interface SearchOverlayProps {
-  placeholder: string;
-  accent: string;
+export interface SearchOverlayProps {
+  placeholder?: string;
+  accent?: string;
   onClose: () => void;
 }
 
-function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
+export function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
   const { t } = useTranslation('nav');
   const navigate = useNavigate();
   const { formatPrice } = useStore();
+  // Fallbacks so the overlay can be opened standalone (e.g. from the mobile
+  // bottom nav) without the header SearchBar supplying these.
+  const ph = placeholder || t('search.placeholder');
+  const ac = accent || 'var(--color-primary, #2563eb)';
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [recent, setRecent] = useState<string[]>(() => loadRecent());
   const [trending, setTrending] = useState<Product[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -202,7 +189,6 @@ function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setQuery(val);
-    setSelectedIndex(-1);
     search(val);
   };
 
@@ -221,23 +207,11 @@ function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedIndex >= 0 && results[selectedIndex]) {
-      goToProduct(results[selectedIndex]);
-    } else if (query.trim()) {
-      goToSearch(query);
-    }
+    if (query.trim()) goToSearch(query);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex((prev) => Math.max(prev - 1, -1));
-    } else if (e.key === 'Escape') {
-      onClose();
-    }
+    if (e.key === 'Escape') onClose();
   };
 
   const showEmpty = !query.trim();
@@ -279,10 +253,10 @@ function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
             value={query}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            placeholder={placeholder}
+            placeholder={ph}
             aria-label={t('search.button_aria')}
             className="w-full ps-14 pe-14 py-5 text-lg bg-white rounded-2xl shadow-2xl border border-white/20 placeholder:text-gray-400 text-gray-900 focus:outline-none focus:ring-2 transition"
-            style={{ ['--tw-ring-color' as any]: accent }}
+            style={{ ['--tw-ring-color' as any]: ac }}
           />
           <button
             type="button"
@@ -298,7 +272,7 @@ function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
             <div className="absolute end-12 top-1/2 -translate-y-1/2">
               <div
                 className="w-4 h-4 border-2 border-gray-200 rounded-full animate-spin"
-                style={{ borderTopColor: accent }}
+                style={{ borderTopColor: ac }}
               />
             </div>
           )}
@@ -306,7 +280,7 @@ function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
 
         {/* Results panel */}
         <div className="mt-3 bg-white rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
-          {/* Empty state: recent + trending */}
+          {/* Empty state: recent searches + trending products (e-commerce). */}
           {showEmpty && (
             <div className="p-5 space-y-5 max-h-[60vh] overflow-y-auto">
               {recent.length > 0 && (
@@ -384,26 +358,15 @@ function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
           {/* Live results */}
           {showResults && (
             <>
-              <div className="px-5 pt-4 pb-1">
-                <span className="text-[11px] uppercase tracking-wider font-semibold text-gray-500">
-                  {t('search.products_section')}
-                </span>
-              </div>
-              <div className="max-h-[55vh] overflow-y-auto">
-                {results.map((product, i) => {
+              <div className="max-h-[60vh] overflow-y-auto">
+                {results.map((product) => {
                   const img = product.images?.[0] || 'https://placehold.co/80x80?text=•';
-                  const active = i === selectedIndex;
                   return (
                     <button
                       key={product._id}
                       type="button"
-                      onMouseEnter={() => setSelectedIndex(i)}
                       onClick={() => goToProduct(product)}
-                      className={cn(
-                        'w-full flex items-center gap-4 px-5 py-3 text-start transition border-s-[3px]',
-                        active ? 'bg-gray-50' : 'border-transparent hover:bg-gray-50/70'
-                      )}
-                      style={active ? { borderInlineStartColor: accent } : undefined}
+                      className="w-full flex items-center gap-4 px-5 py-3 text-start transition hover:bg-gray-50/70"
                     >
                       <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-100 overflow-hidden flex-shrink-0">
                         <img src={img} alt={product.name} className="w-full h-full object-cover" />
@@ -411,7 +374,7 @@ function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-sm font-semibold" style={{ color: accent }}>
+                          <span className="text-sm font-semibold" style={{ color: ac }}>
                             {formatPrice(product.price)}
                           </span>
                           {product.compareAtPrice && product.compareAtPrice > product.price && (
@@ -432,7 +395,7 @@ function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
                 type="button"
                 onClick={() => goToSearch(query)}
                 className="w-full px-5 py-3.5 text-sm text-center font-semibold transition border-t border-gray-100 hover:bg-gray-50"
-                style={{ color: accent }}
+                style={{ color: ac }}
               >
                 {t('search.see_all_results', { query })}
               </button>
@@ -449,22 +412,6 @@ function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayProps) {
               <p className="text-xs text-gray-400">{t('search.no_results_hint')}</p>
             </div>
           )}
-        </div>
-
-        {/* Keyboard hint footer */}
-        <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-white/80">
-          <span className="inline-flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20">↑↓</kbd>
-            {t('search.navigate_hint')}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20">↵</kbd>
-            {t('search.select_hint')}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20">esc</kbd>
-            {t('search.close_hint')}
-          </span>
         </div>
       </div>
 

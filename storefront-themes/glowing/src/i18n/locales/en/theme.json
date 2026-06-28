@@ -114,12 +114,15 @@
       "back_to_shop": "Back to Shop",
       "save": "Save {{amount}}",
       "qty_decrease": "Decrease quantity",
-      "qty_increase": "Increase quantity"
+      "qty_increase": "Increase quantity",
+      "pre_order": "Pre-order",
+      "only_left": "Only {{count}} left"
     },
     "product_card": {
       "sale_badge": "Sale -{{pct}}%",
       "choose_options": "Choose Options",
-      "add_to_cart": "+ Add to Cart"
+      "add_to_cart": "+ Add to Cart",
+      "pre_order": "Pre-order"
     },
     "cart": {
       "loading": "Loading cart...",

@@ -238,7 +238,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
         {!hasChildren && <span className="w-5" />}
         <Input
           className="h-7 text-sm flex-1"
-          placeholder={t('menus.form.item.label_placeholder')}
+          placeholder={t('menus:form.item.label_placeholder')}
           value={item.label}
           onChange={e => onChange(index, { label: e.target.value })}
         />

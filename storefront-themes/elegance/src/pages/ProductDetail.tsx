@@ -240,7 +240,7 @@ const ProductDetail: React.FC = () => {
 
           {/* SKU & Tags */}
           <div className="text-sm text-gray-500 space-y-1">
-            {product.sku && <p>SKU: {product.sku}</p>}
+            {product.sku && <p>{t('theme.product_detail.sku_label', { sku: product.sku })}</p>}
             {product.tags?.length > 0 && (
               <div className="flex gap-2 flex-wrap">
                 {product.tags.map((tag: string) => (

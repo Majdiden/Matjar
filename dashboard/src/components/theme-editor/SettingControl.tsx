@@ -3,6 +3,7 @@
  * schema. Built on shadcn primitives + ColorPickerPopover for a polished feel.
  */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link2, X, Image as ImageIcon } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -34,14 +35,21 @@ function toStringValue(raw: unknown): string {
 }
 
 export default function SettingControl({ setting, value, onChange }: SettingControlProps) {
+  const { t } = useTranslation('themes');
   const rawValue: unknown = value ?? setting.default ?? '';
   const currentValue = toStringValue(rawValue);
   const checkedValue = typeof rawValue === 'boolean' ? rawValue : Boolean(rawValue);
+  // Manifest-declared label/info are English by default; a `settings.<id>.*`
+  // key can override per-locale while falling back to the manifest string.
+  const label = t(`themes:settings.${setting.id}.label`, { defaultValue: setting.label });
+  const info = setting.info
+    ? t(`themes:settings.${setting.id}.info`, { defaultValue: setting.info })
+    : undefined;
 
   switch (setting.type) {
     case 'text':
       return (
-        <FieldWrapper label={setting.label} info={setting.info}>
+        <FieldWrapper label={label} info={info}>
           <Input
             type="text"
             value={currentValue}
@@ -54,7 +62,7 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
 
     case 'textarea':
       return (
-        <FieldWrapper label={setting.label} info={setting.info}>
+        <FieldWrapper label={label} info={info}>
           <Textarea
             value={currentValue}
             onChange={(e) => onChange(e.target.value)}
@@ -67,7 +75,7 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
 
     case 'number':
       return (
-        <FieldWrapper label={setting.label} info={setting.info}>
+        <FieldWrapper label={label} info={info}>
           <Input
             type="number"
             value={currentValue}
@@ -82,7 +90,7 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
 
     case 'range':
       return (
-        <FieldWrapper label={setting.label} info={setting.info}>
+        <FieldWrapper label={label} info={info}>
           <div className="flex items-center gap-3">
             <input
               type="range"
@@ -105,9 +113,9 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
       return (
         <div className="flex items-center justify-between gap-3 py-0.5">
           <div className="min-w-0">
-            <Label className="text-xs font-medium text-slate-700">{setting.label}</Label>
-            {setting.info && (
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">{setting.info}</p>
+            <Label className="text-xs font-medium text-slate-700">{label}</Label>
+            {info && (
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">{info}</p>
             )}
           </div>
           <Switch checked={checkedValue} onCheckedChange={onChange} />
@@ -116,7 +124,7 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
 
     case 'select':
       return (
-        <FieldWrapper label={setting.label} info={setting.info}>
+        <FieldWrapper label={label} info={info}>
           <div className="relative">
             <select
               value={currentValue || ''}
@@ -136,21 +144,21 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
 
     case 'color':
       return (
-        <FieldWrapper label={setting.label} info={setting.info}>
+        <FieldWrapper label={label} info={info}>
           <ColorPickerPopover value={currentValue || '#000000'} onChange={onChange} />
         </FieldWrapper>
       );
 
     case 'image':
       return (
-        <FieldWrapper label={setting.label} info={setting.info}>
+        <FieldWrapper label={label} info={info}>
           <ImageInput value={currentValue} onChange={onChange} />
         </FieldWrapper>
       );
 
     case 'url':
       return (
-        <FieldWrapper label={setting.label} info={setting.info}>
+        <FieldWrapper label={label} info={info}>
           <div className="relative">
             <Link2 className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
             <Input
@@ -168,14 +176,14 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
     case 'product':
       return (
         <FieldWrapper
-          label={setting.label}
-          info={setting.info || `Enter ${setting.type} ID or slug`}
+          label={label}
+          info={info || t('themes:editor.control.reference.info', { type: setting.type })}
         >
           <Input
             type="text"
             value={currentValue}
             onChange={(e) => onChange(e.target.value)}
-            placeholder={`Select a ${setting.type}…`}
+            placeholder={t('themes:editor.control.reference.placeholder', { type: setting.type })}
             className="h-9 text-sm"
           />
         </FieldWrapper>
@@ -189,7 +197,7 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
           ? ''
           : JSON.stringify(rawValue);
       return (
-        <FieldWrapper label={setting.label} info={`Unsupported type: ${setting.type}`}>
+        <FieldWrapper label={label} info={t('themes:editor.control.unsupported', { type: setting.type })}>
           <Input
             type="text"
             value={fallback}
@@ -223,6 +231,7 @@ function FieldWrapper({
 }
 
 function ImageInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { t } = useTranslation('themes');
   const [editing, setEditing] = useState(false);
 
   if (value && !editing) {
@@ -243,7 +252,7 @@ function ImageInput({ value, onChange }: { value: string; onChange: (v: string) 
           onClick={() => setEditing(true)}
           className="text-[11px] text-blue-600 hover:underline"
         >
-          Change image
+          {t('themes:editor.control.image.change')}
         </button>
       </div>
     );

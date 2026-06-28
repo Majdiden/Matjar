@@ -200,6 +200,13 @@
         "card_expires": "Expires {{date}}",
         "card_created": "Created {{date}}"
       },
+      "issue": {
+        "field": {
+          "customer": {
+            "clear_aria": "Clear customer"
+          }
+        }
+      },
       "issue_dialog": {
         "title": "Issue Gift Card",
         "description": "Create a new prepaid gift card. The code will only be shown once after issuance.",

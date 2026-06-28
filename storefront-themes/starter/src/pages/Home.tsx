@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
+import MinimalHero from '../components/MinimalHero';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
@@ -38,29 +40,14 @@ const Home: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
-      {/* Simple Text Hero */}
+      {/* Hero — bespoke minimal hero (reads the same hero.* settings + i18n
+          keys internally; featured image is passed for the simple frame,
+          gated on a merchant background image exactly as before). */}
       {heroEnabled && (
-      <div className="text-center mb-16 py-8">
-        <h1
-          className="text-3xl md:text-4xl font-bold mb-3"
-          style={{
-            color: 'var(--color-foreground)',
-            fontFamily: 'var(--font-family-heading)',
-          }}
-        >
-          {hero.heading || t('theme.hero.main.headline')}
-        </h1>
-        <p className="mb-6 max-w-md mx-auto" style={{ color: 'var(--color-muted)' }}>
-          {hero.subheading || t('theme.hero.main.subheadline')}
-        </p>
-        <Link
-          to={hero.button_url || '/products'}
-          className="inline-block text-white px-6 py-2.5 rounded-lg font-medium hover:opacity-90 transition"
-          style={{ backgroundColor: 'var(--color-primary)' }}
-        >
-          {hero.button_text || t('theme.hero.main.cta')}
-        </Link>
-      </div>
+        <MinimalHero
+          className="mb-16"
+          media={!hero.background_image ? featured?.find((p) => p.images?.[0])?.images?.[0] : undefined}
+        />
       )}
 
       {/* Categories as Text Links */}
@@ -125,19 +112,19 @@ const Home: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+          <ProductRail columns={3}>
             {featured.map((p) => (
               <ProductCard key={p._id} product={p} onQuickView={feat.show_quick_view !== false ? setQuickViewProduct : undefined}>
                 <ProductCard.Image showBadge showQuickView={feat.show_quick_view !== false} hoverSwap />
                 <ProductCard.Body>
                   <ProductCard.Title />
                   {feat.show_rating !== false && <ProductCard.Rating />}
-                  <ProductCard.Price showCompareAt />
-                  <ProductCard.Actions addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
+                  <ProductCard.Price showCompareAt showDiscount className="mt-2" />
+                  <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
                 </ProductCard.Body>
               </ProductCard>
             ))}
-          </div>
+          </ProductRail>
         )}
       </section>
       )}

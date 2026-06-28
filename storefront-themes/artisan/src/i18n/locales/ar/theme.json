@@ -94,14 +94,17 @@
       "select_option": "اختر خياراً لمعرفة التوفر",
       "in_stock": "متوفر ({{count}} متاح)",
       "preorder": "طلب مسبق — يُشحن {{date}}",
+      "preorder_label": "طلب مسبق",
       "only_left": "{{count}} فقط متبقية",
       "sold_out": "نفد المخزون",
       "out_of_stock": "غير متوفر",
       "description_heading": "الوصف",
+      "sku_label": "رمز المنتج:",
       "product_not_found": "المنتج غير موجود"
     },
     "cart": {
       "loading": "جاري تحميل السلة...",
+      "each": "للقطعة",
       "empty_heading": "سلتك فارغة",
       "empty_subtext": "يبدو أنك لم تضف أي شيء بعد",
       "start_shopping": "ابدأ التسوق",

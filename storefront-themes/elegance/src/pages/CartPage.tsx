@@ -60,7 +60,7 @@ const CartPage: React.FC = () => {
               >
                 {item.product?.name}
               </Link>
-              <p className="text-sm text-gray-500 mt-1">{formatPrice(item.price)} each</p>
+              <p className="text-sm text-gray-500 mt-1">{t('theme.cart.price_each', { price: formatPrice(item.price) })}</p>
               {item.variant && <p className="text-xs text-gray-400">{item.variant.name}</p>}
               <div className="flex items-center gap-3 mt-3">
                 <div className="flex items-center border rounded">

@@ -109,9 +109,9 @@ const Products: React.FC = () => {
             <FilterBlock title={t('theme.products.filter_availability')}>
               <div className="space-y-3 text-sm" style={{ color: DARK_TEAL }}>
                 {[
-                  { value: '', label: 'All' },
-                  { value: 'in-stock', label: 'In stock' },
-                  { value: 'out-of-stock', label: 'Out of stock' },
+                  { value: '', label: t('theme.products.availability_all', { defaultValue: 'All' }) },
+                  { value: 'in-stock', label: t('theme.products.availability_in_stock', { defaultValue: 'In stock' }) },
+                  { value: 'out-of-stock', label: t('theme.product_detail.out_of_stock', { defaultValue: 'Out of stock' }) },
                 ].map((opt) => (
                   <label key={opt.value} className="flex items-center gap-3 cursor-pointer">
                     <input

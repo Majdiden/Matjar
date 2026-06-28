@@ -28,7 +28,12 @@
       "nutreko-category-strip": {
         "heading": "EXPLORE THE RANGE",
         "subheading": "Built for every stage of your training",
-        "shop_label": "SHOP →"
+        "shop_label": "SHOP →",
+        "cat_protein": "PROTEIN",
+        "cat_pre_workout": "PRE-WORKOUT",
+        "cat_creatine": "CREATINE",
+        "cat_recovery": "RECOVERY",
+        "cat_vitamins": "VITAMINS"
       },
       "nutreko-product-grid": {
         "top_sellers_heading": "TOP SELLERS",
@@ -59,6 +64,9 @@
       "deal": {
         "text": "BUY 2 GET 1 FREE on all whey protein — this week only."
       }
+    },
+    "announcement": {
+      "default": "FREE SHIPPING ON ORDERS OVER $75"
     },
     "footer": {
       "tagline": "Premium supplements and sports nutrition for athletes who demand more. 100% authentic, lab-tested, guaranteed.",
@@ -125,6 +133,15 @@
       "tab_nutrition": "NUTRITION FACTS",
       "tab_reviews": "REVIEWS",
       "nutrition_heading": "Supplement Facts",
+      "nutrition_serving_label": "Serving Size",
+      "nutrition_serving_value": "1 Scoop (30g)",
+      "nutrition_calories": "Calories",
+      "nutrition_protein": "Protein",
+      "nutrition_carbs": "Carbs",
+      "nutrition_fat": "Fat",
+      "nutrition_bcaas": "BCAAs",
+      "reviews_count": "({{n}} REVIEWS)",
+      "save": "SAVE {{amount}}",
       "you_may_also_like": "YOU MAY ALSO LIKE",
       "benefit_shipping": "Free Shipping $75+",
       "benefit_secure": "Secure Checkout",
@@ -161,7 +178,9 @@
       "sale": "SALE",
       "preorder": "PRE-ORDER",
       "choose_options": "Choose Options",
-      "add_to_cart": "+ Add to Cart"
+      "add_to_cart": "+ Add to Cart",
+      "off_badge": "-{{pct}}% OFF",
+      "new": "NEW"
     }
   }
 }

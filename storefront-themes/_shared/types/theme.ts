@@ -166,6 +166,60 @@ export interface ThemeTypography {
   lineHeight?: string;
 }
 
+/**
+ * Design-system tokens bridged to CSS custom properties by ThemeProvider
+ * so every theme — and the dashboard customizer — share one source of
+ * truth for depth, motion, radius and rhythm. Every field is optional;
+ * premium platform defaults (see DEFAULT_DESIGN_TOKENS in ThemeProvider)
+ * apply when a theme omits them. Themes override individual keys to express
+ * a distinct personality (e.g. a soft toy store vs. a sharp tech store)
+ * without forking layout code.
+ */
+export interface ThemeDesignTokens {
+  /**
+   * Elevation scale. Each key maps to a `--shadow-*` custom property.
+   * Themes can ship a flatter or more dramatic ramp to match their mood.
+   */
+  elevation?: {
+    xs?: string;
+    sm?: string;
+    md?: string;
+    lg?: string;
+    xl?: string;
+  };
+  /**
+   * Motion identity. Durations and easing curves become `--duration-*`
+   * and `--ease-*` custom properties so each theme animates with its own
+   * signature (snappy, springy, smooth, playful) while components stay
+   * shared. `hover` is a named lift transform applied to interactive cards.
+   */
+  motion?: {
+    durationFast?: string;
+    durationBase?: string;
+    durationSlow?: string;
+    easeStandard?: string;
+    easeEmphasized?: string;
+    easeEntrance?: string;
+    /** Card/interactive hover lift, e.g. "translateY(-4px)" or "scale(1.02)" */
+    hoverLift?: string;
+  };
+  /**
+   * Corner radius scale. `base` also seeds the `border_radius` customizer
+   * setting; sm/lg/pill derive premium proportions from it.
+   */
+  radius?: {
+    sm?: string;
+    base?: string;
+    lg?: string;
+    pill?: string;
+  };
+  /**
+   * Vertical rhythm between homepage sections, as a `--section-gap`
+   * custom property. Tighter for dense catalogs, airier for editorial.
+   */
+  sectionGap?: string;
+}
+
 export interface ThemeManifest {
   /** Unique slug (kebab-case) */
   slug: string;
@@ -201,6 +255,13 @@ export interface ThemeManifest {
     headerStyle?: 'standard' | 'centered' | 'minimal';
     footerStyle?: 'standard' | 'minimal' | 'expanded';
   };
+  /**
+   * Optional design-system tokens (elevation, motion, radius, rhythm).
+   * Bridged to CSS custom properties so themes and the dashboard
+   * customizer share one source of truth. Omit to inherit premium
+   * platform defaults; override individual keys for theme personality.
+   */
+  designTokens?: ThemeDesignTokens;
   /** Theme-level settings (exposed in theme editor) */
   settings?: SectionSetting[];
   /** Section definitions this theme supports */

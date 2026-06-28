@@ -56,21 +56,21 @@ const Layout: React.FC = () => {
 
             {/* Right Actions */}
             <div className="flex items-center gap-2">
-              {/* Desktop Search */}
+              {/* Desktop Search (search on mobile lives in the bottom nav) */}
               <div className="hidden md:block w-56">
                 <SearchBar placeholder={t('theme.products.search_placeholder')} className="w-full" />
               </div>
 
-              {/* Mobile Search */}
-              <SearchBar variant="compact" className="md:hidden text-[var(--color-primary)]/60 hover:text-[var(--color-primary)]" />
-
-              {/* Language Switcher */}
-              <LanguageSwitcher />
+              {/* Language Switcher — desktop only; on mobile it lives inside
+                  the hamburger side menu (below). */}
+              <div className="hidden md:flex items-center">
+                <LanguageSwitcher />
+              </div>
 
               {/* Cart */}
               <button
                 onClick={openCart}
-                className="relative p-2 text-[var(--color-primary)]/60 hover:text-[var(--color-primary)] transition"
+                className="relative hidden md:inline-flex p-2 text-[var(--color-primary)]/60 hover:text-[var(--color-primary)] transition"
                 aria-label={t('common:aria.cart')}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,7 +132,7 @@ const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-white text-xl italic mb-4">{store?.name || 'Artisan'}</h3>
-              <p className="text-sm text-[var(--color-muted)] leading-relaxed">
+              <p className="text-sm text-[var(--color-border)] leading-relaxed">
                 {t('theme.footer.tagline')}
               </p>
             </div>
@@ -158,7 +158,7 @@ const Layout: React.FC = () => {
             </div>
             <div>
               <h4 className="text-white font-semibold mb-3">{t('theme.footer.circle_heading')}</h4>
-              <p className="text-sm text-[var(--color-muted)] mb-3">{t('theme.footer.circle_subtext')}</p>
+              <p className="text-sm text-[var(--color-border)] mb-3">{t('theme.footer.circle_subtext')}</p>
               <form onSubmit={e => e.preventDefault()} className="flex gap-2">
                 <input
                   type="email"
@@ -174,7 +174,7 @@ const Layout: React.FC = () => {
               </form>
             </div>
           </div>
-          <div className="border-t border-[var(--color-border)] mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[var(--color-muted)]">
+          <div className="border-t border-[var(--color-border)] mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[var(--color-border)]">
             <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'Artisan' })}</span>
             <div className="flex gap-4">
               <span className="hover:text-white cursor-pointer">{t('theme.footer.privacy')}</span>

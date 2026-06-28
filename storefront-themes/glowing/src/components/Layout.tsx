@@ -47,44 +47,37 @@ const Layout: React.FC = () => {
       <header className="sticky top-0 z-40 bg-white border-b border-neutral-100">
         {/* Utility row */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-3 items-center py-6">
-            {/* Left: search */}
-            <div className="flex items-center gap-5">
-              <SearchBar variant="compact" className="text-neutral-600 hover:text-black hover:bg-neutral-100" />
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                aria-label={t('common:aria.menu')}
-                className="md:hidden text-neutral-700"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
-                </svg>
-              </button>
-            </div>
-
-            {/* Center: serif wordmark */}
+          <div className="flex items-center justify-between py-6">
+            {/* Start: serif wordmark */}
             <Link
               to="/"
-              className="font-display text-center text-3xl md:text-4xl tracking-tight text-black leading-none"
+              className="font-display text-3xl md:text-4xl tracking-tight text-black leading-none"
               style={{ fontFamily: 'var(--font-family-heading)' }}
             >
               {brand}
             </Link>
 
-            {/* Right: account / wishlist / cart */}
-            <div className="flex items-center gap-5 justify-end text-neutral-700">
-              <LanguageSwitcher />
-              <Link to="/account" aria-label={t('common:aria.account')} className="hover:text-black">
+            {/* End: search (desktop) / language (desktop) / account / wishlist / cart / hamburger (mobile) */}
+            <div className="flex items-center gap-5 text-neutral-700">
+              {/* Desktop search bar */}
+              <div className="hidden md:block w-56">
+                <SearchBar variant="expanded" />
+              </div>
+              {/* Language switcher — desktop only */}
+              <div className="hidden md:flex items-center">
+                <LanguageSwitcher />
+              </div>
+              <Link to="/account" aria-label={t('common:aria.account')} className="hover:text-black hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 1115 0v.75H4.5v-.75z" />
                 </svg>
               </Link>
-              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="hover:text-black hidden sm:block">
+              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="hover:text-black hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
               </Link>
-              <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hover:text-black">
+              <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hover:text-black hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
@@ -93,6 +86,16 @@ const Layout: React.FC = () => {
                     {cart?.itemCount}
                   </span>
                 )}
+              </button>
+              {/* Hamburger — mobile only, opposite end from the wordmark */}
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label={t('common:aria.menu')}
+                className="md:hidden text-neutral-700"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
+                </svg>
               </button>
             </div>
           </div>
@@ -125,7 +128,9 @@ const Layout: React.FC = () => {
             ))}
             <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.nav.about')}</Link>
             <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.nav.contact')}</Link>
-            <LanguageSwitcher />
+            <div className="pt-1">
+              <LanguageSwitcher />
+            </div>
           </nav>
         )}
       </header>

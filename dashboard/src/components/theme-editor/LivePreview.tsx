@@ -39,12 +39,12 @@ export default function LivePreview({ url, viewport, onRefresh }: LivePreviewPro
         return (
             <div className="flex flex-col items-center justify-center text-gray-400">
                 <Eye className="w-16 h-16 mb-4 opacity-50" />
-                <p className="text-lg font-medium">{t('themes.editor.preview_unavailable')}</p>
+                <p className="text-lg font-medium">{t('themes:editor.preview_unavailable')}</p>
                 <button
                     onClick={onRefresh}
                     className="mt-4 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
                 >
-                    {t('themes.editor.generate_preview')}
+                    {t('themes:editor.generate_preview')}
                 </button>
             </div>
         );
@@ -66,7 +66,7 @@ export default function LivePreview({ url, viewport, onRefresh }: LivePreviewPro
                 src={url}
                 className="w-full h-full border-0"
                 onLoad={handleIframeLoad}
-                title={t('themes.editor.topbar.preview_iframe')}
+                title={t('themes:editor.topbar.preview_iframe')}
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
             />
         </div>

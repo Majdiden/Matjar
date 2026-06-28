@@ -111,7 +111,7 @@ const ProductDetail: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       {/* Breadcrumb */}
       <nav className="text-sm text-gray-500 mb-6">
-        <Link to="/" className="hover:text-gray-700">Home</Link>
+        <Link to="/" className="hover:text-gray-700">{t('theme.category.breadcrumb_home')}</Link>
         <span className="mx-2">/</span>
         <Link to="/products" className="hover:text-gray-700">{t('theme.product_detail.products_breadcrumb')}</Link>
         <span className="mx-2">/</span>
@@ -189,10 +189,12 @@ const ProductDetail: React.FC = () => {
           ) : isPreorderable ? (
             <div className="mb-6">
               <p className="text-sm text-amber-600">
-                Pre-order{shipDateLabel ? ` — ships ${shipDateLabel}` : ''}
+                {shipDateLabel
+                  ? t('theme.product_detail.preorder', { date: shipDateLabel })
+                  : t('theme.product_detail.preorder_label', { defaultValue: 'Pre-order' })}
               </p>
               {preState.lowRemaining && preState.remaining !== null && (
-                <p className="text-xs font-semibold text-amber-700 mt-1">Only {preState.remaining} left</p>
+                <p className="text-xs font-semibold text-amber-700 mt-1">{t('theme.product_detail.only_left', { count: preState.remaining })}</p>
               )}
               {preState.depositLabel && (
                 <p className="text-xs text-amber-700 mt-1">{preState.depositLabel}</p>
@@ -248,7 +250,7 @@ const ProductDetail: React.FC = () => {
 
           {/* SKU & Tags */}
           <div className="text-sm text-gray-500 space-y-1">
-            {product.sku && <p>SKU: {product.sku}</p>}
+            {product.sku && <p>{t('theme.product_detail.sku_label', { defaultValue: 'SKU:' })} {product.sku}</p>}
             {product.tags?.length > 0 && (
               <div className="flex gap-2 flex-wrap">
                 {product.tags.map((tag: string) => (

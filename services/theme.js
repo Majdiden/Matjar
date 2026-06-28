@@ -23,6 +23,7 @@ import {
 } from "../repositories/theme.js";
 import { APIError } from "../middlewares/errorHandler.js";
 import { getThemeManifest } from "./themeManifestRegistry.js";
+import { seedThemeDemoData } from "./themeDemoData.js";
 
 /**
  * Append an audit row to ThemeCustomizationVersion for a
@@ -213,6 +214,12 @@ export const installThemeService = async (themeId, tenantId) => {
   });
 
   await incrementThemeInstallsRepo(themeId);
+
+  // NOTE: activating a theme intentionally does NOT seed demo data. The
+  // merchant's real products / categories / collections must be preserved
+  // verbatim so they can switch themes to see their OWN store re-skinned.
+  // Demo content is shown only in the theme PREVIEW (see the preview flow),
+  // never persisted into the live store.
 
   // Audit: record the install/switch event so the dashboard timeline
   // shows when a tenant adopted a theme, and the snapshot matches
@@ -409,6 +416,10 @@ export async function installDefaultTheme(tenant) {
     });
 
     await incrementThemeInstallsRepo(defaultTheme._id);
+
+    // Demo data is NOT seeded on install — it belongs to the theme preview
+    // only (see preview flow). A new store stays clean; the merchant adds
+    // their own products, or previews themes to see them populated.
 
     // Audit: fresh tenants get an "install" row so the version
     // timeline has a starting point even before the merchant makes

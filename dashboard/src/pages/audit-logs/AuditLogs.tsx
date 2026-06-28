@@ -62,6 +62,19 @@ const actionColor = (action: string) => {
   return 'outline' as const;
 };
 
+// Fallback label for actions not present in the action_label map: turn a
+// dotted/underscored machine string (e.g. "order.status_updated") into a
+// human-readable phrase ("Order status updated").
+const humanize = (value: string) => {
+  const text = String(value).replace(/[._]+/g, ' ').trim();
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
+
+// Map a backend action string to its i18n lookup key. The backend emits dotted
+// names ("order.created"); dots would misdrill into the keySeparator, so we
+// flatten them to underscores and look the key up under `audit:action_label`.
+const actionLabelKey = (action: string) => `audit:action_label.${action.replace(/\./g, '_')}`;
+
 export const AuditLogs: React.FC = () => {
   const { t } = useTranslation(['audit', 'common']);
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -174,10 +187,10 @@ export const AuditLogs: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={actionColor(log.action)}>{t(`audit.action.${log.action}.label`, { defaultValue: log.action })}</Badge>
+                      <Badge variant={actionColor(log.action)}>{t(actionLabelKey(log.action), { defaultValue: humanize(log.action) })}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{log.resource}</Badge>
+                      <Badge variant="outline">{t(`audit:resource_label.${String(log.resource).toLowerCase()}`, { defaultValue: log.resource })}</Badge>
                     </TableCell>
                     <TableCell className="font-mono text-xs text-muted-foreground">
                       {log.resourceId ? log.resourceId.slice(0, 12) + '...' : '-'}
@@ -219,11 +232,11 @@ export const AuditLogs: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-muted-foreground">{t('audit.detail.field.action')}</p>
-                  <Badge variant={actionColor(selectedLog.action)}>{t(`audit.action.${selectedLog.action}.label`, { defaultValue: selectedLog.action })}</Badge>
+                  <Badge variant={actionColor(selectedLog.action)}>{t(actionLabelKey(selectedLog.action), { defaultValue: humanize(selectedLog.action) })}</Badge>
                 </div>
                 <div>
                   <p className="text-muted-foreground">{t('audit.detail.field.resource')}</p>
-                  <p className="font-medium">{selectedLog.resource}</p>
+                  <p className="font-medium">{t(`audit:resource_label.${String(selectedLog.resource).toLowerCase()}`, { defaultValue: selectedLog.resource })}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">{t('audit.detail.field.actor')}</p>
