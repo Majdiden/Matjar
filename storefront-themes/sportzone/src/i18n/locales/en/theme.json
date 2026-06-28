@@ -88,7 +88,8 @@
       "only_left": "Only {{count}} left",
       "sold_out": "Sold out",
       "out_of_stock": "Out of Stock",
-      "description_heading": "Description"
+      "description_heading": "Description",
+      "sku_label": "SKU"
     },
     "cart": {
       "loading": "Loading cart...",
@@ -105,7 +106,8 @@
       "total": "Total",
       "checkout_button": "Proceed to Checkout",
       "continue_shopping": "Continue Shopping",
-      "remove": "Remove"
+      "remove": "Remove",
+      "each": "each"
     },
     "footer": {
       "tagline": "Gear up. Get moving. No limits.",

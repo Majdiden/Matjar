@@ -266,7 +266,7 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
               );
             })}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="text-base font-black" style={{ color: 'var(--color-foreground)' }}>
               {formatPrice(product.price)}
             </span>
@@ -367,7 +367,7 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
               >
                 {product.name}
               </h3>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-3">
                 <span className="text-base font-black" style={{ color: 'var(--color-foreground)' }}>
                   {formatPrice(product.price)}
                 </span>

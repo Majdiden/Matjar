@@ -330,7 +330,7 @@ export default function Customers() {
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <Badge variant="secondary">{t(`common.status.${order.status}`, { ns: 'common', defaultValue: order.status })}</Badge>
+                      <Badge variant="secondary">{t(`common:status.${order.status}`, { defaultValue: order.status })}</Badge>
                       <span className="text-sm font-semibold tabular-nums">{formatPrice(order.totalAmount || 0)}</span>
                     </div>
                   </Link>

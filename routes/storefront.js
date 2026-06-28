@@ -24,6 +24,14 @@ import {
   storefrontListPages,
   storefrontGetPageBySlug,
 } from "../controllers/page.js";
+import {
+  getPreviewThemeSlug,
+  demoProductsList,
+  demoFeaturedProducts,
+  demoProductBySlug,
+  demoCategoriesList,
+  demoCategoryBySlug,
+} from "../services/themeDemoPreview.js";
 
 const router = express.Router();
 const productCardSelect =
@@ -50,6 +58,14 @@ router.use(storefrontApiLimiter);
 router.get(
   "/products",
   asyncHandler(async (req, res) => {
+    // Theme PREVIEW with ephemeral demo data — never touches the DB. When a
+    // valid `?previewTheme=<slug>` is present and we have a demo dataset for it,
+    // serve the in-memory demo catalog instead of querying the tenant's store.
+    const demoSlug = getPreviewThemeSlug(req);
+    if (demoSlug) {
+      return res.json({ success: true, data: demoProductsList(demoSlug, req.query) });
+    }
+
     const { page = 1, limit = 20, category, sort, search, minPrice, maxPrice } = req.query;
     const filter = { status: "active" };
 
@@ -108,6 +124,11 @@ router.get(
 router.get(
   "/products/featured",
   asyncHandler(async (req, res) => {
+    const demoSlug = getPreviewThemeSlug(req);
+    if (demoSlug) {
+      return res.json({ success: true, data: demoFeaturedProducts(demoSlug, req.query) });
+    }
+
     const { limit = 8 } = req.query;
     const products = await req.models.Product.find({ status: "active", featured: true })
       .limit(parseInt(limit))
@@ -125,6 +146,15 @@ router.get(
 router.get(
   "/products/:slug",
   asyncHandler(async (req, res) => {
+    const demoSlug = getPreviewThemeSlug(req);
+    if (demoSlug) {
+      const payload = demoProductBySlug(demoSlug, req.params.slug);
+      if (!payload) {
+        return res.status(404).json({ success: false, message: "Product not found" });
+      }
+      return res.json({ success: true, data: payload });
+    }
+
     const product = await req.models.Product.findOne({
       slug: req.params.slug,
       status: "active",
@@ -199,6 +229,11 @@ router.get(
 router.get(
   "/categories",
   asyncHandler(async (req, res) => {
+    const demoSlug = getPreviewThemeSlug(req);
+    if (demoSlug) {
+      return res.json({ success: true, data: demoCategoriesList(demoSlug) });
+    }
+
     const categories = await req.models.Category.find({ isActive: true })
       .sort({ order: 1, name: 1 })
       .select("name slug description image parentCategory");
@@ -215,6 +250,15 @@ router.get(
 router.get(
   "/categories/:slug",
   asyncHandler(async (req, res) => {
+    const demoSlug = getPreviewThemeSlug(req);
+    if (demoSlug) {
+      const payload = demoCategoryBySlug(demoSlug, req.params.slug, req.query);
+      if (!payload) {
+        return res.status(404).json({ success: false, message: "Category not found" });
+      }
+      return res.json({ success: true, data: payload });
+    }
+
     const category = await req.models.Category.findOne({
       slug: req.params.slug,
       isActive: true,
@@ -337,6 +381,19 @@ router.get(
       };
     }
 
+    // ─── Theme PREVIEW override ─────────────────────────────────
+    //
+    // When the dashboard opens the storefront with `?previewTheme=<slug>`,
+    // a DIFFERENT theme's bundle is being served (see storefrontServe.js).
+    // The tenant's published customization belongs to their *active* theme,
+    // whose section schema the preview bundle doesn't understand — returning
+    // it would render foreign sections. Report the preview slug as the theme
+    // and drop the customization so the preview bundle falls back to its own
+    // manifest defaults. Purely read-only; nothing is persisted.
+    const previewTheme = getPreviewThemeSlug(req);
+    const effectiveTheme = previewTheme || activeTheme;
+    const effectiveCustomization = previewTheme ? null : themeCustomization;
+
     res.json({
       success: true,
       data: {
@@ -346,8 +403,8 @@ router.get(
           logo: tenant.settings?.logo || null,
           favicon: tenant.settings?.favicon || null,
           currency: tenant.settings?.currency || "SDG",
-          theme: activeTheme,
-          themeCustomization,
+          theme: effectiveTheme,
+          themeCustomization: effectiveCustomization,
           socialLinks: tenant.settings?.socialLinks || null,
           contactInfo: tenant.settings?.contactInfo || null,
           giftCards: {

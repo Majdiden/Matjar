@@ -6,6 +6,60 @@
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 const STOREFRONT_BASE = import.meta.env.VITE_STOREFRONT_URL || '/storefront';
 
+// ─── Theme preview mode ──────────────────────────────────────────
+//
+// When the dashboard opens the storefront with `?previewTheme=<slug>`, the
+// backend serves that theme's bundle and returns EPHEMERAL demo data (never
+// the merchant's real catalog, nothing written to the DB). We capture the flag
+// ONCE at module load: client-side navigation may drop the query param from the
+// address bar, but preview must stay sticky for the whole session so every
+// subsequent API call keeps returning demo data (and cart/checkout stay
+// short-circuited — demo products don't exist in the DB).
+const PREVIEW_THEME_SLUG: string | null = (() => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const slug = new URLSearchParams(window.location.search).get('previewTheme');
+    return slug && slug.trim() ? slug.trim() : null;
+  } catch {
+    return null;
+  }
+})();
+
+/** True when the storefront is being rendered as a theme preview. */
+export function isPreviewMode(): boolean {
+  return PREVIEW_THEME_SLUG !== null;
+}
+
+/** The slug of the theme being previewed, or null when not in preview mode. */
+export function previewThemeSlug(): string | null {
+  return PREVIEW_THEME_SLUG;
+}
+
+/** Append `previewTheme=<slug>` to a storefront URL while in preview mode. */
+function withPreview(url: string): string {
+  if (!PREVIEW_THEME_SLUG) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}previewTheme=${encodeURIComponent(PREVIEW_THEME_SLUG)}`;
+}
+
+/**
+ * Surface a "preview mode — purchasing is disabled" notice. Cart/checkout flows
+ * short-circuit in preview (demo products aren't in the DB), and this lets the
+ * shared Toast layer show feedback even though the CartProvider sits ABOVE the
+ * ToastProvider in the tree (so it can't call `useToast`). Falls back to the
+ * console when no toast layer is mounted.
+ */
+export function notifyPreviewDisabled(message: string): void {
+  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+    window.dispatchEvent(
+      new CustomEvent('storefront:toast', { detail: { message, type: 'info' } })
+    );
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.info(`[preview] ${message}`);
+}
+
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('customer_token');
   const headers: Record<string, string> = {
@@ -58,7 +112,7 @@ export const storefrontApi = {
       const preview = new URLSearchParams(window.location.search).get('preview');
       if (preview) url += `?preview=${encodeURIComponent(preview)}`;
     }
-    return request<any>(url);
+    return request<any>(withPreview(url));
   },
 
   /** Product listing with filters */
@@ -66,39 +120,39 @@ export const storefrontApi = {
     const qs = params ? '?' + new URLSearchParams(
       Object.entries(params).reduce((a, [k, v]) => ({ ...a, [k]: String(v) }), {} as Record<string, string>)
     ).toString() : '';
-    return request<any>(`${STOREFRONT_BASE}/products${qs}`);
+    return request<any>(withPreview(`${STOREFRONT_BASE}/products${qs}`));
   },
 
   /** Featured products */
   getFeaturedProducts: (limit = 8) =>
-    request<any>(`${STOREFRONT_BASE}/products/featured?limit=${limit}`),
+    request<any>(withPreview(`${STOREFRONT_BASE}/products/featured?limit=${limit}`)),
 
   /** Single product by slug */
   getProduct: (slug: string) =>
-    request<any>(`${STOREFRONT_BASE}/products/${slug}`),
+    request<any>(withPreview(`${STOREFRONT_BASE}/products/${slug}`)),
 
   /** All categories */
   getCategories: () =>
-    request<any>(`${STOREFRONT_BASE}/categories`),
+    request<any>(withPreview(`${STOREFRONT_BASE}/categories`)),
 
   /** Category with products */
   getCategory: (slug: string, params?: Record<string, string | number>) => {
     const qs = params ? '?' + new URLSearchParams(
       Object.entries(params).reduce((a, [k, v]) => ({ ...a, [k]: String(v) }), {} as Record<string, string>)
     ).toString() : '';
-    return request<any>(`${STOREFRONT_BASE}/categories/${slug}${qs}`);
+    return request<any>(withPreview(`${STOREFRONT_BASE}/categories/${slug}${qs}`));
   },
 
   /** All collections */
   getCollections: () =>
-    request<any>(`${STOREFRONT_BASE}/collections`),
+    request<any>(withPreview(`${STOREFRONT_BASE}/collections`)),
 
   /** Collection with products (supports sort, page, limit) */
   getCollection: (handle: string, params?: Record<string, string | number>) => {
     const qs = params ? '?' + new URLSearchParams(
       Object.entries(params).reduce((a, [k, v]) => ({ ...a, [k]: String(v) }), {} as Record<string, string>)
     ).toString() : '';
-    return request<any>(`${STOREFRONT_BASE}/collections/${handle}${qs}`);
+    return request<any>(withPreview(`${STOREFRONT_BASE}/collections/${handle}${qs}`));
   },
 };
 

@@ -75,6 +75,9 @@
       "about": "About",
       "contact": "Contact"
     },
+    "announcement": {
+      "bar_text": "🌱 100% Plant-Based · Free Shipping"
+    },
     "products": {
       "page_title": "All Our Milks",
       "page_subtitle": "Explore our creamy, dreamy range of plant-based milks — every bottle crafted with love.",
@@ -84,6 +87,8 @@
       "filter_availability": "Availability",
       "filter_price": "Price",
       "all_products": "All Products",
+      "availability_all": "All",
+      "availability_in_stock": "In stock",
       "promo_eyebrow": "OFFER",
       "promo_heading": "Free delivery on orders $40+",
       "promo_body": "Stock up and save on your favorite flavors.",
@@ -92,7 +97,12 @@
       "sort_price_asc": "Price: Low to High",
       "sort_price_desc": "Price: High to Low",
       "sort_popular": "Most Popular",
-      "count": "{{count}} products",
+      "count_zero": "{{count}} products",
+      "count_one": "{{count}} product",
+      "count_two": "{{count}} products",
+      "count_few": "{{count}} products",
+      "count_many": "{{count}} products",
+      "count_other": "{{count}} products",
       "empty": "No products found. Try different filters."
     },
     "product_detail": {
@@ -103,6 +113,11 @@
       "in_stock": "In stock — ready to ship",
       "sold_out": "Sold out",
       "out_of_stock": "Out of stock",
+      "reviews_label": "reviews",
+      "save_label": "Save",
+      "preorder_status": "Pre-order",
+      "only_left": "Only {{remaining}} left",
+      "ingredients_body": "Filtered water, organic almonds, organic cane sugar, sea salt, calcium carbonate, vitamin D2, vitamin B12. Contains: tree nuts (almonds).",
       "save_to_wishlist": "♡ Save to Wishlist",
       "tab_description": "Description",
       "tab_ingredients": "Ingredients",
@@ -127,7 +142,12 @@
       "start_shopping": "Start Shopping",
       "each_price": "each",
       "remove": "Remove",
-      "subtotal": "Subtotal ({{count}} items)",
+      "subtotal_zero": "Subtotal ({{count}} items)",
+      "subtotal_one": "Subtotal ({{count}} item)",
+      "subtotal_two": "Subtotal ({{count}} items)",
+      "subtotal_few": "Subtotal ({{count}} items)",
+      "subtotal_many": "Subtotal ({{count}} items)",
+      "subtotal_other": "Subtotal ({{count}} items)",
       "shipping": "Shipping",
       "calculated_at_checkout": "Calculated at checkout",
       "tax": "Tax",

@@ -11,7 +11,7 @@
         "subheading": "اكتشفي روتين العناية بالبشرة النظيف وغير المُختبَر على الحيوانات، المُصنَّع بأنقى مكونات الطبيعة.",
         "cta": "تسوّقي المجموعة",
         "trust_line": "تقييم 4.9 من أكثر من 2300 مراجعة",
-        "badge": "جمال\nnنظيف\n2024"
+        "badge": "جمال\nنظيف\n2024"
       },
       "feature_strip": {
         "free_shipping_title": "شحن مجاني",
@@ -27,7 +27,10 @@
       "category_tiles": {
         "heading": "تسوّقي حسب الفئة",
         "subheading": "اعثري على ما تحتاجه بشرتك",
-        "shop_now": "تسوّقي الآن"
+        "shop_now": "تسوّقي الآن",
+        "default_skincare": "العناية بالبشرة",
+        "default_makeup": "المكياج",
+        "default_fragrance": "العطور"
       },
       "product_grid": {
         "heading_bestsellers": "الأكثر مبيعاً",
@@ -43,7 +46,10 @@
       },
       "testimonials": {
         "heading": "ماذا تقول عملاؤنا",
-        "verified_buyer": "مشترية موثّقة"
+        "verified_buyer": "مشترية موثّقة",
+        "default_quote_1": "أحب هذا السيروم كثيراً!",
+        "default_quote_2": "مكونات نظيفة ونتائج مذهلة.",
+        "default_quote_3": "أصبح أساسياً في روتيني."
       }
     },
     "layout": {
@@ -153,7 +159,8 @@
       "total": "الإجمالي",
       "checkout_button": "المتابعة إلى الدفع",
       "continue_shopping": "متابعة التسوق",
-      "remove": "إزالة"
+      "remove": "إزالة",
+      "price_each": "{{price}} للقطعة"
     },
     "product_card": {
       "sale": "تخفيض",

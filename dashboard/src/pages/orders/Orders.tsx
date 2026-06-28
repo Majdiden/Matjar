@@ -131,7 +131,7 @@ export const Orders: React.FC = () => {
     const results = await Promise.allSettled(ids.map((id) => api.orders.updateStatus(id, status)));
     const ok = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(ok === 1 ? t('orders:list.bulk.selected', { count: ok }) + ` → ${t(`common.status.${status}`, { ns: 'common', defaultValue: status })}` : t('orders:toast.bulk_marked_plural', { count: ok, status: t(`common.status.${status}`, { ns: 'common', defaultValue: status }) }));
+    if (ok) toast.success(ok === 1 ? t('orders:list.bulk.selected', { count: ok }) + ` → ${t(`common:status.${status}`, { defaultValue: status })}` : t('orders:toast.bulk_marked_plural', { count: ok, status: t(`common:status.${status}`, { defaultValue: status }) }));
     if (failed) toast.error(t('orders:toast.bulk_update_failed', { count: failed }));
     setSelected(new Set());
     loadOrders();
@@ -462,12 +462,12 @@ export const Orders: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(order.status)} className="text-[10px] h-5">
-                      {t(`common.status.${order.status}`, { ns: 'common', defaultValue: order.status })}
+                      {t(`common:status.${order.status}`, { defaultValue: order.status })}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant={paymentVariant(order.paymentStatus)} className="text-[10px] h-5">
-                      {t(`common.status.${order.paymentStatus}`, { ns: 'common', defaultValue: order.paymentStatus })}
+                      {t(`common:status.${order.paymentStatus}`, { defaultValue: order.paymentStatus })}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-end font-semibold tabular-nums">
@@ -498,7 +498,7 @@ export const Orders: React.FC = () => {
                                   key={s}
                                   onClick={(e) => { e.stopPropagation(); handleStatusChange(order._id, s); }}
                                 >
-                                  {t(`common.status.${s}`, { ns: 'common', defaultValue: s })}
+                                  {t(`common:status.${s}`, { defaultValue: s })}
                                 </DropdownMenuItem>
                               ))}
                           </>
@@ -566,10 +566,10 @@ export const Orders: React.FC = () => {
                           {displayOrderNumber(order.orderNumber, order._id)}
                         </p>
                         <Badge variant={statusVariant(order.status)} className="text-[10px] h-5">
-                          {t(`common.status.${order.status}`, { ns: 'common', defaultValue: order.status })}
+                          {t(`common:status.${order.status}`, { defaultValue: order.status })}
                         </Badge>
                         <Badge variant={paymentVariant(order.paymentStatus)} className="text-[10px] h-5">
-                          {t(`common.status.${order.paymentStatus}`, { ns: 'common', defaultValue: order.paymentStatus })}
+                          {t(`common:status.${order.paymentStatus}`, { defaultValue: order.paymentStatus })}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
@@ -616,7 +616,7 @@ export const Orders: React.FC = () => {
                                   key={s}
                                   onClick={(e) => { e.stopPropagation(); handleStatusChange(order._id, s); }}
                                 >
-                                  {t(`common.status.${s}`, { ns: 'common', defaultValue: s })}
+                                  {t(`common:status.${s}`, { defaultValue: s })}
                                 </DropdownMenuItem>
                               ))}
                           </>

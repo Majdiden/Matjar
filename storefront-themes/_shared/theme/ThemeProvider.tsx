@@ -1,6 +1,91 @@
 import React, { createContext, useContext, useMemo, useState, useEffect, useCallback, type ReactNode } from 'react';
-import type { ThemeManifest, MergedThemeSettings, SectionInstance, ThemeColors, ThemeTypography } from '../types/theme';
+import type { ThemeManifest, MergedThemeSettings, SectionInstance, ThemeColors, ThemeTypography, ThemeDesignTokens } from '../types/theme';
 import { useStore } from '../contexts/StoreContext';
+
+/**
+ * Premium platform defaults for the design-system tokens. A theme that
+ * ships nothing still gets a tasteful, production-grade depth/motion/radius
+ * ramp — the opposite of the old flat look. Themes override individual keys
+ * via `manifest.designTokens` (see ThemeDesignTokens) and merchants can tune
+ * radius live through the `border_radius` customizer setting.
+ *
+ * Shadows use a soft two-layer recipe (ambient + key light) tuned on a
+ * near-neutral slate so cards lift without looking grey/dirty on white.
+ */
+export const DEFAULT_DESIGN_TOKENS: Required<
+  Pick<ThemeDesignTokens, 'elevation' | 'motion' | 'radius' | 'sectionGap'>
+> = {
+  elevation: {
+    xs: '0 1px 2px rgba(15, 23, 42, 0.06)',
+    sm: '0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04)',
+    md: '0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.05)',
+    lg: '0 12px 28px rgba(15, 23, 42, 0.12), 0 4px 10px rgba(15, 23, 42, 0.06)',
+    xl: '0 24px 56px rgba(15, 23, 42, 0.18), 0 8px 20px rgba(15, 23, 42, 0.08)',
+  },
+  motion: {
+    durationFast: '150ms',
+    durationBase: '250ms',
+    durationSlow: '400ms',
+    easeStandard: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    easeEmphasized: 'cubic-bezier(0.2, 0, 0, 1)',
+    easeEntrance: 'cubic-bezier(0.16, 1, 0.3, 1)',
+    hoverLift: 'translateY(-4px)',
+  },
+  radius: {
+    sm: '6px',
+    base: '12px',
+    lg: '20px',
+    pill: '9999px',
+  },
+  sectionGap: '5rem',
+};
+
+/**
+ * Resolve the active design tokens: platform defaults < theme manifest
+ * overrides < live `border_radius` customizer value. Returns a flat list
+ * of `--token: value` declarations ready to drop into the :root rule.
+ */
+function buildDesignTokenVars(
+  manifest: ThemeManifest,
+  borderRadius: number | undefined,
+): string[] {
+  const t = manifest.designTokens || {};
+  const elevation = { ...DEFAULT_DESIGN_TOKENS.elevation, ...(t.elevation || {}) };
+  const motion = { ...DEFAULT_DESIGN_TOKENS.motion, ...(t.motion || {}) };
+  const radius = { ...DEFAULT_DESIGN_TOKENS.radius, ...(t.radius || {}) };
+  const sectionGap = t.sectionGap || DEFAULT_DESIGN_TOKENS.sectionGap;
+
+  // The customizer's numeric `border_radius` (px) wins for the base radius
+  // and proportionally re-derives sm/lg so the whole scale tracks together.
+  let baseRadius = radius.base;
+  let smRadius = radius.sm;
+  let lgRadius = radius.lg;
+  if (typeof borderRadius === 'number' && !Number.isNaN(borderRadius)) {
+    baseRadius = `${borderRadius}px`;
+    smRadius = `${Math.max(0, Math.round(borderRadius * 0.5))}px`;
+    lgRadius = `${Math.round(borderRadius * 1.6)}px`;
+  }
+
+  return [
+    `  --shadow-xs: ${elevation.xs};`,
+    `  --shadow-sm: ${elevation.sm};`,
+    `  --shadow-md: ${elevation.md};`,
+    `  --shadow-lg: ${elevation.lg};`,
+    `  --shadow-xl: ${elevation.xl};`,
+    `  --duration-fast: ${motion.durationFast};`,
+    `  --duration-base: ${motion.durationBase};`,
+    `  --duration-slow: ${motion.durationSlow};`,
+    `  --ease-standard: ${motion.easeStandard};`,
+    `  --ease-emphasized: ${motion.easeEmphasized};`,
+    `  --ease-entrance: ${motion.easeEntrance};`,
+    `  --hover-lift: ${motion.hoverLift};`,
+    `  --radius-sm: ${smRadius};`,
+    `  --radius: ${baseRadius};`,
+    `  --radius-lg: ${lgRadius};`,
+    `  --radius-pill: ${radius.pill};`,
+    `  --section-gap: ${sectionGap};`,
+  ];
+}
 
 interface ThemeContextValue {
   manifest: ThemeManifest;
@@ -96,7 +181,9 @@ export function useTemplateSections(templateId: string): SectionInstance[] {
   const sectionDefaults: Record<string, Record<string, any>> = {};
   for (const section of manifest.sections) {
     const defaults: Record<string, any> = {};
-    for (const setting of section.settings) {
+    // Guard: a malformed section (settings missing or not an array) must
+    // never throw and white-screen the whole storefront.
+    for (const setting of (Array.isArray(section.settings) ? section.settings : [])) {
       if ('default' in setting && (setting as any).default !== undefined) {
         defaults[setting.id] = (setting as any).default;
       }
@@ -319,7 +406,7 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
     const sectionDefaults: Record<string, Record<string, any>> = {};
     for (const section of manifest.sections) {
       const defaults: Record<string, any> = {};
-      for (const setting of section.settings) {
+      for (const setting of (Array.isArray(section.settings) ? section.settings : [])) {
         if ('default' in setting && setting.default !== undefined) {
           defaults[setting.id] = setting.default;
         }
@@ -402,10 +489,28 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
     const darkScopedVars = colorVars(darkColors);
     const lightScopedVars = colorVars(lightColors);
 
-    const css = `:root {\n${activeVars}\n${typoVars.join('\n')}\n}\n` +
+    // Design-system tokens (elevation / motion / radius / rhythm). The
+    // customizer's `border_radius` global setting, when present, re-derives
+    // the radius scale so live edits flow through one source of truth.
+    const tokenVars = buildDesignTokenVars(
+      manifest,
+      typeof merged.global?.border_radius === 'number' ? merged.global.border_radius : undefined,
+    ).join('\n');
+
+    const css = `:root {\n${activeVars}\n${typoVars.join('\n')}\n${tokenVars}\n}\n` +
       `[data-color-mode="dark"] {\n${darkScopedVars}\n}\n` +
       `[data-color-mode="light"] {\n${lightScopedVars}\n}\n` +
-      `body {\n  font-family: var(--font-family, system-ui, sans-serif);\n  font-size: var(--font-size-base, 16px);\n  line-height: var(--line-height, 1.5);\n  color: var(--color-foreground, #111);\n  background-color: var(--color-background, #fff);\n}\n` +
+      // `overflow-x: clip` is a global safety net against accidental
+      // horizontal scroll on mobile (off-screen decorations, full-bleed
+      // rows, RTL drawers). Unlike `overflow: hidden` it does NOT create a
+      // scroll container, so sticky headers / the fixed bottom nav still work.
+      // Clip horizontal overflow at BOTH html and body so an accidental
+      // full-bleed row / off-screen decoration / wide rail can never make
+      // the whole page scroll sideways on mobile. `clip` (not `hidden`)
+      // keeps sticky headers + the fixed bottom nav working. No `100vw`
+      // (it includes the scrollbar width and can itself cause overflow).
+      `html {\n  overflow-x: clip;\n}\n` +
+      `body {\n  font-family: var(--font-family, system-ui, sans-serif);\n  font-size: var(--font-size-base, 16px);\n  line-height: var(--line-height, 1.5);\n  color: var(--color-foreground, #111);\n  background-color: var(--color-background, #fff);\n  overflow-x: clip;\n  max-width: 100%;\n}\n` +
       `h1, h2, h3, h4, h5, h6 {\n  font-family: var(--font-family-heading, var(--font-family, system-ui, sans-serif));\n}`;
 
     const id = 'theme-css-variables';
@@ -538,9 +643,17 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
   };
 
   const isSectionEnabled = useCallback((sectionId: string): boolean => {
-    if (!overrides?.sections) return true;
-    const section = overrides.sections.find((s: any) => s.id === sectionId);
-    if (!section) return true; // Not in overrides = use manifest default (visible)
+    const list = overrides?.sections;
+    // No customization yet → the manifest's default sections are all visible.
+    if (!Array.isArray(list) || list.length === 0) return true;
+    const section = list.find((s: any) => s.id === sectionId);
+    // The merchant HAS a customized section list (the dashboard seeds it with
+    // the manifest defaults on first edit). If a hard-coded section is NOT in
+    // that list, the merchant DELETED it in the editor — so it must hide.
+    // Previously this returned `true`, which made deleting a theme-hardcoded
+    // section (e.g. elegance's editorial banner) impossible — it always
+    // reappeared. Honor the explicit `enabled` flag when present.
+    if (!section) return false;
     return section.enabled !== false;
   }, [overrides]);
 

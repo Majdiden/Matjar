@@ -5,6 +5,7 @@
  * VisualEditor handles debounced persistence.
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, ChevronDown, ChevronRight, Plus, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
 import SettingControl from './SettingControl';
 import { getSectionMeta } from './sectionMeta';
@@ -32,6 +33,7 @@ export default function ManifestSectionEditor({
   onSave,
   onToggle,
 }: ManifestSectionEditorProps) {
+  const { t } = useTranslation('themes');
   const [editedSettings, setEditedSettings] = useState<Record<string, unknown>>({});
   const [editedBlocks, setEditedBlocks] = useState<BlockInstance[]>([]);
   const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
@@ -135,6 +137,7 @@ export default function ManifestSectionEditor({
 
   const meta = getSectionMeta(section.type);
   const Icon = meta.icon;
+  const sectionName = t(`themes:sections.${section.type}.name`, { defaultValue: meta.name });
 
   return (
     <aside className="h-full flex flex-col bg-white border-s border-slate-200">
@@ -146,7 +149,7 @@ export default function ManifestSectionEditor({
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-slate-900 truncate">
-              {sectionDefinition?.name || meta.name}
+              {sectionDefinition?.name || sectionName}
             </h3>
             {sectionDefinition?.description && (
               <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2 leading-snug">
@@ -176,11 +179,11 @@ export default function ManifestSectionEditor({
             >
               {section.enabled ? (
                 <>
-                  <Eye className="h-3 w-3" /> Visible
+                  <Eye className="h-3 w-3" /> {t('themes:editor.section_editor.visible')}
                 </>
               ) : (
                 <>
-                  <EyeOff className="h-3 w-3" /> Hidden
+                  <EyeOff className="h-3 w-3" /> {t('themes:editor.section_editor.hidden')}
                 </>
               )}
             </button>
@@ -193,7 +196,7 @@ export default function ManifestSectionEditor({
         <div className="p-4 space-y-5">
           {settingsSchema.length === 0 && (!sectionDefinition?.blocks || sectionDefinition.blocks.length === 0) && (
             <p className="text-xs text-slate-400 italic">
-              This section has no editable settings.
+              {t('themes:editor.section_editor.no_settings')}
             </p>
           )}
 
@@ -210,14 +213,14 @@ export default function ManifestSectionEditor({
             <div className="pt-4 border-t border-slate-200">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  {sectionDefinition.blocks[0]?.name || 'Items'}
+                  {sectionDefinition.blocks[0]?.name || t('themes:editor.section_editor.items_label')}
                 </h4>
                 <button
                   onClick={() => handleAddBlock(sectionDefinition.blocks![0].type)}
                   className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 font-medium"
                 >
                   <Plus className="h-3 w-3" />
-                  Add
+                  {t('themes:editor.section_editor.add_item')}
                 </button>
               </div>
 

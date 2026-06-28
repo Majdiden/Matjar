@@ -22,7 +22,10 @@ import { useTranslation } from 'react-i18next';
  * Footer is dark navy with a green wordmark, 4-column link grid and a
  * contact strip.
  */
-const NAVY = 'var(--color-secondary)';
+// The header/footer are a deep navy so the green wordmark + green accents
+// stay legible. (`--color-secondary` is a green tint, which renders the
+// "navy" chrome green-on-green and makes the wordmark/phone unreadable.)
+const NAVY = '#0f172a';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -35,7 +38,7 @@ const Layout: React.FC = () => {
 
   const showAnnouncement = useThemeSetting<boolean>('show_announcement_bar') !== false;
   const announcementText = useThemeSetting<string>('announcement_text') ||
-    'Free express shipping on orders over $200!';
+    t('theme.banner.announcement.text');
 
   const isActive = (path: string) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
@@ -88,7 +91,7 @@ const Layout: React.FC = () => {
                 <svg className="w-4 h-4" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
                 </svg>
-                <span className="whitespace-nowrap">{t('theme.nav.call_us')} <span style={{ color: 'var(--color-primary)' }}>+1 (555) 456-7890</span></span>
+                <span className="whitespace-nowrap">{t('theme.nav.call_us')} <span style={{ color: 'var(--color-primary)' }}>{t('theme.contact.phone', { defaultValue: '+1 (555) 456-7890' })}</span></span>
               </span>
             </div>
 
@@ -283,14 +286,14 @@ const Layout: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
               </svg>
               <span className="text-white font-semibold">{t('theme.footer.available_by_phone')}</span>
-              <span style={{ color: 'var(--color-primary)' }}>+1 (555) 456-789</span>
+              <span style={{ color: 'var(--color-primary)' }}>{t('theme.contact.phone', { defaultValue: '+1 (555) 456-7890' })}</span>
             </div>
             <div className="flex items-center gap-3">
               <svg className="w-5 h-5" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               <span className="text-white font-semibold">{t('theme.footer.email_label')}</span>
-              <span className="text-slate-400">info@example.com</span>
+              <span className="text-slate-400">{t('theme.contact.email', { defaultValue: 'info@example.com' })}</span>
             </div>
             <div className="flex items-center gap-3">
               <svg className="w-5 h-5" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

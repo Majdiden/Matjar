@@ -66,9 +66,9 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
     <Sheet open={isOpen} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="w-[400px] sm:w-[420px] p-0 flex flex-col">
         <SheetHeader className="px-5 py-4 border-b border-slate-200 space-y-1">
-          <SheetTitle className="text-base">{t('themes.editor.section_library.title')}</SheetTitle>
+          <SheetTitle className="text-base">{t('themes:editor.section_library.title')}</SheetTitle>
           <SheetDescription className="text-xs">
-            {t('themes.editor.section_library.subtitle')}
+            {t('themes:editor.section_library.subtitle')}
           </SheetDescription>
         </SheetHeader>
 
@@ -79,7 +79,7 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('themes.editor.section_library.search_placeholder')}
+              placeholder={t('themes:editor.section_library.search_placeholder')}
               className="h-9 ps-8 text-sm"
             />
           </div>
@@ -94,7 +94,7 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                {t(`themes.editor.section_library.category.${c.id}`, c.label)}
+                {t(`themes:editor.section_library.category.${c.id}`, c.label)}
               </button>
             ))}
           </div>
@@ -111,8 +111,8 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
               </div>
             ) : filtered.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-sm text-slate-500">{t('themes.editor.section_library.empty_title')}</p>
-                <p className="text-xs text-slate-400 mt-1">{t('themes.editor.section_library.empty_hint')}</p>
+                <p className="text-sm text-slate-500">{t('themes:editor.section_library.empty_title')}</p>
+                <p className="text-xs text-slate-400 mt-1">{t('themes:editor.section_library.empty_hint')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2">
@@ -131,7 +131,7 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
                       <div className="h-9 w-9 rounded-md bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center mb-2 transition">
                         <Icon className="h-4 w-4 text-slate-600 group-hover:text-blue-600" />
                       </div>
-                      <p className="text-xs font-semibold text-slate-900 truncate">{meta.name}</p>
+                      <p className="text-xs font-semibold text-slate-900 truncate">{t(`themes:sections.${s.type}.name`, { defaultValue: meta.name })}</p>
                       {s.description && (
                         <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-2 leading-tight">
                           {s.description}

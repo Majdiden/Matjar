@@ -47,17 +47,18 @@ const Layout: React.FC = () => {
             </nav>
 
             <div className="flex items-center gap-3">
-              {/* Desktop search */}
+              {/* Desktop search (mobile search lives in the bottom nav) */}
               <div className="hidden md:block w-52">
                 <SearchBar placeholder={t('theme.nav.search_placeholder')} variant="expanded" className="bg-white/5 border-white/10 text-white" />
               </div>
 
-              {/* Mobile search */}
-              <SearchBar variant="compact" className="md:hidden text-gray-300 hover:text-[#dc2626] hover:bg-white/10" />
+              {/* Language switcher — desktop only; on mobile it lives inside
+                  the hamburger side menu (below). */}
+              <div className="hidden md:flex items-center">
+                <LanguageSwitcher />
+              </div>
 
-              <LanguageSwitcher />
-
-              <button onClick={openCart} className="relative text-white hover:text-[#dc2626] transition">
+              <button onClick={openCart} className="relative text-white hover:text-[#dc2626] transition hidden md:block">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>

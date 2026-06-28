@@ -88,7 +88,8 @@
       "only_left": "{{count}} فقط متبقية",
       "sold_out": "نفد المخزون",
       "out_of_stock": "غير متوفر",
-      "description_heading": "الوصف"
+      "description_heading": "الوصف",
+      "sku_label": "رمز المنتج"
     },
     "cart": {
       "loading": "جاري تحميل السلة...",
@@ -105,7 +106,8 @@
       "total": "الإجمالي",
       "checkout_button": "المتابعة إلى الدفع",
       "continue_shopping": "متابعة التسوق",
-      "remove": "إزالة"
+      "remove": "إزالة",
+      "each": "للقطعة"
     },
     "footer": {
       "tagline": "جهّز نفسك. تحرّك. لا حدود.",

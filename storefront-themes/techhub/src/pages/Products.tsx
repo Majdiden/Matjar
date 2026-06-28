@@ -378,7 +378,7 @@ const Products: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs mb-1" style={{ color: 'var(--color-muted)' }}>
-                      {p.brand || 'Manufacturer'}
+                      {p.brand || t('theme.product.manufacturer', { defaultValue: 'Manufacturer' })}
                     </p>
                     <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-foreground)' }}>
                       {p.name}

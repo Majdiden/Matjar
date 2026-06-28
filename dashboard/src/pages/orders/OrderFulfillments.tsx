@@ -146,7 +146,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
   const updateStatus = async (id: string, status: Fulfillment['status']) => {
     try {
       await api.orders.updateFulfillmentStatus(order._id, id, { status });
-      toast.success(t('orders:fulfillment.toast.marked', { status: status.toLowerCase() }));
+      toast.success(t('orders:fulfillment.toast.marked', { status: t(`common:status.${status}`, { defaultValue: status }) }));
       await load();
       onChange?.();
     } catch (err: unknown) {
@@ -190,7 +190,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
                   <div className="flex items-center gap-2">
                     <Package className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium text-sm">{t('orders:fulfillment.card.shipment_n', { n: idx + 1 })}</span>
-                    <Badge variant={statusVariant(f.status)}>{t(`common.status.${f.status}`, { ns: 'common', defaultValue: f.status })}</Badge>
+                    <Badge variant={statusVariant(f.status)}>{t(`common:status.${f.status}`, { defaultValue: f.status })}</Badge>
                   </div>
                   <div className="flex gap-1">
                     {f.status === 'Pending' && (

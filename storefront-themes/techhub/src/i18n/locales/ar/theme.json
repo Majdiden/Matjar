@@ -93,6 +93,13 @@
         "cta": "تسوّق الآن"
       }
     },
+    "contact": {
+      "phone": "‎+1 (555) 456-7890",
+      "email": "info@example.com"
+    },
+    "product": {
+      "manufacturer": "الشركة المصنّعة"
+    },
     "products": {
       "page_title": "جميع المنتجات",
       "all_categories": "جميع الفئات",
@@ -133,7 +140,8 @@
       "no_products": "لا توجد منتجات في هذه الفئة بعد",
       "previous": "السابق",
       "next": "التالي",
-      "page_of": "صفحة {{page}} من {{total}}"
+      "page_of": "صفحة {{page}} من {{total}}",
+      "loading": "جاري التحميل..."
     },
     "product_detail": {
       "breadcrumb_home": "الرئيسية",
@@ -147,7 +155,9 @@
       "only_left": "{{count}} فقط متبقية",
       "sold_out": "نفد المخزون",
       "out_of_stock": "غير متوفر",
-      "description_heading": "الوصف"
+      "description_heading": "الوصف",
+      "add_to_bag": "أضف إلى الحقيبة",
+      "sku_label": "رمز المنتج:"
     },
     "cart": {
       "loading": "جاري تحميل السلة...",
@@ -164,7 +174,8 @@
       "total": "الإجمالي",
       "checkout_button": "المتابعة إلى الدفع",
       "continue_shopping": "متابعة التسوق",
-      "remove": "إزالة"
+      "remove": "إزالة",
+      "price_each": "{{price}} للوحدة"
     },
     "footer": {
       "tagline": "وجهتك للحصول على أحدث التقنيات والأجهزة. جودة مختارة وشحن سريع وضمان سنة كاملة.",
@@ -248,7 +259,12 @@
       "add_selected_to_cart": "إضافة المحدد إلى السلة",
       "adding_bundle": "جاري الإضافة…",
       "similar_products_heading": "منتجات مشابهة",
-      "similar_products_subtitle": "المزيد من هذه المجموعة قد يعجبك."
+      "similar_products_subtitle": "المزيد من هذه المجموعة قد يعجبك.",
+      "spec_sku": "رمز المنتج",
+      "spec_weight": "الوزن",
+      "spec_tags": "الوسوم",
+      "review_min_length": "يرجى كتابة بضع كلمات على الأقل عن المنتج.",
+      "review_submit_failed": "تعذّر إرسال المراجعة"
     }
   }
 }

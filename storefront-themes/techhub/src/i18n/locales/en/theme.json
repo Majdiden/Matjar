@@ -93,6 +93,13 @@
         "cta": "Shop Now"
       }
     },
+    "contact": {
+      "phone": "+1 (555) 456-7890",
+      "email": "info@example.com"
+    },
+    "product": {
+      "manufacturer": "Manufacturer"
+    },
     "products": {
       "page_title": "All Products",
       "all_categories": "All Categories",
@@ -133,7 +140,8 @@
       "no_products": "No products in this category yet",
       "previous": "Previous",
       "next": "Next",
-      "page_of": "Page {{page}} of {{total}}"
+      "page_of": "Page {{page}} of {{total}}",
+      "loading": "Loading..."
     },
     "product_detail": {
       "breadcrumb_home": "Home",
@@ -147,7 +155,9 @@
       "only_left": "Only {{count}} left",
       "sold_out": "Sold out",
       "out_of_stock": "Out of Stock",
-      "description_heading": "Description"
+      "description_heading": "Description",
+      "add_to_bag": "Add to Bag",
+      "sku_label": "SKU:"
     },
     "cart": {
       "loading": "Loading cart...",
@@ -164,7 +174,8 @@
       "total": "Total",
       "checkout_button": "Proceed to Checkout",
       "continue_shopping": "Continue Shopping",
-      "remove": "Remove"
+      "remove": "Remove",
+      "price_each": "{{price}} each"
     },
     "footer": {
       "tagline": "Your destination for the latest tech and gadgets. Curated quality, fast shipping, and 1-year warranty.",
@@ -248,7 +259,12 @@
       "add_selected_to_cart": "Add Selected to Cart",
       "adding_bundle": "Adding…",
       "similar_products_heading": "Similar Products",
-      "similar_products_subtitle": "More from this collection you might love."
+      "similar_products_subtitle": "More from this collection you might love.",
+      "spec_sku": "SKU",
+      "spec_weight": "Weight",
+      "spec_tags": "Tags",
+      "review_min_length": "Please write at least a few words about the product.",
+      "review_submit_failed": "Failed to submit review"
     }
   }
 }

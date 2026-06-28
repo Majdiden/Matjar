@@ -3,6 +3,7 @@
     "title": "Themes",
     "subtitle": "Choose a theme to design your storefront, or customize the one you have.",
     "view_live_store": "View live store",
+    "preview": "Preview demo",
     "current_theme_label": "Current theme",
     "meta": {
       "version": "Version",
@@ -121,7 +122,9 @@
     "custom_css": {
       "title": "Custom CSS",
       "description": "Add custom styles to override theme defaults. Changes apply to your storefront only.",
-      "save": "Save CSS"
+      "subtitle": "Add custom styles to override theme defaults. Changes apply to your storefront only.",
+      "save": "Save CSS",
+      "reset": "Reset"
     },
     "global_settings": {
       "title": "Theme Settings",
@@ -285,18 +288,19 @@
       },
       "url": {
         "label": "URL"
-      }
-    },
-    "custom_css": {
-      "title": "Custom CSS",
-      "subtitle": "Add custom styles to override theme defaults. Changes apply to your storefront only.",
-      "save": "Save CSS",
-      "reset": "Reset"
+      },
+      "reference": {
+        "info": "Enter {{type}} ID or slug",
+        "placeholder": "Select a {{type}}…"
+      },
+      "unsupported": "Unsupported type: {{type}}"
     },
     "preview": {
       "desktop": "Desktop",
       "tablet": "Tablet",
-      "mobile": "Mobile"
+      "mobile": "Mobile",
+      "generating": "Generating preview…",
+      "url_fallback": "Preview"
     },
     "version_history": {
       "title": "Version history",
@@ -328,7 +332,8 @@
         "publish": "Click \"Publish\" to make your changes visible to customers"
       },
       "error_reorder": "Failed to save section order. Please try again.",
-      "error_toggle": "Failed to toggle section visibility. Please try again."
+      "error_toggle": "Failed to toggle section visibility. Please try again.",
+      "order_id": "Order: {{order}} • ID: {{id}}"
     },
     "sections_panel": {
       "title": "Sections",
@@ -369,6 +374,45 @@
       "cart": "Cart",
       "search": "Search results",
       "page": "Static pages"
+    },
+    "canvas": {
+      "area_header": "Header",
+      "area_template": "Template",
+      "area_footer": "Footer",
+      "empty_header": "No header sections",
+      "empty_template": "No sections yet — click + Add section below",
+      "empty_footer": "No footer sections",
+      "add_section": "Add section",
+      "hide": "Hide",
+      "show": "Show",
+      "hide_section": "Hide section",
+      "show_section": "Show section",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "delete_confirm_title": "Delete this section?",
+      "delete_confirm_description": "The section and its settings will be removed from the draft."
+    },
+    "color_picker": {
+      "palette": "Palette",
+      "recent": "Currently used"
     }
+  },
+  "sections": {
+    "hero": { "name": "Hero Banner" },
+    "featured-products": { "name": "Featured Products" },
+    "new-arrivals": { "name": "New Arrivals" },
+    "categories": { "name": "Categories" },
+    "newsletter": { "name": "Newsletter" },
+    "trust-badges": { "name": "Trust Badges" },
+    "product-recommendations": { "name": "You May Also Like" }
+  },
+  "settings": {
+    "heading": { "label": "Heading" },
+    "subheading": { "label": "Subheading" },
+    "title": { "label": "Title" },
+    "description": { "label": "Description" },
+    "button_text": { "label": "Button Text" },
+    "button_link": { "label": "Button Link" },
+    "image": { "label": "Image" }
   }
 }

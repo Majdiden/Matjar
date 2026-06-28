@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useProducts, useFeaturedProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import { TonmartProductCard } from '../components/TonmartProductCard';
 import type { SectionComponentProps } from '@shared/components/sections';
 import { useTranslation } from 'react-i18next';
@@ -109,10 +110,7 @@ export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, 
           {t('theme.section.tabbed_products.empty')}
         </div>
       ) : (
-        <div
-          className="grid gap-6"
-          style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-        >
+        <ProductRail columns={Math.min(5, Math.max(2, columns)) as 2 | 3 | 4 | 5}>
           {current.products.slice(0, limit).map((p) => (
             <TonmartProductCard
               key={p._id}
@@ -120,7 +118,7 @@ export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, 
               onQuickView={s.show_quick_view !== false ? onQuickView : undefined}
             />
           ))}
-        </div>
+        </ProductRail>
       )}
     </section>
   );

@@ -87,6 +87,9 @@
         "delete": "Delete"
       }
     },
+    "item": {
+      "label_placeholder": "Label"
+    },
     "preview": {
       "empty": "Add items to see a preview.",
       "untitled": "untitled"

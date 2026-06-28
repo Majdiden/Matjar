@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import type { SectionComponentProps } from '@shared/components/sections';
 import { TonmartProductCard } from '../components/TonmartProductCard';
 import { useTranslation } from 'react-i18next';
@@ -79,14 +80,11 @@ export const TonmartFeaturedProductsSection: React.FC<SectionComponentProps> = (
           ))}
         </div>
       ) : (
-        <div
-          className="grid gap-8"
-          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-        >
+        <ProductRail columns={cols as 2 | 3 | 4 | 5}>
           {products.map((p: any) => (
             <TonmartProductCard key={p._id} product={p} onQuickView={onQuickView} />
           ))}
-        </div>
+        </ProductRail>
       )}
     </section>
   );
@@ -120,14 +118,11 @@ export const TonmartNewArrivalsSection: React.FC<SectionComponentProps> = ({
           ))}
         </div>
       ) : (
-        <div
-          className="grid gap-8"
-          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-        >
+        <ProductRail columns={cols as 2 | 3 | 4 | 5}>
           {products.map((p: any) => (
             <TonmartProductCard key={p._id} product={p} onQuickView={onQuickView} />
           ))}
-        </div>
+        </ProductRail>
       )}
     </section>
   );
@@ -162,14 +157,11 @@ export const TonmartProductGridSection: React.FC<SectionComponentProps> = ({
           ))}
         </div>
       ) : (
-        <div
-          className="grid gap-8"
-          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-        >
+        <ProductRail columns={cols as 2 | 3 | 4 | 5}>
           {products.map((p: any) => (
             <TonmartProductCard key={p._id} product={p} onQuickView={onQuickView} />
           ))}
-        </div>
+        </ProductRail>
       )}
     </section>
   );

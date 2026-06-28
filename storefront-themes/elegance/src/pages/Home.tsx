@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '@shared/contexts/StoreContext';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
-import { Carousel } from '@shared/components/primitives/Carousel';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
 import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
+import EditorialHero from '../components/EditorialHero';
 import type { Product } from '@shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'collections', 'featured-products', 'editorial-banner', 'new-arrivals', 'trust-bar'];
 
 const Home: React.FC = () => {
-  const { store } = useStore();
   const { t } = useTranslation(['theme']);
 
   // Read section settings from manifest + tenant overrides
@@ -43,48 +42,23 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* Hero — Full-bleed editorial */}
+      {/* Hero — bespoke editorial full-bleed hero (reads the same hero
+          settings + i18n keys this theme always fed the shared Hero) */}
       {heroEnabled && (
-      <section className="relative overflow-hidden" style={{ minHeight: `${hero.min_height || 70}vh`, minBlockSize: '500px' }}>
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: hero.background_image
-              ? `url(${hero.background_image})`
-              : 'url(https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80)',
-            filter: `brightness(${1 - (hero.overlay_opacity || 30) / 100})`,
-          }}
+        <EditorialHero
+          media={!hero.background_image ? featured?.find((p) => p.images?.[0])?.images?.[0] : undefined}
         />
-        <div className="relative z-10 h-full flex items-end pb-16 md:pb-20" style={{ minHeight: `${hero.min_height || 70}vh` }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
-            <span className="text-white/80 text-xs tracking-[0.3em] uppercase mb-3 block">
-              {hero.season_label || 'New Season'}
-            </span>
-            <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-light leading-tight mb-6 max-w-2xl" style={{ fontFamily: 'var(--font-family-heading, "Playfair Display", serif)' }}>
-              {hero.heading || store?.name || 'Timeless Elegance'}
-            </h1>
-            <p className="text-white/80 text-lg mb-8 max-w-lg">
-              {hero.subheading || store?.description || 'Curated luxury fashion and accessories'}
-            </p>
-            <div className="flex gap-4">
-              <Link to={hero.button_url || '/products'} className="inline-block border-2 border-white text-white px-8 py-3 text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-gray-900 transition-all duration-300">
-                {hero.button_text || 'Shop Collection'}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
       )}
 
       {/* Collections Grid */}
       {collectionsEnabled && categories.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
           <div className="text-center mb-12">
-            <span className="text-xs tracking-[0.3em] uppercase text-gray-400 block mb-2">
-              {collections.section_label || 'Explore'}
+            <span className="text-xs tracking-[0.3em] uppercase text-gray-500 block mb-2">
+              {collections.section_label || t('theme.section.collections.eyebrow')}
             </span>
             <h2 className="text-3xl md:text-4xl font-light" style={{ fontFamily: 'var(--font-family-heading, "Playfair Display", serif)' }}>
-              {collections.heading || 'Our Collections'}
+              {collections.heading || t('theme.section.collections.heading')}
             </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
@@ -117,27 +91,27 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <span className="text-xs tracking-[0.3em] uppercase text-gray-400 block mb-2">
-                {feat.section_label || 'Curated'}
+              <span className="text-xs tracking-[0.3em] uppercase text-gray-500 block mb-2">
+                {feat.section_label || t('theme.section.featured_products.eyebrow')}
               </span>
               <h2 className="text-3xl font-light" style={{ fontFamily: 'var(--font-family-heading, "Playfair Display", serif)' }}>
-                {feat.heading || "Editor's Picks"}
+                {feat.heading || t('theme.section.featured_products.heading')}
               </h2>
             </div>
             <Link to={feat.view_all_url || '/products'} className="text-xs tracking-[0.15em] uppercase text-gray-600 hover:text-gray-900 transition border-b border-gray-400 pb-0.5">{t('theme.product_detail.view_all')}</Link>
           </div>
           {featuredLoading ? <Skeleton.ProductGrid count={4} /> : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            <ProductRail columns={4}>
               {featured.map(product => (
                 <ProductCard key={product._id} product={product} onQuickView={setQuickViewProduct}>
                   <ProductCard.Image showBadge showQuickView hoverSwap aspectRatio="aspect-[3/4]" />
                   <ProductCard.Body className="p-4">
                     <ProductCard.Title className="text-xs tracking-wider uppercase" />
-                    <ProductCard.Price className="mt-1.5" />
+                    <ProductCard.Price showCompareAt showDiscount className="mt-1.5" />
                   </ProductCard.Body>
                 </ProductCard>
               ))}
-            </div>
+            </ProductRail>
           )}
         </div>
       </section>
@@ -145,7 +119,7 @@ const Home: React.FC = () => {
 
       {/* Editorial Banner */}
       {editorialEnabled && (
-      <section className="relative overflow-hidden" style={{ minHeight: `${editorial.min_height || 50}vh`, minBlockSize: '350px' }}>
+      <section className="relative overflow-hidden" style={{ minHeight: `${editorial.min_height || 350}px` }}>
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -156,16 +130,16 @@ const Home: React.FC = () => {
           }}
         />
         <div className="absolute inset-0 bg-gray-900" style={{ opacity: (editorial.overlay_opacity || 40) / 100 }} />
-        <div className="relative z-10 h-full flex items-center justify-center text-center" style={{ minHeight: `${editorial.min_height || 50}vh` }}>
+        <div className="relative z-10 h-full flex items-center justify-center text-center" style={{ minHeight: `${editorial.min_height || 350}px` }}>
           <div>
             <span className="text-white/60 text-xs tracking-[0.3em] uppercase block mb-3">
-              {editorial.section_label || 'The Art of'}
+              {editorial.section_label || t('theme.section.editorial_banner.eyebrow')}
             </span>
             <h2 className="text-white text-4xl md:text-5xl font-light mb-4" style={{ fontFamily: 'var(--font-family-heading, "Playfair Display", serif)' }}>
-              {editorial.heading || 'Effortless Style'}
+              {editorial.heading || t('theme.section.editorial_banner.heading')}
             </h2>
             <Link to={editorial.button_url || '/products'} className="inline-block border border-white/40 text-white px-8 py-3 text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-gray-900 transition-all duration-300">
-              {editorial.button_text || 'Discover More'}
+              {editorial.button_text || t('theme.section.editorial_banner.cta')}
             </Link>
           </div>
         </div>
@@ -176,12 +150,12 @@ const Home: React.FC = () => {
       {arrivalsEnabled && !newLoading && newArrivals.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
           <div className="text-center mb-10">
-            <span className="text-xs tracking-[0.3em] uppercase text-gray-400 block mb-2">{t('theme.product_detail.just_in')}</span>
+            <span className="text-xs tracking-[0.3em] uppercase text-gray-500 block mb-2">{t('theme.product_detail.just_in')}</span>
             <h2 className="text-3xl font-light" style={{ fontFamily: 'var(--font-family-heading, "Playfair Display", serif)' }}>
-              {arrivals.heading || 'New Arrivals'}
+              {arrivals.heading || t('theme.section.new_arrivals.heading')}
             </h2>
           </div>
-          <Carousel slidesPerView={3} gap={24} showArrows showDots={false} loop>
+          <ProductRail columns={3}>
             {newArrivals.map(product => (
               <ProductCard key={product._id} product={product} onQuickView={setQuickViewProduct}>
                 <ProductCard.Image showBadge showQuickView aspectRatio="aspect-[3/4]" />
@@ -191,7 +165,7 @@ const Home: React.FC = () => {
                 </ProductCard.Body>
               </ProductCard>
             ))}
-          </Carousel>
+          </ProductRail>
         </section>
       )}
 

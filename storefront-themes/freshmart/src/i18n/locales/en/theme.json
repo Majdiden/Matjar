@@ -11,23 +11,27 @@
     "section": {
       "categories": {
         "title": "Shop by Category",
-        "subtitle": "Fresh picks from every aisle"
+        "subtitle": "Fresh picks from every aisle",
+        "items_count": "{{count}} items"
       },
       "weekly_deals": {
         "badge": "THIS WEEK ONLY",
         "title": "Weekly Fresh Deals",
         "subtitle": "Save up to 40% on this week's hand-picked selection",
-        "cta": "Shop Deals"
+        "cta": "Shop Deals",
+        "ends_in": "Ends in"
       },
       "featured_products": {
         "title": "Today's Picks",
         "subtitle": "Freshly curated for you",
-        "view_all": "See All"
+        "view_all": "See All",
+        "add_to_cart": "Add"
       },
       "new_arrivals": {
         "title": "New Arrivals",
         "subtitle": "Just harvested and in stock",
-        "view_all": "See More"
+        "view_all": "See More",
+        "add_to_cart": "Add to Cart"
       },
       "newsletter": {
         "title": "Recipes & Fresh Tips",
@@ -87,6 +91,10 @@
       "in_stock": "In Stock ({{count}} available)",
       "sold_out": "Sold out",
       "out_of_stock": "Out of Stock",
+      "preorder": "Pre-order",
+      "ships_on": "ships {{date}}",
+      "only_left": "Only {{count}} left",
+      "sku": "SKU",
       "description": "Description",
       "not_found": "Product Not Found",
       "back_to_shop": "Back to shop"

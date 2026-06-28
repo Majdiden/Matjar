@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '@shared/contexts/StoreContext';
 import { useThemeSettings, useSectionEnabled } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
-import { Carousel } from '@shared/components/primitives/Carousel';
+import SportzoneHero from '../components/SportzoneHero';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
@@ -16,10 +16,8 @@ const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'cta-banner', 
 
 const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
-  const { store } = useStore();
 
   // Read section settings from the manifest + tenant overrides
-  const hero = useThemeSettings('hero');
   const cats = useThemeSettings('categories');
   const feat = useThemeSettings('featured-products');
   const cta = useThemeSettings('cta-banner');
@@ -74,66 +72,22 @@ const Home: React.FC = () => {
         }))
       : defaultBadges;
 
-  const heroBgColor = hero.background_color || '#111827';
   const ctaBgColor = cta.background_color || '#dc2626';
   const ctaBtnBg = cta.button_bg_color || '#ffffff';
   const ctaBtnTextColor = cta.button_text_color || '#dc2626';
 
   return (
     <div>
-      {/* Hero - full bleed dark */}
+      {/* Hero — bespoke high-energy athletic hero */}
       {heroEnabled && (
-      <section
-        className="relative py-24 px-4 overflow-hidden"
-        style={{
-          background: hero.background_image
-            ? `url(${hero.background_image}) center/cover`
-            : heroBgColor,
-        }}
-      >
-        {/* Diagonal accent line */}
-        {hero.show_diagonal_accent !== false && (
-          <div className="absolute top-0 end-0 w-1/2 h-full bg-gradient-to-l from-[#dc2626]/10 to-transparent" />
-        )}
-        {hero.show_bottom_bar !== false && (
-          <div className="absolute bottom-0 start-0 w-64 h-1 bg-[#dc2626]" />
-        )}
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          {hero.eyebrow_text && (
-            <p className="text-[#dc2626] font-black uppercase text-sm tracking-[0.3em] mb-4">
-              {hero.eyebrow_text}
-            </p>
-          )}
-          <h1 className="text-5xl md:text-7xl font-black uppercase text-white mb-6 leading-none">
-            {hero.heading_line1 || t('theme.hero.main.headline_line1')}<br />
-            <span className="text-[#dc2626]">{hero.heading_line2 || t('theme.hero.main.headline_line2')}</span>
-          </h1>
-          <p className="text-gray-400 text-lg mb-8 max-w-lg mx-auto">
-            {hero.subheading || t('theme.hero.main.subheadline')}
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Link
-              to={hero.primary_button_url || '/products'}
-              className="inline-block bg-[#dc2626] text-white px-10 py-4 font-black uppercase tracking-wider hover:bg-[#b91c1c] transition"
-            >
-              {hero.primary_button_text || t('theme.hero.main.cta_primary')}
-            </Link>
-            <Link
-              to={hero.secondary_button_url || '/products'}
-              className="inline-block border-2 border-white/20 text-white px-10 py-4 font-black uppercase tracking-wider hover:border-[#dc2626] hover:text-[#dc2626] transition"
-            >
-              {hero.secondary_button_text || t('theme.hero.main.cta_secondary')}
-            </Link>
-          </div>
-        </div>
-      </section>
+        <SportzoneHero media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
       )}
 
       {/* Categories with action-shot overlays */}
       {catsEnabled && categories.length > 0 && (
         <section
           ref={categoriesObserver.ref as React.RefObject<HTMLElement>}
-          className={`max-w-7xl mx-auto px-4 py-14 transition-all duration-700 ${categoriesObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          className={`max-w-7xl mx-auto px-4 py-14 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${categoriesObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <h2 className="text-2xl font-black uppercase mb-8">{cats.heading || t('theme.section.categories.title')}</h2>
           <div className={`grid grid-cols-2 md:grid-cols-${cats.columns || '4'} gap-4`}>
@@ -150,7 +104,7 @@ const Home: React.FC = () => {
                 <div className="absolute bottom-0 start-0 p-4">
                   <span className="text-white font-black uppercase text-sm tracking-wider">{cat.name}</span>
                   {cats.show_shop_now_label !== false && (
-                    <span className="block text-[#dc2626] text-xs font-bold uppercase mt-1 opacity-0 group-hover:opacity-100 transition">
+                    <span className="block text-red-400 text-xs font-bold uppercase mt-1 opacity-0 group-hover:opacity-100 transition">
                       {cats.shop_now_text || t('theme.section.categories.shop_now')} &rarr;
                     </span>
                   )}
@@ -165,7 +119,7 @@ const Home: React.FC = () => {
       {featEnabled && (
       <section
         ref={productsObserver.ref as React.RefObject<HTMLElement>}
-        className={`bg-gray-50 py-14 transition-all duration-700 ${productsObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`bg-gray-50 py-14 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${productsObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
@@ -181,7 +135,7 @@ const Home: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className={`grid grid-cols-2 md:grid-cols-${feat.columns || '4'} gap-6`}>
+            <ProductRail columns={4}>
               {featured.map((p) => (
                 <ProductCard
                   key={p._id}
@@ -193,14 +147,14 @@ const Home: React.FC = () => {
                   <ProductCard.Body>
                     <ProductCard.Title />
                     {feat.show_rating !== false && <ProductCard.Rating />}
-                    <ProductCard.Price showCompareAt />
+                    <ProductCard.Price showCompareAt showDiscount className="mt-2" />
                     {feat.show_add_to_cart !== false && (
-                      <ProductCard.Actions addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
+                      <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
                     )}
                   </ProductCard.Body>
                 </ProductCard>
               ))}
-            </div>
+            </ProductRail>
           )}
         </div>
       </section>
@@ -212,7 +166,7 @@ const Home: React.FC = () => {
         <h2 className="text-3xl md:text-4xl font-black uppercase text-white mb-4">
           {cta.heading || t('theme.section.cta_banner.title')}
         </h2>
-        <p className="text-red-100 mb-8 max-w-md mx-auto">
+        <p className="text-white mb-8 max-w-md mx-auto">
           {cta.subheading || t('theme.section.cta_banner.subtitle')}
         </p>
         <Link
@@ -229,24 +183,14 @@ const Home: React.FC = () => {
       {perfGearEnabled && (
       <section
         ref={carouselObserver.ref as React.RefObject<HTMLElement>}
-        className={`py-16 transition-all duration-700 ${carouselObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${carouselObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-2xl font-black uppercase mb-8">{perfGear.heading || t('theme.section.performance_gear.title')}</h2>
           {arrivalsLoading ? (
             <Skeleton className="h-72 rounded-lg" />
           ) : (
-            <Carousel
-              slidesPerView={perfGear.slides_per_view || 4}
-              gap={24}
-              showArrows={perfGear.show_arrows !== false}
-              showDots={perfGear.show_dots !== false}
-              loop={perfGear.loop !== false}
-              autoPlay={perfGear.autoplay !== false ? (perfGear.autoplay_interval || 5000) : undefined}
-              pauseOnHover={perfGear.pause_on_hover !== false}
-              arrowClassName="bg-[#dc2626] text-white"
-              dotActiveClassName="bg-[#dc2626]"
-            >
+            <ProductRail columns={4}>
               {(perfProducts.length > 0 ? perfProducts : featured).map((p) => (
                 <ProductCard key={p._id} product={p} onQuickView={setQuickViewProduct} className="border-gray-200 hover:border-[#dc2626]/40">
                   <ProductCard.Image showBadge showQuickView hoverSwap />
@@ -257,7 +201,7 @@ const Home: React.FC = () => {
                   </ProductCard.Body>
                 </ProductCard>
               ))}
-            </Carousel>
+            </ProductRail>
           )}
         </div>
       </section>
@@ -267,7 +211,7 @@ const Home: React.FC = () => {
       {trustEnabled && (
       <section
         ref={trustObserver.ref as React.RefObject<HTMLElement>}
-        className={`max-w-7xl mx-auto px-4 py-16 transition-all duration-700 ${trustObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+        className={`max-w-7xl mx-auto px-4 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${trustObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {trustBlocks.map((f) => (

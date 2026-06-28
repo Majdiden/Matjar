@@ -97,7 +97,7 @@ const ProductDetail: React.FC = () => {
     price: displayPrice,
     requiresSelection: requiresVariantSelection,
     adding,
-    buyLabel: 'Add to Bag',
+    buyLabel: t('theme.product_detail.add_to_bag', { defaultValue: 'Add to Bag' }),
   });
   const isPreorder = preState.mode === 'preorder';
   const isPreorderable = isPreorder;
@@ -234,7 +234,7 @@ const ProductDetail: React.FC = () => {
 
             {/* Price */}
             <div className="flex items-center gap-3 mb-6 pb-6 border-b" style={{ borderColor: 'var(--color-border)' }}>
-              <span className="text-3xl font-black" style={{ color: 'var(--color-primary)' }}>
+              <span className="text-3xl font-black" style={{ color: 'var(--color-foreground)' }}>
                 {formatPrice(displayPrice)}
               </span>
               {discount > 0 && (
@@ -399,7 +399,7 @@ const ProductDetail: React.FC = () => {
             {/* SKU */}
             {product.sku && (
               <p className="mt-4 text-xs" style={{ color: 'var(--color-muted)' }}>
-                SKU: <span style={{ color: 'var(--color-foreground)' }}>{product.sku}</span>
+                {t('theme.product_detail.sku_label', { defaultValue: 'SKU:' })} <span style={{ color: 'var(--color-foreground)' }}>{product.sku}</span>
               </p>
             )}
           </div>

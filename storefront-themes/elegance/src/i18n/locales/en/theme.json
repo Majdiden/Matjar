@@ -39,6 +39,9 @@
     },
     "layout": {
       "announcement": "Complimentary shipping on orders over $200",
+      "menu_aria": "Open menu",
+      "cart_aria": "Cart",
+      "account_aria": "Account",
       "nav": {
         "home": "Home",
         "shop_all": "Shop All"
@@ -85,7 +88,8 @@
       "description_heading": "Description",
       "view_all": "View All",
       "explore": "Explore →",
-      "just_in": "Just In"
+      "just_in": "Just In",
+      "sku_label": "SKU: {{sku}}"
     },
     "cart": {
       "loading": "Loading cart...",
@@ -102,7 +106,8 @@
       "total": "Total",
       "checkout_button": "Proceed to Checkout",
       "continue_shopping": "Continue Shopping",
-      "remove": "Remove"
+      "remove": "Remove",
+      "price_each": "{{price}} each"
     },
     "footer": {
       "tagline": "Luxury fashion and accessories.",

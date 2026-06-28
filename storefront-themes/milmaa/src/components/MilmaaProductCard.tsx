@@ -122,7 +122,7 @@ export const MilmaaProductCard: React.FC<Props> = ({ product, onQuickView }) => 
         >
           {product.name}
         </Link>
-        <div className="mt-2 flex items-center justify-center gap-2 text-base">
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-base">
           {onSale && (
             <span className="line-through opacity-40">{formatPrice(compareAt)}</span>
           )}

@@ -153,7 +153,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
             </svg>
           ))}
         </div>
-        <div className="mt-2 flex items-center justify-center gap-2 text-[15px]">
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[15px]">
           {(onSale || pre.savingsPct > 0) && strikePrice > displayPrice && (
             <span className="text-neutral-400 line-through">{formatPrice(strikePrice)}</span>
           )}

@@ -28,7 +28,12 @@
       "nutreko-category-strip": {
         "heading": "استكشف المجموعة",
         "subheading": "مصمّمة لكل مرحلة من مراحل تدريبك",
-        "shop_label": "تسوّق →"
+        "shop_label": "تسوّق →",
+        "cat_protein": "بروتين",
+        "cat_pre_workout": "ما قبل التمرين",
+        "cat_creatine": "كرياتين",
+        "cat_recovery": "التعافي",
+        "cat_vitamins": "فيتامينات"
       },
       "nutreko-product-grid": {
         "top_sellers_heading": "الأكثر مبيعاً",
@@ -59,6 +64,9 @@
       "deal": {
         "text": "اشترِ 2 واحصل على 1 مجاناً على جميع مسحوق الواي بروتين — هذا الأسبوع فقط."
       }
+    },
+    "announcement": {
+      "default": "شحن مجاني للطلبات التي تزيد عن $75"
     },
     "footer": {
       "tagline": "مكملات غذائية ممتازة وتغذية رياضية للرياضيين الذين يطالبون بالأفضل. 100% أصيلة، مختبرة، مضمونة.",
@@ -130,6 +138,15 @@
       "tab_nutrition": "الحقائق الغذائية",
       "tab_reviews": "المراجعات",
       "nutrition_heading": "حقائق المكمل الغذائي",
+      "nutrition_serving_label": "حجم الحصة",
+      "nutrition_serving_value": "مغرفة واحدة (30غ)",
+      "nutrition_calories": "السعرات الحرارية",
+      "nutrition_protein": "البروتين",
+      "nutrition_carbs": "الكربوهيدرات",
+      "nutrition_fat": "الدهون",
+      "nutrition_bcaas": "أحماض BCAA",
+      "reviews_count": "({{n}} مراجعة)",
+      "save": "وفّر {{amount}}",
       "you_may_also_like": "قد يعجبك أيضاً",
       "benefit_shipping": "شحن مجاني $75+",
       "benefit_secure": "دفع آمن",
@@ -176,7 +193,9 @@
       "sale": "تخفيض",
       "preorder": "طلب مسبق",
       "choose_options": "اختر الخيارات",
-      "add_to_cart": "+ أضف إلى السلة"
+      "add_to_cart": "+ أضف إلى السلة",
+      "off_badge": "خصم {{pct}}%",
+      "new": "جديد"
     }
   }
 }

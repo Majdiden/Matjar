@@ -27,7 +27,10 @@
       "category_tiles": {
         "heading": "Shop By Category",
         "subheading": "Find what your skin is craving",
-        "shop_now": "Shop Now"
+        "shop_now": "Shop Now",
+        "default_skincare": "Skincare",
+        "default_makeup": "Makeup",
+        "default_fragrance": "Fragrance"
       },
       "product_grid": {
         "heading_bestsellers": "BEST SELLERS",
@@ -43,7 +46,10 @@
       },
       "testimonials": {
         "heading": "What Our Customers Say",
-        "verified_buyer": "Verified Buyer"
+        "verified_buyer": "Verified Buyer",
+        "default_quote_1": "Absolutely love this serum!",
+        "default_quote_2": "Clean ingredients, amazing results.",
+        "default_quote_3": "A new staple in my routine."
       }
     },
     "layout": {
@@ -153,7 +159,8 @@
       "total": "Total",
       "checkout_button": "Proceed to Checkout",
       "continue_shopping": "Continue Shopping",
-      "remove": "Remove"
+      "remove": "Remove",
+      "price_each": "{{price}} each"
     },
     "product_card": {
       "sale": "Sale",

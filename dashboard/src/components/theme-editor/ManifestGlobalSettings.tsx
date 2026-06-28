@@ -107,7 +107,7 @@ export default function ManifestGlobalSettings({
       {/* Theme-level settings (from manifest) */}
       {themeSettings && themeSettings.length > 0 && (
         <CollapsibleSection
-          title={t('themes.editor.global_settings.title')}
+          title={t('themes:editor.global_settings.title')}
           icon={<Settings2 className="w-4 h-4 text-gray-500" />}
           expanded={expandedSection === 'theme'}
           onToggle={() => toggle('theme')}
@@ -127,7 +127,7 @@ export default function ManifestGlobalSettings({
 
       {/* Colors */}
       <CollapsibleSection
-        title={t('themes.editor.global_settings.colors')}
+        title={t('themes:editor.global_settings.colors')}
         icon={<Palette className="w-4 h-4 text-gray-500" />}
         expanded={expandedSection === 'colors'}
         onToggle={() => toggle('colors')}
@@ -137,7 +137,7 @@ export default function ManifestGlobalSettings({
             <div key={key} className="flex items-center justify-between">
               <label className="text-sm text-gray-600">
                 {COLOR_LABEL_KEYS[key]
-                  ? t(`themes.editor.color_labels.${COLOR_LABEL_KEYS[key]}`)
+                  ? t(`themes:editor.color_labels.${COLOR_LABEL_KEYS[key]}`)
                   : key.replace(/([A-Z])/g, ' $1').replace(/^\w/, c => c.toUpperCase())}
               </label>
               <div className="flex items-center gap-2">
@@ -163,14 +163,14 @@ export default function ManifestGlobalSettings({
 
       {/* Typography */}
       <CollapsibleSection
-        title={t('themes.editor.global_settings.typography')}
+        title={t('themes:editor.global_settings.typography')}
         icon={<Type className="w-4 h-4 text-gray-500" />}
         expanded={expandedSection === 'typography'}
         onToggle={() => toggle('typography')}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.body_font')}</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes:editor.global_settings.body_font')}</label>
             <select
               value={resolveFontValue(displayTypography?.fontFamily, 'Inter, system-ui, sans-serif')}
               onChange={(e) => onUpdate('typography', { fontFamily: e.target.value })}
@@ -182,7 +182,7 @@ export default function ManifestGlobalSettings({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.heading_font')}</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes:editor.global_settings.heading_font')}</label>
             <select
               value={resolveFontValue(
                 displayTypography?.headingFontFamily || displayTypography?.fontFamily,
@@ -197,7 +197,7 @@ export default function ManifestGlobalSettings({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.base_font_size')}</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes:editor.global_settings.base_font_size')}</label>
             <input
               type="text"
               value={displayTypography?.baseFontSize || '16px'}
@@ -206,7 +206,7 @@ export default function ManifestGlobalSettings({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.line_height')}</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes:editor.global_settings.line_height')}</label>
             <input
               type="text"
               value={displayTypography?.lineHeight || '1.5'}
@@ -219,14 +219,14 @@ export default function ManifestGlobalSettings({
 
       {/* Layout */}
       <CollapsibleSection
-        title={t('themes.editor.global_settings.layout')}
+        title={t('themes:editor.global_settings.layout')}
         icon={<Layout className="w-4 h-4 text-gray-500" />}
         expanded={expandedSection === 'layout'}
         onToggle={() => toggle('layout')}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes.editor.global_settings.max_content_width')}</label>
+            <label className="block text-xs font-medium text-gray-500 mb-1">{t('themes:editor.global_settings.max_content_width')}</label>
             <input
               type="text"
               value={settings.layout?.containerWidth || settings.layout?.maxWidth || '1280px'}

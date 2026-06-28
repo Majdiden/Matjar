@@ -119,7 +119,7 @@ const ProductDetail: React.FC = () => {
               {onSale && (
                 <div className="absolute top-4 start-4">
                   <span className="inline-block px-4 py-2 text-[11px] font-black tracking-wider uppercase text-white" style={{ backgroundColor: ERROR }}>
-                    -{pct}% OFF
+                    {t('theme.product_card.off_badge', { pct, defaultValue: '-{{pct}}% OFF' })}
                   </span>
                 </div>
               )}
@@ -165,13 +165,13 @@ const ProductDetail: React.FC = () => {
             <div className="flex items-center gap-3 mb-5">
               <div className="flex">
                 {[1,2,3,4,5].map((i) => (
-                  <svg key={i} className={`w-4 h-4 ${i <= Math.round(rating) ? '' : 'opacity-20'}`} fill={LIME} viewBox="0 0 24 24">
+                  <svg key={i} className={`w-4 h-4 ${i <= Math.round(rating) ? '' : 'opacity-20'}`} fill={DARK} viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 ))}
               </div>
               <span className="text-xs font-bold opacity-70">
-                ({reviews?.length || 0} REVIEWS)
+                {t('theme.product_detail.reviews_count', { n: reviews?.length || 0, defaultValue: '({{n}} REVIEWS)' })}
               </span>
             </div>
 
@@ -191,7 +191,7 @@ const ProductDetail: React.FC = () => {
                 <>
                   <span className="text-lg line-through opacity-40 font-bold">{formatPrice(compareAt)}</span>
                   <span className="text-xs font-black uppercase tracking-wider px-2 py-1 text-white" style={{ backgroundColor: ERROR }}>
-                    SAVE {formatPrice(compareAt - price)}
+                    {t('theme.product_detail.save', { amount: formatPrice(compareAt - price), defaultValue: 'SAVE {{amount}}' })}
                   </span>
                 </>
               )}
@@ -319,12 +319,12 @@ const ProductDetail: React.FC = () => {
               <h3 className="font-display text-2xl uppercase" style={headingFont}>{t('theme.product_detail.nutrition_heading')}</h3>
               <div className="border-2 border-black">
                 {[
-                  ['Serving Size', '1 Scoop (30g)'],
-                  ['Calories', '120'],
-                  ['Protein', '24g'],
-                  ['Carbs', '3g'],
-                  ['Fat', '1.5g'],
-                  ['BCAAs', '5.5g'],
+                  [t('theme.product_detail.nutrition_serving_label', { defaultValue: 'Serving Size' }), t('theme.product_detail.nutrition_serving_value', { defaultValue: '1 Scoop (30g)' })],
+                  [t('theme.product_detail.nutrition_calories', { defaultValue: 'Calories' }), '120'],
+                  [t('theme.product_detail.nutrition_protein', { defaultValue: 'Protein' }), '24g'],
+                  [t('theme.product_detail.nutrition_carbs', { defaultValue: 'Carbs' }), '3g'],
+                  [t('theme.product_detail.nutrition_fat', { defaultValue: 'Fat' }), '1.5g'],
+                  [t('theme.product_detail.nutrition_bcaas', { defaultValue: 'BCAAs' }), '5.5g'],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between p-3 border-b border-black last:border-b-0 font-bold">
                     <span>{k}</span>

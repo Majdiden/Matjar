@@ -12,6 +12,7 @@ import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentP
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import GlowingProductCard from '../components/GlowingProductCard';
 
 // ─── Top strip (announcement) ─────────────────────────────────────
@@ -45,7 +46,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 md:py-36 text-center">
         {s.eyebrow && (
-          <div className="text-[11px] tracking-[0.32em] uppercase text-neutral-500 mb-6">
+          <div className="text-[11px] tracking-[0.32em] uppercase text-neutral-700 mb-6">
             {s.eyebrow}
           </div>
         )}
@@ -56,7 +57,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
           {s.heading || t('theme.hero.headline')}
         </h1>
         {s.subheading && (
-          <p className="mt-6 text-sm md:text-base text-neutral-600 max-w-xl mx-auto leading-relaxed">
+          <p className="mt-6 text-sm md:text-base text-neutral-700 max-w-xl mx-auto leading-relaxed">
             {s.subheading}
           </p>
         )}
@@ -165,14 +166,11 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           ))}
         </div>
       ) : (
-        <div
-          className="grid gap-8 grid-cols-2"
-          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-        >
+        <ProductRail columns={cols as 2 | 3 | 4 | 5}>
           {products.map((p: any) => (
             <GlowingProductCard key={p._id} product={p} onQuickView={onQuickView} />
           ))}
-        </div>
+        </ProductRail>
       )}
     </section>
   );
@@ -192,7 +190,7 @@ const QuoteSection: React.FC<SectionComponentProps> = ({ id }) => {
         >
           {s.quote || t('theme.section.quote.default_quote')}
         </p>
-        <div className="mt-6 text-[10px] tracking-[0.3em] uppercase text-neutral-500">
+        <div className="mt-6 text-[10px] tracking-[0.3em] uppercase text-neutral-700">
           — {s.author || t('theme.section.quote.default_author')}
         </div>
       </div>

@@ -385,7 +385,7 @@ export const Products: React.FC = () => {
                         }
                         className="text-[10px] h-5"
                       >
-                        {t(`common.status.${product.status}`, { ns: 'common', defaultValue: product.status })}
+                        {t(`common:status.${product.status}`, { defaultValue: product.status })}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-end font-semibold tabular-nums">
@@ -487,7 +487,7 @@ export const Products: React.FC = () => {
                       }
                       className="text-[10px] h-5"
                     >
-                      {t(`common.status.${product.status}`, { ns: 'common', defaultValue: product.status })}
+                      {t(`common:status.${product.status}`, { defaultValue: product.status })}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">

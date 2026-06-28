@@ -21,7 +21,6 @@ import OrderTracking from '@shared/pages/OrderTracking';
 import ScrollToTop from '@shared/components/navigation/ScrollToTop';
 import { ThemeCardProvider } from '@shared/theme/ThemeCardProvider';
 import { ThemeSlotsProvider } from '@shared/theme/ThemeSlotsProvider';
-import { CompareProvider } from '@shared/components/commerce/ProductCompare';
 import TonmartProductCard from './components/TonmartProductCard';
 import TechhubProductDetailExtras from './components/TechhubProductDetailExtras';
 
@@ -33,7 +32,6 @@ function App() {
   return (
     <ThemeCardProvider renderCard={renderTonmartCard}>
       <ThemeSlotsProvider slots={{ productDetailExtras: TechhubProductDetailExtras }}>
-      <CompareProvider>
       <ScrollToTop />
       <Routes>
       <Route element={<Layout />}>
@@ -58,7 +56,6 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Route>
       </Routes>
-      </CompareProvider>
       </ThemeSlotsProvider>
     </ThemeCardProvider>
   );

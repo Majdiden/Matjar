@@ -32,20 +32,36 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   const query = searchParams.get('q') || '';
   const { products, loading } = useProducts({ search: query, limit: 40 });
 
+  const homeLink = (
+    <Link
+      to="/"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-muted,#6b7280)] hover:text-[var(--color-foreground,#111)] transition-colors"
+    >
+      <svg className="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      {t('search.back_home', { defaultValue: 'Home' })}
+    </Link>
+  );
+
   if (!query) {
     return (
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center ${className}`}>
-        <svg className="w-14 h-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-        </svg>
-        <h1 className="text-2xl font-bold mb-2">{t('search.title')}</h1>
-        <p className="text-gray-500">{t('search.empty_prompt')}</p>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-16 ${className}`}>
+        <div className="mb-8">{homeLink}</div>
+        <div className="text-center">
+          <svg className="w-14 h-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <h1 className="text-2xl font-bold mb-2">{t('search.title')}</h1>
+          <p className="text-gray-500">{t('search.empty_prompt')}</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-8 ${className}`}>
+      <div className="mb-4">{homeLink}</div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-1">
           {t('search.results_for', { query })}

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, createContext, useContext, type ReactNode } from 'react';
+import React, { useState, useCallback, useEffect, createContext, useContext, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 
@@ -58,6 +58,20 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       setTimeout(() => removeToast(id), duration);
     }
   }, [removeToast]);
+
+  // Bridge for non-React / cross-provider callers (e.g. the CartProvider, which
+  // sits ABOVE this provider and so cannot use the `useToast` hook). They
+  // dispatch a `storefront:toast` window event and we surface it here.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as
+        | { message?: string; type?: ToastType }
+        | undefined;
+      if (detail?.message) toast(detail.message, { type: detail.type || 'info' });
+    };
+    window.addEventListener('storefront:toast', handler as EventListener);
+    return () => window.removeEventListener('storefront:toast', handler as EventListener);
+  }, [toast]);
 
   return (
     <ToastContext.Provider value={{ toast }}>

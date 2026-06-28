@@ -200,10 +200,17 @@ const Products: React.FC = () => {
                     <ProductCard.Body>
                       <ProductCard.Title lines={view === 'list' ? 2 : 1} />
                       <ProductCard.Rating />
-                      <div className="flex items-center justify-between mt-2">
-                        <ProductCard.Price showCompareAt />
-                        <ProductCard.Actions />
-                      </div>
+                      {view === 'list' ? (
+                        <div className="mt-2 flex items-center justify-between gap-3">
+                          <ProductCard.Price showCompareAt showDiscount />
+                          <ProductCard.Actions />
+                        </div>
+                      ) : (
+                        <>
+                          <ProductCard.Price showCompareAt showDiscount className="mt-2" />
+                          <ProductCard.Actions fullWidth className="mt-3" />
+                        </>
+                      )}
                     </ProductCard.Body>
                   </ProductCard>
                 ))}

@@ -32,7 +32,7 @@ const Layout: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const showBar = useThemeSetting<boolean>('show_announcement_bar') !== false;
-  const barText = useThemeSetting<string>('announcement_text') || 'FREE SHIPPING ON ORDERS OVER $75';
+  const barText = useThemeSetting<string>('announcement_text') || t('theme.announcement.default', { defaultValue: 'FREE SHIPPING ON ORDERS OVER $75' });
 
   const brand = (store?.name || 'NUTREKO').toUpperCase();
   const isActive = (path: string) =>
@@ -85,8 +85,8 @@ const Layout: React.FC = () => {
               <Link to="/about" className="hover:text-[var(--color-primary)]">{t('theme.nav.about')}</Link>
             </nav>
 
-            {/* Icons */}
-            <div className="flex items-center gap-4 md:gap-5">
+            {/* Icons (desktop only — mobile uses the drawer + bottom nav) */}
+            <div className="hidden md:flex items-center gap-4 md:gap-5">
               <LanguageSwitcher />
               <SearchBar variant="compact" className="text-white hover:text-[var(--color-primary)] hover:bg-white/10" />
               <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="relative hover:text-[var(--color-primary)] hidden md:block">
@@ -104,7 +104,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
               </Link>
-              <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hover:text-[var(--color-primary)]">
+              <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hover:text-[var(--color-primary)] hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>

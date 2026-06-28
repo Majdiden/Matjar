@@ -243,11 +243,11 @@ const ProductDetail: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-amber-500" />
                     <span className="text-amber-700">
-                      Pre-order{preState.shipByLabel ? ` — ${preState.shipByLabel.toLowerCase()}` : ''}
+                      {t('theme.product_detail.pre_order', { defaultValue: 'Pre-order' })}{preState.shipByLabel ? ` — ${preState.shipByLabel.toLowerCase()}` : ''}
                     </span>
                   </div>
                   {preState.lowRemaining && preState.remaining !== null && (
-                    <p className="mt-1 font-semibold text-amber-700">Only {preState.remaining} left</p>
+                    <p className="mt-1 font-semibold text-amber-700">{t('theme.product_detail.only_left', { count: preState.remaining, defaultValue: 'Only {{count}} left' })}</p>
                   )}
                   {preState.depositLabel && <p className="mt-1 text-amber-700">{preState.depositLabel}</p>}
                   {preState.policyNote && <p className="mt-1 text-neutral-500">{preState.policyNote}</p>}

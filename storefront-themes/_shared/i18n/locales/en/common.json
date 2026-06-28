@@ -1,4 +1,7 @@
 {
+  "preview": {
+    "purchasing_disabled": "Preview mode — purchasing is disabled"
+  },
   "action": {
     "save": "Save",
     "cancel": "Cancel",

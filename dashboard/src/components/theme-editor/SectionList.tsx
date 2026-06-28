@@ -107,7 +107,7 @@ export default function SectionList({ sections, onReorder, onToggle, onEdit, onA
                         >
                             <span className="text-lg select-none">{getSectionIcon(section.type)}</span>
                             <span className="text-sm font-medium text-gray-700 select-none">
-                                {getSectionDisplayName(section.type)}
+                                {t(`themes:sections.${section.type}.name`, { defaultValue: getSectionDisplayName(section.type) })}
                             </span>
                         </div>
 
@@ -122,7 +122,7 @@ export default function SectionList({ sections, onReorder, onToggle, onEdit, onA
                                         ? 'text-gray-400 hover:text-blue-600 hover:bg-blue-50'
                                         : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                                     }`}
-                                title={section.enabled ? 'Hide section' : 'Show section'}
+                                title={section.enabled ? t('themes:editor.section_manager.hide_section') : t('themes:editor.section_manager.show_section')}
                             >
                                 {section.enabled ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                             </button>
@@ -136,7 +136,7 @@ export default function SectionList({ sections, onReorder, onToggle, onEdit, onA
                 className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 font-medium text-sm hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center space-x-2"
             >
                 <Plus className="w-4 h-4" />
-                <span>{t('themes.editor.section_library.add_section')}</span>
+                <span>{t('themes:editor.section_library.add_section')}</span>
             </button>
         </div>
     );

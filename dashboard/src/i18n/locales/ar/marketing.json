@@ -200,6 +200,13 @@
         "card_expires": "تنتهي {{date}}",
         "card_created": "صدرت {{date}}"
       },
+      "issue": {
+        "field": {
+          "customer": {
+            "clear_aria": "إزالة العميل"
+          }
+        }
+      },
       "issue_dialog": {
         "title": "إصدار بطاقة هدية",
         "description": "أنشئ بطاقة هدية مدفوعة مسبقًا. لن يُعرض الرمز إلا مرة واحدة بعد الإصدار.",

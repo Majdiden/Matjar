@@ -27,17 +27,8 @@ const Layout: React.FC = () => {
       <header className="sticky top-0 z-30 bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-20">
-            <div className="flex items-center gap-3">
-              <button className="lg:hidden text-gray-700" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              <SearchBar variant="compact" className="text-gray-700 hover:text-gray-900 hover:bg-gray-100" />
-            </div>
-
-            {/* TODO RTL: needs JS-side flip — centering via left-1/2/-translate-x-1/2 may need logical-property equivalent */}
-            <Link to="/" className="absolute left-1/2 -translate-x-1/2">
+            {/* Logo — one end of the row */}
+            <Link to="/" className="shrink-0">
               {store?.logo ? (
                 <img src={store.logo} alt={store.name} className="h-10" />
               ) : (
@@ -47,14 +38,24 @@ const Layout: React.FC = () => {
               )}
             </Link>
 
+            {/* Right actions */}
             <div className="flex items-center gap-4">
-              <LanguageSwitcher />
-              <Link to="/account" className="hidden md:block text-gray-700">
+              {/* Desktop search — on mobile, search lives in the bottom nav */}
+              <div className="hidden md:block">
+                <SearchBar variant="compact" className="text-gray-700 hover:text-gray-900 hover:bg-gray-100" />
+              </div>
+
+              {/* Language switcher — desktop only; on mobile it lives in the side menu */}
+              <div className="hidden md:flex items-center">
+                <LanguageSwitcher />
+              </div>
+
+              <Link to="/account" className="hidden md:block text-gray-700" aria-label={t('theme.layout.account_aria')}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" />
                 </svg>
               </Link>
-              <button onClick={openCart} className="relative text-gray-700">
+              <button onClick={openCart} className="relative hidden md:inline-flex text-gray-700" aria-label={t('theme.layout.cart_aria')}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                 </svg>
@@ -63,6 +64,20 @@ const Layout: React.FC = () => {
                     {cart.itemCount}
                   </span>
                 )}
+              </button>
+
+              {/* Mobile menu toggle — opposite end from the logo */}
+              <button
+                className="lg:hidden text-gray-700"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label={t('theme.layout.menu_aria')}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  {mobileMenuOpen
+                    ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    : <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  }
+                </svg>
               </button>
             </div>
           </div>
@@ -84,7 +99,7 @@ const Layout: React.FC = () => {
               {categories.slice(0, 6).map(cat => (
                 <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">{cat.name}</Link>
               ))}
-              <LanguageSwitcher />
+              <div className="pt-2"><LanguageSwitcher /></div>
             </nav>
           )}
         </div>
@@ -97,7 +112,7 @@ const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             <div>
               <h3 className="text-white text-lg tracking-[0.15em] uppercase font-light mb-4">{store?.name || 'Elegance'}</h3>
-              <p className="text-sm leading-relaxed">{store?.description || 'Luxury fashion and accessories.'}</p>
+              <p className="text-sm leading-relaxed">{store?.description || t('theme.footer.tagline')}</p>
             </div>
             <div>
               <h4 className="text-white text-xs tracking-[0.15em] uppercase mb-4">{t('theme.footer.shop_heading')}</h4>
@@ -125,7 +140,7 @@ const Layout: React.FC = () => {
               </form>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-xs text-gray-600 tracking-wider">
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-xs text-gray-500 tracking-wider">
             {t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'Elegance' })}
           </div>
         </div>

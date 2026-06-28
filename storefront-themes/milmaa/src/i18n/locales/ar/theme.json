@@ -75,6 +75,9 @@
       "about": "من نحن",
       "contact": "اتصل بنا"
     },
+    "announcement": {
+      "bar_text": "🌱 100% نباتي · شحن مجاني"
+    },
     "products": {
       "page_title": "جميع منتجاتنا",
       "page_subtitle": "استكشف مجموعتنا الكريمية من الحليب النباتي — كل زجاجة مصنوعة بحب.",
@@ -84,6 +87,8 @@
       "filter_availability": "التوفر",
       "filter_price": "السعر",
       "all_products": "جميع المنتجات",
+      "availability_all": "الكل",
+      "availability_in_stock": "متوفر",
       "promo_eyebrow": "عرض",
       "promo_heading": "توصيل مجاني للطلبات التي تزيد عن $40",
       "promo_body": "استكمل مخزونك ووفّر على نكهاتك المفضّلة.",
@@ -108,6 +113,11 @@
       "in_stock": "متوفر — جاهز للشحن",
       "sold_out": "نفد المخزون",
       "out_of_stock": "غير متوفر",
+      "reviews_label": "مراجعات",
+      "save_label": "وفّر",
+      "preorder_status": "طلب مسبق",
+      "only_left": "بقي {{remaining}} فقط",
+      "ingredients_body": "ماء مفلتر، لوز عضوي، سكر قصب عضوي، ملح بحري، كربونات الكالسيوم، فيتامين د2، فيتامين ب12. يحتوي على: مكسرات شجرية (لوز).",
       "save_to_wishlist": "♡ أضف إلى قائمة الأمنيات",
       "tab_description": "الوصف",
       "tab_ingredients": "المكونات",

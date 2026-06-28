@@ -167,6 +167,17 @@ const manifest = defineTheme({
     footerStyle: 'standard',
   },
 
+  designTokens: {
+    motion: {
+      durationFast: '100ms',
+      durationBase: '180ms',
+      durationSlow: '340ms',
+      easeStandard: 'cubic-bezier(0.45, 0, 0.15, 1)',
+      easeEntrance: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      hoverLift: 'translateY(-5px)',
+    },
+  },
+
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
     { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: '' },

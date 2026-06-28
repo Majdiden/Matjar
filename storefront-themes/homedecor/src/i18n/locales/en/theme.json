@@ -45,6 +45,7 @@
       "outdoor": "Outdoor"
     },
     "nav": {
+      "home": "Home",
       "shop_all": "Shop All"
     },
     "footer": {
@@ -91,7 +92,11 @@
       "out_of_stock": "Out of Stock",
       "description": "Description",
       "not_found": "Product Not Found",
-      "back_to_shop": "Back to shop"
+      "back_to_shop": "Back to shop",
+      "sku": "SKU",
+      "preorder": "Pre-order",
+      "preorder_ships": "Pre-order — ships {{date}}",
+      "only_left": "Only {{count}} left"
     },
     "cart": {
       "loading": "Loading cart...",

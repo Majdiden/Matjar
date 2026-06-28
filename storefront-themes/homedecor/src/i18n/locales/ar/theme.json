@@ -45,6 +45,7 @@
       "outdoor": "الخارج"
     },
     "nav": {
+      "home": "الرئيسية",
       "shop_all": "كل المنتجات"
     },
     "footer": {
@@ -91,7 +92,11 @@
       "out_of_stock": "غير متوفر",
       "description": "الوصف",
       "not_found": "المنتج غير موجود",
-      "back_to_shop": "العودة إلى المتجر"
+      "back_to_shop": "العودة إلى المتجر",
+      "sku": "رمز المنتج",
+      "preorder": "طلب مسبق",
+      "preorder_ships": "طلب مسبق — يُشحن {{date}}",
+      "only_left": "بقي {{count}} فقط"
     },
     "cart": {
       "loading": "جاري تحميل السلة...",

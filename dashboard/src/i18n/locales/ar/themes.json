@@ -3,6 +3,7 @@
     "title": "القوالب",
     "subtitle": "اختر قالبًا لتصميم واجهة متجرك، أو خصّص القالب الحالي.",
     "view_live_store": "عرض المتجر المباشر",
+    "preview": "معاينة تجريبية",
     "current_theme_label": "القالب الحالي",
     "meta": {
       "version": "الإصدار",
@@ -124,7 +125,9 @@
     "custom_css": {
       "title": "CSS مخصص",
       "description": "أضف أنماطاً مخصصة لتجاوز إعدادات القالب الافتراضية. تنطبق التغييرات على متجرك فقط.",
-      "save": "حفظ CSS"
+      "subtitle": "أضف أنماطًا مخصصة لتجاوز الأنماط الافتراضية للقالب. تُطبَّق التغييرات على واجهة متجرك فقط.",
+      "save": "حفظ CSS",
+      "reset": "إعادة تعيين"
     },
     "global_settings": {
       "title": "إعدادات القالب",
@@ -288,18 +291,19 @@
       },
       "url": {
         "label": "رابط"
-      }
-    },
-    "custom_css": {
-      "title": "CSS مخصص",
-      "subtitle": "أضف أنماطًا مخصصة لتجاوز الأنماط الافتراضية للقالب. تُطبَّق التغييرات على واجهة متجرك فقط.",
-      "save": "حفظ CSS",
-      "reset": "إعادة تعيين"
+      },
+      "reference": {
+        "info": "أدخل معرّف {{type}} أو الاسم المختصر",
+        "placeholder": "اختر {{type}}…"
+      },
+      "unsupported": "نوع غير مدعوم: {{type}}"
     },
     "preview": {
       "desktop": "سطح المكتب",
       "tablet": "جهاز لوحي",
-      "mobile": "جوّال"
+      "mobile": "جوّال",
+      "generating": "جارٍ إنشاء المعاينة…",
+      "url_fallback": "معاينة"
     },
     "version_history": {
       "title": "سجل الإصدارات",
@@ -331,7 +335,8 @@
         "publish": "انقر «نشر» لإظهار تغييراتك للعملاء"
       },
       "error_reorder": "فشل حفظ ترتيب الأقسام. حاول مرة أخرى.",
-      "error_toggle": "فشل تغيير حالة ظهور القسم. حاول مرة أخرى."
+      "error_toggle": "فشل تغيير حالة ظهور القسم. حاول مرة أخرى.",
+      "order_id": "الترتيب: {{order}} • المعرّف: {{id}}"
     },
     "sections_panel": {
       "title": "الأقسام",
@@ -372,6 +377,45 @@
       "cart": "سلة التسوق",
       "search": "نتائج البحث",
       "page": "الصفحات الثابتة"
+    },
+    "canvas": {
+      "area_header": "الترويسة",
+      "area_template": "القالب",
+      "area_footer": "التذييل",
+      "empty_header": "لا توجد أقسام في الترويسة",
+      "empty_template": "لا توجد أقسام بعد — انقر + إضافة قسم بالأسفل",
+      "empty_footer": "لا توجد أقسام في التذييل",
+      "add_section": "إضافة قسم",
+      "hide": "إخفاء",
+      "show": "إظهار",
+      "hide_section": "إخفاء القسم",
+      "show_section": "إظهار القسم",
+      "duplicate": "تكرار",
+      "delete": "حذف",
+      "delete_confirm_title": "حذف هذا القسم؟",
+      "delete_confirm_description": "ستتم إزالة القسم وإعداداته من المسودة."
+    },
+    "color_picker": {
+      "palette": "لوحة الألوان",
+      "recent": "المستخدمة حاليًا"
     }
+  },
+  "sections": {
+    "hero": { "name": "بانر الرئيسي" },
+    "featured-products": { "name": "المنتجات المميزة" },
+    "new-arrivals": { "name": "وصل حديثًا" },
+    "categories": { "name": "الفئات" },
+    "newsletter": { "name": "النشرة البريدية" },
+    "trust-badges": { "name": "شارات الثقة" },
+    "product-recommendations": { "name": "قد يعجبك أيضًا" }
+  },
+  "settings": {
+    "heading": { "label": "العنوان" },
+    "subheading": { "label": "العنوان الفرعي" },
+    "title": { "label": "العنوان" },
+    "description": { "label": "الوصف" },
+    "button_text": { "label": "نص الزر" },
+    "button_link": { "label": "رابط الزر" },
+    "image": { "label": "صورة" }
   }
 }

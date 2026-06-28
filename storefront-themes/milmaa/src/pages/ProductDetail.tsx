@@ -124,7 +124,7 @@ const ProductDetail: React.FC = () => {
               {onSale && (
                 <div className="absolute top-6 start-6">
                   <span className="inline-block px-4 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-full text-white" style={{ backgroundColor: PINK }}>
-                    -{pct}% SALE
+                    -{pct}% {t('theme.product_card.sale', { defaultValue: 'SALE' })}
                   </span>
                 </div>
               )}
@@ -170,7 +170,7 @@ const ProductDetail: React.FC = () => {
                 ))}
               </div>
               <span className="text-xs opacity-70" style={{ color: DARK_TEAL }}>
-                ({reviews?.length || 0} reviews)
+                ({reviews?.length || 0} {t('theme.product_detail.reviews_label', { defaultValue: 'reviews' })})
               </span>
             </div>
 
@@ -185,7 +185,7 @@ const ProductDetail: React.FC = () => {
                     {formatPrice(preState.savingsPct > 0 ? price : compareAt)}
                   </span>
                   <span className="text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-full text-white" style={{ backgroundColor: PINK }}>
-                    Save {formatPrice((preState.savingsPct > 0 ? price : compareAt) - effectivePrice)}
+                    {t('theme.product_detail.save_label', { defaultValue: 'Save' })} {formatPrice((preState.savingsPct > 0 ? price : compareAt) - effectivePrice)}
                   </span>
                 </>
               )}
@@ -221,11 +221,11 @@ const ProductDetail: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-amber-500" />
                     <span className="text-amber-700">
-                      Pre-order{preState.shipByLabel ? ` — ${preState.shipByLabel.toLowerCase()}` : ''}
+                      {t('theme.product_detail.preorder_status', { defaultValue: 'Pre-order' })}{preState.shipByLabel ? ` — ${preState.shipByLabel.toLowerCase()}` : ''}
                     </span>
                   </div>
                   {preState.lowRemaining && preState.remaining !== null && (
-                    <p className="mt-1 text-amber-700 font-semibold">Only {preState.remaining} left</p>
+                    <p className="mt-1 text-amber-700 font-semibold">{t('theme.product_detail.only_left', { remaining: preState.remaining, defaultValue: 'Only {{remaining}} left' })}</p>
                   )}
                   {preState.depositLabel && (
                     <p className="mt-1 text-amber-700">{preState.depositLabel}</p>
@@ -327,7 +327,7 @@ const ProductDetail: React.FC = () => {
         <div className="max-w-3xl mx-auto pt-10 pb-16 text-base leading-relaxed" style={{ color: DARK_TEAL, opacity: 0.85 }}>
           {tab === 'description' && <ProductDescription product={product} />}
           {tab === 'ingredients' && (
-            <p>Filtered water, organic almonds, organic cane sugar, sea salt, calcium carbonate, vitamin D2, vitamin B12. Contains: tree nuts (almonds).</p>
+            <p>{t('theme.product_detail.ingredients_body', { defaultValue: 'Filtered water, organic almonds, organic cane sugar, sea salt, calcium carbonate, vitamin D2, vitamin B12. Contains: tree nuts (almonds).' })}</p>
           )}
           {tab === 'reviews' && (
             <ProductReviews

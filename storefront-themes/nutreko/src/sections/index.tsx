@@ -10,6 +10,7 @@ import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentP
 import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { ProductRail } from '@shared/components/commerce/ProductRail';
 import NutrekoProductCard from '../components/NutrekoProductCard';
 
 const LIME = 'var(--color-primary)';
@@ -19,10 +20,11 @@ const headingFont = { fontFamily: 'var(--font-family-heading)' } as const;
 // ─── Top info strip ───────────────────────────────────────────────
 
 const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   return (
     <div className="text-[11px] tracking-[0.2em] font-bold py-2.5 text-center" style={{ backgroundColor: LIME, color: DARK }}>
-      ★ {s.text || 'FREE SHIPPING ON ORDERS OVER $75'}
+      ★ {s.text || t('theme.announcement.default', { defaultValue: 'FREE SHIPPING ON ORDERS OVER $75' })}
     </div>
   );
 };
@@ -50,7 +52,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             className="font-display text-5xl sm:text-6xl md:text-7xl leading-[0.95] uppercase"
             style={headingFont}
           >
-            {(s.heading || 'FUEL YOUR PERFORMANCE').split(' ').map((w: string, i: number) => (
+            {(s.heading || t('theme.section.nutreko-hero.heading', { defaultValue: 'FUEL YOUR PERFORMANCE' })).split(' ').map((w: string, i: number) => (
               <span key={i} className={i === 1 ? 'text-[var(--color-primary)]' : ''}>{w} </span>
             ))}
           </h1>
@@ -65,7 +67,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
               className="inline-block px-10 py-4 text-[11px] tracking-[0.22em] uppercase font-black hover:scale-105 transition"
               style={{ backgroundColor: LIME, color: DARK }}
             >
-              {s.cta_text || 'SHOP NOW'} →
+              {s.cta_text || t('theme.section.nutreko-hero.cta', { defaultValue: 'SHOP NOW' })} →
             </Link>
             {s.secondary_cta_text && (
               <Link
@@ -112,12 +114,13 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Guarantee panels ─────────────────────────────────────────────
 
 const GuaranteeSection: React.FC<SectionComponentProps> = ({ section }) => {
+  const { t } = useTranslation('theme');
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { title: '100% AUTHENTIC', subtitle: 'Sourced direct from brands' } },
-    { id: 'b', settings: { title: 'MAXIMUM POTENCY', subtitle: 'Premium grade formulas' } },
-    { id: 'c', settings: { title: 'LAB TESTED', subtitle: 'Every batch verified' } },
-    { id: 'd', settings: { title: 'FAST SHIPPING', subtitle: 'Ships within 24 hours' } },
+    { id: 'a', settings: { icon: '100% AUTHENTIC', title: t('theme.section.nutreko-guarantee.authentic_title', { defaultValue: '100% AUTHENTIC' }), subtitle: t('theme.section.nutreko-guarantee.authentic_subtitle', { defaultValue: 'Sourced direct from brands' }) } },
+    { id: 'b', settings: { icon: 'MAXIMUM POTENCY', title: t('theme.section.nutreko-guarantee.potency_title', { defaultValue: 'MAXIMUM POTENCY' }), subtitle: t('theme.section.nutreko-guarantee.potency_subtitle', { defaultValue: 'Premium grade formulas' }) } },
+    { id: 'c', settings: { icon: 'LAB TESTED', title: t('theme.section.nutreko-guarantee.lab_title', { defaultValue: 'LAB TESTED' }), subtitle: t('theme.section.nutreko-guarantee.lab_subtitle', { defaultValue: 'Every batch verified' }) } },
+    { id: 'd', settings: { icon: 'FAST SHIPPING', title: t('theme.section.nutreko-guarantee.shipping_title', { defaultValue: 'FAST SHIPPING' }), subtitle: t('theme.section.nutreko-guarantee.shipping_subtitle', { defaultValue: 'Ships within 24 hours' }) } },
   ];
 
   const icons: Record<string, string> = {
@@ -133,7 +136,7 @@ const GuaranteeSection: React.FC<SectionComponentProps> = ({ section }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x-2 divide-black border-2 border-black">
           {items.slice(0, 4).map((b, i) => {
             const bs = b.settings || {};
-            const iconPath = icons[bs.title as string] || icons['100% AUTHENTIC'];
+            const iconPath = icons[(bs.icon || bs.title) as string] || icons['100% AUTHENTIC'];
             return (
               <div key={b.id || i} className="p-6 md:p-8 text-center hover:bg-[var(--color-primary)] transition">
                 <svg className="w-10 h-10 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -159,18 +162,18 @@ const CategoryStripSection: React.FC<SectionComponentProps> = ({ id, section }) 
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { title: 'PROTEIN' } },
-    { id: 'b', settings: { title: 'PRE-WORKOUT' } },
-    { id: 'c', settings: { title: 'CREATINE' } },
-    { id: 'd', settings: { title: 'RECOVERY' } },
-    { id: 'e', settings: { title: 'VITAMINS' } },
+    { id: 'a', settings: { title: t('theme.section.nutreko-category-strip.cat_protein', { defaultValue: 'PROTEIN' }) } },
+    { id: 'b', settings: { title: t('theme.section.nutreko-category-strip.cat_pre_workout', { defaultValue: 'PRE-WORKOUT' }) } },
+    { id: 'c', settings: { title: t('theme.section.nutreko-category-strip.cat_creatine', { defaultValue: 'CREATINE' }) } },
+    { id: 'd', settings: { title: t('theme.section.nutreko-category-strip.cat_recovery', { defaultValue: 'RECOVERY' }) } },
+    { id: 'e', settings: { title: t('theme.section.nutreko-category-strip.cat_vitamins', { defaultValue: 'VITAMINS' }) } },
   ];
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
       <div className="text-center mb-10">
         <h2 className="font-display text-4xl md:text-5xl uppercase" style={headingFont}>
-          {s.heading || 'EXPLORE THE RANGE'}
+          {s.heading || t('theme.section.nutreko-category-strip.heading', { defaultValue: 'EXPLORE THE RANGE' })}
         </h2>
         {s.subheading && <p className="mt-3 text-sm opacity-60">{s.subheading}</p>}
         <div className="w-16 h-1 mx-auto mt-5" style={{ backgroundColor: LIME }} />
@@ -222,7 +225,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
         <div>
           <h2 className="font-display text-4xl md:text-5xl uppercase" style={headingFont}>
-            {s.heading || 'TOP SELLERS'}
+            {s.heading || t('theme.section.nutreko-product-grid.top_sellers_heading', { defaultValue: 'TOP SELLERS' })}
           </h2>
           {s.subheading && <p className="mt-2 text-sm opacity-60">{s.subheading}</p>}
           <div className="w-16 h-1 mt-4" style={{ backgroundColor: LIME }} />
@@ -243,11 +246,11 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <ProductRail columns={4}>
           {products.map((p: any) => (
             <NutrekoProductCard key={p._id} product={p} onQuickView={onQuickView} />
           ))}
-        </div>
+        </ProductRail>
       )}
     </section>
   );
@@ -256,6 +259,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
 // ─── Promo banner ─────────────────────────────────────────────────
 
 const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -269,7 +273,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
               </div>
             )}
             <h2 className="font-display text-4xl md:text-6xl uppercase leading-[0.95]" style={headingFont}>
-              {s.heading || 'BUY 2 GET 1 FREE'}
+              {s.heading || t('theme.section.nutreko-banner.heading', { defaultValue: 'BUY 2 GET 1 FREE' })}
             </h2>
             {s.subheading && (
               <p className="mt-4 text-white/70 max-w-md">{s.subheading}</p>
@@ -279,7 +283,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
             to={s.cta_url || '/products'}
             className="relative inline-block px-10 py-5 text-[12px] tracking-[0.22em] uppercase font-black bg-white text-black hover:bg-black hover:text-white border-2 border-black transition"
           >
-            {s.cta_text || 'SHOP DEAL'} →
+            {s.cta_text || t('theme.section.nutreko-banner.cta', { defaultValue: 'SHOP DEAL' })} →
           </Link>
         </div>
       </div>

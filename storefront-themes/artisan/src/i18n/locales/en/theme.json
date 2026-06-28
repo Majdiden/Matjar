@@ -94,14 +94,17 @@
       "select_option": "Select an option to see availability",
       "in_stock": "In Stock ({{count}} available)",
       "preorder": "Pre-order — ships {{date}}",
+      "preorder_label": "Pre-order",
       "only_left": "Only {{count}} left",
       "sold_out": "Sold out",
       "out_of_stock": "Out of Stock",
       "description_heading": "Description",
+      "sku_label": "SKU:",
       "product_not_found": "Product Not Found"
     },
     "cart": {
       "loading": "Loading cart...",
+      "each": "each",
       "empty_heading": "Your cart is empty",
       "empty_subtext": "Looks like you haven't added anything yet",
       "start_shopping": "Start Shopping",

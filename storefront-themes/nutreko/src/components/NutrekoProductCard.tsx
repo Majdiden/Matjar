@@ -58,7 +58,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
                   className="inline-block px-4 py-2 text-[11px] font-black tracking-widest uppercase text-white"
                   style={{ backgroundColor: 'var(--color-error)' }}
                 >
-                  -{pct}% OFF
+                  {t('theme.product_card.off_badge', { pct, defaultValue: '-{{pct}}% OFF' })}
                 </span>
               </div>
             )}
@@ -78,7 +78,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
                   className="inline-block px-4 py-2 text-[11px] font-black tracking-widest uppercase"
                   style={{ backgroundColor: LIME, color: DARK }}
                 >
-                  NEW
+                  {t('theme.product_card.new', { defaultValue: 'NEW' })}
                 </span>
               </div>
             )}
@@ -120,7 +120,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
         <div className="flex items-center gap-1.5 mt-2">
           <div className="flex">
             {[1, 2, 3, 4, 5].map((i) => (
-              <svg key={i} className={`w-3 h-3 ${i <= Math.round(rating) ? '' : 'opacity-20'}`} fill={LIME} viewBox="0 0 24 24">
+              <svg key={i} className={`w-3 h-3 ${i <= Math.round(rating) ? '' : 'opacity-20'}`} fill={DARK} viewBox="0 0 24 24">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
             ))}

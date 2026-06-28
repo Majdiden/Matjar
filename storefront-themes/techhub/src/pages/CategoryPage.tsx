@@ -60,7 +60,7 @@ const CategoryPage: React.FC = () => {
             className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-2"
             style={{ color: 'var(--color-foreground)' }}
           >
-            {category?.name || 'Loading...'}
+            {category?.name || t('theme.category.loading', { defaultValue: 'Loading...' })}
           </h1>
           <nav className="text-xs" style={{ color: 'var(--color-muted)' }}>
             <Link to="/" className="hover:opacity-70">{t('theme.category.breadcrumb_home')}</Link>
