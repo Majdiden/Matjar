@@ -222,7 +222,9 @@ class Config {
   }
 
   get emailFrom() {
-    return process.env.EMAIL_FROM;
+    // Platform sender for Matjar→store-owner mail. Defaults to the Invoila
+    // noreply identity; override via EMAIL_FROM.
+    return process.env.EMAIL_FROM || "Matjar <noreply@invoila.io>";
   }
 
   // SSL / custom-domain rails.

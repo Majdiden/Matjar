@@ -31,6 +31,7 @@
 import mongoose from "mongoose";
 import { sendEmail } from "./providers/email.js";
 import logger from "../utils/logger.js";
+import { storeFrom, storeReplyTo, wrapStoreEmail, platformFrom } from "./emailIdentity.js";
 
 const STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Refunded"];
 
@@ -175,7 +176,7 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
 
     const Tenant = mongoose.model("Tenant");
     const tenant = await Tenant.findById(tenantId)
-      .select("name settings.notifications settings.storeName settings.currency settings.language")
+      .select("name slug domains settings.notifications settings.storeName settings.currency settings.language settings.logo settings.supportEmail settings.phone settings.address email")
       .lean();
     if (!tenant) return { success: false, reason: "tenant-not-found" };
 
@@ -208,17 +209,18 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
     const subject = render(subjectTpl, vars);
     const body = render(bodyTpl, vars);
 
-    const fromName = notifSettings.fromName || vars.storeName;
-    const fromEmail = notifSettings.fromEmail;
-    const from = fromEmail ? `${fromName} <${fromEmail}>` : undefined;
+    // Store→customer identity: "StoreName <noreply@store-host>" (or the
+    // merchant's override), with a reply-to the store's real contact.
+    const from = storeFrom(tenant);
+    const replyTo = storeReplyTo(tenant);
 
-    // Wrap the body in a minimal HTML envelope so it renders as a paragraph
-    // in HTML clients while staying readable in plain-text fallbacks. We
-    // deliberately don't ship a fancy template — the merchant who cares
-    // about brand will override `body` with their own HTML anyway.
-    const html = `<div style="font-family:sans-serif;white-space:pre-wrap">${escapeHtml(body)}</div>`;
+    // Branded envelope: store logo (if uploaded) + store details footer,
+    // RTL-aware by the order's language. The body is the rendered template
+    // text; preserve its line breaks.
+    const contentHtml = `<div style="white-space:pre-wrap">${escapeHtml(body)}</div>`;
+    const html = wrapStoreEmail({ tenant, contentHtml, language: emailLanguage });
 
-    const result = await sendEmail({ to: customerEmail, subject, html, from });
+    const result = await sendEmail({ to: customerEmail, subject, html, from, replyTo });
     return result;
   } catch (err) {
     logger.error("notifyOrderStatusChange failed", {
@@ -285,11 +287,8 @@ export const notifyMerchantNewOrder = async (order, tenantId) => {
         `</div>`;
 
     const notifSettings = tenant.settings?.notifications || {};
-    const fromName = notifSettings.fromName || storeName;
-    const fromEmail = notifSettings.fromEmail;
-    const from = fromEmail ? `${fromName} <${fromEmail}>` : undefined;
-
-    const result = await sendEmail({ to: merchantEmail, subject, html, from });
+    // Merchant/owner notification → Matjar platform sender.
+    const result = await sendEmail({ to: merchantEmail, subject, html, from: platformFrom() });
     return result;
   } catch (err) {
     logger.error("notifyMerchantNewOrder failed", {
