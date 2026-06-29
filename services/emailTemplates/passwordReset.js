@@ -17,9 +17,40 @@
  * @param {number} [opts.expiresInMinutes=60]  Displayed to the user so they
  *                                   know how long the link stays valid.
  */
-export function buildPasswordResetEmail({ resetUrl, expiresInMinutes = 60 }) {
+export function buildPasswordResetEmail({ resetUrl, expiresInMinutes = 60, language }) {
   if (!resetUrl || typeof resetUrl !== "string") {
     throw new Error("buildPasswordResetEmail: resetUrl is required");
+  }
+
+  const isAr = String(language || "").toLowerCase().startsWith("ar");
+
+  if (isAr) {
+    const subject = "إعادة تعيين كلمة المرور";
+    const text = [
+      "لقد تلقّينا طلباً لإعادة تعيين كلمة المرور لحسابك.",
+      "",
+      `افتح هذا الرابط لاختيار كلمة مرور جديدة (تنتهي صلاحيته خلال ${expiresInMinutes} دقيقة):`,
+      resetUrl,
+      "",
+      "إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذا البريد بأمان — لن تتغيّر كلمة مرورك.",
+    ].join("\n");
+    const html = `
+      <div dir="rtl" style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;color:#111;text-align:right;">
+        <h2 style="margin:0 0 16px 0;font-size:20px;">إعادة تعيين كلمة المرور</h2>
+        <p style="margin:0 0 16px 0;line-height:1.6;">لقد تلقّينا طلباً لإعادة تعيين كلمة المرور لحسابك.</p>
+        <p style="margin:0 0 24px 0;line-height:1.6;">اضغط الزر أدناه لاختيار كلمة مرور جديدة. ينتهي هذا الرابط خلال <strong>${expiresInMinutes} دقيقة</strong>.</p>
+        <p style="margin:0 0 24px 0;">
+          <a href="${resetUrl}" style="background:#4F46E5;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;font-weight:500;">إعادة تعيين كلمة المرور</a>
+        </p>
+        <p style="margin:0 0 8px 0;color:#555;font-size:14px;">أو انسخ هذا الرابط والصقه في متصفحك:</p>
+        <p style="margin:0 0 24px 0;word-break:break-all;direction:ltr;text-align:left;">
+          <code style="background:#f3f4f6;padding:4px 6px;border-radius:4px;font-size:13px;">${resetUrl}</code>
+        </p>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;" />
+        <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.6;">إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذا البريد بأمان — لن تتغيّر كلمة مرورك.</p>
+      </div>
+    `;
+    return { subject, text, html };
   }
 
   const subject = "Reset your password";

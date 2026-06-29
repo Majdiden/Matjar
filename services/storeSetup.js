@@ -90,7 +90,7 @@ export async function initializeStoreSetup(tenant, models, options = {}) {
     // methods (Stripe, etc.) are disabled until the merchant configures
     // their credentials.
     try {
-      await seedDefaultPaymentMethods(models);
+      await seedDefaultPaymentMethods(models, tenant?.settings?.language);
     } catch (err) {
       logger.warn(`Payment method seeding failed: ${err.message}`, { tenantId });
     }
@@ -249,15 +249,48 @@ export const MANUAL_CUSTOMER_FIELDS = [
 
 export const SYSTEM_METHOD_CODES = new Set(["cod", "manual-transfer"]);
 
-export async function seedDefaultPaymentMethods(models) {
+export async function seedDefaultPaymentMethods(models, language) {
   if (!models?.PaymentMethod) return { created: 0 };
+
+  // Seed the default method copy in the store's chosen language so a new
+  // Arabic store doesn't start with English payment labels. The merchant can
+  // still rename them. Falls back to English for any other language.
+  const isAr = String(language || "").toLowerCase().startsWith("ar");
+  const copy = isAr
+    ? {
+        codLabel: "الدفع عند الاستلام",
+        codDesc: "ادفع عند وصول طلبك.",
+        manualLabel: "تحويل يدوي",
+        manualDesc: "ادفع عبر تحويل بنكي أو محفظة إلكترونية. ستظهر لك تفاصيل حساب التاجر عند إتمام الطلب.",
+        manualInstr: "حوّل إجمالي الطلب بالضبط إلى الحساب الظاهر، ثم ارفع الإيصال وأدخل رقم العملية.",
+        fTxnLabel: "رقم العملية",
+        fTxnPlaceholder: "مثال: TXN-8827463",
+        fReceiptLabel: "إيصال الدفع",
+      }
+    : {
+        codLabel: "Cash on Delivery",
+        codDesc: "Pay when your order arrives.",
+        manualLabel: "Manual Transfer",
+        manualDesc: "Pay by bank or mobile-money transfer. You'll get the merchant's account details at checkout.",
+        manualInstr: "Transfer the exact order total to the account shown, then upload the receipt and enter your transaction number.",
+        fTxnLabel: "Transaction number",
+        fTxnPlaceholder: "e.g. TXN-8827463",
+        fReceiptLabel: "Payment receipt",
+      };
+  const manualFields = MANUAL_CUSTOMER_FIELDS.map((f) =>
+    f.name === "transactionNumber"
+      ? { ...f, label: copy.fTxnLabel, placeholder: copy.fTxnPlaceholder }
+      : f.name === "receipt"
+      ? { ...f, label: copy.fReceiptLabel }
+      : f
+  );
 
   const wanted = [
     {
       code: "cod",
       type: "cod",
-      label: "Cash on Delivery",
-      description: "Pay when your order arrives.",
+      label: copy.codLabel,
+      description: copy.codDesc,
       providerLogos: ["cod"],
       icon: "cod",
       enabled: true,
@@ -268,16 +301,14 @@ export async function seedDefaultPaymentMethods(models) {
     {
       code: "manual-transfer",
       type: "manual",
-      label: "Manual Transfer",
-      description:
-        "Pay by bank or mobile-money transfer. You'll get the merchant's account details at checkout.",
+      label: copy.manualLabel,
+      description: copy.manualDesc,
       providerLogos: DEFAULT_MANUAL_PROVIDERS.map((p) => p.logo),
       icon: "bank",
       enabled: false,
       order: 2,
-      instructions:
-        "Transfer the exact order total to the account shown, then upload the receipt and enter your transaction number.",
-      customerFields: MANUAL_CUSTOMER_FIELDS,
+      instructions: copy.manualInstr,
+      customerFields: manualFields,
       providers: DEFAULT_MANUAL_PROVIDERS.map((p) => ({
         ...p,
         enabled: false,

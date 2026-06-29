@@ -275,9 +275,19 @@ const requestPasswordReset = async (connection, email) => {
     const resetPath = `/reset-password?token=${encodeURIComponent(rawToken)}`;
     const resetUrl = base ? `${base}${resetPath}` : resetPath;
 
+    // Localize by the store's language so the reset email matches the
+    // storefront/dashboard the user knows. Best-effort — fall back to English.
+    let language;
+    try {
+      const Tenant = connection.model("Tenant");
+      const t = await Tenant.findById(user.tenantId).select("settings.language").lean();
+      language = t?.settings?.language;
+    } catch { /* default to English */ }
+
     const { subject, text, html } = buildPasswordResetEmail({
       resetUrl,
       expiresInMinutes: RESET_TOKEN_TTL_MINUTES,
+      language,
     });
 
     try {

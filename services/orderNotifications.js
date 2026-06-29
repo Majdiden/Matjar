@@ -63,6 +63,46 @@ const DEFAULT_TEMPLATES = {
   },
 };
 
+// Arabic default templates — used when the store's language is Arabic and the
+// merchant hasn't overridden a template. Mirrors DEFAULT_TEMPLATES key-for-key.
+const DEFAULT_TEMPLATES_AR = {
+  Pending: {
+    subject: "تم استلام الطلب {{orderNumber}}",
+    body: "مرحباً {{customerName}}،\n\nلقد استلمنا طلبك {{orderNumber}} بقيمة {{total}}. سنعلمك عند شحنه.\n\nشكراً لك،\n{{storeName}}",
+  },
+  Processing: {
+    subject: "جارٍ تجهيز الطلب {{orderNumber}}",
+    body: "مرحباً {{customerName}}،\n\nيجري الآن تجهيز طلبك {{orderNumber}} للشحن.\n\n{{storeName}}",
+  },
+  Shipped: {
+    subject: "تم شحن الطلب {{orderNumber}}",
+    body: "مرحباً {{customerName}}،\n\nأخبار سارة — تم شحن طلبك {{orderNumber}}! رقم التتبّع: {{trackingNumber}}.\n\n{{storeName}}",
+  },
+  Delivered: {
+    subject: "تم تسليم الطلب {{orderNumber}}",
+    body: "مرحباً {{customerName}}،\n\nتم تسليم طلبك {{orderNumber}}. نتمنى لك تجربة ممتعة!\n\n{{storeName}}",
+  },
+  Cancelled: {
+    subject: "تم إلغاء الطلب {{orderNumber}}",
+    body: "مرحباً {{customerName}}،\n\nتم إلغاء طلبك {{orderNumber}}.\n\n{{storeName}}",
+  },
+  Refunded: {
+    subject: "تم استرداد مبلغ الطلب {{orderNumber}}",
+    body: "مرحباً {{customerName}}،\n\nتم استرداد مبلغ طلبك {{orderNumber}} ({{total}}).\n\n{{storeName}}",
+  },
+};
+
+/**
+ * Pick the default template set for a store language. Falls back to English
+ * for any language we don't ship defaults for, so a missing/unknown language
+ * never blanks an email.
+ */
+function defaultTemplatesFor(language) {
+  return String(language).toLowerCase().startsWith("ar")
+    ? DEFAULT_TEMPLATES_AR
+    : DEFAULT_TEMPLATES;
+}
+
 export const ORDER_NOTIFICATION_STATUSES = STATUSES;
 export const ORDER_NOTIFICATION_DEFAULTS = DEFAULT_TEMPLATES;
 
@@ -135,7 +175,7 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
 
     const Tenant = mongoose.model("Tenant");
     const tenant = await Tenant.findById(tenantId)
-      .select("name settings.notifications settings.storeName settings.currency")
+      .select("name settings.notifications settings.storeName settings.currency settings.language")
       .lean();
     if (!tenant) return { success: false, reason: "tenant-not-found" };
 
@@ -148,7 +188,8 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
       return { success: false, reason: "template-disabled" };
     }
 
-    const defaults = DEFAULT_TEMPLATES[newStatus];
+    // Localized defaults by the store language (merchant overrides still win).
+    const defaults = defaultTemplatesFor(tenant.settings?.language)[newStatus];
     const subjectTpl = tplOverride.subject || defaults.subject;
     const bodyTpl = tplOverride.body || defaults.body;
 
@@ -204,13 +245,14 @@ export const notifyMerchantNewOrder = async (order, tenantId) => {
 
     const Tenant = mongoose.model("Tenant");
     const tenant = await Tenant.findById(tenantId)
-      .select("name email settings.notifications settings.storeName settings.currency")
+      .select("name email settings.notifications settings.storeName settings.currency settings.language")
       .lean();
     if (!tenant) return { success: false, reason: "tenant-not-found" };
 
     const merchantEmail = tenant.email;
     if (!merchantEmail) return { success: false, reason: "no-merchant-email" };
 
+    const isAr = String(tenant.settings?.language || "").toLowerCase().startsWith("ar");
     const storeName = tenant.settings?.storeName || tenant.name || "Store";
     const orderNumber = order.orderNumber || String(order._id || "");
     const total = `${order.totalAmount ?? ""} ${order.currency || tenant.settings?.currency || "SDG"}`.trim();
@@ -218,17 +260,26 @@ export const notifyMerchantNewOrder = async (order, tenantId) => {
       order.user?.name ||
       [order.shippingAddress?.firstName, order.shippingAddress?.lastName].filter(Boolean).join(" ") ||
       order.guestCustomer?.name ||
-      "a customer";
+      (isAr ? "أحد العملاء" : "a customer");
 
-    const subject = `New order ${orderNumber} — ${total}`;
-    const html =
-      `<div style="font-family:sans-serif">` +
-      `<h2>New order received</h2>` +
-      `<p>You just received order <strong>${escapeHtml(orderNumber)}</strong> from ${escapeHtml(customerName)}.</p>` +
-      `<p>Total: <strong>${escapeHtml(total)}</strong></p>` +
-      `<p>Open the dashboard to view and fulfill it.</p>` +
-      `<p style="color:#888;font-size:12px">${escapeHtml(storeName)}</p>` +
-      `</div>`;
+    const subject = isAr
+      ? `طلب جديد ${orderNumber} — ${total}`
+      : `New order ${orderNumber} — ${total}`;
+    const html = isAr
+      ? `<div dir="rtl" style="font-family:sans-serif">` +
+        `<h2>تم استلام طلب جديد</h2>` +
+        `<p>لقد استلمت للتو الطلب <strong>${escapeHtml(orderNumber)}</strong> من ${escapeHtml(customerName)}.</p>` +
+        `<p>الإجمالي: <strong>${escapeHtml(total)}</strong></p>` +
+        `<p>افتح لوحة التحكم لعرضه وتنفيذه.</p>` +
+        `<p style="color:#888;font-size:12px">${escapeHtml(storeName)}</p>` +
+        `</div>`
+      : `<div style="font-family:sans-serif">` +
+        `<h2>New order received</h2>` +
+        `<p>You just received order <strong>${escapeHtml(orderNumber)}</strong> from ${escapeHtml(customerName)}.</p>` +
+        `<p>Total: <strong>${escapeHtml(total)}</strong></p>` +
+        `<p>Open the dashboard to view and fulfill it.</p>` +
+        `<p style="color:#888;font-size:12px">${escapeHtml(storeName)}</p>` +
+        `</div>`;
 
     const notifSettings = tenant.settings?.notifications || {};
     const fromName = notifSettings.fromName || storeName;
