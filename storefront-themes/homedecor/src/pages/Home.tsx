@@ -9,8 +9,12 @@ import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
 import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
-import InteriorHero from '../components/InteriorHero';
+import { Hero } from '@shared/components/sections/Hero';
 import type { Product } from '@shared/types/commerce';
+
+// Niche default hero image — a calm, styled interior — so the hero is never
+// empty even before the merchant sets one.
+const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1600&q=80&auto=format&fit=crop';
 
 const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'philosophy', 'trending-carousel', 'newsletter'];
 
@@ -66,8 +70,17 @@ const Home: React.FC = () => {
           settings + i18n keys this theme always fed the shared Hero, so
           merchant customizations + translations keep working) */}
       {heroEnabled && (
-        <InteriorHero
-          media={!hero.background_image ? featured?.find((p) => p.images?.[0])?.images?.[0] : undefined}
+        <Hero
+          variant="editorial"
+          align="start"
+          title={`${hero.heading_line1 || t('theme.hero.heading_line1')} ${hero.heading_line2 || t('theme.hero.heading_line2')}`}
+          subtitle={hero.subheading || t('theme.hero.subheading')}
+          primaryCta={{ label: hero.primary_button_text || t('theme.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
+          secondaryCta={{ label: hero.secondary_button_text || t('theme.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
+          backgroundImage={hero.background_image || undefined}
+          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
+          defaultImage={HERO_DEFAULT_IMAGE}
+          overlayOpacity={hero.overlay_opacity || 0}
         />
       )}
 

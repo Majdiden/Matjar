@@ -5,7 +5,7 @@ import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/t
 import { useFeaturedProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
-import KidsHero from '../components/KidsHero';
+import { Hero } from '@shared/components/sections/Hero';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
@@ -13,6 +13,10 @@ import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
 import type { Product } from '@shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'categories', 'shop-by-age', 'trust-badges', 'featured-products', 'new-arrivals', 'newsletter'];
+
+// Niche default hero image — a bright, playful toys scene — so the hero is
+// never empty even before the merchant sets one.
+const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1558877385-8c1b8e6e0b1f?w=1600&q=80&auto=format&fit=crop';
 
 // Visual color palettes cycled across merchant-editable blocks. These
 // are theme-local — merchants edit the text content via the manifest's
@@ -114,8 +118,15 @@ const Home: React.FC = () => {
           + i18n keys internally; we pass the featured toy image for the bubble,
           gated on a merchant background image exactly as before). */}
       {heroEnabled && (
-        <KidsHero
-          media={!hero.background_image ? featured?.find((p) => p.images?.[0])?.images?.[0] : undefined}
+        <Hero
+          variant="split"
+          tone="dark"
+          title={`${hero.heading_line1 || t('theme.hero.heading_line1')} ${hero.heading_line2 || t('theme.hero.heading_line2')}`}
+          subtitle={hero.subheading || t('theme.hero.subheading')}
+          primaryCta={{ label: hero.button_text || t('theme.hero.cta'), href: hero.button_url || '/products' }}
+          backgroundImage={hero.background_image || undefined}
+          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
+          defaultImage={HERO_DEFAULT_IMAGE}
         />
       )}
 

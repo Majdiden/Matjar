@@ -9,15 +9,20 @@ import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
 import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
-import CraftedHero from '../components/CraftedHero';
+import { Hero } from '@shared/components/sections/Hero';
 import type { Product } from '@shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'philosophy', 'featured-products', 'artisan-spotlight', 'categories', 'new-arrivals', 'newsletter'];
+
+// Niche default hero image — a warm artisan craft / maker's table shot — so
+// the hero is never empty even before the merchant sets one.
+const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1605883705077-8d3d3cebe78c?w=1600&q=80&auto=format&fit=crop';
 
 const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
 
   // Read section settings from the manifest + tenant overrides
+  const hero = useThemeSettings('hero');
   const philosophy = useThemeSettings('philosophy');
   const feat = useThemeSettings('featured-products');
   const spotlight = useThemeSettings('artisan-spotlight');
@@ -48,12 +53,20 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* Hero — bespoke crafted/tactile hero (reads the same hero settings +
-          i18n keys this theme always fed the shared Hero, so merchant
-          customizations + translations keep working). The featured-product
-          photo becomes the polaroid showcase. */}
+      {/* Hero — shared imagery-forward hero (warm craft split panel) */}
       {heroEnabled && (
-        <CraftedHero media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
+        <Hero
+          variant="split"
+          tone="light"
+          title={`${hero.heading_line1 || t('theme.section.hero.heading_line1')} ${hero.heading_line2 || t('theme.section.hero.heading_line2')}`}
+          subtitle={hero.subheading || t('theme.section.hero.subheading')}
+          primaryCta={{ label: hero.primary_button_text || t('theme.section.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
+          secondaryCta={{ label: hero.secondary_button_text || t('theme.section.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
+          saleText={hero.eyebrow_text || t('theme.section.hero.eyebrow')}
+          backgroundImage={hero.background_image || undefined}
+          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
+          defaultImage={HERO_DEFAULT_IMAGE}
+        />
       )}
 
       {/* Our Philosophy */}

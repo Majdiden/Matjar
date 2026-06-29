@@ -5,7 +5,11 @@ import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/t
 import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
-import ModernHero from '../components/ModernHero';
+import { Hero } from '@shared/components/sections/Hero';
+
+// Niche default hero image — a clean tech/gadget lifestyle shot — so the
+// hero is never empty even before the merchant sets one.
+const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1600&q=80&auto=format&fit=crop';
 import { Carousel } from '@shared/components/primitives/Carousel';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
@@ -57,7 +61,17 @@ const Home: React.FC = () => {
             translated defaults so a brand-new store never shows a bare,
             button-less gradient; a featured-product photo becomes the
             floating showcase when no background image is set. */}
-        <ModernHero media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
+        <Hero
+          variant="spotlight"
+          tone="light"
+          title={hero.heading || t('theme.section.hero.headline')}
+          subtitle={hero.subheading || t('theme.section.hero.subheadline')}
+          primaryCta={{ label: hero.primary_button_text || t('theme.section.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
+          secondaryCta={{ label: hero.secondary_button_text || t('theme.section.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
+          backgroundImage={hero.background_image || undefined}
+          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
+          defaultImage={HERO_DEFAULT_IMAGE}
+        />
 
         {/* Slide 2 — Sale (optional). Token-driven accent gradient so it
             tracks the theme palette + customizer instead of a hardcoded

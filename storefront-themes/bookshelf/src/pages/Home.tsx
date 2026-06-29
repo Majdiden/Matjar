@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
-import BookHero from '../components/BookHero';
+import { Hero } from '@shared/components/sections/Hero';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
@@ -13,6 +13,10 @@ import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
 import type { Product } from '@shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'genres', 'staff-picks', 'reading-quote', 'bestsellers', 'newsletter'];
+
+// Niche default hero image — a cozy shelf of books — so the hero is never
+// empty even before the merchant sets one.
+const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1600&q=80&auto=format&fit=crop';
 
 // Visual color palette cycled across genre cards. Merchants edit genre
 // name + icon via the manifest `genres` block schema; the color band is
@@ -31,6 +35,7 @@ const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
 
   // Section settings from manifest + tenant overrides
+  const hero = useThemeSettings('hero');
   const genres = useThemeSettings('genres');
   const genreBlocks = useSectionBlocks('genres');
   const staffPicks = useThemeSettings('staff-picks');
@@ -71,7 +76,16 @@ const Home: React.FC = () => {
           settings + i18n keys internally; a featured book cover is passed in
           as the standing-cover showcase. */}
       {heroEnabled && (
-        <BookHero media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
+        <Hero
+          variant="spotlight"
+          tone="dark"
+          title={`${hero.heading_line1 || t('theme.section.hero.heading_line1')} ${hero.heading_line2 || t('theme.section.hero.heading_line2')}`}
+          subtitle={hero.subheading || t('theme.section.hero.subheading')}
+          primaryCta={{ label: hero.button_text || t('theme.section.hero.cta'), href: hero.button_url || '/products' }}
+          backgroundImage={hero.background_image || undefined}
+          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
+          defaultImage={HERO_DEFAULT_IMAGE}
+        />
       )}
 
       {/* Genre Cards */}

@@ -11,7 +11,12 @@ import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
+import { Hero } from '@shared/components/sections/Hero';
 import MilmaaProductCard from '../components/MilmaaProductCard';
+
+// Niche default hero image (organic/wellness) so the editorial hero is never empty.
+const HERO_DEFAULT_IMAGE =
+  'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=1600&q=80&auto=format&fit=crop';
 
 const TEAL = 'var(--color-primary)';
 const DARK_TEAL = 'var(--color-foreground)';
@@ -32,69 +37,23 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
   );
 };
 
-// ─── Embrace Hero ─────────────────────────────────────────────────
+// ─── Embrace Hero (shared, imagery-forward) ───────────────────────
 
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   return (
-    <section className="relative overflow-hidden" style={{ backgroundColor: CREAM }}>
-      {/* Pink blob decoration */}
-      <div className="absolute -top-20 -end-20 w-[480px] h-[480px] rounded-full opacity-60" style={{ backgroundColor: PINK }} aria-hidden />
-      <div className="absolute top-40 start-20 w-32 h-32 rounded-full opacity-50" style={{ backgroundColor: YELLOW }} aria-hidden />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-        <div>
-          {s.eyebrow && (
-            <div className="inline-block px-4 py-1.5 rounded-full text-[11px] tracking-[0.2em] uppercase font-bold mb-6" style={{ backgroundColor: TEAL, color: '#fff' }}>
-              🌱 {s.eyebrow}
-            </div>
-          )}
-          <h1
-            className="font-serif text-5xl sm:text-6xl md:text-7xl leading-[1.05] font-semibold"
-            style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}
-          >
-            {s.heading || 'Embracing the power of strength'}
-          </h1>
-          {s.subheading && (
-            <p className="mt-6 text-base md:text-lg max-w-md leading-relaxed" style={{ color: DARK_TEAL, opacity: 0.75 }}>
-              {s.subheading}
-            </p>
-          )}
-          <div className="mt-10 flex flex-wrap gap-4 items-center">
-            <Link
-              to={(s.cta_url as string) || '/products'}
-              className="inline-block px-8 py-4 rounded-full text-white text-sm font-bold hover:scale-105 transition"
-              style={{ backgroundColor: DARK_TEAL }}
-            >
-              {s.cta_text || 'Shop Milk'} →
-            </Link>
-            <Link
-              to="/about"
-              className="inline-flex items-center gap-2 text-sm font-bold hover:opacity-60"
-              style={{ color: DARK_TEAL }}
-            >
-              <span className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow">▶</span>
-              {t('theme.section.milmaa-hero.watch_story')}
-            </Link>
-          </div>
-        </div>
-
-        <div className="relative hidden md:block">
-          <div className="aspect-[4/5] rounded-[60px] overflow-hidden relative" style={{ backgroundColor: YELLOW }}>
-            {s.image ? (
-              <img src={s.image as string} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <img src="https://placehold.co/800x1000/f6dc68/2c4a4a?text=Milmaa+Milk" alt="" className="w-full h-full object-cover" />
-            )}
-            {/* Floating badge */}
-            <div className="absolute top-6 end-6 w-24 h-24 rounded-full flex items-center justify-center text-center text-xs font-bold shadow-lg" style={{ backgroundColor: PINK, color: DARK_TEAL }}>
-              {t('theme.section.milmaa-hero.badge')}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <Hero
+      variant="editorial"
+      align="start"
+      title={s.heading || t('theme.section.milmaa-hero.heading')}
+      subtitle={s.subheading || t('theme.section.milmaa-hero.subheading')}
+      primaryCta={{ label: s.cta_text || t('theme.section.milmaa-hero.cta'), href: (s.cta_url as string) || '/products' }}
+      secondaryCta={{ label: t('theme.section.milmaa-hero.watch_story'), href: '/about' }}
+      saleText={s.eyebrow || t('theme.section.milmaa-hero.eyebrow')}
+      backgroundImage={(s.image as string) || undefined}
+      defaultImage={HERO_DEFAULT_IMAGE}
+    />
   );
 };
 

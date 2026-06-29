@@ -5,7 +5,7 @@ import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/t
 import { useFeaturedProducts, useCategories } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
-import MinimalHero from '../components/MinimalHero';
+import { Hero } from '@shared/components/sections/Hero';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
@@ -13,6 +13,10 @@ import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
 import type { Product } from '@shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'trust-badges', 'newsletter'];
+
+// Niche default hero image — a clean minimal retail shot — so the hero is
+// never empty even before the merchant sets one.
+const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80&auto=format&fit=crop';
 
 const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
@@ -44,9 +48,16 @@ const Home: React.FC = () => {
           keys internally; featured image is passed for the simple frame,
           gated on a merchant background image exactly as before). */}
       {heroEnabled && (
-        <MinimalHero
+        <Hero
           className="mb-16"
-          media={!hero.background_image ? featured?.find((p) => p.images?.[0])?.images?.[0] : undefined}
+          variant="spotlight"
+          tone="light"
+          title={hero.heading || t('theme.hero.main.headline')}
+          subtitle={hero.subheading || t('theme.hero.main.subheadline')}
+          primaryCta={{ label: hero.button_text || t('theme.hero.main.cta'), href: hero.button_url || '/products' }}
+          backgroundImage={hero.background_image || undefined}
+          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
+          defaultImage={HERO_DEFAULT_IMAGE}
         />
       )}
 

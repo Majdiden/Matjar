@@ -198,9 +198,12 @@ export const Register: React.FC = () => {
         errs.email = t('auth.validation.email_invalid');
 
       const pw = form.password;
+      // Mirror the backend registerTenantSchema EXACTLY (>=8, lower+upper+digit)
+      // so a weak-but-passing password is caught here on the field, not only
+      // at final submit by the server.
       if (!pw) errs.password = t('auth.field.password.error.required');
       else if (pw.length < 8) errs.password = t('auth.field.password.error.too_short');
-      else if (!/[A-Za-z]/.test(pw) || !/\d/.test(pw))
+      else if (!/[a-z]/.test(pw) || !/[A-Z]/.test(pw) || !/\d/.test(pw))
         errs.password = t('auth.field.password.error.weak');
     }
     if (s === 'store') {
@@ -471,7 +474,26 @@ export const Register: React.FC = () => {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                {fieldErrors.password ? (
+                {/* Live requirements checklist — turns green as each backend
+                    rule is met, so the password is validated on the field
+                    instead of failing at final submit. */}
+                {form.password ? (
+                  <ul className="mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1">
+                    {[
+                      { ok: form.password.length >= 8, label: t('auth.field.password.req.length', { defaultValue: 'At least 8 characters' }) },
+                      { ok: /[a-z]/.test(form.password), label: t('auth.field.password.req.lower', { defaultValue: 'One lowercase letter' }) },
+                      { ok: /[A-Z]/.test(form.password), label: t('auth.field.password.req.upper', { defaultValue: 'One uppercase letter' }) },
+                      { ok: /\d/.test(form.password), label: t('auth.field.password.req.digit', { defaultValue: 'One number' }) },
+                    ].map((r) => (
+                      <li key={r.label} className={`flex items-center gap-1.5 text-xs ${r.ok ? 'text-green-600' : 'text-muted-foreground'}`}>
+                        <span className={`inline-flex h-3.5 w-3.5 items-center justify-center rounded-full text-[9px] ${r.ok ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
+                          {r.ok ? '✓' : '•'}
+                        </span>
+                        {r.label}
+                      </li>
+                    ))}
+                  </ul>
+                ) : fieldErrors.password ? (
                   <p className="text-xs text-destructive">{fieldErrors.password}</p>
                 ) : (
                   <p className="text-xs text-muted-foreground">{t('auth.field.password.help')}</p>

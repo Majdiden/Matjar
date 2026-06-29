@@ -5,7 +5,7 @@ import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/t
 import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
-import FreshmartHero from '../components/FreshmartHero';
+import { Hero } from '@shared/components/sections/Hero';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
@@ -14,6 +14,10 @@ import { CountdownTimer } from '@shared/components/marketing/CountdownTimer';
 import type { Product } from '@shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'categories', 'weekly-deals', 'featured-products', 'trust-badges', 'new-arrivals', 'newsletter'];
+
+// Niche default hero image — a bright fresh-produce shot — so the hero is
+// never empty even before the merchant sets one.
+const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=1600&q=80&auto=format&fit=crop';
 
 // Grocery shoppers respond to time-bound freshness messaging — a weekly
 // rotation creates urgency and matches how real supermarket flyers work.
@@ -67,6 +71,7 @@ const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
 
   // Read section settings from the manifest + tenant overrides
+  const hero = useThemeSettings('hero');
   const cats = useThemeSettings('categories');
   const feat = useThemeSettings('featured-products');
   const trust = useThemeSettings('trust-badges');
@@ -96,9 +101,20 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* Hero — bespoke friendly "fresh deals" hero */}
+      {/* Hero — shared imagery-forward hero (green copy panel + produce image) */}
       {heroEnabled && (
-        <FreshmartHero media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
+        <Hero
+          variant="split"
+          tone="dark"
+          title={`${hero.heading_line1 || t('theme.hero.heading_line1')} ${hero.heading_line2 || t('theme.hero.heading_line2')}`}
+          subtitle={hero.subheading || t('theme.hero.subheading')}
+          primaryCta={{ label: hero.primary_button_text || t('theme.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
+          secondaryCta={{ label: hero.secondary_button_text || t('theme.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
+          saleText={hero.badge_text || t('theme.hero.badge_text')}
+          backgroundImage={hero.background_image || undefined}
+          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
+          defaultImage={HERO_DEFAULT_IMAGE}
+        />
       )}
 
       {/* Categories */}

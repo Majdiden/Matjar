@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionEnabled } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
 import { ProductCard } from '@shared/components/commerce/ProductCard';
-import SportzoneHero from '../components/SportzoneHero';
+import { Hero } from '@shared/components/sections/Hero';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
@@ -12,12 +12,17 @@ import { MerchantSections } from '@shared/theme/SectionRenderer';
 import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
 import type { Product } from '@shared/types/commerce';
 
+// Niche default hero image — a high-energy athletic action shot — so the
+// hero is never empty even before the merchant sets one.
+const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&q=80&auto=format&fit=crop';
+
 const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'cta-banner', 'performance-gear', 'trust-badges'];
 
 const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
 
   // Read section settings from the manifest + tenant overrides
+  const hero = useThemeSettings('hero');
   const cats = useThemeSettings('categories');
   const feat = useThemeSettings('featured-products');
   const cta = useThemeSettings('cta-banner');
@@ -78,9 +83,20 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* Hero — bespoke high-energy athletic hero */}
+      {/* Hero — shared imagery-forward hero (athletic full-bleed editorial) */}
       {heroEnabled && (
-        <SportzoneHero media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
+        <Hero
+          variant="editorial"
+          title={`${hero.heading_line1 || t('theme.hero.main.headline_line1')} ${hero.heading_line2 || t('theme.hero.main.headline_line2')}`}
+          subtitle={hero.subheading || t('theme.hero.main.subheadline')}
+          primaryCta={{ label: hero.primary_button_text || t('theme.hero.main.cta_primary'), href: hero.primary_button_url || '/products' }}
+          secondaryCta={{ label: hero.secondary_button_text || t('theme.hero.main.cta_secondary'), href: hero.secondary_button_url || '/categories' }}
+          saleText={hero.eyebrow_text || t('theme.hero.main.eyebrow')}
+          backgroundImage={hero.background_image || undefined}
+          overlayOpacity={hero.overlay_opacity || undefined}
+          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
+          defaultImage={HERO_DEFAULT_IMAGE}
+        />
       )}
 
       {/* Categories with action-shot overlays */}

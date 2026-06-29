@@ -7,182 +7,257 @@ export interface HeroCta {
   href: string;
 }
 
+/** Imagery-forward e-commerce hero layouts (Shopify-style). */
+export type HeroVariant = 'spotlight' | 'editorial' | 'split';
+
 export interface HeroProps {
-  /** Small chip above the headline (e.g. "New Collection"). */
-  eyebrow?: string;
   title: string;
   subtitle?: string;
   primaryCta?: HeroCta;
   secondaryCta?: HeroCta;
-  /** Full-bleed background image URL. When set, a legibility gradient is
-   *  layered automatically; `overlayOpacity` adds an extra darkening. */
+  /**
+   * Layout archetype:
+   *  - 'spotlight' : product/lifestyle photo dominant on one side, copy on the
+   *                  other (e.g. a headphone/shoe spotlight with a Shop CTA).
+   *  - 'editorial' : full-bleed lifestyle photo with copy overlaid (fashion).
+   *  - 'split'     : a solid colour copy panel beside a full image panel.
+   */
+  variant?: HeroVariant;
+  /** Merchant-set hero image (customizer). Highest precedence. */
   backgroundImage?: string;
-  /** Extra dark overlay over a background image, 0–100. */
-  overlayOpacity?: number;
-  /** Product/lifestyle image shown as a floating showcase (desktop) when
-   *  there is no full-bleed background image — turns the empty gradient
-   *  hero into a real, premium composition. */
+  /** Featured-product / lifestyle image passed by the theme (2nd precedence). */
   media?: string;
-  /** Horizontal alignment of the copy. Defaults to 'start' when a media
-   *  showcase is present, 'center' otherwise. */
-  align?: 'center' | 'start';
+  /** Theme's baked-in niche default image (final precedence) — so the hero is
+   *  never empty and always looks like a real store. */
+  defaultImage?: string;
+  /** Extra darkening over an editorial image, 0–100. */
+  overlayOpacity?: number;
+  /** Small promo line (e.g. "Up to 40% off"). NO emojis. */
+  saleText?: string;
+  /** Copy-on-surface tone for spotlight/split text panels. */
+  tone?: 'light' | 'dark';
+  /** Editorial copy anchor. */
+  align?: 'start' | 'center';
+  /** Image focal point for cover crops, e.g. 'center', 'top'. */
+  imagePosition?: string;
   className?: string;
 }
 
 /**
- * Shared premium hero.
+ * Shared, imagery-forward e-commerce hero.
  *
- * Mobile-first and fully token-driven: the gradient is built from
- * `--color-primary`/`--color-secondary`, depth comes from the platform
- * elevation + motion tokens, and corners/buttons honour `--radius*`. It is
- * label-agnostic — each theme passes already-translated copy, so the same
- * component serves every storefront while keeping per-theme personality
- * through its palette, fonts and motion tokens.
+ * One shared component, distinct per theme via `variant` + design tokens
+ * (palette, heading font, radius, shadow, motion) + the resolved image +
+ * copy. Always image-first (never a bare gradient/SaaS block), never empty:
+ * image precedence is backgroundImage → media → defaultImage, and an
+ * `onError` falls through so a blocked/404 URL degrades gracefully.
  *
- * Three compositions, chosen automatically:
- *   1. `backgroundImage`  → full-bleed photo + legibility gradient.
- *   2. `media` (no bg)    → split layout: copy + floating product card.
- *   3. neither            → rich gradient with layered glow + dot texture.
- *
- * There is always a primary CTA path (callers pass an i18n default), so a
- * brand-new store never renders a bare, button-less hero.
+ * Token-driven, mobile-first, RTL-safe. No eyebrow pill. No emojis.
  */
 export function Hero({
-  eyebrow,
   title,
   subtitle,
   primaryCta,
   secondaryCta,
+  variant = 'spotlight',
   backgroundImage,
-  overlayOpacity = 0,
   media,
-  align,
+  defaultImage,
+  overlayOpacity = 0,
+  saleText,
+  tone = 'light',
+  align = 'start',
+  imagePosition = 'center',
   className,
 }: HeroProps) {
-  const hasMedia = !!media && !backgroundImage;
-  const resolvedAlign = align ?? (hasMedia ? 'start' : 'center');
-  const centered = resolvedAlign === 'center';
+  const image = backgroundImage || media || defaultImage;
+  const onDark = tone === 'dark';
 
-  const gradient =
-    'linear-gradient(135deg, var(--color-primary, #2563eb) 0%, var(--color-secondary, #1e40af) 100%)';
+  const arrow = (
+    <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+    </svg>
+  );
 
-  return (
-    <section
-      className={cn('relative isolate overflow-hidden text-white', className)}
-      // Gradient is ALWAYS the base layer, so if a background image is blocked
-      // (CSP) or 404s the hero degrades to the gradient instead of a blank/
-      // broken band.
-      style={{ background: gradient }}
-    >
-      {/* Background image (as <img> so onError can drop it) + legibility gradient */}
-      {backgroundImage && (
-        <>
+  // ── Editorial: full-bleed photo, copy overlaid with a legibility gradient ──
+  if (variant === 'editorial') {
+    return (
+      <section
+        className={cn('relative isolate overflow-hidden text-white', className)}
+        style={{ background: 'linear-gradient(135deg, var(--color-secondary, #1e293b) 0%, var(--color-primary, #334155) 100%)' }}
+      >
+        {image && (
           <img
-            src={backgroundImage}
+            src={image}
             alt=""
             aria-hidden="true"
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
             className="absolute inset-0 -z-10 w-full h-full object-cover"
+            style={{ objectPosition: imagePosition }}
           />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
-          {overlayOpacity > 0 && (
-            <div className="absolute inset-0 -z-10 bg-black" style={{ opacity: overlayOpacity / 100 }} />
-          )}
-        </>
-      )}
-
-      {/* Decorative depth for the gradient compositions */}
-      {!backgroundImage && (
-        <>
-          {/* dotted texture */}
-          <div
-            className="absolute inset-0 -z-10 opacity-[0.18]"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.7) 1px, transparent 0)',
-              backgroundSize: '22px 22px',
-            }}
-          />
-          {/* glow orbs */}
-          <div className="pointer-events-none absolute -top-24 -start-24 -z-10 w-[28rem] h-[28rem] rounded-full bg-white/15 blur-3xl" />
-          <div
-            className="pointer-events-none absolute -bottom-32 -end-16 -z-10 w-[34rem] h-[34rem] rounded-full blur-3xl opacity-40"
-            style={{ background: 'var(--color-accent, #f59e0b)' }}
-          />
-        </>
-      )}
-
-      <div
-        className={cn(
-          'mx-auto w-full max-w-[var(--layout-max-width,1280px)] px-4 sm:px-6 lg:px-8',
-          'py-16 sm:py-20 lg:py-28',
-          hasMedia ? 'grid items-center gap-10 lg:grid-cols-2' : ''
         )}
-      >
-        {/* Copy */}
-        <div
-          className={cn(
-            'relative z-10 flex flex-col',
-            centered ? 'items-center text-center mx-auto max-w-2xl' : 'items-start text-start max-w-xl'
-          )}
-        >
-          {eyebrow && (
-            <span className="inline-flex items-center rounded-[var(--radius-pill,9999px)] bg-white/15 backdrop-blur-sm px-3.5 py-1.5 text-xs sm:text-sm font-semibold tracking-wide ring-1 ring-white/20">
-              {eyebrow}
-            </span>
-          )}
-          <h1
-            className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight text-balance"
-            style={{ fontFamily: 'var(--font-family-heading)' }}
-          >
-            {title}
-          </h1>
-          {subtitle && (
-            <p className={cn('mt-4 text-base sm:text-lg lg:text-xl text-white/85 leading-relaxed', centered ? 'max-w-2xl' : 'max-w-lg')}>
-              {subtitle}
-            </p>
-          )}
+        <div className={cn('absolute inset-0 -z-10', align === 'center'
+          ? 'bg-black/40'
+          : 'bg-gradient-to-t from-black/75 via-black/30 to-black/10 rtl:bg-gradient-to-t')} />
+        {overlayOpacity > 0 && <div className="absolute inset-0 -z-10 bg-black" style={{ opacity: overlayOpacity / 100 }} />}
 
-          {(primaryCta || secondaryCta) && (
-            <div className={cn('mt-8 flex flex-col sm:flex-row gap-3', centered && 'sm:justify-center')}>
-              {primaryCta && (
-                <Link
-                  to={primaryCta.href}
-                  className="group inline-flex items-center justify-center gap-2 rounded-[var(--radius,12px)] bg-white px-7 py-3.5 text-sm sm:text-base font-semibold shadow-[var(--shadow-lg)] transition-[transform,filter] duration-[var(--duration-fast,150ms)] hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0"
-                  style={{ color: 'var(--color-secondary, #1e40af)' }}
-                >
-                  {primaryCta.label}
-                  <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </Link>
-              )}
-              {secondaryCta && (
-                <Link
-                  to={secondaryCta.href}
-                  className="inline-flex items-center justify-center gap-2 rounded-[var(--radius,12px)] border border-white/40 bg-white/5 px-7 py-3.5 text-sm sm:text-base font-semibold text-white backdrop-blur-sm transition-colors duration-[var(--duration-fast,150ms)] hover:bg-white/15"
-                >
-                  {secondaryCta.label}
-                </Link>
-              )}
-            </div>
-          )}
+        <div className={cn(
+          'mx-auto w-full max-w-[var(--layout-max-width,1280px)] px-4 sm:px-6 lg:px-8',
+          'min-h-[460px] sm:min-h-[540px] lg:min-h-[600px] flex flex-col justify-end py-12 sm:py-16 lg:py-20',
+          align === 'center' && 'items-center justify-center text-center'
+        )}>
+          <div className={cn('max-w-xl', align === 'center' && 'max-w-2xl')}>
+            {saleText && (
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-white/90">{saleText}</p>
+            )}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight text-balance" style={{ fontFamily: 'var(--font-family-heading)' }}>
+              {title}
+            </h1>
+            {subtitle && <p className="mt-4 text-base sm:text-lg text-white/85 leading-relaxed max-w-lg">{subtitle}</p>}
+            <HeroCtas primaryCta={primaryCta} secondaryCta={secondaryCta} arrow={arrow} centered={align === 'center'} overImage />
+          </div>
         </div>
+      </section>
+    );
+  }
 
-        {/* Floating product showcase (desktop) */}
-        {hasMedia && (
-          <div className="relative hidden lg:block">
-            <div
-              className="pointer-events-none absolute -inset-6 -z-10 rounded-[var(--radius-lg,20px)] opacity-50 blur-2xl"
-              style={{ background: 'var(--color-accent, #f59e0b)' }}
-            />
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-lg,20px)] bg-white/10 shadow-[var(--shadow-xl)] ring-1 ring-white/20 [transform:perspective(1200px)_rotateY(-6deg)]">
-              <img src={media} alt="" className="h-full w-full object-cover" loading="eager" />
+  // ── Split: colour copy panel beside a full image panel ──
+  if (variant === 'split') {
+    return (
+      <section className={cn('relative isolate overflow-hidden', className)}>
+        <div className="grid lg:grid-cols-2 min-h-[440px] sm:min-h-[520px]">
+          {/* Copy panel */}
+          <div
+            className={cn('relative flex items-center order-2 lg:order-1', onDark ? 'text-white' : 'text-[var(--color-foreground,#111)]')}
+            style={onDark
+              ? { background: 'linear-gradient(135deg, var(--color-primary, #2563eb) 0%, var(--color-secondary, #1e40af) 100%)' }
+              : { backgroundColor: 'var(--color-background, #fff)' }}
+          >
+            <div className="w-full px-6 sm:px-10 lg:px-14 py-12 lg:py-16 lg:ms-auto lg:max-w-[36rem]">
+              {saleText && (
+                <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: onDark ? 'rgba(255,255,255,.9)' : 'var(--color-primary,#2563eb)' }}>{saleText}</p>
+              )}
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.06] tracking-tight text-balance" style={{ fontFamily: 'var(--font-family-heading)' }}>
+                {title}
+              </h1>
+              {subtitle && <p className={cn('mt-4 text-base sm:text-lg leading-relaxed max-w-md', onDark ? 'text-white/85' : 'text-[var(--color-muted,#6b7280)]')}>{subtitle}</p>}
+              <HeroCtas primaryCta={primaryCta} secondaryCta={secondaryCta} arrow={arrow} onDark={onDark} />
             </div>
           </div>
-        )}
+          {/* Image panel */}
+          <div className="relative order-1 lg:order-2 min-h-[260px] sm:min-h-[340px] lg:min-h-0 bg-[var(--color-muted,#e5e7eb)]/20">
+            {image && (
+              <img
+                src={image}
+                alt=""
+                aria-hidden="true"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ objectPosition: imagePosition }}
+              />
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── Spotlight (default): product photo dominant + copy beside it ──
+  return (
+    <section
+      className={cn('relative isolate overflow-hidden', onDark ? 'text-white' : 'text-[var(--color-foreground,#111)]', className)}
+      style={onDark
+        ? { background: 'linear-gradient(135deg, var(--color-secondary, #0f172a) 0%, var(--color-primary, #1e293b) 100%)' }
+        : { background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-primary, #2563eb) 7%, #fff) 0%, color-mix(in srgb, var(--color-accent, #f59e0b) 8%, #fff) 100%)' }}
+    >
+      {/* soft dot texture */}
+      <div className="absolute inset-0 -z-10 opacity-[0.5]" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, ${onDark ? 'rgba(255,255,255,.10)' : 'color-mix(in srgb, var(--color-foreground,#111) 7%, transparent)'} 1px, transparent 0)`,
+        backgroundSize: '22px 22px',
+      }} />
+      <div className="mx-auto w-full max-w-[var(--layout-max-width,1280px)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 grid items-center gap-8 lg:gap-12 lg:grid-cols-2">
+        {/* Copy */}
+        <div className="relative z-10">
+          {saleText && (
+            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: onDark ? 'rgba(255,255,255,.9)' : 'var(--color-primary,#2563eb)' }}>{saleText}</p>
+          )}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight text-balance" style={{ fontFamily: 'var(--font-family-heading)' }}>
+            {title}
+          </h1>
+          {subtitle && <p className={cn('mt-4 text-base sm:text-lg lg:text-xl leading-relaxed max-w-lg', onDark ? 'text-white/85' : 'text-[var(--color-muted,#6b7280)]')}>{subtitle}</p>}
+          <HeroCtas primaryCta={primaryCta} secondaryCta={secondaryCta} arrow={arrow} onDark={onDark} />
+        </div>
+        {/* Product showcase */}
+        <div className="relative">
+          <div
+            className="pointer-events-none absolute -inset-4 sm:-inset-6 -z-10 rounded-full opacity-40 blur-3xl"
+            style={{ background: 'var(--color-accent, #f59e0b)' }}
+          />
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-lg,20px)] bg-white/60 shadow-[var(--shadow-xl)] ring-1 ring-black/5">
+            {image && (
+              <img
+                src={image}
+                alt=""
+                aria-hidden="true"
+                onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = 'none'; }}
+                className="w-full h-full object-cover"
+                style={{ objectPosition: imagePosition }}
+                loading="eager"
+              />
+            )}
+          </div>
+        </div>
       </div>
     </section>
+  );
+}
+
+function HeroCtas({
+  primaryCta,
+  secondaryCta,
+  arrow,
+  onDark,
+  overImage,
+  centered,
+}: {
+  primaryCta?: HeroCta;
+  secondaryCta?: HeroCta;
+  arrow: React.ReactNode;
+  onDark?: boolean;
+  overImage?: boolean;
+  centered?: boolean;
+}) {
+  if (!primaryCta && !secondaryCta) return null;
+  // On an image/dark surface the primary button is white with theme-coloured
+  // text; on a light surface it's the theme primary with white text.
+  const primaryStyle: React.CSSProperties =
+    overImage || onDark
+      ? { backgroundColor: '#fff', color: 'var(--color-primary, #2563eb)' }
+      : { backgroundColor: 'var(--color-primary, #2563eb)', color: '#fff' };
+  const secondaryCls = overImage || onDark
+    ? 'border-white/40 text-white hover:bg-white/15'
+    : 'border-[var(--color-border,#e5e7eb)] text-[var(--color-foreground,#111)] hover:bg-black/[0.04]';
+  return (
+    <div className={cn('mt-7 flex flex-col sm:flex-row gap-3', centered && 'sm:justify-center')}>
+      {primaryCta && (
+        <Link
+          to={primaryCta.href}
+          className="group inline-flex items-center justify-center gap-2 rounded-[var(--radius,12px)] px-7 py-3.5 text-sm sm:text-base font-semibold shadow-[var(--shadow-lg)] transition-[transform,filter] duration-[var(--duration-fast,150ms)] hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0"
+          style={primaryStyle}
+        >
+          {primaryCta.label}
+          {arrow}
+        </Link>
+      )}
+      {secondaryCta && (
+        <Link
+          to={secondaryCta.href}
+          className={cn('inline-flex items-center justify-center gap-2 rounded-[var(--radius,12px)] border px-7 py-3.5 text-sm sm:text-base font-semibold backdrop-blur-sm transition-colors duration-[var(--duration-fast,150ms)]', secondaryCls)}
+        >
+          {secondaryCta.label}
+        </Link>
+      )}
+    </div>
   );
 }
 
