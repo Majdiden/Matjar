@@ -9,14 +9,10 @@ import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { QuickView } from '@shared/components/discovery/QuickView';
 import { MerchantSections } from '@shared/theme/SectionRenderer';
 import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
-import { Hero } from '@shared/components/sections/Hero';
+import EditorialHero from '../components/EditorialHero';
 import type { Product } from '@shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'collections', 'featured-products', 'editorial-banner', 'new-arrivals', 'trust-bar'];
-
-// Niche default hero image — an editorial fashion shot — so the hero is
-// never empty even before the merchant sets one.
-const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80&auto=format&fit=crop';
 
 const Home: React.FC = () => {
   const { t } = useTranslation(['theme']);
@@ -46,19 +42,11 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {/* Hero — shared imagery-forward hero (fashion full-bleed editorial) */}
+      {/* Hero — bespoke editorial full-bleed hero (reads the same hero
+          settings + i18n keys this theme always fed the shared Hero) */}
       {heroEnabled && (
-        <Hero
-          variant="editorial"
-          align="start"
-          title={hero.heading || t('theme.section.hero.heading')}
-          subtitle={hero.subheading || t('theme.section.hero.subheading')}
-          primaryCta={{ label: hero.button_text || t('theme.section.hero.cta'), href: hero.button_url || '/products' }}
-          saleText={hero.season_label || t('theme.section.hero.season_label')}
-          backgroundImage={hero.background_image || undefined}
-          overlayOpacity={hero.overlay_opacity || undefined}
-          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
-          defaultImage={HERO_DEFAULT_IMAGE}
+        <EditorialHero
+          media={!hero.background_image ? featured?.find((p) => p.images?.[0])?.images?.[0] : undefined}
         />
       )}
 

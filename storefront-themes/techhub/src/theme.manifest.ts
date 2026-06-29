@@ -32,6 +32,9 @@ export const heroShowcaseSection: SectionDefinition = defineSection({
       { value: 'featured', label: 'Featured products' },
       { value: 'newest', label: 'Newest arrivals' },
     ]},
+    { id: 'slide_count', type: 'number', label: 'Spotlight Slides', default: 3, min: 1, max: 8 },
+    { id: 'autoplay', type: 'checkbox', label: 'Auto-play Spotlight', default: true },
+    { id: 'autoplay_interval', type: 'number', label: 'Auto-play Interval (ms)', default: 5000, min: 2000, max: 12000 },
   ],
 });
 
