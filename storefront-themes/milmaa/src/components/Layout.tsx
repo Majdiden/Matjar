@@ -30,7 +30,7 @@ const Layout: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const showBar = useThemeSetting<boolean>('show_announcement_bar') !== false;
-  const barText = useThemeSetting<string>('announcement_text') || t('theme.announcement.bar_text', { defaultValue: '🌱 100% Plant-Based · Free Shipping' });
+  const barText = useThemeSetting<string>('announcement_text') || t('theme.announcement.bar_text', { defaultValue: '100% Plant-Based · Free Shipping' });
 
   const brand = (store?.name || 'Milmaa');
   const isActive = (path: string) =>

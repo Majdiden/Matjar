@@ -13,7 +13,7 @@
  *   SELECT COLOR swatches (filled circles, green ring on active)
  *   SELECT SIZE pills (dark fill on active)
  *   CATEGORY eyebrow + title + rating + price
- *   row: [  ADD TO CART  ][♥][📷]
+ *   row: [  ADD TO CART  ][ wishlist ][ quick view ]
  *
  * The card is borderless — it sits on the page background. The whole
  * card is a link, but interactive elements inside stopPropagation and
@@ -181,7 +181,9 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             borderColor: comparing ? 'var(--color-primary)' : 'var(--color-border)',
           }}
         >
-          {comparing ? t('theme.product_card.compare_added') : t('theme.product_card.compare')}
+          {comparing ? (
+            <span className="inline-flex items-center gap-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 shrink-0"><path d="M5 13l4 4L19 7" /></svg>{t('theme.product_card.compare_added')}</span>
+          ) : t('theme.product_card.compare')}
         </button>
 
         {/* Badges */}

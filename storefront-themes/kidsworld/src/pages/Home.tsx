@@ -197,8 +197,7 @@ const Home: React.FC = () => {
                   to={`/products?age=${encodeURIComponent(label)}`}
                   className={`group flex flex-col items-center justify-center gap-2 p-5 rounded-3xl bg-gradient-to-br ${palette.color} hover:scale-105 transition-transform shadow-sm hover:shadow-md`}
                 >
-                  <span className="text-4xl group-hover:scale-110 transition-transform">{block.settings.emoji}</span>
-                  <span className={`text-2xl font-extrabold ${palette.text}`}>{label}</span>
+                  <span className={`w-16 h-16 flex items-center justify-center rounded-full bg-white/70 text-2xl font-extrabold group-hover:scale-110 transition-transform ${palette.text}`}>{label}</span>
                   <span className="text-xs font-bold text-gray-700 text-center">{block.settings.name}</span>
                 </Link>
               );
@@ -245,7 +244,7 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-between mb-10">
             <div>
               <h2 className="text-2xl font-extrabold">
-                <span className="text-[#fbbf24]">★</span> {feat.heading || t('theme.section.featured_products.title')}
+                <span className="text-[#fbbf24] inline-block align-middle me-1"><svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span> {feat.heading || t('theme.section.featured_products.title')}
               </h2>
               <p className="text-gray-500 text-sm mt-1">
                 {feat.subheading || t('theme.section.featured_products.subtitle')}

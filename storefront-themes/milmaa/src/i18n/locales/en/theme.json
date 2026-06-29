@@ -2,7 +2,7 @@
   "theme": {
     "section": {
       "milmaa-top-strip": {
-        "text": "🌱 100% Plant-Based · Free Shipping on Orders Over $40"
+        "text": "100% Plant-Based · Free Shipping on Orders Over $40"
       },
       "milmaa-hero": {
         "eyebrow": "100% PLANT-BASED",
@@ -52,7 +52,7 @@
     },
     "footer": {
       "tagline": "Creamy, dreamy plant-based milk crafted with love. Made for families, farmers and the planet.",
-      "copyright_html": "© {{year}} {{brand}}. Made with 🌱 love.",
+      "copyright_html": "© {{year}} {{brand}}. Made with love.",
       "col_shop": "Shop",
       "col_company": "Company",
       "col_help": "Help",
@@ -76,7 +76,7 @@
       "contact": "Contact"
     },
     "announcement": {
-      "bar_text": "🌱 100% Plant-Based · Free Shipping"
+      "bar_text": "100% Plant-Based · Free Shipping"
     },
     "products": {
       "page_title": "All Our Milks",
@@ -118,7 +118,7 @@
       "preorder_status": "Pre-order",
       "only_left": "Only {{remaining}} left",
       "ingredients_body": "Filtered water, organic almonds, organic cane sugar, sea salt, calcium carbonate, vitamin D2, vitamin B12. Contains: tree nuts (almonds).",
-      "save_to_wishlist": "♡ Save to Wishlist",
+      "save_to_wishlist": "Save to Wishlist",
       "tab_description": "Description",
       "tab_ingredients": "Ingredients",
       "tab_reviews": "Reviews",

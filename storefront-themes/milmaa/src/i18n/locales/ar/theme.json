@@ -2,7 +2,7 @@
   "theme": {
     "section": {
       "milmaa-top-strip": {
-        "text": "🌱 100% نباتي · شحن مجاني للطلبات التي تزيد عن $40"
+        "text": "100% نباتي · شحن مجاني للطلبات التي تزيد عن $40"
       },
       "milmaa-hero": {
         "eyebrow": "100% نباتي",
@@ -52,7 +52,7 @@
     },
     "footer": {
       "tagline": "حليب نباتي كريمي مصنوع بحب. أُعدّ للعائلات والمزارعين والكوكب.",
-      "copyright_html": "© {{year}} {{brand}}. صُنع بحب 🌱",
+      "copyright_html": "© {{year}} {{brand}}. صُنع بحب",
       "col_shop": "المتجر",
       "col_company": "الشركة",
       "col_help": "المساعدة",
@@ -76,7 +76,7 @@
       "contact": "اتصل بنا"
     },
     "announcement": {
-      "bar_text": "🌱 100% نباتي · شحن مجاني"
+      "bar_text": "100% نباتي · شحن مجاني"
     },
     "products": {
       "page_title": "جميع منتجاتنا",
@@ -118,7 +118,7 @@
       "preorder_status": "طلب مسبق",
       "only_left": "بقي {{remaining}} فقط",
       "ingredients_body": "ماء مفلتر، لوز عضوي، سكر قصب عضوي، ملح بحري، كربونات الكالسيوم، فيتامين د2، فيتامين ب12. يحتوي على: مكسرات شجرية (لوز).",
-      "save_to_wishlist": "♡ أضف إلى قائمة الأمنيات",
+      "save_to_wishlist": "أضف إلى قائمة الأمنيات",
       "tab_description": "الوصف",
       "tab_ingredients": "المكونات",
       "tab_reviews": "المراجعات",

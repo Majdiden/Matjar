@@ -149,8 +149,9 @@ const ProductDetail: React.FC = () => {
           {/* Info */}
           <div>
             {product.categories?.[0] && (
-              <div className="text-[11px] tracking-[0.3em] uppercase font-bold mb-3" style={{ color: TEAL }}>
-                🌱 {product.categories[0].name}
+              <div className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.3em] uppercase font-bold mb-3" style={{ color: TEAL }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 shrink-0"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6" /></svg>
+                {product.categories[0].name}
               </div>
             )}
             <h1
@@ -286,14 +287,14 @@ const ProductDetail: React.FC = () => {
 
             {/* Benefits */}
             <div className="space-y-3 pt-6 border-t border-current/10 text-sm" style={{ color: DARK_TEAL }}>
-              {[
-                ['🌱', t('theme.product_detail.benefit_plant_based')],
-                ['🚚', t('theme.product_detail.benefit_free_shipping')],
-                ['↺', t('theme.product_detail.benefit_returns')],
-                ['🔒', t('theme.product_detail.benefit_secure')],
-              ].map(([icon, text]) => (
+              {([
+                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6" /></svg>, t('theme.product_detail.benefit_plant_based')],
+                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><path d="M14 18V6a1 1 0 0 0-1-1H2v13" /><path d="M14 9h4l4 4v5h-2" /><circle cx="7" cy="18" r="2" /><circle cx="17" cy="18" r="2" /></svg>, t('theme.product_detail.benefit_free_shipping')],
+                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>, t('theme.product_detail.benefit_returns')],
+                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>, t('theme.product_detail.benefit_secure')],
+              ] as [React.ReactNode, string][]).map(([icon, text]) => (
                 <div key={text} className="flex items-center gap-3">
-                  <span className="text-base">{icon}</span>
+                  {icon}
                   <span className="opacity-80">{text}</span>
                 </div>
               ))}

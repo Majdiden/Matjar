@@ -44,7 +44,7 @@ const Layout: React.FC = () => {
       {showBar && (
         <div className="text-[11px] tracking-[0.2em] font-bold py-2.5" style={{ backgroundColor: LIME, color: DARK }}>
           <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-8">
-            <span className="flex items-center gap-2">★ {barText}</span>
+            <span className="flex items-center gap-2"><svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg>{barText}</span>
           </div>
         </div>
       )}

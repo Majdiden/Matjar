@@ -29,7 +29,7 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   return (
     <div className="text-[11px] tracking-[0.2em] font-bold py-2.5 text-center" style={{ backgroundColor: LIME, color: DARK }}>
-      ★ {s.text || t('theme.announcement.default', { defaultValue: 'FREE SHIPPING ON ORDERS OVER $75' })}
+      <span className="inline-flex items-center gap-2"><svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg>{s.text || t('theme.announcement.default', { defaultValue: 'FREE SHIPPING ON ORDERS OVER $75' })}</span>
     </div>
   );
 };

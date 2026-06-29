@@ -32,7 +32,7 @@ const Layout: React.FC = () => {
             <Link to="/" className="text-2xl font-extrabold tracking-tight">
               <span className="text-[#ec4899]">Kids</span>
               <span className="text-[#8b5cf6]">World</span>
-              <span className="text-[#fbbf24] ms-1 animate-bounce inline-block">★</span>
+              <span className="text-[#fbbf24] ms-1 animate-bounce inline-block"><svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-5">
@@ -104,7 +104,7 @@ const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
               <h3 className="text-xl font-extrabold mb-3">
-                {store?.name || 'KidsWorld'} <span className="text-[#fbbf24]">★</span>
+                {store?.name || 'KidsWorld'} <span className="text-[#fbbf24]"><svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span>
               </h3>
               <p className="text-sm text-white/80 leading-relaxed">
                 {t('theme.footer.tagline')}
@@ -144,7 +144,7 @@ const Layout: React.FC = () => {
           <h2 className="text-lg font-extrabold mb-6">
             <span className="text-[#ec4899]">Kids</span>
             <span className="text-[#8b5cf6]">World</span>
-            <span className="text-[#fbbf24] ms-1">★</span>
+            <span className="text-[#fbbf24] ms-1"><svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span>
           </h2>
           <nav className="flex flex-col gap-4">
             <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-bold hover:text-[#ec4899]">

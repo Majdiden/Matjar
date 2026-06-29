@@ -72,13 +72,27 @@ function requiresOptions(product: Card) {
   return Boolean(product.hasVariants || product.variants?.length || product.options?.length);
 }
 
+const STAR_PATH =
+  'M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z';
+
+const StarGlyph: React.FC<{ className?: string; style?: React.CSSProperties }> = ({ className, style }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} style={style} aria-hidden="true">
+    <path d={STAR_PATH} />
+  </svg>
+);
+
 const Stars: React.FC<{ rating: number; size?: 'sm' | 'md' }> = ({ rating, size = 'sm' }) => {
   const full = Math.round(rating);
-  const cls = size === 'md' ? 'text-base' : 'text-sm';
+  const dim = size === 'md' ? 'w-4 h-4' : 'w-3.5 h-3.5';
   return (
-    <span className={`${cls} tracking-tight`} aria-label={`${rating} out of 5`} style={{ color: 'var(--color-accent)' }}>
-      {'★'.repeat(full)}
-      <span style={{ color: 'var(--color-border)' }}>{'★'.repeat(5 - full)}</span>
+    <span className="inline-flex items-center" aria-label={`${rating} out of 5`}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <StarGlyph
+          key={i}
+          className={dim}
+          style={{ color: i < full ? 'var(--color-accent)' : 'var(--color-border)' }}
+        />
+      ))}
     </span>
   );
 };
@@ -324,7 +338,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                   const pct = totalReviews > 0 ? (count / maxBucket) * 100 : 0;
                   return (
                     <div key={star} className="flex items-center gap-3 text-xs">
-                      <span className="w-6" style={{ color: 'var(--color-muted)' }}>{star}★</span>
+                      <span className="w-6 inline-flex items-center gap-0.5" style={{ color: 'var(--color-muted)' }}>{star}<StarGlyph className="w-3 h-3" /></span>
                       <div
                         className="flex-1 h-2 rounded-full overflow-hidden"
                         style={{ backgroundColor: 'color-mix(in srgb, var(--color-foreground) 8%, transparent)' }}
@@ -385,11 +399,11 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                             onClick={() => setReviewRating(n)}
                             onMouseEnter={() => setReviewHover(n)}
                             onMouseLeave={() => setReviewHover(0)}
-                            className="text-3xl leading-none transition"
+                            className="leading-none transition"
                             style={{ color: filled ? 'var(--color-accent)' : 'var(--color-border)' }}
                             aria-label={`${n} star${n === 1 ? '' : 's'}`}
                           >
-                            ★
+                            <StarGlyph className="w-7 h-7" />
                           </button>
                         );
                       })}
@@ -644,7 +658,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                       <span className="font-black text-sm" style={{ color: 'var(--color-primary)' }}>{formatPrice(p.price)}</span>
                       {p.rating !== undefined && p.rating > 0 && (
                         <span className="text-xs flex items-center gap-1" style={{ color: 'var(--color-muted)' }}>
-                          <span style={{ color: 'var(--color-accent)' }}>★</span>
+                          <StarGlyph className="w-3 h-3" style={{ color: 'var(--color-accent)' }} />
                           {p.rating.toFixed(1)}
                         </span>
                       )}

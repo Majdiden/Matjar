@@ -73,16 +73,15 @@ export const shopByAgeSection: SectionDefinition = defineSection({
       settings: [
         { id: 'label', type: 'text', label: 'Age Label', default: '' },
         { id: 'name', type: 'text', label: 'Group Name', default: '' },
-        { id: 'emoji', type: 'text', label: 'Emoji', default: '' },
       ],
     },
   ],
   defaultBlocks: [
-    { id: 'age-1', type: 'age-group', settings: { label: '0–2', name: 'Babies & Toddlers', emoji: '🍼' } },
-    { id: 'age-2', type: 'age-group', settings: { label: '3–5', name: 'Preschool', emoji: '🧸' } },
-    { id: 'age-3', type: 'age-group', settings: { label: '6–8', name: 'Little Kids', emoji: '🚂' } },
-    { id: 'age-4', type: 'age-group', settings: { label: '9–11', name: 'Big Kids', emoji: '🎮' } },
-    { id: 'age-5', type: 'age-group', settings: { label: '12+', name: 'Tweens & Teens', emoji: '🎧' } },
+    { id: 'age-1', type: 'age-group', settings: { label: '0–2', name: 'Babies & Toddlers' } },
+    { id: 'age-2', type: 'age-group', settings: { label: '3–5', name: 'Preschool' } },
+    { id: 'age-3', type: 'age-group', settings: { label: '6–8', name: 'Little Kids' } },
+    { id: 'age-4', type: 'age-group', settings: { label: '9–11', name: 'Big Kids' } },
+    { id: 'age-5', type: 'age-group', settings: { label: '12+', name: 'Tweens & Teens' } },
   ],
 });
 
@@ -247,11 +246,11 @@ const manifest = defineTheme({
         { id: 'bubble-6', type: 'category-bubble', settings: { name: 'Arts & Crafts', letter: 'A' } },
       ]},
       { id: 'shop-by-age', type: 'shop-by-age', settings: {}, blocks: [
-        { id: 'age-1', type: 'age-group', settings: { label: '0–2', name: 'Babies & Toddlers', emoji: '🍼' } },
-        { id: 'age-2', type: 'age-group', settings: { label: '3–5', name: 'Preschool', emoji: '🧸' } },
-        { id: 'age-3', type: 'age-group', settings: { label: '6–8', name: 'Little Kids', emoji: '🚂' } },
-        { id: 'age-4', type: 'age-group', settings: { label: '9–11', name: 'Big Kids', emoji: '🎮' } },
-        { id: 'age-5', type: 'age-group', settings: { label: '12+', name: 'Tweens & Teens', emoji: '🎧' } },
+        { id: 'age-1', type: 'age-group', settings: { label: '0–2', name: 'Babies & Toddlers' } },
+        { id: 'age-2', type: 'age-group', settings: { label: '3–5', name: 'Preschool' } },
+        { id: 'age-3', type: 'age-group', settings: { label: '6–8', name: 'Little Kids' } },
+        { id: 'age-4', type: 'age-group', settings: { label: '9–11', name: 'Big Kids' } },
+        { id: 'age-5', type: 'age-group', settings: { label: '12+', name: 'Tweens & Teens' } },
       ]},
       { id: 'trust-badges', type: 'trust-badges', settings: {}, blocks: [
         { id: 'badge-1', type: 'badge', settings: { icon: 'shield', title: 'Safe & Certified', description: 'All toys tested & approved' } },

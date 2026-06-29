@@ -32,7 +32,7 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   return (
     <div className="text-white text-[12px] py-2.5 text-center font-medium" style={{ backgroundColor: TEAL }}>
-      {s.text || '🌱 100% Plant-Based · Free Shipping on Orders Over $40'}
+      {s.text || '100% Plant-Based · Free Shipping on Orders Over $40'}
     </div>
   );
 };

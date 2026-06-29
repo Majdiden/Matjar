@@ -278,14 +278,14 @@ const ProductDetail: React.FC = () => {
 
             {/* Trust/benefits */}
             <div className="grid grid-cols-2 gap-3 pt-6 border-t-2 border-black text-xs font-bold uppercase tracking-wider">
-              {[
-                ['🚚', t('theme.product_detail.benefit_shipping')],
-                ['🔒', t('theme.product_detail.benefit_secure')],
-                ['↺', t('theme.product_detail.benefit_returns')],
-                ['🏆', t('theme.product_detail.benefit_authentic')],
-              ].map(([icon, text]) => (
+              {([
+                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><path d="M14 18V6a1 1 0 0 0-1-1H2v13" /><path d="M14 9h4l4 4v5h-2" /><circle cx="7" cy="18" r="2" /><circle cx="17" cy="18" r="2" /></svg>, t('theme.product_detail.benefit_shipping')],
+                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>, t('theme.product_detail.benefit_secure')],
+                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>, t('theme.product_detail.benefit_returns')],
+                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><path d="M6 9a6 6 0 0 0 12 0V4H6Z" /><path d="M6 4H3v2a3 3 0 0 0 3 3M18 4h3v2a3 3 0 0 1-3 3" /><path d="M9 21h6M12 15v6" /></svg>, t('theme.product_detail.benefit_authentic')],
+              ] as [React.ReactNode, string][]).map(([icon, text]) => (
                 <div key={text} className="flex items-center gap-2">
-                  <span className="text-base">{icon}</span>
+                  {icon}
                   <span>{text}</span>
                 </div>
               ))}
