@@ -30,6 +30,23 @@ function isStoreSelectionResponse(value: unknown): value is StoreSelectionLoginR
   return v.requiresStoreSelection === true && Array.isArray(v.data?.stores);
 }
 
+// UTF-8-safe base64 for the cross-host auth handoff. Plain btoa/atob are
+// Latin1-only, so a store or user name with non-ASCII characters (e.g.
+// Arabic) makes btoa THROW — which silently broke the handoff and dumped the
+// merchant back on /login (the "asks me to sign in again" bug). Encoding via
+// TextEncoder/TextDecoder round-trips any Unicode safely.
+function encodeAuthPayload(obj: unknown): string {
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  let bin = '';
+  bytes.forEach((b) => { bin += String.fromCharCode(b); });
+  return btoa(bin);
+}
+function decodeAuthPayload<T>(encoded: string): T {
+  const bin = atob(encoded);
+  const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes)) as T;
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -99,12 +116,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (hash.startsWith('#auth=')) {
       try {
         const encoded = hash.slice('#auth='.length);
-        const payload = JSON.parse(atob(decodeURIComponent(encoded))) as {
+        const payload = decodeAuthPayload<{
           token?: string;
           refreshToken?: string;
           userId?: string;
           user?: unknown;
-        };
+        }>(decodeURIComponent(encoded));
         if (payload?.token) localStorage.setItem('token', payload.token);
         if (payload?.refreshToken) localStorage.setItem('refreshToken', payload.refreshToken);
         if (payload?.userId) localStorage.setItem('userId', payload.userId);
@@ -259,12 +276,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // localStorage is per-origin, so tokens we just wrote on this
         // host aren't visible to the target subdomain. Pass them in
         // the URL fragment and have the target rehydrate on mount.
-        const handoff = btoa(JSON.stringify({
+        const handoff = encodeAuthPayload({
           token: ro.accessToken,
           refreshToken: ro.refreshToken || null,
           userId: ro.userId,
           user: userData,
-        }));
+        });
         window.location.href = `${window.location.protocol}//${targetHost}/dashboard#auth=${encodeURIComponent(handoff)}`;
         // Prevent the caller's local navigate from firing first.
         await new Promise(() => {});

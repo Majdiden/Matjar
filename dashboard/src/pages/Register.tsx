@@ -78,6 +78,10 @@ export const Register: React.FC = () => {
   const [subdomainTouched, setSubdomainTouched] = useState(false);
   const [subdomainChecking, setSubdomainChecking] = useState(false);
   const [subdomainAvailable, setSubdomainAvailable] = useState<boolean | null>(null);
+  // Upfront email-exists check — if the email already has an account we stop
+  // the user here and point them to sign in (to add a store to that account)
+  // instead of letting them fail at the final register call.
+  const [emailExists, setEmailExists] = useState(false);
   const [themes, setThemes] = useState<ThemeOption[]>([]);
   const [themesLoading, setThemesLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -122,6 +126,22 @@ export const Register: React.FC = () => {
     }, 500);
     return () => clearTimeout(t);
   }, [form.subdomain]);
+
+  // Debounced email-exists check (only for a syntactically valid email)
+  useEffect(() => {
+    const email = form.email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { setEmailExists(false); return; }
+    const t = setTimeout(async () => {
+      try {
+        const res = await api.auth.checkEmail(email) as { data?: { exists?: boolean } };
+        // Guard against a stale response after the field changed again.
+        if (form.email.trim().toLowerCase() === email) setEmailExists(!!res.data?.exists);
+      } catch {
+        setEmailExists(false);
+      }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [form.email]);
 
   // Load themes once we reach the theme step
   useEffect(() => {
@@ -196,6 +216,7 @@ export const Register: React.FC = () => {
       if (!email) errs.email = t('auth.validation.email_field_required');
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
         errs.email = t('auth.validation.email_invalid');
+      else if (emailExists) errs.email = t('auth.validation.email_exists', { defaultValue: 'An account with this email already exists. Sign in to add a store.' });
 
       const pw = form.password;
       // Mirror the backend registerTenantSchema EXACTLY (>=8, lower+upper+digit)
@@ -457,8 +478,17 @@ export const Register: React.FC = () => {
                 <Input id="email" type="email" placeholder={t('auth.field.email.placeholder')}
                   value={form.email} autoComplete="email"
                   onChange={e => update('email', e.target.value)}
-                  aria-invalid={!!fieldErrors.email} />
-                {fieldErrors.email && <p className="text-xs text-destructive">{fieldErrors.email}</p>}
+                  aria-invalid={!!fieldErrors.email || emailExists} />
+                {emailExists ? (
+                  <p className="text-xs text-destructive">
+                    {t('auth.validation.email_exists', { defaultValue: 'An account with this email already exists.' })}{' '}
+                    <Link to="/login" state={{ email: form.email }} className="font-semibold underline hover:no-underline">
+                      {t('auth.register.sign_in_to_add_store', { defaultValue: 'Sign in to add a store' })}
+                    </Link>
+                  </p>
+                ) : fieldErrors.email ? (
+                  <p className="text-xs text-destructive">{fieldErrors.email}</p>
+                ) : null}
               </div>
 
               <div className="space-y-2">

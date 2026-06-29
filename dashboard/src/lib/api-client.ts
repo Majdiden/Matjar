@@ -155,6 +155,12 @@ export const api = {
       niche?: string;
     }) => api.post('/auth/register', data),
 
+    // Public signup helper — true if the email already has a dashboard
+    // account, so the UI can prompt "sign in to add a store" instead of
+    // failing late at registration.
+    checkEmail: (email: string) =>
+      api.get<{ data?: { exists?: boolean } }>(`/auth/check-email?email=${encodeURIComponent(email)}`),
+
     logout: async () => {
       try { await api.post('/auth/logout', {}); } catch { /* ignore */ }
       localStorage.removeItem('token');

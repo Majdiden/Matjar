@@ -20,6 +20,39 @@ export const registerTenantController = asyncHandler(async (req, res) => {
   res.status(result.statusCode).json(result);
 });
 
+/**
+ * Public email-availability check for the signup flow. Returns whether the
+ * email already has a dashboard-capable account (owner/admin/manager/staff
+ * or a TenantUser directory row), so the UI can stop the user early and
+ * prompt them to SIGN IN to add a store to their existing account instead of
+ * failing late at registration. Deliberately returns only a boolean — no
+ * store names / counts — so it can't be used to enumerate a person's stores.
+ */
+export const checkEmailController = asyncHandler(async (req, res) => {
+  const normalizedEmail = String(req.query.email || "").toLowerCase().trim();
+  if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(normalizedEmail)) {
+    return res.status(200).json({ success: true, data: { exists: false } });
+  }
+  const TenantUser = mongoose.model("TenantUser");
+  const User = mongoose.model("User");
+  const inDirectory = await TenantUser.exists({
+    email: normalizedEmail,
+    tenantId: { $ne: null },
+  });
+  const hasAccount = inDirectory
+    ? true
+    : !!(await User.exists({
+        email: normalizedEmail,
+        isActive: true,
+        tenantId: { $ne: null },
+        $or: [
+          { roles: { $elemMatch: { $in: ["admin", "manager", "staff"] } } },
+          { customRoleIds: { $exists: true, $ne: [] } },
+        ],
+      }));
+  res.status(200).json({ success: true, data: { exists: hasAccount } });
+});
+
 export const loginController = asyncHandler(async (req, res) => {
   const { email, password, domain, tenantId } = req.body;
   const Tenant = mongoose.model("Tenant");
@@ -27,13 +60,20 @@ export const loginController = asyncHandler(async (req, res) => {
   // Resolution order:
   //   1. explicit tenantId (store-picker flow)
   //   2. explicit domain (legacy clients)
-  //   3. email lookup in the cross-tenant TenantUser directory
+  //   3. host-resolved tenant — when the login request comes from a STORE
+  //      SUBDOMAIN, log directly into that store (no multi-store picker).
+  //      The storefrontTenantResolver sets req.tenant from the Host; on the
+  //      main app domain it stays unset, so that case falls through to the
+  //      email directory lookup + picker below.
+  //   4. email lookup in the cross-tenant TenantUser directory (picker)
   let tenant = null;
 
   if (tenantId) {
     tenant = await Tenant.findById(tenantId).lean();
   } else if (domain) {
     tenant = await Tenant.findByDomain(domain);
+  } else if (req.tenant) {
+    tenant = req.tenant;
   } else {
     const TenantUser = mongoose.model("TenantUser");
     const normalizedEmail = String(email || "").toLowerCase().trim();

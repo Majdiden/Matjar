@@ -30,7 +30,9 @@ export const Login: React.FC = () => {
   const { t } = useTranslation(['auth', 'common']);
 
   const [step, setStep] = useState<Step>('credentials');
-  const [email, setEmail] = useState('');
+  // Prefill the email when the signup flow sent the user here ("an account
+  // with this email already exists — sign in to add a store").
+  const [email, setEmail] = useState((location.state as { email?: string } | null)?.email || '');
   const [password, setPassword] = useState('');
   const [stores, setStores] = useState<StoreChoice[]>([]);
   const [isLoading, setIsLoading] = useState(false);

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   registerTenantController,
+  checkEmailController,
   loginController,
   refreshTokenController,
   getCurrentUserController,
@@ -27,6 +28,7 @@ const authRoutes = Router();
 
 // Public routes
 authRoutes.post("/register", validate(registerTenantSchema), registerTenantController);
+authRoutes.get("/check-email", checkEmailController);
 authRoutes.post("/login", validate(loginSchema), loginController);
 authRoutes.post("/refresh", validate(refreshTokenSchema), refreshTokenController);
 
