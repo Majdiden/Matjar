@@ -7,7 +7,12 @@ import logger from "../utils/logger.js";
 import config from "../config/index.js";
 import { resolveTenantByHost } from "../services/domainRegistry.js";
 import { createScopedModels } from "../utils/scopedModel.js";
-import { buildStorefrontHead, injectHead } from "./storefrontMeta.js";
+import {
+  buildStorefrontHead,
+  injectHead,
+  buildDraftBanner,
+  injectBodyBanner,
+} from "./storefrontMeta.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -298,6 +303,42 @@ export function createStorefrontMiddleware() {
         html = injectHead(html, headTags);
       } catch (e) {
         logger.warn("Storefront head injection failed; serving base HTML", { error: e.message });
+      }
+
+      // DRAFT banner — injected server-side so it works on ANY theme without
+      // per-theme edits. Shown when the store is being previewed (editor iframe
+      // `?preview=` or `?previewTheme=`) OR still has unpublished starter
+      // content (isDemo draft products and no published products yet). The
+      // tenant publishes via POST /api/store-setup/publish-starter to make the
+      // store live and the banner disappears. Best-effort: a check failure must
+      // never stop the page from serving.
+      try {
+        const isPreview =
+          (typeof req.query.preview === "string" && req.query.preview.length > 0) ||
+          (typeof req.query.previewTheme === "string" &&
+            req.query.previewTheme.trim().length > 0);
+        let showBanner = isPreview;
+        if (!showBanner) {
+          const models = createScopedModels(mongoose.connection, tenant._id);
+          const publishedProducts = await models.Product.countDocuments({ status: "active" });
+          if (publishedProducts === 0) {
+            const draftStarter = await models.Product.countDocuments({
+              isDemo: true,
+              status: "draft",
+            });
+            showBanner = draftStarter > 0;
+          }
+        }
+        if (showBanner) {
+          html = injectBodyBanner(
+            html,
+            buildDraftBanner({ lang: tenant.settings?.language })
+          );
+        }
+      } catch (e) {
+        logger.warn("Storefront draft-banner check failed; serving without banner", {
+          error: e.message,
+        });
       }
 
       res.setHeader("Content-Type", "text/html; charset=utf-8");

@@ -2,7 +2,10 @@ import { Router } from "express";
 import {
   getSetupStatusController,
   clearSetupStatusController,
+  publishStarterController,
 } from "../controllers/storeSetup.js";
+import { authenticate } from "../middlewares/auth.js";
+import { requirePermission } from "../middlewares/authorize.js";
 
 const storeSetupRoutes = Router();
 
@@ -11,5 +14,15 @@ storeSetupRoutes.get("/status/:tenantId", getSetupStatusController);
 
 // Clear setup status (no auth required - cleanup after setup)
 storeSetupRoutes.delete("/status/:tenantId", clearSetupStatusController);
+
+// Publish the draft starter content seeded at signup — take the store live.
+// Dashboard-authenticated; reuses settings.write (the same permission that
+// gates store-wide configuration changes).
+storeSetupRoutes.post(
+  "/publish-starter",
+  authenticate,
+  requirePermission("settings.write"),
+  publishStarterController
+);
 
 export default storeSetupRoutes;

@@ -110,3 +110,57 @@ export function injectHead(html, headTags) {
   }
   return withoutTitle; // no head — leave as-is rather than corrupt the doc
 }
+
+/**
+ * Build a lightweight, fixed-position "DRAFT — preview only" banner shown when
+ * a store is being previewed or still has unpublished starter content. Injected
+ * server-side so it works for ANY theme without per-theme edits. Bilingual via
+ * the tenant language; dismissible (inline onclick removes it — CSP allows
+ * 'unsafe-inline' for the storefront).
+ *
+ * @param {object} o
+ * @param {string} [o.lang] tenant language ("ar" → RTL/Arabic copy)
+ */
+export function buildDraftBanner({ lang } = {}) {
+  const isAr = String(lang || "").toLowerCase().startsWith("ar");
+  const dir = isAr ? "rtl" : "ltr";
+  const text = isAr
+    ? "مسودة — للمعاينة فقط، لم تُنشر بعد"
+    : "DRAFT — preview only, not yet published";
+  const dismissLabel = isAr ? "إغلاق" : "Dismiss";
+
+  // Single self-contained node with inline styles so it renders identically on
+  // every theme and survives the SPA mount (it lives outside #root). z-index is
+  // high enough to sit above storefront chrome; pointer-events stay on the bar
+  // only so it never blocks the page underneath once dismissed.
+  return (
+    `<div id="matjar-draft-banner" dir="${dir}" role="status" ` +
+    `style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;` +
+    `display:flex;align-items:center;justify-content:center;gap:12px;` +
+    `padding:10px 16px;` +
+    `font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;` +
+    `font-size:14px;font-weight:600;line-height:1.3;` +
+    `background:#111827;color:#fff;box-shadow:0 -2px 10px rgba(0,0,0,.25);">` +
+    `<span style="display:inline-flex;align-items:center;gap:8px;">` +
+    `<span aria-hidden="true" style="display:inline-block;width:8px;height:8px;` +
+    `border-radius:50%;background:#f59e0b;"></span>` +
+    `${escapeHtml(text)}</span>` +
+    `<button type="button" aria-label="${escapeHtml(dismissLabel)}" ` +
+    `onclick="document.getElementById('matjar-draft-banner').remove()" ` +
+    `style="background:transparent;border:0;color:#fff;cursor:pointer;` +
+    `font-size:18px;line-height:1;padding:0 4px;opacity:.8;">&times;</button>` +
+    `</div>`
+  );
+}
+
+/**
+ * Inject a banner (or any markup) just before </body>. No-ops if the doc has
+ * no </body> so we never corrupt the document.
+ */
+export function injectBodyBanner(html, bannerHtml) {
+  if (!bannerHtml) return html;
+  if (html.includes("</body>")) {
+    return html.replace("</body>", `${bannerHtml}\n</body>`);
+  }
+  return html;
+}

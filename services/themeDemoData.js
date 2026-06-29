@@ -389,8 +389,10 @@ function buildCategoryDoc(tenantId, cat, sortOrder) {
 
 /**
  * Build a Product document payload. `category` is the created Category _id.
+ * When `draft` is true the product is seeded as a draft (status:"draft") so
+ * nothing is live until the merchant publishes the starter content.
  */
-function buildProductDoc(tenantId, p, categoryId) {
+function buildProductDoc(tenantId, p, categoryId, { draft = false } = {}) {
   return {
     tenantId,
     name: p.name,
@@ -402,7 +404,7 @@ function buildProductDoc(tenantId, p, categoryId) {
     category: categoryId,
     sku: `DEMO-${p.slug.toUpperCase()}`,
     stock: p.stock ?? 25,
-    status: "active",
+    status: draft ? "draft" : "active",
     featured: !!p.featured,
     // Treat any product with a struck-through compareAtPrice as on-sale so the
     // storefront's sale badges/filters have something to show.
@@ -422,7 +424,7 @@ function buildProductDoc(tenantId, p, categoryId) {
  * index with a real merchant collection. `productIds` are the demo Product _ids
  * resolved from the collection's `productSlugs`.
  */
-function buildCollectionDoc(tenantId, col, productIdBySlug) {
+function buildCollectionDoc(tenantId, col, productIdBySlug, { draft = false } = {}) {
   const productIds = (col.productSlugs || [])
     .map((slug) => productIdBySlug[slug])
     .filter(Boolean);
@@ -434,11 +436,126 @@ function buildCollectionDoc(tenantId, col, productIdBySlug) {
     image: { url: col.image, alt: col.title },
     type: "manual",
     productIds,
-    isPublished: true,
-    publishedAt: new Date(),
+    // Draft starter content stays unpublished until the merchant publishes.
+    isPublished: !draft,
+    publishedAt: draft ? null : new Date(),
     sortOrder: "manual",
     isDemo: true,
   };
+}
+
+/**
+ * Starter CMS pages (About + Contact) seeded for every new store. These are
+ * real, editable Page documents (not theme-specific) with sensible bilingual
+ * starter copy. Seeded as DRAFT (isPublished:false) + isDemo:true so the
+ * "publish starter content" action can flip them live alongside the catalog.
+ *
+ * The merchant edits the title/content in the dashboard, then publishes.
+ */
+function buildStarterPages(tenantId, language, { draft = true } = {}) {
+  const isAr = String(language || "").toLowerCase().startsWith("ar");
+  const locale = isAr ? "ar" : "en";
+  const now = new Date();
+
+  const pages = isAr
+    ? [
+        {
+          slug: "about",
+          title: "من نحن",
+          metaTitle: "من نحن",
+          metaDescription: "تعرّف على قصتنا ورسالتنا.",
+          content:
+            "<h1>من نحن</h1>" +
+            "<p>مرحبًا بك في متجرنا! نحن شغوفون بتقديم منتجات مختارة بعناية وتجربة تسوّق سلسة لعملائنا.</p>" +
+            "<p>هذه صفحة بداية يمكنك تعديلها بالكامل — أضف قصة علامتك التجارية، وما يميّزك، ولماذا يثق بك عملاؤك. عندما تكون جاهزًا، انشر متجرك ليصبح كل هذا مباشرًا.</p>",
+        },
+        {
+          slug: "contact",
+          title: "اتصل بنا",
+          metaTitle: "اتصل بنا",
+          metaDescription: "تواصل معنا — يسعدنا مساعدتك.",
+          content:
+            "<h1>اتصل بنا</h1>" +
+            "<p>هل لديك سؤال؟ يسعدنا أن نسمع منك.</p>" +
+            "<ul>" +
+            "<li><strong>البريد الإلكتروني:</strong> support@example.com</li>" +
+            "<li><strong>الهاتف:</strong> +000 000 0000</li>" +
+            "<li><strong>العنوان:</strong> أضف عنوان متجرك هنا</li>" +
+            "<li><strong>ساعات العمل:</strong> من الأحد إلى الخميس، 9 صباحًا – 5 مساءً</li>" +
+            "</ul>" +
+            "<p>هذه تفاصيل مبدئية — استبدلها بمعلومات التواصل الحقيقية ثم انشر الصفحة.</p>",
+        },
+      ]
+    : [
+        {
+          slug: "about",
+          title: "About Us",
+          metaTitle: "About Us",
+          metaDescription: "Learn about our story and mission.",
+          content:
+            "<h1>About Us</h1>" +
+            "<p>Welcome to our store! We're passionate about bringing you carefully selected products and a smooth shopping experience.</p>" +
+            "<p>This is a starter page you can fully edit — add your brand story, what makes you different, and why customers trust you. When you're ready, publish your store to make it all go live.</p>",
+        },
+        {
+          slug: "contact",
+          title: "Contact Us",
+          metaTitle: "Contact Us",
+          metaDescription: "Get in touch — we'd love to help.",
+          content:
+            "<h1>Contact Us</h1>" +
+            "<p>Have a question? We'd love to hear from you.</p>" +
+            "<ul>" +
+            "<li><strong>Email:</strong> support@example.com</li>" +
+            "<li><strong>Phone:</strong> +000 000 0000</li>" +
+            "<li><strong>Address:</strong> Add your store address here</li>" +
+            "<li><strong>Hours:</strong> Mon–Fri, 9am – 5pm</li>" +
+            "</ul>" +
+            "<p>These are placeholder details — replace them with your real contact info, then publish the page.</p>",
+        },
+      ];
+
+  return pages.map((p) => ({
+    tenantId,
+    slug: p.slug,
+    title: p.title,
+    content: p.content,
+    metaTitle: p.metaTitle,
+    metaDescription: p.metaDescription,
+    locale,
+    isPublished: !draft,
+    publishedAt: draft ? null : now,
+    isDemo: true,
+    createdAt: now,
+    updatedAt: now,
+  }));
+}
+
+/**
+ * Seed the About + Contact starter pages. Idempotent: skips any page whose
+ * (tenant, slug) already exists so re-runs / theme switches never duplicate.
+ * Never throws — returns the count created.
+ */
+async function seedStarterPages(tenantId, language, { draft = true } = {}) {
+  let created = 0;
+  try {
+    const Page = mongoose.model("Page");
+    const docs = buildStarterPages(tenantId, language, { draft });
+    for (const doc of docs) {
+      const exists = await Page.findOne({ tenantId, slug: doc.slug })
+        .select("_id")
+        .lean();
+      if (exists) continue;
+      await Page.create(doc);
+      created += 1;
+    }
+  } catch (err) {
+    logger.warn("Failed to seed starter pages", {
+      tenantId: tenantId?.toString(),
+      error: err.message,
+    });
+  }
+  return created;
 }
 
 /**
@@ -515,8 +632,15 @@ function applyMediaToSections(sections, media, manifestSections) {
  *
  * @param {import('mongoose').Types.ObjectId|string} tenantId
  * @param {string} themeSlug
+ * @param {object} [options]
+ * @param {boolean} [options.draft=false] seed everything as DRAFT (products
+ *        status:"draft", collections/pages isPublished:false) so nothing is
+ *        live until the merchant publishes the starter content.
+ * @param {string} [options.language] tenant language for the starter CMS pages
+ *        (falls back to the tenant's own settings.language, then "en").
  */
-export async function seedThemeDemoData(tenantId, themeSlug) {
+export async function seedThemeDemoData(tenantId, themeSlug, options = {}) {
+  const draft = !!options.draft;
   try {
     if (!tenantId) {
       return { seeded: false, reason: "missing-tenant-id" };
@@ -563,7 +687,7 @@ export async function seedThemeDemoData(tenantId, themeSlug) {
 
     const fallbackCategoryId = Object.values(categoryIdBySlug)[0];
     const productDocs = data.products.map((p) =>
-      buildProductDoc(tenantId, p, categoryIdBySlug[p.categorySlug] || fallbackCategoryId)
+      buildProductDoc(tenantId, p, categoryIdBySlug[p.categorySlug] || fallbackCategoryId, { draft })
     );
 
     // create() (vs insertMany) fires the schema's validate/save hooks and the
@@ -571,13 +695,14 @@ export async function seedThemeDemoData(tenantId, themeSlug) {
     const createdProducts = await Product.create(productDocs);
 
     // Keep each category's productCount accurate so storefront category badges
-    // and counts render correctly out of the box.
+    // and counts render correctly out of the box. Count all demo products in
+    // the category regardless of status so the badge is right whether the
+    // products are seeded as draft or active.
     for (const [slug, id] of Object.entries(categoryIdBySlug)) {
       const count = await Product.countDocuments({
         tenantId,
         category: id,
         isDemo: true,
-        status: "active",
       });
       await Category.updateOne(
         { _id: id, tenantId },
@@ -596,11 +721,27 @@ export async function seedThemeDemoData(tenantId, themeSlug) {
     let collectionsCreated = 0;
     if (Array.isArray(data.collections) && data.collections.length) {
       const collectionDocs = data.collections.map((col) =>
-        buildCollectionDoc(tenantId, col, productIdBySlug)
+        buildCollectionDoc(tenantId, col, productIdBySlug, { draft })
       );
       const created = await Collection.create(collectionDocs);
       collectionsCreated = Array.isArray(created) ? created.length : 0;
     }
+
+    // Seed the About + Contact starter CMS pages (real, editable, draft).
+    // Idempotent — skips slugs that already exist. Resolve the language from
+    // the option or the tenant's own setting so a new Arabic store gets
+    // Arabic starter copy.
+    let pageLanguage = options.language;
+    if (!pageLanguage) {
+      try {
+        const Tenant = mongoose.model("Tenant");
+        const t = await Tenant.findById(tenantId).select("settings.language").lean();
+        pageLanguage = t?.settings?.language;
+      } catch {
+        /* fall back to "en" inside buildStarterPages */
+      }
+    }
+    const pagesCreated = await seedStarterPages(tenantId, pageLanguage, { draft });
 
     // (e) Inject niche hero/banner imagery into the tenant's live theme
     // customization so the hero + promo/banner sections render with
@@ -648,18 +789,22 @@ export async function seedThemeDemoData(tenantId, themeSlug) {
     logger.info("Seeded theme demo data", {
       tenantId: tenantId?.toString(),
       themeSlug,
+      draft,
       categories: data.categories.length,
       products: createdProducts.length,
       collections: collectionsCreated,
+      pages: pagesCreated,
       mediaPatched,
     });
 
     return {
       seeded: true,
       themeSlug,
+      draft,
       categories: data.categories.length,
       products: createdProducts.length,
       collections: collectionsCreated,
+      pages: pagesCreated,
       mediaPatched,
     };
   } catch (error) {

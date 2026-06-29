@@ -1,5 +1,9 @@
-import { getSetupStatus, clearSetupStatus } from "../services/storeSetup.js";
-import { asyncHandler } from "../middlewares/errorHandler.js";
+import {
+  getSetupStatus,
+  clearSetupStatus,
+  publishStarterContent,
+} from "../services/storeSetup.js";
+import { asyncHandler, APIError } from "../middlewares/errorHandler.js";
 
 /**
  * Get store setup status
@@ -49,5 +53,22 @@ export const clearSetupStatusController = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: "Setup status cleared successfully",
+  });
+});
+
+/**
+ * Publish the draft starter content seeded at signup — take the store live.
+ * Flips isDemo draft products → active and demo collections/pages → published.
+ * Idempotent: re-running returns zero counts. Authenticated + settings.write.
+ */
+export const publishStarterController = asyncHandler(async (req, res) => {
+  if (!req.models) {
+    throw new APIError("Tenant context not found", 400);
+  }
+  const counts = await publishStarterContent(req.models);
+  res.json({
+    success: true,
+    message: "Starter content published",
+    responseObject: counts,
   });
 });

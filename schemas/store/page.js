@@ -43,6 +43,10 @@ const pageSchema = new Schema({
     maxlength: 10,
   },
   isPublished: { type: Boolean, default: false, index: true },
+  // Flags starter/demo content seeded on signup. Lets the "publish starter
+  // content" action find these pages (and only these) to flip live, and is
+  // distinguishable from real merchant-authored pages.
+  isDemo: { type: Boolean, default: false },
   // Populated the first time the page is flipped to published. Kept on
   // subsequent unpublish/republish flips so the original publish date
   // survives round trips — if the merchant needs a fresh timestamp they
