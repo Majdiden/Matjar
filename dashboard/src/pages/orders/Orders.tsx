@@ -61,12 +61,12 @@ type StatusTab = '' | 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Canc
 
 // TAB_DEFS labels are resolved inside the component using t()
 const TAB_DEFS_META: { id: StatusTab; icon: React.ElementType; labelKey: string }[] = [
-  { id: '', labelKey: 'orders.list.filter.all', icon: ShoppingCart },
-  { id: 'Pending', labelKey: 'orders.list.filter.pending', icon: Clock },
-  { id: 'Processing', labelKey: 'orders.list.filter.processing', icon: PackageIcon },
-  { id: 'Shipped', labelKey: 'orders.list.filter.shipped', icon: Truck },
-  { id: 'Delivered', labelKey: 'orders.list.filter.delivered', icon: CheckCircle2 },
-  { id: 'Cancelled', labelKey: 'orders.list.filter.cancelled', icon: XCircle },
+  { id: '', labelKey: 'orders:list.filter.all', icon: ShoppingCart },
+  { id: 'Pending', labelKey: 'orders:list.filter.pending', icon: Clock },
+  { id: 'Processing', labelKey: 'orders:list.filter.processing', icon: PackageIcon },
+  { id: 'Shipped', labelKey: 'orders:list.filter.shipped', icon: Truck },
+  { id: 'Delivered', labelKey: 'orders:list.filter.delivered', icon: CheckCircle2 },
+  { id: 'Cancelled', labelKey: 'orders:list.filter.cancelled', icon: XCircle },
 ];
 
 const statusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {

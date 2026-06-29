@@ -45,6 +45,10 @@ type Step = 'welcome' | 'account' | 'store' | 'niche' | 'theme';
 
 const STEPS: Step[] = ['welcome', 'account', 'store', 'niche', 'theme'];
 
+// Public storefront domain suffix shown next to the subdomain field.
+// Configurable via VITE_STORE_DOMAIN_SUFFIX; defaults to invoila.io.
+const STORE_DOMAIN_SUFFIX = import.meta.env.VITE_STORE_DOMAIN_SUFFIX || 'invoila.io';
+
 const NICHE_IDS = ['fashion', 'electronics', 'food', 'sports', 'books', 'toys', 'home', 'general'] as const;
 
 const NICHE_ICONS: Record<string, React.ReactNode> = {
@@ -563,8 +567,8 @@ export const Register: React.FC = () => {
                     }}
                     className="border-0 focus-visible:ring-0 shadow-none"
                   />
-                  <div className="px-3 text-sm text-muted-foreground bg-muted h-10 flex items-center whitespace-nowrap">
-                    .matjar.com
+                  <div className="px-3 text-sm text-muted-foreground bg-muted h-10 flex items-center whitespace-nowrap" dir="ltr">
+                    .{STORE_DOMAIN_SUFFIX}
                   </div>
                   <div className="px-3 h-10 flex items-center bg-muted">
                     {subdomainChecking && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}

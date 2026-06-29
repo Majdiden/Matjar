@@ -112,7 +112,7 @@ class Config {
       process.env.PLATFORM_DOMAIN ||
       process.env.DOMAIN_SUFFIX ||
       process.env.BASE_DOMAIN ||
-      "matjar.local"
+      "invoila.local"
     );
   }
 

@@ -51,6 +51,13 @@ export const registerTenantSchema = z.object({
         /^[a-z0-9-]+$/,
         "Domain must contain only lowercase letters, numbers, and hyphens"
       ),
+    // The store's display name (distinct from the user's `name`). Optional
+    // for backward compatibility — the service falls back to `name`.
+    storeName: z.string().min(2, "Store name must be at least 2 characters").optional(),
+    // Passed through to store setup; not required.
+    themeSlug: z.string().optional(),
+    niche: z.string().optional(),
+    subscriptionPlan: z.string().optional(),
   }),
 });
 

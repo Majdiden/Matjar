@@ -18,7 +18,11 @@ const addATenantService = async (tenantData) => {
   try {
     const hashedPassword = await generateHash(tenantData.password);
 
-    const slug = tenantData.subdomain || tenantData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    // The STORE name comes from `storeName`; the user's full `name` is the
+    // admin account's name. Fall back to `name` only for legacy callers that
+    // didn't send storeName.
+    const storeName = tenantData.storeName || tenantData.name;
+    const slug = tenantData.subdomain || storeName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
     const Tenant = mongoose.model("Tenant");
     const isSubdomainAvailable = await Tenant.isSubdomainAvailable(slug);
@@ -39,7 +43,7 @@ const addATenantService = async (tenantData) => {
     const setupToken = crypto.randomUUID();
 
     const tenantPayload = {
-      name: tenantData.name,
+      name: storeName,
       slug,
       domain: fullSubdomain,
       email: tenantData.email,
@@ -58,6 +62,7 @@ const addATenantService = async (tenantData) => {
         primaryDomain: "subdomain",
       },
       settings: {
+        storeName,
         currency: tenantData.currency || "SDG",
         timezone: tenantData.timezone || "Africa/Khartoum",
         language: tenantData.language || "en",
