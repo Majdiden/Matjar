@@ -13,6 +13,7 @@ import { priceCheckout } from "../services/checkout.js";
 import { lookupByCode as lookupGiftCardByCode, redeemGiftCard } from "../services/giftCard.js";
 import { checkoutLimiter, storefrontApiLimiter } from "../middlewares/rateLimiters.js";
 import config from "../config/index.js";
+import logger from "../utils/logger.js";
 import { tenantPopulate } from "../utils/scopedModel.js";
 import { exportCustomer, anonymizeCustomer } from "../services/customerPrivacy.js";
 import { storefrontGetMenu } from "../controllers/menu.js";
@@ -444,6 +445,10 @@ router.post(
         .json({ success: false, message: "An account with this email already exists." });
     }
 
+    // New customer accounts adopt the store's language at signup time as
+    // their default (used to localize their order/account emails later).
+    const storeLanguage = req.tenant?.settings?.language || "en";
+
     // Mongoose pre-save hook on User schema hashes the password.
     const user = await req.models.User.create({
       name,
@@ -453,7 +458,27 @@ router.post(
       password,
       phone,
       roles: ["customer"],
+      language: storeLanguage,
     });
+
+    // Attach any past GUEST orders placed with this email to the new
+    // account so the customer immediately sees their history, and order
+    // analytics attribute to the registered user. Best-effort — a failure
+    // here must not block signup.
+    let attachedOrders = 0;
+    try {
+      const emailLc = email.toLowerCase();
+      const result = await req.models.Order.updateMany(
+        { user: { $in: [null, undefined] }, "guestCustomer.email": emailLc },
+        { $set: { user: user._id } }
+      );
+      attachedOrders = result?.modifiedCount || 0;
+    } catch (err) {
+      logger.warn("Guest-order attach on customer register failed", {
+        tenantId: req.tenant?._id?.toString(),
+        error: err.message,
+      });
+    }
 
     const accessToken = signJWT({
       userId: user._id.toString(),

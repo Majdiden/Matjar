@@ -100,9 +100,9 @@ const GuaranteedCheckout: React.FC<Props> = (props) => {
       >
         {resolvedHeading}
       </p>
-      <div className="flex items-center justify-center gap-2 flex-wrap">
+      <div className="flex items-center justify-center gap-2.5 flex-wrap">
         {badges.map((b) => (
-          <PaymentLogo key={b.src || b.code} code={b.code} src={b.src} />
+          <PaymentLogo key={b.src || b.code} code={b.code} src={b.src} size="lg" />
         ))}
       </div>
     </div>

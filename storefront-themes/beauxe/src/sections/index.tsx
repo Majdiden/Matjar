@@ -8,7 +8,6 @@ import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
-import { Hero } from '@shared/components/sections/Hero';
 import BeauxeProductCard from '../components/BeauxeProductCard';
 import { useTranslation } from 'react-i18next';
 
@@ -16,10 +15,6 @@ const NAVY = 'var(--color-primary)';
 const PINK = 'var(--color-secondary)';
 const CREAM = 'var(--color-accent)';
 const BLUSH = 'var(--color-muted)';
-
-// Niche default hero image (cosmetics) so the editorial hero is never empty.
-const HERO_DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600&q=80&auto=format&fit=crop';
 
 // ─── Top bar ──────────────────────────────────────────────────────
 
@@ -43,17 +38,73 @@ const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
+  const [imgOk, setImgOk] = React.useState(true);
   return (
-    <Hero
-      variant="editorial"
-      align="start"
-      title={s.heading || t('theme.section.hero.heading')}
-      subtitle={s.subheading || t('theme.section.hero.subheading')}
-      primaryCta={{ label: s.cta_text || t('theme.section.hero.cta'), href: s.cta_url || '/products' }}
-      saleText={s.eyebrow || t('theme.section.hero.eyebrow')}
-      backgroundImage={(s.image as string) || undefined}
-      defaultImage={HERO_DEFAULT_IMAGE}
-    />
+    <section className="relative overflow-hidden" style={{ backgroundColor: BLUSH }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        {/* Text */}
+        <div className="relative z-10 text-center md:text-start">
+          {s.eyebrow && (
+            <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-5" style={{ color: PINK }}>
+              {s.eyebrow}
+            </div>
+          )}
+          <h1
+            className="font-serif text-5xl md:text-6xl lg:text-7xl leading-[1.05] mb-6"
+            style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
+          >
+            {s.heading || t('theme.section.hero.heading')}
+          </h1>
+          {s.subheading && (
+            <p className="text-base md:text-lg leading-relaxed mb-8 max-w-md mx-auto md:mx-0" style={{ color: NAVY, opacity: 0.8 }}>
+              {s.subheading}
+            </p>
+          )}
+          <Link
+            to={s.cta_url || '/products'}
+            className="group inline-flex items-center gap-2 px-10 py-4 rounded-full text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:opacity-90 transition"
+            style={{ backgroundColor: NAVY }}
+          >
+            {s.cta_text || t('theme.section.hero.cta')}
+            <svg className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </Link>
+
+          {/* Trust line */}
+          <div className="mt-8 flex items-center gap-4 justify-center md:justify-start text-[11px]" style={{ color: NAVY }}>
+            <div className="flex items-center gap-1.5">
+              <span className="flex items-center gap-0.5" aria-hidden style={{ color: PINK }}>
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <svg key={i} className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                ))}
+              </span>
+              <span className="opacity-75">{t('theme.section.hero.trust_line')}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Model image */}
+        <div className="relative">
+          <div
+            className="aspect-[3/4] rounded-[60px] overflow-hidden"
+            style={{ backgroundColor: CREAM }}
+          >
+            {s.image && imgOk ? (
+              <img src={s.image as string} alt="" onError={() => setImgOk(false)} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center" style={{ color: PINK }}>
+                <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
 

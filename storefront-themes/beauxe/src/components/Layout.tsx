@@ -183,7 +183,7 @@ const Layout: React.FC = () => {
             <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), brand })}</span>
             <div className="flex gap-2">
               {['VISA', 'MC', 'AMEX', 'PP'].map((p) => (
-                <span key={p} className="h-5 px-2 border border-current/30 text-[9px] font-bold flex items-center">{p}</span>
+                <span key={p} className="h-6 px-2.5 border border-current/30 text-[10px] font-bold flex items-center">{p}</span>
               ))}
             </div>
           </div>

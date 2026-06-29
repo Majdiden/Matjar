@@ -13,12 +13,7 @@ import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
-import { Hero } from '@shared/components/sections/Hero';
 import GlowingProductCard from '../components/GlowingProductCard';
-
-// Niche default hero image (skincare) so the spotlight hero is never empty.
-const HERO_DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=1600&q=80&auto=format&fit=crop';
 
 // ─── Top strip (announcement) ─────────────────────────────────────
 
@@ -32,22 +27,48 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
   );
 };
 
-// ─── Editorial hero (shared, imagery-forward) ─────────────────────
+// ─── Editorial hero ───────────────────────────────────────────────
 
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   return (
-    <Hero
-      variant="spotlight"
-      tone="dark"
-      title={s.heading || t('theme.hero.headline')}
-      subtitle={s.subheading || t('theme.hero.subheadline')}
-      primaryCta={{ label: s.cta_text || t('theme.hero.cta'), href: (s.cta_url as string) || '/products' }}
-      saleText={s.eyebrow || t('theme.hero.eyebrow')}
-      backgroundImage={(s.image as string) || undefined}
-      defaultImage={HERO_DEFAULT_IMAGE}
-    />
+    <section className="relative overflow-hidden" style={{ backgroundColor: 'var(--color-accent)' }}>
+      {/* soft leaf decoration */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.07]" aria-hidden>
+        <svg className="absolute top-10 start-10 w-64 h-64" viewBox="0 0 200 200" fill="none">
+          <path d="M100 20 C 140 60, 160 120, 100 180 C 40 120, 60 60, 100 20" stroke="var(--color-foreground)" strokeWidth="1" />
+        </svg>
+        <svg className="absolute bottom-10 end-10 w-80 h-80" viewBox="0 0 200 200" fill="none">
+          <path d="M20 100 C 60 60, 120 40, 180 100 C 120 160, 60 140, 20 100" stroke="var(--color-foreground)" strokeWidth="1" />
+        </svg>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 md:py-36 text-center">
+        {s.eyebrow && (
+          <div className="text-[11px] tracking-[0.32em] uppercase text-neutral-700 mb-6">
+            {s.eyebrow}
+          </div>
+        )}
+        <h1
+          className="font-display text-5xl sm:text-6xl md:text-7xl leading-[1.05] text-black max-w-3xl mx-auto"
+          style={{ fontFamily: 'var(--font-family-heading)' }}
+        >
+          {s.heading || t('theme.hero.headline')}
+        </h1>
+        {s.subheading && (
+          <p className="mt-6 text-sm md:text-base text-neutral-700 max-w-xl mx-auto leading-relaxed">
+            {s.subheading}
+          </p>
+        )}
+        <Link
+          to={s.cta_url || '/products'}
+          className="inline-block mt-10 px-10 py-4 bg-black text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-neutral-800 transition"
+        >
+          {s.cta_text || t('theme.hero.cta')}
+        </Link>
+      </div>
+    </section>
   );
 };
 

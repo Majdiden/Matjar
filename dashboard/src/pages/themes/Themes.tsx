@@ -176,7 +176,7 @@ export const Themes: React.FC = () => {
         <Skeleton className="h-9 w-48" />
         <Skeleton className="h-72 w-full rounded-2xl" />
         <Skeleton className="h-10 w-72" />
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Skeleton key={i} className="h-80 rounded-xl" />
           ))}
@@ -362,7 +362,7 @@ export const Themes: React.FC = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {filteredThemes.map((theme) => {
             const isActive = activeTheme?._id === theme._id;
             const isLoading = actionLoading === theme._id;
@@ -462,7 +462,7 @@ export const Themes: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-2 pt-3 border-t">
+                  <div className="flex flex-wrap items-center gap-2 pt-3 border-t">
                     {isActive ? (
                       <Button
                         size="sm"

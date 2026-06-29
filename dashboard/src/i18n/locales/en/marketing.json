@@ -162,12 +162,14 @@
     "gift_card": {
       "list": {
         "title": "Gift Cards",
+        "subtitle": "Issue and manage store gift cards and balances.",
         "feature_toggle_label": "Gift cards",
         "feature_on": "On",
         "feature_off": "Off",
         "issue_button": "Issue Gift Card",
         "search_placeholder": "Search by last 4 digits...",
         "empty_title": "No gift cards found",
+        "empty_description": "Issue your first gift card to let customers gift store credit.",
         "selected_count": "{{count}} selected",
         "column": {
           "code": "Code",

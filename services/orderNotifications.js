@@ -188,8 +188,11 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
       return { success: false, reason: "template-disabled" };
     }
 
-    // Localized defaults by the store language (merchant overrides still win).
-    const defaults = defaultTemplatesFor(tenant.settings?.language)[newStatus];
+    // Localized defaults by the ORDER's language (captured at creation from
+    // the customer's account language or the store's language for a guest);
+    // fall back to the store language. Merchant overrides still win.
+    const emailLanguage = order.language || tenant.settings?.language;
+    const defaults = defaultTemplatesFor(emailLanguage)[newStatus];
     const subjectTpl = tplOverride.subject || defaults.subject;
     const bodyTpl = tplOverride.body || defaults.body;
 

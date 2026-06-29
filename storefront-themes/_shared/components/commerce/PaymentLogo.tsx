@@ -1,49 +1,85 @@
 import React from 'react';
 
 /**
- * Tiny self-contained SVG payment-badge. ~28×20 px rounded rect.
+ * Tiny self-contained SVG payment-badge. Authored against a 28×20 viewBox
+ * and scaled up via the `size` prop while preserving that aspect ratio.
  * No external URLs, no fonts, no network — safe to render in bulk.
  *
  * Known brand codes render a recognizable mark. Unknown codes fall
  * back to a neutral tile showing the code in uppercase.
  */
+type SizeToken = 'sm' | 'md' | 'lg' | 'xl';
+
 interface Props {
   code: string;
   className?: string;
   /**
    * Optional uploaded-icon URL. When present, the component renders the
    * merchant's custom image (from their payment-provider upload) in the
-   * same rounded 28×20 tile, instead of the stock brand SVG. Falls back
-   * to the SVG lookup if the URL fails to load.
+   * same rounded tile, instead of the stock brand SVG. Falls back to the
+   * SVG lookup if the URL fails to load.
    */
   src?: string;
+  /**
+   * Rendered height of the badge. Accepts a named token or an explicit
+   * pixel height; width auto-scales to keep the 28:20 badge ratio.
+   * Defaults to `md` (24px ≈ h-6) — a crisp, accessible badge size.
+   *   sm = 20px (dense rows) · md = 24px (footers/general)
+   *   lg = 28px (product page) · xl = 32px (checkout picker)
+   */
+  size?: SizeToken | number;
 }
 
-const W = 28;
-const H = 20;
+// Base art geometry — the SVG marks are drawn against this 28×20 viewBox.
+const BASE_W = 28;
+const BASE_H = 20;
 const R = 3;
 
-const Wrap: React.FC<{ fill: string; children?: React.ReactNode; stroke?: string; className?: string }> = ({
-  fill,
-  stroke,
-  children,
-  className,
-}) => (
-  <span
-    className={className}
-    style={{ display: 'inline-flex', verticalAlign: 'middle', lineHeight: 0 }}
-    aria-hidden="true"
-  >
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg">
-      <rect x="0.5" y="0.5" width={W - 1} height={H - 1} rx={R} ry={R} fill={fill} stroke={stroke || 'rgba(0,0,0,0.08)'} />
-      {children}
-    </svg>
-  </span>
-);
+const SIZE_PX: Record<SizeToken, number> = {
+  sm: 20,
+  md: 24,
+  lg: 28,
+  xl: 32,
+};
 
-const PaymentLogo: React.FC<Props> = ({ code, className, src }) => {
+function resolveDims(size: Props['size']): { w: number; h: number } {
+  const h = typeof size === 'number' ? size : SIZE_PX[size ?? 'md'];
+  return { w: Math.round((h * BASE_W) / BASE_H), h };
+}
+
+const PaymentLogo: React.FC<Props> = ({ code, className, src, size }) => {
   const c = (code || '').toLowerCase();
   const [imgFailed, setImgFailed] = React.useState(false);
+  const { w, h } = resolveDims(size);
+
+  // Local wrapper captures the resolved dimensions so the SVG art scales
+  // with the requested `size` instead of being stuck at the base 28×20.
+  const Wrap: React.FC<{ fill: string; children?: React.ReactNode; stroke?: string; className?: string }> = ({
+    fill,
+    stroke,
+    children,
+    className: wrapClassName,
+  }) => (
+    <span
+      className={wrapClassName}
+      style={{ display: 'inline-flex', verticalAlign: 'middle', lineHeight: 0 }}
+      aria-hidden="true"
+    >
+      <svg width={w} height={h} viewBox={`0 0 ${BASE_W} ${BASE_H}`} xmlns="http://www.w3.org/2000/svg">
+        <rect
+          x="0.5"
+          y="0.5"
+          width={BASE_W - 1}
+          height={BASE_H - 1}
+          rx={R}
+          ry={R}
+          fill={fill}
+          stroke={stroke || 'rgba(0,0,0,0.08)'}
+        />
+        {children}
+      </svg>
+    </span>
+  );
 
   if (src && /^(https?:|\/)/.test(src) && !imgFailed) {
     return (
@@ -54,8 +90,8 @@ const PaymentLogo: React.FC<Props> = ({ code, className, src }) => {
       >
         <span
           style={{
-            width: W,
-            height: H,
+            width: w,
+            height: h,
             borderRadius: R,
             border: '1px solid rgba(0,0,0,0.08)',
             background: '#fff',

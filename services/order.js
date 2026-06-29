@@ -588,12 +588,16 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
     // falls back to the shipping address + provided email so the snapshot
     // is always populated). For guests we use the guestCustomer fields.
     let customerSnapshot = null;
+    // Language to localize this order's customer emails: the registered
+    // customer's account language, else the store's language at order time.
+    let orderLanguage = null;
     if (userId) {
       try {
         const u = models.User
-          ? await models.User.findById(userId).select("email firstName lastName phone name").session(session).lean()
+          ? await models.User.findById(userId).select("email firstName lastName phone name language").session(session).lean()
           : null;
         if (u) {
+          orderLanguage = u.language || null;
           let firstName = u.firstName;
           let lastName = u.lastName;
           if ((!firstName || !lastName) && u.name) {
@@ -648,12 +652,25 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
       ? Math.max(0, quote.totalAmount - giftCardApplied.amount)
       : quote.totalAmount;
 
+    // Guests (and any registered user without a language) inherit the
+    // store's current language — captured on the order so later emails use
+    // the locale the order was actually placed in.
+    if (!orderLanguage) {
+      try {
+        const t = await mongoose.model("Tenant").findById(tenantId).select("settings.language").lean();
+        orderLanguage = t?.settings?.language || "en";
+      } catch {
+        orderLanguage = "en";
+      }
+    }
+
     const order = await createOrderWithUniqueNumber(
       models,
       {
         idempotencyKey,
         calculationVersion: quote.calculationVersion,
         user: userId,
+        language: orderLanguage,
         customerSnapshot,
         products: quote.lines.map((l, idx) => {
           // `lines` (the input array we built earlier from cart items) still

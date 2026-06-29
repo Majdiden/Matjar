@@ -163,9 +163,9 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
                   : { borderColor: 'var(--color-border, #e5e7eb)' }
               }
             >
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 {logos.slice(0, 4).map((l, i) => (
-                  <PaymentLogo key={`${method.code}-${l}-${i}`} code={l} />
+                  <PaymentLogo key={`${method.code}-${l}-${i}`} code={l} size="xl" />
                 ))}
               </div>
               <div className="flex-1 min-w-0">

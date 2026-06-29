@@ -27,6 +27,12 @@ const orderSchema = new Schema({
     phone: { type: String },
   },
 
+  // Language the order was placed in — the store's language at creation for
+  // a guest, or the customer's account language for a registered user. Used
+  // to localize this order's customer emails regardless of any later
+  // store-language change.
+  language: { type: String, default: "en" },
+
   // Immutable snapshot of the customer's contact details at order time.
   // Populated at CREATION from the authenticated user or guestCustomer and
   // never updated afterwards — so receipts, CS lookups, and CSV exports

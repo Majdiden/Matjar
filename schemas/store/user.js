@@ -73,6 +73,10 @@ const userSchema = new Schema({
   isActive: { type: Boolean, default: true },
   lastLoginAt: { type: Date },
 
+  // Preferred language for this customer's transactional emails. Defaults
+  // to the store's language at signup; used to localize order/account mail.
+  language: { type: String, default: "en" },
+
   // ─── Password reset (forgot-password flow) ──────────────────────────
   // We store the SHA-256 hash of the raw token, never the raw token
   // itself. The raw token lives only in the email we send; a DB leak

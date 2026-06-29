@@ -2,9 +2,12 @@ import path from "path";
 import fs from "fs";
 import express from "express";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";
 import logger from "../utils/logger.js";
 import config from "../config/index.js";
 import { resolveTenantByHost } from "../services/domainRegistry.js";
+import { createScopedModels } from "../utils/scopedModel.js";
+import { buildStorefrontHead, injectHead } from "./storefrontMeta.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -259,14 +262,46 @@ export function createStorefrontMiddleware() {
         }
       }
 
-      // SPA fallback — serve index.html for all non-asset routes. In preview
-      // mode, serve a copy whose asset URLs carry `?previewTheme=<slug>` so the
-      // browser fetches THIS theme's bundle rather than the active theme's.
-      if (previewDist) {
-        res.setHeader("Content-Type", "text/html; charset=utf-8");
-        return res.send(readPreviewIndexHtml(distPath, previewSlug));
+      // SPA fallback — serve index.html for all non-asset routes, with
+      // per-tenant <head> injected (favicon, title, OG/Twitter share tags).
+      // In preview mode the asset URLs also carry `?previewTheme=<slug>` so
+      // the browser fetches THIS theme's bundle.
+      let html = previewDist
+        ? readPreviewIndexHtml(distPath, previewSlug)
+        : fs.readFileSync(path.join(distPath, "index.html"), "utf8");
+
+      try {
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        // Product pages get product-specific share tags. Match /products/:slug
+        // (storefront product route); ignore deeper sub-paths.
+        let product = null;
+        const productMatch = req.path.match(/^\/products\/([^/]+)\/?$/);
+        if (productMatch) {
+          try {
+            const models = createScopedModels(mongoose.connection, tenant._id);
+            product = await models.Product.findOne({
+              slug: decodeURIComponent(productMatch[1]),
+              status: "active",
+            })
+              .select("name slug description images price compareAtPrice currency")
+              .lean();
+          } catch {
+            /* best-effort — fall back to store-level tags */
+          }
+        }
+        const headTags = buildStorefrontHead({
+          tenant,
+          baseUrl,
+          path: req.originalUrl?.split("?")[0] || req.path,
+          product,
+        });
+        html = injectHead(html, headTags);
+      } catch (e) {
+        logger.warn("Storefront head injection failed; serving base HTML", { error: e.message });
       }
-      return res.sendFile(path.join(distPath, "index.html"));
+
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.send(html);
     } catch (error) {
       logger.error("Storefront error serving theme", { error: error.message });
       next(error);

@@ -162,12 +162,14 @@
     "gift_card": {
       "list": {
         "title": "بطاقات الهدايا",
+        "subtitle": "أصدر وأدر بطاقات الهدايا والأرصدة في متجرك.",
         "feature_toggle_label": "بطاقات الهدايا",
         "feature_on": "مفعّل",
         "feature_off": "معطّل",
         "issue_button": "إصدار بطاقة هدية",
         "search_placeholder": "ابحث بآخر 4 أرقام...",
         "empty_title": "لا توجد بطاقات هدايا",
+        "empty_description": "أصدر أول بطاقة هدية لتمكين العملاء من إهداء رصيد المتجر.",
         "selected_count": "{{count}} محدد",
         "column": {
           "code": "الرمز",

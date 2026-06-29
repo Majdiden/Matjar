@@ -11,10 +11,9 @@ import { useThemeSettings } from '@shared/theme/ThemeProvider';
 import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
 import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
-import { Hero } from '@shared/components/sections/Hero';
 import NutrekoProductCard from '../components/NutrekoProductCard';
 
-// Niche default hero image (supplements/fitness) so the spotlight hero is never empty.
+// Niche default hero image (supplements/fitness) so the power hero is never empty.
 const HERO_DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&q=80&auto=format&fit=crop';
 
@@ -34,23 +33,85 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
   );
 };
 
-// ─── Power hero (shared, imagery-forward) ─────────────────────────
+// ─── Power hero ───────────────────────────────────────────────────
 
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   return (
-    <Hero
-      variant="spotlight"
-      tone="dark"
-      title={s.heading || t('theme.section.nutreko-hero.heading', { defaultValue: 'FUEL YOUR PERFORMANCE' })}
-      subtitle={s.subheading || t('theme.section.nutreko-hero.subheading')}
-      primaryCta={{ label: s.cta_text || t('theme.section.nutreko-hero.cta', { defaultValue: 'SHOP NOW' }), href: (s.cta_url as string) || '/products' }}
-      secondaryCta={{ label: (s.secondary_cta_text as string) || t('theme.section.nutreko-hero.secondary_cta'), href: (s.cta_url as string) || '/products' }}
-      saleText={s.eyebrow || t('theme.section.nutreko-hero.eyebrow')}
-      backgroundImage={(s.image as string) || undefined}
-      defaultImage={HERO_DEFAULT_IMAGE}
-    />
+    <section className="relative overflow-hidden bg-black text-white">
+      {/* diagonal lime stripes background */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.08]" aria-hidden>
+        <div className="absolute -top-20 -end-20 w-[600px] h-[600px] rounded-full" style={{ backgroundColor: LIME }} />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        <div>
+          {s.eyebrow && (
+            <div className="text-[11px] tracking-[0.25em] uppercase font-black mb-6" style={{ color: LIME }}>
+              {s.eyebrow}
+            </div>
+          )}
+          <h1
+            className="font-display text-5xl sm:text-6xl md:text-7xl leading-[0.95] uppercase"
+            style={headingFont}
+          >
+            {(s.heading || t('theme.section.nutreko-hero.heading', { defaultValue: 'FUEL YOUR PERFORMANCE' })).split(' ').map((w: string, i: number) => (
+              <span key={i} className={i === 1 ? 'text-[var(--color-primary)]' : ''}>{w} </span>
+            ))}
+          </h1>
+          {s.subheading && (
+            <p className="mt-6 text-base text-white/70 max-w-md leading-relaxed">
+              {s.subheading}
+            </p>
+          )}
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Link
+              to={s.cta_url || '/products'}
+              className="group inline-flex items-center gap-2 px-10 py-4 text-[11px] tracking-[0.22em] uppercase font-black hover:scale-105 transition"
+              style={{ backgroundColor: LIME, color: DARK }}
+            >
+              {s.cta_text || t('theme.section.nutreko-hero.cta', { defaultValue: 'SHOP NOW' })}
+              <svg className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+            {s.secondary_cta_text && (
+              <Link
+                to={s.cta_url || '/products'}
+                className="inline-block px-10 py-4 text-[11px] tracking-[0.22em] uppercase font-black border-2 border-white hover:bg-white hover:text-black transition"
+              >
+                {s.secondary_cta_text}
+              </Link>
+            )}
+          </div>
+
+          {/* Stats */}
+          <div className="mt-12 grid grid-cols-3 gap-6 max-w-md border-t border-white/10 pt-6">
+            {[
+              ['500+', t('theme.section.nutreko-hero.stat_products')],
+              ['50K+', t('theme.section.nutreko-hero.stat_customers')],
+              ['100%', t('theme.section.nutreko-hero.stat_authentic')],
+            ].map(([n, l]) => (
+              <div key={l}>
+                <div className="font-display text-3xl" style={{ fontFamily: 'var(--font-family-heading)', color: LIME }}>{n}</div>
+                <div className="text-[10px] tracking-[0.2em] uppercase text-white/60 mt-1">{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative hidden md:block">
+          <div className="aspect-square bg-gradient-to-br from-white/5 to-transparent border-4 border-white/10 relative overflow-hidden">
+            {s.image ? (
+              <img src={s.image as string} alt="" onError={(e) => { e.currentTarget.src = HERO_DEFAULT_IMAGE; }} className="w-full h-full object-contain p-8" />
+            ) : (
+              <img src={HERO_DEFAULT_IMAGE} alt="" className="w-full h-full object-cover" />
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
 

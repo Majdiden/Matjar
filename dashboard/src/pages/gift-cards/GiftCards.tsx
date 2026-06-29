@@ -398,16 +398,19 @@ const GiftCards: React.FC = () => {
     d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Gift className="w-6 h-6 text-muted-foreground" />
-          <h1 className="text-2xl font-semibold">{t('marketing.gift_card.list.title')}</h1>
-          {!loading && (
-            <span className="text-sm text-muted-foreground ms-1">({total})</span>
-          )}
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-bold tracking-tight">{t('marketing.gift_card.list.title')}</h1>
+            {!loading && (
+              <span className="text-sm text-muted-foreground">({total})</span>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">{t('marketing.gift_card.list.subtitle')}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2 rounded-full border px-3 h-9 text-sm">
             <span className="text-muted-foreground">{t('marketing.gift_card.list.feature_toggle_label')}</span>
             <Switch
@@ -472,7 +475,22 @@ const GiftCards: React.FC = () => {
         </div>
       )}
 
-      {viewMode === 'table' ? (
+      {/* Gift card list */}
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+        </div>
+      ) : cards.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <Gift className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold">{t('marketing.gift_card.list.empty_title')}</h3>
+            <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+              {t('marketing.gift_card.list.empty_description')}
+            </p>
+          </CardContent>
+        </Card>
+      ) : viewMode === 'table' ? (
         <Card>
           <CardContent className="p-0">
             <Table>
@@ -496,22 +514,7 @@ const GiftCards: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      {Array.from({ length: 8 }).map((__, j) => (
-                        <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : cards.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
-                      {t('marketing.gift_card.list.empty_title')}
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  cards.map(card => (
+                {cards.map(card => (
                     <TableRow
                       key={card._id}
                       className={`cursor-pointer hover:bg-muted/50 ${selected.has(card._id) ? 'bg-primary/5' : ''}`}
@@ -555,21 +558,9 @@ const GiftCards: React.FC = () => {
                       <TableCell>{formatDate(card.expiresAt)}</TableCell>
                       <TableCell>{formatDate(card.createdAt)}</TableCell>
                     </TableRow>
-                  ))
-                )}
+                  ))}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      ) : loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-40 w-full rounded-xl" />)}
-        </div>
-      ) : cards.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <Gift className="h-10 w-10 mb-3" />
-            <p>{t('marketing.gift_card.list.empty_title')}</p>
           </CardContent>
         </Card>
       ) : (
@@ -638,15 +629,30 @@ const GiftCards: React.FC = () => {
         </div>
       )}
 
-      {pages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
-            {t('common:action.previous')}
-          </Button>
-          <span className="text-sm text-muted-foreground">{t('common:pagination.page_of', { n: page, total: pages })}</span>
-          <Button variant="outline" size="sm" disabled={page >= pages} onClick={() => setPage(p => p + 1)}>
-            {t('common:action.next')}
-          </Button>
+      {pages > 1 && !loading && (
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-sm text-muted-foreground">
+            {t('common:pagination.showing', { from: ((page - 1) * 20) + 1, to: Math.min(page * 20, total), total })}
+          </p>
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
+              {t('common:action.previous')}
+            </Button>
+            {Array.from({ length: Math.min(pages, 5) }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p}
+                variant={page === p ? 'default' : 'outline'}
+                size="sm"
+                className="w-9"
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </Button>
+            ))}
+            <Button variant="outline" size="sm" disabled={page >= pages} onClick={() => setPage(p => p + 1)}>
+              {t('common:action.next')}
+            </Button>
+          </div>
         </div>
       )}
 
