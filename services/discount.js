@@ -151,6 +151,17 @@ const computeBxgyDiscount = (discount, cartLines) => {
   }
   getUnits.sort((a, b) => a.unitPrice - b.unitPrice);
 
+  // The buy condition is met but there's no eligible "get" item in the
+  // cart — BXGY discounts the GET item, so with none present the coupon
+  // would silently apply $0 ("I used the coupon but nothing happened").
+  // Surface an actionable error instead so the customer adds the Y item.
+  if (getUnits.length === 0) {
+    throw new APIError(
+      "Add the qualifying free/discounted item to your cart to claim this Buy X Get Y offer",
+      400,
+    );
+  }
+
   const unitsToDiscount = Math.min(getUnits.length, getQty * applications);
   const getType = discount.bxgy?.getDiscountType || "percentage";
   const getVal = discount.bxgy?.getDiscountValue ?? 100;
