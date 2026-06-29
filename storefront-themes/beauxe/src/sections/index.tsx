@@ -188,7 +188,7 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
                   {bs.title}
                 </h3>
                 <span className="inline-block px-6 py-2 rounded-full text-[11px] tracking-[0.22em] uppercase font-semibold text-white group-hover:bg-[color:var(--color-secondary)] transition" style={{ backgroundColor: NAVY }}>
-                  {t('theme.section.category_tiles.shop_now')} →
+                  {t('theme.section.category_tiles.shop_now')} <span className="inline-block rtl:rotate-180">→</span>
                 </span>
               </div>
             </Link>
@@ -240,7 +240,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           className="inline-block px-10 py-4 rounded-full border-2 text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--color-primary)] hover:text-white transition"
           style={{ borderColor: NAVY, color: NAVY }}
         >
-          {t('theme.section.product_grid.view_all')} →
+          {t('theme.section.product_grid.view_all')} <span className="inline-block rtl:rotate-180">→</span>
         </Link>
       </div>
     </section>

@@ -188,7 +188,7 @@ const Layout: React.FC = () => {
                   placeholder={t('theme.footer.email_placeholder')}
                   className="flex-1 py-2 text-sm bg-transparent focus:outline-none"
                 />
-                <button type="submit" className="text-xs uppercase tracking-wider font-semibold px-2">→</button>
+                <button type="submit" aria-label={t('theme.footer.subscribe', { defaultValue: 'Subscribe' })} className="text-xs uppercase tracking-wider font-semibold px-2"><span className="inline-block rtl:rotate-180">→</span></button>
               </form>
             </div>
           </div>

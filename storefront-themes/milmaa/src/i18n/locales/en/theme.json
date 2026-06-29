@@ -16,7 +16,13 @@
         "heading": "Our Delicious Flavors",
         "subheading": "Pick your favorite and feel the goodness",
         "flavor_label": "Flavor",
-        "shop_now": "Shop now"
+        "shop_now": "Shop now",
+        "flavor_1_title": "BANANA MILK",
+        "flavor_1_subtitle": "Sweet, creamy, naturally energizing",
+        "flavor_2_title": "BADAM MILK",
+        "flavor_2_subtitle": "Rich almond indulgence, iron-packed",
+        "flavor_3_title": "CASHEWNUT MILK",
+        "flavor_3_subtitle": "Buttery smooth, protein-rich"
       },
       "milmaa-product-grid": {
         "heading": "Shop Our Milks",
@@ -25,13 +31,25 @@
       "milmaa-benefits": {
         "eyebrow": "WHY MILMAA",
         "heading": "A healthier start to every day",
-        "badge": "CERTIFIED\nORGANIC"
+        "badge": "CERTIFIED\nORGANIC",
+        "benefit_1_title": "Rich in calcium & vitamin D",
+        "benefit_1_description": "Each serving delivers your daily dose of essential minerals.",
+        "benefit_2_title": "100% plant-based",
+        "benefit_2_description": "No dairy, no lactose, no compromise on creaminess.",
+        "benefit_3_title": "Zero added sugar",
+        "benefit_3_description": "Naturally sweetened — the way nature intended."
       },
       "milmaa-blog": {
         "heading": "From The Journal",
         "subheading": "Recipes, stories and a sprinkle of goodness",
         "view_all": "View all articles →",
-        "post_label": "RECIPE"
+        "post_label": "RECIPE",
+        "post_1_title": "Top 5 plant-based smoothie recipes",
+        "post_1_excerpt": "Kickstart your day with these nutritious blends.",
+        "post_2_title": "Why plant-based is the future",
+        "post_2_excerpt": "The science behind sustainable nutrition.",
+        "post_3_title": "Meet our farmers",
+        "post_3_excerpt": "The hands behind every bottle of Milmaa."
       },
       "milmaa-testimonials": {
         "heading": "Customers Talk",

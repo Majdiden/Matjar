@@ -20,7 +20,8 @@
         "items_count_two": "عنصران",
         "items_count_few": "{{count}} عناصر",
         "items_count_many": "{{count}} عنصراً",
-        "items_count_other": "{{count}} عنصر"
+        "items_count_other": "{{count}} عنصر",
+        "items_count": "{{count}} منتج"
       },
       "featured-products": {
         "heading": "المنتجات المميّزة",
@@ -52,6 +53,7 @@
     },
     "nav": {
       "home": "الرئيسية",
+      "products": "المنتجات",
       "shop_all": "جميع المنتجات"
     },
     "footer": {
@@ -89,7 +91,10 @@
       "search_placeholder": "ابحث عن المنتجات...",
       "clear_search": "مسح البحث",
       "no_products": "لا توجد منتجات",
-      "view_all": "عرض الكل"
+      "view_all": "عرض الكل",
+      "previous": "السابق",
+      "next": "التالي",
+      "page_of": "صفحة {{page}} من {{total}}"
     },
     "product_detail": {
       "not_found_heading": "المنتج غير موجود",
@@ -112,7 +117,13 @@
       "out_of_stock": "غير متوفر",
       "share": "مشاركة:",
       "tab_description": "الوصف",
-      "tab_reviews": "المراجعات"
+      "tab_reviews": "المراجعات",
+      "select_option_error": "يرجى اختيار خيار قبل الإضافة إلى السلة",
+      "added_to_cart": "تمت الإضافة إلى السلة!",
+      "add_to_cart_failed": "تعذّرت الإضافة إلى السلة",
+      "sku": "رمز المنتج:",
+      "in_stock": "متوفر ({{count}} متاح)",
+      "only_left": "بقي {{count}} فقط"
     },
     "category": {
       "not_found_heading": "الفئة غير موجودة",
@@ -139,7 +150,8 @@
       "tax": "الضريبة",
       "total": "الإجمالي",
       "proceed_to_checkout": "المتابعة إلى الدفع",
-      "continue_shopping": "متابعة التسوق"
+      "continue_shopping": "متابعة التسوق",
+      "subtotal": "المجموع الفرعي ({{count}} منتج)"
     }
   }
 }

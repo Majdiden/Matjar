@@ -137,7 +137,7 @@ const Home: React.FC = () => {
               <h2 className="text-3xl font-semibold">{feat.heading || t('theme.section.featured_products.title')}</h2>
             </div>
             <Link to={feat.view_all_url || '/products'} className="text-[#d4a76a] text-sm font-medium hover:underline">
-              {feat.view_all_text || t('theme.section.featured_products.view_all')} &rarr;
+              {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
             </Link>
           </div>
 

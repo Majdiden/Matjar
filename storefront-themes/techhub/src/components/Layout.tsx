@@ -270,7 +270,7 @@ const Layout: React.FC = () => {
             <div>
               <h4 className="font-bold text-sm mb-4 uppercase tracking-wide text-white">{t('theme.footer.customer_care_heading')}</h4>
               <div className="space-y-2.5 text-sm text-slate-400">
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.faqs')}</a>
+                <a href="#" className="block hover:text-white transition">{t('theme.footer.faq')}</a>
                 <a href="#" className="block hover:text-white transition">{t('theme.footer.terms_of_service')}</a>
                 <a href="#" className="block hover:text-white transition">{t('theme.footer.privacy_policy')}</a>
                 <a href="#" className="block hover:text-white transition">{t('theme.footer.contact_us')}</a>

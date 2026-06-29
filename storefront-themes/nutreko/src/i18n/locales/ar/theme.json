@@ -119,7 +119,8 @@
       "count_few": "{{count}} منتجات",
       "count_many": "{{count}} منتجاً",
       "count_other": "{{count}} منتج",
-      "empty": "لا توجد منتجات. جرّب فلاتر مختلفة."
+      "empty": "لا توجد منتجات. جرّب فلاتر مختلفة.",
+      "count": "{{count}} منتج"
     },
     "product_detail": {
       "not_found_heading": "غير موجود",
@@ -165,7 +166,8 @@
       "count_two": "منتجان",
       "count_few": "{{count}} منتجات",
       "count_many": "{{count}} منتجاً",
-      "count_other": "{{count}} منتج"
+      "count_other": "{{count}} منتج",
+      "count": "{{count}} منتج"
     },
     "cart": {
       "page_title": "سلة التسوق",
@@ -187,7 +189,8 @@
       "tax": "الضريبة",
       "total": "الإجمالي",
       "proceed_to_checkout": "المتابعة إلى الدفع",
-      "continue_shopping": "متابعة التسوق"
+      "continue_shopping": "متابعة التسوق",
+      "subtotal": "المجموع الفرعي ({{count}} منتج)"
     },
     "product_card": {
       "sale": "تخفيض",

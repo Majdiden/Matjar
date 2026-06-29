@@ -107,15 +107,15 @@ const ProductDetail: React.FC = () => {
 
   const handleAddToCart = async () => {
     if (requiresVariantSelection) {
-      toast('Please select an option before adding to cart', { type: 'error' });
+      toast(t('theme.product_detail.select_option_error'), { type: 'error' });
       return;
     }
     setAdding(true);
     try {
       await addItem(product._id, quantity, activeVariant?._id);
-      toast('Added to cart!', { type: 'success' });
+      toast(t('theme.product_detail.added_to_cart'), { type: 'success' });
     } catch (err) {
-      toast('Failed to add to cart', { type: 'error' });
+      toast(t('theme.product_detail.add_to_cart_failed'), { type: 'error' });
     } finally {
       setAdding(false);
     }
@@ -148,8 +148,8 @@ const ProductDetail: React.FC = () => {
       {/* Breadcrumb */}
       <Breadcrumbs
         items={[
-          { label: 'Home', href: '/' },
-          { label: 'Products', href: '/products' },
+          { label: t('theme.nav.home'), href: '/' },
+          { label: t('theme.nav.products'), href: '/products' },
           ...(product.category && typeof product.category === 'object'
             ? [{ label: (product.category as any).name, href: `/categories/${(product.category as any).slug}` }]
             : []),
@@ -255,11 +255,13 @@ const ProductDetail: React.FC = () => {
             <div className="mb-6">
               <p className="text-sm text-amber-600 font-medium flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                Pre-order{shipDateLabel ? ` — ships ${shipDateLabel}` : ''}
+                {shipDateLabel
+                  ? t('theme.product_detail.pre_order_ships', { date: shipDateLabel })
+                  : t('theme.product_detail.pre_order')}
               </p>
               {preState.lowRemaining && preState.remaining !== null && (
                 <p className="text-xs font-semibold text-amber-700 mt-1">
-                  Only {preState.remaining} left
+                  {t('theme.product_detail.only_left', { count: preState.remaining })}
                 </p>
               )}
               {preState.depositLabel && (
@@ -328,7 +330,7 @@ const ProductDetail: React.FC = () => {
 
           {/* SKU & Tags */}
           <div className="text-xs text-gray-400 space-y-1 mt-4 pt-4 border-t">
-            {product.sku && <p>SKU: {product.sku}</p>}
+            {product.sku && <p>{t('theme.product_detail.sku')} {product.sku}</p>}
             {product.tags && product.tags.length > 0 && (
               <div className="flex gap-1.5 flex-wrap">
                 {product.tags.map((tag: string) => (

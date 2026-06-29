@@ -254,7 +254,7 @@ const Home: React.FC = () => {
               to={feat.view_all_url || '/products'}
               className="text-[#8b5cf6] font-bold text-sm hover:underline"
             >
-              {feat.view_all_text || t('theme.section.featured_products.view_all')} &rarr;
+              {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
             </Link>
           </div>
           {loading ? (

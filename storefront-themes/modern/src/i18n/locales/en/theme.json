@@ -47,6 +47,7 @@
     },
     "nav": {
       "home": "Home",
+      "products": "Products",
       "shop_all": "Shop All"
     },
     "footer": {
@@ -84,7 +85,10 @@
       "search_placeholder": "Search products...",
       "clear_search": "Clear search",
       "no_products": "No products found",
-      "view_all": "View All"
+      "view_all": "View All",
+      "previous": "Previous",
+      "next": "Next",
+      "page_of": "Page {{page}} of {{total}}"
     },
     "product_detail": {
       "not_found_heading": "Product Not Found",
@@ -98,7 +102,11 @@
       "out_of_stock": "Out of Stock",
       "share": "Share:",
       "tab_description": "Description",
-      "tab_reviews": "Reviews"
+      "tab_reviews": "Reviews",
+      "select_option_error": "Please select an option before adding to cart",
+      "added_to_cart": "Added to cart!",
+      "add_to_cart_failed": "Failed to add to cart",
+      "sku": "SKU:"
     },
     "category": {
       "not_found_heading": "Category Not Found",

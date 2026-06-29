@@ -9,7 +9,8 @@
         "sidebar_heading": "BROWSE ALL COLLECTION",
         "hotline_label": "HOTLINE",
         "shipping_strip": "FREE SHIPPING FOR ORDER ABOVE $200. SHOP NOW",
-        "flash_deal_label": "FLASH DEAL"
+        "flash_deal_label": "FLASH DEAL",
+        "go_to_slide": "Go to slide {{n}}"
       }
     },
     "section": {

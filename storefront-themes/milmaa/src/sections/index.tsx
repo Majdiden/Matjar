@@ -29,10 +29,11 @@ const HEADING_FONT = 'var(--font-family-heading)';
 // ─── Top strip ────────────────────────────────────────────────────
 
 const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   return (
     <div className="text-white text-[12px] py-2.5 text-center font-medium" style={{ backgroundColor: TEAL }}>
-      {s.text || '100% Plant-Based · Free Shipping on Orders Over $40'}
+      {s.text || t('theme.section.milmaa-top-strip.text', { defaultValue: '100% Plant-Based · Free Shipping on Orders Over $40' })}
     </div>
   );
 };
@@ -64,16 +65,16 @@ const FlavorsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { title: 'BANANA MILK', subtitle: 'Sweet, creamy, naturally energizing', background: YELLOW } },
-    { id: 'b', settings: { title: 'BADAM MILK', subtitle: 'Rich almond indulgence, iron-packed', background: PINK } },
-    { id: 'c', settings: { title: 'CASHEWNUT MILK', subtitle: 'Buttery smooth, protein-rich', background: TEAL } },
+    { id: 'a', settings: { title: t('theme.section.milmaa-flavors.flavor_1_title', { defaultValue: 'BANANA MILK' }), subtitle: t('theme.section.milmaa-flavors.flavor_1_subtitle', { defaultValue: 'Sweet, creamy, naturally energizing' }), background: YELLOW } },
+    { id: 'b', settings: { title: t('theme.section.milmaa-flavors.flavor_2_title', { defaultValue: 'BADAM MILK' }), subtitle: t('theme.section.milmaa-flavors.flavor_2_subtitle', { defaultValue: 'Rich almond indulgence, iron-packed' }), background: PINK } },
+    { id: 'c', settings: { title: t('theme.section.milmaa-flavors.flavor_3_title', { defaultValue: 'CASHEWNUT MILK' }), subtitle: t('theme.section.milmaa-flavors.flavor_3_subtitle', { defaultValue: 'Buttery smooth, protein-rich' }), background: TEAL } },
   ];
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
       <div className="text-center mb-12">
         <h2 className="font-serif text-4xl md:text-5xl font-semibold" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
-          {s.heading || 'Our Delicious Flavors'}
+          {s.heading || t('theme.section.milmaa-flavors.heading', { defaultValue: 'Our Delicious Flavors' })}
         </h2>
         {s.subheading && (
           <p className="mt-3 text-base opacity-70">{s.subheading}</p>
@@ -115,7 +116,7 @@ const FlavorsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 {bs.subtitle && <p className="text-sm mt-2 opacity-80 max-w-xs">{bs.subtitle}</p>}
                 <div className="mt-5 inline-flex items-center gap-2 text-xs font-bold">
                   <span className="underline">{t('theme.section.milmaa-flavors.shop_now')}</span>
-                  <span>→</span>
+                  <span className="rtl:rotate-180">→</span>
                 </div>
               </div>
             </Link>
@@ -129,6 +130,7 @@ const FlavorsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 // ─── Product grid ─────────────────────────────────────────────────
 
 const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   const limit = Number(s.product_limit) || 4;
   const source = (s.source as string) || 'featured';
@@ -141,7 +143,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
       <div className="text-center mb-12">
         <h2 className="font-serif text-4xl md:text-5xl font-semibold" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
-          {s.heading || 'Shop Our Milks'}
+          {s.heading || t('theme.section.milmaa-product-grid.heading', { defaultValue: 'Shop Our Milks' })}
         </h2>
         {s.subheading && <p className="mt-3 text-base opacity-70">{s.subheading}</p>}
       </div>
@@ -169,9 +171,9 @@ const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { title: 'Rich in calcium & vitamin D', description: 'Each serving delivers your daily dose of essential minerals.' } },
-    { id: 'b', settings: { title: '100% plant-based', description: 'No dairy, no lactose, no compromise on creaminess.' } },
-    { id: 'c', settings: { title: 'Zero added sugar', description: 'Naturally sweetened — the way nature intended.' } },
+    { id: 'a', settings: { title: t('theme.section.milmaa-benefits.benefit_1_title', { defaultValue: 'Rich in calcium & vitamin D' }), description: t('theme.section.milmaa-benefits.benefit_1_description', { defaultValue: 'Each serving delivers your daily dose of essential minerals.' }) } },
+    { id: 'b', settings: { title: t('theme.section.milmaa-benefits.benefit_2_title', { defaultValue: '100% plant-based' }), description: t('theme.section.milmaa-benefits.benefit_2_description', { defaultValue: 'No dairy, no lactose, no compromise on creaminess.' }) } },
+    { id: 'c', settings: { title: t('theme.section.milmaa-benefits.benefit_3_title', { defaultValue: 'Zero added sugar' }), description: t('theme.section.milmaa-benefits.benefit_3_description', { defaultValue: 'Naturally sweetened — the way nature intended.' }) } },
   ];
 
   return (
@@ -197,7 +199,7 @@ const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
             </div>
           )}
           <h2 className="font-serif text-4xl md:text-5xl font-semibold mb-8" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
-            {s.heading || 'A healthier start to every day'}
+            {s.heading || t('theme.section.milmaa-benefits.heading', { defaultValue: 'A healthier start to every day' })}
           </h2>
           <div className="space-y-5">
             {items.map((b, i) => {
@@ -230,9 +232,9 @@ const BlogSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { title: 'Top 5 plant-based smoothie recipes', excerpt: 'Kickstart your day with these nutritious blends.', date: 'Jun 12' } },
-    { id: 'b', settings: { title: 'Why plant-based is the future', excerpt: 'The science behind sustainable nutrition.', date: 'May 28' } },
-    { id: 'c', settings: { title: 'Meet our farmers', excerpt: 'The hands behind every bottle of Milmaa.', date: 'May 14' } },
+    { id: 'a', settings: { title: t('theme.section.milmaa-blog.post_1_title', { defaultValue: 'Top 5 plant-based smoothie recipes' }), excerpt: t('theme.section.milmaa-blog.post_1_excerpt', { defaultValue: 'Kickstart your day with these nutritious blends.' }), date: 'Jun 12' } },
+    { id: 'b', settings: { title: t('theme.section.milmaa-blog.post_2_title', { defaultValue: 'Why plant-based is the future' }), excerpt: t('theme.section.milmaa-blog.post_2_excerpt', { defaultValue: 'The science behind sustainable nutrition.' }), date: 'May 28' } },
+    { id: 'c', settings: { title: t('theme.section.milmaa-blog.post_3_title', { defaultValue: 'Meet our farmers' }), excerpt: t('theme.section.milmaa-blog.post_3_excerpt', { defaultValue: 'The hands behind every bottle of Milmaa.' }), date: 'May 14' } },
   ];
   const tints = [YELLOW, PINK, TEAL];
 
@@ -241,7 +243,7 @@ const BlogSection: React.FC<SectionComponentProps> = ({ id, section }) => {
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
         <div>
           <h2 className="font-serif text-4xl md:text-5xl font-semibold" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
-            {s.heading || 'From The Journal'}
+            {s.heading || t('theme.section.milmaa-blog.heading', { defaultValue: 'From The Journal' })}
           </h2>
           {s.subheading && <p className="mt-2 opacity-70">{s.subheading}</p>}
         </div>
@@ -285,12 +287,13 @@ const BlogSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 // ─── Testimonials ─────────────────────────────────────────────────
 
 const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
+  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { quote: 'The creamiest plant milk I have ever tasted!', author: 'Sarah M.', role: 'Busy Mom' } },
-    { id: 'b', settings: { quote: 'Perfect for my morning oats. Clean ingredients.', author: 'David L.', role: 'Yoga Instructor' } },
-    { id: 'c', settings: { quote: 'Finally a non-dairy milk that actually tastes like milk!', author: 'Priya K.', role: 'Foodie' } },
+    { id: 'a', settings: { quote: t('theme.testimonial.tm-1.quote'), author: 'Sarah M.', role: t('theme.testimonial.tm-1.role') } },
+    { id: 'b', settings: { quote: t('theme.testimonial.tm-2.quote'), author: 'David L.', role: t('theme.testimonial.tm-2.role') } },
+    { id: 'c', settings: { quote: t('theme.testimonial.tm-3.quote'), author: 'Priya K.', role: t('theme.testimonial.tm-3.role') } },
   ];
 
   return (
@@ -298,7 +301,7 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <h2 className="font-serif text-4xl md:text-5xl font-semibold" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
-            {s.heading || 'Customers Talk'}
+            {s.heading || t('theme.section.milmaa-testimonials.heading', { defaultValue: 'Customers Talk' })}
           </h2>
           {s.subheading && <p className="mt-3 opacity-70">{s.subheading}</p>}
         </div>

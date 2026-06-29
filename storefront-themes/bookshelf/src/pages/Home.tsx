@@ -154,7 +154,8 @@ const Home: React.FC = () => {
               to={staffPicks.view_all_url || '/products'}
               className="text-[#7c3aed] font-semibold text-sm hover:underline"
             >
-              {staffPicks.view_all_text || t('theme.section.staff_picks.see_all')} &rarr;
+              {staffPicks.view_all_text || t('theme.section.staff_picks.see_all')}{' '}
+              <span className="inline-block rtl:rotate-180">&rarr;</span>
             </Link>
           </div>
           {loading ? (

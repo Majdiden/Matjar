@@ -92,8 +92,8 @@ const Products: React.FC = () => {
       {/* Breadcrumbs */}
       <Breadcrumbs
         items={[
-          { label: 'Home', href: '/' },
-          { label: 'Products', href: '/products' },
+          { label: t('theme.nav.home'), href: '/' },
+          { label: t('theme.nav.products'), href: '/products' },
           ...(activeCategory ? [{ label: activeCategory.name }] : []),
         ]}
         className="mb-6"
@@ -125,7 +125,7 @@ const Products: React.FC = () => {
                 {activeCategory?.name || t('theme.products.title_all')}
               </h1>
               {pagination && (
-                <span className="text-sm text-gray-500">({pagination.total} items)</span>
+                <span className="text-sm text-gray-500">({t('theme.section.categories.items_count', { count: pagination.total })})</span>
               )}
             </div>
 

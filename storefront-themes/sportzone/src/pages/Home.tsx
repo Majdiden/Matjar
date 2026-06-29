@@ -105,7 +105,7 @@ const Home: React.FC = () => {
                   <span className="text-white font-black uppercase text-sm tracking-wider">{cat.name}</span>
                   {cats.show_shop_now_label !== false && (
                     <span className="block text-red-400 text-xs font-bold uppercase mt-1 opacity-0 group-hover:opacity-100 transition">
-                      {cats.shop_now_text || t('theme.section.categories.shop_now')} &rarr;
+                      {cats.shop_now_text || t('theme.section.categories.shop_now')} <span className="inline-block rtl:rotate-180">&rarr;</span>
                     </span>
                   )}
                 </div>
@@ -125,7 +125,7 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-black uppercase">{feat.heading || t('theme.section.featured_products.title')}</h2>
             <Link to={feat.view_all_url || '/products'} className="text-[#dc2626] font-bold text-sm uppercase hover:underline">
-              {feat.view_all_text || t('theme.section.featured_products.view_all')} &rarr;
+              {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
             </Link>
           </div>
           {featuredLoading ? (

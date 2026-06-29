@@ -58,6 +58,7 @@
       "journal": "المدوّنة",
       "newsletter_subtitle": "انضمي للحصول على خصم 10% على طلبك الأول.",
       "email_placeholder": "بريدك الإلكتروني",
+      "subscribe": "اشتراك",
       "copyright": "© {{year}} {{name}}. جميع الحقوق محفوظة."
     },
     "announcement": {

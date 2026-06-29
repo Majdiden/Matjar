@@ -9,7 +9,8 @@
         "sidebar_heading": "تصفّح جميع المجموعات",
         "hotline_label": "الخط الساخن",
         "shipping_strip": "شحن مجاني للطلبات التي تزيد عن 200 دولار. تسوّق الآن",
-        "flash_deal_label": "عرض خاطف"
+        "flash_deal_label": "عرض خاطف",
+        "go_to_slide": "الانتقال إلى الشريحة {{n}}"
       }
     },
     "section": {

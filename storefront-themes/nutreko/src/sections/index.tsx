@@ -287,7 +287,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
             to={s.cta_url || '/products'}
             className="relative inline-block px-10 py-5 text-[12px] tracking-[0.22em] uppercase font-black bg-white text-black hover:bg-black hover:text-white border-2 border-black transition"
           >
-            {s.cta_text || t('theme.section.nutreko-banner.cta', { defaultValue: 'SHOP DEAL' })} →
+            {s.cta_text || t('theme.section.nutreko-banner.cta', { defaultValue: 'SHOP DEAL' })} <span aria-hidden className="rtl:rotate-180 inline-block">→</span>
           </Link>
         </div>
       </div>
