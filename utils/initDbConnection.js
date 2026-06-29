@@ -1,6 +1,7 @@
 import tenantSchema from "../schemas/tenant.js";
 import tenantUserSchema from "../schemas/tenantUser.js";
 import subscriptionSchema from "../schemas/subscription.js";
+import subscriptionPlanSchema from "../schemas/subscriptionPlan.js";
 import domainSchema from "../schemas/domain.js";
 import tenantExportSchema from "../schemas/tenantExport.js";
 import themeSchema from "../schemas/store/theme.js";
@@ -48,6 +49,7 @@ export function registerAllModels(connection) {
   connection.model("Tenant", tenantSchema);
   connection.model("TenantUser", tenantUserSchema);
   connection.model("Subscription", subscriptionSchema);
+  connection.model("SubscriptionPlan", subscriptionPlanSchema);
   connection.model("Theme", themeSchema);
   connection.model("Domain", domainSchema);
   connection.model("TenantExport", tenantExportSchema);

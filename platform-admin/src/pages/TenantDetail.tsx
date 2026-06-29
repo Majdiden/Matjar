@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { api, hasScope, PLATFORM_SCOPES } from '../lib/api';
+import { api, hasScope, PLATFORM_SCOPES, type SubscriptionPlan } from '../lib/api';
 import { useAuth } from '../contexts/auth-context';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { Modal } from '../components/ui/Modal';
+import { Select } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { StatusBadge } from '../components/StatusBadge';
 import { PageSpinner, ErrorState } from '../components/ui/Spinner';
@@ -27,6 +29,7 @@ import {
   Users as UsersIcon,
   Package,
   ExternalLink,
+  CreditCard,
 } from 'lucide-react';
 import TenantOrdersTab from './TenantOrdersTab';
 import TenantPaymentsTab from './TenantPaymentsTab';
@@ -115,6 +118,12 @@ export default function TenantDetailPage() {
     | 'unsuspend'
   >(null);
 
+  // Plan-change modal state. Plans are loaded lazily when the modal opens.
+  const [planModalOpen, setPlanModalOpen] = useState(false);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState('');
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -176,6 +185,29 @@ export default function TenantDetailPage() {
 
   const handleRetrySetup = () =>
     wrap('retry-setup', () => api.tenants.retrySetup(tenantId), 'Setup retry enqueued');
+
+  const openPlanModal = async () => {
+    setPlanModalOpen(true);
+    setSelectedPlan(tenant?.subscriptionPlan || '');
+    setPlansLoading(true);
+    try {
+      setPlans(await api.plans.list());
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to load plans');
+    } finally {
+      setPlansLoading(false);
+    }
+  };
+
+  const handleChangePlan = async () => {
+    if (!selectedPlan) return;
+    await wrap(
+      'change-plan',
+      () => api.tenants.changePlan(tenantId, selectedPlan),
+      'Plan updated'
+    );
+    setPlanModalOpen(false);
+  };
 
   if (loading && !tenant) return <PageSpinner />;
   if (error) return <ErrorState error={error} onRetry={load} />;
@@ -393,11 +425,28 @@ export default function TenantDetailPage() {
       {tab === 'overview' && (
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle>Subscription</CardTitle>
+              {canLifecycle && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={openPlanModal}
+                  disabled={isDeleted}
+                >
+                  <CreditCard className="h-3.5 w-3.5" /> Change plan
+                </Button>
+              )}
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
-              <Row label="Plan" value={tenant.subscriptionPlan || 'free'} />
+              <Row
+                label="Plan"
+                value={
+                  <Badge variant="outline" className="capitalize">
+                    {tenant.subscriptionPlan || 'free'}
+                  </Badge>
+                }
+              />
               <Row
                 label="Status"
                 value={<StatusBadge status={tenant.subscriptionStatus} />}
@@ -694,6 +743,62 @@ export default function TenantDetailPage() {
           await handleRetrySetup();
         }}
       />
+
+      <Modal
+        open={planModalOpen}
+        onClose={actionLoading === 'change-plan' ? () => {} : () => setPlanModalOpen(false)}
+        title="Change subscription plan"
+        description="Assigns this tenant to a catalog plan and refreshes the subscription window + entitlement limits."
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setPlanModalOpen(false)}
+              disabled={actionLoading === 'change-plan'}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleChangePlan}
+              loading={actionLoading === 'change-plan'}
+              disabled={
+                plansLoading || !selectedPlan || selectedPlan === tenant.subscriptionPlan
+              }
+            >
+              Change plan
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <div className="text-sm text-muted-foreground">
+            Current plan:{' '}
+            <Badge variant="outline" className="capitalize">
+              {tenant.subscriptionPlan || 'free'}
+            </Badge>
+          </div>
+          {plansLoading ? (
+            <div className="text-sm text-muted-foreground">Loading plans…</div>
+          ) : plans.length === 0 ? (
+            <div className="text-sm text-muted-foreground">
+              No plans in the catalog. Create one on the Plans page first.
+            </div>
+          ) : (
+            <Select value={selectedPlan} onChange={(e) => setSelectedPlan(e.target.value)}>
+              <option value="" disabled>
+                Select a plan…
+              </option>
+              {plans.map((p) => (
+                <option key={p._id} value={p.key} disabled={!p.isActive}>
+                  {p.name} ({p.key})
+                  {p.price > 0 ? ` — ${p.currency} ${p.price}/${p.interval}` : ' — Free'}
+                  {p.isActive ? '' : ' [inactive]'}
+                </option>
+              ))}
+            </Select>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }

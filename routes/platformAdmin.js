@@ -44,6 +44,11 @@ import {
   getTenantStats,
   getTenantsStats,
   getQueuesStats,
+  listPlans,
+  createPlan,
+  updatePlan,
+  deletePlan,
+  changeTenantPlan,
 } from "../controllers/platformAdmin.js";
 
 const router = Router();
@@ -99,6 +104,30 @@ router.get(
   validateObjectId("tenantId"),
   requireScope(PLATFORM_SCOPES.SUPPORT_READ),
   listFailedWebhooks
+);
+
+// --- Subscription plan catalog (read: billing.read; write: tenant.lifecycle) ---
+router.get("/plans", requireScope(PLATFORM_SCOPES.BILLING_READ), listPlans);
+router.post("/plans", requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE), createPlan);
+router.patch(
+  "/plans/:id",
+  validateObjectId("id"),
+  requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
+  updatePlan
+);
+router.delete(
+  "/plans/:id",
+  validateObjectId("id"),
+  requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
+  deletePlan
+);
+
+// Change a tenant's current plan (tenant.lifecycle)
+router.patch(
+  "/tenants/:tenantId/plan",
+  validateObjectId("tenantId"),
+  requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
+  changeTenantPlan
 );
 
 // --- Tenant lifecycle (tenant.lifecycle) ---

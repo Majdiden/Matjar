@@ -129,6 +129,37 @@ export interface Pagination {
   pages: number;
 }
 
+export interface SubscriptionPlan {
+  _id: string;
+  key: string;
+  name: string;
+  description?: string;
+  price: number;
+  currency: string;
+  interval: 'month' | 'year';
+  features: string[];
+  limits?: { maxProducts?: number | null; maxStaff?: number | null };
+  isActive: boolean;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Shape sent when creating/updating a plan. `key` is required on create,
+// ignored on update (immutable identifier).
+export type PlanInput = {
+  key?: string;
+  name?: string;
+  description?: string;
+  price?: number;
+  currency?: string;
+  interval?: 'month' | 'year';
+  features?: string[];
+  limits?: { maxProducts?: number | null; maxStaff?: number | null };
+  isActive?: boolean;
+  sortOrder?: number;
+};
+
 export const api = {
   login: async (email: string, password: string) => {
     const res = await http.post('/login', { email, password });
@@ -256,6 +287,33 @@ export const api = {
     listFailedWebhooks: async (tenantId: string) => {
       const res = await http.get(`/tenants/${tenantId}/failed-webhooks`);
       return res.data.data as unknown[];
+    },
+    changePlan: async (tenantId: string, plan: string) => {
+      const res = await http.patch(`/tenants/${tenantId}/plan`, { plan });
+      return res.data.data as {
+        tenantId: string;
+        subscriptionPlan: string;
+        subscriptionStartDate?: string;
+        subscriptionEndDate?: string;
+      };
+    },
+  },
+  plans: {
+    list: async () => {
+      const res = await http.get('/plans');
+      return res.data.data as SubscriptionPlan[];
+    },
+    create: async (input: PlanInput) => {
+      const res = await http.post('/plans', input);
+      return res.data.data as SubscriptionPlan;
+    },
+    update: async (id: string, input: PlanInput) => {
+      const res = await http.patch(`/plans/${id}`, input);
+      return res.data.data as SubscriptionPlan;
+    },
+    remove: async (id: string) => {
+      const res = await http.delete(`/plans/${id}`);
+      return res.data.data as { id: string };
     },
   },
   queues: {

@@ -1,10 +1,11 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/auth-context';
-import { Shield, Building2, Layers, LogOut, ShieldAlert } from 'lucide-react';
+import { Shield, Building2, Layers, CreditCard, LogOut, ShieldAlert } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navItems = [
   { to: '/tenants', label: 'Tenants', icon: Building2, end: false },
+  { to: '/plans', label: 'Plans', icon: CreditCard, end: false },
   { to: '/queues', label: 'Queues', icon: Layers, end: false },
 ];
 

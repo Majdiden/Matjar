@@ -41,9 +41,15 @@ const tenantSchema = new Schema({
   domain: { type: String }, // Will be deprecated
 
   // Subscription & Billing
+  //
+  // References a SubscriptionPlan catalog row by its `key` slug. Kept as
+  // a free lowercase string (not an enum) so platform operators can
+  // create/rename plans in the catalog without a schema migration. The
+  // plan-change endpoint validates the key against the catalog on write.
   subscriptionPlan: {
     type: String,
-    enum: ["trial", "basic", "pro", "enterprise"],
+    lowercase: true,
+    trim: true,
     default: "trial",
   },
   subscriptionStatus: {

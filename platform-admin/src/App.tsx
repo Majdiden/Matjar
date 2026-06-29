@@ -6,6 +6,7 @@ import { Layout } from './components/Layout';
 import Login from './pages/Login';
 import Tenants from './pages/Tenants';
 import TenantDetail from './pages/TenantDetail';
+import Plans from './pages/Plans';
 import Queues from './pages/Queues';
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
             <Route index element={<Navigate to="/tenants" replace />} />
             <Route path="/tenants" element={<Tenants />} />
             <Route path="/tenants/:tenantId" element={<TenantDetail />} />
+            <Route path="/plans" element={<Plans />} />
             <Route path="/queues" element={<Queues />} />
           </Route>
           <Route path="*" element={<Navigate to="/tenants" replace />} />

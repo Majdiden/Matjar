@@ -530,6 +530,158 @@ export const getQueuesStats = asyncHandler(async (_req, res) => {
   res.json({ success: true, data: results });
 });
 
+// --- Subscription plan catalog --------------------------------------
+
+// Plan keys are stable slugs referenced by tenant.subscriptionPlan.
+// Lowercase, start alphanumeric, then alphanumerics / dash / underscore.
+const PLAN_KEY_RE = /^[a-z0-9][a-z0-9-_]*$/;
+
+/**
+ * Whitelist + coerce a plan payload into the catalog shape. `key` is
+ * never taken from here (immutable on update, validated separately on
+ * create) — pass it via `overrides`.
+ */
+function sanitizePlanInput(body = {}, overrides = {}) {
+  const out = {};
+  if (body.name != null) out.name = String(body.name).trim();
+  if (body.description != null) out.description = String(body.description);
+  if (body.price != null && body.price !== "") out.price = Number(body.price);
+  if (body.currency != null) out.currency = String(body.currency).toUpperCase().trim();
+  if (body.interval != null) out.interval = body.interval;
+  if (Array.isArray(body.features)) {
+    out.features = body.features.map((f) => String(f).trim()).filter(Boolean);
+  }
+  if (body.limits && typeof body.limits === "object") {
+    const num = (v) => (v == null || v === "" ? null : Number(v));
+    out.limits = {
+      maxProducts: num(body.limits.maxProducts),
+      maxStaff: num(body.limits.maxStaff),
+    };
+  }
+  if (body.isActive != null) out.isActive = !!body.isActive;
+  if (body.sortOrder != null && body.sortOrder !== "") out.sortOrder = Number(body.sortOrder);
+  return { ...out, ...overrides };
+}
+
+export const listPlans = asyncHandler(async (_req, res) => {
+  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
+  const plans = await SubscriptionPlan.find({}).sort({ sortOrder: 1, key: 1 }).lean();
+  res.json({ success: true, data: plans });
+});
+
+export const createPlan = asyncHandler(async (req, res) => {
+  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
+  const body = req.body || {};
+  const key = String(body.key || "").toLowerCase().trim();
+  if (!key || !PLAN_KEY_RE.test(key)) {
+    return res.status(400).json({
+      success: false,
+      message: "A valid plan key is required (lowercase slug, e.g. \"starter\").",
+    });
+  }
+  if (!body.name || !String(body.name).trim()) {
+    return res.status(400).json({ success: false, message: "Plan name is required." });
+  }
+  const existing = await SubscriptionPlan.findOne({ key });
+  if (existing) {
+    return res.status(409).json({ success: false, message: `A plan with key "${key}" already exists.` });
+  }
+  const plan = await SubscriptionPlan.create(sanitizePlanInput(body, { key }));
+  logger.info("Platform: plan created", { key, by: req.platformUser.email });
+  res.status(201).json({ success: true, data: plan });
+});
+
+export const updatePlan = asyncHandler(async (req, res) => {
+  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
+  // `key` is the immutable identifier tenants reference — ignore any
+  // attempt to change it so existing tenant assignments don't orphan.
+  const update = sanitizePlanInput(req.body || {});
+  if (Object.keys(update).length === 0) {
+    return res.status(400).json({ success: false, message: "No updatable fields provided." });
+  }
+  update.updatedAt = new Date();
+  const plan = await SubscriptionPlan.findByIdAndUpdate(
+    req.params.id,
+    { $set: update },
+    { new: true, runValidators: true }
+  );
+  if (!plan) return res.status(404).json({ success: false, message: "Plan not found." });
+  logger.info("Platform: plan updated", { id: req.params.id, by: req.platformUser.email });
+  res.json({ success: true, data: plan });
+});
+
+export const deletePlan = asyncHandler(async (req, res) => {
+  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
+  const plan = await SubscriptionPlan.findById(req.params.id);
+  if (!plan) return res.status(404).json({ success: false, message: "Plan not found." });
+
+  // Block delete if any tenant is currently on this plan — otherwise
+  // their subscriptionPlan would dangle against a non-existent catalog row.
+  const Tenant = mongoose.model("Tenant");
+  const inUse = await Tenant.countDocuments({ subscriptionPlan: plan.key });
+  if (inUse > 0) {
+    return res.status(409).json({
+      success: false,
+      message: `Cannot delete plan "${plan.key}" — ${inUse} tenant(s) are on it. Move them to another plan first.`,
+    });
+  }
+  await plan.deleteOne();
+  logger.warn("Platform: plan deleted", { key: plan.key, by: req.platformUser.email });
+  res.json({ success: true, data: { id: req.params.id } });
+});
+
+/**
+ * Change a tenant's current plan. Validates the plan key against the
+ * catalog, then sets tenant.subscriptionPlan, refreshes the subscription
+ * window (start = now, end = now + interval), and applies the plan's
+ * entitlement limits to the tenant.
+ */
+export const changeTenantPlan = asyncHandler(async (req, res) => {
+  const planKey = String(req.body?.plan ?? req.body?.planKey ?? "").toLowerCase().trim();
+  if (!planKey) {
+    return res.status(400).json({ success: false, message: "A plan key is required." });
+  }
+  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
+  const plan = await SubscriptionPlan.findOne({ key: planKey });
+  if (!plan) {
+    return res.status(404).json({ success: false, message: `Unknown plan "${planKey}".` });
+  }
+
+  const now = new Date();
+  const endDate = new Date(now);
+  if (plan.interval === "year") endDate.setFullYear(endDate.getFullYear() + 1);
+  else endDate.setMonth(endDate.getMonth() + 1);
+
+  const set = {
+    subscriptionPlan: plan.key,
+    subscriptionStartDate: now,
+    subscriptionEndDate: endDate,
+  };
+  // Track entitlements off the plan when it declares them. maxStaff maps
+  // to the tenant's maxUsers limit.
+  if (plan.limits?.maxProducts != null) set["limits.maxProducts"] = plan.limits.maxProducts;
+  if (plan.limits?.maxStaff != null) set["limits.maxUsers"] = plan.limits.maxStaff;
+
+  const Tenant = mongoose.model("Tenant");
+  const t = await Tenant.findByIdAndUpdate(req.params.tenantId, { $set: set }, { new: true });
+  if (!t) return res.status(404).json({ success: false, message: "Tenant not found." });
+
+  logger.warn("Platform: tenant plan changed", {
+    tenantId: String(t._id),
+    plan: plan.key,
+    by: req.platformUser.email,
+  });
+  res.json({
+    success: true,
+    data: {
+      tenantId: String(t._id),
+      subscriptionPlan: t.subscriptionPlan,
+      subscriptionStartDate: t.subscriptionStartDate,
+      subscriptionEndDate: t.subscriptionEndDate,
+    },
+  });
+});
+
 // --- Failed webhook deliveries (tenant-scoped) ----------------------
 
 export const listFailedWebhooks = asyncHandler(async (req, res) => {
