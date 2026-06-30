@@ -155,6 +155,15 @@ export const api = {
       niche?: string;
     }) => api.post('/auth/register', data),
 
+    // Authenticated "add another store" under the current account — returns a
+    // token for the new store so the client hands the user straight in.
+    addStore: (data: {
+      storeName: string;
+      subdomain: string;
+      themeSlug?: string;
+      niche?: string;
+    }) => api.post('/auth/stores', data),
+
     // Public signup helper — true if the email already has a dashboard
     // account, so the UI can prompt "sign in to add a store" instead of
     // failing late at registration.

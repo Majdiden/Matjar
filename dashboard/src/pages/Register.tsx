@@ -1,6 +1,8 @@
 import React, { Fragment, useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/auth-context';
+import { encodeAuthPayload } from '../lib/authHandoff';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -64,9 +66,23 @@ const NICHE_ICONS: Record<string, React.ReactNode> = {
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation(['auth', 'common']);
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
 
-  const [step, setStep] = useState<Step>('welcome');
+  // "Add a store" mode: an already-signed-in user creates an ADDITIONAL store
+  // (reached from the store picker / "sign in to add a store"). We skip the
+  // welcome + account steps and call the authenticated add-store endpoint.
+  const addMode = new URLSearchParams(location.search).get('add') === '1';
+
+  // Guard: add-mode requires an authenticated session.
+  useEffect(() => {
+    if (addMode && !authLoading && !isAuthenticated) {
+      navigate('/login', { replace: true, state: { next: '/register?add=1' } });
+    }
+  }, [addMode, authLoading, isAuthenticated, navigate]);
+
+  const [step, setStep] = useState<Step>(addMode ? 'store' : 'welcome');
   const [transitionDir, setTransitionDir] = useState<'in' | 'out'>('in');
   const [form, setForm] = useState({
     name: '',
@@ -203,7 +219,9 @@ export const Register: React.FC = () => {
   };
   const back = () => {
     const i = STEPS.indexOf(step);
-    if (i > 0) goTo(STEPS[i - 1]);
+    // In add-mode the account/welcome steps are skipped — don't reverse past 'store'.
+    const floor = addMode ? STEPS.indexOf('store') : 0;
+    if (i > floor) goTo(STEPS[i - 1]);
   };
 
   // Per-field validation — errors are rendered inline and must all clear
@@ -298,18 +316,60 @@ export const Register: React.FC = () => {
     setTouched(prev => ({ ...prev, themeSlug: true }));
     if (Object.keys(errs).length > 0) return;
     // Re-run prior-step validations as a final guard so nothing slipped in
-    // via direct URL / back button after clearing an error.
-    const priorErrs = {
-      ...validateStep('account'),
-      ...validateStep('store'),
-      ...validateStep('niche'),
-    };
+    // via direct URL / back button after clearing an error. Add-mode has no
+    // account step (the user is already signed in).
+    const priorErrs = addMode
+      ? { ...validateStep('store'), ...validateStep('niche') }
+      : { ...validateStep('account'), ...validateStep('store'), ...validateStep('niche') };
     if (Object.keys(priorErrs).length > 0) {
       setError(t('auth.register.general_error'));
       return;
     }
     setError('');
     setSubmitting(true);
+
+    // ── Add-a-store: authenticated user creating an ADDITIONAL store ──
+    if (addMode) {
+      try {
+        const r = (await api.auth.addStore({
+          storeName: form.storeName,
+          subdomain: form.subdomain,
+          themeSlug: form.themeSlug,
+          niche: form.niche,
+        })) as {
+          responseObject?: {
+            accessToken?: string;
+            tenantId?: string;
+            adminUserId?: string;
+            subdomain?: string;
+            tenantDomain?: string;
+          };
+        };
+        const ro = r.responseObject || {};
+        toast.success(t('auth.toast.store_created'));
+        const tenantDomain = ro.tenantDomain || ro.subdomain || '';
+        if (ro.accessToken && tenantDomain) {
+          // Hand the user straight into the NEW store's dashboard, signed in.
+          const isDev = import.meta.env.MODE !== 'production';
+          const firstLabel = tenantDomain.split('.')[0];
+          const host = isDev ? `${firstLabel}.localhost:${window.location.port || '3000'}` : tenantDomain;
+          const payload = encodeAuthPayload({
+            token: ro.accessToken,
+            userId: ro.adminUserId,
+            user: { id: ro.adminUserId, name: user?.name, email: user?.email, tenantId: ro.tenantId, roles: ['admin'] },
+          });
+          window.location.href = `${window.location.protocol}//${host}/dashboard#auth=${encodeURIComponent(payload)}`;
+          return;
+        }
+        navigate('/dashboard', { replace: true });
+      } catch (err) {
+        const e = err as { message?: string; error?: string };
+        setError(e?.message || e?.error || t('auth.register.general_error'));
+        setSubmitting(false);
+      }
+      return;
+    }
+
     try {
       const response = (await api.auth.register({
         name: form.name,

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useOrderAndStore, useAutoPrint } from './shared';
+import PrintToolbar from './PrintToolbar';
 import { api } from '../../../lib/api-client';
 import { formatPrice } from '../../../lib/format';
 import type { OrderWithExtras, Payment } from '../../../types';
@@ -76,6 +77,8 @@ const RefundReceipt: React.FC = () => {
   const when = refund.createdAt ? new Date(refund.createdAt) : new Date();
 
   return (
+    <>
+    <PrintToolbar />
     <div className="document-page">
       <header className="doc-header">
         <div className="doc-header-left">
@@ -133,6 +136,7 @@ const RefundReceipt: React.FC = () => {
         ) : null}
       </footer>
     </div>
+    </>
   );
 };
 

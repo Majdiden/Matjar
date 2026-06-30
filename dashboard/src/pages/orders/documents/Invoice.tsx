@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useOrderAndStore, useAutoPrint, formatAddress } from './shared';
+import PrintToolbar from './PrintToolbar';
 import { formatPrice } from '../../../lib/format';
 import type { OrderItem, OrderWithExtras } from '../../../types';
 import './print.css';
@@ -70,6 +71,8 @@ const Invoice: React.FC = () => {
     '';
 
   return (
+    <>
+    <PrintToolbar />
     <div className="document-page">
       <header className="doc-header">
         <div className="doc-header-left">
@@ -204,6 +207,7 @@ const Invoice: React.FC = () => {
         </div>
       </footer>
     </div>
+    </>
   );
 };
 

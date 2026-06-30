@@ -162,6 +162,19 @@ export const Login: React.FC = () => {
                   )}
                 </button>
               ))}
+
+              {/* Create another store under this account */}
+              <button
+                onClick={() => navigate('/register?add=1')}
+                disabled={isLoading}
+                className="group text-start p-6 border border-dashed rounded-2xl bg-card/50 hover:border-foreground/40 hover:bg-card transition-all disabled:opacity-50 disabled:pointer-events-none"
+              >
+                <div className="h-14 w-14 rounded-xl border-2 border-dashed border-muted-foreground/40 flex items-center justify-center text-muted-foreground text-2xl font-light mb-4 group-hover:border-foreground/40 group-hover:text-foreground transition-colors">
+                  +
+                </div>
+                <div className="font-semibold text-lg leading-snug">{t('auth.pick_store.create_store')}</div>
+                <div className="text-sm text-muted-foreground mt-1">{t('auth.pick_store.create_store_hint')}</div>
+              </button>
             </div>
           </div>
         </main>

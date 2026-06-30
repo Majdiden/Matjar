@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
+
+// Printable-doc links are opened with window.open (a raw URL the router's
+// basename does NOT prepend). In the production build the router basename is
+// `/dashboard`, so the URL must include it to reach the `/dashboard/orders/...`
+// document routes; in dev (basename '/') it must not. Prepend accordingly.
+const DOC_URL_PREFIX = import.meta.env.MODE === 'production' ? '/dashboard' : '';
+const orderDocUrl = (orderId: string, doc: string) =>
+  `${DOC_URL_PREFIX}/dashboard/orders/${orderId}/${doc}`;
 import { useSetBreadcrumbs } from '../../contexts/breadcrumb-context';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -835,7 +843,7 @@ export const OrderDetails: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => window.open(`/dashboard/orders/${order._id}/packing-slip`, '_blank', 'noopener,noreferrer')}
+            onClick={() => window.open(orderDocUrl(order._id, 'packing-slip'), '_blank', 'noopener,noreferrer')}
           >
             <Printer className="h-4 w-4 me-2" />{t('orders:detail.action.print')}
           </Button>
@@ -900,7 +908,7 @@ export const OrderDetails: React.FC = () => {
           const el = document.getElementById('fulfillment-card');
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }}
-        onPrintPackingSlip={() => window.open(`/dashboard/orders/${order._id}/packing-slip`, '_blank', 'noopener,noreferrer')}
+        onPrintPackingSlip={() => window.open(orderDocUrl(order._id, 'packing-slip'), '_blank', 'noopener,noreferrer')}
         onMarkDelivered={() => handleStatusChange('Delivered')}
       />
 
@@ -2363,8 +2371,7 @@ const resolveMeta = (entry: OrderHistoryEntry, t: (k: string) => string) => {
 const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order, payments }) => {
   const { t: tDM } = useTranslation(['orders', 'common']);
   const refunds = (payments || []).filter((p) => p?.status === 'refunded');
-  const base = `/dashboard/orders/${order._id}`;
-  const open = (path: string) => window.open(path, '_blank', 'noopener,noreferrer');
+  const open = (doc: string) => window.open(orderDocUrl(order._id, doc), '_blank', 'noopener,noreferrer');
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -2375,10 +2382,10 @@ const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order,
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem onClick={() => open(`${base}/invoice`)}>
+        <DropdownMenuItem onClick={() => open('invoice')}>
           <Receipt className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.invoice')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => open(`${base}/packing-slip`)}>
+        <DropdownMenuItem onClick={() => open('packing-slip')}>
           <Package className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.packing_slip')}
         </DropdownMenuItem>
         {refunds.length === 0 ? (
@@ -2389,7 +2396,7 @@ const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order,
           refunds.map((r) => (
             <DropdownMenuItem
               key={r._id}
-              onClick={() => open(`${base}/refund-receipt/${r._id}`)}
+              onClick={() => open(`refund-receipt/${r._id}`)}
             >
               <ArrowDownLeft className="h-4 w-4 me-2" />
               {tDM('orders:detail.documents.refund_receipt')} · {formatRefundLabel(r)}
