@@ -27,29 +27,47 @@ export function platformFrom() {
   return config.emailFrom;
 }
 
-/** The host a store sends customer mail from (custom domain if verified). */
-export function storeMailHost(tenant) {
+/** A store's verified custom domain, or null if it doesn't have one. */
+function verifiedCustomDomain(tenant) {
   const d = tenant?.domains || {};
-  if (d.primaryDomain === "custom" && d.customDomain?.isVerified && d.customDomain?.domain) {
-    return String(d.customDomain.domain).toLowerCase();
-  }
   if (d.customDomain?.isVerified && d.customDomain?.domain) {
     return String(d.customDomain.domain).toLowerCase();
   }
+  return null;
+}
+
+/** The verified platform sender address, parsed from config.emailFrom
+ *  ("Matjar <noreply@invoila.io>" → "noreply@invoila.io"). */
+function platformSenderAddress() {
+  const raw = String(config.emailFrom || "");
+  const m = raw.match(/<([^>]+)>/);
+  return (m ? m[1] : raw).trim() || "noreply@invoila.io";
+}
+
+/** The host a store's customer mail appears to come from. */
+export function storeMailHost(tenant) {
   return (
-    d.subdomain?.fullDomain ||
-    `${tenant?.slug || "store"}.${config.platformDomain}`
+    verifiedCustomDomain(tenant) ||
+    platformSenderAddress().split("@")[1] ||
+    config.platformDomain
   ).toLowerCase();
 }
 
 /**
- * Store→customer "From" header. Honors a merchant-set fromEmail override;
- * otherwise "StoreName <noreply@<store-host>>".
+ * Store→customer "From" header.
+ *
+ * DELIVERABILITY: the address domain MUST be verified with the email provider
+ * (Resend) or the send is rejected. Per-store platform subdomains
+ * (store.invoila.io) are NOT individually verified, so sending from them
+ * silently fails. We therefore send from the VERIFIED platform address
+ * (e.g. noreply@invoila.io) with the STORE NAME as the display name, and only
+ * use the store's own domain when it's a VERIFIED CUSTOM domain. Reply-To
+ * carries the store's real contact so replies still reach the merchant.
  */
 export function storeFrom(tenant) {
   const storeName = tenant?.settings?.storeName || tenant?.name || "Store";
-  const override = tenant?.settings?.notifications?.fromEmail;
-  const addr = override || `noreply@${storeMailHost(tenant)}`;
+  const custom = verifiedCustomDomain(tenant);
+  const addr = custom ? `noreply@${custom}` : platformSenderAddress();
   return `${storeName} <${addr}>`;
 }
 
