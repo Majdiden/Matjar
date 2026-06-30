@@ -1392,7 +1392,7 @@ const NotificationsPanel: React.FC = () => {
                       : 'border-border hover:bg-accent'
                   }`}
                 >
-                  {s}
+                  {t(`common:status.${s}`, { defaultValue: s })}
                   {!isEnabled && <span className="ms-1 text-[10px] opacity-70">{t('settings.email_template.off_badge')}</span>}
                 </button>
               );
