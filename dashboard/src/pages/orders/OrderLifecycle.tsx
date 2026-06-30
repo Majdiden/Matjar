@@ -399,7 +399,7 @@ const OrderNodeView: React.FC<OrderNodeViewProps> = ({
               <ArrowUpRight className="h-3 w-3 opacity-70" />
             </Link>
             <span
-              title={`Payment: ${order.paymentStatus}`}
+              title={`${t('orders:detail.field.payment_status', { defaultValue: 'Payment' })}: ${t(`common:status.${order.paymentStatus}`, { defaultValue: order.paymentStatus })}`}
               className={'h-2 w-2 rounded-full ' + paymentDotClass(order.paymentStatus)}
             />
           </div>
