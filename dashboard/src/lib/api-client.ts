@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import { loginUrl, isOnLoginPage } from './authHandoff';
 
 // API Base URL.
 // Tenant resolution is host-based (the backend reads the Host header to map
@@ -38,13 +39,14 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Unauthorized - clear token and redirect to login
+      // Unauthorized - clear token and redirect to login. Use the
+      // basename-aware URL so on a store subdomain we land on the DASHBOARD
+      // login (/dashboard/login), not the storefront's /login.
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('userId');
-      // Only redirect if we're not already on the login page
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      if (!isOnLoginPage()) {
+        window.location.href = loginUrl();
       }
     }
     return Promise.reject(error);

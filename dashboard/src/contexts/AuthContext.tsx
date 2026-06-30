@@ -194,7 +194,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // different host than the one the dashboard is currently loaded
     // from, redirect to the correct host so every subsequent API
     // call lands on the same tenant.
-    const desiredHost = ro.tenantDomain;
+    // `skipHostRedirect` keeps the session on the CURRENT origin (used by the
+    // store-picker "Create a new store" flow, which needs an authenticated
+    // session on the main domain to call the add-store endpoint without being
+    // bounced to a store subdomain first).
+    const desiredHost = (credentials as { skipHostRedirect?: boolean }).skipHostRedirect ? null : ro.tenantDomain;
     if (desiredHost) {
       const currentHost = window.location.host;
       const currentHostnameFirstLabel = window.location.hostname.split('.')[0];

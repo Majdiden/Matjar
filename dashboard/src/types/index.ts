@@ -30,6 +30,9 @@ export interface LoginCredentials {
   // returns the tenant list when an email owns multiple stores and the
   // caller re-submits with one of those ids.
   tenantId?: string;
+  // Keep the session on the current origin (skip the cross-host redirect to
+  // the store subdomain). Used by the "add a store" picker flow.
+  skipHostRedirect?: boolean;
 }
 
 export interface StoreChoice {

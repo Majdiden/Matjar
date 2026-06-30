@@ -99,6 +99,22 @@ export const Login: React.FC = () => {
     }
   };
 
+  // "Create a new store" from the picker: the user has valid credentials but
+  // isn't signed in yet. Establish a session on THIS origin (no cross-host
+  // redirect) using any of their stores, then go to the add-store flow.
+  const createAnotherStore = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await login({ email, password, tenantId: stores[0]?.id, skipHostRedirect: true });
+      navigate('/register?add=1');
+    } catch (err) {
+      const e = err as { message?: string };
+      setError(e?.message || t('auth.toast.store_sign_in_failed'));
+      setIsLoading(false);
+    }
+  };
+
   // Store picker takes over the whole screen — it deserves more room than
   // the cramped right column of the login split layout.
   if (step === 'pick-store') {
@@ -165,7 +181,7 @@ export const Login: React.FC = () => {
 
               {/* Create another store under this account */}
               <button
-                onClick={() => navigate('/register?add=1')}
+                onClick={createAnotherStore}
                 disabled={isLoading}
                 className="group text-start p-6 border border-dashed rounded-2xl bg-card/50 hover:border-foreground/40 hover:bg-card transition-all disabled:opacity-50 disabled:pointer-events-none"
               >
