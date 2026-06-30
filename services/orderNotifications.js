@@ -165,10 +165,20 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
     if (!order || !newStatus) return { success: false, reason: "missing-args" };
     if (!STATUSES.includes(newStatus)) return { success: false, reason: "unknown-status" };
 
-    // The order may arrive populated (from a service that called .populate)
-    // or as a raw doc — handle both shapes.
-    const customerEmail = order.user?.email || order.customerEmail;
-    const customerName = order.user?.name || "Customer";
+    // The order may arrive populated (a registered user) or be a GUEST order.
+    // Guests have no `order.user`; their email lives on `guestCustomer.email`
+    // (or the immutable `customerSnapshot`). Missing this fallback meant guest
+    // customers — the common case for a new store — never got ANY email.
+    const customerEmail =
+      order.user?.email ||
+      order.customerEmail ||
+      order.guestCustomer?.email ||
+      order.customerSnapshot?.email;
+    const customerName =
+      order.user?.name ||
+      [order.guestCustomer?.firstName, order.guestCustomer?.lastName].filter(Boolean).join(" ") ||
+      [order.customerSnapshot?.firstName, order.customerSnapshot?.lastName].filter(Boolean).join(" ") ||
+      "Customer";
     if (!customerEmail) return { success: false, reason: "no-customer-email" };
 
     const tenantId = order.tenantId;
@@ -221,6 +231,17 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
     const html = wrapStoreEmail({ tenant, contentHtml, language: emailLanguage });
 
     const result = await sendEmail({ to: customerEmail, subject, html, from, replyTo });
+    // Diagnostic: surface what was attempted so a non-delivery can be traced
+    // in prod logs (from/to + provider outcome) without a debugger.
+    logger.info("Customer order email", {
+      orderId: order?._id?.toString?.(),
+      status: newStatus,
+      to: customerEmail,
+      from,
+      success: result?.success === true,
+      provider: result?.provider,
+      error: result?.error,
+    });
     return result;
   } catch (err) {
     logger.error("notifyOrderStatusChange failed", {
