@@ -67,6 +67,9 @@ const addATenantService = async (tenantData) => {
       },
       settings: {
         storeName,
+        // Stable per-store secret for the owner draft-preview link
+        // (?preview=<token> reveals unpublished/draft content on the storefront).
+        previewToken: crypto.randomBytes(16).toString("hex"),
         currency: tenantData.currency || "SDG",
         timezone: tenantData.timezone || "Africa/Khartoum",
         language: tenantData.language || "en",

@@ -87,6 +87,8 @@ const tenantSchema = new Schema({
     storeDescription: { type: String, default: null },
     logo: { type: String, default: null },
     favicon: { type: String, default: null },
+    // Stable per-store secret for the owner draft-preview link.
+    previewToken: { type: String, default: null },
     shipping: {
       type: { type: String, enum: ["flat", "weight", "zone", "free"], default: "flat" },
       rate: { type: Number, default: 0 },
