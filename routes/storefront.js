@@ -961,9 +961,18 @@ router.get(
     const { email, token } = req.query;
     const userId = req.user?.userId;
 
+    // The :id segment accepts either the order's Mongo _id (used by
+    // confirmation-email and account links) or the human-friendly
+    // orderNumber (e.g. "#1001") a guest enters on the tracking form.
+    // Only treat it as an _id when it's a valid 24-hex ObjectId, so a
+    // non-hex orderNumber never triggers a CastError. tenantId is
+    // auto-injected by the scoped model, keeping this tenant-isolated.
+    const lookup = [{ orderNumber: id }];
+    if (/^[a-f0-9]{24}$/i.test(String(id))) lookup.push({ _id: id });
+
     let order;
     try {
-      order = await req.models.Order.findOne({ _id: id })
+      order = await req.models.Order.findOne({ $or: lookup })
         .populate("products.product", "name slug images price sku")
         .populate("user", "email firstName lastName");
     } catch (err) {
@@ -975,29 +984,51 @@ router.get(
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // Authorization:
-    //   • Owner: signed-in customer whose user id matches the order.
-    //   • Guest: exact checkout email PLUS a valid signed per-order access
-    //     token. Email alone is no longer sufficient — guessing an order
-    //     id + email pair is too weak a gate, so we require the HMAC
-    //     token that checkout emits in the confirmation link.
+    // Authorization. A request is allowed through if EITHER:
+    //   • Owner — signed-in customer whose user id matches the order, OR
+    //   • Guest — proves the order is theirs in one of two ways:
+    //       1. order # / id + the checkout email. The email is matched
+    //          case-insensitively (trimmed) against any email captured on
+    //          the order: the guest contact email, the immutable customer
+    //          snapshot, or a linked account. This powers the public
+    //          "track my order" lookup.
+    //       2. a valid signed per-order access token from the confirmation
+    //          email link (whose URL also carries the email).
+    // A mismatch returns the same 404 as a missing order, so the response
+    // can't be used to enumerate order ids or which emails exist.
     const ownerId = order.user?._id?.toString();
     const isOwner = userId && ownerId && ownerId === userId;
-    const guestEmail = (order.guestCustomer?.email || order.user?.email || "").toLowerCase().trim();
+
     const requestedEmail = String(email || "").toLowerCase().trim();
+    const orderEmails = [
+      order.guestCustomer?.email,
+      order.customerSnapshot?.email,
+      order.user?.email,
+    ]
+      .map((e) => String(e || "").toLowerCase().trim())
+      .filter(Boolean);
     const emailMatches =
-      requestedEmail && guestEmail && guestEmail === requestedEmail;
+      requestedEmail.length > 0 && orderEmails.includes(requestedEmail);
+
+    // Tokens are minted at checkout against the guest contact email
+    // (falling back to the account email), so verify against that same
+    // address to keep existing confirmation links working.
+    const tokenEmail = String(
+      order.guestCustomer?.email || order.user?.email || order.customerSnapshot?.email || ""
+    )
+      .toLowerCase()
+      .trim();
     const hasToken = typeof token === "string" && token.trim().length > 0;
     const tokenValid =
-      emailMatches &&
       hasToken &&
       verifyOrderAccessToken({
         tenantId: req.tenantId,
         orderId: order._id,
-        email: guestEmail,
+        email: tokenEmail,
         token: String(token),
       });
-    const isGuestAuthorized = emailMatches && hasToken && tokenValid;
+
+    const isGuestAuthorized = emailMatches || tokenValid;
 
     if (!isOwner && !isGuestAuthorized) {
       // Don't leak whether the order exists — same shape as a 404.

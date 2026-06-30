@@ -125,6 +125,18 @@ export async function initializeStoreSetup(tenant, models, options = {}) {
       logger.warn(`Payment method seeding failed: ${err.message}`, { tenantId });
     }
 
+    // Seed the default storefront header navigation menu (Home / Shop /
+    // About / Contact). Idempotent — skipped if a header menu already
+    // exists. Best-effort: a failure here must never break signup, and
+    // themes fall back to their category list when no menu is present.
+    // Runs after theme install so the merchant always lands with working
+    // top-nav out of the box.
+    try {
+      await seedDefaultMenus(models, tenant?.settings?.language);
+    } catch (err) {
+      logger.warn(`Default menu seeding failed: ${err.message}`, { tenantId });
+    }
+
     // Step 4: Finalization
     await updateSetupStep(tenantId, SETUP_STEPS.FINALIZATION, "completed");
 
@@ -389,6 +401,72 @@ export async function seedDefaultPaymentMethods(models, language) {
     if (existing.isModified()) await existing.save();
   }
   return { created };
+}
+
+/**
+ * Handle/location of the auto-seeded storefront navigation menu. Themes
+ * fetch it via GET /storefront/menus/header (the storefront endpoint is
+ * keyed by handle), and the shared `useMenu('header')` hook uses this same
+ * value. Keeping handle === location keeps the lookup unambiguous.
+ */
+export const DEFAULT_HEADER_MENU_HANDLE = "header";
+
+/**
+ * Seed the default storefront header navigation menu when the tenant has no
+ * header menu yet. Safe to call repeatedly.
+ *
+ * Idempotent: bails out if a menu with the "header" handle OR location
+ * already exists, so a merchant's customized nav is never clobbered and a
+ * worker retry can't create duplicates.
+ *
+ * The four entries (Home / All Products / About / Contact) are plain links
+ * pointing at routes every theme ships (`/`, `/products`, `/about`,
+ * `/contact`), and the static labels are localized to the store's language
+ * so an Arabic store starts with Arabic nav copy.
+ */
+export async function seedDefaultMenus(models, language) {
+  if (!models?.Menu) return { created: 0 };
+
+  // Idempotent guard — never overwrite an existing header menu.
+  const existing = await models.Menu.findOne({
+    $or: [{ handle: DEFAULT_HEADER_MENU_HANDLE }, { location: "header" }],
+  });
+  if (existing) return { created: 0, skipped: true };
+
+  const isAr = String(language || "").toLowerCase().startsWith("ar");
+  const copy = isAr
+    ? {
+        title: "القائمة الرئيسية",
+        home: "الرئيسية",
+        shop: "جميع المنتجات",
+        about: "من نحن",
+        contact: "اتصل بنا",
+      }
+    : {
+        title: "Main menu",
+        home: "Home",
+        shop: "All Products",
+        about: "About",
+        contact: "Contact",
+      };
+
+  const items = [
+    { label: copy.home, url: "/", type: "link", order: 0 },
+    { label: copy.shop, url: "/products", type: "link", order: 1 },
+    { label: copy.about, url: "/about", type: "link", order: 2 },
+    { label: copy.contact, url: "/contact", type: "link", order: 3 },
+  ];
+
+  // Scoped models inject tenantId automatically on create.
+  await models.Menu.create({
+    handle: DEFAULT_HEADER_MENU_HANDLE,
+    title: copy.title,
+    location: "header",
+    items,
+    isActive: true,
+  });
+
+  return { created: 1 };
 }
 
 export async function getAllActiveSetups() {

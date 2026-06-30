@@ -154,6 +154,15 @@ export const storefrontApi = {
     ).toString() : '';
     return request<any>(withPreview(`${STOREFRONT_BASE}/collections/${handle}${qs}`));
   },
+
+  /**
+   * Public navigation menu by handle (e.g. "header"). Returns the menu with
+   * its item tree fully resolved (each item carries a `resolvedUrl`). 404s
+   * when the store has no menu with that handle — callers fall back to
+   * another nav source.
+   */
+  getMenu: (handle: string) =>
+    request<any>(withPreview(`${STOREFRONT_BASE}/menus/${encodeURIComponent(handle)}`)),
 };
 
 // ─── Cart ────────────────────────────────────────────────────────
