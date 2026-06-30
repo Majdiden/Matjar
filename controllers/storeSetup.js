@@ -1,9 +1,56 @@
+import crypto from "crypto";
+import mongoose from "mongoose";
 import {
   getSetupStatus,
   clearSetupStatus,
   publishStarterContent,
 } from "../services/storeSetup.js";
 import { asyncHandler, APIError } from "../middlewares/errorHandler.js";
+
+/**
+ * Draft-starter status for the dashboard "publish your store" banner.
+ * Returns whether the store still has unpublished starter content, and a
+ * ready-to-open owner PREVIEW url (storefront + ?preview=<token>) so the
+ * merchant can see their store filled with the draft content before going
+ * live. Authenticated (req.tenant + req.models from the auth middleware).
+ */
+export const starterStatusController = asyncHandler(async (req, res) => {
+  if (!req.models || !req.tenant) {
+    throw new APIError("Tenant context not found", 400);
+  }
+
+  const [draftProducts, draftCollections, draftPages] = await Promise.all([
+    req.models.Product.countDocuments({ isDemo: true, status: "draft" }),
+    req.models.Collection.countDocuments({ isDemo: true, isPublished: false }),
+    req.models.Page.countDocuments({ isDemo: true, isPublished: false }),
+  ]);
+  const hasDraftStarter = draftProducts + draftCollections + draftPages > 0;
+
+  // Ensure a stable preview token exists (backfill for stores created before
+  // the field was added).
+  let previewToken = req.tenant.settings?.previewToken;
+  if (!previewToken) {
+    previewToken = crypto.randomBytes(16).toString("hex");
+    await mongoose
+      .model("Tenant")
+      .updateOne({ _id: req.tenant._id }, { $set: { "settings.previewToken": previewToken } });
+  }
+
+  const host =
+    req.tenant.domains?.subdomain?.fullDomain ||
+    `${req.tenant.slug}.${process.env.PLATFORM_DOMAIN || process.env.DOMAIN_SUFFIX || "invoila.io"}`;
+  const protocol = /(^|\.)localhost(:|$)/.test(host) ? "http" : "https";
+  const previewUrl = `${protocol}://${host}/?preview=${encodeURIComponent(previewToken)}`;
+
+  res.json({
+    success: true,
+    responseObject: {
+      hasDraftStarter,
+      counts: { products: draftProducts, collections: draftCollections, pages: draftPages },
+      previewUrl,
+    },
+  });
+});
 
 /**
  * Get store setup status

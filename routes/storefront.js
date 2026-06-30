@@ -52,6 +52,24 @@ router.use(requireTenant);
 router.use(storefrontApiLimiter);
 
 /**
+ * Owner draft-preview: when the merchant opens their storefront with
+ * `?preview=<their store previewToken>`, the data endpoints include DRAFT /
+ * unpublished content so they can see their store "filled" before publishing.
+ * The token is a stable per-store secret (settings.previewToken) — anyone
+ * without it sees only live content. Drafts aren't sensitive, so a shared
+ * link token is sufficient.
+ */
+function isOwnerPreview(req) {
+  const token = typeof req.query.preview === "string" ? req.query.preview : null;
+  const expected = req.tenant?.settings?.previewToken;
+  return !!(token && expected && token === expected);
+}
+/** Product status filter: include drafts in owner-preview, else active only. */
+function productStatusFilter(req) {
+  return isOwnerPreview(req) ? {} : { status: "active" };
+}
+
+/**
  * @route   GET /storefront/products
  * @desc    List active products (public storefront API)
  * @access  Public
@@ -68,7 +86,7 @@ router.get(
     }
 
     const { page = 1, limit = 20, category, sort, search, minPrice, maxPrice } = req.query;
-    const filter = { status: "active" };
+    const filter = productStatusFilter(req);
 
     if (category) filter.category = category;
     if (minPrice || maxPrice) {
@@ -131,7 +149,7 @@ router.get(
     }
 
     const { limit = 8 } = req.query;
-    const products = await req.models.Product.find({ status: "active", featured: true })
+    const products = await req.models.Product.find({ ...productStatusFilter(req), featured: true })
       .limit(parseInt(limit))
       .select(productCardSelect);
 
@@ -158,7 +176,7 @@ router.get(
 
     const product = await req.models.Product.findOne({
       slug: req.params.slug,
-      status: "active",
+      ...productStatusFilter(req),
     }).populate("category", "name slug");
 
     if (!product) {
@@ -280,12 +298,12 @@ router.get(
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [products, total] = await Promise.all([
-      req.models.Product.find({ category: category._id, status: "active" })
+      req.models.Product.find({ category: category._id, ...productStatusFilter(req) })
         .sort(sortOptions)
         .skip(skip)
         .limit(parseInt(limit))
         .select(productCardSelect),
-      req.models.Product.countDocuments({ category: category._id, status: "active" }),
+      req.models.Product.countDocuments({ category: category._id, ...productStatusFilter(req) }),
     ]);
 
     res.json({

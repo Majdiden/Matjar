@@ -549,6 +549,15 @@ export const api = {
 
     clearStatus: (tenantId: string, token: string) =>
       api.delete(`/store-setup/status/${tenantId}?token=${encodeURIComponent(token)}`),
+
+    // Draft-starter status + owner preview URL (for the publish banner).
+    starter: () =>
+      api.get<{ responseObject?: { hasDraftStarter?: boolean; previewUrl?: string; counts?: { products: number; collections: number; pages: number } } }>(
+        '/store-setup/starter',
+      ),
+
+    // Publish the seeded draft starter content — take the store live.
+    publishStarter: () => api.post<{ responseObject?: { products?: number; collections?: number; pages?: number } }>('/store-setup/publish-starter', {}),
   },
 
   // Upload endpoints

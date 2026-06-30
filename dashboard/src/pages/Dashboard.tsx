@@ -46,8 +46,33 @@ export const Dashboard: React.FC = () => {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [domainInfo, setDomainInfo] = useState<DashboardDomainInfo | null>(null);
+  const [starter, setStarter] = useState<{ hasDraftStarter?: boolean; previewUrl?: string } | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   useEffect(() => { loadDashboardData(); }, []);
+
+  // Draft starter-content state for the "preview & publish" banner.
+  useEffect(() => {
+    let active = true;
+    api.storeSetup.starter()
+      .then((r) => { if (active) setStarter((r as { responseObject?: { hasDraftStarter?: boolean; previewUrl?: string } }).responseObject || null); })
+      .catch(() => { /* non-fatal — banner just won't show */ });
+    return () => { active = false; };
+  }, []);
+
+  const publishStarter = async () => {
+    setPublishing(true);
+    try {
+      await api.storeSetup.publishStarter();
+      toast.success(t('dashboard:starter.published', { defaultValue: 'Your store is now live!' }));
+      setStarter(null);
+      loadDashboardData();
+    } catch {
+      toast.error(t('common:error.generic', { defaultValue: 'Something went wrong' }));
+    } finally {
+      setPublishing(false);
+    }
+  };
 
   const loadDashboardData = async () => {
     try {
@@ -121,6 +146,34 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Draft starter content — preview the filled store, then publish it live */}
+      {starter?.hasDraftStarter && (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <div className="flex-1">
+            <p className="font-semibold text-amber-900 dark:text-amber-200">
+              {t('dashboard:starter.title', { defaultValue: 'Your store has starter content in draft' })}
+            </p>
+            <p className="text-sm text-amber-800/80 dark:text-amber-300/80 mt-0.5">
+              {t('dashboard:starter.description', { defaultValue: 'Preview your store filled with sample products and pages, then publish to take it live.' })}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {starter.previewUrl && (
+              <Button variant="outline" asChild>
+                <a href={starter.previewUrl} target="_blank" rel="noopener noreferrer">
+                  {t('dashboard:starter.preview', { defaultValue: 'Preview draft store' })}
+                </a>
+              </Button>
+            )}
+            <Button onClick={publishStarter} disabled={publishing}>
+              {publishing
+                ? t('dashboard:starter.publishing', { defaultValue: 'Publishing…' })
+                : t('dashboard:starter.publish', { defaultValue: 'Publish store' })}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>

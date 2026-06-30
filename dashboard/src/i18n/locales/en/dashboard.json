@@ -52,5 +52,13 @@
   "add_product": "Add Product",
   "toast": {
     "load_failed": "Failed to load dashboard data"
+  },
+  "starter": {
+    "title": "Your store has starter content in draft",
+    "description": "Preview your store filled with sample products and pages, then publish to take it live.",
+    "preview": "Preview draft store",
+    "publish": "Publish store",
+    "publishing": "Publishing…",
+    "published": "Your store is now live!"
   }
 }
