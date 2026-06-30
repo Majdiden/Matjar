@@ -60,7 +60,7 @@
     "comment_required": "Your review *",
     "comment_placeholder": "What did you like or dislike? How was the quality?",
     "submit": "Submit review",
-    "submitting": "Submitting\u2026",
+    "submitting": "Submitting…",
     "success": "Thanks! Your review was submitted.",
     "error_min_length": "Please write at least a few words about the product.",
     "star_aria_one": "{{count}} star",
@@ -137,6 +137,7 @@
     "adding": "...",
     "preorder": "Pre-order",
     "sold_out": "Sold out",
-    "out_of_stock": "Out of stock"
+    "out_of_stock": "Out of stock",
+    "reserving": "Reserving…"
   }
 }

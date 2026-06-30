@@ -926,9 +926,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="truncate font-medium">{item.product?.name}</p>
+                    <p className="font-medium break-words">{item.product?.name}</p>
                     {item.variant?.name && (
-                      <p className="truncate text-gray-500 text-xs">{item.variant.name}</p>
+                      <p className="text-gray-500 text-xs break-words">{item.variant.name}</p>
                     )}
                     {(item as any).isPreorder && (
                       <p className="text-amber-600 text-xs font-medium">

@@ -383,11 +383,19 @@ function ProductActions({
 
   if (hidden) return null;
 
-  const label = requiresOptions
-    ? t('card.options', 'Options')
-    : pre.ctaLabel === buyLabel
-    ? (adding ? t('card.adding', '…') : buyLabel)
-    : pre.ctaLabel;
+  // Derive the CTA label from the pre-order MODE via i18n — preorder.ts only
+  // supplies English ctaLabels, so using them directly left the pre-order /
+  // sold-out buttons untranslated in Arabic.
+  let label;
+  if (requiresOptions) {
+    label = t('card.options', 'Options');
+  } else if (pre.mode === 'preorder') {
+    label = adding ? t('card.reserving', 'Reserving…') : t('card.preorder', 'Pre-order');
+  } else if (pre.mode === 'soldOut') {
+    label = t('card.sold_out', 'Sold out');
+  } else {
+    label = adding ? t('card.adding', '…') : buyLabel;
+  }
 
   return (
     <div className={cn(fullWidth && 'w-full', className)}>

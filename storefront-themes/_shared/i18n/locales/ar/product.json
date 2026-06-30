@@ -149,6 +149,7 @@
     "adding": "...",
     "preorder": "طلب مسبق",
     "sold_out": "نفد المخزون",
-    "out_of_stock": "غير متوفر"
+    "out_of_stock": "غير متوفر",
+    "reserving": "جارٍ الحجز…"
   }
 }
