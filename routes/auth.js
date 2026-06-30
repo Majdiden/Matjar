@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   registerTenantController,
+  addStoreController,
   checkEmailController,
   loginController,
   refreshTokenController,
@@ -52,6 +53,10 @@ authRoutes.post(
 );
 
 // Protected routes
+// Authenticated "add another store" — an existing user creates a new store
+// under their account (reuses their credentials; returns a token for the
+// new store so the client hands them straight in).
+authRoutes.post("/stores", authenticate, addStoreController);
 authRoutes.get("/me", authenticate, getCurrentUserController);
 authRoutes.post("/logout", authenticate, logoutController);
 authRoutes.post("/change-password", passwordResetLimiter, authenticate, changePasswordController);

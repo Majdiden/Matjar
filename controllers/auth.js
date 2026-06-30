@@ -10,13 +10,56 @@ import {
   confirmPasswordReset,
 } from "../services/auth.js";
 import { getEffectivePermissions } from "../middlewares/authorize.js";
-import { addATenantService } from "../services/tenant.js";
+import { addATenantService, addStoreForExistingUserService } from "../services/tenant.js";
+import { signJWT } from "../utils/misc.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import { createScopedModels } from "../utils/scopedModel.js";
 import { logAudit } from "../utils/audit.js";
 
 export const registerTenantController = asyncHandler(async (req, res) => {
   const result = await addATenantService(req.body);
+  res.status(result.statusCode).json(result);
+});
+
+/**
+ * Create an ADDITIONAL store under the authenticated user's account (the
+ * "add a store" flow an existing user reaches from the store picker or from
+ * signup's "email exists → sign in to add a store"). Reuses the user's
+ * credentials (no new account) and returns a token for the NEW store so the
+ * client can hand the user straight into it — already signed in.
+ */
+export const addStoreController = asyncHandler(async (req, res) => {
+  // Load the authenticated user's tenant-scoped doc (name + bcrypt hash) so
+  // the new store's admin user is created with the same credentials.
+  const me = await req.models.User.findById(req.user.userId)
+    .select("name email password")
+    .lean();
+  if (!me) {
+    return res.status(401).json({ success: false, message: "Not authenticated" });
+  }
+
+  const result = await addStoreForExistingUserService(me, {
+    storeName: req.body.storeName,
+    subdomain: req.body.subdomain,
+    themeSlug: req.body.themeSlug,
+    niche: req.body.niche,
+    currency: req.body.currency,
+    language: req.body.language,
+  });
+
+  // Sign a JWT for the NEW store's admin user so the dashboard can hop to the
+  // new subdomain already authenticated (the tenant + admin user exist
+  // synchronously; theme/data setup completes asynchronously).
+  const ro = result.responseObject || {};
+  if (ro.adminUserId && ro.tenantId) {
+    ro.accessToken = signJWT({
+      userId: String(ro.adminUserId),
+      tenantId: String(ro.tenantId),
+      roles: ["admin"],
+      tokenVersion: 0,
+    });
+    ro.tenantDomain = ro.subdomain || ro.domain || null;
+  }
   res.status(result.statusCode).json(result);
 });
 

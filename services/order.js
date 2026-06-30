@@ -867,6 +867,13 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
       console.error("notifyMerchantNewOrder failed", err)
     );
 
+    // Customer order-confirmation email (the "order received" template for the
+    // order's initial status). Previously only status CHANGES emailed the
+    // customer, so they never got a confirmation on placement. Fire-and-forget.
+    notifyOrderStatusChange(order, order.status || "Pending")
+      .then((r) => recordOrderNotified(order, order.status || "Pending", r).catch(() => {}))
+      .catch((err) => console.error("customer order-confirmation email failed", err));
+
     // ── In-app notifications (best-effort, never break the order flow) ──
     try {
       const customerName = [

@@ -290,6 +290,7 @@ export const Settings: React.FC = () => {
                 multiple={false} maxSizeMB={2} label={t('settings.field.branding.logo.label')}
                 description={t('settings.field.branding.logo.description')}
                 accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                uploadFn={(file) => api.upload.logo(file) as Promise<{ data?: { url?: string } }>}
               />
               <Separator />
               <ImageUpload
@@ -298,6 +299,7 @@ export const Settings: React.FC = () => {
                 multiple={false} maxSizeMB={1} label={t('settings.field.branding.favicon.label')}
                 description={t('settings.field.branding.favicon.description')}
                 accept="image/png,image/x-icon"
+                uploadFn={(file) => api.upload.favicon(file) as Promise<{ data?: { url?: string } }>}
               />
             </CardContent>
           </Card>

@@ -108,6 +108,7 @@ const Home: React.FC = () => {
                   <ProductCard.Body className="p-4">
                     <ProductCard.Title className="text-xs tracking-wider uppercase" />
                     <ProductCard.Price showCompareAt showDiscount className="mt-1.5" />
+                    <ProductCard.Actions fullWidth className="mt-3" />
                   </ProductCard.Body>
                 </ProductCard>
               ))}
@@ -162,6 +163,7 @@ const Home: React.FC = () => {
                 <ProductCard.Body className="p-4">
                   <ProductCard.Title className="text-xs tracking-wider uppercase" />
                   <ProductCard.Price className="mt-1" />
+                  <ProductCard.Actions fullWidth className="mt-3" />
                 </ProductCard.Body>
               </ProductCard>
             ))}

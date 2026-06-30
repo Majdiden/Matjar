@@ -16,7 +16,11 @@ const addATenantService = async (tenantData) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const hashedPassword = await generateHash(tenantData.password);
+    // `passwordHash` lets an EXISTING user spin up an additional store with
+    // their current credentials (we copy their bcrypt hash; the User
+    // pre-save hook skips re-hashing values already starting with "$2b$").
+    // Otherwise hash the plaintext password from a fresh signup.
+    const hashedPassword = tenantData.passwordHash || (await generateHash(tenantData.password));
 
     // The STORE name comes from `storeName`; the user's full `name` is the
     // admin account's name. Fall back to `name` only for legacy callers that
@@ -92,6 +96,7 @@ const addATenantService = async (tenantData) => {
 
     const data = await addATenantRepo(tenantPayload, session);
     let userData;
+    let adminUser;
 
     if (data._id) {
       // Register the platform-subdomain row in the Domain registry
@@ -112,7 +117,7 @@ const addATenantService = async (tenantData) => {
 
       // Create scoped models for the new tenant and create admin user
       const models = createScopedModels(mongoose.connection, data._id);
-      await addAUserRepo(models, {
+      adminUser = await addAUserRepo(models, {
         name: tenantData.name,
         email: tenantData.email,
         password: hashedPassword,
@@ -181,6 +186,9 @@ const addATenantService = async (tenantData) => {
       responseObject: {
         tenantId: data._id,
         userId: userData?._id,
+        // The tenant-scoped admin User id (what JWTs are signed with) — used
+        // by the add-store flow to hand the user straight into the new store.
+        adminUserId: adminUser?._id,
         slug: data.slug,
         subdomain: data.domains.subdomain.fullDomain,
         domain: data.domain,
@@ -199,4 +207,25 @@ const addATenantService = async (tenantData) => {
   }
 };
 
-export { addATenantService };
+/**
+ * Create an ADDITIONAL store for an already-registered user. Reuses the full
+ * tenant-creation pipeline but, instead of a fresh password, copies the
+ * existing user's bcrypt hash so they sign into the new store with the same
+ * credentials and it shows up in their store picker. `existingUser` is the
+ * authenticated user's tenant-scoped User doc ({ name, email, password }).
+ */
+const addStoreForExistingUserService = (existingUser, storeData = {}) =>
+  addATenantService({
+    name: existingUser.name,
+    email: existingUser.email,
+    passwordHash: existingUser.password,
+    storeName: storeData.storeName,
+    subdomain: storeData.subdomain,
+    themeSlug: storeData.themeSlug,
+    niche: storeData.niche,
+    currency: storeData.currency,
+    language: storeData.language,
+    subscriptionPlan: storeData.subscriptionPlan,
+  });
+
+export { addATenantService, addStoreForExistingUserService };

@@ -198,6 +198,7 @@ const Home: React.FC = () => {
                     <ProductCard.Title />
                     <ProductCard.Rating />
                     <ProductCard.Price showCompareAt />
+                    <ProductCard.Actions fullWidth className="mt-3" />
                   </ProductCard.Body>
                 </ProductCard>
               ))}

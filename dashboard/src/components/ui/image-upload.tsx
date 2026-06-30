@@ -23,6 +23,13 @@ interface ImageUploadProps {
    */
   uploadEndpoint?: string;
   fieldName?: string; // Form field name (default: 'images' for multiple, 'image' for single)
+  /**
+   * Custom per-file uploader. When provided it's used instead of the default
+   * product-image endpoint — REQUIRED for single-purpose uploads (logo,
+   * favicon, etc.) which have their own endpoints/field names. Pass e.g.
+   * `api.upload.logo`. Must resolve to `{ data: { url } }`.
+   */
+  uploadFn?: (file: File) => Promise<{ success?: boolean; message?: string; data?: { url?: string; urls?: string[] } }>;
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -37,6 +44,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   disabled = false,
   className = '',
   fieldName,
+  uploadFn,
 }) => {
   const { t } = useTranslation('common');
   const [uploading, setUploading] = useState(false);
@@ -91,7 +99,21 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         return;
       }
 
-      // Create FormData
+      // Custom uploader (logo/favicon/etc. with their own endpoints+fields).
+      if (uploadFn) {
+        const uploadedUrls: string[] = [];
+        for (const file of filesToUpload) {
+          const r = await uploadFn(file);
+          if (r?.success === false) throw new Error(r.message || 'Upload failed');
+          const url = r?.data?.url || r?.data?.urls?.[0] || '';
+          if (url) uploadedUrls.push(url);
+        }
+        if (multiple) onChange([...images, ...uploadedUrls]);
+        else onChange(uploadedUrls[0] || '');
+        return;
+      }
+
+      // Default: product-image endpoint (multiple).
       const formData = new FormData();
       const field = fieldName || (multiple ? 'images' : 'image');
 
@@ -102,9 +124,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       } else {
         formData.append(field, filesToUpload[0]);
       }
-
-      // Get auth token
-      // const token = localStorage.getItem('token');
 
       // Upload to API using api client
       const response = (await api.upload.productImages(formData)) as {
