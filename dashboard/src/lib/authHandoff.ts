@@ -16,6 +16,26 @@
  * picks it up in its init effect).
  */
 
+/**
+ * The router basename for the dashboard SPA. In production the dashboard is
+ * mounted under `/dashboard`; in dev it's at the root. Raw `window.location`
+ * redirects (logout, 401) must include it, otherwise on a store subdomain a
+ * bare `/login` falls through to the STOREFRONT instead of the dashboard login.
+ */
+export function dashboardBasename(): string {
+  return import.meta.env.MODE === 'production' ? '/dashboard' : '';
+}
+
+/** Absolute URL of the dashboard login page, basename-aware. */
+export function loginUrl(): string {
+  return `${dashboardBasename()}/login`;
+}
+
+/** True if we're already on the dashboard login page (basename-aware). */
+export function isOnLoginPage(): boolean {
+  return typeof window !== 'undefined' && window.location.pathname.endsWith('/login');
+}
+
 // UTF-8-safe base64 (btoa/atob are Latin1-only — a non-ASCII store/user name
 // would otherwise throw and silently break the handoff).
 export function encodeAuthPayload(obj: unknown): string {
