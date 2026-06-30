@@ -5,6 +5,12 @@ import './index.css'
 import { initSentry, Sentry } from './sentry'
 import App from './App.tsx'
 import { LanguageProvider } from './i18n/LanguageProvider'
+import { hydrateAuthFromUrlHash } from './lib/authHandoff'
+
+// Cross-host auth handoff (#auth= / #impersonation=) MUST be consumed before
+// React Router mounts — the router strips the fragment during its initial
+// redirect, so a useEffect-based read loses the token and bounces to /login.
+hydrateAuthFromUrlHash()
 
 // Sentry must be initialized before the first React render so errors
 // thrown during mount are captured. No-op when VITE_SENTRY_DSN is unset.

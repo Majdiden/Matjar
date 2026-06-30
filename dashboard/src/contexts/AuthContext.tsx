@@ -3,6 +3,7 @@ import type { User, AuthResponse, LoginCredentials, RegisterData, StoreChoice } 
 import { api } from '../lib/api-client';
 import { setTenantCurrency, setTenantLocale } from '../lib/format';
 import { AuthContext } from './auth-context';
+import { encodeAuthPayload, hydrateAuthFromUrlHash } from '../lib/authHandoff';
 
 // Narrow responses from `/auth/me` and store-picker handoffs without
 // resorting to `any`. Only the fields we actually read are typed; the
@@ -30,22 +31,8 @@ function isStoreSelectionResponse(value: unknown): value is StoreSelectionLoginR
   return v.requiresStoreSelection === true && Array.isArray(v.data?.stores);
 }
 
-// UTF-8-safe base64 for the cross-host auth handoff. Plain btoa/atob are
-// Latin1-only, so a store or user name with non-ASCII characters (e.g.
-// Arabic) makes btoa THROW — which silently broke the handoff and dumped the
-// merchant back on /login (the "asks me to sign in again" bug). Encoding via
-// TextEncoder/TextDecoder round-trips any Unicode safely.
-function encodeAuthPayload(obj: unknown): string {
-  const bytes = new TextEncoder().encode(JSON.stringify(obj));
-  let bin = '';
-  bytes.forEach((b) => { bin += String.fromCharCode(b); });
-  return btoa(bin);
-}
-function decodeAuthPayload<T>(encoded: string): T {
-  const bin = atob(encoded);
-  const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
-  return JSON.parse(new TextDecoder().decode(bytes)) as T;
-}
+// Cross-host handoff base64 helpers live in lib/authHandoff (shared with the
+// synchronous pre-render hydration in main.tsx).
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -111,65 +98,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // `bar.localhost`'s storage directly — the fragment is the
   // transport. We strip it immediately so it doesn't linger in
   // history or leak into referrers.
+  // Fallback only — the real hydration runs synchronously in main.tsx BEFORE
+  // the router mounts (the router strips the fragment during its initial
+  // redirect, so a useEffect read is too late). Harmless no-op if main.tsx
+  // already consumed it.
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith('#auth=')) {
-      try {
-        const encoded = hash.slice('#auth='.length);
-        const payload = decodeAuthPayload<{
-          token?: string;
-          refreshToken?: string;
-          userId?: string;
-          user?: unknown;
-        }>(decodeURIComponent(encoded));
-        if (payload?.token) localStorage.setItem('token', payload.token);
-        if (payload?.refreshToken) localStorage.setItem('refreshToken', payload.refreshToken);
-        if (payload?.userId) localStorage.setItem('userId', payload.userId);
-        if (payload?.user) localStorage.setItem('user', JSON.stringify(payload.user));
-      } catch {
-        // Malformed fragment — ignore, normal init will fall back to /login.
-      }
-      history.replaceState(null, '', window.location.pathname + window.location.search);
-      return;
-    }
-    // Platform-admin impersonation handoff. The platform-admin SPA
-    // mints a short-TTL tenant JWT and opens `/login#impersonation=<jwt>`.
-    // No user payload comes alongside — the token alone is authoritative,
-    // and we hydrate the user object from /auth/me on next boot. We
-    // also clear any pre-existing session so the operator doesn't stay
-    // logged in as themselves in the same browser.
-    if (hash.startsWith('#impersonation=')) {
-      try {
-        const token = decodeURIComponent(hash.slice('#impersonation='.length));
-        if (token) {
-          localStorage.removeItem('refreshToken'); // impersonation tokens aren't refreshable
-          localStorage.setItem('token', token);
-          // Parse userId out of the JWT for the api client's header logic.
-          // JWT parts are base64url (RFC 7515) — atob() needs plain base64,
-          // so translate `-`/`_` → `+`/`/` and pad with `=` first.
-          try {
-            const parts = token.split('.');
-            if (parts.length === 3) {
-              let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-              const pad = b64.length % 4;
-              if (pad) b64 += '='.repeat(4 - pad);
-              const payload = JSON.parse(atob(b64)) as { userId?: string };
-              if (payload?.userId) localStorage.setItem('userId', payload.userId);
-            }
-          } catch {
-            // Best effort — api client can still function off the token alone.
-          }
-          // Stub user object; the init effect will call /auth/me to fill it.
-          localStorage.setItem(
-            'user',
-            JSON.stringify({ id: '', name: 'Impersonated session', email: '', impersonated: true }),
-          );
-        }
-      } catch {
-        // Malformed fragment — fall through to login page.
-      }
-      history.replaceState(null, '', window.location.pathname + window.location.search);
-    }
+    hydrateAuthFromUrlHash();
   }, []);
 
   // Initialize auth state from localStorage
