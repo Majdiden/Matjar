@@ -3,6 +3,7 @@ import { Outlet, Link } from 'react-router-dom';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
+import { useMenu, type MenuItem } from '@shared/hooks/useMenu';
 import { Drawer } from '@shared/components/primitives/Drawer';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
@@ -15,6 +16,14 @@ const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
+  // Store-managed header nav. When present (new stores ship a seeded
+  // "header" menu) it drives the nav; while loading/empty (older stores)
+  // we fall back to the category list below so nav never disappears.
+  const { items: menuItems } = useMenu('header');
+  const hasMenu = menuItems.length > 0;
+  const itemHref = (item: MenuItem) => item.resolvedUrl || item.url || '/';
+  const isExternal = (item: MenuItem) =>
+    item.type === 'external' || item.target === '_blank';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useTranslation(['theme']);
 
@@ -38,18 +47,32 @@ const Layout: React.FC = () => {
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/products" className="text-sm text-gray-600 hover:text-[#7c3aed] transition font-medium">
-                {t('theme.layout.nav.browse')}
-              </Link>
-              {categories.slice(0, 4).map(cat => (
-                <Link
-                  key={cat._id}
-                  to={`/categories/${cat.slug}`}
-                  className="text-sm text-gray-600 hover:text-[#7c3aed] transition"
-                >
-                  {cat.name}
-                </Link>
-              ))}
+              {hasMenu ? (
+                menuItems.map(item => {
+                  const cls = "text-sm text-gray-600 hover:text-[#7c3aed] transition";
+                  const href = itemHref(item);
+                  return isExternal(item) ? (
+                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" className={cls}>{item.label}</a>
+                  ) : (
+                    <Link key={item._id || href} to={href} className={cls}>{item.label}</Link>
+                  );
+                })
+              ) : (
+                <>
+                  <Link to="/products" className="text-sm text-gray-600 hover:text-[#7c3aed] transition font-medium">
+                    {t('theme.layout.nav.browse')}
+                  </Link>
+                  {categories.slice(0, 4).map(cat => (
+                    <Link
+                      key={cat._id}
+                      to={`/categories/${cat.slug}`}
+                      className="text-sm text-gray-600 hover:text-[#7c3aed] transition"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </>
+              )}
             </nav>
 
             <div className="flex items-center gap-3">
@@ -154,19 +177,33 @@ const Layout: React.FC = () => {
             {t('theme.layout.nav.menu_heading')}
           </h2>
           <nav className="flex flex-col gap-4">
-            <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-medium hover:text-[#7c3aed]">
-              {t('theme.layout.nav.browse_all')}
-            </Link>
-            {categories.map(cat => (
-              <Link
-                key={cat._id}
-                to={`/categories/${cat.slug}`}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-gray-600 hover:text-[#7c3aed]"
-              >
-                {cat.name}
-              </Link>
-            ))}
+            {hasMenu ? (
+              menuItems.map(item => {
+                const cls = "text-gray-600 hover:text-[#7c3aed]";
+                const href = itemHref(item);
+                return isExternal(item) ? (
+                  <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</a>
+                ) : (
+                  <Link key={item._id || href} to={href} onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</Link>
+                );
+              })
+            ) : (
+              <>
+                <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-medium hover:text-[#7c3aed]">
+                  {t('theme.layout.nav.browse_all')}
+                </Link>
+                {categories.map(cat => (
+                  <Link
+                    key={cat._id}
+                    to={`/categories/${cat.slug}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-gray-600 hover:text-[#7c3aed]"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </>
+            )}
             <LanguageSwitcher />
           </nav>
         </div>

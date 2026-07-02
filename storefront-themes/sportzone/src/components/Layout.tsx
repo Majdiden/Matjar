@@ -3,6 +3,7 @@ import { Outlet, Link } from 'react-router-dom';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
+import { useMenu, type MenuItem } from '@shared/hooks/useMenu';
 import CartDrawer from '@shared/components/CartDrawer';
 import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
@@ -14,6 +15,13 @@ const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
+  // Store-managed header nav. When present it drives the nav; while
+  // loading/empty we fall back to the category list so nav never disappears.
+  const { items: menuItems } = useMenu('header');
+  const hasMenu = menuItems.length > 0;
+  const itemHref = (item: MenuItem) => item.resolvedUrl || item.url || '/';
+  const isExternal = (item: MenuItem) =>
+    item.type === 'external' || item.target === '_blank';
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useTranslation(['theme']);
 
@@ -38,12 +46,26 @@ const Layout: React.FC = () => {
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/products" className="text-sm font-bold uppercase text-gray-300 hover:text-[#dc2626] transition">{t('theme.nav.shop')}</Link>
-              {categories.slice(0, 4).map(cat => (
-                <Link key={cat._id} to={`/categories/${cat.slug}`} className="text-sm font-bold uppercase text-gray-300 hover:text-[#dc2626] transition">
-                  {cat.name}
-                </Link>
-              ))}
+              {hasMenu ? (
+                menuItems.map(item => {
+                  const cls = "text-sm font-bold uppercase text-gray-300 hover:text-[#dc2626] transition";
+                  const href = itemHref(item);
+                  return isExternal(item) ? (
+                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" className={cls}>{item.label}</a>
+                  ) : (
+                    <Link key={item._id || href} to={href} className={cls}>{item.label}</Link>
+                  );
+                })
+              ) : (
+                <>
+                  <Link to="/products" className="text-sm font-bold uppercase text-gray-300 hover:text-[#dc2626] transition">{t('theme.nav.shop')}</Link>
+                  {categories.slice(0, 4).map(cat => (
+                    <Link key={cat._id} to={`/categories/${cat.slug}`} className="text-sm font-bold uppercase text-gray-300 hover:text-[#dc2626] transition">
+                      {cat.name}
+                    </Link>
+                  ))}
+                </>
+              )}
             </nav>
 
             <div className="flex items-center gap-3">
@@ -80,12 +102,26 @@ const Layout: React.FC = () => {
 
         {menuOpen && (
           <nav className="md:hidden bg-[#111827] border-t border-white/10 px-4 py-3 space-y-2">
-            <Link to="/products" onClick={() => setMenuOpen(false)} className="block text-sm font-bold uppercase text-gray-300 py-2">{t('theme.nav.shop')}</Link>
-            {categories.slice(0, 4).map(cat => (
-              <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMenuOpen(false)} className="block text-sm font-bold uppercase text-gray-300 py-2">
-                {cat.name}
-              </Link>
-            ))}
+            {hasMenu ? (
+              menuItems.map(item => {
+                const cls = "block text-sm font-bold uppercase text-gray-300 py-2";
+                const href = itemHref(item);
+                return isExternal(item) ? (
+                  <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMenuOpen(false)} className={cls}>{item.label}</a>
+                ) : (
+                  <Link key={item._id || href} to={href} onClick={() => setMenuOpen(false)} className={cls}>{item.label}</Link>
+                );
+              })
+            ) : (
+              <>
+                <Link to="/products" onClick={() => setMenuOpen(false)} className="block text-sm font-bold uppercase text-gray-300 py-2">{t('theme.nav.shop')}</Link>
+                {categories.slice(0, 4).map(cat => (
+                  <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMenuOpen(false)} className="block text-sm font-bold uppercase text-gray-300 py-2">
+                    {cat.name}
+                  </Link>
+                ))}
+              </>
+            )}
             <LanguageSwitcher />
           </nav>
         )}

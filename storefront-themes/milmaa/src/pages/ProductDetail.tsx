@@ -271,7 +271,13 @@ const ProductDetail: React.FC = () => {
                   className="flex-1 h-12 rounded-full text-white text-sm font-bold disabled:opacity-50 transition hover:scale-[1.02]"
                   style={{ backgroundColor: DARK_TEAL }}
                 >
-                  {preState.ctaLabel}
+                  {needsSelection
+                  ? t('product:card.options')
+                  : preState.mode === 'soldOut'
+                    ? t('product:card.sold_out')
+                    : preState.mode === 'preorder'
+                      ? (adding ? t('product:card.reserving') : t('product:card.preorder'))
+                      : (adding ? t('product:card.adding') : t('product:card.add'))}
                 </button>
               </div>
               <button

@@ -249,7 +249,13 @@ const ProductDetail: React.FC = () => {
                   className="flex-1 h-14 text-[12px] tracking-[0.22em] uppercase font-black border-2 border-black disabled:opacity-50 transition"
                   style={{ backgroundColor: ORANGE, color: '#fff' }}
                 >
-                  {adding ? t('theme.product_detail.adding') : needsSelection ? t('theme.product_detail.select_options') : t('theme.product_detail.add_to_cart')}
+                  {needsSelection
+                    ? t('theme.product_detail.select_options')
+                    : preorder.mode === 'soldOut'
+                      ? t('product:card.sold_out')
+                      : preorder.mode === 'preorder'
+                        ? (adding ? t('product:card.reserving') : t('product:card.preorder'))
+                        : (adding ? t('theme.product_detail.adding') : t('theme.product_detail.add_to_cart'))}
                 </button>
               </div>
               <button

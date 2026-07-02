@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
+import { useMenu, type MenuItem } from '@shared/hooks/useMenu';
 import { useThemeSetting } from '@shared/theme/ThemeProvider';
 import CartDrawer from '@shared/components/CartDrawer';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
@@ -26,6 +27,14 @@ const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
+  // Store-managed header nav. When present (new stores ship a seeded
+  // "header" menu) it drives the nav; while loading/empty (older stores)
+  // we fall back to the category list below so nav never disappears.
+  const { items: menuItems } = useMenu('header');
+  const hasMenu = menuItems.length > 0;
+  const itemHref = (item: MenuItem) => item.resolvedUrl || item.url || '/';
+  const isExternal = (item: MenuItem) =>
+    item.type === 'external' || item.target === '_blank';
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useTranslation(['theme']);
@@ -62,13 +71,27 @@ const Layout: React.FC = () => {
           <div className="flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between py-6 gap-6">
             {/* Left: nav (desktop) */}
             <nav className="hidden md:flex items-center gap-7 text-[12px] tracking-[0.15em] uppercase" style={{ color: NAVY }}>
-              <Link to="/" className={isActive('/') && location.pathname === '/' ? 'font-bold' : 'hover:text-[var(--color-secondary)]'}>{t('theme.layout.nav.home')}</Link>
-              <Link to="/products" className={isActive('/products') ? 'font-bold' : 'hover:text-[var(--color-secondary)]'}>{t('theme.layout.nav.shop')}</Link>
-              {categories.slice(0, 3).map((cat) => (
-                <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[var(--color-secondary)]">
-                  {cat.name}
-                </Link>
-              ))}
+              {hasMenu ? (
+                menuItems.map((item) => {
+                  const cls = "hover:text-[var(--color-secondary)]";
+                  const href = itemHref(item);
+                  return isExternal(item) ? (
+                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" className={cls}>{item.label}</a>
+                  ) : (
+                    <Link key={item._id || href} to={href} className={cls}>{item.label}</Link>
+                  );
+                })
+              ) : (
+                <>
+                  <Link to="/" className={isActive('/') && location.pathname === '/' ? 'font-bold' : 'hover:text-[var(--color-secondary)]'}>{t('theme.layout.nav.home')}</Link>
+                  <Link to="/products" className={isActive('/products') ? 'font-bold' : 'hover:text-[var(--color-secondary)]'}>{t('theme.layout.nav.shop')}</Link>
+                  {categories.slice(0, 3).map((cat) => (
+                    <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[var(--color-secondary)]">
+                      {cat.name}
+                    </Link>
+                  ))}
+                </>
+              )}
             </nav>
 
             {/* Center on desktop, start on mobile: serif wordmark (logo) */}
@@ -122,13 +145,27 @@ const Layout: React.FC = () => {
 
         {menuOpen && (
           <nav className="md:hidden border-t border-pink-100/50 px-6 py-4 space-y-3 text-sm uppercase tracking-wider" style={{ color: NAVY }}>
-            <Link onClick={() => setMenuOpen(false)} to="/" className="block">{t('theme.layout.nav.home')}</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/products" className="block">{t('theme.layout.nav.shop')}</Link>
-            {categories.slice(0, 6).map((cat) => (
-              <Link key={cat._id} onClick={() => setMenuOpen(false)} to={`/categories/${cat.slug}`} className="block">{cat.name}</Link>
-            ))}
-            <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.layout.nav.about')}</Link>
-            <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.layout.nav.contact')}</Link>
+            {hasMenu ? (
+              menuItems.map((item) => {
+                const cls = "block";
+                const href = itemHref(item);
+                return isExternal(item) ? (
+                  <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMenuOpen(false)} className={cls}>{item.label}</a>
+                ) : (
+                  <Link key={item._id || href} onClick={() => setMenuOpen(false)} to={href} className={cls}>{item.label}</Link>
+                );
+              })
+            ) : (
+              <>
+                <Link onClick={() => setMenuOpen(false)} to="/" className="block">{t('theme.layout.nav.home')}</Link>
+                <Link onClick={() => setMenuOpen(false)} to="/products" className="block">{t('theme.layout.nav.shop')}</Link>
+                {categories.slice(0, 6).map((cat) => (
+                  <Link key={cat._id} onClick={() => setMenuOpen(false)} to={`/categories/${cat.slug}`} className="block">{cat.name}</Link>
+                ))}
+                <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.layout.nav.about')}</Link>
+                <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.layout.nav.contact')}</Link>
+              </>
+            )}
             <LanguageSwitcher />
           </nav>
         )}

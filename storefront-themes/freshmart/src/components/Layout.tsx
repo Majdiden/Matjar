@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
+import { useMenu, type MenuItem } from '@shared/hooks/useMenu';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
 import { AnnouncementBar } from '@shared/components/marketing/AnnouncementBar';
@@ -15,6 +16,13 @@ const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
+  // Store-managed header nav. When present it drives the nav; while
+  // loading/empty we fall back to the category list so nav never disappears.
+  const { items: menuItems } = useMenu('header');
+  const hasMenu = menuItems.length > 0;
+  const itemHref = (item: MenuItem) => item.resolvedUrl || item.url || '/';
+  const isExternal = (item: MenuItem) =>
+    item.type === 'external' || item.target === '_blank';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -43,17 +51,31 @@ const Layout: React.FC = () => {
 
             {/* Desktop Nav */}
             <nav className="hidden lg:flex items-center gap-1">
-              <Link to="/" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#16a34a] rounded-lg hover:bg-green-50 transition">{t('theme.nav.home')}</Link>
-              <Link to="/products" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#16a34a] rounded-lg hover:bg-green-50 transition">{t('theme.nav.shop_all')}</Link>
-              {categories.slice(0, 4).map(cat => (
-                <Link
-                  key={cat._id}
-                  to={`/categories/${cat.slug}`}
-                  className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#16a34a] rounded-lg hover:bg-green-50 transition"
-                >
-                  {cat.name}
-                </Link>
-              ))}
+              {hasMenu ? (
+                menuItems.map(item => {
+                  const cls = "px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#16a34a] rounded-lg hover:bg-green-50 transition";
+                  const href = itemHref(item);
+                  return isExternal(item) ? (
+                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" className={cls}>{item.label}</a>
+                  ) : (
+                    <Link key={item._id || href} to={href} className={cls}>{item.label}</Link>
+                  );
+                })
+              ) : (
+                <>
+                  <Link to="/" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#16a34a] rounded-lg hover:bg-green-50 transition">{t('theme.nav.home')}</Link>
+                  <Link to="/products" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#16a34a] rounded-lg hover:bg-green-50 transition">{t('theme.nav.shop_all')}</Link>
+                  {categories.slice(0, 4).map(cat => (
+                    <Link
+                      key={cat._id}
+                      to={`/categories/${cat.slug}`}
+                      className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#16a34a] rounded-lg hover:bg-green-50 transition"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </>
+              )}
             </nav>
 
             {/* Right Actions */}
@@ -103,18 +125,32 @@ const Layout: React.FC = () => {
           {/* Mobile Nav */}
           {mobileMenuOpen && (
             <nav className="lg:hidden pb-4 border-t border-green-100 pt-3 space-y-1">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-green-50 hover:text-[#16a34a]">{t('theme.nav.home')}</Link>
-              <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-green-50 hover:text-[#16a34a]">{t('theme.nav.shop_all')}</Link>
-              {categories.slice(0, 6).map(cat => (
-                <Link
-                  key={cat._id}
-                  to={`/categories/${cat.slug}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-green-50 hover:text-[#16a34a]"
-                >
-                  {cat.name}
-                </Link>
-              ))}
+              {hasMenu ? (
+                menuItems.map(item => {
+                  const cls = "block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-green-50 hover:text-[#16a34a]";
+                  const href = itemHref(item);
+                  return isExternal(item) ? (
+                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</a>
+                  ) : (
+                    <Link key={item._id || href} to={href} onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</Link>
+                  );
+                })
+              ) : (
+                <>
+                  <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-green-50 hover:text-[#16a34a]">{t('theme.nav.home')}</Link>
+                  <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-green-50 hover:text-[#16a34a]">{t('theme.nav.shop_all')}</Link>
+                  {categories.slice(0, 6).map(cat => (
+                    <Link
+                      key={cat._id}
+                      to={`/categories/${cat.slug}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-green-50 hover:text-[#16a34a]"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </>
+              )}
               <div className="px-3 pt-1"><LanguageSwitcher /></div>
             </nav>
           )}

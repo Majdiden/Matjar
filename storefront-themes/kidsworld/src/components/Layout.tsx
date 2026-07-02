@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useStore } from '@shared/contexts/StoreContext';
 import { useCart } from '@shared/contexts/CartContext';
 import { useCategories } from '@shared/hooks/useProducts';
+import { useMenu, type MenuItem } from '@shared/hooks/useMenu';
 import { Drawer } from '@shared/components/primitives/Drawer';
 import { SearchBar } from '@shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
@@ -16,6 +17,14 @@ const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
+  // Store-managed header nav. When present (new stores ship a seeded
+  // "header" menu) it drives the nav; while loading/empty (older stores)
+  // we fall back to the category list below so nav never disappears.
+  const { items: menuItems } = useMenu('header');
+  const hasMenu = menuItems.length > 0;
+  const itemHref = (item: MenuItem) => item.resolvedUrl || item.url || '/';
+  const isExternal = (item: MenuItem) =>
+    item.type === 'external' || item.target === '_blank';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -36,18 +45,32 @@ const Layout: React.FC = () => {
             </Link>
 
             <nav className="hidden md:flex items-center gap-5">
-              <Link to="/products" className="text-sm font-bold text-gray-600 hover:text-[#ec4899] transition">
-                {t('theme.nav.all_toys')}
-              </Link>
-              {categories.slice(0, 4).map(cat => (
-                <Link
-                  key={cat._id}
-                  to={`/categories/${cat.slug}`}
-                  className="text-sm font-bold text-gray-600 hover:text-[#8b5cf6] transition"
-                >
-                  {cat.name}
-                </Link>
-              ))}
+              {hasMenu ? (
+                menuItems.map(item => {
+                  const cls = "text-sm font-bold text-gray-600 hover:text-[#8b5cf6] transition";
+                  const href = itemHref(item);
+                  return isExternal(item) ? (
+                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" className={cls}>{item.label}</a>
+                  ) : (
+                    <Link key={item._id || href} to={href} className={cls}>{item.label}</Link>
+                  );
+                })
+              ) : (
+                <>
+                  <Link to="/products" className="text-sm font-bold text-gray-600 hover:text-[#ec4899] transition">
+                    {t('theme.nav.all_toys')}
+                  </Link>
+                  {categories.slice(0, 4).map(cat => (
+                    <Link
+                      key={cat._id}
+                      to={`/categories/${cat.slug}`}
+                      className="text-sm font-bold text-gray-600 hover:text-[#8b5cf6] transition"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </>
+              )}
             </nav>
 
             <div className="flex items-center gap-3">
@@ -147,19 +170,33 @@ const Layout: React.FC = () => {
             <span className="text-[#fbbf24] ms-1"><svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span>
           </h2>
           <nav className="flex flex-col gap-4">
-            <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-bold hover:text-[#ec4899]">
-              {t('theme.nav.all_toys')}
-            </Link>
-            {categories.map(cat => (
-              <Link
-                key={cat._id}
-                to={`/categories/${cat.slug}`}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-gray-600 font-medium hover:text-[#8b5cf6]"
-              >
-                {cat.name}
-              </Link>
-            ))}
+            {hasMenu ? (
+              menuItems.map(item => {
+                const cls = "text-gray-600 font-medium hover:text-[#8b5cf6]";
+                const href = itemHref(item);
+                return isExternal(item) ? (
+                  <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</a>
+                ) : (
+                  <Link key={item._id || href} to={href} onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</Link>
+                );
+              })
+            ) : (
+              <>
+                <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-bold hover:text-[#ec4899]">
+                  {t('theme.nav.all_toys')}
+                </Link>
+                {categories.map(cat => (
+                  <Link
+                    key={cat._id}
+                    to={`/categories/${cat.slug}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-gray-600 font-medium hover:text-[#8b5cf6]"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </>
+            )}
             <LanguageSwitcher />
           </nav>
         </div>

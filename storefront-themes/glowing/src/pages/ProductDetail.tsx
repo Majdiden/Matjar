@@ -291,7 +291,13 @@ const ProductDetail: React.FC = () => {
                   disabled={!canAddToCart}
                   className="flex-1 h-12 bg-black text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-neutral-800 disabled:bg-neutral-300 transition"
                 >
-                  {preState.ctaLabel}
+                  {needsSelection
+                  ? t('product:card.options')
+                  : preState.mode === 'soldOut'
+                    ? t('product:card.sold_out')
+                    : preState.mode === 'preorder'
+                      ? (adding ? t('product:card.reserving') : t('product:card.preorder'))
+                      : (adding ? t('product:card.adding') : t('product:card.add'))}
                 </button>
               </div>
 

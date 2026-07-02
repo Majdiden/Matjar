@@ -223,7 +223,9 @@ const ProductDetail: React.FC = () => {
                 className="flex-1 py-3 rounded-lg text-white font-medium hover:opacity-90 transition disabled:opacity-50"
                 style={{ backgroundColor: 'var(--color-primary)' }}
               >
-                {preState.ctaLabel}
+                {preState.mode === 'preorder'
+                  ? (adding ? t('product:card.reserving') : t('product:card.preorder'))
+                  : (adding ? t('product:card.adding') : t('product:card.add'))}
               </button>
             </div>
           )}

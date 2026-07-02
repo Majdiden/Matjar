@@ -341,7 +341,9 @@ const ProductDetail: React.FC = () => {
                       backgroundColor: 'transparent',
                     }}
                   >
-                    {preState.ctaLabel}
+                    {preState.mode === 'preorder'
+                      ? (adding ? t('product:card.reserving') : t('product:card.preorder'))
+                      : (adding ? t('product:card.adding') : t('product:card.add'))}
                   </button>
                 </div>
                 <button
