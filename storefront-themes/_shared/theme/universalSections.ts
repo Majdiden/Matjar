@@ -11,6 +11,19 @@
 import { defineSection } from './defineSection';
 import type { SectionDefinition } from '../types/theme';
 
+/**
+ * Shared "appearance" settings appended to content sections so merchants can
+ * customise per-section COLOUR and SPACING (not just text). Empty color =
+ * inherit the theme; the section components apply these when set. See
+ * `applyAppearance` in _shared/components/sections.
+ */
+const APPEARANCE_SETTINGS = [
+  { id: 'background_color', type: 'color', label: 'Background Color', default: '' },
+  { id: 'text_color', type: 'color', label: 'Text Color', default: '' },
+  { id: 'padding_top', type: 'range', label: 'Padding Top', min: 0, max: 160, step: 8, default: 64, unit: 'px' },
+  { id: 'padding_bottom', type: 'range', label: 'Padding Bottom', min: 0, max: 160, step: 8, default: 64, unit: 'px' },
+] as const;
+
 export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'hero',
@@ -55,6 +68,7 @@ export const universalSections: SectionDefinition[] = [
       { id: 'body', type: 'textarea', label: 'Body', default: '' },
       { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
       { id: 'button_url', type: 'url', label: 'Button URL', default: '' },
+      ...APPEARANCE_SETTINGS,
     ],
   }),
 
@@ -74,6 +88,7 @@ export const universalSections: SectionDefinition[] = [
         { value: 'image-left', label: 'Image Left' },
         { value: 'image-right', label: 'Image Right' },
       ]},
+      ...APPEARANCE_SETTINGS,
     ],
   }),
 
@@ -86,6 +101,7 @@ export const universalSections: SectionDefinition[] = [
       { id: 'heading', type: 'text', label: 'Heading', default: '' },
       { id: 'columns', type: 'number', label: 'Columns', default: 3, min: 2, max: 6 },
       // Note: `images` is a JSON array; the dashboard editor exposes it as a list builder.
+      ...APPEARANCE_SETTINGS,
     ],
   }),
 
@@ -97,6 +113,7 @@ export const universalSections: SectionDefinition[] = [
     settings: [
       { id: 'heading', type: 'text', label: 'Heading', default: 'Why Shop With Us' },
       // `features` is a JSON list of {icon, title, description}
+      ...APPEARANCE_SETTINGS,
     ],
   }),
 
@@ -108,6 +125,7 @@ export const universalSections: SectionDefinition[] = [
     settings: [
       { id: 'heading', type: 'text', label: 'Heading', default: '' },
       { id: 'video_url', type: 'url', label: 'Video URL', default: '' },
+      ...APPEARANCE_SETTINGS,
     ],
   }),
 
@@ -119,6 +137,7 @@ export const universalSections: SectionDefinition[] = [
     settings: [
       { id: 'heading', type: 'text', label: 'Heading', default: 'What Customers Say' },
       // `testimonials` is a JSON list of {quote, author, role, avatar}
+      ...APPEARANCE_SETTINGS,
     ],
   }),
 

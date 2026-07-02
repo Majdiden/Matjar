@@ -20,6 +20,26 @@ import { Carousel } from '../primitives/Carousel';
 import { Skeleton } from '../primitives/Skeleton';
 import type { SectionInstance } from '../../types/theme';
 
+/**
+ * Per-section appearance overrides (from the shared APPEARANCE_SETTINGS).
+ * Returns an inline style applying merchant-set background/text colour and
+ * top/bottom padding. Empty/undefined values inherit the theme (no override),
+ * so a section with no appearance settings renders exactly as before. Inline
+ * padding wins over the component's Tailwind `py-*`.
+ */
+export function appearanceStyle(s: Record<string, any>): React.CSSProperties {
+  const style: React.CSSProperties = {};
+  if (s.background_color) style.backgroundColor = s.background_color;
+  if (s.text_color) style.color = s.text_color;
+  if (s.padding_top !== undefined && s.padding_top !== '' && s.padding_top !== null) {
+    style.paddingTop = typeof s.padding_top === 'number' ? `${s.padding_top}px` : String(s.padding_top);
+  }
+  if (s.padding_bottom !== undefined && s.padding_bottom !== '' && s.padding_bottom !== null) {
+    style.paddingBottom = typeof s.padding_bottom === 'number' ? `${s.padding_bottom}px` : String(s.padding_bottom);
+  }
+  return style;
+}
+
 export interface SectionComponentProps {
   /** Section instance id from themeCustomization.sections */
   id: string;
@@ -114,7 +134,8 @@ export const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
 export const RichTextSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   return (
-    <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-center">
+    <section className="px-4 sm:px-6 py-16" style={appearanceStyle(s)}>
+      <div className="max-w-3xl mx-auto text-center">
       {s.heading && <h2 className="text-3xl font-bold mb-3">{s.heading}</h2>}
       {s.subheading && <p className="text-lg text-gray-600 mb-4">{s.subheading}</p>}
       {s.body && <div className="prose mx-auto text-gray-700">{s.body}</div>}
@@ -127,6 +148,7 @@ export const RichTextSection: React.FC<SectionComponentProps> = ({ id }) => {
           {s.button_text}
         </Link>
       )}
+      </div>
     </section>
   );
 };
@@ -138,7 +160,7 @@ export const ImageWithTextSection: React.FC<SectionComponentProps> = ({ id }) =>
   const s = useThemeSettings(id);
   const reverse = s.layout === 'image-right';
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16" style={appearanceStyle(s)}>
       <div className={`grid md:grid-cols-2 gap-8 items-center ${reverse ? 'md:[direction:rtl]' : ''}`}>
         <div className="aspect-[4/3] bg-gray-100 rounded-2xl overflow-hidden">
           {s.image && <img src={s.image} alt={s.heading || ''} className="w-full h-full object-cover" />}
@@ -172,7 +194,7 @@ export const GallerySection: React.FC<SectionComponentProps> = ({ id }) => {
   const cols = Number(s.columns) || 3;
   if (images.length === 0) return null;
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16" style={appearanceStyle(s)}>
       {s.heading && <h2 className="text-3xl font-bold text-center mb-10">{s.heading}</h2>}
       <div className={`grid grid-cols-2 md:grid-cols-${cols} gap-3`}>
         {images.map((src, i) => (
@@ -193,7 +215,7 @@ export const FeaturesSection: React.FC<SectionComponentProps> = ({ id }) => {
     Array.isArray(s.features) ? s.features : [];
   if (features.length === 0) return null;
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16" style={appearanceStyle(s)}>
       {s.heading && <h2 className="text-3xl font-bold text-center mb-10">{s.heading}</h2>}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {features.map((f, i) => (
@@ -223,7 +245,7 @@ export const VideoSection: React.FC<SectionComponentProps> = ({ id }) => {
     return url;
   })();
   return (
-    <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
+    <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16" style={appearanceStyle(s)}>
       {s.heading && <h2 className="text-3xl font-bold text-center mb-8">{s.heading}</h2>}
       <div className="aspect-video bg-black rounded-2xl overflow-hidden">
         <iframe
@@ -247,7 +269,7 @@ export const TestimonialsSection: React.FC<SectionComponentProps> = ({ id }) => 
     Array.isArray(s.testimonials) ? s.testimonials : [];
   if (items.length === 0) return null;
   return (
-    <section className="bg-gray-50 py-16">
+    <section className="bg-gray-50 py-16" style={appearanceStyle(s)}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {s.heading && <h2 className="text-3xl font-bold text-center mb-10">{s.heading}</h2>}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
