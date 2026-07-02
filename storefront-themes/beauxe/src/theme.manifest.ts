@@ -192,8 +192,8 @@ const manifest = defineTheme({
   },
 
   typography: {
-    fontFamily: 'Nunito, system-ui, sans-serif',
-    headingFontFamily: 'Playfair Display, Georgia, serif',
+    fontFamily: "Nunito, 'Tajawal', system-ui, sans-serif",
+    headingFontFamily: "Playfair Display, 'Amiri', Georgia, serif",
     baseFontSize: '15px',
     lineHeight: '1.65',
   },

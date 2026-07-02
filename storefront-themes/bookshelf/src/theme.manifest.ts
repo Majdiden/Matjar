@@ -144,8 +144,8 @@ const manifest = defineTheme({
   },
 
   typography: {
-    fontFamily: 'Georgia, serif',
-    headingFontFamily: 'Georgia, serif',
+    fontFamily: "Georgia, 'Amiri', serif",
+    headingFontFamily: "Georgia, 'Amiri', serif",
     baseFontSize: '16px',
     lineHeight: '1.7',
   },

@@ -158,8 +158,8 @@ const manifest = defineTheme({
   },
 
   typography: {
-    fontFamily: 'system-ui, sans-serif',
-    headingFontFamily: '"Playfair Display", Georgia, serif',
+    fontFamily: "system-ui, 'Tajawal', sans-serif",
+    headingFontFamily: "\"Playfair Display\", 'Amiri', Georgia, serif",
     baseFontSize: '16px',
     lineHeight: '1.6',
   },

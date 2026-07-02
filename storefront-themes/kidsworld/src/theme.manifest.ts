@@ -194,8 +194,8 @@ const manifest = defineTheme({
   },
 
   typography: {
-    fontFamily: 'Nunito, system-ui, sans-serif',
-    headingFontFamily: 'Nunito, system-ui, sans-serif',
+    fontFamily: "Nunito, 'Baloo Bhaijaan 2', system-ui, sans-serif",
+    headingFontFamily: "Nunito, 'Baloo Bhaijaan 2', system-ui, sans-serif",
     baseFontSize: '16px',
     lineHeight: '1.6',
   },

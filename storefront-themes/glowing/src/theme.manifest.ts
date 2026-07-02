@@ -162,8 +162,8 @@ const manifest = defineTheme({
   },
 
   typography: {
-    fontFamily: 'Inter, system-ui, sans-serif',
-    headingFontFamily: 'Cormorant Garamond, Georgia, serif',
+    fontFamily: "Inter, 'Tajawal', system-ui, sans-serif",
+    headingFontFamily: "Cormorant Garamond, 'Amiri', Georgia, serif",
     baseFontSize: '15px',
     lineHeight: '1.7',
   },

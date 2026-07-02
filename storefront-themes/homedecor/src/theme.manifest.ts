@@ -141,8 +141,8 @@ const manifest = defineTheme({
   },
 
   typography: {
-    fontFamily: 'Inter, system-ui, sans-serif',
-    headingFontFamily: 'Inter, system-ui, sans-serif',
+    fontFamily: "Inter, 'Noto Naskh Arabic', system-ui, sans-serif",
+    headingFontFamily: "Inter, 'Noto Naskh Arabic', system-ui, sans-serif",
     baseFontSize: '16px',
     lineHeight: '1.6',
   },

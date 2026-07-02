@@ -211,8 +211,8 @@ const manifest = defineTheme({
   },
 
   typography: {
-    fontFamily: 'DM Sans, system-ui, sans-serif',
-    headingFontFamily: 'Fraunces, Georgia, serif',
+    fontFamily: "DM Sans, 'Tajawal', system-ui, sans-serif",
+    headingFontFamily: "Fraunces, 'Amiri', Georgia, serif",
     baseFontSize: '15px',
     lineHeight: '1.65',
   },

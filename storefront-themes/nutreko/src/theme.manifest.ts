@@ -159,8 +159,8 @@ const manifest = defineTheme({
   },
 
   typography: {
-    fontFamily: 'Inter, system-ui, sans-serif',
-    headingFontFamily: 'Archivo Black, Inter, sans-serif',
+    fontFamily: "Inter, 'Cairo', system-ui, sans-serif",
+    headingFontFamily: "Archivo Black, 'Cairo', Inter, sans-serif",
     baseFontSize: '15px',
     lineHeight: '1.6',
   },
