@@ -143,6 +143,11 @@ export const storefrontApi = {
     return request<any>(withPreview(`${STOREFRONT_BASE}/categories/${slug}${qs}`));
   },
 
+  /** A CMS page by slug (About, Contact, or any custom page). 404s when the
+   *  page doesn't exist / isn't published — callers fall back to static. */
+  getPage: (slug: string) =>
+    request<any>(withPreview(`${STOREFRONT_BASE}/pages/${encodeURIComponent(slug)}`)),
+
   /** All collections */
   getCollections: () =>
     request<any>(withPreview(`${STOREFRONT_BASE}/collections`)),
