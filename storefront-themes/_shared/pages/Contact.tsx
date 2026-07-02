@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { contactApi } from '../api/client';
 import { useTranslation } from 'react-i18next';
+import { usePage } from '../hooks/usePage';
 
 interface ContactProps {
   className?: string;
@@ -18,6 +19,9 @@ const Contact: React.FC<ContactProps> = ({
 }) => {
   const { store } = useStore();
   const { t } = useTranslation(['footer']);
+  // Merchant-authored CMS content (editable in the dashboard) shown above the
+  // contact form so edits reflect on the storefront.
+  const { page } = usePage('contact');
 
   const SUBJECTS = [
     t('footer.contact.subject.general'),
@@ -74,8 +78,15 @@ const Contact: React.FC<ContactProps> = ({
   return (
     <div className={`max-w-4xl mx-auto px-4 sm:px-6 py-12 ${className}`}>
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold mb-2">{heading || t('footer.contact.title')}</h1>
-        <p className="text-gray-500">{subheading || t('footer.contact.subtitle')}</p>
+        <h1 className="text-3xl font-bold mb-2">{page?.title || heading || t('footer.contact.title')}</h1>
+        {page && page.content ? (
+          <div
+            className="text-gray-600 leading-relaxed max-w-2xl mx-auto text-start [&_p]:mb-3 [&_a]:underline"
+            dangerouslySetInnerHTML={{ __html: page.content }}
+          />
+        ) : (
+          <p className="text-gray-500">{subheading || t('footer.contact.subtitle')}</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">

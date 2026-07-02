@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { useTranslation } from 'react-i18next';
+import { usePage } from '../hooks/usePage';
 
 interface AboutProps {
   className?: string;
@@ -19,6 +20,22 @@ const About: React.FC<AboutProps> = ({
 }) => {
   const { store } = useStore();
   const { t } = useTranslation(['footer']);
+
+  // Merchant-authored CMS page (editable in the dashboard). When it exists
+  // with content, render that verbatim so edits reflect on the storefront;
+  // otherwise fall back to the built-in static About layout below.
+  const { page } = usePage('about');
+  if (page && page.content) {
+    return (
+      <div className={`max-w-3xl mx-auto px-4 sm:px-6 py-12 ${className}`}>
+        <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
+        <div
+          className="leading-relaxed [&_h2]:font-semibold [&_h2]:text-xl [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:mb-4 [&_a]:underline [&_ul]:list-disc [&_ul]:ps-6 [&_ul]:mb-4"
+          dangerouslySetInnerHTML={{ __html: page.content }}
+        />
+      </div>
+    );
+  }
 
   const defaultValues = [
     { title: t('footer.about.value.quality_first_title'), description: t('footer.about.value.quality_first_description') },
