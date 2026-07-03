@@ -172,6 +172,15 @@ export function createStorefrontMiddleware() {
     // HTML responses that carry a preview token — the token itself is
     // the authorization and the content is a read-only preview, so the
     // clickjacking surface is negligible.
+    //
+    // TOKEN DUALITY (audit 1.8): `?preview=` carries EITHER the short-lived
+    // EDITOR token (themeCustomization.previewToken — grants draft THEME
+    // customization on /store-info + this frame-embed relaxation) OR the
+    // stable STORE owner-draft token (settings.previewToken — grants draft
+    // CONTENT on the data endpoints; see isOwnerPreview in
+    // routes/storefront.js). We relax framing for any non-empty value here
+    // because the actual data-level authorization happens downstream at each
+    // token's own constant-time validation site.
     if (typeof req.query.preview === "string" && req.query.preview.length > 0) {
       res.removeHeader("X-Frame-Options");
       res.setHeader("Content-Security-Policy", "frame-ancestors *");
