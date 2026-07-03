@@ -12,7 +12,6 @@ import {
   getActiveThemesRepo,
   getThemesRepo,
   updateThemeRepo,
-  updateThemeSettingsRepo,
   updateThemeStatusRepo,
   deleteThemeRepo,
   setDefaultThemeRepo,
@@ -80,31 +79,51 @@ async function recordThemeAuditEvent(tenantId, source, payload) {
  * manifest. Ensures that activating/reactivating a theme immediately renders
  * the correct default sections on the storefront, instead of showing a blank
  * page until the merchant edits+publishes something (which was the old bug —
- * stale `published.sections` from the previous theme would hang around and
+ * stale published sections from the previous theme would hang around and
  * produce unknown section IDs in the new theme's registry).
+ *
+ * Seeds `sectionsByTemplate` for EVERY template the manifest declares
+ * (index, product, collection, cart, search, page, ...) — not just the
+ * homepage — so multi-template themes render their curated defaults on
+ * all routes immediately after install.
  */
-const buildCustomizationFromManifest = (themeSlug) => {
+export const buildCustomizationFromManifest = (themeSlug) => {
   const manifest = getThemeManifest(themeSlug);
-  const templateSections = manifest?.templates?.index || [];
 
-  const sections = templateSections.map((s, i) => ({
-    id: s.id,
-    type: s.type,
-    enabled: s.disabled !== true,
-    order: i,
-    layout: s.layout || "full-width",
-    settings: s.settings || {},
-    elements: s.elements || [],
-    blocks: s.blocks || [],
-  }));
+  const mapTemplateSections = (templateSections) =>
+    (Array.isArray(templateSections) ? templateSections : []).map((s, i) => ({
+      id: s.id,
+      type: s.type,
+      enabled: s.disabled !== true,
+      order: typeof s.order === "number" ? s.order : i,
+      layout: s.layout || "full-width",
+      settings: s.settings || {},
+      elements: s.elements || [],
+      blocks: s.blocks || [],
+    }));
+
+  const sectionsByTemplate = {};
+  const manifestTemplates =
+    manifest?.templates && typeof manifest.templates === "object"
+      ? manifest.templates
+      : {};
+  for (const [templateId, templateSections] of Object.entries(manifestTemplates)) {
+    sectionsByTemplate[templateId] = mapTemplateSections(templateSections);
+  }
+  if (!Array.isArray(sectionsByTemplate.index)) sectionsByTemplate.index = [];
 
   const settings = {
     colors: manifest?.colors || {},
     typography: manifest?.typography || {},
     layout: {},
+    // Manifest-level global settings bucket. Stored empty — the read
+    // path (getThemeCustomizationService / storefront) layers each
+    // manifest-declared default on top at render time, so persisting
+    // them here would only freeze stale copies.
+    theme: {},
   };
 
-  return { sections, settings };
+  return { sectionsByTemplate, settings };
 };
 
 export const createThemeService = async (themeData) => {
@@ -135,9 +154,10 @@ export const getDefaultThemeService = async () => {
 //
 // Each built theme ships a homepage screenshot at `dist/preview.jpg`
 // (authored as `public/preview.jpg`; Vite copies it into dist). The
-// dashboard renders it via `GET /api/themes/:slug/preview`. Until the
-// catalog sync (audit 2.4) persists `previewImage` on Theme rows, the
-// list endpoints overlay the URL for any theme whose file exists.
+// dashboard renders it via `GET /api/themes/:slug/preview`. The boot
+// catalog sync (services/themeCatalogSync.js) persists that URL onto
+// Theme rows; the decoration below remains as a safety net for rows
+// written before a sync ran (DB value wins when present).
 
 const __theme_service_dirname = path.dirname(fileURLToPath(import.meta.url));
 const THEMES_ROOT = path.resolve(__theme_service_dirname, "..", "storefront-themes");
@@ -201,12 +221,6 @@ export const updateThemeService = async (themeId, updates) => {
   return await updateThemeRepo(themeId, updates);
 };
 
-export const updateThemeSettingsService = async (themeId, settings) => {
-  const theme = await getThemeByIdRepo(themeId);
-  if (!theme) throw new APIError("Theme not found", 404);
-  return await updateThemeSettingsRepo(themeId, { ...theme.settings, ...settings });
-};
-
 export const updateThemeStatusService = async (themeId, status) => {
   const theme = await getThemeByIdRepo(themeId);
   if (!theme) throw new APIError("Theme not found", 404);
@@ -241,7 +255,7 @@ export const installThemeService = async (themeId, tenantId) => {
 
   if (previousThemeId) await decrementThemeInstallsRepo(previousThemeId);
 
-  const { sections, settings } = buildCustomizationFromManifest(theme.slug);
+  const { sectionsByTemplate, settings } = buildCustomizationFromManifest(theme.slug);
   const now = new Date();
 
   await Tenant.findByIdAndUpdate(tenantId, {
@@ -250,11 +264,11 @@ export const installThemeService = async (themeId, tenantId) => {
       "themeCustomization.themeId": theme._id,
       "themeCustomization.isDraft": false,
       "themeCustomization.settings": settings,
-      "themeCustomization.sections": sections,
+      "themeCustomization.sectionsByTemplate": sectionsByTemplate,
       "themeCustomization.customCSS": "",
       "themeCustomization.published.themeSlug": theme.slug,
       "themeCustomization.published.settings": settings,
-      "themeCustomization.published.sections": sections,
+      "themeCustomization.published.sectionsByTemplate": sectionsByTemplate,
       "themeCustomization.published.customCSS": "",
       "themeCustomization.published.publishedAt": now,
       "themeCustomization.lastPublishedAt": now,
@@ -264,6 +278,12 @@ export const installThemeService = async (themeId, tenantId) => {
       // either 404 or render garbage against the new theme's manifest.
       "themeCustomization.previewToken": null,
       "themeCustomization.previewTokenExpiry": null,
+    },
+    // Deprecated flat mirrors — clear residue from the previous theme so
+    // nothing stale can surface; no code path writes these any more.
+    $unset: {
+      "themeCustomization.sections": "",
+      "themeCustomization.published.sections": "",
     },
     $inc: { "themeCustomization.published.version": 1 },
   });
@@ -287,8 +307,9 @@ export const installThemeService = async (themeId, tenantId) => {
       colors: settings.colors || {},
       typography: settings.typography || {},
       layout: settings.layout || {},
+      theme: settings.theme || {},
     },
-    sections,
+    sectionsByTemplate,
     customCSS: "",
     label: previousThemeId ? `Switched to ${theme.name}` : `Installed ${theme.name}`,
   });
@@ -317,21 +338,31 @@ export const uninstallThemeService = async (themeId, tenantId) => {
     );
   }
 
+  // Reset ALL four settings buckets — including `theme` (manifest-level
+  // global settings such as home_variant / color_mode), which was
+  // previously left behind and could leak into the next installed theme.
+  const emptySettings = { colors: {}, typography: {}, layout: {}, theme: {} };
+
   await Tenant.findByIdAndUpdate(tenantId, {
     $set: {
       "settings.activeTheme": null,
       "themeCustomization.themeId": null,
-      "themeCustomization.settings": { colors: {}, typography: {}, layout: {} },
-      "themeCustomization.sections": [],
+      "themeCustomization.settings": emptySettings,
+      "themeCustomization.sectionsByTemplate": {},
       "themeCustomization.customCSS": "",
       "themeCustomization.published.themeSlug": null,
-      "themeCustomization.published.settings": { colors: {}, typography: {}, layout: {} },
-      "themeCustomization.published.sections": [],
+      "themeCustomization.published.settings": emptySettings,
+      "themeCustomization.published.sectionsByTemplate": {},
       "themeCustomization.published.customCSS": "",
       "themeCustomization.published.publishedAt": null,
       "themeCustomization.updatedAt": new Date(),
       "themeCustomization.previewToken": null,
       "themeCustomization.previewTokenExpiry": null,
+    },
+    // Deprecated flat mirrors — clear residue; nothing writes them now.
+    $unset: {
+      "themeCustomization.sections": "",
+      "themeCustomization.published.sections": "",
     },
   });
 
@@ -342,8 +373,8 @@ export const uninstallThemeService = async (themeId, tenantId) => {
   // installed. The snapshot is intentionally empty.
   await recordThemeAuditEvent(tenantId, "uninstall", {
     themeSlug: theme.slug,
-    settings: { colors: {}, typography: {}, layout: {} },
-    sections: [],
+    settings: emptySettings,
+    sectionsByTemplate: {},
     customCSS: "",
     label: `Uninstalled ${theme.name}`,
   });
@@ -360,22 +391,37 @@ export const getThemesByCategoryService = async (category, options = {}) => getT
 export const getPopularThemesService = async (limit = 10) => getPopularThemesRepo(limit);
 export const getLatestThemesService = async (limit = 10) => getLatestThemesRepo(limit);
 
+/**
+ * Public theme configuration. The legacy `Theme.settings`/`features`
+ * blobs are retired (audit 1.2) — everything a client needs to render
+ * or describe a theme now comes from its built manifest, so this reads
+ * identity from the catalog row and configuration from the registry.
+ */
 export const getThemePublicConfigService = async (themeId) => {
   const theme = await getThemeByIdRepo(themeId);
   if (!theme) throw new APIError("Theme not found", 404);
-  return theme.getPublicConfig ? theme.getPublicConfig() : theme;
+  const manifest = getThemeManifest(theme.slug) || {};
+  return {
+    name: theme.name,
+    slug: theme.slug,
+    version: theme.version,
+    colors: manifest.colors || {},
+    typography: manifest.typography || {},
+    layout: manifest.layout || {},
+    settings: manifest.settings || [],
+  };
 };
 
 /**
  * Minimal bootstrap payload so a stood-up environment with an empty
  * Themes collection can still complete tenant setup instead of failing
- * on "No default theme available". Matches the shape `scripts/seed-themes.js`
- * produces for `modern` (the canonical default) so the first registered
- * tenant lands on the same baseline as a properly seeded instance.
+ * on "No default theme available".
  *
- * This is intentionally a last-resort — ops should run `node scripts/seed-themes.js`
- * at deploy time. But in environments where that hasn't run yet (fresh
- * staging, CI databases, integration tests) the backstop below guarantees
+ * This is intentionally a last-resort — the boot-time catalog sync
+ * (services/themeCatalogSync.js) normally upserts one row per built
+ * theme manifest before the first request. This backstop only fires
+ * when NO theme is built at all (fresh clone before
+ * `scripts/build-themes.sh`, bare CI databases) and guarantees
  * `setupStatus.steps.theme_installation` reaches `completed` instead of
  * `skipped` with an error that blocks the merchant flow.
  */
@@ -391,11 +437,6 @@ const FALLBACK_DEFAULT_THEME = {
   storagePath: "storefront-themes/modern",
   categories: ["general"],
   tags: ["minimal", "clean", "modern", "responsive"],
-  features: ["responsive-design", "ajax-cart", "live-search"],
-  settings: {
-    colors: { primary: "#2563eb", secondary: "#1e40af", accent: "#f59e0b", background: "#f9fafb", text: "#111827" },
-    typography: { fontFamily: "'Inter', sans-serif", fontSizeBase: "16px", headingFontFamily: "'Inter', sans-serif" },
-  },
 };
 
 async function ensureDefaultThemeExists() {
@@ -448,7 +489,7 @@ export async function installDefaultTheme(tenant) {
     }
 
     const Tenant = mongoose.model("Tenant");
-    const { sections, settings } = buildCustomizationFromManifest(defaultTheme.slug);
+    const { sectionsByTemplate, settings } = buildCustomizationFromManifest(defaultTheme.slug);
     const now = new Date();
 
     await Tenant.findByIdAndUpdate(tenant._id, {
@@ -457,15 +498,20 @@ export async function installDefaultTheme(tenant) {
         "themeCustomization.themeId": defaultTheme._id,
         "themeCustomization.isDraft": false,
         "themeCustomization.settings": settings,
-        "themeCustomization.sections": sections,
+        "themeCustomization.sectionsByTemplate": sectionsByTemplate,
         "themeCustomization.customCSS": "",
         "themeCustomization.published.themeSlug": defaultTheme.slug,
         "themeCustomization.published.settings": settings,
-        "themeCustomization.published.sections": sections,
+        "themeCustomization.published.sectionsByTemplate": sectionsByTemplate,
         "themeCustomization.published.customCSS": "",
         "themeCustomization.published.publishedAt": now,
         "themeCustomization.lastPublishedAt": now,
         "themeCustomization.updatedAt": now,
+      },
+      // Deprecated flat mirrors — never written for new tenants.
+      $unset: {
+        "themeCustomization.sections": "",
+        "themeCustomization.published.sections": "",
       },
       $inc: { "themeCustomization.published.version": 1 },
     });
@@ -485,8 +531,9 @@ export async function installDefaultTheme(tenant) {
         colors: settings.colors || {},
         typography: settings.typography || {},
         layout: settings.layout || {},
+        theme: settings.theme || {},
       },
-      sections,
+      sectionsByTemplate,
       customCSS: "",
       label: `Installed default theme ${defaultTheme.name}`,
     });

@@ -63,117 +63,12 @@ const themeSchema = new Schema(
       },
     ],
 
-    // Theme Configuration
-    settings: {
-      // Colors
-      colors: {
-        primary: { type: String, default: "#2563eb" },
-        secondary: { type: String, default: "#1e40af" },
-        accent: { type: String, default: "#f59e0b" },
-        background: { type: String, default: "#ffffff" },
-        text: { type: String, default: "#1f2937" },
-        textLight: { type: String, default: "#6b7280" },
-        success: { type: String, default: "#10b981" },
-        error: { type: String, default: "#ef4444" },
-        border: { type: String, default: "#e5e7eb" },
-      },
-
-      // Typography
-      typography: {
-        fontFamily: {
-          type: String,
-          default: "'Inter', sans-serif",
-        },
-        fontSizeBase: {
-          type: String,
-          default: "16px",
-        },
-        headingFontFamily: {
-          type: String,
-          default: "'Inter', sans-serif",
-        },
-      },
-
-      // Layout
-      layout: {
-        containerWidth: {
-          type: String,
-          default: "1280px",
-        },
-        headerHeight: {
-          type: String,
-          default: "80px",
-        },
-        sidebarWidth: {
-          type: String,
-          default: "280px",
-        },
-      },
-
-      // Homepage
-      homepage: {
-        showFeaturedProducts: { type: Boolean, default: true },
-        featuredProductsLimit: { type: Number, default: 8 },
-        showCategories: { type: Boolean, default: true },
-        showBanner: { type: Boolean, default: true },
-        bannerText: { type: String, default: "Free Shipping on Orders Over $50" },
-        showNewArrivals: { type: Boolean, default: true },
-        newArrivalsLimit: { type: Number, default: 12 },
-      },
-
-      // Product Page
-      product: {
-        showRelatedProducts: { type: Boolean, default: true },
-        relatedProductsLimit: { type: Number, default: 4 },
-        showReviews: { type: Boolean, default: true },
-        showStock: { type: Boolean, default: true },
-        enableZoom: { type: Boolean, default: true },
-      },
-
-      // Cart
-      cart: {
-        showRecommendations: { type: Boolean, default: true },
-        enableQuickCheckout: { type: Boolean, default: true },
-      },
-
-      // Footer
-      footer: {
-        showNewsletter: { type: Boolean, default: true },
-        showSocialLinks: { type: Boolean, default: true },
-        copyrightText: { type: String, default: "© 2024 All rights reserved." },
-      },
-
-      // Custom settings (JSON)
-      custom: {
-        type: Map,
-        of: Schema.Types.Mixed,
-      },
-    },
-
-    // Features
-    features: [
-      {
-        type: String,
-        enum: [
-          "responsive-design",
-          "product-quick-view",
-          "ajax-cart",
-          "product-zoom",
-          "reviews-ratings",
-          "wishlist",
-          "product-comparison",
-          "mega-menu",
-          "live-search",
-          "multi-currency",
-          "multi-language",
-          "rtl-support",
-          "dark-mode",
-          "size-guide",
-          "color-swatches",
-          "fit-guide",
-        ],
-      },
-    ],
+    // NOTE (audit 1.2): the legacy `settings` blob and `features` enum
+    // were retired — a theme's colors/typography/settings schema and
+    // capabilities live in its built manifest
+    // (storefront-themes/<slug>/dist/manifest.json, loaded by
+    // services/themeManifestRegistry.js). Migration 007 $unset the old
+    // fields from existing rows.
 
     // Compatibility
     compatibility: {
@@ -217,25 +112,23 @@ const themeSchema = new Schema(
       },
     },
 
-    // Metadata
+    // Metadata. Categories are free-form strings — the theme manifest is
+    // the source of truth (synced by services/themeCatalogSync.js), and
+    // third-party themes may declare niches the old enum never knew
+    // about (jewelry, supplements, beverages, ...).
     tags: [String],
-    categories: [
-      {
-        type: String,
-        enum: [
-          "fashion",
-          "apparel",
-          "electronics",
-          "food",
-          "beauty",
-          "sports",
-          "home",
-          "books",
-          "toys",
-          "general",
-        ],
-      },
-    ],
+    categories: [String],
+
+    // Catalog-sync bookkeeping (services/themeCatalogSync.js). When a
+    // sync finds a row whose manifest disappeared from disk it flips
+    // status to "inactive" and stamps `missingSince`; if the manifest
+    // reappears the sync re-activates the row and clears the stamp.
+    // Rows deactivated manually by an operator carry no stamp and are
+    // never auto-reactivated.
+    catalogSync: {
+      missingSince: { type: Date, default: null },
+      lastSyncedAt: { type: Date, default: null },
+    },
 
     // Support & Documentation
     documentation: {
@@ -261,27 +154,6 @@ themeSchema.index({ "statistics.rating": -1 });
 themeSchema.index({ "statistics.installCount": -1 });
 themeSchema.index({ tags: 1 });
 themeSchema.index({ categories: 1 });
-
-// Instance Methods
-
-/**
- * Check if feature is enabled
- */
-themeSchema.methods.hasFeature = function (featureName) {
-  return this.features.includes(featureName);
-};
-
-/**
- * Get theme configuration for frontend
- */
-themeSchema.methods.getPublicConfig = function () {
-  return {
-    name: this.name,
-    version: this.version,
-    settings: this.settings,
-    features: this.features,
-  };
-};
 
 // Static Methods
 

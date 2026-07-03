@@ -256,10 +256,17 @@ export function getThemeSettingsSchema(themeSlug) {
   const manifest = MANIFESTS.get(themeSlug);
   if (!manifest) return null;
   return {
+    name: manifest.name,
     global: manifest.settings || [],
     colors: manifest.colors,
+    // Unique human labels per colour token (filled by defineTheme at
+    // build time). The editor renders these with a humanized-key fallback.
+    colorLabels: manifest.colorLabels || {},
     typography: manifest.typography,
     layout: manifest.layout,
+    // Theme-shipped font choices, merged ahead of the platform font
+    // list by the dashboard typography selects.
+    fonts: structuredClone(manifest.fonts || []),
     sections: structuredClone(manifest.sections || []),
     templates: structuredClone(manifest.templates || {}),
   };

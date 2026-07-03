@@ -3,15 +3,11 @@ import mongoose from "mongoose";
 const Tenant = () => mongoose.model("Tenant");
 
 /**
- * Read shim — surface the tenant's customization with
- * `sectionsByTemplate` normalised. When a tenant's DB doc only has
- * the legacy flat `sections` array (older pods, pre-migration),
- * we surface that list as `sectionsByTemplate.index` so downstream
- * callers can treat the Map as the single source of truth.
- *
- * The flat `sections` field is intentionally preserved on the doc —
- * older pods still reading it stay functional until a cleanup
- * migration ships.
+ * Read the tenant's customization. `sectionsByTemplate` is the single
+ * canonical store for section lists (migration 006 copied any legacy
+ * flat `sections` data into `sectionsByTemplate.index`); we only
+ * normalise the map to a plain object so downstream callers never
+ * have to null-check it.
  */
 export const getTenantCustomizationRepo = async (tenantId) => {
   const raw = await Tenant()
@@ -21,34 +17,15 @@ export const getTenantCustomizationRepo = async (tenantId) => {
   if (!raw) return raw;
   const tc = raw.themeCustomization;
   if (tc) {
-    const byTpl = tc.sectionsByTemplate && typeof tc.sectionsByTemplate === "object"
-      ? { ...tc.sectionsByTemplate }
-      : {};
-    // Back-fill index from the flat sections array when the per-
-    // template bucket hasn't been populated yet. Never overwrite an
-    // existing explicit index bucket — those are the canonical value.
-    if (
-      (!byTpl.index || (Array.isArray(byTpl.index) && byTpl.index.length === 0)) &&
-      Array.isArray(tc.sections) &&
-      tc.sections.length > 0
-    ) {
-      byTpl.index = tc.sections;
-    }
-    tc.sectionsByTemplate = byTpl;
-
-    // Same shim on the published snapshot.
-    if (tc.published) {
-      const pubByTpl = tc.published.sectionsByTemplate && typeof tc.published.sectionsByTemplate === "object"
-        ? { ...tc.published.sectionsByTemplate }
+    tc.sectionsByTemplate =
+      tc.sectionsByTemplate && typeof tc.sectionsByTemplate === "object"
+        ? { ...tc.sectionsByTemplate }
         : {};
-      if (
-        (!pubByTpl.index || (Array.isArray(pubByTpl.index) && pubByTpl.index.length === 0)) &&
-        Array.isArray(tc.published.sections) &&
-        tc.published.sections.length > 0
-      ) {
-        pubByTpl.index = tc.published.sections;
-      }
-      tc.published.sectionsByTemplate = pubByTpl;
+    if (tc.published) {
+      tc.published.sectionsByTemplate =
+        tc.published.sectionsByTemplate && typeof tc.published.sectionsByTemplate === "object"
+          ? { ...tc.published.sectionsByTemplate }
+          : {};
     }
   }
   return raw;
@@ -105,11 +82,9 @@ export const updateTenantThemeSettingRepo = async (tenantId, key, value) => {
 };
 
 /**
- * Persist the sections for a specific template.
- *
- * The index template is special-cased: the flat legacy `sections`
- * field is kept in lockstep so older readers continue to work. For
- * any other template, only the per-template bucket is written.
+ * Persist the sections for a specific template. Only the canonical
+ * per-template bucket is written — the deprecated flat `sections`
+ * field is no longer maintained (see migration 006).
  */
 export const updateTenantCustomizationSectionsRepo = async (
   tenantId,
@@ -122,9 +97,6 @@ export const updateTenantCustomizationSectionsRepo = async (
     "themeCustomization.updatedAt": new Date(),
     updatedAt: new Date(),
   };
-  if (templateId === "index") {
-    set["themeCustomization.sections"] = sections;
-  }
   return await Tenant()
     .findByIdAndUpdate(tenantId, { $set: set }, { new: true })
     .select("themeCustomization");
@@ -193,7 +165,6 @@ export const resetCustomizationRepo = async (tenantId) => {
         $set: {
           "themeCustomization.isDraft": false,
           "themeCustomization.settings": { colors: {}, typography: {}, layout: {}, theme: {} },
-          "themeCustomization.sections": [],
           "themeCustomization.sectionsByTemplate": {},
           "themeCustomization.customCSS": "",
           "themeCustomization.previewToken": null,
@@ -201,6 +172,10 @@ export const resetCustomizationRepo = async (tenantId) => {
           "themeCustomization.updatedAt": new Date(),
           updatedAt: new Date(),
         },
+        // Deprecated flat mirror of sectionsByTemplate.index — no code
+        // writes it any more (migration 006 canonicalized on the map);
+        // drop any legacy residue so a reset truly returns to defaults.
+        $unset: { "themeCustomization.sections": "" },
       },
       { new: true }
     )

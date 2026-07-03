@@ -37,10 +37,6 @@ export const updateThemeRepo = async (themeId, updates) => {
   return await Theme().findByIdAndUpdate(themeId, updates, { new: true, runValidators: true });
 };
 
-export const updateThemeSettingsRepo = async (themeId, settings) => {
-  return await Theme().findByIdAndUpdate(themeId, { $set: { settings } }, { new: true, runValidators: true });
-};
-
 export const updateThemeStatusRepo = async (themeId, status) => {
   return await Theme().findByIdAndUpdate(themeId, { status }, { new: true });
 };
@@ -104,6 +100,55 @@ export const getLatestThemesRepo = async (limit = 10) => {
   return await Theme().find({ status: "active", isPublished: true })
     .sort({ createdAt: -1 })
     .limit(limit);
+};
+
+// ─── Catalog-sync helpers (services/themeCatalogSync.js) ───────────
+
+/**
+ * Upsert a catalog row by slug. `set` carries the manifest-owned fields
+ * (identity + presentation) applied on every sync; `setOnInsert` carries
+ * DB-owned fields that only receive their initial value when the row is
+ * first created (status, isDefault, pricing, statistics defaults, ...).
+ */
+export const upsertThemeBySlugRepo = async (slug, { set = {}, setOnInsert = {} } = {}) => {
+  return await Theme().findOneAndUpdate(
+    { slug },
+    { $set: set, $setOnInsert: setOnInsert },
+    { upsert: true, new: true }
+  );
+};
+
+/**
+ * Re-activate a row that THIS sync previously marked inactive because
+ * its manifest had disappeared (tracked via `catalogSync.missingSince`).
+ * Rows an operator deactivated by hand carry no marker and are left
+ * alone — `status` stays DB-owned.
+ */
+export const reactivateSyncedThemeRepo = async (slug) => {
+  return await Theme().updateOne(
+    { slug, status: "inactive", "catalogSync.missingSince": { $exists: true, $ne: null } },
+    { $set: { status: "active" }, $unset: { "catalogSync.missingSince": "" } }
+  );
+};
+
+/**
+ * Mark catalog rows whose manifest is no longer on disk as inactive,
+ * stamping `catalogSync.missingSince` so a later sync can distinguish
+ * "we deactivated this" from an operator's manual deactivation.
+ */
+export const markMissingThemesInactiveRepo = async (presentSlugs, missingSince) => {
+  return await Theme().updateMany(
+    { slug: { $nin: presentSlugs }, status: "active" },
+    { $set: { status: "inactive", "catalogSync.missingSince": missingSince } }
+  );
+};
+
+export const countDefaultThemesRepo = async () => {
+  return await Theme().countDocuments({ isDefault: true, status: "active" });
+};
+
+export const setThemeDefaultBySlugRepo = async (slug) => {
+  return await Theme().updateOne({ slug, status: "active" }, { $set: { isDefault: true } });
 };
 
 export const themeSlugExistsRepo = async (slug, excludeId = null) => {

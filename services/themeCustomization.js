@@ -83,11 +83,26 @@ async function writeVersionRowWithRetry(VersionModel, basePayload, labelResolver
  *   "Updated colors, edited 3 sections"
  *   "Restored from version 4"
  */
+/**
+ * Flatten a snapshot's per-template section map into a single list for
+ * diffing. Legacy version rows (pre sectionsByTemplate) only carry the
+ * flat `sections` array — fall back to it so labels for rollbacks to
+ * old versions stay meaningful.
+ */
+function collectSnapshotSections(snapshot) {
+  const byTpl = snapshot?.sectionsByTemplate;
+  if (byTpl && typeof byTpl === "object") {
+    const lists = Object.values(byTpl).filter(Array.isArray);
+    if (lists.length > 0) return lists.flat();
+  }
+  return Array.isArray(snapshot?.sections) ? snapshot.sections : [];
+}
+
 export function summarizeCustomizationDiff(prev, next) {
   if (!prev) return "Initial publish";
 
-  const prevSections = Array.isArray(prev.sections) ? prev.sections : [];
-  const nextSections = Array.isArray(next.sections) ? next.sections : [];
+  const prevSections = collectSnapshotSections(prev);
+  const nextSections = collectSnapshotSections(next);
   const prevIds = new Set(prevSections.map((s) => s.id));
   const nextIds = new Set(nextSections.map((s) => s.id));
 
@@ -299,21 +314,21 @@ export const getThemeCustomizationService = async (tenantId) => {
   // manifest template defaults in-memory for this one response —
   // nothing is written. Any subsequent section add/edit through the
   // proper mutation APIs will populate the draft for real.
-  const persistedSections = tenant.themeCustomization?.sections || [];
-  const fallbackToManifest =
-    persistedSections.length === 0 && defaultCustomization.sections.length > 0;
-
-  // Assemble the per-template map for the dashboard. The repository
-  // shim has already back-filled `sectionsByTemplate.index` from the
-  // legacy flat array if needed, but the manifest can also declare
-  // section defaults for non-index templates (e.g. a theme could ship
-  // with a curated product page). Those defaults are surfaced when
-  // the merchant hasn't yet touched the bucket.
+  //
+  // Assemble the per-template map for the dashboard.
+  // `sectionsByTemplate` is the canonical store (migration 006); the
+  // manifest can also declare section defaults for non-index templates
+  // (e.g. a theme could ship with a curated product page). Those
+  // defaults are surfaced when the merchant hasn't yet touched the
+  // bucket.
   const rawByTpl =
     (tenant.themeCustomization?.sectionsByTemplate &&
       typeof tenant.themeCustomization.sectionsByTemplate === "object"
       ? { ...tenant.themeCustomization.sectionsByTemplate }
       : {}) || {};
+  const persistedSections = Array.isArray(rawByTpl.index) ? rawByTpl.index : [];
+  const fallbackToManifest =
+    persistedSections.length === 0 && defaultCustomization.sections.length > 0;
   const manifestTemplates = (manifest?.templates && typeof manifest.templates === "object")
     ? manifest.templates
     : {};
@@ -464,9 +479,9 @@ export const updateThemeSettingService = async (tenantId, key, value) => {
 /**
  * Normalise a tenant doc's `sectionsByTemplate` into a plain object
  * with an entry for `templateId` (which may be absent if the merchant
- * has never touched that template). Falls back to the legacy flat
- * `sections` array when asking for "index" and the per-template
- * bucket hasn't been populated yet.
+ * has never touched that template). `sectionsByTemplate` is the single
+ * canonical store — migration 006 folded any legacy flat `sections`
+ * data into the `index` bucket.
  */
 function readTemplateSections(tenantDoc, templateId) {
   const tc = tenantDoc.themeCustomization || {};
@@ -478,9 +493,6 @@ function readTemplateSections(tenantDoc, templateId) {
   if (Array.isArray(map[templateId]) && map[templateId].length > 0) {
     return mergeSectionsWithManifestDefaults(map[templateId], manifest, templateId);
   }
-  if (templateId === "index" && Array.isArray(tc.sections) && tc.sections.length > 0) {
-    return mergeSectionsWithManifestDefaults(tc.sections, manifest, templateId);
-  }
   // If the tenant has not authored this template yet, fall back to the
   // active theme manifest. The editor renders these manifest defaults
   // as selectable sections; saving one of them must materialize the
@@ -489,10 +501,9 @@ function readTemplateSections(tenantDoc, templateId) {
 }
 
 /**
- * Persist `sections` into the tenant doc for the given template.
- * The index template ALSO writes the legacy flat `sections` so older
- * readers (storefront /store-info, e2e tests, cached clients)
- * continue to see the same data.
+ * Persist `sections` into the tenant doc for the given template. Only
+ * the canonical per-template bucket is written — the deprecated flat
+ * `sections` field is no longer maintained.
  */
 async function writeTemplateSections(TenantModel, tenantId, templateId, sections) {
   const set = {
@@ -500,9 +511,6 @@ async function writeTemplateSections(TenantModel, tenantId, templateId, sections
     "themeCustomization.isDraft": true,
     "themeCustomization.updatedAt": new Date(),
   };
-  if (templateId === "index") {
-    set["themeCustomization.sections"] = sections;
-  }
   await TenantModel.updateOne({ _id: tenantId }, { $set: set });
 }
 
@@ -772,21 +780,12 @@ export const publishCustomizationService = async (
   const themeSlug = tenant.settings?.activeTheme || "modern";
   const draft = tenant.themeCustomization;
 
-  // Assemble the per-template bucket — back-fill index from the legacy
-  // flat array when the merchant hasn't migrated yet.
+  // Per-template buckets are the single canonical store — migration 006
+  // folded any legacy flat `sections` data into `sectionsByTemplate.index`
+  // and no write path maintains the flat array any more.
   const draftByTpl = (draft.sectionsByTemplate && typeof draft.sectionsByTemplate === "object")
     ? { ...draft.sectionsByTemplate }
     : {};
-  // The flat `sections` array is the legacy single source of truth for
-  // the index template. Every write path that touches `.index` also
-  // writes the flat array, so the two are kept in sync; when they
-  // diverge it's because something wrote the flat path directly (legacy
-  // code, external migration, admin fix-up). In that case treat the
-  // flat array as authoritative so publishes always reflect the most
-  // recent merchant intent rather than a stale per-template bucket.
-  if (Array.isArray(draft.sections) && draft.sections.length > 0) {
-    draftByTpl.index = draft.sections;
-  }
 
   // Strict manifest validation — rejects unknown section types, unknown
   // setting keys, out-of-range values, bad colors/URLs, block limit
@@ -809,8 +808,6 @@ export const publishCustomizationService = async (
       throw new APIError(`Cannot publish: ${cssErrors.join("; ")}`, 400);
     }
   }
-  const cleanDraft = draft;
-
   // 1. Snapshot the draft into the version history collection with a
   //    concurrency-safe retry. Two merchants clicking publish at the
   //    same time would otherwise race on max+1 and collide on the
@@ -831,7 +828,6 @@ export const publishCustomizationService = async (
       // (show_announcement_bar, accent_color, logo_width, ...).
       theme: { ...(draft.settings?.theme || {}) },
     },
-    sections: JSON.parse(JSON.stringify(draftByTpl.index || cleanDraft.sections || [])),
     sectionsByTemplate: JSON.parse(JSON.stringify(draftByTpl)),
     customCSS: draft.customCSS || "",
     publishedBy: userId || null,
@@ -848,7 +844,7 @@ export const publishCustomizationService = async (
           label ||
           summarizeCustomizationDiff(prev, {
             settings: basePayload.settings,
-            sections: basePayload.sections,
+            sectionsByTemplate: basePayload.sectionsByTemplate,
             customCSS: basePayload.customCSS,
           })
         );
@@ -862,7 +858,7 @@ export const publishCustomizationService = async (
     publishedAt: new Date(),
     label: label || summarizeCustomizationDiff(previousSnapshot, {
       settings: basePayload.settings,
-      sections: basePayload.sections,
+      sectionsByTemplate: basePayload.sectionsByTemplate,
       customCSS: basePayload.customCSS,
     }),
   };
@@ -880,13 +876,11 @@ export const publishCustomizationService = async (
       $set: {
         "themeCustomization.published.themeSlug": themeSlug,
         "themeCustomization.published.settings": snapshotPayload.settings,
-        "themeCustomization.published.sections": snapshotPayload.sections,
         "themeCustomization.published.sectionsByTemplate": snapshotPayload.sectionsByTemplate || {},
         "themeCustomization.published.customCSS": snapshotPayload.customCSS,
         "themeCustomization.published.version": nextVersion,
         "themeCustomization.published.publishedAt": now,
         "themeCustomization.published.publishedBy": userId || null,
-        "themeCustomization.sections": draftByTpl.index || cleanDraft.sections || [],
         "themeCustomization.sectionsByTemplate": draftByTpl,
         "themeCustomization.isDraft": false,
         "themeCustomization.lastPublishedAt": now,
@@ -967,17 +961,21 @@ export const rollbackCustomizationService = async (
     layout: { ...(snapshot.settings?.layout || {}) },
     theme: { ...(snapshot.settings?.theme || {}) },
   };
-  const restoredSections = JSON.parse(JSON.stringify(snapshot.sections || []));
+  // Restore from the per-template snapshot. Legacy version rows written
+  // before sectionsByTemplate existed only carry the flat `sections`
+  // array (the index template) — surface that as the index bucket so
+  // rollbacks to old versions still work.
   const restoredByTpl = snapshot.sectionsByTemplate && typeof snapshot.sectionsByTemplate === "object"
     ? JSON.parse(JSON.stringify(snapshot.sectionsByTemplate))
-    : { index: restoredSections };
-  if (!Array.isArray(restoredByTpl.index)) restoredByTpl.index = restoredSections;
+    : {};
+  if (!Array.isArray(restoredByTpl.index) && Array.isArray(snapshot.sections)) {
+    restoredByTpl.index = JSON.parse(JSON.stringify(snapshot.sections));
+  }
   await Tenant.updateOne(
     { _id: tenantId },
     {
       $set: {
         "themeCustomization.settings": restoredSettings,
-        "themeCustomization.sections": restoredByTpl.index,
         "themeCustomization.sectionsByTemplate": restoredByTpl,
         "themeCustomization.customCSS": snapshot.customCSS || "",
         "themeCustomization.isDraft": true,
@@ -997,7 +995,6 @@ export const rollbackCustomizationService = async (
       {
         themeSlug: snapshot.themeSlug,
         settings: restoredSettings,
-        sections: restoredByTpl.index || restoredSections,
         sectionsByTemplate: restoredByTpl,
         customCSS: snapshot.customCSS || "",
         publishedBy: userId || null,
@@ -1040,7 +1037,6 @@ export const resetCustomizationService = async (
       {
         themeSlug,
         settings: { colors: {}, typography: {}, layout: {}, theme: {} },
-        sections: [],
         sectionsByTemplate: {},
         customCSS: "",
         publishedBy: userId || null,
@@ -1117,7 +1113,6 @@ export const addSectionService = async (
   // Initialize themeCustomization if needed
   if (!tenant.themeCustomization) {
     tenant.themeCustomization = {
-      sections: [],
       sectionsByTemplate: {},
       settings: {},
       customCSS: "",
@@ -1125,8 +1120,8 @@ export const addSectionService = async (
     };
   }
 
-  // Pick the current list for this template, back-filling from the
-  // legacy flat array when targeting index and the bucket is empty.
+  // Pick the current list for this template (manifest defaults when the
+  // merchant hasn't authored the bucket yet).
   const list = readTemplateSections(tenant, templateId);
 
   if (position === null || position === undefined) {

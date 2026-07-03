@@ -772,9 +772,10 @@ export async function seedThemeDemoData(tenantId, themeSlug, options = {}) {
     // (e) Inject niche hero/banner imagery into the tenant's live theme
     // customization so the hero + promo/banner sections render with
     // theme-fitting art instead of an empty/gradient default. The install flow
-    // writes `themeCustomization.sections` (+ published) *before* calling us, so
-    // those sections already exist here. Defensive: only runs when the theme
-    // ships media, patches both draft and published copies, and never throws.
+    // seeds `themeCustomization.sectionsByTemplate` (+ published) *before*
+    // calling us, so the index bucket already exists here. Defensive: only
+    // runs when the theme ships media, patches both draft and published
+    // copies, and never throws.
     let mediaPatched = false;
     try {
       if (data.media) {
@@ -782,21 +783,20 @@ export async function seedThemeDemoData(tenantId, themeSlug, options = {}) {
         const tenant = await Tenant.findById(tenantId).select("themeCustomization").lean();
         if (tenant && tenant.themeCustomization) {
           const manifestSections = getThemeManifest(themeSlug)?.sections || [];
-          const draft = applyMediaToSections(
-            tenant.themeCustomization.sections || [],
-            data.media,
-            manifestSections
-          );
-          const published = applyMediaToSections(
-            tenant.themeCustomization.published?.sections || [],
-            data.media,
-            manifestSections
-          );
+          const tc = tenant.themeCustomization;
+          const draftIndex = Array.isArray(tc.sectionsByTemplate?.index)
+            ? tc.sectionsByTemplate.index
+            : [];
+          const publishedIndex = Array.isArray(tc.published?.sectionsByTemplate?.index)
+            ? tc.published.sectionsByTemplate.index
+            : [];
+          const draft = applyMediaToSections(draftIndex, data.media, manifestSections);
+          const published = applyMediaToSections(publishedIndex, data.media, manifestSections);
           if (draft.changed || published.changed) {
             await Tenant.findByIdAndUpdate(tenantId, {
               $set: {
-                "themeCustomization.sections": draft.sections,
-                "themeCustomization.published.sections": published.sections,
+                "themeCustomization.sectionsByTemplate.index": draft.sections,
+                "themeCustomization.published.sectionsByTemplate.index": published.sections,
               },
             });
             mediaPatched = true;

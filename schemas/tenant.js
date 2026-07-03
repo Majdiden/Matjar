@@ -225,11 +225,13 @@ const tenantSchema = new Schema({
     // Section settings/elements use Mixed because each theme/section type
     // declares its own arbitrary settings schema in its manifest.
     //
-    // `sections` (flat array) = the Home ("index") template sections.
-    // Kept for backwards compatibility with older pods/tenants that read
-    // it directly. The canonical source is `sectionsByTemplate` — the
-    // service layer writes both buckets in lockstep for the `index`
-    // template so a read-side shim can continue to work.
+    // DEPRECATED (audit 1.3): `sections` (flat array) was the legacy
+    // duplicate of the Home ("index") template sections. Migration 006
+    // folded its data into `sectionsByTemplate.index`, which is now the
+    // ONLY canonical store — no code path writes this field any more
+    // (install/uninstall/reset actively $unset it). The definition is
+    // kept for one release so pre-migration documents still validate;
+    // a follow-up migration removes it entirely.
     sections: [
       {
         id: { type: String, required: true }, // Unique ID e.g., "hero-1", "featured-products-2"
@@ -280,10 +282,13 @@ const tenantSchema = new Schema({
         // so publishCustomization's snapshot is a faithful copy.
         theme: { type: Schema.Types.Mixed, default: {} },
       },
+      // DEPRECATED (audit 1.3): flat mirror of the published index
+      // template — no longer written; kept one release for
+      // pre-migration documents. See the draft-side `sections` note.
       sections: { type: [Schema.Types.Mixed], default: [] },
       // Per-template published snapshot — mirrors the draft
       // `sectionsByTemplate`. Keys: index, product, collection, cart,
-      // search, page. Storefront reads this on each route.
+      // search, page. Storefront reads this on each route. CANONICAL.
       sectionsByTemplate: { type: Schema.Types.Mixed, default: () => ({}) },
       customCSS: { type: String, default: "" },
       version: { type: Number, default: 0 },

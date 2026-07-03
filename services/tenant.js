@@ -77,7 +77,12 @@ const addATenantService = async (tenantData) => {
       },
     };
 
-    // If a theme was selected, set up themeCustomization
+    // If a theme was selected, link it. Only identity is recorded here —
+    // the full customization seed (settings + sectionsByTemplate, draft
+    // and published) is written from the theme's MANIFEST by
+    // installDefaultTheme() during store setup (services/storeSetup.js).
+    // The legacy Theme.settings blob this used to copy was retired
+    // (audit 1.2); catalog rows carry no renderable configuration.
     if (tenantData.themeSlug) {
       const Theme = mongoose.model("Theme");
       const selectedTheme = await Theme.findOne({ slug: tenantData.themeSlug, status: "active" });
@@ -85,9 +90,6 @@ const addATenantService = async (tenantData) => {
         tenantPayload.themeCustomization = {
           themeId: selectedTheme._id,
           isDraft: false,
-          settings: selectedTheme.settings || {},
-          sections: selectedTheme.sections || [],
-          lastPublishedAt: new Date(),
           updatedAt: new Date(),
         };
         // Increment install count

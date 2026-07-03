@@ -17,6 +17,7 @@ import hpp from "hpp";
 import { RedisStore } from "connect-redis";
 import config from "./config/index.js";
 import { connectDb } from "./utils/connectionManager.js";
+import { syncThemeCatalog } from "./services/themeCatalogSync.js";
 import { initRedis } from "./config/redis.js";
 import RouteConfig from "./server/route.config.js";
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -162,6 +163,19 @@ const startServer = async () => {
   try {
     // 1. Connect to shared database and register all models
     await connectDb();
+
+    // 1b. Converge the theme catalog onto the manifests the registry
+    // discovered at module load (services/themeManifestRegistry.js scans
+    // storefront-themes/*/dist/manifest.json at import time). Upserts one
+    // Theme row per manifest, deactivates rows whose manifest vanished.
+    // Non-fatal: a sync failure must not keep the platform down — the
+    // existing catalog rows continue to serve.
+    try {
+      await syncThemeCatalog();
+    } catch (err) {
+      logger.error("Theme catalog sync failed at boot", { error: err.message });
+      captureException(err, { extra: { scope: "themeCatalogSync.boot" } });
+    }
 
     // 2. Connect to Redis
     const redisClient = await initRedis();

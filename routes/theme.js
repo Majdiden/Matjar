@@ -12,7 +12,6 @@ import {
   getThemeBySlug,
   getThemeConfig,
   updateTheme,
-  updateThemeSettings,
   updateThemeStatus,
   setDefaultTheme,
   deleteTheme,
@@ -51,7 +50,9 @@ router.post("/:id/uninstall", requirePermission("themes.write"), uninstallTheme)
 // Admin only routes
 router.post("/", requirePermission("themes.write"), createTheme);
 router.put("/:id", requirePermission("themes.write"), updateTheme);
-router.patch("/:id/settings", requirePermission("themes.write"), updateThemeSettings);
+// NOTE: the legacy PATCH /:id/settings endpoint was removed with the
+// retirement of Theme.settings (audit 1.2) — theme configuration lives
+// in the built manifest, not on catalog rows.
 router.patch("/:id/status", requirePermission("themes.write"), updateThemeStatus);
 router.patch("/:id/set-default", requirePermission("themes.write"), setDefaultTheme);
 router.delete("/:id", requirePermission("themes.write"), deleteTheme);

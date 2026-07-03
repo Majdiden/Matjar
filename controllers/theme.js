@@ -8,7 +8,6 @@ import {
   getActiveThemesService,
   getThemesService,
   updateThemeService,
-  updateThemeSettingsService,
   updateThemeStatusService,
   deleteThemeService,
   setDefaultThemeService,
@@ -233,26 +232,6 @@ export const updateTheme = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: "Theme updated successfully",
-    data: { theme },
-  });
-});
-
-/**
- * @route   PATCH /api/themes/:id/settings
- * @desc    Update theme settings
- * @access  Admin only
- */
-export const updateThemeSettings = asyncHandler(async (req, res) => {
-  const theme = await updateThemeSettingsService(
-    
-    req.params.id,
-    req.body,
-    req.user.userId
-  );
-
-  res.json({
-    success: true,
-    message: "Theme settings updated successfully",
     data: { theme },
   });
 });
