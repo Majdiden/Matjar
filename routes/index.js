@@ -33,6 +33,8 @@ import staffRoutes from "../routes/staff.js";
 import rolesRoutes from "../routes/roles.js";
 import notificationRoutes from "../routes/notification.js";
 import pageRoutes from "../routes/page.js";
+import assetRoutes from "../routes/asset.js";
+import redirectRoutes from "../routes/redirect.js";
 
 const router = Router();
 
@@ -71,5 +73,7 @@ router.use("/staff", staffRoutes); // Staff/team management + invite flow
 router.use("/roles", rolesRoutes); // Custom role catalog + tenant-defined roles
 router.use("/notifications", notificationRoutes); // In-app notification center + SSE stream
 router.use("/pages", pageRoutes); // CMS-style static content pages (about, contact, privacy…)
+router.use("/assets", assetRoutes); // Media library (browse/reuse uploaded assets)
+router.use("/redirects", redirectRoutes); // URL redirects (301/302 mapping)
 
 export default router;

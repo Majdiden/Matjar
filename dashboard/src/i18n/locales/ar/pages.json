@@ -73,11 +73,19 @@
       "meta_description": {
         "label": "وصف الميتا",
         "placeholder": "وصف موجز لمحركات البحث…"
+      },
+      "redirect": {
+        "label": "إنشاء إعادة توجيه من الرابط القديم",
+        "hint": "إعادة توجيه {{from}} ← {{to}} حتى تستمر الروابط الحالية بالعمل."
       }
     },
     "status": {
       "published": "منشور",
       "draft": "مسودة"
+    },
+    "action": {
+      "preview": "معاينة",
+      "previewing": "جارٍ فتح المعاينة…"
     }
   },
   "toast": {
@@ -87,7 +95,11 @@
     "error_load": "فشل تحميل الصفحة",
     "error_save": "فشل حفظ الصفحة",
     "error_delete": "فشل حذف الصفحة",
-    "title_required": "العنوان مطلوب"
+    "title_required": "العنوان مطلوب",
+    "redirect_created": "تم إنشاء إعادة توجيه من الرابط القديم",
+    "redirect_failed": "تم حفظ الصفحة، لكن تعذّر إنشاء إعادة التوجيه (ربما تكون موجودة بالفعل)",
+    "slug_required_preview": "أضِف عنوانًا أو رابطًا قبل المعاينة",
+    "error_preview": "تعذّر فتح المعاينة"
   },
   "confirm": {
     "delete_title": "حذف الصفحة؟",

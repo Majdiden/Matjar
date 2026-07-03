@@ -16,7 +16,8 @@ import { Select } from '../../components/ui/select';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu';
-import { Save, Trash2, Loader2, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
+import { Save, Trash2, Loader2, ChevronDown, ChevronUp, MoreVertical, Eye } from 'lucide-react';
+import { Checkbox } from '../../components/ui/checkbox';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
@@ -82,6 +83,12 @@ export const PageForm: React.FC = () => {
   const [slugEdited, setSlugEdited] = useState(false);
   const [seoOpen, setSeoOpen] = useState(false);
   const [supportedLocales, setSupportedLocales] = useState<string[]>(FALLBACK_LOCALES);
+  // The slug the page had when loaded (audit 6.7 bonus). When the merchant
+  // renames the slug on an existing page we offer to create a redirect
+  // from the old URL so inbound links don't 404.
+  const [originalSlug, setOriginalSlug] = useState('');
+  const [createRedirect, setCreateRedirect] = useState(true);
+  const [previewing, setPreviewing] = useState(false);
 
   // Supported storefront locales for the Language select (audit 3.9.4).
   useEffect(() => {
@@ -133,6 +140,7 @@ export const PageForm: React.FC = () => {
           isPublished: !!p.isPublished,
           publishAt: toDatetimeLocal(p.publishAt),
         });
+        setOriginalSlug(p.slug || '');
         setSlugEdited(true);
       } catch {
         toast.error(t('pages:toast.error_load'));
@@ -167,8 +175,26 @@ export const PageForm: React.FC = () => {
         publishAt: form.publishAt ? new Date(form.publishAt).toISOString() : null,
       };
       if (isEdit) {
+        const slugChanged = originalSlug && payload.slug && payload.slug !== originalSlug;
         await api.pages.update(id!, payload);
         toast.success(t('pages:toast.saved'));
+        // Slug-change redirect (audit 6.7 bonus): map the old URL to the
+        // new one so inbound links keep working. Best-effort — a failure
+        // (e.g. a redirect from that path already exists) warns but never
+        // blocks the successful page save.
+        if (slugChanged && createRedirect) {
+          try {
+            await api.redirects.create({
+              fromPath: `/pages/${originalSlug}`,
+              toPath: `/pages/${payload.slug}`,
+              statusCode: 301,
+            });
+            toast.success(t('pages:toast.redirect_created'));
+          } catch {
+            toast.warning(t('pages:toast.redirect_failed'));
+          }
+        }
+        setOriginalSlug(payload.slug);
       } else {
         const res = (await api.pages.create(payload)) as { data?: { _id?: string } };
         const newId = res?.data?._id;
@@ -207,6 +233,33 @@ export const PageForm: React.FC = () => {
     }
   };
 
+  // Preview (audit 6.4): mint a short-lived editor preview token and open
+  // the storefront page URL with `?preview=<token>` so unpublished /
+  // scheduled content is viewable. We derive the storefront origin from
+  // the token endpoint's returned previewUrl so it's correct in both dev
+  // (dashboard + storefront on the same tenant host) and prod.
+  const handlePreview = async () => {
+    const slug = form.slug || slugify(form.title);
+    if (!slug) { toast.error(t('pages:toast.slug_required_preview')); return; }
+    try {
+      setPreviewing(true);
+      const res = (await api.themeCustomization.generatePreview()) as {
+        data?: { token?: string; previewUrl?: string };
+      };
+      const token = res?.data?.token;
+      const previewUrl = res?.data?.previewUrl;
+      if (!token || !previewUrl) throw new Error('no token');
+      const u = new URL(previewUrl);
+      u.pathname = `/pages/${slug}`;
+      u.search = `?preview=${encodeURIComponent(token)}`;
+      window.open(u.toString(), '_blank', 'noopener');
+    } catch {
+      toast.error(t('pages:toast.error_preview'));
+    } finally {
+      setPreviewing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -229,6 +282,13 @@ export const PageForm: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          {isEdit && (
+            <Button variant="outline" onClick={handlePreview} disabled={previewing}>
+              {previewing
+                ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('pages:form.action.previewing')}</>
+                : <><Eye className="h-4 w-4 me-2" />{t('pages:form.action.preview')}</>}
+            </Button>
+          )}
           <Button onClick={handleSave} disabled={saving}>
             {saving
               ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
@@ -278,6 +338,21 @@ export const PageForm: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               {t('pages:form.field.slug.hint', { slug: form.slug || 'slug' })}
             </p>
+            {/* Slug-change redirect (audit 6.7 bonus). Only offered when
+                editing and the slug actually changed from what was loaded. */}
+            {isEdit && originalSlug && form.slug !== originalSlug && (
+              <div className="mt-2 rounded-md border border-border bg-muted/40 p-3">
+                <Checkbox
+                  checked={createRedirect}
+                  onChange={(e) => setCreateRedirect(e.target.checked)}
+                  label={t('pages:form.field.redirect.label')}
+                  description={t('pages:form.field.redirect.hint', {
+                    from: `/pages/${originalSlug}`,
+                    to: `/pages/${form.slug || 'slug'}`,
+                  })}
+                />
+              </div>
+            )}
           </div>
           <div className="space-y-1">
             <Label>{t('pages:form.field.locale.label')}</Label>

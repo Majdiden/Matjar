@@ -400,6 +400,23 @@ export const uploadFavicon = async (file, tenantDomain) => {
 };
 
 /**
+ * Upload a media-library content image (audit 6.6). Destined for CMS
+ * page bodies and theme sections; recorded as an Asset with preset
+ * "content" by the controller.
+ *
+ * @param {Buffer} file - File buffer
+ * @param {string} tenantDomain - Tenant's domain
+ * @returns {Promise<Object>} Upload result (url, publicId, dimensions…)
+ */
+export const uploadContentImage = async (file, tenantDomain) => {
+  try {
+    return await uploadImage(file, tenantDomain, "content");
+  } catch (error) {
+    throw new Error(`Failed to upload content image: ${error.message}`);
+  }
+};
+
+/**
  * Upload user avatar
  *
  * @param {Buffer} file - File buffer

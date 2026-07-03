@@ -57,7 +57,7 @@ export const UNIVERSAL_SECTIONS = [
     settings: [
       { id: "heading", type: "text", label: "Heading", default: "" },
       { id: "subheading", type: "text", label: "Subheading", default: "" },
-      { id: "body", type: "textarea", label: "Body", default: "" },
+      { id: "body", type: "richtext", label: "Body", default: "" },
       { id: "button_text", type: "text", label: "Button Text", default: "" },
       { id: "button_url", type: "url", label: "Button URL", default: "" },
     ],
@@ -71,7 +71,7 @@ export const UNIVERSAL_SECTIONS = [
       { id: "image", type: "image", label: "Image" },
       { id: "eyebrow", type: "text", label: "Eyebrow", default: "" },
       { id: "heading", type: "text", label: "Heading", default: "Our Story" },
-      { id: "body", type: "textarea", label: "Body", default: "" },
+      { id: "body", type: "richtext", label: "Body", default: "" },
       { id: "button_text", type: "text", label: "Button Text", default: "" },
       { id: "button_url", type: "url", label: "Button URL", default: "" },
       {

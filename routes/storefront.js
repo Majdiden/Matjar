@@ -1,5 +1,4 @@
 import express from "express";
-import crypto from "crypto";
 import { authenticate, optionalAuth } from "../middlewares/auth.js";
 import { requireTenant } from "../middlewares/tenantContext.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
@@ -33,6 +32,7 @@ import {
   demoCategoriesList,
   demoCategoryBySlug,
 } from "../services/themeDemoPreview.js";
+import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
 
 const router = express.Router();
 const productCardSelect =
@@ -367,17 +367,10 @@ router.get(
     // but defense in depth is cheap here.
     const previewParam =
       typeof req.query.preview === "string" ? req.query.preview : null;
-    let servePreview = false;
-    if (previewParam && tc.previewToken && tc.previewTokenExpiry) {
-      const storedBuf = Buffer.from(tc.previewToken, "utf8");
-      const providedBuf = Buffer.from(previewParam, "utf8");
-      let constantTimeMatch = false;
-      if (storedBuf.length === providedBuf.length) {
-        constantTimeMatch = crypto.timingSafeEqual(storedBuf, providedBuf);
-      }
-      const notExpired = new Date(tc.previewTokenExpiry).getTime() > Date.now();
-      servePreview = constantTimeMatch && notExpired;
-    }
+    // Shared editor-preview validation (audit 6.4 reuses this exact
+    // check for CMS page preview). Same token, same constant-time
+    // comparison + expiry gate.
+    const servePreview = isValidEditorPreviewToken(tenant, previewParam);
 
     // ─── Customization selection ────────────────────────────────
     //

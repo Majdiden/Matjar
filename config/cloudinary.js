@@ -92,6 +92,19 @@ export const uploadPresets = {
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
   },
 
+  // Media-library uploads destined for CMS page bodies and theme
+  // sections (audit 6.6). Wide limit — hero/banner imagery is the
+  // common case — with auto quality/format like the other presets.
+  content: {
+    folder: (tenantDomain) => getTenantFolder(tenantDomain, "content"),
+    transformation: [
+      { width: 1600, height: 1600, crop: "limit" },
+      { quality: "auto:good" },
+      { fetch_format: "auto" },
+    ],
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+
   theme: {
     folder: (tenantDomain) => getTenantFolder(tenantDomain, "themes"),
     transformation: [

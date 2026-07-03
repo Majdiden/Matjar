@@ -39,6 +39,7 @@ import roleSchema from "../schemas/store/role.js";
 import idempotencyRecordSchema from "../schemas/store/idempotencyRecord.js";
 import notificationSchema from "../schemas/store/notification.js";
 import pageSchema from "../schemas/store/page.js";
+import redirectSchema from "../schemas/store/redirect.js";
 
 /**
  * Register all models on a single shared connection.
@@ -89,4 +90,5 @@ export function registerAllModels(connection) {
   connection.model("IdempotencyRecord", idempotencyRecordSchema);
   connection.model("Notification", notificationSchema);
   connection.model("Page", pageSchema);
+  connection.model("Redirect", redirectSchema);
 }

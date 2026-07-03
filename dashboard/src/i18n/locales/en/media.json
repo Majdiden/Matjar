@@ -1,0 +1,38 @@
+{
+  "title": "Media",
+  "subtitle": "Browse and reuse images you've uploaded across your store.",
+  "search_placeholder": "Search by filename or alt text…",
+  "uploading": "Uploading…",
+  "dropzone": "Drag images here, or click to upload",
+  "empty": "No media yet. Upload an image to get started.",
+  "alt_placeholder": "Describe this image (alt text)",
+  "delete_warning": "Deleting an image is permanent and is not usage-checked — it may still be referenced by a page or section.",
+  "action": {
+    "upload": "Upload",
+    "copy": "Copy URL",
+    "edit_alt": "Edit alt text"
+  },
+  "filter": {
+    "label": "Filter by type",
+    "all": "All",
+    "content": "Content",
+    "product": "Product",
+    "category": "Category",
+    "logo": "Logo",
+    "favicon": "Favicon",
+    "avatar": "Avatar"
+  },
+  "picker": {
+    "title": "Media library",
+    "open": "Media library"
+  },
+  "toast": {
+    "uploaded": "Uploaded {{count}} image(s)",
+    "deleted": "Image deleted",
+    "alt_saved": "Alt text saved",
+    "error_upload": "Failed to upload image",
+    "error_delete": "Failed to delete image",
+    "error_alt": "Failed to save alt text",
+    "error_copy": "Could not copy the URL"
+  }
+}

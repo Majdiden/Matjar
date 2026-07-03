@@ -25,6 +25,10 @@ import enThemes from './locales/en/themes.json'
 import arThemes from './locales/ar/themes.json'
 import enPages from './locales/en/pages.json'
 import arPages from './locales/ar/pages.json'
+import enMedia from './locales/en/media.json'
+import arMedia from './locales/ar/media.json'
+import enRedirects from './locales/en/redirects.json'
+import arRedirects from './locales/ar/redirects.json'
 import enMenus from './locales/en/menus.json'
 import arMenus from './locales/ar/menus.json'
 import enDomains from './locales/en/domains.json'
@@ -64,6 +68,8 @@ export const resources = {
     analytics: enAnalytics,
     themes: enThemes,
     pages: enPages,
+    media: enMedia,
+    redirects: enRedirects,
     menus: enMenus,
     domains: enDomains,
     staff: enStaff,
@@ -90,6 +96,8 @@ export const resources = {
     analytics: arAnalytics,
     themes: arThemes,
     pages: arPages,
+    media: arMedia,
+    redirects: arRedirects,
     menus: arMenus,
     domains: arDomains,
     staff: arStaff,

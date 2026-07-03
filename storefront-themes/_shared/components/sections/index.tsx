@@ -138,7 +138,15 @@ export const RichTextSection: React.FC<SectionComponentProps> = ({ id }) => {
       <div className="max-w-3xl mx-auto text-center">
       {s.heading && <h2 className="text-3xl font-bold mb-3">{s.heading}</h2>}
       {s.subheading && <p className="text-lg text-gray-600 mb-4">{s.subheading}</p>}
-      {s.body && <div className="prose mx-auto text-gray-700">{s.body}</div>}
+      {/* Rich-text body (audit 6.8.1). Server-sanitized HTML (customization
+          write path, same allowlist as CMS pages); plain-text values from
+          before the type switch render unchanged as text nodes. */}
+      {s.body && (
+        <div
+          className="prose mx-auto text-gray-700 [&_a]:underline [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:list-decimal [&_ol]:ps-6"
+          dangerouslySetInnerHTML={{ __html: s.body }}
+        />
+      )}
       {s.button_text && (
         <Link
           to={s.button_url || '#'}

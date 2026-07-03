@@ -1,0 +1,47 @@
+{
+  "list": {
+    "title": "Redirects",
+    "subtitle": "Send old or moved URLs to a new location with a 301 or 302 redirect.",
+    "action": { "add": "Add redirect" },
+    "column": {
+      "from": "From",
+      "to": "To",
+      "type": "Type",
+      "hits": "Hits"
+    },
+    "empty": {
+      "title": "No redirects yet",
+      "hint": "Create a redirect to map an old URL to a new one so inbound links don't break.",
+      "action": "Add your first redirect"
+    }
+  },
+  "dialog": {
+    "title_new": "New redirect",
+    "title_edit": "Edit redirect",
+    "from": {
+      "label": "From path",
+      "hint": "The path on your store to intercept, e.g. /old-page. Must start with /."
+    },
+    "to": {
+      "label": "To path or URL",
+      "hint": "Where to send visitors, e.g. /pages/new-page or a full https:// URL."
+    },
+    "type": {
+      "label": "Redirect type",
+      "permanent": "301 — Permanent",
+      "temporary": "302 — Temporary"
+    }
+  },
+  "toast": {
+    "created": "Redirect created",
+    "saved": "Redirect saved",
+    "deleted": "Redirect deleted",
+    "paths_required": "From and To paths are required",
+    "error_save": "Failed to save redirect",
+    "error_delete": "Failed to delete redirect"
+  },
+  "confirm": {
+    "delete_title": "Delete redirect?",
+    "delete_description": "The redirect from \"{{from}}\" will be removed."
+  }
+}

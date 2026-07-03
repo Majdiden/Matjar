@@ -74,7 +74,7 @@ export const universalSections: SectionDefinition[] = [
       // block that looks like "adding the section did nothing".
       { id: 'heading', type: 'text', label: 'Heading', default: 'Talk about your brand' },
       { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
-      { id: 'body', type: 'textarea', label: 'Body', default: 'Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.' },
+      { id: 'body', type: 'richtext', label: 'Body', default: 'Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.' },
       { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
       { id: 'button_url', type: 'url', label: 'Button URL', default: '' },
       ...APPEARANCE_SETTINGS,
@@ -92,7 +92,7 @@ export const universalSections: SectionDefinition[] = [
       { id: 'image', type: 'image', label: 'Image' },
       { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
       { id: 'heading', type: 'text', label: 'Heading', default: 'Our Story' },
-      { id: 'body', type: 'textarea', label: 'Body', default: '' },
+      { id: 'body', type: 'richtext', label: 'Body', default: '' },
       { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
       { id: 'button_url', type: 'url', label: 'Button URL', default: '' },
       { id: 'layout', type: 'select', label: 'Layout', default: 'image-left', options: [

@@ -7,6 +7,7 @@ import {
   uploadLogo as uploadLogoService,
   uploadFavicon as uploadFaviconService,
   uploadAvatar as uploadAvatarService,
+  uploadContentImage as uploadContentImageService,
   deleteImageByUrl,
   deleteMultipleImagesByUrl,
   uploadImage,
@@ -35,14 +36,14 @@ import logger from "../utils/logger.js";
  * the safer failure mode than fabricating a successful upload response
  * with a missing file.
  */
-const recordAsset = async (req, result, preset) => {
+const recordAsset = async (req, result, preset, meta = {}) => {
   try {
     const tenantId = req.tenant?._id || req.tenantId;
     if (!tenantId) {
       logger.error("[upload] cannot record asset — missing tenantId on request");
       return;
     }
-    await req.models.Asset.create({
+    const created = await req.models.Asset.create({
       tenantId,
       url: result.url,
       publicId: result.publicId,
@@ -53,7 +54,13 @@ const recordAsset = async (req, result, preset) => {
       format: result.format ?? null,
       width: result.width ?? null,
       height: result.height ?? null,
+      // Media library metadata (audit 6.6). `filename` is the original
+      // upload name (search/display); `alt` starts empty and is edited
+      // in the library.
+      filename: (meta.filename || "").slice(0, 300),
+      alt: (meta.alt || "").slice(0, 500),
     });
+    return created;
   } catch (err) {
     // Don't fail the upload response — but make the orphan loud.
     logger.error("[upload] failed to record Asset row", { error: err.message });
@@ -246,7 +253,7 @@ export const uploadGenericImage = asyncHandler(async (req, res) => {
   if (!tenantDomain) return;
 
   const result = await uploadImage(req.file.buffer, tenantDomain, preset);
-  await recordAsset(req, result, preset);
+  await recordAsset(req, result, preset, { filename: req.file.originalname });
 
   res.json({
     success: true,
@@ -257,6 +264,44 @@ export const uploadGenericImage = asyncHandler(async (req, res) => {
       format: result.format,
       width: result.width,
       height: result.height,
+    },
+  });
+});
+
+/**
+ * @route   POST /api/upload/content
+ * @desc    Upload a media-library content image (audit 6.6). Records an
+ *          Asset row with preset "content" plus the original filename so
+ *          the library can search/display it. Used by the MediaLibrary
+ *          dropzone and the MediaPicker upload path.
+ * @access  Private (uploads.write)
+ */
+export const uploadContentImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: "No image provided" });
+  }
+  const tenantDomain = requireTenantDomain(req, res);
+  if (!tenantDomain) return;
+
+  const result = await uploadContentImageService(req.file.buffer, tenantDomain);
+  const asset = await recordAsset(req, result, "content", {
+    filename: req.file.originalname,
+    alt: typeof req.body?.alt === "string" ? req.body.alt : "",
+  });
+
+  res.json({
+    success: true,
+    message: "Image uploaded successfully",
+    data: {
+      _id: asset?._id,
+      url: result.url,
+      publicId: result.publicId,
+      format: result.format,
+      width: result.width,
+      height: result.height,
+      alt: asset?.alt || "",
+      filename: asset?.filename || "",
+      preset: "content",
     },
   });
 });

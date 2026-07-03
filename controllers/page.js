@@ -1,5 +1,6 @@
 import * as PageService from "../services/page.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
+import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
 
 // ─── Admin controllers ───────────────────────────────────────────────────────
 
@@ -119,8 +120,20 @@ export const storefrontGetPageBySlug = asyncHandler(async (req, res) => {
   // hidden until its time arrives — checked at read time, no cron.
   const scheduledForFuture =
     page && page.publishAt && new Date(page.publishAt) > new Date();
-  if (!page || !page.isPublished || scheduledForFuture) {
-    return res.status(404).json({ success: false, message: "Page not found" });
+  const hidden = !page || !page.isPublished || scheduledForFuture;
+
+  if (hidden) {
+    // Editor preview bypass (audit 6.4). A request carrying the tenant's
+    // valid, unexpired EDITOR preview token (themeCustomization.previewToken
+    // — the exact token /store-info validates) may view an unpublished or
+    // scheduled page. Everyone else gets the same 404 as a missing page.
+    const previewToken =
+      typeof req.query.preview === "string" ? req.query.preview : null;
+    const previewAllowed =
+      !!page && !!previewToken && isValidEditorPreviewToken(req.tenant, previewToken);
+    if (!previewAllowed) {
+      return res.status(404).json({ success: false, message: "Page not found" });
+    }
   }
   res.json({ success: true, data: publicPage(page) });
 });

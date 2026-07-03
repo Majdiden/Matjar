@@ -73,11 +73,19 @@
       "meta_description": {
         "label": "Meta description",
         "placeholder": "Brief description for search engines…"
+      },
+      "redirect": {
+        "label": "Create redirect from old URL",
+        "hint": "Redirect {{from}} → {{to}} so existing links keep working."
       }
     },
     "status": {
       "published": "Published",
       "draft": "Draft"
+    },
+    "action": {
+      "preview": "Preview",
+      "previewing": "Opening preview…"
     }
   },
   "toast": {
@@ -87,7 +95,11 @@
     "error_load": "Failed to load page",
     "error_save": "Failed to save page",
     "error_delete": "Failed to delete page",
-    "title_required": "Title is required"
+    "title_required": "Title is required",
+    "redirect_created": "Redirect created from the old URL",
+    "redirect_failed": "Page saved, but the redirect could not be created (one may already exist)",
+    "slug_required_preview": "Add a title or slug before previewing",
+    "error_preview": "Could not open preview"
   },
   "confirm": {
     "delete_title": "Delete page?",

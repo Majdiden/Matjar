@@ -245,6 +245,7 @@ const TENANT_SCOPED_MODELS = [
   "IdempotencyRecord",
   "Notification",
   "Page",
+  "Redirect",
 ];
 
 /**

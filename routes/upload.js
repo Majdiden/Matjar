@@ -18,6 +18,7 @@ import {
   uploadFavicon,
   uploadAvatar,
   uploadGenericImage,
+  uploadContentImage,
   deleteImage,
   deleteMultipleImages,
 } from "../controllers/upload.js";
@@ -111,6 +112,20 @@ router.post(
   handleUploadError,
   validateUploadedFiles,
   uploadGenericImage
+);
+
+/**
+ * @route   POST /api/upload/content
+ * @desc    Upload media-library content image (audit 6.6)
+ * @access  Private
+ */
+router.post(
+  "/content",
+  requirePermission("uploads.write"),
+  uploadSingleImage,
+  handleUploadError,
+  validateUploadedFiles,
+  uploadContentImage
 );
 
 /**

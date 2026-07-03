@@ -4,13 +4,16 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link2, X, Image as ImageIcon } from 'lucide-react';
+import { Link2, X, Image as ImageIcon, Images } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
+import { Button } from '../ui/button';
 import { ChevronDown } from 'lucide-react';
 import ColorPickerPopover from './ColorPickerPopover';
+import { RichTextEditor } from '../RichTextEditor';
+import { MediaPicker } from '../MediaPicker';
 import type { AnySectionSetting } from '@matjar/theme-shared/types/theme';
 
 interface SettingControlProps {
@@ -69,6 +72,19 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
             rows={3}
             placeholder={setting.placeholder || ''}
             className="text-sm resize-y min-h-[72px]"
+          />
+        </FieldWrapper>
+      );
+
+    case 'richtext':
+      // Rich section body (audit 6.8.1) — same TipTap editor as CMS pages.
+      // Emits HTML; the customization write path sanitizes it server-side.
+      return (
+        <FieldWrapper label={label} info={info}>
+          <RichTextEditor
+            value={currentValue}
+            onChange={(html) => onChange(html)}
+            placeholder={setting.placeholder || ''}
           />
         </FieldWrapper>
       );
@@ -231,8 +247,9 @@ function FieldWrapper({
 }
 
 function ImageInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const { t } = useTranslation('themes');
+  const { t } = useTranslation(['themes', 'media']);
   const [editing, setEditing] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   if (value && !editing) {
     return (
@@ -248,18 +265,33 @@ function ImageInput({ value, onChange }: { value: string; onChange: (v: string) 
             <X className="h-3 w-3 text-slate-600" />
           </button>
         </div>
-        <button
-          onClick={() => setEditing(true)}
-          className="text-[11px] text-blue-600 hover:underline"
-        >
-          {t('themes:editor.control.image.change')}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setPickerOpen(true)}
+            className="text-[11px] text-blue-600 hover:underline"
+          >
+            {t('media:picker.open')}
+          </button>
+          <button
+            onClick={() => setEditing(true)}
+            className="text-[11px] text-slate-500 hover:underline"
+          >
+            {t('themes:editor.control.image.change')}
+          </button>
+        </div>
+        <MediaPicker open={pickerOpen} onOpenChange={setPickerOpen} onSelect={(a) => onChange(a.url)} />
       </div>
     );
   }
 
   return (
     <div className="space-y-1.5">
+      {/* Media library first (audit 6.6); direct URL entry kept as the
+          secondary option below. */}
+      <Button type="button" variant="secondary" size="sm" className="w-full h-8 text-xs" onClick={() => setPickerOpen(true)}>
+        <Images className="h-3.5 w-3.5 me-1.5" />
+        {t('media:picker.open')}
+      </Button>
       <div className="relative">
         <ImageIcon className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
         <Input
@@ -272,6 +304,7 @@ function ImageInput({ value, onChange }: { value: string; onChange: (v: string) 
           autoFocus={editing}
         />
       </div>
+      <MediaPicker open={pickerOpen} onOpenChange={setPickerOpen} onSelect={(a) => { onChange(a.url); setEditing(false); }} />
     </div>
   );
 }

@@ -82,6 +82,70 @@ export function clearThemeCache() {
   themePathCache.clear();
 }
 
+// ─── Redirect lookup cache (audit 6.7) ──────────────────────────────
+//
+// Per-tenant map of `fromPath → { toPath, statusCode, _id }`, cached
+// with a short TTL. Follows the same short-TTL pattern as the theme
+// negative cache above: merchants edit redirects rarely, but a request
+// on the storefront hot path must not hit Mongo every time. The whole
+// (small) redirect set for a tenant is loaded once and reused for the
+// TTL window; a just-created redirect goes live within TTL_MS. An empty
+// set is cached too, so stores with no redirects don't re-query.
+const REDIRECT_CACHE_TTL_MS = 30 * 1000;
+const redirectCache = new Map(); // tenantId(str) → { map, expiresAt }
+
+/**
+ * Load (and cache) a tenant's redirect map. Returns a Map keyed by the
+ * normalised fromPath. Best-effort: on any DB error we cache an empty
+ * map for the TTL so a transient failure can't stall every storefront
+ * request re-querying.
+ */
+async function getTenantRedirects(tenantId) {
+  const key = String(tenantId);
+  const cached = redirectCache.get(key);
+  if (cached && cached.expiresAt > Date.now()) return cached.map;
+
+  const map = new Map();
+  try {
+    const models = createScopedModels(mongoose.connection, tenantId);
+    const rows = await models.Redirect.find({})
+      .select("fromPath toPath statusCode")
+      .lean();
+    for (const r of rows) {
+      map.set(r.fromPath, {
+        _id: r._id,
+        toPath: r.toPath,
+        statusCode: r.statusCode || 301,
+      });
+    }
+  } catch (e) {
+    logger.warn("Storefront redirect load failed; caching empty set", {
+      error: e.message,
+    });
+  }
+  redirectCache.set(key, { map, expiresAt: Date.now() + REDIRECT_CACHE_TTL_MS });
+  return map;
+}
+
+/**
+ * Normalise a request path for exact-match comparison: strip a trailing
+ * slash (except the root) so "/about/" and "/about" behave identically,
+ * matching the service-layer normalisation on `fromPath`.
+ */
+function normaliseRequestPath(p) {
+  if (typeof p !== "string" || p.length === 0) return "/";
+  if (p.length > 1 && p.endsWith("/")) return p.replace(/\/+$/, "");
+  return p;
+}
+
+/**
+ * Test-only / rebuild hook: drop the redirect cache so a change is
+ * visible immediately instead of waiting out the TTL.
+ */
+export function clearRedirectCache() {
+  redirectCache.clear();
+}
+
 /**
  * Read a theme's built `index.html` and rewrite its absolute `/assets/...`
  * references so each carries `?previewTheme=<slug>`. Theme bundles ship as a
@@ -200,6 +264,41 @@ export function createStorefrontMiddleware() {
           return res.sendFile(path.join(distPath, "index.html"));
         }
         return res.status(404).send("No store found. Register a store first.");
+      }
+
+      // ─── URL redirects (audit 6.7) ──────────────────────────────
+      //
+      // Exact-match the request pathname against the tenant's configured
+      // redirects, after tenant resolution and before any static/SPA
+      // serving. On a hit, increment `hits` fire-and-forget (never block
+      // the 3xx on a write) and issue the merchant-chosen 301/302. The
+      // lookup is backed by the short-TTL per-tenant cache above so this
+      // costs nothing on the steady-state hot path.
+      try {
+        const reqPath = normaliseRequestPath(req.path);
+        const redirects = await getTenantRedirects(tenant._id);
+        const hit = redirects.get(reqPath);
+        if (hit && hit.toPath && hit.toPath !== reqPath) {
+          // Fire-and-forget hit counter — a failed increment must never
+          // affect the redirect the shopper receives.
+          Promise.resolve()
+            .then(() => {
+              const models = createScopedModels(mongoose.connection, tenant._id);
+              return models.Redirect.updateOne(
+                { _id: hit._id },
+                { $inc: { hits: 1 }, $set: { lastHitAt: new Date() } }
+              );
+            })
+            .catch((e) =>
+              logger.warn("Redirect hit increment failed", { error: e.message })
+            );
+          return res.redirect(hit.statusCode || 301, hit.toPath);
+        }
+      } catch (e) {
+        // Redirect resolution must never take the storefront down.
+        logger.warn("Storefront redirect check failed; serving normally", {
+          error: e.message,
+        });
       }
 
       // ─── Theme PREVIEW override ─────────────────────────────────

@@ -30,6 +30,8 @@ import { useLanguage } from '../i18n/LanguageProvider';
 import { api } from '../lib/api-client';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
+import { MediaPicker } from './MediaPicker';
+import type { MediaAsset } from './media/MediaGrid';
 
 interface UploadResponse {
   data?: { url?: string };
@@ -89,6 +91,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const imageFileRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
@@ -156,6 +159,15 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const url = imageUrl.trim();
     if (!url) return;
     editor.chain().focus().setImage({ src: url }).run();
+    setImageDialogOpen(false);
+    setImageUrl('');
+  };
+
+  // Media library pick (audit 6.6): insert the selected asset directly,
+  // carrying its alt text, and close both the picker and the dialog.
+  const handleMediaSelect = (asset: MediaAsset) => {
+    editor.chain().focus().setImage({ src: asset.url, alt: asset.alt || '' }).run();
+    setMediaPickerOpen(false);
     setImageDialogOpen(false);
     setImageUrl('');
   };
@@ -322,6 +334,18 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <DialogTitle>{t('common:editor.image_dialog.title')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 py-2">
+            {/* Media library (audit 6.6): pick a previously-uploaded asset
+                without re-uploading. URL entry + upload remain as secondary
+                options below. */}
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              onClick={() => setMediaPickerOpen(true)}
+            >
+              <ImageIcon className="h-4 w-4 me-2" />
+              {t('common:editor.image_dialog.browse_library')}
+            </Button>
             <Label>{t('common:editor.image_dialog.url_label')}</Label>
             <div className="flex gap-2">
               <Input
@@ -365,6 +389,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Media library picker (audit 6.6) */}
+      <MediaPicker
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        onSelect={handleMediaSelect}
+      />
     </div>
   );
 };

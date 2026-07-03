@@ -144,9 +144,20 @@ export const storefrontApi = {
   },
 
   /** A CMS page by slug (About, Contact, or any custom page). 404s when the
-   *  page doesn't exist / isn't published — callers fall back to static. */
-  getPage: (slug: string) =>
-    request<any>(withPreview(`${STOREFRONT_BASE}/pages/${encodeURIComponent(slug)}`)),
+   *  page doesn't exist / isn't published — callers fall back to static.
+   *
+   *  Editor preview (audit 6.4): when the URL carries `?preview=<token>`
+   *  (the dashboard "Preview" button opens the page with the editor token),
+   *  forward it so the backend serves an unpublished/scheduled page. Same
+   *  mechanism getStoreInfo uses for draft theme customization. */
+  getPage: (slug: string) => {
+    let url = `${STOREFRONT_BASE}/pages/${encodeURIComponent(slug)}`;
+    if (typeof window !== 'undefined') {
+      const preview = new URLSearchParams(window.location.search).get('preview');
+      if (preview) url += `?preview=${encodeURIComponent(preview)}`;
+    }
+    return request<any>(withPreview(url));
+  },
 
   /** All collections */
   getCollections: () =>

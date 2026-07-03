@@ -44,6 +44,8 @@
       "visual_editor": "Visual editor",
       "navigation": "Navigation",
       "pages": "Pages",
+      "media": "Media",
+      "redirects": "Redirects",
       "domains": "Domains"
     },
     "settings": {

@@ -13,8 +13,11 @@ import { applyTenantScope } from "../../utils/tenantScope.js";
  *
  * The record is intentionally minimal — it tracks ownership and the bits
  * we need to delete the underlying object (publicId for Cloudinary, or
- * the local path in dev). Anything richer (alt text, EXIF, usage refs)
- * lives on the consuming entity (Product.images, Category.image, etc.).
+ * the local path in dev). Usage refs still live on the consuming entity
+ * (Product.images, Category.image, etc.). Since the media library
+ * (audit 6.6) the row also carries the browse/reuse metadata the
+ * library UI needs: `alt` (merchant-editable) and `filename` (the
+ * original upload name, for search + display).
  */
 const assetSchema = new Schema({
   tenantId: {
@@ -27,12 +30,19 @@ const assetSchema = new Schema({
   // Cloudinary public_id when in prod, the local-{...} sentinel in dev.
   // Used as the canonical handle for deletion.
   publicId: { type: String, required: true },
-  // The upload-preset bucket: product | category | logo | favicon | avatar.
+  // The upload-preset bucket: product | category | logo | favicon |
+  // avatar | content ("content" = media-library uploads destined for
+  // page bodies / theme sections; audit 6.6).
   preset: {
     type: String,
-    enum: ["product", "category", "logo", "favicon", "avatar"],
+    enum: ["product", "category", "logo", "favicon", "avatar", "content"],
     required: true,
   },
+  // Merchant-editable alternative text, surfaced by the media library
+  // and used when the asset is inserted into page/section content.
+  alt: { type: String, default: "", maxlength: 500 },
+  // Original filename at upload time (display + search in the library).
+  filename: { type: String, default: "", maxlength: 300 },
   // Cloudinary | local — lets the deleter pick the right backend.
   storage: {
     type: String,
