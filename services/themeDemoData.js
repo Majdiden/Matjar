@@ -184,6 +184,32 @@ export const THEME_DEMO_DATA = {
     media: { heroImage: WIDE("1612817288484-6f916006741a"), bannerImages: [WIDE("1556228578-8c89e6adf883")] },
   },
 
+  // ── aurum → luxury jewelry (verified Unsplash ids, all HTTP 200) ──
+  aurum: {
+    categories: [
+      { name: "Earrings", slug: "earrings", description: "Hoops, drops and studs in recycled gold.", image: IMG("1573408301185-9146fe634ad0") },
+      { name: "Necklaces", slug: "necklaces", description: "Pendants and chains for every neckline.", image: IMG("1506630448388-4e683c67ddb0") },
+      { name: "Rings", slug: "rings", description: "Signets, domes and stacking bands.", image: IMG("1611085583191-a3b181a88401") },
+      { name: "Bracelets", slug: "bracelets", description: "Chains and sculptural cuffs.", image: IMG("1598560917505-59a3ad559071") },
+    ],
+    products: [
+      { name: "Split Hoop Earrings", slug: "split-hoop-earrings", description: "Sculptural open hoops in 18k gold vermeil, hand-polished to a mirror finish and light enough for all-day wear.", price: 180, categorySlug: "earrings", stock: 60, rating: 4.8, reviewCount: 214, featured: true, tags: ["earrings", "gold"], images: [IMG("1515562141207-7a88fb7ce338"), IMG("1589128777073-263566ae5e4d")] },
+      { name: "Sphere Pendant Necklace", slug: "sphere-pendant-necklace", description: "A single polished gold sphere on a fine adjustable chain — the everyday pendant that goes with everything.", price: 240, compareAtPrice: 290, categorySlug: "necklaces", stock: 45, rating: 4.7, reviewCount: 178, featured: true, onSale: true, tags: ["necklace", "pendant"], images: [IMG("1602173574767-37ac01994b2a"), IMG("1506630448388-4e683c67ddb0")] },
+      { name: "Chunky Dome Ring", slug: "chunky-dome-ring", description: "A bold, hollow-formed dome ring with substantial presence and a feather-light feel.", price: 320, categorySlug: "rings", stock: 35, rating: 4.8, reviewCount: 142, tags: ["ring", "statement"], images: [IMG("1603561591411-07134e71a2a9"), IMG("1611591437281-460bfbe1220a")] },
+      { name: "Figaro Chain Bracelet", slug: "figaro-chain-bracelet", description: "A classic figaro-link bracelet in solid gold vermeil with a secure lobster clasp.", price: 210, categorySlug: "bracelets", stock: 50, rating: 4.6, reviewCount: 96, tags: ["bracelet", "chain"], images: [IMG("1598560917505-59a3ad559071")] },
+      { name: "Pearl Drop Earrings", slug: "pearl-drop-earrings", description: "Baroque freshwater pearls suspended from hand-formed gold hooks — no two pairs alike. Reserve yours from the next atelier batch.", price: 260, categorySlug: "earrings", stock: 20, rating: 4.9, reviewCount: 68, newArrival: true, tags: ["earrings", "pearl"], images: [IMG("1617038220319-276d3cfab638"), IMG("1573408301185-9146fe634ad0")] },
+      { name: "Classic Signet Ring", slug: "classic-signet-ring", description: "A refined oval-face signet in brushed gold, ready to wear plain or engraved.", price: 140, compareAtPrice: 175, categorySlug: "rings", stock: 70, rating: 4.5, reviewCount: 121, onSale: true, tags: ["ring", "signet"], images: [IMG("1611652022419-a9419f74343d"), IMG("1605100804763-247f67b3557e")] },
+      { name: "Curb Chain Necklace", slug: "curb-chain-necklace", description: "A substantial curb chain with a high-shine finish — layer it or let it stand alone.", price: 380, categorySlug: "necklaces", stock: 30, rating: 4.8, reviewCount: 156, featured: true, tags: ["necklace", "chain"], images: [IMG("1601121141461-9d6647bca1ed")] },
+      { name: "Molten Cuff Bracelet", slug: "molten-cuff-bracelet", description: "An organically textured open cuff, cast from a hand-carved wax original and finished in our atelier.", price: 620, categorySlug: "bracelets", stock: 15, rating: 4.9, reviewCount: 54, tags: ["bracelet", "cuff"], images: [IMG("1610694955371-d4a3e0ce4b52"), IMG("1617117811969-97f441511dee")] },
+    ],
+    collections: [
+      { title: "New Arrivals", handle: "new-arrivals", description: "Fresh from the atelier.", image: IMG("1617038220319-276d3cfab638"), productSlugs: ["pearl-drop-earrings", "molten-cuff-bracelet"] },
+      { title: "Best Sellers", handle: "best-sellers", description: "The pieces everyone keeps.", image: IMG("1601121141461-9d6647bca1ed"), productSlugs: ["split-hoop-earrings", "sphere-pendant-necklace", "curb-chain-necklace"] },
+      { title: "On Sale", handle: "on-sale", description: "Timeless pieces, for less.", image: IMG("1602173574767-37ac01994b2a"), productSlugs: ["sphere-pendant-necklace", "classic-signet-ring"] },
+    ],
+    media: { heroImage: WIDE("1531995811006-35cb42e1a022"), bannerImages: [WIDE("1600721391689-2564bb8055de"), WIDE("1588444650733-d0767b753fc8")] },
+  },
+
   // ── bookshelf → books ──
   bookshelf: {
     categories: [

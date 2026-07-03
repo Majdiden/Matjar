@@ -1,0 +1,54 @@
+:root { --font-en: 'Jost', system-ui, sans-serif; --font-ar: 'Tajawal', 'Jost', system-ui, sans-serif; --font-app: var(--font-en); }
+html[lang='ar'] { --font-app: var(--font-ar); }
+body { font-family: var(--font-app); }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #f4f1ea;
+  --color-secondary: #a6a29a;
+  --color-accent: #c8a24b;
+}
+
+body {
+  font-family: 'Jost', 'Tajawal', system-ui, sans-serif;
+  background: #141414;
+  color: #f4f1ea;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Prata', 'Amiri', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.font-display {
+  font-family: 'Prata', 'Amiri', Georgia, serif;
+}
+
+/* ── Aurum marquee ─────────────────────────────────────────────────
+   The strip duplicates its content once and slides the track by half
+   its own width, so the loop is seamless. In RTL the animation runs
+   in reverse so wordmarks travel with the reading direction. */
+@keyframes aurum-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.aurum-marquee-track {
+  animation: aurum-marquee var(--aurum-marquee-duration, 30s) linear infinite;
+  will-change: transform;
+}
+html[dir='rtl'] .aurum-marquee-track { animation-direction: reverse; }
+.aurum-marquee:hover .aurum-marquee-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .aurum-marquee-track { animation: none; }
+}
+
+/* Arabic shaping breaks under any non-zero letter-spacing — Tailwind's
+   tracking utilities visually disconnect ligatures. Reset every
+   descendant to normal letter-spacing in Arabic mode. */
+html[lang='ar'], html[lang='ar'] * { letter-spacing: 0 !important; }
+html[dir='rtl'], html[dir='rtl'] body { direction: rtl; }
+html[dir='ltr'], html[dir='ltr'] body { direction: ltr; }

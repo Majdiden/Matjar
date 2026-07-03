@@ -238,6 +238,26 @@ export const themes = [
     statistics: { installCount: 68, activeInstalls: 31, rating: 4.8, reviewCount: 14 },
   },
   {
+    name: "Aurum",
+    slug: "aurum",
+    version: "1.0.0",
+    description:
+      "A dark editorial luxury theme for jewelry and fine accessories. Prata serif headlines, soft gold accents and warm light-neutral product tiles over near-black.",
+    author: { name: "Matjar", email: "themes@matjar.io", website: "" },
+    status: "active",
+    isDefault: false,
+    isPublished: true,
+    storagePath: "storefront-themes/aurum",
+    categories: ["jewelry", "fashion", "general"],
+    tags: ["jewelry", "luxury", "dark", "editorial", "serif", "gold"],
+    features: ["responsive-design", "ajax-cart", "live-search", "product-zoom", "reviews-ratings"],
+    settings: {
+      colors: { primary: "#f4f1ea", secondary: "#a6a29a", accent: "#c8a24b", background: "#141414", text: "#f4f1ea" },
+      typography: { fontFamily: "'Jost', sans-serif", fontSizeBase: "15px", headingFontFamily: "'Prata', serif" },
+    },
+    statistics: { installCount: 36, activeInstalls: 17, rating: 4.8, reviewCount: 7 },
+  },
+  {
     name: "Beauxe",
     slug: "beauxe",
     version: "1.0.0",

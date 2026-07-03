@@ -1,0 +1,155 @@
+{
+  "theme": {
+    "announcement": {
+      "default_text": "Complimentary shipping on all orders over $150"
+    },
+    "nav": {
+      "shop": "Shop",
+      "about": "About"
+    },
+    "header": {
+      "search": "Search",
+      "account": "Account",
+      "cart": "Cart"
+    },
+    "hero": {
+      "heading": "Jewelry made to be lived in",
+      "subheading": "Hand-finished pieces in recycled gold — designed to be worn every day and kept for a lifetime.",
+      "cta": "Shop Now"
+    },
+    "section": {
+      "marquee": {
+        "default_items": "ELLE, VOGUE, BAZAAR, FORBES, GRAZIA",
+        "aria_label": "As featured in"
+      },
+      "spotlight": {
+        "eyebrow": "The Edit",
+        "heading": "One piece, endless ways to wear it"
+      },
+      "collection_tabs": {
+        "heading": "Shop by Collection",
+        "empty": "No products in this collection yet."
+      },
+      "editorial": {
+        "heading": "Crafted slowly, worn forever",
+        "body": "Every piece begins as a hand-carved wax model and is cast, polished and finished by our atelier. No seasons, no trends — only pieces that outlast both."
+      },
+      "product_rail": {
+        "heading": "Latest Jewelry",
+        "view_all": "View all"
+      },
+      "trust": {
+        "heading": "Our commitment, your confidence",
+        "returns_title": "30-Day Returns",
+        "returns_text": "Change your mind at home. Full refunds within thirty days, no questions asked.",
+        "shipping_title": "Insured Worldwide Shipping",
+        "shipping_text": "Every order ships tracked, insured and beautifully packaged, wherever you are.",
+        "support_title": "Personal Advisors",
+        "support_text": "Our jewelry specialists are a call away for sizing, styling and care advice."
+      },
+      "showcase": {
+        "heading": "New Collections",
+        "cta": "Shop Now",
+        "placeholder_label": "The Collection"
+      },
+      "statement": {
+        "default_text": "Timeless pieces,\ncrafted to be kept\nforever."
+      },
+      "gallery": {
+        "eyebrow": "Follow us",
+        "heading": "Worn by you",
+        "handle": "@yourstore"
+      }
+    },
+    "product_card": {
+      "no_image": "No image",
+      "pre_order": "Pre-order"
+    },
+    "products": {
+      "title": "All Jewelry",
+      "subtitle": "Explore the full collection of hand-finished pieces",
+      "breadcrumb_home": "Home",
+      "breadcrumb_shop": "Shop",
+      "sidebar_categories": "Collections",
+      "sidebar_availability": "Availability",
+      "sidebar_price": "Price",
+      "all_products": "All Jewelry",
+      "availability_all": "All",
+      "availability_in_stock": "In stock",
+      "availability_out_of_stock": "Out of stock",
+      "price_min": "Min",
+      "price_max": "Max",
+      "showing_count": "Showing {{count}} pieces",
+      "sort_newest": "Sort: Newest",
+      "sort_price_asc": "Price: Low to High",
+      "sort_price_desc": "Price: High to Low",
+      "sort_popular": "Most Popular",
+      "empty": "No pieces found. Try different filters.",
+      "loading": "Loading…"
+    },
+    "category": {
+      "collections_sidebar": "Collections",
+      "all_products": "All Jewelry",
+      "empty": "No pieces in this collection yet."
+    },
+    "product_detail": {
+      "tab_description": "Description",
+      "tab_shipping": "Shipping & Returns",
+      "tab_reviews": "Reviews",
+      "reviews_count": "({{count}} reviews)",
+      "in_stock": "In stock — ready to ship",
+      "sold_out": "Sold out",
+      "out_of_stock": "Out of stock",
+      "buy_it_now": "Buy It Now",
+      "free_shipping": "Complimentary shipping on orders over $150",
+      "estimated_delivery": "Estimated delivery: 3–5 business days",
+      "easy_returns": "30-day easy returns",
+      "shipping_tab_body1": "Complimentary insured shipping on all orders over $150. International shipping available at checkout.",
+      "shipping_tab_body2": "30-day returns. If a piece isn't right, return it within 30 days for a full refund.",
+      "shipping_tab_body3": "Orders are prepared within 1–2 business days. You'll receive tracking by email as soon as your piece ships.",
+      "you_may_also_like": "You May Also Like",
+      "not_found_title": "Not Found",
+      "not_found_body": "We couldn't find that piece.",
+      "back_to_shop": "Back to Shop",
+      "save": "Save {{amount}}",
+      "qty_decrease": "Decrease quantity",
+      "qty_increase": "Increase quantity",
+      "pre_order": "Pre-order",
+      "only_left": "Only {{count}} left"
+    },
+    "cart": {
+      "loading": "Loading cart…",
+      "empty_title": "Your cart is empty",
+      "empty_subtitle": "Nothing here yet — discover pieces made to be kept",
+      "start_shopping": "Start Shopping",
+      "title": "Shopping Cart",
+      "clear": "Clear Cart",
+      "remove": "Remove",
+      "each": "each",
+      "subtotal": "Subtotal ({{count}} items)",
+      "shipping": "Shipping",
+      "shipping_calc": "Calculated at checkout",
+      "tax": "Tax",
+      "tax_calc": "Calculated at checkout",
+      "total": "Total",
+      "checkout": "Proceed to Checkout",
+      "continue_shopping": "Continue Shopping"
+    },
+    "footer": {
+      "tagline": "Fine jewelry in recycled gold — designed to be worn daily and treasured for decades.",
+      "col_about": "About",
+      "col_collections": "Collections",
+      "col_information": "Information",
+      "col_newsletter": "Sign up and save",
+      "all_products": "All Jewelry",
+      "search": "Search",
+      "faqs": "FAQs",
+      "order_tracking": "Order Tracking",
+      "contact": "Contact",
+      "newsletter_subtitle": "Join our list for early access to new collections and private offers.",
+      "email_placeholder": "Your email",
+      "subscribe": "Subscribe",
+      "copyright": "© {{year}} {{name}}. All rights reserved."
+    }
+  }
+}

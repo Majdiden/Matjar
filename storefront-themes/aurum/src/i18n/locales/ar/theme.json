@@ -1,0 +1,155 @@
+{
+  "theme": {
+    "announcement": {
+      "default_text": "شحن مجاني على جميع الطلبات فوق 150$"
+    },
+    "nav": {
+      "shop": "المتجر",
+      "about": "من نحن"
+    },
+    "header": {
+      "search": "بحث",
+      "account": "حسابي",
+      "cart": "السلة"
+    },
+    "hero": {
+      "heading": "مجوهرات صُنعت لترافقك",
+      "subheading": "قطع مشغولة يدوياً من الذهب المعاد تدويره — صُممت لتُلبس كل يوم وتُقتنى مدى الحياة.",
+      "cta": "تسوق الآن"
+    },
+    "section": {
+      "marquee": {
+        "default_items": "ELLE, VOGUE, BAZAAR, FORBES, GRAZIA",
+        "aria_label": "كما ظهرنا في"
+      },
+      "spotlight": {
+        "eyebrow": "المختارات",
+        "heading": "قطعة واحدة، وطرق لا تنتهي لارتدائها"
+      },
+      "collection_tabs": {
+        "heading": "تسوقي حسب التشكيلة",
+        "empty": "لا توجد منتجات في هذه التشكيلة بعد."
+      },
+      "editorial": {
+        "heading": "تُصاغ بتأنٍ، وتُلبس إلى الأبد",
+        "body": "تبدأ كل قطعة كنموذج شمعي منحوت يدوياً، ثم تُسبك وتُصقل وتُنهى في مشغلنا. لا مواسم ولا صيحات — فقط قطع تدوم أطول منهما."
+      },
+      "product_rail": {
+        "heading": "أحدث المجوهرات",
+        "view_all": "عرض الكل"
+      },
+      "trust": {
+        "heading": "التزامنا هو ثقتك",
+        "returns_title": "إرجاع خلال 30 يوماً",
+        "returns_text": "غيّري رأيك وأنتِ في المنزل. استرداد كامل خلال ثلاثين يوماً دون أي أسئلة.",
+        "shipping_title": "شحن عالمي مؤمَّن",
+        "shipping_text": "كل طلب يُشحن متتبَّعاً ومؤمَّناً وبتغليف أنيق، أينما كنتِ.",
+        "support_title": "مستشارون شخصيون",
+        "support_text": "خبراء المجوهرات لدينا على بُعد مكالمة لنصائح المقاسات والتنسيق والعناية."
+      },
+      "showcase": {
+        "heading": "تشكيلات جديدة",
+        "cta": "تسوق الآن",
+        "placeholder_label": "التشكيلة"
+      },
+      "statement": {
+        "default_text": "قطع خالدة،\nصيغت لتبقى\nإلى الأبد."
+      },
+      "gallery": {
+        "eyebrow": "تابعونا",
+        "heading": "بلمستكم",
+        "handle": "@yourstore"
+      }
+    },
+    "product_card": {
+      "no_image": "بدون صورة",
+      "pre_order": "طلب مسبق"
+    },
+    "products": {
+      "title": "جميع المجوهرات",
+      "subtitle": "استكشفي التشكيلة الكاملة من القطع المشغولة يدوياً",
+      "breadcrumb_home": "الرئيسية",
+      "breadcrumb_shop": "المتجر",
+      "sidebar_categories": "التشكيلات",
+      "sidebar_availability": "التوفر",
+      "sidebar_price": "السعر",
+      "all_products": "جميع المجوهرات",
+      "availability_all": "الكل",
+      "availability_in_stock": "متوفر",
+      "availability_out_of_stock": "غير متوفر",
+      "price_min": "الأدنى",
+      "price_max": "الأعلى",
+      "showing_count": "عرض {{count}} قطعة",
+      "sort_newest": "الترتيب: الأحدث",
+      "sort_price_asc": "السعر: من الأقل إلى الأعلى",
+      "sort_price_desc": "السعر: من الأعلى إلى الأقل",
+      "sort_popular": "الأكثر رواجاً",
+      "empty": "لم نجد أي قطع. جربي فلاتر مختلفة.",
+      "loading": "جارٍ التحميل…"
+    },
+    "category": {
+      "collections_sidebar": "التشكيلات",
+      "all_products": "جميع المجوهرات",
+      "empty": "لا توجد قطع في هذه التشكيلة بعد."
+    },
+    "product_detail": {
+      "tab_description": "الوصف",
+      "tab_shipping": "الشحن والإرجاع",
+      "tab_reviews": "التقييمات",
+      "reviews_count": "({{count}} تقييماً)",
+      "in_stock": "متوفر — جاهز للشحن",
+      "sold_out": "نفدت الكمية",
+      "out_of_stock": "غير متوفر",
+      "buy_it_now": "اشترِ الآن",
+      "free_shipping": "شحن مجاني على الطلبات فوق 150$",
+      "estimated_delivery": "التوصيل المتوقع: 3–5 أيام عمل",
+      "easy_returns": "إرجاع سهل خلال 30 يوماً",
+      "shipping_tab_body1": "شحن مؤمَّن مجاني على جميع الطلبات فوق 150$. الشحن الدولي متاح عند إتمام الطلب.",
+      "shipping_tab_body2": "إرجاع خلال 30 يوماً. إذا لم تكن القطعة مناسبة، أعيديها خلال 30 يوماً لاسترداد كامل المبلغ.",
+      "shipping_tab_body3": "تُجهَّز الطلبات خلال 1–2 يوم عمل. ستصلك معلومات التتبع بالبريد الإلكتروني فور شحن قطعتك.",
+      "you_may_also_like": "قد يعجبك أيضاً",
+      "not_found_title": "غير موجود",
+      "not_found_body": "لم نتمكن من العثور على هذه القطعة.",
+      "back_to_shop": "العودة إلى المتجر",
+      "save": "وفري {{amount}}",
+      "qty_decrease": "تقليل الكمية",
+      "qty_increase": "زيادة الكمية",
+      "pre_order": "طلب مسبق",
+      "only_left": "بقي {{count}} فقط"
+    },
+    "cart": {
+      "loading": "جارٍ تحميل السلة…",
+      "empty_title": "سلتك فارغة",
+      "empty_subtitle": "لا شيء هنا بعد — اكتشفي قطعاً صُنعت لتبقى",
+      "start_shopping": "ابدئي التسوق",
+      "title": "سلة التسوق",
+      "clear": "إفراغ السلة",
+      "remove": "إزالة",
+      "each": "للقطعة",
+      "subtotal": "المجموع الفرعي ({{count}} قطعة)",
+      "shipping": "الشحن",
+      "shipping_calc": "يُحسب عند إتمام الطلب",
+      "tax": "الضريبة",
+      "tax_calc": "تُحسب عند إتمام الطلب",
+      "total": "الإجمالي",
+      "checkout": "إتمام الطلب",
+      "continue_shopping": "مواصلة التسوق"
+    },
+    "footer": {
+      "tagline": "مجوهرات راقية من الذهب المعاد تدويره — صُممت لتُلبس يومياً وتُقتنى لعقود.",
+      "col_about": "من نحن",
+      "col_collections": "التشكيلات",
+      "col_information": "معلومات",
+      "col_newsletter": "اشتركي ووفري",
+      "all_products": "جميع المجوهرات",
+      "search": "بحث",
+      "faqs": "الأسئلة الشائعة",
+      "order_tracking": "تتبع الطلب",
+      "contact": "تواصل معنا",
+      "newsletter_subtitle": "انضمي إلى قائمتنا للوصول المبكر إلى التشكيلات الجديدة والعروض الخاصة.",
+      "email_placeholder": "بريدك الإلكتروني",
+      "subscribe": "اشتراك",
+      "copyright": "© {{year}} {{name}}. جميع الحقوق محفوظة."
+    }
+  }
+}
