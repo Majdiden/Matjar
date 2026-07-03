@@ -2,6 +2,7 @@ import {
   createOrderService,
   getOrderService,
   getOrdersService,
+  getOrderStatsService,
   updateOrderStatusService,
   updateOrderTrackingService,
   cancelOrderService,
@@ -84,11 +85,27 @@ export const getOrderController = asyncHandler(async (req, res) => {
 /**
  * Get all orders (filtered)
  */
-export const getOrdersController = asyncHandler(async (req, res) => {
-  const { page, limit, sort, status, search, paymentStatus, from, to } = req.query;
+// Sort keys the list endpoint accepts (audit 5.4.2). Anything else is
+// dropped so callers can't sort on unindexed/internal fields; the
+// repository then falls back to its "-createdAt" default.
+const ORDER_SORT_WHITELIST = new Set([
+  "createdAt",
+  "-createdAt",
+  "totalAmount",
+  "-totalAmount",
+]);
+
+// Shared query-string → Mongo filter mapping for the order list and the
+// stats endpoint (audit 5.4) so both always agree on what "the current
+// filter window" means.
+const buildOrderListFilters = (query) => {
+  const { status, search, paymentStatus, fulfillmentStatus, tag, from, to } = query;
   const filters = {};
   if (status) filters.status = status;
   if (paymentStatus) filters.paymentStatus = paymentStatus;
+  if (fulfillmentStatus) filters.fulfillmentStatus = fulfillmentStatus;
+  // `tags` is a string array — a plain equality match means "array contains".
+  if (tag) filters.tags = String(tag).trim();
   if (from || to) {
     filters.createdAt = {};
     if (from) filters.createdAt.$gte = new Date(from);
@@ -106,10 +123,16 @@ export const getOrdersController = asyncHandler(async (req, res) => {
       { "shippingAddress.phone": rx },
     ];
   }
+  return filters;
+};
+
+export const getOrdersController = asyncHandler(async (req, res) => {
+  const { page, limit, sort } = req.query;
+  const filters = buildOrderListFilters(req.query);
   const options = {
     page: parseInt(page) || 1,
     limit: parseInt(limit) || 10,
-    sort,
+    sort: ORDER_SORT_WHITELIST.has(sort) ? sort : undefined,
   };
 
   const permissions = await getEffectivePermissions(req);
@@ -120,6 +143,18 @@ export const getOrdersController = asyncHandler(async (req, res) => {
     req.user.userId,
     permissions
   );
+  res.status(result.statusCode).json(result);
+});
+
+/**
+ * Order-list stats (audit 5.4.3) — single aggregation, admin/staff only.
+ * Accepts the same filter query params as the list endpoint; the 30-day
+ * comparison figures ignore filters (fixed rolling windows).
+ */
+export const getOrderStatsController = asyncHandler(async (req, res) => {
+  const filters = buildOrderListFilters(req.query);
+  const permissions = await getEffectivePermissions(req);
+  const result = await getOrderStatsService(req.models, filters, permissions);
   res.status(result.statusCode).json(result);
 });
 

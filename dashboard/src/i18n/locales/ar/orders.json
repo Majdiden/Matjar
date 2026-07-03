@@ -39,7 +39,20 @@
       "delivered": "تم التسليم",
       "completed_orders": "الطلبات المكتملة",
       "total_revenue": "إجمالي الإيرادات",
-      "gross_sales": "إجمالي المبيعات"
+      "gross_sales": "إجمالي المبيعات",
+      "filtered_results": "نتائج مصفّاة",
+      "trend_30d": "الاتجاه: آخر 30 يوماً مقابل الـ 30 السابقة"
+    },
+    "filters": {
+      "title": "تصفية الطلبات",
+      "from": "من تاريخ",
+      "to": "إلى تاريخ",
+      "payment_status": "حالة الدفع",
+      "fulfillment_status": "حالة التنفيذ",
+      "tag": "الوسم",
+      "tag_placeholder": "مثال: VIP",
+      "any": "الكل",
+      "active_count": "{{count}} نشطة"
     },
     "empty": {
       "title": "لا توجد طلبات بعد",
@@ -106,8 +119,8 @@
       "record_manual_refund": "تسجيل استرداد يدوي",
       "mark_paid": "تحديد كمدفوع",
       "mark_failed": "تحديد كفاشل",
-      "capture": "تحصيل",
-      "void": "إلغاء الدفع",
+      "capture": "تحصيل الدفعة",
+      "void": "إلغاء التفويض",
       "cancel": "إلغاء الطلب",
       "mark_fulfilled": "تحديد كمنفّذ",
       "mark_delivered": "تحديد كمُسلَّم",
@@ -130,9 +143,6 @@
       "cannot_be_undone": "لا يمكن التراجع عن هذا الإجراء.",
       "change_status": "تغيير الحالة",
       "no_permission": "تفتقر إلى صلاحية orders.write",
-      "capture": "تحصيل الدفعة",
-      "void": "إلغاء التفويض",
-      "mark_failed": "تحديد كفاشل",
       "fulfill_remaining": "تنفيذ المتبقي"
     },
     "item": {

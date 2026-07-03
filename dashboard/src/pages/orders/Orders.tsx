@@ -11,7 +11,10 @@ import { Skeleton } from '../../components/ui/skeleton';
 import { FilterPills } from '../../components/ui/filter-pills';
 import { PageHeader } from '../../components/PageHeader';
 import { StatCard } from '../../components/StatCard';
-import { DataTable, type DataTableColumn } from '../../components/DataTable';
+import { DataTable, type DataTableColumn, type DataTableSortState } from '../../components/DataTable';
+import type { StatCardDelta } from '../../components/StatCard';
+import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
+import { Select } from '../../components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,6 +49,79 @@ type OrdersListParams = {
   limit?: number;
   status?: string;
   search?: string;
+  paymentStatus?: string;
+  fulfillmentStatus?: string;
+  tag?: string;
+  from?: string;
+  to?: string;
+  sort?: string;
+};
+
+// Popover filter state (audit 5.4.1). Dates are yyyy-mm-dd strings from
+// <input type="date">; empty string means "not set".
+type OrderListFilters = {
+  from: string;
+  to: string;
+  paymentStatus: string;
+  fulfillmentStatus: string;
+  tag: string;
+};
+
+const EMPTY_FILTERS: OrderListFilters = {
+  from: '',
+  to: '',
+  paymentStatus: '',
+  fulfillmentStatus: '',
+  tag: '',
+};
+
+// Backend enums (schemas/store/order.js) — labels come from common:status.*.
+const PAYMENT_STATUS_OPTIONS = [
+  'Not Paid', 'Authorized', 'Paid', 'Partially Refunded', 'Refunded', 'Voided', 'Failed',
+] as const;
+const FULFILLMENT_STATUS_OPTIONS = [
+  'Unfulfilled', 'Partially Fulfilled', 'Fulfilled', 'Returned', 'Cancelled',
+] as const;
+
+// GET /orders/stats response (audit 5.4.3). Summary figures respect the
+// active filters; the 30d/prev30d pairs are fixed rolling windows.
+type OrderStats = {
+  totalOrders: number;
+  pending: number;
+  delivered: number;
+  totalRevenue: number;
+  orders30d: number;
+  ordersPrev30d: number;
+  revenue30d: number;
+  revenuePrev30d: number;
+};
+
+const EMPTY_STATS: OrderStats = {
+  totalOrders: 0, pending: 0, delivered: 0, totalRevenue: 0,
+  orders30d: 0, ordersPrev30d: 0, revenue30d: 0, revenuePrev30d: 0,
+};
+
+// Translate popover filters into query params. `to` is widened to the end
+// of the selected day so the range is inclusive of its last date.
+const filtersToParams = (f: OrderListFilters): OrdersListParams => {
+  const params: OrdersListParams = {};
+  if (f.from) params.from = f.from;
+  if (f.to) params.to = `${f.to}T23:59:59.999`;
+  if (f.paymentStatus) params.paymentStatus = f.paymentStatus;
+  if (f.fulfillmentStatus) params.fulfillmentStatus = f.fulfillmentStatus;
+  if (f.tag.trim()) params.tag = f.tag.trim();
+  return params;
+};
+
+// "+12%" delta chip vs the previous period; hidden when there is no
+// previous-period baseline to compare against.
+const pctDelta = (current: number, previous: number): StatCardDelta | undefined => {
+  if (previous <= 0) return undefined;
+  const pct = Math.round(((current - previous) / previous) * 100);
+  return {
+    label: `${pct > 0 ? '+' : ''}${pct}%`,
+    trend: pct > 0 ? 'up' : pct < 0 ? 'down' : 'neutral',
+  };
 };
 
 // Stored order numbers already include a leading "#" (e.g. "#1042"), so we
@@ -102,7 +178,13 @@ export const Orders: React.FC = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<StatusTab>('');
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
-  const [stats, setStats] = useState({ total: 0, pending: 0, revenue: 0, delivered: 0 });
+  const [stats, setStats] = useState<OrderStats>(EMPTY_STATS);
+  // Applied popover filters vs the in-popover draft being edited.
+  const [filters, setFilters] = useState<OrderListFilters>(EMPTY_FILTERS);
+  const [draftFilters, setDraftFilters] = useState<OrderListFilters>(EMPTY_FILTERS);
+  const [filterOpen, setFilterOpen] = useState(false);
+  // Server-side sort; newest-first matches the backend default.
+  const [sort, setSort] = useState<DataTableSortState>({ key: 'createdAt', dir: 'desc' });
   // Table is the default view (audit 3.8.5) — cards remain opt-in and the
   // stored preference still wins.
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
@@ -160,23 +242,21 @@ export const Orders: React.FC = () => {
     toast.success(t('orders:toast.view_set_default', { view: viewMode === 'cards' ? t('orders:list.view.cards') : t('orders:list.view.table') }));
   };
 
-  // loadOrders / loadStats are stable closures over setters — redeclaring
-  // them on each render would cause the effect to loop. We intentionally
-  // only re-fetch on the paging/filter inputs.
+  // loadOrders / loadStats close over current state — the effects
+  // intentionally only re-fetch on the paging/filter/sort inputs.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { loadOrders(); }, [page, tab, search]);
-  useEffect(() => { loadStats(); }, []);
+  useEffect(() => { loadOrders(); }, [page, tab, search, filters, sort]);
+  // Stats are scoped to the popover filters (the "filter window") but not
+  // to the tab/search — the cards summarise the filtered period as a whole.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadStats(); }, [filters]);
 
   const loadStats = async () => {
     try {
-      const res = await api.orders.getAll({ page: 1, limit: 1000 }) as PaginatedResponse<Order>;
-      const all: Order[] = (res.responseObject.orders as Order[] | undefined) || [];
-      setStats({
-        total: res.responseObject.pagination?.total || all.length,
-        pending: all.filter((o) => o.status === 'Pending' || o.status === 'Processing').length,
-        revenue: all.reduce((sum, o) => sum + (o.totalAmount || 0), 0),
-        delivered: all.filter((o) => o.status === 'Delivered').length,
-      });
+      // Single server-side aggregation (audit 5.4.3) — replaces the old
+      // 1000-row client-side reduce.
+      const res = await api.orders.getStats(filtersToParams(filters)) as { responseObject: OrderStats };
+      setStats({ ...EMPTY_STATS, ...res.responseObject });
     } catch {
       // Non-fatal — stats surface as zeroes if the endpoint is offline.
     }
@@ -185,9 +265,10 @@ export const Orders: React.FC = () => {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const params: OrdersListParams = { page, limit: 20 };
+      const params: OrdersListParams = { page, limit: 20, ...filtersToParams(filters) };
       if (tab) params.status = tab;
       if (search) params.search = search;
+      params.sort = `${sort.dir === 'desc' ? '-' : ''}${sort.key}`;
       const response = await api.orders.getAll(params) as PaginatedResponse<Order>;
       setOrders((response.responseObject.orders as Order[] | undefined) || []);
       if (response.responseObject.pagination) setPagination(response.responseObject.pagination);
@@ -240,15 +321,41 @@ export const Orders: React.FC = () => {
     }
   };
 
-  const statCards = useMemo(
-    () => [
-      { label: t('orders:list.stat.total_orders'), value: stats.total.toLocaleString(), icon: ShoppingCart, description: t('orders:list.stat.all_time') },
-      { label: t('orders:list.stat.pending'), value: stats.pending.toLocaleString(), icon: Clock, description: t('orders:list.stat.awaiting_fulfillment') },
-      { label: t('orders:list.stat.delivered'), value: stats.delivered.toLocaleString(), icon: CheckCircle2, description: t('orders:list.stat.completed_orders') },
-      { label: t('orders:list.stat.total_revenue'), value: formatPrice(stats.revenue), icon: DollarSign, description: t('orders:list.stat.gross_sales') },
-    ],
-    [stats, t]
-  );
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  const hasActiveFilters = activeFilterCount > 0;
+
+  const applyFilters = () => {
+    setFilters(draftFilters);
+    setPage(1);
+    setFilterOpen(false);
+  };
+  const resetFilters = () => {
+    setDraftFilters(EMPTY_FILTERS);
+    setFilters(EMPTY_FILTERS);
+    setPage(1);
+    setFilterOpen(false);
+  };
+
+  // Every card carries an honest time-frame label (audit 3.9.9): "All time"
+  // when unfiltered, "Filtered results" when the popover filters narrow the
+  // window. Delta chips compare the last 30 days to the prior 30 and are
+  // only shown unfiltered (they always describe fixed windows, so pairing
+  // them with a filtered value would mislead).
+  const statCards = useMemo(() => {
+    const timeframe = hasActiveFilters
+      ? t('orders:list.stat.filtered_results')
+      : t('orders:list.stat.all_time');
+    const ordersDelta = hasActiveFilters ? undefined : pctDelta(stats.orders30d, stats.ordersPrev30d);
+    const revenueDelta = hasActiveFilters ? undefined : pctDelta(stats.revenue30d, stats.revenuePrev30d);
+    const withTrend = (base: string, delta?: StatCardDelta) =>
+      delta ? `${base} · ${t('orders:list.stat.trend_30d')}` : base;
+    return [
+      { label: t('orders:list.stat.total_orders'), value: stats.totalOrders.toLocaleString(), icon: ShoppingCart, delta: ordersDelta, description: withTrend(timeframe, ordersDelta) },
+      { label: t('orders:list.stat.pending'), value: stats.pending.toLocaleString(), icon: Clock, delta: undefined, description: `${t('orders:list.stat.awaiting_fulfillment')} · ${timeframe}` },
+      { label: t('orders:list.stat.delivered'), value: stats.delivered.toLocaleString(), icon: CheckCircle2, delta: undefined, description: `${t('orders:list.stat.completed_orders')} · ${timeframe}` },
+      { label: t('orders:list.stat.total_revenue'), value: formatPrice(stats.totalRevenue), icon: DollarSign, delta: revenueDelta, description: withTrend(`${t('orders:list.stat.gross_sales')} · ${timeframe}`, revenueDelta) },
+    ];
+  }, [stats, hasActiveFilters, t]);
 
   const tableColumns: DataTableColumn<Order>[] = [
     {
@@ -286,6 +393,7 @@ export const Orders: React.FC = () => {
     {
       id: 'date',
       headerKey: 'orders:list.column.date',
+      sortKey: 'createdAt',
       cellClassName: 'text-sm text-muted-foreground whitespace-nowrap',
       cell: (order) => formatDate(order.createdAt),
     },
@@ -317,6 +425,7 @@ export const Orders: React.FC = () => {
     {
       id: 'total',
       headerKey: 'orders:list.column.total',
+      sortKey: 'totalAmount',
       align: 'end',
       cellClassName: 'font-semibold tabular-nums',
       cell: (order) => formatPrice(order.totalAmount),
@@ -376,7 +485,7 @@ export const Orders: React.FC = () => {
       {/* Stat strip */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statCards.map((s) => (
-          <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} description={s.description} />
+          <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} delta={s.delta} description={s.description} />
         ))}
       </div>
 
@@ -398,9 +507,93 @@ export const Orders: React.FC = () => {
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
-        <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 me-2" /> {t('common:action.filter')}
-        </Button>
+        <Popover
+          open={filterOpen}
+          onOpenChange={(open) => {
+            setFilterOpen(open);
+            if (open) setDraftFilters(filters); // seed the draft from what's applied
+          }}
+        >
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Filter className="h-4 w-4 me-2" /> {t('common:action.filter')}
+              {activeFilterCount > 0 && (
+                <Badge variant="secondary" className="ms-2 h-5 px-1.5 text-[10px]" aria-label={t('orders:list.filters.active_count', { count: activeFilterCount })}>
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-80 space-y-3">
+            <p className="text-sm font-semibold">{t('orders:list.filters.title')}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="orders-filter-from">
+                  {t('orders:list.filters.from')}
+                </label>
+                <Input
+                  id="orders-filter-from"
+                  type="date"
+                  className="h-9"
+                  value={draftFilters.from}
+                  onChange={(e) => setDraftFilters((f) => ({ ...f, from: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="orders-filter-to">
+                  {t('orders:list.filters.to')}
+                </label>
+                <Input
+                  id="orders-filter-to"
+                  type="date"
+                  className="h-9"
+                  value={draftFilters.to}
+                  onChange={(e) => setDraftFilters((f) => ({ ...f, to: e.target.value }))}
+                />
+              </div>
+            </div>
+            <Select
+              label={t('orders:list.filters.payment_status')}
+              className="h-9"
+              value={draftFilters.paymentStatus}
+              onValueChange={(v) => setDraftFilters((f) => ({ ...f, paymentStatus: v }))}
+              options={[
+                { value: '', label: t('orders:list.filters.any') },
+                ...PAYMENT_STATUS_OPTIONS.map((s) => ({ value: s, label: t(`common:status.${s}`, { defaultValue: s }) })),
+              ]}
+            />
+            <Select
+              label={t('orders:list.filters.fulfillment_status')}
+              className="h-9"
+              value={draftFilters.fulfillmentStatus}
+              onValueChange={(v) => setDraftFilters((f) => ({ ...f, fulfillmentStatus: v }))}
+              options={[
+                { value: '', label: t('orders:list.filters.any') },
+                ...FULFILLMENT_STATUS_OPTIONS.map((s) => ({ value: s, label: t(`common:status.${s}`, { defaultValue: s }) })),
+              ]}
+            />
+            <div>
+              <label className="block text-sm font-medium mb-2" htmlFor="orders-filter-tag">
+                {t('orders:list.filters.tag')}
+              </label>
+              <Input
+                id="orders-filter-tag"
+                className="h-9"
+                placeholder={t('orders:list.filters.tag_placeholder')}
+                value={draftFilters.tag}
+                onChange={(e) => setDraftFilters((f) => ({ ...f, tag: e.target.value }))}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="ghost" size="sm" onClick={resetFilters}>
+                {t('common:action.reset')}
+              </Button>
+              <Button size="sm" onClick={applyFilters}>
+                {t('common:action.apply')}
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
         <div className="ms-auto flex items-center gap-2">
           <div className="inline-flex rounded-md border bg-background p-0.5">
             <button
@@ -474,10 +667,10 @@ export const Orders: React.FC = () => {
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold">
-              {tab || search ? t('orders:list.empty.filtered_title') : t('orders:list.empty.title')}
+              {tab || search || hasActiveFilters ? t('orders:list.empty.filtered_title') : t('orders:list.empty.title')}
             </h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-              {tab || search
+              {tab || search || hasActiveFilters
                 ? t('orders:list.empty.filtered_description')
                 : t('orders:list.empty.description')}
             </p>
@@ -493,6 +686,8 @@ export const Orders: React.FC = () => {
           onSelectedChange={setSelected}
           pagination={{ ...pagination, page }}
           onPageChange={setPage}
+          sort={sort}
+          onSortChange={(next) => { setSort(next); setPage(1); }}
         />
       ) : (
         <div className="space-y-2">

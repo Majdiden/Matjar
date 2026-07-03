@@ -286,7 +286,29 @@ export const api = {
       page?: number;
       limit?: number;
       status?: string;
+      search?: string;
+      paymentStatus?: string;
+      fulfillmentStatus?: string;
+      tag?: string;
+      from?: string;
+      to?: string;
+      /** Whitelisted server-side sort: createdAt | -createdAt | totalAmount | -totalAmount. */
+      sort?: string;
     }) => api.get('/orders', { params }),
+
+    // Single-aggregation list stats (audit 5.4.3). Summary figures respect
+    // the same filter params as getAll; the 30-day comparison figures
+    // (orders30d/ordersPrev30d/revenue30d/revenuePrev30d) are fixed rolling
+    // windows and ignore filters. Draft orders are excluded server-side.
+    getStats: (params?: {
+      status?: string;
+      search?: string;
+      paymentStatus?: string;
+      fulfillmentStatus?: string;
+      tag?: string;
+      from?: string;
+      to?: string;
+    }) => api.get('/orders/stats', { params }),
 
     getById: (id: string) => api.get(`/orders/${id}`),
 

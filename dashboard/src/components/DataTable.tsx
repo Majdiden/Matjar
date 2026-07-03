@@ -6,6 +6,7 @@ import {
 } from './ui/table';
 import { Skeleton } from './ui/skeleton';
 import { Button } from './ui/button';
+import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 // Generic typed table over the ui/table primitives (audit 3.1.2).
@@ -30,6 +31,14 @@ const hideClass: Record<DataTableBreakpoint, string> = {
   xl: 'hidden xl:table-cell',
 };
 
+export type DataTableSortDir = 'asc' | 'desc';
+
+export interface DataTableSortState {
+  /** Matches a column's `sortKey` (usually the backend field name). */
+  key: string;
+  dir: DataTableSortDir;
+}
+
 export interface DataTableColumn<T> {
   id: string;
   /** i18n key for the header label (may include a namespace, e.g. "orders:list.column.order"). */
@@ -42,6 +51,12 @@ export interface DataTableColumn<T> {
   headClassName?: string;
   cellClassName?: string | ((row: T) => string | undefined);
   cell: (row: T) => React.ReactNode;
+  /**
+   * Server-side sort field for this column (e.g. "createdAt"). When set —
+   * and the table received `onSortChange` — the header becomes a click
+   * target that cycles asc/desc for this key.
+   */
+  sortKey?: string;
 }
 
 export interface DataTablePaginationState {
@@ -70,6 +85,9 @@ export interface DataTableProps<T> {
   /** Integrated pagination footer (rendered when pages > 1). */
   pagination?: DataTablePaginationState;
   onPageChange?: (page: number) => void;
+  /** Current server-side sort; pair with `onSortChange` + column `sortKey`. */
+  sort?: DataTableSortState;
+  onSortChange?: (next: DataTableSortState) => void;
   className?: string;
 }
 
@@ -87,6 +105,8 @@ export function DataTable<T>({
   empty,
   pagination,
   onPageChange,
+  sort,
+  onSortChange,
   className,
 }: DataTableProps<T>) {
   const { t } = useTranslation('common');
@@ -107,6 +127,37 @@ export function DataTable<T>({
 
   const colClasses = (col: DataTableColumn<T>) =>
     cn(col.align && alignClass[col.align], col.hideBelow && hideClass[col.hideBelow]);
+
+  // Click cycles: inactive → asc → desc → asc … (server-side sort only;
+  // the table never reorders rows itself).
+  const handleSortClick = (sortKey: string) => {
+    if (!onSortChange) return;
+    const nextDir: DataTableSortDir =
+      sort?.key === sortKey && sort.dir === 'asc' ? 'desc' : 'asc';
+    onSortChange({ key: sortKey, dir: nextDir });
+  };
+
+  const renderHeaderLabel = (col: DataTableColumn<T>) =>
+    col.header ?? (col.headerKey ? t(col.headerKey as Parameters<typeof t>[0]) : null);
+
+  const renderHeader = (col: DataTableColumn<T>) => {
+    if (!col.sortKey || !onSortChange) return renderHeaderLabel(col);
+    const isActive = sort?.key === col.sortKey;
+    const SortIcon = isActive ? (sort!.dir === 'asc' ? ArrowUp : ArrowDown) : ChevronsUpDown;
+    return (
+      <button
+        type="button"
+        onClick={() => handleSortClick(col.sortKey!)}
+        className={cn(
+          'inline-flex items-center gap-1 -mx-1 px-1 rounded hover:text-foreground transition-colors',
+          isActive && 'text-foreground',
+        )}
+      >
+        {renderHeaderLabel(col)}
+        <SortIcon className={cn('h-3.5 w-3.5', !isActive && 'opacity-50')} />
+      </button>
+    );
+  };
 
   if (!loading && rows.length === 0 && empty) {
     return <>{empty}</>;
@@ -131,8 +182,16 @@ export function DataTable<T>({
                 </TableHead>
               )}
               {columns.map((col) => (
-                <TableHead key={col.id} className={cn(colClasses(col), col.headClassName)}>
-                  {col.header ?? (col.headerKey ? t(col.headerKey as Parameters<typeof t>[0]) : null)}
+                <TableHead
+                  key={col.id}
+                  className={cn(colClasses(col), col.headClassName)}
+                  aria-sort={
+                    col.sortKey && sort?.key === col.sortKey
+                      ? sort.dir === 'asc' ? 'ascending' : 'descending'
+                      : undefined
+                  }
+                >
+                  {renderHeader(col)}
                 </TableHead>
               ))}
             </TableRow>

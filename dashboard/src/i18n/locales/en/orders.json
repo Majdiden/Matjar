@@ -39,7 +39,20 @@
       "delivered": "Delivered",
       "completed_orders": "Completed orders",
       "total_revenue": "Total Revenue",
-      "gross_sales": "Gross sales"
+      "gross_sales": "Gross sales",
+      "filtered_results": "Filtered results",
+      "trend_30d": "trend: last 30 days vs prior 30"
+    },
+    "filters": {
+      "title": "Filter orders",
+      "from": "From date",
+      "to": "To date",
+      "payment_status": "Payment status",
+      "fulfillment_status": "Fulfillment status",
+      "tag": "Tag",
+      "tag_placeholder": "e.g. VIP",
+      "any": "Any",
+      "active_count": "{{count}} active"
     },
     "empty": {
       "title": "No orders yet",

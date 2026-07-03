@@ -3,6 +3,7 @@ import {
   createOrderController,
   getOrderController,
   getOrdersController,
+  getOrderStatsController,
   updateOrderStatusController,
   updateOrderTrackingController,
   cancelOrderController,
@@ -41,6 +42,10 @@ orderRoutes.use(authenticate);
 // Customer routes — checkout path throttled against quote/order spam.
 orderRoutes.post("/", checkoutLimiter, checkPlanLimit("orders"), validate(createOrderSchema), createOrderController);
 orderRoutes.get("/my-orders", orderLookupLimiter, getUserOrdersController);
+
+// Order-list stats (audit 5.4.3) — MUST stay above "/:id" so the literal
+// "stats" segment isn't captured as an order id.
+orderRoutes.get("/stats", requirePermission("orders.read"), getOrderStatsController);
 
 orderRoutes.get("/:id", orderLookupLimiter, getOrderController);
 orderRoutes.post("/:id/cancel", cancelOrderController);

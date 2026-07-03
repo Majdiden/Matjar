@@ -4,6 +4,7 @@ import {
   createOrderRepo,
   getOrderRepo,
   getOrdersRepo,
+  getOrderStatsRepo,
   updateOrderRepo,
   updateOrderStatusRepo,
   getOrdersByUserRepo,
@@ -1071,6 +1072,33 @@ export const getOrdersService = async (models, filters, options, userId, permiss
     statusCode: 200,
     message: "Orders retrieved successfully",
     responseObject: { orders: result.orders.map(formatOrderForDashboard), pagination: result.pagination },
+  };
+};
+
+/**
+ * Order-list stats (audit 5.4.3). Admin/staff only — the aggregation runs
+ * over the whole tenant collection, so unlike getOrdersService we do NOT
+ * fall back to a per-user scope (aggregate() would also skip Mongoose's
+ * string→ObjectId cast on a `user` filter).
+ *
+ * Response shape (documented for the 3.7 dashboard consumer too):
+ *   totalOrders / pending / delivered / totalRevenue — respect `filters`
+ *   orders30d / ordersPrev30d / revenue30d / revenuePrev30d — fixed rolling
+ *     30-day windows relative to now, independent of `filters`
+ *   windowDays, generatedAt — window metadata
+ * "Draft" orders are excluded from every figure.
+ */
+export const getOrderStatsService = async (models, filters, permissions) => {
+  if (!canReadAllOrders(permissions)) {
+    throw new APIError("You do not have permission to view order stats", 403);
+  }
+
+  const stats = await getOrderStatsRepo(models, { filters });
+  return {
+    success: true,
+    statusCode: 200,
+    message: "Order stats retrieved successfully",
+    responseObject: stats,
   };
 };
 

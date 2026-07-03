@@ -35,6 +35,75 @@ export const getOrdersRepo = async (models, filters = {}, options = {}) => {
   };
 };
 
+// Milliseconds in the 30-day comparison window used by the stats endpoint.
+const STATS_COMPARISON_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+
+/**
+ * Order-list stats in a single aggregation (audit 5.4.3).
+ *
+ * - `summary` respects the caller's list filters (date window, payment /
+ *   fulfillment status, tag, search) so the stat cards can mirror the
+ *   filtered list.
+ * - `current30` / `previous30` are FIXED rolling windows relative to `now`
+ *   and deliberately ignore the list filters — they feed the
+ *   "+12% vs previous 30 days" deltas (audit 3.7) which must stay
+ *   comparable regardless of what the list is filtered to.
+ * - "Draft" is excluded from every figure defensively: the order status
+ *   enum is about to gain a Draft state (concurrent work item) and drafts
+ *   must never count as orders or revenue.
+ */
+export const getOrderStatsRepo = async (models, { filters = {}, now = new Date() } = {}) => {
+  const current30Start = new Date(now.getTime() - STATS_COMPARISON_WINDOW_MS);
+  const previous30Start = new Date(now.getTime() - 2 * STATS_COMPARISON_WINDOW_MS);
+
+  const revenueExpr = { $sum: { $ifNull: ["$totalAmount", 0] } };
+  const windowGroup = { $group: { _id: null, orders: { $sum: 1 }, revenue: revenueExpr } };
+
+  const [result] = await models.Order.aggregate([
+    { $match: { status: { $ne: "Draft" } } },
+    {
+      $facet: {
+        summary: [
+          ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+          {
+            $group: {
+              _id: null,
+              totalOrders: { $sum: 1 },
+              pending: {
+                $sum: { $cond: [{ $in: ["$status", ["Pending", "Processing"]] }, 1, 0] },
+              },
+              delivered: { $sum: { $cond: [{ $eq: ["$status", "Delivered"] }, 1, 0] } },
+              totalRevenue: revenueExpr,
+            },
+          },
+        ],
+        current30: [{ $match: { createdAt: { $gte: current30Start } } }, windowGroup],
+        previous30: [
+          { $match: { createdAt: { $gte: previous30Start, $lt: current30Start } } },
+          windowGroup,
+        ],
+      },
+    },
+  ]);
+
+  const summary = result?.summary?.[0] || {};
+  const current30 = result?.current30?.[0] || {};
+  const previous30 = result?.previous30?.[0] || {};
+
+  return {
+    totalOrders: summary.totalOrders || 0,
+    pending: summary.pending || 0,
+    delivered: summary.delivered || 0,
+    totalRevenue: summary.totalRevenue || 0,
+    orders30d: current30.orders || 0,
+    ordersPrev30d: previous30.orders || 0,
+    revenue30d: current30.revenue || 0,
+    revenuePrev30d: previous30.revenue || 0,
+    windowDays: 30,
+    generatedAt: now,
+  };
+};
+
 export const updateOrderRepo = async (models, orderId, updateData) => {
   return await models.Order.findByIdAndUpdate(orderId, updateData, {
     new: true,
