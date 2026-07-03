@@ -26,11 +26,7 @@
     },
     "view": {
       "cards": "Cards",
-      "table": "Table",
-      "default": "Default",
-      "set_default": "Set default",
-      "is_default": "This is your default view",
-      "set_as": "Set {{mode}} as default"
+      "table": "Table"
     },
     "stat": {
       "total_orders": "Total Orders",
@@ -427,7 +423,6 @@
     "bulk_marked_plural": "{{count}} orders marked as {{status}}",
     "bulk_update_failed": "{{count}} failed to update",
     "lifecycle_load_failed": "Failed to load order lifecycle",
-    "view_set_default": "{{view}} view set as default",
     "payment_action_updated": "{{label}} — updated",
     "payment_action_failed": "Failed: {{label}}",
     "draft_completed": "Draft completed — order is now pending",

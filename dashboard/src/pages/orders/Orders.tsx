@@ -26,7 +26,7 @@ import {
 import {
   ShoppingCart, MoreHorizontal, Eye, DollarSign, Clock, CheckCircle2,
   Truck, Package as PackageIcon, XCircle, Search, Filter, Download,
-  RefreshCw, GitBranch, LayoutGrid, List, Pin, PinOff, X, FileText, Plus,
+  RefreshCw, GitBranch, LayoutGrid, List, X, FileText, Plus,
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
@@ -189,14 +189,16 @@ export const Orders: React.FC = () => {
   const [sort, setSort] = useState<DataTableSortState>({ key: 'createdAt', dir: 'desc' });
   // Table is the default view (audit 3.8.5) — cards remain opt-in and the
   // stored preference still wins.
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+  // View choice persists automatically on change (audit 3.9.11 — the old
+  // explicit "Default" pin control is gone).
+  const [viewMode, setViewModeState] = useState<ViewMode>(() => {
     if (typeof window === 'undefined') return 'table';
     return (localStorage.getItem(VIEW_PREF_KEY) as ViewMode) || 'table';
   });
-  const [defaultView, setDefaultView] = useState<ViewMode>(() => {
-    if (typeof window === 'undefined') return 'table';
-    return (localStorage.getItem(VIEW_PREF_KEY) as ViewMode) || 'table';
-  });
+  const setViewMode = (mode: ViewMode) => {
+    setViewModeState(mode);
+    localStorage.setItem(VIEW_PREF_KEY, mode);
+  };
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const toggleSelect = (id: string) => {
@@ -238,11 +240,6 @@ export const Orders: React.FC = () => {
     toast.success(all.length === 1 ? t('orders:toast.export_success', { count: all.length }) : t('orders:toast.export_success_plural', { count: all.length }));
   };
 
-  const setAsDefault = () => {
-    localStorage.setItem(VIEW_PREF_KEY, viewMode);
-    setDefaultView(viewMode);
-    toast.success(t('orders:toast.view_set_default', { view: viewMode === 'cards' ? t('orders:list.view.cards') : t('orders:list.view.table') }));
-  };
 
   // loadOrders / loadStats close over current state — the effects
   // intentionally only re-fetch on the paging/filter/sort inputs.
@@ -624,19 +621,6 @@ export const Orders: React.FC = () => {
               <List className="h-3.5 w-3.5" /> {t('orders:list.view.table')}
             </button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={setAsDefault}
-            disabled={viewMode === defaultView}
-            title={viewMode === defaultView ? t('orders:list.view.is_default') : t('orders:list.view.set_as', { mode: viewMode })}
-          >
-            {viewMode === defaultView ? (
-              <><Pin className="h-3.5 w-3.5 me-1.5" /> {t('orders:list.view.default')}</>
-            ) : (
-              <><PinOff className="h-3.5 w-3.5 me-1.5" /> {t('orders:list.view.set_default')}</>
-            )}
-          </Button>
         </div>
       </div>
 

@@ -26,11 +26,7 @@
     },
     "view": {
       "cards": "بطاقات",
-      "table": "جدول",
-      "default": "افتراضي",
-      "set_default": "تعيين افتراضياً",
-      "is_default": "هذا هو العرض الافتراضي",
-      "set_as": "تعيين {{mode}} افتراضياً"
+      "table": "جدول"
     },
     "stat": {
       "total_orders": "إجمالي الطلبات",
@@ -427,7 +423,6 @@
     "bulk_marked_plural": "تم تحديد {{count}} طلبات كـ {{status}}",
     "bulk_update_failed": "فشل تحديث {{count}}",
     "lifecycle_load_failed": "فشل تحميل دورة حياة الطلب",
-    "view_set_default": "تم تعيين عرض {{view}} افتراضياً",
     "payment_action_updated": "{{label}} — تم التحديث",
     "payment_action_failed": "فشل: {{label}}",
     "draft_completed": "اكتملت المسودة — الطلب الآن قيد الانتظار",
