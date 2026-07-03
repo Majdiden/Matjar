@@ -1,19 +1,52 @@
 {
   "title": "Dashboard",
   "subtitle": "Overview of your store performance",
+  "stats": {
+    "last_30_days": "Last 30 days",
+    "all_time": "All time",
+    "vs_prev_30d": "vs previous 30 days"
+  },
   "metric": {
     "revenue": "Revenue",
-    "revenue_description": "Last 30 days",
+    "revenue_description": "Gross sales",
     "orders": "Orders",
-    "orders_description": "Total orders",
+    "orders_description": "Orders placed",
     "products": "Products",
     "products_description": "Active products",
     "customers": "Customers",
     "customers_description": "Registered users"
   },
-  "domain_banner": {
-    "live_at": "Your store is live at",
-    "manage": "Manage"
+  "setup": {
+    "title": "Set up your store",
+    "description": "Finish these steps to start selling",
+    "progress": "{{done}}/{{total}} complete",
+    "bar_label": "Setup: {{done}}/{{total}} complete",
+    "dismiss": "Dismiss setup checklist",
+    "done": "Done",
+    "next_steps": "Next Steps",
+    "next_steps_description": "Finish setting up your store",
+    "step": {
+      "add_product": {
+        "title": "Add your first product",
+        "desc": "Create the first product your customers can buy"
+      },
+      "payments": {
+        "title": "Configure payments",
+        "desc": "Enable at least one way for customers to pay"
+      },
+      "theme": {
+        "title": "Customize your theme",
+        "desc": "Publish the look and feel of your storefront"
+      },
+      "test_order": {
+        "title": "Place a test order",
+        "desc": "Visit your store and check out like a customer"
+      },
+      "domain": {
+        "title": "Connect a domain",
+        "desc": "Use your own domain for better branding"
+      }
+    }
   },
   "section": {
     "recent_orders": {
@@ -34,24 +67,12 @@
       "domain_settings": "Domain Settings",
       "discounts": "Discounts",
       "store_settings": "Store Settings"
-    },
-    "getting_started": {
-      "title": "Getting Started",
-      "description": "Set up your store in a few steps",
-      "step1_title": "Add your first product",
-      "step1_desc": "Start selling by adding products",
-      "step1_label": "Add Now",
-      "step2_title": "Customize your theme",
-      "step2_desc": "Make your store look professional",
-      "step2_label": "Browse Themes",
-      "step3_title": "Set up your domain",
-      "step3_desc": "Use your own domain for better branding",
-      "step3_label": "Configure"
     }
   },
   "add_product": "Add Product",
   "toast": {
-    "load_failed": "Failed to load dashboard data"
+    "load_failed": "Failed to load dashboard data",
+    "link_copied": "Store link copied"
   },
   "starter": {
     "title": "Your store has starter content in draft",

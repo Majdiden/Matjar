@@ -1,13 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent } from '../../../components/ui/card';
-import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
 import { CheckCircle2, Copy, ExternalLink } from 'lucide-react';
 
 // =============================================================================
-// Green live-store banner: big "your store is live at" card with
-// Copy + Visit store buttons. Currently used by the Domains page only,
-// but self-contained so it can be promoted to a shared component.
+// Green live-store banner: "your store is live at" card with Copy +
+// Visit store buttons. Shared between the Domains page and the dashboard
+// home (audit 3.7.3). The dashboard passes `manageTo` to add a demoted
+// text link to domain settings; the Domains page IS domain settings, so
+// it omits the prop.
 // =============================================================================
 
 export interface LiveStoreBannerProps {
@@ -15,11 +18,18 @@ export interface LiveStoreBannerProps {
   hostname: string;
   /** Called with the hostname when the Copy button is pressed. */
   onCopy: (hostname: string) => void;
+  /** Optional route for a demoted "Manage" text link (e.g. "/dashboard/domains"). */
+  manageTo?: string;
 }
+
+/** Storefront URL for a hostname. Local dev hosts have no TLS. */
+export const storefrontUrl = (hostname: string) =>
+  `${hostname.includes('localhost') ? 'http' : 'https'}://${hostname}`;
 
 export const LiveStoreBanner: React.FC<LiveStoreBannerProps> = ({
   hostname,
   onCopy,
+  manageTo,
 }) => {
   const { t } = useTranslation(['domains', 'common']);
 
@@ -49,11 +59,16 @@ export const LiveStoreBanner: React.FC<LiveStoreBannerProps> = ({
             </Button>
             <Button
               size="sm"
-              onClick={() => window.open(`https://${hostname}`, '_blank')}
+              onClick={() => window.open(storefrontUrl(hostname), '_blank')}
             >
               <ExternalLink className="h-3.5 w-3.5 me-1.5" />
               {t('domains:list.hero.visit')}
             </Button>
+            {manageTo && (
+              <Button variant="link" size="sm" className="text-muted-foreground" asChild>
+                <Link to={manageTo}>{t('domains:list.hero.manage')}</Link>
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>

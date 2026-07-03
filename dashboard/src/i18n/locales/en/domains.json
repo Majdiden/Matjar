@@ -6,7 +6,8 @@
     "hero": {
       "live_at": "Your store is live at",
       "copy": "Copy",
-      "visit": "Visit store"
+      "visit": "Visit store",
+      "manage": "Manage"
     },
     "platform": {
       "title": "Free platform address",

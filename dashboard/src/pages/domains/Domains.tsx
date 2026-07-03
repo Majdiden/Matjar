@@ -42,7 +42,7 @@ import { useConfirm } from '../../components/ui/use-confirm';
 import type { DomainRegistryRow, DomainInfoResponse } from './types';
 import { isTransitional, daysUntilExpiry } from './types';
 import { AddDomainDialog } from './components/AddDomainDialog';
-import { LiveStoreBanner } from './components/LiveStoreBanner';
+import { LiveStoreBanner } from '../../components/LiveStoreBanner';
 import { SetupProgress, stepIndex } from './components/SetupProgress';
 import { DnsRecordsBlock } from './components/DnsRecordsBlock';
 import { errMsg } from '../../lib/errors';

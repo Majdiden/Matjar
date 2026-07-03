@@ -1,19 +1,52 @@
 {
   "title": "لوحة التحكم",
   "subtitle": "نظرة عامة على أداء متجرك",
+  "stats": {
+    "last_30_days": "آخر 30 يوماً",
+    "all_time": "كل الفترات",
+    "vs_prev_30d": "مقارنة بالثلاثين يوماً السابقة"
+  },
   "metric": {
     "revenue": "الإيرادات",
-    "revenue_description": "آخر 30 يوماً",
+    "revenue_description": "إجمالي المبيعات",
     "orders": "الطلبات",
-    "orders_description": "إجمالي الطلبات",
+    "orders_description": "الطلبات المستلمة",
     "products": "المنتجات",
     "products_description": "المنتجات النشطة",
     "customers": "العملاء",
     "customers_description": "المستخدمون المسجّلون"
   },
-  "domain_banner": {
-    "live_at": "متجرك متاح على",
-    "manage": "إدارة"
+  "setup": {
+    "title": "أعدّ متجرك",
+    "description": "أكمل هذه الخطوات لتبدأ البيع",
+    "progress": "{{done}}/{{total}} مكتملة",
+    "bar_label": "الإعداد: {{done}}/{{total}} مكتملة",
+    "dismiss": "إخفاء قائمة الإعداد",
+    "done": "تم",
+    "next_steps": "الخطوات التالية",
+    "next_steps_description": "أكمل إعداد متجرك",
+    "step": {
+      "add_product": {
+        "title": "أضف منتجك الأول",
+        "desc": "أنشئ أول منتج يمكن لعملائك شراؤه"
+      },
+      "payments": {
+        "title": "أعدّ طرق الدفع",
+        "desc": "فعّل وسيلة دفع واحدة على الأقل لعملائك"
+      },
+      "theme": {
+        "title": "خصّص قالبك",
+        "desc": "انشر مظهر واجهة متجرك"
+      },
+      "test_order": {
+        "title": "نفّذ طلباً تجريبياً",
+        "desc": "زر متجرك وأتمم عملية شراء كما يفعل العميل"
+      },
+      "domain": {
+        "title": "اربط نطاقاً",
+        "desc": "استخدم نطاقك الخاص لعلامة تجارية أفضل"
+      }
+    }
   },
   "section": {
     "recent_orders": {
@@ -38,24 +71,12 @@
       "domain_settings": "إعدادات النطاق",
       "discounts": "الخصومات",
       "store_settings": "إعدادات المتجر"
-    },
-    "getting_started": {
-      "title": "البداية",
-      "description": "أعدّ متجرك في بضع خطوات",
-      "step1_title": "أضف منتجك الأول",
-      "step1_desc": "ابدأ البيع بإضافة منتجات",
-      "step1_label": "أضف الآن",
-      "step2_title": "خصّص قالبك",
-      "step2_desc": "اجعل مظهر متجرك احترافياً",
-      "step2_label": "تصفّح القوالب",
-      "step3_title": "أعدّ نطاقك",
-      "step3_desc": "استخدم نطاقك الخاص لعلامة تجارية أفضل",
-      "step3_label": "إعداد"
     }
   },
   "add_product": "إضافة منتج",
   "toast": {
-    "load_failed": "فشل تحميل بيانات لوحة التحكم"
+    "load_failed": "فشل تحميل بيانات لوحة التحكم",
+    "link_copied": "تم نسخ رابط المتجر"
   },
   "starter": {
     "title": "متجرك يحتوي على محتوى مبدئي كمسودة",
