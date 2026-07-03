@@ -20,6 +20,17 @@ export const orderDocUrl = (orderId: string, doc: string) =>
 
 export const getLineId = (line: OrderItem | undefined | null): string => String(line?._id || '');
 
+// Scoped order-editing guard (audit 5.3) — mirrors the server's exact gate
+// in services/order.js#canEditOrderLines. Line edits are allowed ONLY while
+// the order is unpaid, unfulfilled, and awaiting processing. Kept in sync
+// with the backend so the "Edit items" affordance never lies to the user.
+const ORDER_EDIT_ALLOWED_STATUSES: OrderStatus[] = ['Pending', 'Confirmed'];
+export const canEditOrderLines = (order: Order | null | undefined): boolean =>
+  !!order &&
+  order.paymentStatus === 'Not Paid' &&
+  (order.fulfillmentStatus || 'Unfulfilled') === 'Unfulfilled' &&
+  ORDER_EDIT_ALLOWED_STATUSES.includes(order.status);
+
 export const getEffectiveFulfilledQuantity = (order: Order, line: OrderItem): number => {
   const quantity = Number(line?.quantity) || 0;
   const explicit = Number(line?.fulfilledQuantity) || 0;

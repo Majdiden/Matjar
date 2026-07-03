@@ -20,6 +20,9 @@ import {
   removeOrderTagService,
   getCustomerContextService,
   updateOrderAddressesService,
+  getOrdersExportCursorService,
+  resendOrderNotificationService,
+  editOrderLinesService,
 } from "../services/order.js";
 import {
   createDraftOrderService,
@@ -266,6 +269,128 @@ export const getOrderStatsController = asyncHandler(async (req, res) => {
   const filters = buildOrderListFilters(req.query);
   const permissions = await getEffectivePermissions(req);
   const result = await getOrderStatsService(req.models, filters, permissions);
+  res.status(result.statusCode).json(result);
+});
+
+// ─── Server-side CSV export (audit 5.6.2) ─────────────────────────────
+// Streams a cursor over the filtered order list as CSV — same 11+ columns
+// the client full-export builds, same list filters, no limit:5000 ceiling.
+// Route registered before "/:id" so "export.csv" isn't captured as an id.
+const CSV_SORT_WHITELIST = new Set(["createdAt", "-createdAt", "totalAmount", "-totalAmount"]);
+
+const csvCell = (value) => {
+  if (value == null) return "";
+  const s = String(value);
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+const EXPORT_COLUMNS = [
+  { label: "Order #", get: (o) => o.orderNumber || "" },
+  { label: "Date", get: (o) => (o.createdAt ? new Date(o.createdAt).toISOString().slice(0, 10) : "") },
+  {
+    label: "Customer",
+    get: (o) =>
+      o.user?.name ||
+      [o.customerSnapshot?.firstName, o.customerSnapshot?.lastName].filter(Boolean).join(" ") ||
+      [o.guestCustomer?.firstName, o.guestCustomer?.lastName].filter(Boolean).join(" ") ||
+      "Guest",
+  },
+  {
+    label: "Email",
+    get: (o) => o.user?.email || o.customerSnapshot?.email || o.guestCustomer?.email || "",
+  },
+  { label: "Status", get: (o) => o.status || "" },
+  { label: "Payment status", get: (o) => o.paymentStatus || "" },
+  { label: "Payment method", get: (o) => o.paymentMethod || "" },
+  {
+    label: "Items",
+    get: (o) => (o.products || []).reduce((s, p) => s + (Number(p.quantity) || 0), 0),
+  },
+  { label: "Subtotal", get: (o) => (o.subtotal ?? 0).toFixed(2) },
+  { label: "Shipping", get: (o) => (o.shippingCost ?? 0).toFixed(2) },
+  { label: "Tax", get: (o) => (o.tax ?? 0).toFixed(2) },
+  { label: "Discount", get: (o) => (o.discount ?? 0).toFixed(2) },
+  { label: "Total", get: (o) => (o.totalAmount ?? 0).toFixed(2) },
+];
+
+export const exportOrdersCsvController = asyncHandler(async (req, res) => {
+  const filters = buildOrderListFilters(req.query);
+  const sort = CSV_SORT_WHITELIST.has(req.query.sort) ? req.query.sort : "-createdAt";
+  const permissions = await getEffectivePermissions(req);
+
+  const cursor = getOrdersExportCursorService(req.models, filters, sort, permissions);
+
+  const date = new Date().toISOString().slice(0, 10);
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="orders-${date}.csv"`);
+
+  // BOM so Excel opens UTF-8 (Arabic customer names) correctly.
+  res.write("﻿");
+  res.write(EXPORT_COLUMNS.map((c) => csvCell(c.label)).join(",") + "\n");
+
+  try {
+    for await (const order of cursor) {
+      res.write(EXPORT_COLUMNS.map((c) => csvCell(c.get(order))).join(",") + "\n");
+    }
+    res.end();
+  } catch (err) {
+    // Header/first chunk already sent — can't switch to a JSON error, so
+    // close the stream and let the client surface a truncated-download error.
+    try { await cursor.close(); } catch { /* already closed */ }
+    res.end();
+    throw err;
+  }
+});
+
+/**
+ * Resend a customer order notification (audit 5.6.1). Body: { template }.
+ * Audit-logged. orders.write.
+ */
+export const resendOrderNotificationController = asyncHandler(async (req, res) => {
+  const permissions = await getEffectivePermissions(req);
+  const result = await resendOrderNotificationService(
+    req.models,
+    req.params.id,
+    req.body?.template,
+    req.user.userId,
+    permissions
+  );
+  if (result.success) {
+    logAudit(req.models, {
+      action: "order.notification_resent",
+      resource: "Order",
+      resourceId: req.params.id,
+      metadata: { template: result.responseObject?.template, to: result.responseObject?.to },
+      req,
+    });
+  }
+  res.status(result.statusCode).json(result);
+});
+
+/**
+ * Scoped order line editing (audit 5.3). PUT /orders/:id/lines with
+ * { items: [{ productId, variantId?, quantity, price? }] }. orders.write.
+ * Guarded server-side to unpaid + unfulfilled + Pending/Confirmed only.
+ */
+export const editOrderLinesController = asyncHandler(async (req, res) => {
+  const permissions = await getEffectivePermissions(req);
+  const result = await editOrderLinesService(
+    req.models,
+    req.params.id,
+    req.body,
+    req.user.userId,
+    permissions,
+    req.tenantId
+  );
+  if (result.success) {
+    logAudit(req.models, {
+      action: "order.lines_edited",
+      resource: "Order",
+      resourceId: req.params.id,
+      metadata: { total: result.responseObject?.totalAmount },
+      req,
+    });
+  }
   res.status(result.statusCode).json(result);
 });
 

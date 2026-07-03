@@ -299,6 +299,22 @@
       "delete_confirm_title": "Delete this draft?",
       "delete_confirm_description": "The draft will be permanently deleted. This cannot be undone.",
       "next_action_summary": "Draft order — complete it to reserve stock and notify the customer, or delete it."
+    },
+    "resend": {
+      "label": "Resend email",
+      "success": "Resent the {{template}} email",
+      "failed": "Could not resend the email"
+    },
+    "edit_items": {
+      "button": "Edit items",
+      "title": "Edit order items",
+      "description": "Add, remove, or change quantities. Totals and tax are recalculated on save.",
+      "empty": "No items — add a product to keep this order.",
+      "error_no_lines": "An order needs at least one item.",
+      "recompute_hint": "Shipping, discount, and tax are recalculated server-side on save.",
+      "save": "Save items",
+      "success": "Order items updated",
+      "failed": "Could not update the order items"
     }
   },
   "dialog": {
@@ -428,7 +444,8 @@
     "draft_completed": "Draft completed — order is now pending",
     "draft_complete_failed": "Failed to complete draft",
     "draft_deleted": "Draft deleted",
-    "draft_delete_failed": "Failed to delete draft"
+    "draft_delete_failed": "Failed to delete draft",
+    "export_started": "Preparing your export…"
   },
   "validation": {
     "note_empty": "Note cannot be empty",

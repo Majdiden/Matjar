@@ -31,7 +31,7 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { toCSV, downloadCSV } from '../../lib/utils';
-import type { Order, OrderItem, OrderStatus, PaginatedResponse } from '../../types';
+import type { Order, OrderStatus, PaginatedResponse } from '../../types';
 
 // The bulk/full export builders tap into a few "decorated" order fields
 // the backend folds in at read time — customer aggregate, email, etc. We
@@ -290,31 +290,31 @@ export const Orders: React.FC = () => {
     }
   };
 
+  // Top-bar export (audit 5.6.2). Selected rows → client-side CSV of just
+  // those rows (fast, no round-trip). Otherwise → server-side streaming CSV
+  // that respects the active list filters and has no row ceiling (the old
+  // limit:5000 client fetch is gone).
   const handleExport = async () => {
+    if (selected.size > 0) {
+      handleBulkExport();
+      return;
+    }
     try {
-      const res = await api.orders.getAll({ page: 1, limit: 5000 }) as PaginatedResponse<Order>;
-      const all: Order[] = (res.responseObject.orders as Order[] | undefined) || [];
-      if (all.length === 0) {
-        toast.message(t('orders:toast.no_orders_to_export'));
-        return;
-      }
-      const csv = toCSV(all as OrderForExport[], [
-        { key: 'orderNumber', label: 'Order #' },
-        { key: 'createdAt', label: 'Date', get: (o: OrderForExport) => o.createdAt ? new Date(o.createdAt).toISOString().slice(0, 10) : '' },
-        { key: 'customer', label: 'Customer', get: (o: OrderForExport) => o.customer?.name || `${o.customer?.firstName || ''} ${o.customer?.lastName || ''}`.trim() || o.customerEmail || 'Guest' },
-        { key: 'customerEmail', label: 'Email', get: (o: OrderForExport) => o.customer?.email || o.customerEmail || '' },
-        { key: 'status', label: 'Status' },
-        { key: 'paymentStatus', label: 'Payment status' },
-        { key: 'paymentMethod', label: 'Payment method' },
-        { key: 'itemCount', label: 'Items', get: (o: OrderForExport) => (o.products || []).reduce((s: number, p: OrderItem) => s + (p.quantity || 0), 0) },
-        { key: 'subtotal', label: 'Subtotal', get: (o: OrderForExport) => (o.subtotal ?? 0).toFixed(2) },
-        { key: 'shippingCost', label: 'Shipping', get: (o: OrderForExport) => (o.shippingCost ?? 0).toFixed(2) },
-        { key: 'tax', label: 'Tax', get: (o: OrderForExport) => (o.tax ?? 0).toFixed(2) },
-        { key: 'discount', label: 'Discount', get: (o: OrderForExport) => (o.discount ?? 0).toFixed(2) },
-        { key: 'totalAmount', label: 'Total', get: (o: OrderForExport) => (o.totalAmount ?? 0).toFixed(2) },
-      ]);
-      downloadCSV(csv, 'orders');
-      toast.success(all.length === 1 ? t('orders:toast.export_success', { count: all.length }) : t('orders:toast.export_success_plural', { count: all.length }));
+      const params: OrdersListParams = { ...filtersToParams(filters) };
+      if (tab) params.status = tab;
+      if (search) params.search = search;
+      params.sort = `${sort.dir === 'desc' ? '-' : ''}${sort.key}`;
+      const blob = await api.orders.exportCsv(params) as Blob;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `orders-${date}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success(t('orders:toast.export_started'));
     } catch (err: unknown) {
       toast.error(errMsg(err, t('orders:toast.export_failed')));
     }

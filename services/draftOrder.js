@@ -199,7 +199,7 @@ const resolveOrderLanguage = async (tenantId, customerLanguage) => {
 // draft instead carries an explicit shipping method and a manual discount.
 // So we mirror its line-pricing / tax / rounding semantics exactly and
 // route tax through the SAME calculateTax service it uses (audit 5.2.2).
-const priceDraft = async ({ resolvedLines, shippingMethod, discount, shippingAddress, tenantId }) => {
+export const priceDraft = async ({ resolvedLines, shippingMethod, discount, shippingAddress, tenantId }) => {
   const pricedLines = resolvedLines.map((l) => {
     const variant = l.variant || null;
     // Variant price (when set) overrides the product price; a per-line

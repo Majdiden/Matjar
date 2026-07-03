@@ -25,6 +25,9 @@ import {
   removeOrderTagController,
   getCustomerContextController,
   updateOrderAddressesController,
+  exportOrdersCsvController,
+  resendOrderNotificationController,
+  editOrderLinesController,
 } from "../controllers/order.js";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
@@ -51,6 +54,11 @@ orderRoutes.get("/my-orders", orderLookupLimiter, getUserOrdersController);
 // "stats" segment isn't captured as an order id.
 orderRoutes.get("/stats", requirePermission("orders.read"), getOrderStatsController);
 
+// Server-side CSV export (audit 5.6.2) — streams the filtered list. MUST
+// stay above "/:id" so the literal "export.csv" segment isn't captured as
+// an order id.
+orderRoutes.get("/export.csv", requirePermission("orders.read"), exportOrdersCsvController);
+
 // Draft / manual orders (audit 5.2) — staff tooling, so deliberately NOT
 // behind checkoutLimiter or plan limits. POST /draft sits above "/:id"
 // routes so the literal segment can never be captured as an order id.
@@ -69,6 +77,14 @@ orderRoutes.post("/:id/cancel", cancelOrderController);
 orderRoutes.get("/", requirePermission("orders.read"), getOrdersController);
 orderRoutes.patch("/:id/status", requirePermission("orders.write"), validate(updateOrderStatusSchema), updateOrderStatusController);
 orderRoutes.patch("/:id/tracking", requirePermission("orders.write"), updateOrderTrackingController);
+
+// Scoped order line editing (audit 5.3) — admin, orders.write. Guarded
+// server-side to unpaid + unfulfilled + Pending/Confirmed orders only.
+orderRoutes.put("/:id/lines", requirePermission("orders.write"), editOrderLinesController);
+
+// Resend a customer order-status email (audit 5.6.1) — orders.write,
+// audit-logged.
+orderRoutes.post("/:id/notifications/resend", requirePermission("orders.write"), resendOrderNotificationController);
 
 // Manual payment-status actions (mark paid / failed, capture / void an
 // authorization, record manual payment). All routed through the payment

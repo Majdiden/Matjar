@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTenantCurrency, getTenantLocale } from '../../../lib/format';
+import { getTenantCurrency, getTenantLocale, formatDateTime } from '../../../lib/format';
 import { useSetBreadcrumbs } from '../../../contexts/breadcrumb-context';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
@@ -291,7 +291,7 @@ export const OrderDetails: React.FC = () => {
                 {t('orders:detail.order_title', { number: order.orderNumber || `#${order._id.slice(-6).toUpperCase()}` })}
               </h1>
               <p className="text-muted-foreground text-sm">
-                {t('orders:detail.placed', { date: new Date(order.createdAt).toLocaleString() })}
+                {t('orders:detail.placed', { date: formatDateTime(order.createdAt) })}
               </p>
             </div>
           </div>

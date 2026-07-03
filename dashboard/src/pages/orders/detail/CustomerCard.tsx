@@ -7,6 +7,7 @@ import { Separator } from '../../../components/ui/separator';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { User, Mail, Phone, ExternalLink } from 'lucide-react';
 import { useOrderDetail } from './context';
+import { formatDate } from '../../../lib/format';
 
 // §8 — Customer context card. Lifetime stats + consent, plus
 // quick links to the full customer profile and order list.
@@ -76,13 +77,13 @@ export const CustomerCard: React.FC = () => {
             <dt className="text-muted-foreground">{t('orders:detail.customer.last_order')}</dt>
             <dd className="text-end">
               {customerContext.lastOrderDate
-                ? new Date(customerContext.lastOrderDate).toLocaleDateString()
+                ? formatDate(customerContext.lastOrderDate)
                 : '—'}
             </dd>
             <dt className="text-muted-foreground">{t('orders:detail.customer.customer_since')}</dt>
             <dd className="text-end">
               {customerContext.customerSince
-                ? new Date(customerContext.customerSince).toLocaleDateString()
+                ? formatDate(customerContext.customerSince)
                 : '—'}
             </dd>
             <dt className="text-muted-foreground">{t('orders:detail.customer.marketing_consent')}</dt>

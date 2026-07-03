@@ -64,7 +64,7 @@ const formatPrice = (n: number) =>
 
 const formatDate = (iso?: string) =>
   iso
-    ? new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    ? new Date(iso).toLocaleDateString(getTenantLocale(), { month: 'short', day: 'numeric' })
     : '';
 
 const displayNumber = (o: Order) =>

@@ -1,24 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
 import { Separator } from '../../../components/ui/separator';
-import { Package, Clock } from 'lucide-react';
+import { Package, Clock, Pencil } from 'lucide-react';
 import type { OrderItem } from '../../../types';
+import { formatDate } from '../../../lib/format';
 import { useOrderDetail } from './context';
-import { getEffectiveFulfilledQuantity, getReturnableQuantity } from './lib';
+import { getEffectiveFulfilledQuantity, getReturnableQuantity, canEditOrderLines } from './lib';
+import { EditLinesDialog } from './dialogs/EditLinesDialog';
 
 // Order items + totals block.
 export const LineItemsCard: React.FC = () => {
   const { t } = useTranslation(['orders', 'common']);
-  const { order, formatPrice } = useOrderDetail();
+  const { order, formatPrice, canWriteOrders } = useOrderDetail();
+  const [editOpen, setEditOpen] = useState(false);
+
+  // Scoped line editing (audit 5.3) — the "Edit items" affordance only
+  // appears when the exact server guard passes: unpaid + unfulfilled +
+  // Pending/Confirmed. The endpoint re-checks it, so this is UX, not auth.
+  const canEdit = canWriteOrders && canEditOrderLines(order);
 
   return (
+    <>
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
         <CardTitle className="text-base flex items-center gap-2">
           <Package className="h-5 w-5" />{t('orders:detail.section.items.title')}
         </CardTitle>
+        {canEdit && (
+          <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+            <Pencil className="h-4 w-4 me-2" />{t('orders:detail.edit_items.button')}
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="p-0">
         <ul className="divide-y">
@@ -132,7 +147,7 @@ export const LineItemsCard: React.FC = () => {
                         <Clock className="h-3 w-3 me-0.5" />
                         {t('orders:detail.item.pre_order')}
                         {item.preorderExpectedShipDate && (
-                          <>{t('orders:detail.item.ships', { date: new Date(item.preorderExpectedShipDate).toLocaleDateString() })}</>
+                          <>{t('orders:detail.item.ships', { date: formatDate(item.preorderExpectedShipDate) })}</>
                         )}
                       </Badge>
                     )}
@@ -177,5 +192,7 @@ export const LineItemsCard: React.FC = () => {
         </div>
       </CardContent>
     </Card>
+    {canEdit && <EditLinesDialog open={editOpen} onOpenChange={setEditOpen} />}
+    </>
   );
 };

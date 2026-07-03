@@ -7,6 +7,7 @@ import { Calendar, ChevronDown, GitBranch } from 'lucide-react';
 import type { Order, OrderHistoryEntry } from '../../../types';
 import { useOrderDetail } from './context';
 import { resolveMeta, humanizeFulfillmentNote } from './lib';
+import { formatDateTime } from '../../../lib/format';
 
 // Sidebar timeline card — summary header + the OrderTimeline list.
 export const TimelineCard: React.FC = () => {
@@ -103,7 +104,7 @@ const OrderTimeline: React.FC<{ order: Order }> = ({ order }) => {
                 ) : null;
               })()}
               <p className="text-xs text-muted-foreground mt-1">
-                {new Date(entry.at).toLocaleString()}
+                {formatDateTime(entry.at)}
                 {entry.byName && <span> · {entry.byName}</span>}
               </p>
             </div>

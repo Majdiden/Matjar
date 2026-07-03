@@ -29,7 +29,7 @@ import { useViewMode, ViewToggle } from '../../components/ui/view-toggle';
 interface Fulfillment {
   _id: string;
   order: string | { _id: string; orderNumber?: string };
-  status: string;
+  status: FulfillmentStatus;
   lineItems: Array<{
     product: string;
     name?: string;
@@ -42,15 +42,20 @@ interface Fulfillment {
   createdAt: string;
 }
 
+// Canonical embedded-fulfillment status enum (schemas/store/order.js). The
+// old lowercase dashboard taxonomy + STATUS_TO_DASHBOARD/DASHBOARD_TO_STATUS
+// bridge tables are gone (audit 5.5) — the API now speaks this enum directly
+// and display strings come from common:status.* like the per-order card.
+type FulfillmentStatus = 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
+
 // Semantic status colours (audit 3.8.3): success=green, warning=amber,
 // destructive=red, info=neutral gray. Brand blue is never used for status.
 const statusVariant = (status: string) => {
   switch (status) {
-    case 'delivered': return 'success' as const;
-    case 'shipped': return 'info' as const;
-    case 'in_progress': return 'info' as const;
-    case 'pending': return 'warning' as const;
-    case 'cancelled': return 'destructive' as const;
+    case 'Delivered': return 'success' as const;
+    case 'Shipped': return 'info' as const;
+    case 'Pending': return 'warning' as const;
+    case 'Cancelled': return 'destructive' as const;
     default: return 'outline' as const;
   }
 };
@@ -103,7 +108,7 @@ export const Fulfillments: React.FC = () => {
     try {
       await api.fulfillments.updateStatus(id, newStatus);
       toast.success(t('orders:fulfillment.toast.status_updated'));
-      setFulfillments(prev => prev.map(f => f._id === id ? { ...f, status: newStatus } : f));
+      setFulfillments(prev => prev.map(f => f._id === id ? { ...f, status: newStatus as FulfillmentStatus } : f));
     } catch (err) {
       toast.error(errMsg(err, t('orders:fulfillment.toast.status_update_failed')));
     }
@@ -127,7 +132,7 @@ export const Fulfillments: React.FC = () => {
     const results = await Promise.allSettled(ids.map(id => api.fulfillments.updateStatus(id, status)));
     const ok = results.filter(r => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(t('orders:fulfillment.toast.bulk_updated_other', { count: ok, status }));
+    if (ok) toast.success(t('orders:fulfillment.toast.bulk_updated_other', { count: ok, status: t(`common:status.${status}`, { defaultValue: status }) }));
     if (failed) toast.error(t('orders:fulfillment.toast.bulk_failed', { count: failed }));
     setSelected(new Set());
     reload();
@@ -148,10 +153,10 @@ export const Fulfillments: React.FC = () => {
       <FilterPills
         items={[
           { id: '', label: t('orders:fulfillment.list.filter.all'), icon: Inbox },
-          { id: 'pending', label: t('orders:fulfillment.list.filter.pending'), icon: Clock },
-          { id: 'shipped', label: t('orders:fulfillment.list.filter.shipped'), icon: Truck },
-          { id: 'delivered', label: t('orders:fulfillment.list.filter.delivered'), icon: CheckCircle2 },
-          { id: 'cancelled', label: t('orders:fulfillment.list.filter.cancelled'), icon: XCircle },
+          { id: 'Pending', label: t('common:status.Pending'), icon: Clock },
+          { id: 'Shipped', label: t('common:status.Shipped'), icon: Truck },
+          { id: 'Delivered', label: t('common:status.Delivered'), icon: CheckCircle2 },
+          { id: 'Cancelled', label: t('common:status.Cancelled'), icon: XCircle },
         ]}
         value={filters.status}
         onChange={(v) => setFilter('status', v)}
@@ -179,13 +184,13 @@ export const Fulfillments: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => setSelected(new Set())}>
               <X className="h-3.5 w-3.5 me-1.5" />{t('orders:fulfillment.list.bulk.clear')}
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleBulkStatus('shipped')}>
+            <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Shipped')}>
               <Truck className="h-3.5 w-3.5 me-1.5" />{t('orders:fulfillment.list.bulk.mark_shipped')}
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleBulkStatus('delivered')}>
+            <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Delivered')}>
               <PackageCheck className="h-3.5 w-3.5 me-1.5" />{t('orders:fulfillment.list.bulk.mark_delivered')}
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleBulkStatus('cancelled')}>
+            <Button variant="outline" size="sm" onClick={() => handleBulkStatus('Cancelled')}>
               <XCircle className="h-3.5 w-3.5 me-1.5" />{t('orders:fulfillment.list.bulk.cancel')}
             </Button>
           </div>
@@ -256,7 +261,7 @@ export const Fulfillments: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(f.status)}>
-                      {f.status.replace('_', ' ')}
+                      {t(`common:status.${f.status}`, { defaultValue: f.status })}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-mono text-sm">
@@ -267,15 +272,15 @@ export const Fulfillments: React.FC = () => {
                     {formatDate(f.createdAt)}
                   </TableCell>
                   <TableCell className="text-end">
-                    {f.status !== 'delivered' && f.status !== 'cancelled' && (
+                    {f.status !== 'Delivered' && f.status !== 'Cancelled' && (
                       <Select
                         value={f.status}
                         onChange={(e) => handleStatusUpdate(f._id, e.target.value)}
                         options={[
-                          { value: 'pending', label: t('orders:fulfillment.list.filter.pending') },
-                          { value: 'shipped', label: t('orders:fulfillment.list.filter.shipped') },
-                          { value: 'delivered', label: t('orders:fulfillment.list.filter.delivered') },
-                          { value: 'cancelled', label: t('orders:fulfillment.list.filter.cancelled') },
+                          { value: 'Pending', label: t('common:status.Pending') },
+                          { value: 'Shipped', label: t('common:status.Shipped') },
+                          { value: 'Delivered', label: t('common:status.Delivered') },
+                          { value: 'Cancelled', label: t('common:status.Cancelled') },
                         ]}
                       />
                     )}
@@ -303,7 +308,7 @@ export const Fulfillments: React.FC = () => {
                       className="h-4 w-4 rounded border-gray-300 flex-shrink-0 mt-1"
                     />
                     <Badge variant={statusVariant(f.status)}>
-                      {f.status.replace('_', ' ')}
+                      {t(`common:status.${f.status}`, { defaultValue: f.status })}
                     </Badge>
                   </div>
                   <div className="min-w-0">
@@ -329,15 +334,15 @@ export const Fulfillments: React.FC = () => {
                   </div>
                   <div className="pt-2 border-t flex items-center justify-between text-xs text-muted-foreground">
                     <span>{formatDate(f.createdAt)}</span>
-                    {f.status !== 'delivered' && f.status !== 'cancelled' && (
+                    {f.status !== 'Delivered' && f.status !== 'Cancelled' && (
                       <Select
                         value={f.status}
                         onChange={(e) => handleStatusUpdate(f._id, e.target.value)}
                         options={[
-                          { value: 'pending', label: t('orders:fulfillment.list.filter.pending') },
-                          { value: 'shipped', label: t('orders:fulfillment.list.filter.shipped') },
-                          { value: 'delivered', label: t('orders:fulfillment.list.filter.delivered') },
-                          { value: 'cancelled', label: t('orders:fulfillment.list.filter.cancelled') },
+                          { value: 'Pending', label: t('common:status.Pending') },
+                          { value: 'Shipped', label: t('common:status.Shipped') },
+                          { value: 'Delivered', label: t('common:status.Delivered') },
+                          { value: 'Cancelled', label: t('common:status.Cancelled') },
                         ]}
                       />
                     )}

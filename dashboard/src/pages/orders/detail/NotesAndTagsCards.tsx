@@ -8,6 +8,7 @@ import { Tag as TagIcon, Pin, StickyNote, X, Trash2, Loader2 } from 'lucide-reac
 import { api } from '../../../lib/api-client';
 import { toast } from 'sonner';
 import type { Order } from '../../../types';
+import { formatDateTime } from '../../../lib/format';
 import { useConfirm } from '../../../components/ui/use-confirm';
 import { useOrderDetail } from './context';
 
@@ -245,7 +246,7 @@ export const NotesAndTagsCards: React.FC = () => {
                         {n.createdByName || t('orders:detail.notes.staff')}
                       </span>
                       <span>·</span>
-                      <span>{new Date(n.createdAt).toLocaleString()}</span>
+                      <span>{formatDateTime(n.createdAt)}</span>
                     </div>
                     {canWriteOrders && (
                       <button

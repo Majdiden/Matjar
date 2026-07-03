@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 export const createOrderRepo = async (models, orderData, session = null) => {
   const options = session ? { session } : {};
   const data = await models.Order.create(orderData, options);
@@ -102,6 +104,144 @@ export const getOrderStatsRepo = async (models, { filters = {}, now = new Date()
     windowDays: 30,
     generatedAt: now,
   };
+};
+
+/**
+ * Global fulfillments list (audit 5.5) — ONE aggregation that unwinds every
+ * order's embedded `fulfillments[]` into a flat, DB-paginated list. Tenant
+ * scoping is automatic (models are bound to the tenant DB). Returns the
+ * CANONICAL capitalized status enum ("Pending" | "Shipped" | "Delivered" |
+ * "Cancelled") — no dashboard-side taxonomy mapping.
+ *
+ * Response rows carry enough context for the dashboard table without a
+ * per-row round-trip: order number, name-rich line items (joined from the
+ * order's product snapshot by orderLineId), tracking, timestamps.
+ */
+export const getGlobalFulfillmentsRepo = async (
+  models,
+  { orderId, status, search, page = 1, limit = 20 } = {}
+) => {
+  const pageNum = Math.max(1, parseInt(page) || 1);
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
+
+  const preMatch = {};
+  if (orderId && mongoose.isValidObjectId(orderId)) {
+    preMatch._id = new mongoose.Types.ObjectId(String(orderId));
+  }
+  // Cheap pre-filter: only orders that carry at least one fulfillment, and
+  // when a status filter is set, only orders containing that status (the
+  // post-unwind $match below does the exact per-fulfillment filtering).
+  preMatch["fulfillments.0"] = { $exists: true };
+  if (status) preMatch["fulfillments.status"] = status;
+
+  const postUnwindMatch = [];
+  if (status) postUnwindMatch.push({ $match: { "fulfillments.status": status } });
+  if (search) {
+    const escaped = String(search)
+      .trim()
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      .replace(/^#+/, "");
+    if (escaped) {
+      const rx = new RegExp(escaped, "i");
+      postUnwindMatch.push({
+        $match: {
+          $or: [{ orderNumber: rx }, { "fulfillments.trackingNumber": rx }],
+        },
+      });
+    }
+  }
+
+  const projectRow = {
+    $project: {
+      _id: "$fulfillments._id",
+      orderId: "$_id",
+      order: { _id: "$_id", orderNumber: "$orderNumber" },
+      status: "$fulfillments.status",
+      lineItems: {
+        $map: {
+          input: { $ifNull: ["$fulfillments.items", []] },
+          as: "it",
+          in: {
+            $let: {
+              vars: {
+                line: {
+                  $first: {
+                    $filter: {
+                      input: { $ifNull: ["$products", []] },
+                      as: "p",
+                      cond: { $eq: ["$$p._id", "$$it.orderLineId"] },
+                    },
+                  },
+                },
+              },
+              in: {
+                product: "$$line.product",
+                name: "$$line.name",
+                quantity: "$$it.quantity",
+              },
+            },
+          },
+        },
+      },
+      trackingNumber: { $ifNull: ["$fulfillments.trackingNumber", null] },
+      carrier: { $ifNull: ["$fulfillments.trackingCarrier", null] },
+      shippedAt: { $ifNull: ["$fulfillments.shippedAt", null] },
+      deliveredAt: { $ifNull: ["$fulfillments.deliveredAt", null] },
+      createdAt: "$fulfillments.createdAt",
+    },
+  };
+
+  const [result] = await models.Order.aggregate([
+    { $match: preMatch },
+    { $project: { orderNumber: 1, products: 1, fulfillments: 1 } },
+    { $unwind: "$fulfillments" },
+    ...postUnwindMatch,
+    // Newest first across all orders; _id tiebreak keeps pagination stable.
+    { $sort: { "fulfillments.createdAt": -1, "fulfillments._id": 1 } },
+    {
+      $facet: {
+        rows: [
+          { $skip: (pageNum - 1) * limitNum },
+          { $limit: limitNum },
+          projectRow,
+        ],
+        total: [{ $count: "count" }],
+      },
+    },
+  ]);
+
+  const total = result?.total?.[0]?.count || 0;
+  return {
+    fulfillments: result?.rows || [],
+    pagination: {
+      total,
+      page: pageNum,
+      pages: Math.max(1, Math.ceil(total / limitNum)),
+      limit: limitNum,
+    },
+  };
+};
+
+/**
+ * Streaming cursor over the order list (audit 5.6.2 — server-side CSV
+ * export). Same filters as getOrdersRepo but no skip/limit ceiling; the
+ * caller iterates with `for await` and must exhaust or close the cursor.
+ */
+export const getOrdersCursorRepo = (models, filters = {}, sort = "-createdAt") => {
+  return models.Order.find(filters)
+    .populate("user", "name email")
+    .sort(sort)
+    .lean()
+    .cursor();
+};
+
+/**
+ * Resolve the parent order of an embedded fulfillment (global fulfillments
+ * PATCH route passes only the fulfillment id). Projection-only read.
+ */
+export const findOrderIdByFulfillmentRepo = async (models, fulfillmentId) => {
+  if (!mongoose.isValidObjectId(fulfillmentId)) return null;
+  return await models.Order.findOne({ "fulfillments._id": fulfillmentId }).select("_id");
 };
 
 export const updateOrderRepo = async (models, orderId, updateData) => {

@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useOrderAndStore, useAutoPrint, formatAddress } from './shared';
 import PrintToolbar from './PrintToolbar';
 import type { OrderItem } from '../../../types';
+import { formatDateTime } from '../../../lib/format';
 import './print.css';
 
 /**
@@ -48,7 +49,7 @@ const PackingSlip: React.FC = () => {
         <div className="doc-header-right">
           <div className="doc-title">{ps('title')}</div>
           <div className="doc-muted">Order {orderNumber}</div>
-          <div className="doc-muted">{new Date(order.createdAt).toLocaleString()}</div>
+          <div className="doc-muted">{formatDateTime(order.createdAt)}</div>
         </div>
       </header>
 

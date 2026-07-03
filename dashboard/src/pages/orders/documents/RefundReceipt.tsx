@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useOrderAndStore, useAutoPrint } from './shared';
 import PrintToolbar from './PrintToolbar';
 import { api } from '../../../lib/api-client';
-import { formatPrice } from '../../../lib/format';
+import { formatPrice, formatDateTime } from '../../../lib/format';
 import type { OrderWithExtras, Payment } from '../../../types';
 import './print.css';
 
@@ -93,7 +93,7 @@ const RefundReceipt: React.FC = () => {
         <div className="doc-header-right">
           <div className="doc-title">{rr('title')}</div>
           <div className="doc-muted">Refund {String(refund._id).slice(-8).toUpperCase()}</div>
-          <div className="doc-muted">{when.toLocaleString()}</div>
+          <div className="doc-muted">{formatDateTime(when)}</div>
         </div>
       </header>
 
@@ -107,7 +107,7 @@ const RefundReceipt: React.FC = () => {
           <div className="doc-section-title">{rr('original_order')}</div>
           <div>{rr('order_prefix')} {orderNumber}</div>
           <div className="doc-muted doc-small">
-            {rr('placed', { date: new Date(order.createdAt).toLocaleString() })}
+            {rr('placed', { date: formatDateTime(order.createdAt) })}
           </div>
           <div className="doc-muted doc-small">
             {rr('order_total', { amount: formatPrice(order.totalAmount || 0, currency) })}

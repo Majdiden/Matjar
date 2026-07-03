@@ -5,6 +5,7 @@ import { Button } from '../../../components/ui/button';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { CreditCard, Receipt, ArrowDownLeft } from 'lucide-react';
 import { useOrderDetail } from './context';
+import { formatDateTime } from '../../../lib/format';
 import { RefundDialog } from './dialogs/RefundDialog';
 import { VerifyPaymentDialog } from './dialogs/VerifyPaymentDialog';
 import { RecordManualPaymentDialog } from './dialogs/RecordManualPaymentDialog';
@@ -73,7 +74,7 @@ export const PaymentsCard: React.FC = () => {
                         {p.status === 'refunded' ? t('orders:detail.payment.record_type_refund') : t('orders:detail.payment.record_type_payment')}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {p.provider} · {new Date(p.createdAt).toLocaleString()}
+                        {p.provider} · {formatDateTime(p.createdAt)}
                       </p>
                     </div>
                   </div>

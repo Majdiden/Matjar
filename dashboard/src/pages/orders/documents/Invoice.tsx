@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useOrderAndStore, useAutoPrint, formatAddress } from './shared';
 import PrintToolbar from './PrintToolbar';
-import { formatPrice } from '../../../lib/format';
+import { formatPrice, formatDateTime } from '../../../lib/format';
 import type { OrderItem, OrderWithExtras } from '../../../types';
 import './print.css';
 
@@ -89,7 +89,7 @@ const Invoice: React.FC = () => {
         <div className="doc-header-right">
           <div className="doc-title">{inv('title')}</div>
           <div className="doc-muted">Order {orderNumber}</div>
-          <div className="doc-muted">{new Date(order.createdAt).toLocaleString()}</div>
+          <div className="doc-muted">{formatDateTime(order.createdAt)}</div>
         </div>
       </header>
 

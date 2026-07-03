@@ -5,6 +5,9 @@ import {
   getOrderRepo,
   getOrdersRepo,
   getOrderStatsRepo,
+  getGlobalFulfillmentsRepo,
+  getOrdersCursorRepo,
+  findOrderIdByFulfillmentRepo,
   updateOrderRepo,
   updateOrderStatusRepo,
   getOrdersByUserRepo,
@@ -26,7 +29,7 @@ import { tenantPopulate } from "../utils/scopedModel.js";
 import { priceCheckout } from "./checkout.js";
 import { applyDiscount } from "./discount.js";
 import { lookupByCode as lookupGiftCardByCode, redeemGiftCard, redeemGiftCardById, refundGiftCard } from "./giftCard.js";
-import { notifyOrderStatusChange, recordOrderNotified, notifyMerchantNewOrder } from "./orderNotifications.js";
+import { notifyOrderStatusChange, recordOrderNotified, notifyMerchantNewOrder, ORDER_NOTIFICATION_STATUSES } from "./orderNotifications.js";
 import { emit as emitNotification } from "./notification.js";
 import { guardTransition } from "../utils/orderStateMachine.js";
 import { logStateChange } from "../utils/auditLog.js";
@@ -1124,6 +1127,23 @@ export const getOrdersService = async (models, filters, options, userId, permiss
 };
 
 /**
+ * Server-side CSV export cursor (audit 5.6.2). Admin/staff only — returns a
+ * lean Mongoose cursor over the SAME filter set as the list endpoint, with
+ * no skip/limit ceiling (removes the client's limit:5000). The controller
+ * streams rows so a large export never buffers the whole collection.
+ * Drafts are excluded to match the list's default staff view unless the
+ * caller explicitly filtered to a status.
+ */
+export const getOrdersExportCursorService = (models, filters, sort, permissions) => {
+  if (!canReadAllOrders(permissions)) {
+    throw new APIError("You do not have permission to export orders", 403);
+  }
+  const exportFilters = { ...filters };
+  if (!exportFilters.status) exportFilters.status = { $ne: "Draft" };
+  return getOrdersCursorRepo(models, exportFilters, sort || "-createdAt");
+};
+
+/**
  * Order-list stats (audit 5.4.3). Admin/staff only — the aggregation runs
  * over the whole tenant collection, so unlike getOrdersService we do NOT
  * fall back to a per-user scope (aggregate() would also skip Mongoose's
@@ -1335,7 +1355,10 @@ export const cancelOrderService = async (models, orderId, userId, permissions) =
     const order = await getOrderRepo(models, { _id: orderId }, {}, session);
     if (!order) throw new APIError("Order not found", 404);
 
-    const isOwner = order.user._id.toString() === userId;
+    // Guest orders have no `user` — guard before dereferencing, matching
+    // the ownership checks elsewhere in this file. A guest order can only
+    // be cancelled by staff with the permission (never by "owner").
+    const isOwner = !!(order.user && order.user._id && order.user._id.toString() === userId);
     if (!canCancelOrders(permissions) && !isOwner) {
       throw new APIError("Access denied to cancel this order", 403);
     }
@@ -2000,6 +2023,313 @@ export const getFulfillmentsService = async (models, orderId, userId, permission
       fulfillments: order.fulfillments || [],
       unfulfilledByLine,
     },
+  };
+};
+
+// ─── Global fulfillments list (audit 5.5) ──────────────────────────────
+// Push pagination + status/search filtering into a single DB aggregation
+// (repositories/order.js#getGlobalFulfillmentsRepo) and return the
+// CANONICAL capitalized status enum — no dashboard-side taxonomy bridge.
+export const getGlobalFulfillmentsService = async (models, query, permissions) => {
+  if (!canReadAllOrders(permissions)) {
+    throw new APIError("You do not have permission to view fulfillments", 403);
+  }
+  const { fulfillments, pagination } = await getGlobalFulfillmentsRepo(models, query);
+  return {
+    success: true,
+    statusCode: 200,
+    message: "Fulfillments retrieved",
+    responseObject: { fulfillments, pagination },
+  };
+};
+
+// Global-list fulfillment status update (audit 5.5) — the dashboard passes
+// only the embedded fulfillment id, so resolve the parent order through the
+// repository, then delegate to the per-order status service (canonical enum,
+// no dashboard taxonomy bridge).
+export const updateGlobalFulfillmentStatusService = async (models, fulfillmentId, payload, userId, permissions) => {
+  requireOrderWrite(permissions);
+  const parent = await findOrderIdByFulfillmentRepo(models, fulfillmentId);
+  if (!parent) throw new APIError("Fulfillment not found", 404);
+  return updateFulfillmentStatusService(models, parent._id, fulfillmentId, payload, userId, permissions);
+};
+
+// ─── Scoped order line editing (audit 5.3) ─────────────────────────────
+// Edit line items on a PLACED order, strictly gated: only while
+// paymentStatus === "Not Paid" AND fulfillmentStatus === "Unfulfilled"
+// AND status in [Pending, Confirmed]. In a transaction: restore stock for
+// removed/decremented lines, decrement for added/incremented lines (same
+// repos as draft completion), re-snapshot every line via resolveOrderLine,
+// recompute totals via the same priceDraft pricing path, append an
+// `order_edited` history event with a human-readable delta, bump
+// calculationVersion. Anything beyond this gate is out of scope.
+
+const ORDER_EDIT_ALLOWED_STATUSES = ["Pending", "Confirmed"];
+
+// The exact guard, exposed so both the service and any read path agree.
+export const canEditOrderLines = (order) =>
+  !!order &&
+  order.paymentStatus === "Not Paid" &&
+  (order.fulfillmentStatus || "Unfulfilled") === "Unfulfilled" &&
+  ORDER_EDIT_ALLOWED_STATUSES.includes(order.status);
+
+export const editOrderLinesService = async (models, orderId, payload, userId, permissions, tenantId) => {
+  requireOrderWrite(permissions);
+
+  // Lazy import to avoid a require cycle (draftOrder.js imports from this
+  // module). priceDraft is the single source of truth for draft/edit pricing.
+  const { priceDraft } = await import("./draftOrder.js");
+
+  const rawItems = Array.isArray(payload?.items) ? payload.items : null;
+  if (!rawItems || rawItems.length === 0) {
+    throw new APIError("An order needs at least one line item", 400);
+  }
+  // Normalise + validate the requested lines.
+  const items = rawItems.map((raw, idx) => {
+    const productId = raw?.productId || raw?.product;
+    if (!productId) throw new APIError(`Line ${idx + 1}: productId is required`, 400);
+    const quantity = Number(raw.quantity);
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      throw new APIError(`Line ${idx + 1}: quantity must be a positive integer`, 400);
+    }
+    let priceOverride;
+    if (raw.price !== undefined && raw.price !== null && raw.price !== "") {
+      priceOverride = Number(raw.price);
+      if (!Number.isFinite(priceOverride) || priceOverride < 0) {
+        throw new APIError(`Line ${idx + 1}: price override must be non-negative`, 400);
+      }
+    }
+    return { productId: String(productId), variantId: raw.variantId ? String(raw.variantId) : undefined, quantity, priceOverride };
+  });
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const order = await models.Order.findOne({ _id: orderId }).session(session);
+    if (!order) throw new APIError("Order not found", 404);
+    if (order.status === "Draft") {
+      throw new APIError("Use the draft editor for draft orders", 400);
+    }
+    if (!canEditOrderLines(order)) {
+      throw new APIError(
+        "This order can no longer be edited — line edits are only allowed on unpaid, unfulfilled orders awaiting processing",
+        400
+      );
+    }
+
+    // ── Stock reconciliation ────────────────────────────────────────
+    // Compute the net stock delta per (product, variant) between the old
+    // and new line sets. Positive delta = need to decrement more; negative
+    // = restore. Keyed on product|variant so a quantity change is a single
+    // net operation rather than a restore-then-decrement pair.
+    const keyOf = (productId, variantId) => `${String(productId)}|${variantId ? String(variantId) : ""}`;
+    const oldQty = new Map();
+    for (const line of order.products || []) {
+      // Pre-order lines reserved capacity, not on-hand stock — leave them
+      // out of the on-hand reconciliation (edit v1 doesn't retarget them).
+      if (line.isPreorder) continue;
+      const k = keyOf(line.product, line.variantId);
+      oldQty.set(k, (oldQty.get(k) || 0) + (Number(line.quantity) || 0));
+    }
+    const newQty = new Map();
+    for (const it of items) {
+      const k = keyOf(it.productId, it.variantId);
+      newQty.set(k, (newQty.get(k) || 0) + it.quantity);
+    }
+
+    const allKeys = new Set([...oldQty.keys(), ...newQty.keys()]);
+    for (const k of allKeys) {
+      const [productId, variantId] = k.split("|");
+      const delta = (newQty.get(k) || 0) - (oldQty.get(k) || 0);
+      if (delta === 0) continue;
+      if (delta > 0) {
+        // Need more units — atomic conditional decrement; null = insufficient.
+        const ok = variantId
+          ? await decrementVariantStockRepo(models, productId, variantId, delta, session)
+          : await decrementStockRepo(models, productId, delta, session);
+        if (!ok) {
+          const p = await getAProductRepo(models, {}, { _id: productId }, session);
+          throw new APIError(`Insufficient stock for ${p?.name || "item"}`, 400);
+        }
+      } else {
+        // Freed units — restore to on-hand.
+        if (variantId) {
+          await incrementVariantStockRepo(models, productId, variantId, -delta, session);
+        } else {
+          await incrementStockRepo(models, productId, -delta, session);
+        }
+      }
+    }
+
+    // ── Re-snapshot lines (NO further stock allocation — done above) ──
+    const resolvedLines = [];
+    for (const it of items) {
+      const resolved = await resolveOrderLine(
+        models,
+        { productId: it.productId, variantId: it.variantId, quantity: it.quantity },
+        session,
+        { allocateStock: false }
+      );
+      resolvedLines.push({
+        product: resolved.product,
+        variant: resolved.variant,
+        quantity: it.quantity,
+        priceOverride: it.priceOverride,
+      });
+    }
+
+    // ── Recompute totals via the shared draft pricing path ───────────
+    // Preserve the order's existing shipping method and manual discount so
+    // an edit only changes the goods lines, not the shipping/discount the
+    // merchant already set.
+    const existingDiscount =
+      order.discount > 0 ? { type: "amount", value: order.discount } : null;
+    const quote = await priceDraft({
+      resolvedLines,
+      shippingMethod:
+        order.shippingMethod && order.shippingMethod.name
+          ? { id: order.shippingMethod.id, name: order.shippingMethod.name, price: order.shippingMethod.price || 0 }
+          : null,
+      discount: existingDiscount,
+      shippingAddress: order.shippingAddress,
+      tenantId: tenantId || order.tenantId,
+    });
+
+    // ── Human-readable delta for the history event ───────────────────
+    const oldSummary = new Map();
+    for (const line of order.products || []) {
+      oldSummary.set(String(line.product) + (line.variantId ? `/${line.variantId}` : ""), {
+        name: line.name,
+        qty: Number(line.quantity) || 0,
+      });
+    }
+    const newSummary = new Map();
+    quote.lines.forEach((l, i) => {
+      const src = resolvedLines[i];
+      const vId = src.variant ? src.variant._id : null;
+      newSummary.set(String(l.product) + (vId ? `/${vId}` : ""), { name: l.name, qty: l.quantity });
+    });
+    const deltaParts = [];
+    for (const [k, v] of newSummary) {
+      const old = oldSummary.get(k);
+      if (!old) deltaParts.push(`added ${v.name} ×${v.qty}`);
+      else if (old.qty !== v.qty) deltaParts.push(`${v.name} ${old.qty}→${v.qty}`);
+    }
+    for (const [k, v] of oldSummary) {
+      if (!newSummary.has(k)) deltaParts.push(`removed ${v.name} ×${v.qty}`);
+    }
+    const deltaNote = deltaParts.length ? deltaParts.join(", ") : "Line items re-snapshotted";
+
+    // ── Persist ──────────────────────────────────────────────────────
+    const now = new Date();
+    order.products = buildEditedOrderProducts(quote, resolvedLines);
+    order.subtotal = quote.subtotal;
+    order.discount = quote.discount;
+    order.shippingCost = quote.shippingCost;
+    order.tax = quote.tax;
+    order.taxBreakdown = quote.taxBreakdown;
+    order.taxIncluded = quote.taxIncluded;
+    order.totalAmount = quote.totalAmount;
+    order.calculationVersion = (Number(order.calculationVersion) || 0) + 1;
+    order.updatedAt = now;
+    if (!Array.isArray(order.history)) order.history = [];
+    order.history.push({
+      event: "order_edited",
+      note: `Items edited: ${deltaNote}`,
+      by: userId || null,
+      at: now,
+    });
+
+    await order.save({ session });
+    await session.commitTransaction();
+    await session.endSession();
+
+    logStateChange(models, {
+      entity: "order",
+      resourceId: orderId,
+      from: order.status,
+      to: order.status,
+      actor: userId || null,
+      reason: `Order items edited: ${deltaNote}`,
+      metadata: { orderNumber: order.orderNumber, totalAmount: order.totalAmount },
+    });
+
+    const populated = await getOrderRepo(models, { _id: orderId });
+    return {
+      success: true,
+      statusCode: 200,
+      message: "Order items updated",
+      responseObject: formatOrderForDashboard(populated || order),
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw error;
+  }
+};
+
+// Build the order.products[] snapshot for an edited order — mirrors
+// draftOrder.buildOrderProducts but kept local so the shared pricing path
+// stays the only cross-module coupling.
+const buildEditedOrderProducts = (quote, resolvedLines) => {
+  const allocations = computeLineAllocations(quote.lines, quote.discount, quote.tax);
+  return quote.lines.map((l, idx) => {
+    const src = resolvedLines[idx];
+    const imageUrl = src ? resolveProductImage(src.product) : undefined;
+    const alloc = allocations[idx] || { discount: 0, tax: 0 };
+    return {
+      product: l.product,
+      name: l.name,
+      sku: l.sku,
+      ...(imageUrl ? { image: imageUrl } : {}),
+      quantity: l.quantity,
+      price: l.unitPrice,
+      discountAllocation: alloc.discount,
+      taxAllocation: alloc.tax,
+      fulfilledQuantity: 0,
+      ...(l.variant
+        ? { variantId: l.variant.id, variantOptions: l.variant.optionValues || [] }
+        : {}),
+    };
+  });
+};
+
+// ─── Resend order notification (audit 5.6.1) ───────────────────────────
+// Re-send one of the existing status-notification templates to the
+// customer, on demand. `template` must be one of the notifier's known
+// statuses. Records an order_notified history entry on success, same as
+// an automatic transition.
+export const resendOrderNotificationService = async (models, orderId, template, userId, permissions) => {
+  if (!canWriteOrders(permissions)) {
+    throw new APIError("You do not have permission to resend order emails", 403);
+  }
+  if (!template || !ORDER_NOTIFICATION_STATUSES.includes(template)) {
+    throw new APIError(
+      `template must be one of: ${ORDER_NOTIFICATION_STATUSES.join(", ")}`,
+      400
+    );
+  }
+  const order = await models.Order.findById(orderId)
+    .populate("user", "name email");
+  if (!order) throw new APIError("Order not found", 404);
+  if (order.status === "Draft") {
+    throw new APIError("Draft orders have no customer notifications to resend", 400);
+  }
+
+  const result = await notifyOrderStatusChange(order, template);
+  if (!result || result.success !== true) {
+    throw new APIError(
+      `Could not send the ${template} email${result?.reason ? ` (${result.reason})` : ""}`,
+      422
+    );
+  }
+  await recordOrderNotified(order, template, result, { userId });
+
+  return {
+    success: true,
+    statusCode: 200,
+    message: `Resent the ${template} email`,
+    responseObject: { template, to: order.user?.email || order.customerSnapshot?.email || order.guestCustomer?.email || null },
   };
 };
 
