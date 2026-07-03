@@ -140,3 +140,8 @@ export { formatCurrency, calculateDiscount } from './utils/formatCurrency';
 
 // ─── Legacy (backward compat) ────────────────────────────────────
 export { default as CartDrawer } from './components/CartDrawer';
+
+// ─── App SDK (createThemeApp / mountTheme) ──────────────────────
+export { createThemeApp } from './app/createThemeApp';
+export type { CreateThemeAppOptions, ThemePages, ThemeAppComponent, ExtraRoute } from './app/createThemeApp';
+export { mountTheme } from './app/mountTheme';
