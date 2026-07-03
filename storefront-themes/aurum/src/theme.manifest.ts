@@ -200,6 +200,7 @@ const manifest = defineTheme({
   slug: 'aurum',
   name: 'Aurum',
   version: '1.0.0',
+  previewImage: '/preview.jpg',
   description: 'A dark editorial luxury theme for jewelry and fine accessories. Prata serif headlines and soft gold accents over near-black.',
   author: { name: 'Matjar', website: 'https://matjar.com' },
   categories: ['jewelry', 'fashion', 'general'],

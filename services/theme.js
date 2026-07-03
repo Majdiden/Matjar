@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import mongoose from "mongoose";
 import logger from "../utils/logger.js";
 import { createScopedModels } from "../utils/scopedModel.js";
@@ -22,7 +25,7 @@ import {
   themeSlugExistsRepo,
 } from "../repositories/theme.js";
 import { APIError } from "../middlewares/errorHandler.js";
-import { getThemeManifest } from "./themeManifestRegistry.js";
+import { getThemeManifest, getBuiltInThemeSlugs } from "./themeManifestRegistry.js";
 import { seedThemeDemoData } from "./themeDemoData.js";
 
 /**
@@ -128,8 +131,60 @@ export const getDefaultThemeService = async () => {
   return theme;
 };
 
+// ─── Theme preview images ────────────────────────────────────────
+//
+// Each built theme ships a homepage screenshot at `dist/preview.jpg`
+// (authored as `public/preview.jpg`; Vite copies it into dist). The
+// dashboard renders it via `GET /api/themes/:slug/preview`. Until the
+// catalog sync (audit 2.4) persists `previewImage` on Theme rows, the
+// list endpoints overlay the URL for any theme whose file exists.
+
+const __theme_service_dirname = path.dirname(fileURLToPath(import.meta.url));
+const THEMES_ROOT = path.resolve(__theme_service_dirname, "..", "storefront-themes");
+const PREVIEW_IMAGE_FILENAME = "preview.jpg";
+// Same FS-boundary rule as middlewares/storefrontServe.js: slugs are
+// concatenated into a filesystem path, so reject anything that isn't a
+// plain kebab-case identifier before touching the FS.
+const THEME_SLUG_RE = /^[a-z0-9_-]+$/;
+
+/**
+ * Resolve the absolute path of a theme's built preview image, or null.
+ * Only slugs known to the manifest registry are served, and the
+ * resolved path must stay inside the theme's dist folder.
+ */
+export const getThemePreviewImagePathService = (slug) => {
+  if (
+    typeof slug !== "string" ||
+    slug.length === 0 ||
+    slug.length > 64 ||
+    !THEME_SLUG_RE.test(slug)
+  ) {
+    return null;
+  }
+  if (!getBuiltInThemeSlugs().includes(slug)) return null;
+  const distDir = path.resolve(THEMES_ROOT, slug, "dist");
+  const filePath = path.resolve(distDir, PREVIEW_IMAGE_FILENAME);
+  if (!filePath.startsWith(distDir + path.sep)) return null;
+  return fs.existsSync(filePath) ? filePath : null;
+};
+
+/**
+ * Return a plain-object copy of a theme with `previewImage` filled in
+ * from the built screenshot when the DB row doesn't carry one.
+ * Accepts Mongoose docs or plain objects; null passes through.
+ */
+export const withThemePreviewImage = (theme) => {
+  if (!theme) return theme;
+  const obj = typeof theme.toObject === "function" ? theme.toObject() : { ...theme };
+  if (!obj.previewImage && obj.slug && getThemePreviewImagePathService(obj.slug)) {
+    obj.previewImage = `/api/themes/${obj.slug}/preview`;
+  }
+  return obj;
+};
+
 export const getActiveThemesService = async (filters = {}) => {
-  return await getActiveThemesRepo(filters);
+  const themes = await getActiveThemesRepo(filters);
+  return themes.map(withThemePreviewImage);
 };
 
 export const getThemesService = async (options = {}) => {

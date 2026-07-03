@@ -20,6 +20,7 @@ import {
   uninstallTheme,
   searchThemes,
   getThemesByCategory,
+  getThemePreviewImage,
 } from "../controllers/theme.js";
 
 const router = express.Router();
@@ -33,6 +34,8 @@ router.get("/default", optionalAuth, getDefaultTheme);
 router.get("/search", optionalAuth, searchThemes);
 router.get("/category/:category", optionalAuth, getThemesByCategory);
 router.get("/slug/:slug", optionalAuth, getThemeBySlug);
+// Preview screenshot is a public static image — no auth or tenant context.
+router.get("/:slug/preview", getThemePreviewImage);
 router.get("/:id", optionalAuth, getThemeById);
 router.get("/:id/config", optionalAuth, getThemeConfig);
 

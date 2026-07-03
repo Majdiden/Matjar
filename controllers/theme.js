@@ -19,6 +19,8 @@ import {
   getPopularThemesService,
   getLatestThemesService,
   getThemePublicConfigService,
+  getThemePreviewImagePathService,
+  withThemePreviewImage,
 } from "../services/theme.js";
 
 /**
@@ -106,9 +108,27 @@ export const getActiveThemes = asyncHandler(async (req, res) => {
     success: true,
     data: {
       themes,
-      currentTheme,
+      // Themes from the list are already decorated; a currentTheme fetched
+      // directly by slug/id still needs its previewImage overlay.
+      currentTheme: withThemePreviewImage(currentTheme),
     },
   });
+});
+
+/**
+ * @route   GET /api/themes/:slug/preview
+ * @desc    Stream a theme's built preview screenshot (dist/preview.jpg).
+ *          Read-only; slug is validated against the manifest registry and
+ *          the resolved path is contained to the theme's dist folder.
+ * @access  Public
+ */
+export const getThemePreviewImage = asyncHandler(async (req, res) => {
+  const filePath = getThemePreviewImagePathService(req.params.slug);
+  if (!filePath) {
+    return res.status(404).json({ success: false, message: "Preview image not found" });
+  }
+  // Screenshots change only on theme rebuilds — cache briefly.
+  res.sendFile(filePath, { maxAge: "1h" });
 });
 
 /**

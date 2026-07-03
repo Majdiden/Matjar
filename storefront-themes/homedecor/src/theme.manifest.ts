@@ -124,6 +124,7 @@ const manifest = defineTheme({
   slug: 'homedecor',
   name: 'Home Decor',
   version: '1.0.0',
+  previewImage: '/preview.jpg',
   description: 'A warm, editorial theme for home furnishing and interior décor stores. Features dark hero panels, gold accents, and room-based navigation.',
   author: { name: 'Matjar', website: 'https://matjar.com' },
   categories: ['home', 'general'],

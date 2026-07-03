@@ -142,6 +142,7 @@ const manifest = defineTheme({
   slug: 'nutreko',
   name: 'Nutreko',
   version: '1.0.0',
+  previewImage: '/preview.jpg',
   description: 'Bold sports-nutrition theme with chunky typography, black/lime palette and high-energy product rails.',
   author: { name: 'Matjar', website: 'https://matjar.com' },
   categories: ['supplements', 'health', 'fitness'],

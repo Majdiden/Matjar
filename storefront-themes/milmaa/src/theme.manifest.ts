@@ -194,6 +194,7 @@ const manifest = defineTheme({
   slug: 'milmaa',
   name: 'Milmaa',
   version: '1.0.0',
+  previewImage: '/preview.jpg',
   description: 'Single-product plant-based milk theme with pastel teal/cream/pink palette and playful serif headlines.',
   author: { name: 'Matjar', website: 'https://matjar.com' },
   categories: ['beverages', 'food', 'wellness'],

@@ -7,9 +7,7 @@
     "current_theme_label": "القالب الحالي",
     "meta": {
       "version": "الإصدار",
-      "author": "المؤلف",
-      "rating": "التقييم",
-      "installs": "عدد التثبيتات"
+      "author": "المؤلف"
     },
     "library": {
       "title": "مكتبة القوالب",

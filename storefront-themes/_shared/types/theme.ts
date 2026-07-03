@@ -235,6 +235,14 @@ export interface ThemeManifest {
    * omitted means "any".
    */
   minPlatformVersion?: string;
+  /**
+   * Path to the theme's catalog preview image, relative to the built
+   * `dist/` root (e.g. "/preview.jpg" for a file authored at
+   * `public/preview.jpg` — Vite copies `public/` into `dist/`). Rendered
+   * by the dashboard theme picker; a 1280×800 JPEG homepage screenshot
+   * is the convention.
+   */
+  previewImage?: string;
   /** Theme description */
   description: string;
   /** Author info */

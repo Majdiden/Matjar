@@ -7,9 +7,7 @@
     "current_theme_label": "Current theme",
     "meta": {
       "version": "Version",
-      "author": "Author",
-      "rating": "Rating",
-      "installs": "Installs"
+      "author": "Author"
     },
     "library": {
       "title": "Theme library",

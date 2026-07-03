@@ -10,7 +10,6 @@ import {
   Palette,
   CheckCircle2,
   Download,
-  Star,
   Loader2,
   Search,
   Eye,
@@ -59,6 +58,37 @@ function errorMessage(err: unknown, fallback: string): string {
   }
   return fallback;
 }
+
+/**
+ * Theme homepage screenshot with a graceful fallback: if the theme ships no
+ * preview image or the request 404s (e.g. the theme hasn't been rebuilt with
+ * one yet), render the palette placeholder instead of a broken image.
+ */
+const ThemeScreenshot: React.FC<{
+  src?: string;
+  alt: string;
+  imgClassName: string;
+  fallbackClassName: string;
+  fallbackIconClassName: string;
+}> = ({ src, alt, imgClassName, fallbackClassName, fallbackIconClassName }) => {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) {
+    return (
+      <div className={fallbackClassName}>
+        <Palette className={fallbackIconClassName} />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      className={imgClassName}
+      onError={() => setFailed(true)}
+    />
+  );
+};
 
 export const Themes: React.FC = () => {
   const navigate = useNavigate();
@@ -210,17 +240,13 @@ export const Themes: React.FC = () => {
           <div className="relative grid lg:grid-cols-[1.1fr,1fr] gap-8 p-6 lg:p-8">
             {/* Screenshot */}
             <div className="relative aspect-[16/10] rounded-xl overflow-hidden border bg-muted shadow-2xl shadow-primary/10">
-              {activeTheme.previewImage ? (
-                <img
-                  src={activeTheme.previewImage}
-                  alt={activeTheme.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 via-primary/5 to-transparent">
-                  <Palette className="h-20 w-20 text-primary/30" />
-                </div>
-              )}
+              <ThemeScreenshot
+                src={activeTheme.previewImage}
+                alt={activeTheme.name}
+                imgClassName="w-full h-full object-cover object-top"
+                fallbackClassName="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 via-primary/5 to-transparent"
+                fallbackIconClassName="h-20 w-20 text-primary/30"
+              />
               <div className="absolute top-3 start-3">
                 <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white border-0 shadow-lg">
                   <CheckCircle2 className="h-3 w-3 me-1" />
@@ -240,6 +266,9 @@ export const Themes: React.FC = () => {
                 {activeTheme.description}
               </p>
 
+              {/* Rating/install statistics and manifest feature chips are
+                  intentionally not rendered until real data exists
+                  (audit 3.9.7 — no fabricated marketplace stats). */}
               <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-6">
                 <div>
                   <div className="text-xs uppercase tracking-wider text-muted-foreground">
@@ -253,41 +282,7 @@ export const Themes: React.FC = () => {
                   </div>
                   <div className="font-medium truncate">{activeTheme.author.name}</div>
                 </div>
-                {activeTheme.statistics && (
-                  <>
-                    <div>
-                      <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                        {t('themes:list.meta.rating')}
-                      </div>
-                      <div className="font-medium flex items-center gap-1">
-                        <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                        {activeTheme.statistics.rating.toFixed(1)}
-                        <span className="text-muted-foreground font-normal">
-                          ({activeTheme.statistics.reviewCount})
-                        </span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                        {t('themes:list.meta.installs')}
-                      </div>
-                      <div className="font-medium">
-                        {activeTheme.statistics.installCount.toLocaleString()}
-                      </div>
-                    </div>
-                  </>
-                )}
               </div>
-
-              {activeTheme.features?.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-6">
-                  {activeTheme.features.slice(0, 6).map((f, i) => (
-                    <Badge key={i} variant="secondary" className="text-xs font-normal">
-                      {f}
-                    </Badge>
-                  ))}
-                </div>
-              )}
 
               <div className="flex flex-wrap gap-3">
                 <Button
@@ -376,17 +371,13 @@ export const Themes: React.FC = () => {
               >
                 {/* Screenshot */}
                 <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-muted to-muted/40">
-                  {theme.previewImage ? (
-                    <img
-                      src={theme.previewImage}
-                      alt={theme.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Palette className="h-14 w-14 text-muted-foreground/30" />
-                    </div>
-                  )}
+                  <ThemeScreenshot
+                    src={theme.previewImage}
+                    alt={theme.name}
+                    imgClassName="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    fallbackClassName="w-full h-full flex items-center justify-center"
+                    fallbackIconClassName="h-14 w-14 text-muted-foreground/30"
+                  />
 
                   {/* Status badge */}
                   {isActive && (
@@ -428,39 +419,19 @@ export const Themes: React.FC = () => {
                 </div>
 
                 <CardContent className="p-5 space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-base truncate">{theme.name}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        v{theme.version} • {theme.author.name}
-                      </p>
-                    </div>
-                    {theme.statistics && theme.statistics.rating > 0 && (
-                      <div className="flex items-center gap-1 text-xs font-medium shrink-0">
-                        <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                        {theme.statistics.rating.toFixed(1)}
-                      </div>
-                    )}
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-base truncate">{theme.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      v{theme.version} • {theme.author.name}
+                    </p>
                   </div>
 
                   <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
                     {theme.description}
                   </p>
 
-                  {theme.features?.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {theme.features.slice(0, 3).map((f, i) => (
-                        <Badge key={i} variant="outline" className="text-[10px] font-normal">
-                          {f}
-                        </Badge>
-                      ))}
-                      {theme.features.length > 3 && (
-                        <span className="text-[10px] text-muted-foreground self-center">
-                          +{theme.features.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  {/* Ratings and feature tag chips intentionally omitted until
+                      real data exists (audit 3.9.7). */}
 
                   <div className="flex flex-wrap items-center gap-2 pt-3 border-t">
                     {isActive ? (

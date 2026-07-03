@@ -90,6 +90,7 @@ const manifest = defineTheme({
   slug: 'starter',
   name: 'Starter',
   version: '1.0.0',
+  previewImage: '/preview.jpg',
   description: 'An ultra-minimal, unopinionated starter theme. Designed as a clean baseline for developers to build on — no decorative flourishes, just structure.',
   author: { name: 'Matjar', website: 'https://matjar.com' },
   categories: ['general'],

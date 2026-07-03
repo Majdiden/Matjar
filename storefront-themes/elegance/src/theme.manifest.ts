@@ -141,6 +141,7 @@ const manifest = defineTheme({
   slug: 'elegance',
   name: 'Elegance',
   version: '1.0.0',
+  previewImage: '/preview.jpg',
   description: 'A luxury fashion theme with editorial aesthetics. Features a full-bleed hero, asymmetric collection grid, and refined typography.',
   author: { name: 'Matjar', website: 'https://matjar.com' },
   categories: ['fashion', 'luxury', 'jewelry', 'apparel'],

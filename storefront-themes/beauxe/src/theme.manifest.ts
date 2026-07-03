@@ -175,6 +175,7 @@ const manifest = defineTheme({
   slug: 'beauxe',
   name: 'Beauxe',
   version: '1.0.0',
+  previewImage: '/preview.jpg',
   description: 'Model-led cosmetics theme with soft pink/cream palette, serif headlines and rounded CTAs.',
   author: { name: 'Matjar', website: 'https://matjar.com' },
   categories: ['cosmetics', 'beauty'],
