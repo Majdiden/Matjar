@@ -54,6 +54,10 @@ const pageSchema = new Schema({
   // survives round trips — if the merchant needs a fresh timestamp they
   // can set it explicitly.
   publishedAt: { type: Date, default: null },
+  // Scheduled publishing (audit 6.5): when set, the storefront read gate is
+  // `isPublished && (publishAt == null || publishAt <= now)` — no cron; the
+  // read-time check suffices. Null = publish immediately when isPublished.
+  publishAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

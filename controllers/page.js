@@ -115,7 +115,11 @@ export const storefrontGetPageBySlug = asyncHandler(async (req, res) => {
   );
   // Published-gate on the public surface. We surface 404 rather than 403
   // so an unpublished page is indistinguishable from a never-existed one.
-  if (!page || !page.isPublished) {
+  // Scheduled publishing (audit 6.5): a future publishAt keeps the page
+  // hidden until its time arrives — checked at read time, no cron.
+  const scheduledForFuture =
+    page && page.publishAt && new Date(page.publishAt) > new Date();
+  if (!page || !page.isPublished || scheduledForFuture) {
     return res.status(404).json({ success: false, message: "Page not found" });
   }
   res.json({ success: true, data: publicPage(page) });

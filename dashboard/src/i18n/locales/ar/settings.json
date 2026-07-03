@@ -454,7 +454,8 @@
         "category": "فئة",
         "order": "طلب",
         "customer": "عميل",
-        "store": "متجر"
+        "store": "متجر",
+        "page": "صفحة"
       },
       "type": {
         "string": "نص",

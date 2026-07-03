@@ -60,6 +60,10 @@
         "label_published": "Published",
         "label_draft": "Draft (hidden from storefront)"
       },
+      "publish_at": {
+        "label": "Schedule publish",
+        "hint": "Optional. The page stays hidden on the storefront until this date and time. Leave empty to publish immediately."
+      },
       "meta_title": {
         "label": "Meta title"
       },
