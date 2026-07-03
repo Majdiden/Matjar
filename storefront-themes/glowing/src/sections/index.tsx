@@ -15,6 +15,19 @@ import { Skeleton } from '@shared/components/primitives/Skeleton';
 import { ProductRail } from '@shared/components/commerce/ProductRail';
 import GlowingProductCard from '../components/GlowingProductCard';
 
+// Baked default imagery (verified Unsplash skincare shots) so a fresh store
+// on this theme looks complete before the merchant uploads anything. Every
+// image slot still honours the merchant's own setting first.
+const U = (id: string) => `https://images.unsplash.com/photo-${id}?w=900&q=80&auto=format&fit=crop`;
+const GLOWING_DEFAULTS = {
+  hero: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=1600&q=80&auto=format&fit=crop',
+  promo: [U('1556228720-195a672e8a03'), U('1608248543803-ba4f8c70ae0b'), U('1556228578-8c89e6adf883')],
+  tiles: [
+    U('1556228720-195a672e8a03'), U('1608248543803-ba4f8c70ae0b'), U('1556228578-8c89e6adf883'),
+    U('1570172619644-dfd03ed5d881'), U('1512496015851-a90fb38ba796'), U('1612817288484-6f916006741a'),
+  ],
+};
+
 // ─── Top strip (announcement) ─────────────────────────────────────
 
 const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
@@ -67,6 +80,18 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
         >
           {s.cta_text || t('theme.hero.cta')}
         </Link>
+
+        {/* Editorial hero image — merchant's setting first, tasteful skincare
+            default otherwise, so the hero is never an empty colour stage. */}
+        <div className="mt-14 max-w-4xl mx-auto overflow-hidden rounded-t-[999px] rounded-b-3xl group">
+          <img
+            src={s.image || GLOWING_DEFAULTS.hero}
+            alt=""
+            aria-hidden="true"
+            onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = 'none'; }}
+            className="w-full aspect-[16/9] object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+          />
+        </div>
       </div>
     </section>
   );
@@ -84,16 +109,17 @@ const PromoCardsSection: React.FC<SectionComponentProps> = ({ id, section }) => 
   const fallbackTint = (pct: number) =>
     `color-mix(in srgb, var(--color-accent) ${pct}%, white)`;
   const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { eyebrow: t('theme.section.promo_cards.card1_eyebrow'), title: t('theme.section.promo_cards.card1_title'), cta_text: t('theme.section.promo_cards.card1_cta'), background_color: fallbackTint(20) } },
-    { id: 'b', settings: { eyebrow: t('theme.section.promo_cards.card2_eyebrow'), title: t('theme.section.promo_cards.card2_title'), cta_text: t('theme.section.promo_cards.card2_cta'), background_color: fallbackTint(30) } },
-    { id: 'c', settings: { eyebrow: t('theme.section.promo_cards.card3_eyebrow'), title: t('theme.section.promo_cards.card3_title'), cta_text: t('theme.section.promo_cards.card3_cta'), background_color: fallbackTint(40) } },
+    { id: 'a', settings: { eyebrow: t('theme.section.promo_cards.card1_eyebrow'), title: t('theme.section.promo_cards.card1_title'), cta_text: t('theme.section.promo_cards.card1_cta'), background_color: fallbackTint(20), image: GLOWING_DEFAULTS.promo[0] } },
+    { id: 'b', settings: { eyebrow: t('theme.section.promo_cards.card2_eyebrow'), title: t('theme.section.promo_cards.card2_title'), cta_text: t('theme.section.promo_cards.card2_cta'), background_color: fallbackTint(30), image: GLOWING_DEFAULTS.promo[1] } },
+    { id: 'c', settings: { eyebrow: t('theme.section.promo_cards.card3_eyebrow'), title: t('theme.section.promo_cards.card3_title'), cta_text: t('theme.section.promo_cards.card3_cta'), background_color: fallbackTint(40), image: GLOWING_DEFAULTS.promo[2] } },
   ];
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {items.slice(0, 3).map((b) => {
+        {items.slice(0, 3).map((b, bi) => {
           const bs = b.settings || {};
+          const cardImage = bs.image || GLOWING_DEFAULTS.promo[bi % GLOWING_DEFAULTS.promo.length];
           return (
             <Link
               key={b.id}
@@ -101,10 +127,11 @@ const PromoCardsSection: React.FC<SectionComponentProps> = ({ id, section }) => 
               className="group relative block overflow-hidden aspect-[4/5]"
               style={{ backgroundColor: bs.background_color || fallbackTint(20) }}
             >
-              {bs.image && (
+              {cardImage && (
                 <img
-                  src={bs.image}
+                  src={cardImage}
                   alt={bs.title}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   className="absolute inset-0 w-full h-full object-cover mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
                 />
               )}
@@ -212,7 +239,10 @@ const InstagramSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const fallbackPcts = [20, 40, 30, 25, 35, 45];
   const tiles = blocks.length > 0
     ? blocks
-    : fallbackPcts.map((p, i) => ({ id: `t${i}`, settings: { background_color: fallbackTint(p) } }));
+    : fallbackPcts.map((p, i) => ({
+        id: `t${i}`,
+        settings: { background_color: fallbackTint(p), image: GLOWING_DEFAULTS.tiles[i % GLOWING_DEFAULTS.tiles.length] },
+      }));
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
       <div className="text-center mb-10">
@@ -234,6 +264,7 @@ const InstagramSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 <img
                   src={ts.image}
                   alt=""
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               )}
