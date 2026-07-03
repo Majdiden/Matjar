@@ -7,6 +7,8 @@ import type { SectionDefinition } from '@matjar/theme-shared/types/theme';
 export const heroSection: SectionDefinition = defineSection({
   type: 'hero',
   name: 'Hero Banner',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Full-width gradient hero with decorative book emojis, tagline, headline, and CTA button',
   target: 'body',
   limit: 1,
@@ -26,6 +28,8 @@ export const heroSection: SectionDefinition = defineSection({
 export const genresSection: SectionDefinition = defineSection({
   type: 'genres',
   name: 'Browse by Genre',
+  icon: 'FolderTree',
+  category: 'commerce',
   description: 'Grid of genre category cards with emoji icons and hover effects',
   target: 'body',
   limit: 1,
@@ -57,6 +61,8 @@ export const genresSection: SectionDefinition = defineSection({
 export const staffPicksSection: SectionDefinition = defineSection({
   type: 'staff-picks',
   name: 'Staff Picks',
+  icon: 'Star',
+  category: 'commerce',
   description: 'Grid of hand-picked products curated by the store team',
   target: 'body',
   limit: 1,
@@ -78,6 +84,8 @@ export const staffPicksSection: SectionDefinition = defineSection({
 export const readingQuoteSection: SectionDefinition = defineSection({
   type: 'reading-quote',
   name: 'Reading Quote',
+  icon: 'Quote',
+  category: 'content',
   description: 'Inspirational reading quote with subtle violet background',
   target: 'body',
   limit: 1,
@@ -91,6 +99,8 @@ export const readingQuoteSection: SectionDefinition = defineSection({
 export const bestsellersSection: SectionDefinition = defineSection({
   type: 'bestsellers',
   name: 'Bestsellers',
+  icon: 'Star',
+  category: 'commerce',
   description: 'Scrollable carousel of bestselling products',
   target: 'body',
   limit: 1,
@@ -108,6 +118,8 @@ export const bestsellersSection: SectionDefinition = defineSection({
 export const newsletterSection: SectionDefinition = defineSection({
   type: 'newsletter',
   name: 'Reading List CTA',
+  icon: 'Mail',
+  category: 'marketing',
   description: 'Email signup with violet gradient background to grow the reading community',
   target: 'body',
   limit: 1,
@@ -150,6 +162,12 @@ const manifest = defineTheme({
     baseFontSize: '16px',
     lineHeight: '1.7',
   },
+
+  fonts: [
+    { label: "Lora", value: "'Lora', serif" },
+    { label: "Crimson Pro", value: "'Crimson Pro', serif" },
+    { label: "Amiri", value: "'Amiri', serif" },
+  ],
 
   layout: {
     maxWidth: '1152px',

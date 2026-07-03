@@ -393,24 +393,63 @@
     "color_picker": {
       "palette": "Palette",
       "recent": "Currently used"
+    },
+    "layout_labels": {
+      "maxWidth": "Max content width",
+      "headerStyle": "Header style",
+      "footerStyle": "Footer style"
+    },
+    "layout_options": {
+      "standard": "Standard",
+      "minimal": "Minimal",
+      "centered": "Centered",
+      "expanded": "Expanded"
     }
   },
   "sections": {
-    "hero": { "name": "Hero Banner" },
-    "featured-products": { "name": "Featured Products" },
-    "new-arrivals": { "name": "New Arrivals" },
-    "categories": { "name": "Categories" },
-    "newsletter": { "name": "Newsletter" },
-    "trust-badges": { "name": "Trust Badges" },
-    "product-recommendations": { "name": "You May Also Like" }
+    "hero": {
+      "name": "Hero Banner"
+    },
+    "featured-products": {
+      "name": "Featured Products"
+    },
+    "new-arrivals": {
+      "name": "New Arrivals"
+    },
+    "categories": {
+      "name": "Categories"
+    },
+    "newsletter": {
+      "name": "Newsletter"
+    },
+    "trust-badges": {
+      "name": "Trust Badges"
+    },
+    "product-recommendations": {
+      "name": "You May Also Like"
+    }
   },
   "settings": {
-    "heading": { "label": "Heading" },
-    "subheading": { "label": "Subheading" },
-    "title": { "label": "Title" },
-    "description": { "label": "Description" },
-    "button_text": { "label": "Button Text" },
-    "button_link": { "label": "Button Link" },
-    "image": { "label": "Image" }
+    "heading": {
+      "label": "Heading"
+    },
+    "subheading": {
+      "label": "Subheading"
+    },
+    "title": {
+      "label": "Title"
+    },
+    "description": {
+      "label": "Description"
+    },
+    "button_text": {
+      "label": "Button Text"
+    },
+    "button_link": {
+      "label": "Button Link"
+    },
+    "image": {
+      "label": "Image"
+    }
   }
 }

@@ -25,7 +25,18 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../ui/use-confirm';
-import type { ThemeVersionEntry } from './types';
+
+/**
+ * Row returned by GET /theme-customization/versions. Local to the top
+ * bar — it's a dashboard API envelope shape, not a theme SDK type.
+ */
+interface ThemeVersionEntry {
+  version: number;
+  source?: string;
+  label?: string;
+  themeSlug?: string;
+  publishedAt?: string;
+}
 
 // Axios-style error shape we receive from the api client. Kept local
 // because api-client.ts is out of scope for this lint pass, but we still

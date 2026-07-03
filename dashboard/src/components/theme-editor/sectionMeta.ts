@@ -1,14 +1,18 @@
 /**
  * Section metadata — maps a section type to a Lucide icon, display name,
  * and visual area (header / page body / footer). Used by the editor's
- * left rail (SectionTree) and right rail (SectionLibraryPanel).
+ * left rail (Canvas) and the section library.
  *
- * Falls back gracefully for unknown types.
+ * Since 1.4 the theme manifest is the primary source: SectionDefinition
+ * can declare `icon` (lucide name) and `category`; this module only
+ * provides the icon-name → component map and a static fallback for
+ * legacy manifests that predate those fields.
  */
 import {
   LayoutPanelTop,
   LayoutTemplate,
   Image as ImageIcon,
+  Images,
   Star,
   FolderTree,
   Sparkles,
@@ -25,6 +29,10 @@ import {
   Rss,
   Layers,
   Square,
+  Users,
+  Zap,
+  Instagram,
+  PanelLeft,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -37,6 +45,39 @@ export interface SectionMeta {
   area: SectionArea;
   description?: string;
 }
+
+/**
+ * Lucide icon components addressable by the string names theme manifests
+ * declare (`SectionDefinition.icon`). A curated subset — importing the
+ * whole lucide barrel by name would defeat tree-shaking. Unknown names
+ * fall back to the static META entry, then to a generic square.
+ */
+export const ICON_MAP: Record<string, LucideIcon> = {
+  LayoutPanelTop,
+  LayoutTemplate,
+  Image: ImageIcon,
+  Images,
+  Star,
+  FolderTree,
+  Sparkles,
+  Mail,
+  Tag,
+  PackageSearch,
+  Quote,
+  Megaphone,
+  Video,
+  Grid3x3,
+  Type,
+  Newspaper,
+  ShieldCheck,
+  Rss,
+  Layers,
+  Square,
+  Users,
+  Zap,
+  Instagram,
+  PanelLeft,
+};
 
 const META: Record<string, SectionMeta> = {
   // Header / footer
@@ -93,6 +134,38 @@ export function getSectionMeta(type: string): SectionMeta {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
   return { ...FALLBACK_META, name: niceName };
+}
+
+/**
+ * Manifest-declared metadata for a section type — the subset of
+ * SectionDefinition the meta resolver cares about. Everything optional
+ * so callers can pass whatever the API/manifest returned.
+ */
+export interface ManifestSectionMeta {
+  name?: string;
+  icon?: string | null;
+  category?: string | null;
+  target?: string | null;
+}
+
+/**
+ * Resolve editor metadata for a section type, preferring the theme
+ * manifest's declaration (name / icon / category / target) and falling
+ * back to the static META record, then to the generic fallback.
+ */
+export function resolveSectionMeta(type: string, def?: ManifestSectionMeta | null): SectionMeta {
+  const base = getSectionMeta(type);
+  if (!def) return base;
+  const icon = (def.icon && ICON_MAP[def.icon]) || base.icon;
+  const area: SectionArea =
+    def.target === 'header' ? 'header' : def.target === 'footer' ? 'footer' : base.area;
+  return {
+    ...base,
+    icon,
+    name: def.name || base.name,
+    category: def.category || base.category,
+    area,
+  };
 }
 
 export const SECTION_CATEGORIES: { id: string; label: string }[] = [

@@ -28,6 +28,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'hero',
     name: 'Hero Banner',
+    icon: 'LayoutTemplate',
+    category: 'content',
     description: 'Large hero with heading, subheading, and CTAs',
     target: 'body',
     settings: [
@@ -46,6 +48,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'banner',
     name: 'Promo Banner',
+    icon: 'Image',
+    category: 'content',
     description: 'Slim promotional strip',
     target: 'body',
     settings: [
@@ -60,6 +64,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'rich-text',
     name: 'Rich Text',
+    icon: 'Newspaper',
+    category: 'content',
     description: 'Heading + paragraph with optional CTA',
     target: 'body',
     settings: [
@@ -78,6 +84,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'image-with-text',
     name: 'Image with Text',
+    icon: 'Image',
+    category: 'content',
     description: 'Split layout: image on one side, content on the other',
     target: 'body',
     settings: [
@@ -98,6 +106,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'gallery',
     name: 'Gallery',
+    icon: 'Images',
+    category: 'media',
     description: 'Grid of images',
     target: 'body',
     settings: [
@@ -129,6 +139,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'features',
     name: 'Features',
+    icon: 'Sparkles',
+    category: 'marketing',
     description: 'Icon + title + description grid',
     target: 'body',
     settings: [
@@ -158,6 +170,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'video',
     name: 'Video',
+    icon: 'Video',
+    category: 'media',
     description: 'Embedded YouTube/Vimeo video',
     target: 'body',
     settings: [
@@ -170,6 +184,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'testimonials',
     name: 'Testimonials',
+    icon: 'Quote',
+    category: 'marketing',
     description: 'Customer quotes grid',
     target: 'body',
     settings: [
@@ -200,6 +216,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'newsletter',
     name: 'Newsletter Signup',
+    icon: 'Mail',
+    category: 'marketing',
     description: 'Email subscription form',
     target: 'body',
     limit: 1,
@@ -217,6 +235,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'brands',
     name: 'Brand Logos',
+    icon: 'Tag',
+    category: 'marketing',
     description: 'Strip of partner / brand logos',
     target: 'body',
     settings: [
@@ -228,6 +248,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'spacer',
     name: 'Spacer',
+    icon: 'Square',
+    category: 'layout',
     description: 'Vertical breathing room',
     target: 'body',
     settings: [
@@ -238,6 +260,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'featured-products',
     name: 'Featured Products',
+    icon: 'Star',
+    category: 'commerce',
     description: 'Grid of featured products',
     target: 'body',
     settings: [
@@ -259,6 +283,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'new-arrivals',
     name: 'New Arrivals',
+    icon: 'Sparkles',
+    category: 'commerce',
     description: 'Carousel of recently added products',
     target: 'body',
     settings: [
@@ -274,6 +300,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'categories',
     name: 'Category Grid',
+    icon: 'FolderTree',
+    category: 'commerce',
     description: 'Category showcase',
     target: 'body',
     settings: [
@@ -287,6 +315,8 @@ export const universalSections: SectionDefinition[] = [
   defineSection({
     type: 'trust-badges',
     name: 'Trust Badges',
+    icon: 'ShieldCheck',
+    category: 'marketing',
     description: 'Shipping/security/returns highlights',
     target: 'body',
     settings: [

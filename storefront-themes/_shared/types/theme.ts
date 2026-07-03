@@ -92,6 +92,26 @@ export type SectionSetting =
   | CollectionSetting
   | ProductSetting;
 
+/**
+ * Loose, editor-facing view of a setting. Theme manifests are authored
+ * by third parties and travel through JSON, so the dashboard renders
+ * controls by switching on `type` at runtime rather than narrowing the
+ * discriminated union. Every per-type field is optional here.
+ */
+export interface AnySectionSetting {
+  id: string;
+  type: SectionSetting['type'] | (string & {});
+  label: string;
+  info?: string;
+  default?: unknown;
+  placeholder?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  unit?: string;
+  options?: Array<{ value: string; label: string }>;
+}
+
 // ─── Block System ────────────────────────────────────────────────
 
 export interface BlockDefinition {
@@ -109,13 +129,30 @@ export interface BlockInstance {
 
 // ─── Section Definition ──────────────────────────────────────────
 
+/**
+ * Editor category ids. Kept in lockstep with the dashboard's
+ * SECTION_CATEGORIES filter pills (sectionMeta.ts).
+ */
+export type SectionCategory = 'layout' | 'content' | 'commerce' | 'marketing' | 'media';
+
 export interface SectionDefinition {
   /** Unique identifier for this section type */
   type: string;
-  /** Display name in theme editor */
+  /**
+   * Display name in theme editor. Describe the section itself
+   * ("Hero", "Top strip") — never prefix with the theme name.
+   */
   name: string;
   /** Section description */
   description?: string;
+  /**
+   * Lucide icon name (PascalCase, e.g. "LayoutTemplate") rendered by
+   * the dashboard editor next to the section. Unknown names fall back
+   * to a generic icon.
+   */
+  icon?: string;
+  /** Editor library category this section is filed under */
+  category?: SectionCategory;
   /** Where this section can be placed */
   target?: 'header' | 'footer' | 'body';
   /** Max instances of this section per page */
@@ -141,6 +178,15 @@ export interface SectionInstance {
   type: string;
   /** Disabled sections are skipped during render */
   disabled?: boolean;
+  /**
+   * @deprecated Legacy polarity persisted by older backend documents
+   * (`enabled: false` == `disabled: true`). Read-compat only — new code
+   * must write `disabled`. ThemeProvider and the dashboard normalise
+   * this on read.
+   */
+  enabled?: boolean;
+  /** Explicit ordering index assigned by the dashboard editor */
+  order?: number;
   settings: Record<string, any>;
   blocks?: BlockInstance[];
 }
@@ -164,6 +210,20 @@ export interface ThemeTypography {
   headingFontFamily?: string;
   baseFontSize?: string;
   lineHeight?: string;
+}
+
+/**
+ * A font choice the theme ships (typically a Google Font loaded via a
+ * `<link>` in the theme's index.html). Surfaced in the dashboard's
+ * typography selects ahead of the platform's generic font list.
+ */
+export interface ThemeFontOption {
+  /** Human label shown in the editor select, e.g. "Cormorant Garamond" */
+  label: string;
+  /** CSS font-family stack persisted to settings.typography */
+  value: string;
+  /** Optional explicit stack when `value` is just the family name */
+  stack?: string;
 }
 
 /**
@@ -256,6 +316,19 @@ export interface ThemeManifest {
   /** Default color palette (light mode) */
   colors: ThemeColors;
   /**
+   * Human labels for the colour tokens, keyed by `colors` key. Labels
+   * MUST be unique within a manifest ("Text" / "Muted text", never two
+   * "Text"). `defineTheme()` fills unique defaults for the standard
+   * palette keys; themes only override to rename.
+   */
+  colorLabels?: Record<string, string>;
+  /**
+   * Fonts this theme ships (see each theme's Google Fonts `<link>`).
+   * The dashboard merges these ahead of its platform font list so a
+   * theme-only font is selectable without dashboard changes.
+   */
+  fonts?: ThemeFontOption[];
+  /**
    * Optional dark-mode palette override. Any keys provided here replace
    * their light-mode counterparts when `data-color-mode="dark"` is set on
    * the root. Unset keys fall back to the light palette. Themes that want
@@ -300,6 +373,26 @@ export interface ThemeManifest {
    * is unknown.
    */
   homeVariants?: Record<string, SectionInstance[]>;
+}
+
+// ─── Editor Schema (dashboard) ───────────────────────────────────
+
+/**
+ * Projection of a theme manifest served by
+ * `GET /theme-customization/manifest/:slug/schema` for the dashboard
+ * visual editor (see services/themeManifestRegistry.js →
+ * getThemeSettingsSchema).
+ */
+export interface ManifestSchema {
+  name?: string;
+  global: AnySectionSetting[];
+  colors: Record<string, string>;
+  colorLabels?: Record<string, string>;
+  typography: Record<string, string>;
+  layout?: Record<string, string>;
+  fonts?: ThemeFontOption[];
+  sections: SectionDefinition[];
+  templates: Record<string, SectionInstance[]>;
 }
 
 // ─── Merged Settings (runtime) ───────────────────────────────────

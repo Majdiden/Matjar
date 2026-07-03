@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, ChevronDown, ChevronRight, Plus, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
 import SettingControl from './SettingControl';
-import { getSectionMeta } from './sectionMeta';
+import { resolveSectionMeta } from './sectionMeta';
 import { ScrollArea } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 import type {
@@ -16,14 +16,27 @@ import type {
   SectionDefinition,
   SectionInstance,
   SectionSetting,
-} from './types';
+} from '@matjar/theme-shared/types/theme';
 
 interface ManifestSectionEditorProps {
   section: SectionInstance;
   sectionDefinition: SectionDefinition | null;
   onClose: () => void;
   onSave: (sectionId: string, settings: Record<string, unknown>, blocks?: BlockInstance[]) => void;
-  onToggle?: (sectionId: string, enabled: boolean) => void;
+  /**
+   * Fired synchronously on every edit, BEFORE the debounced save, so
+   * the parent can live-render the change in the preview iframe
+   * (audit 1.1). `kind` distinguishes plain setting edits (covered by
+   * the SECTION_UPDATE protocol message) from block mutations (not
+   * expressible in the protocol — the parent falls back to a refetch).
+   */
+  onLiveChange?: (
+    sectionId: string,
+    settings: Record<string, unknown>,
+    kind: 'settings' | 'blocks'
+  ) => void;
+  /** `enable` is the desired visibility (wire format of the toggle API). */
+  onToggle?: (sectionId: string, enable: boolean) => void;
 }
 
 export default function ManifestSectionEditor({
@@ -31,6 +44,7 @@ export default function ManifestSectionEditor({
   sectionDefinition,
   onClose,
   onSave,
+  onLiveChange,
   onToggle,
 }: ManifestSectionEditorProps) {
   const { t } = useTranslation('themes');
@@ -77,11 +91,14 @@ export default function ManifestSectionEditor({
     (key: string, value: unknown) => {
       setEditedSettings((prev) => {
         const next = { ...prev, [key]: value };
+        // Push into the live preview immediately (no debounce) — the
+        // parent posts a SECTION_UPDATE protocol message to the iframe.
+        onLiveChange?.(sectionIdRef.current, next, 'settings');
         scheduleSave(next, editedBlocks);
         return next;
       });
     },
-    [scheduleSave, editedBlocks]
+    [scheduleSave, editedBlocks, onLiveChange]
   );
 
   const handleBlockSettingChange = useCallback(
@@ -90,11 +107,14 @@ export default function ManifestSectionEditor({
         const next = prev.map((b) =>
           b.id === blockId ? { ...b, settings: { ...b.settings, [key]: value } } : b
         );
+        // Block edits aren't expressible in the live protocol — flag
+        // them so the parent refetches after the debounced save.
+        onLiveChange?.(sectionIdRef.current, editedSettings, 'blocks');
         scheduleSave(editedSettings, next);
         return next;
       });
     },
-    [scheduleSave, editedSettings]
+    [scheduleSave, editedSettings, onLiveChange]
   );
 
   const handleAddBlock = useCallback(
@@ -112,32 +132,36 @@ export default function ManifestSectionEditor({
       };
       setEditedBlocks((prev) => {
         const next = [...prev, newBlock];
+        onLiveChange?.(sectionIdRef.current, editedSettings, 'blocks');
         scheduleSave(editedSettings, next);
         return next;
       });
       setExpandedBlock(newBlock.id);
     },
-    [section, sectionDefinition, scheduleSave, editedSettings]
+    [section, sectionDefinition, scheduleSave, editedSettings, onLiveChange]
   );
 
   const handleRemoveBlock = useCallback(
     (blockId: string) => {
       setEditedBlocks((prev) => {
         const next = prev.filter((b) => b.id !== blockId);
+        onLiveChange?.(sectionIdRef.current, editedSettings, 'blocks');
         scheduleSave(editedSettings, next);
         return next;
       });
       if (expandedBlock === blockId) setExpandedBlock(null);
     },
-    [expandedBlock, scheduleSave, editedSettings]
+    [expandedBlock, scheduleSave, editedSettings, onLiveChange]
   );
 
   const settingsSchema: SectionSetting[] =
     sectionDefinition?.settings || inferSettings(editedSettings);
 
-  const meta = getSectionMeta(section.type);
+  // Manifest definition wins for icon/name (1.4); static map is fallback.
+  const meta = resolveSectionMeta(section.type, sectionDefinition);
   const Icon = meta.icon;
   const sectionName = t(`themes:sections.${section.type}.name`, { defaultValue: meta.name });
+  const isVisible = section.disabled !== true;
 
   return (
     <aside className="h-full flex flex-col bg-white border-s border-slate-200">
@@ -170,14 +194,14 @@ export default function ManifestSectionEditor({
         {onToggle && (
           <div className="mt-3 flex items-center gap-2">
             <button
-              onClick={() => onToggle(section.id, !section.enabled)}
+              onClick={() => onToggle(section.id, !isVisible)}
               className={`flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium rounded transition ${
-                section.enabled
+                isVisible
                   ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                   : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
               }`}
             >
-              {section.enabled ? (
+              {isVisible ? (
                 <>
                   <Eye className="h-3 w-3" /> {t('themes:editor.section_editor.visible')}
                 </>

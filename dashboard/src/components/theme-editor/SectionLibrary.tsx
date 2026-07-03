@@ -10,14 +10,16 @@ import { api } from '../../lib/api-client';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
-import { getSectionMeta, SECTION_CATEGORIES } from './sectionMeta';
+import { resolveSectionMeta, SECTION_CATEGORIES } from './sectionMeta';
 
 interface SectionType {
   type: string;
   name: string;
   description: string;
-  category: string;
-  icon: string;
+  /** Manifest-declared category id (1.4); null for legacy manifests. */
+  category?: string | null;
+  /** Manifest-declared lucide icon name (1.4); null for legacy manifests. */
+  icon?: string | null;
 }
 
 interface SectionLibraryProps {
@@ -52,13 +54,14 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
   };
 
   const filtered = sections.filter((s) => {
-    const meta = getSectionMeta(s.type);
-    const cat = meta.category || s.category;
+    // Manifest metadata (icon/category/name from the API) wins over the
+    // static sectionMeta map, which stays as a legacy fallback (1.4).
+    const meta = resolveSectionMeta(s.type, s);
     const matchesSearch =
       !searchQuery ||
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || cat === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || meta.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -117,7 +120,7 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 {filtered.map((s) => {
-                  const meta = getSectionMeta(s.type);
+                  const meta = resolveSectionMeta(s.type, s);
                   const Icon = meta.icon;
                   return (
                     <button

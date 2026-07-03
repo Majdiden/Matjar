@@ -319,7 +319,12 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
             const sections = [...(prev?.sections || baseOverrides?.sections || [])];
             const idx = sections.findIndex((s: any) => s.id === data.sectionId);
             if (idx >= 0) {
-              sections[idx] = { ...sections[idx], disabled: !data.enabled };
+              // Write BOTH polarity fields: `disabled` is the SDK field,
+              // but persisted sections may still carry the legacy
+              // `enabled` flag which the render filters also honour —
+              // leaving a stale `enabled: false` would keep a live
+              // re-enabled section hidden.
+              sections[idx] = { ...sections[idx], disabled: !data.enabled, enabled: data.enabled };
             }
             return { ...prev, sections };
           });
@@ -328,8 +333,14 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
           setLiveOverrides((prev: any) => {
             const existingSections = prev?.sections || baseOverrides?.sections || [];
             const sectionMap = new Map(existingSections.map((s: any) => [s.id, s]));
+            // Rewrite `order` to the new index — persisted sections carry
+            // their old `order` values and getSections() sorts by that
+            // field, which would silently undo the live reorder.
             const reordered = (data.sectionIds || [])
-              .map((id: string) => sectionMap.get(id))
+              .map((id: string, i: number) => {
+                const s = sectionMap.get(id);
+                return s ? { ...(s as any), order: i } : null;
+              })
               .filter(Boolean);
             return { ...prev, sections: reordered };
           });
@@ -341,15 +352,22 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
     return () => window.removeEventListener('message', handleMessage);
   }, [baseOverrides]);
 
-  // Merge: base overrides + live overrides (live takes precedence)
+  // Merge: base overrides + live overrides (live takes precedence).
+  // Spread the whole settings bags first so loose top-level keys AND the
+  // `theme` bucket (manifest-level globals such as home_variant /
+  // color_mode) survive the merge — re-spreading only colors/typography/
+  // layout used to silently drop live theme-setting changes.
   const overrides = useMemo(() => {
     if (!liveOverrides) return baseOverrides;
     return {
       ...baseOverrides,
       settings: {
+        ...(baseOverrides?.settings || {}),
+        ...(liveOverrides?.settings || {}),
         colors: { ...(baseOverrides?.settings?.colors || {}), ...(liveOverrides?.settings?.colors || {}) },
         typography: { ...(baseOverrides?.settings?.typography || {}), ...(liveOverrides?.settings?.typography || {}) },
         layout: { ...(baseOverrides?.settings?.layout || {}), ...(liveOverrides?.settings?.layout || {}) },
+        theme: { ...(baseOverrides?.settings?.theme || {}), ...(liveOverrides?.settings?.theme || {}) },
       },
       sections: liveOverrides.sections || baseOverrides?.sections,
     };

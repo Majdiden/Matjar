@@ -7,7 +7,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GripVertical, Eye, EyeOff, Copy, Trash2, Plus, MoreHorizontal } from 'lucide-react';
-import { getSectionMeta } from './sectionMeta';
+import { resolveSectionMeta } from './sectionMeta';
+import type { SectionDefinition, SectionInstance } from '@matjar/theme-shared/types/theme';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,26 +18,19 @@ import {
 } from '../ui/dropdown-menu';
 import { useConfirm } from '../ui/use-confirm';
 
-interface Section {
-  id: string;
-  type: string;
-  enabled: boolean;
-  order: number;
-  layout?: string;
-  settings: Record<string, unknown>;
-  elements?: Array<{
-    id: string;
-    type: string;
-    order: number;
-    content: unknown;
-    styles: Record<string, string>;
-  }>;
-}
+type Section = SectionInstance;
 
 interface CanvasProps {
   sections: Section[];
+  /**
+   * Section definitions from the active theme's manifest — the primary
+   * source for icon / category / display name (1.4). Optional; rows
+   * fall back to the static sectionMeta map.
+   */
+  sectionDefs?: SectionDefinition[];
   onReorder: (sections: Section[]) => void;
-  onToggleSection: (sectionId: string, enabled: boolean) => void;
+  /** `enable` is the desired visibility (wire format of the toggle API). */
+  onToggleSection: (sectionId: string, enable: boolean) => void;
   onSelectSection: (section: Section) => void;
   onDuplicateSection: (sectionId: string) => void;
   onDeleteSection: (sectionId: string) => void;
@@ -46,6 +40,7 @@ interface CanvasProps {
 
 export default function Canvas({
   sections,
+  sectionDefs,
   onReorder,
   onToggleSection,
   onSelectSection,
@@ -58,7 +53,8 @@ export default function Canvas({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
 
-  const sortedSections = [...sections].sort((a, b) => a.order - b.order);
+  const defByType = new Map((sectionDefs || []).map((d) => [d.type, d]));
+  const sortedSections = [...sections].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   // Bucket by area
   const buckets: { header: Section[]; template: Section[]; footer: Section[] } = {
@@ -67,7 +63,7 @@ export default function Canvas({
     footer: [],
   };
   for (const s of sortedSections) {
-    const area = getSectionMeta(s.type).area;
+    const area = resolveSectionMeta(s.type, defByType.get(s.type)).area;
     if (area === 'header') buckets.header.push(s);
     else if (area === 'footer') buckets.footer.push(s);
     else buckets.template.push(s);
@@ -123,9 +119,10 @@ export default function Canvas({
             <SectionRow
               key={s.id}
               section={s}
+              sectionDef={defByType.get(s.type)}
               selected={selectedSectionId === s.id}
               onClick={() => onSelectSection(s)}
-              onToggle={() => onToggleSection(s.id, !s.enabled)}
+              onToggle={() => onToggleSection(s.id, s.disabled === true)}
               onDuplicate={() => onDuplicateSection(s.id)}
               onDelete={() => onDeleteSection(s.id)}
               draggable={false}
@@ -147,9 +144,10 @@ export default function Canvas({
                 )}
                 <SectionRow
                   section={s}
+                  sectionDef={defByType.get(s.type)}
                   selected={selectedSectionId === s.id}
                   onClick={() => onSelectSection(s)}
-                  onToggle={() => onToggleSection(s.id, !s.enabled)}
+                  onToggle={() => onToggleSection(s.id, s.disabled === true)}
                   onDuplicate={() => onDuplicateSection(s.id)}
                   onDelete={() => onDeleteSection(s.id)}
                   draggable
@@ -186,9 +184,10 @@ export default function Canvas({
             <SectionRow
               key={s.id}
               section={s}
+              sectionDef={defByType.get(s.type)}
               selected={selectedSectionId === s.id}
               onClick={() => onSelectSection(s)}
-              onToggle={() => onToggleSection(s.id, !s.enabled)}
+              onToggle={() => onToggleSection(s.id, s.disabled === true)}
               onDuplicate={() => onDuplicateSection(s.id)}
               onDelete={() => onDeleteSection(s.id)}
               draggable={false}
@@ -223,6 +222,7 @@ function DropIndicator() {
 
 interface SectionRowProps {
   section: Section;
+  sectionDef?: SectionDefinition;
   selected: boolean;
   onClick: () => void;
   onToggle: () => void;
@@ -237,6 +237,7 @@ interface SectionRowProps {
 
 function SectionRow({
   section,
+  sectionDef,
   selected,
   onClick,
   onToggle,
@@ -250,7 +251,7 @@ function SectionRow({
 }: SectionRowProps) {
   const { t } = useTranslation('themes');
   const confirm = useConfirm();
-  const meta = getSectionMeta(section.type);
+  const meta = resolveSectionMeta(section.type, sectionDef);
   const Icon = meta.icon;
   const sectionName = t(`themes:sections.${section.type}.name`, { defaultValue: meta.name });
   // Sections declared in home variants can ship without a `settings` object
@@ -270,7 +271,7 @@ function SectionRow({
         selected
           ? 'bg-blue-50 border border-blue-200'
           : 'border border-transparent hover:bg-slate-50'
-      } ${dragging ? 'opacity-40' : ''} ${!section.enabled ? 'opacity-60' : ''}`}
+      } ${dragging ? 'opacity-40' : ''} ${section.disabled ? 'opacity-60' : ''}`}
     >
       {draggable && (
         <GripVertical className="h-3.5 w-3.5 text-slate-300 group-hover:text-slate-400 shrink-0 cursor-grab active:cursor-grabbing" />
@@ -301,9 +302,9 @@ function SectionRow({
             onToggle();
           }}
           className="h-6 w-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-600 hover:bg-white"
-          title={section.enabled ? t('themes:editor.canvas.hide') : t('themes:editor.canvas.show')}
+          title={!section.disabled ? t('themes:editor.canvas.hide') : t('themes:editor.canvas.show')}
         >
-          {section.enabled ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+          {!section.disabled ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
         </button>
 
         <DropdownMenu>
@@ -317,7 +318,7 @@ function SectionRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
             <DropdownMenuItem onClick={onToggle}>
-              {section.enabled ? (
+              {!section.disabled ? (
                 <>
                   <EyeOff className="h-3.5 w-3.5 me-2" />
                   {t('themes:editor.canvas.hide_section')}

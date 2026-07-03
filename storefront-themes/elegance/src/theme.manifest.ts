@@ -7,6 +7,8 @@ import type { SectionDefinition } from '@matjar/theme-shared/types/theme';
 export const heroSection: SectionDefinition = defineSection({
   type: 'hero',
   name: 'Hero — Editorial Full-Bleed',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Full-bleed editorial hero with background image, headline anchored to the bottom-left, and a single CTA button',
   target: 'body',
   limit: 1,
@@ -31,6 +33,8 @@ export const heroSection: SectionDefinition = defineSection({
 export const collectionsSection: SectionDefinition = defineSection({
   type: 'collections',
   name: 'Collections Grid',
+  icon: 'Layers',
+  category: 'commerce',
   description: 'Asymmetric category grid — first item spans two rows for an editorial editorial feel',
   target: 'body',
   limit: 1,
@@ -46,6 +50,8 @@ export const collectionsSection: SectionDefinition = defineSection({
 export const featuredProductsSection: SectionDefinition = defineSection({
   type: 'featured-products',
   name: "Editor's Picks",
+  icon: 'Star',
+  category: 'commerce',
   description: 'Curated grid of featured products with a fade-in-on-scroll animation',
   target: 'body',
   limit: 1,
@@ -66,6 +72,8 @@ export const featuredProductsSection: SectionDefinition = defineSection({
 export const editorialBannerSection: SectionDefinition = defineSection({
   type: 'editorial-banner',
   name: 'Editorial Banner',
+  icon: 'Image',
+  category: 'content',
   description: 'Mid-page full-width visual break with background image, eyebrow, headline, and CTA',
   target: 'body',
   limit: 1,
@@ -89,6 +97,8 @@ export const editorialBannerSection: SectionDefinition = defineSection({
 export const newArrivalsSection: SectionDefinition = defineSection({
   type: 'new-arrivals',
   name: 'New Arrivals Carousel',
+  icon: 'Sparkles',
+  category: 'commerce',
   description: 'Horizontal scrolling carousel of recently added products',
   target: 'body',
   limit: 1,
@@ -109,6 +119,8 @@ export const newArrivalsSection: SectionDefinition = defineSection({
 export const trustBarSection: SectionDefinition = defineSection({
   type: 'trust-bar',
   name: 'Trust Bar',
+  icon: 'ShieldCheck',
+  category: 'marketing',
   description: 'Horizontal strip of trust signals — shipping, payment, returns, packaging',
   target: 'body',
   limit: 1,
@@ -164,6 +176,13 @@ const manifest = defineTheme({
     baseFontSize: '16px',
     lineHeight: '1.6',
   },
+
+  fonts: [
+    { label: "Playfair Display", value: "'Playfair Display', serif" },
+    { label: "Cormorant Garamond", value: "'Cormorant Garamond', Georgia, serif" },
+    { label: "Amiri", value: "'Amiri', serif" },
+    { label: "Tajawal", value: "'Tajawal', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1280px',

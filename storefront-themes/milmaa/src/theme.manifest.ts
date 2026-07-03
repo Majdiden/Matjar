@@ -15,6 +15,8 @@ import type { SectionDefinition, SectionInstance } from '@matjar/theme-shared/ty
 export const milmaaTopStripSection: SectionDefinition = defineSection({
   type: 'milmaa-top-strip',
   name: 'Top Strip',
+  icon: 'Megaphone',
+  category: 'layout',
   target: 'body',
   limit: 1,
   settings: [
@@ -25,6 +27,8 @@ export const milmaaTopStripSection: SectionDefinition = defineSection({
 export const milmaaHeroSection: SectionDefinition = defineSection({
   type: 'milmaa-hero',
   name: 'Embrace Hero',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Pastel cream hero with serif headline and milk carton imagery',
   target: 'body',
   limit: 1,
@@ -41,6 +45,8 @@ export const milmaaHeroSection: SectionDefinition = defineSection({
 export const milmaaFlavorsSection: SectionDefinition = defineSection({
   type: 'milmaa-flavors',
   name: 'Flavor Panels',
+  icon: 'Sparkles',
+  category: 'content',
   description: '3 colorful flavor panels (Banana, Badam, Cashewnut)',
   target: 'body',
   settings: [
@@ -70,6 +76,8 @@ export const milmaaFlavorsSection: SectionDefinition = defineSection({
 export const milmaaProductGridSection: SectionDefinition = defineSection({
   type: 'milmaa-product-grid',
   name: 'Product Grid',
+  icon: 'Grid3x3',
+  category: 'commerce',
   target: 'body',
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
@@ -86,6 +94,8 @@ export const milmaaProductGridSection: SectionDefinition = defineSection({
 export const milmaaBenefitsSection: SectionDefinition = defineSection({
   type: 'milmaa-benefits',
   name: 'Health Benefits',
+  icon: 'ShieldCheck',
+  category: 'marketing',
   description: 'Split image + bullet benefits list',
   target: 'body',
   settings: [
@@ -113,6 +123,8 @@ export const milmaaBenefitsSection: SectionDefinition = defineSection({
 export const milmaaBlogSection: SectionDefinition = defineSection({
   type: 'milmaa-blog',
   name: 'Blog Row',
+  icon: 'Rss',
+  category: 'content',
   target: 'body',
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
@@ -141,6 +153,8 @@ export const milmaaBlogSection: SectionDefinition = defineSection({
 export const milmaaTestimonialsSection: SectionDefinition = defineSection({
   type: 'milmaa-testimonials',
   name: 'Customers Talk',
+  icon: 'Quote',
+  category: 'marketing',
   target: 'body',
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
@@ -167,6 +181,8 @@ export const milmaaTestimonialsSection: SectionDefinition = defineSection({
 export const milmaaInstagramSection: SectionDefinition = defineSection({
   type: 'milmaa-instagram',
   name: 'Instagram Strip',
+  icon: 'Instagram',
+  category: 'media',
   target: 'body',
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
@@ -217,6 +233,13 @@ const manifest = defineTheme({
     baseFontSize: '15px',
     lineHeight: '1.65',
   },
+
+  fonts: [
+    { label: "DM Sans", value: "'DM Sans', sans-serif" },
+    { label: "Fraunces", value: "'Fraunces', serif" },
+    { label: "Amiri", value: "'Amiri', serif" },
+    { label: "Tajawal", value: "'Tajawal', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1280px',

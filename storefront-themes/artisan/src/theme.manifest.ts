@@ -7,6 +7,8 @@ import type { SectionDefinition } from '@matjar/theme-shared/types/theme';
 export const heroSection: SectionDefinition = defineSection({
   type: 'hero',
   name: 'Hero Banner',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Centered hero with brown background, decorative circles, and artisan headline',
   target: 'body',
   limit: 1,
@@ -25,6 +27,8 @@ export const heroSection: SectionDefinition = defineSection({
 export const philosophySection: SectionDefinition = defineSection({
   type: 'philosophy',
   name: 'Our Philosophy',
+  icon: 'Quote',
+  category: 'content',
   description: 'A centred text block sharing the brand story and values',
   target: 'body',
   limit: 1,
@@ -38,6 +42,8 @@ export const philosophySection: SectionDefinition = defineSection({
 export const featuredProductsSection: SectionDefinition = defineSection({
   type: 'featured-products',
   name: 'Hand-Picked Pieces',
+  icon: 'Star',
+  category: 'commerce',
   description: 'Showcase curated featured products in a 3-column grid',
   target: 'body',
   settings: [
@@ -55,7 +61,9 @@ export const featuredProductsSection: SectionDefinition = defineSection({
 
 export const artisanSpotlightSection: SectionDefinition = defineSection({
   type: 'artisan-spotlight',
-  name: 'Artisan Spotlight',
+  name: 'Maker Spotlight',
+  icon: 'Users',
+  category: 'content',
   description: 'Feature individual makers with name, craft, and a personal quote',
   target: 'body',
   limit: 1,
@@ -84,6 +92,8 @@ export const artisanSpotlightSection: SectionDefinition = defineSection({
 export const categoriesSection: SectionDefinition = defineSection({
   type: 'categories',
   name: 'Browse by Craft',
+  icon: 'FolderTree',
+  category: 'commerce',
   description: 'Display craft categories in a responsive grid',
   target: 'body',
   limit: 1,
@@ -99,6 +109,8 @@ export const categoriesSection: SectionDefinition = defineSection({
 export const newArrivalsSection: SectionDefinition = defineSection({
   type: 'new-arrivals',
   name: 'New Arrivals',
+  icon: 'Sparkles',
+  category: 'commerce',
   description: 'Carousel of recently added artisan products',
   target: 'body',
   limit: 1,
@@ -117,6 +129,8 @@ export const newArrivalsSection: SectionDefinition = defineSection({
 export const newsletterSection: SectionDefinition = defineSection({
   type: 'newsletter',
   name: 'Newsletter Signup',
+  icon: 'Mail',
+  category: 'marketing',
   description: 'Community CTA with email subscription for craft lovers',
   target: 'body',
   limit: 1,
@@ -158,6 +172,12 @@ const manifest = defineTheme({
     baseFontSize: '16px',
     lineHeight: '1.7',
   },
+
+  fonts: [
+    { label: "Caveat", value: "'Caveat', cursive" },
+    { label: "Lora", value: "'Lora', serif" },
+    { label: "Amiri", value: "'Amiri', serif" },
+  ],
 
   layout: {
     maxWidth: '1152px',

@@ -25,6 +25,7 @@ import {
   getThemeSettingsSchema,
 } from "../services/themeManifestRegistry.js";
 import { listThemeTemplatesService } from "../services/themeCustomization.js";
+import { TEMPLATE_METADATA } from "../services/themeValidator.js";
 
 /**
  * Helper: read a `template` query parameter, default to "index",
@@ -423,6 +424,11 @@ export const getAvailableSections = asyncHandler(async (req, res) => {
     description: s.description || "",
     target: s.target || "body",
     limit: s.limit || null,
+    // Manifest-declared editor metadata (1.4): lucide icon name +
+    // library category. Optional — the dashboard falls back to its
+    // static sectionMeta map, then to a generic icon.
+    icon: s.icon || null,
+    category: s.category || null,
   }));
 
   res.json({
@@ -498,8 +504,17 @@ export const listThemeManifests = asyncHandler(async (req, res) => {
  */
 export const listThemeTemplates = asyncHandler(async (req, res) => {
   const result = await listThemeTemplatesService(req.tenant._id);
+  // Decorate each entry with editor metadata (English fallback label +
+  // preview route) from the single map that lives next to the
+  // allow-list. The dashboard translates by stable id and uses `label`
+  // only as the defaultValue.
+  const templates = (result.templates || []).map((tpl) => ({
+    ...tpl,
+    label: TEMPLATE_METADATA[tpl.id]?.label || tpl.id,
+    previewPath: TEMPLATE_METADATA[tpl.id]?.previewPath || "/",
+  }));
   res.json({
     success: true,
-    data: result,
+    data: { ...result, templates },
   });
 });

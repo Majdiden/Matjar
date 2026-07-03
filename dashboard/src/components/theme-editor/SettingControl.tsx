@@ -11,10 +11,10 @@ import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
 import { ChevronDown } from 'lucide-react';
 import ColorPickerPopover from './ColorPickerPopover';
-import type { SectionSetting } from './types';
+import type { AnySectionSetting } from '@matjar/theme-shared/types/theme';
 
 interface SettingControlProps {
-  setting: SectionSetting;
+  setting: AnySectionSetting;
   value: unknown;
   onChange: (value: unknown) => void;
 }

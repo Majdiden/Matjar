@@ -15,6 +15,8 @@ import type { SectionDefinition, SectionInstance } from '@matjar/theme-shared/ty
 export const nutrekoTopStripSection: SectionDefinition = defineSection({
   type: 'nutreko-top-strip',
   name: 'Top Info Strip',
+  icon: 'Megaphone',
+  category: 'layout',
   target: 'body',
   limit: 1,
   settings: [
@@ -25,6 +27,8 @@ export const nutrekoTopStripSection: SectionDefinition = defineSection({
 export const nutrekoHeroSection: SectionDefinition = defineSection({
   type: 'nutreko-hero',
   name: 'Power Hero',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Bold black hero with chunky headline and lime CTA',
   target: 'body',
   limit: 1,
@@ -42,6 +46,8 @@ export const nutrekoHeroSection: SectionDefinition = defineSection({
 export const nutrekoGuaranteeSection: SectionDefinition = defineSection({
   type: 'nutreko-guarantee',
   name: 'Guarantee Panels',
+  icon: 'ShieldCheck',
+  category: 'marketing',
   description: '100% AUTHENTIC / MAXIMUM POTENCY / LAB TESTED panels',
   target: 'body',
   settings: [],
@@ -66,6 +72,8 @@ export const nutrekoGuaranteeSection: SectionDefinition = defineSection({
 export const nutrekoCategoryStripSection: SectionDefinition = defineSection({
   type: 'nutreko-category-strip',
   name: 'Explore The Range',
+  icon: 'FolderTree',
+  category: 'commerce',
   description: 'Horizontal category pills',
   target: 'body',
   settings: [
@@ -95,6 +103,8 @@ export const nutrekoCategoryStripSection: SectionDefinition = defineSection({
 export const nutrekoProductGridSection: SectionDefinition = defineSection({
   type: 'nutreko-product-grid',
   name: 'Product Grid',
+  icon: 'Grid3x3',
+  category: 'commerce',
   target: 'body',
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
@@ -111,6 +121,8 @@ export const nutrekoProductGridSection: SectionDefinition = defineSection({
 export const nutrekoBannerSection: SectionDefinition = defineSection({
   type: 'nutreko-banner',
   name: 'Promo Banner',
+  icon: 'Image',
+  category: 'marketing',
   description: 'Full-width dark banner with lime accent and CTA',
   target: 'body',
   settings: [
@@ -165,6 +177,12 @@ const manifest = defineTheme({
     baseFontSize: '15px',
     lineHeight: '1.6',
   },
+
+  fonts: [
+    { label: "Archivo Black", value: "'Archivo Black', sans-serif" },
+    { label: "Inter", value: "Inter, system-ui, sans-serif" },
+    { label: "Cairo", value: "'Cairo', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1280px',

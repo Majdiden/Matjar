@@ -13,6 +13,8 @@ import type { SectionDefinition, SectionInstance } from '@matjar/theme-shared/ty
 export const heroShowcaseSection: SectionDefinition = defineSection({
   type: 'hero-showcase',
   name: 'Hero Showcase',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Tripartite hero: category rail + dark product spotlight + flash-deal card',
   target: 'body',
   limit: 1,
@@ -45,6 +47,8 @@ export const heroShowcaseSection: SectionDefinition = defineSection({
 export const featuresStripSection: SectionDefinition = defineSection({
   type: 'features-strip',
   name: 'Features Strip',
+  icon: 'Sparkles',
+  category: 'marketing',
   description: 'Three-column service-promise bar (shipping / payment / warranty)',
   target: 'body',
   settings: [],
@@ -81,6 +85,8 @@ export const featuresStripSection: SectionDefinition = defineSection({
 export const promoBannerGridSection: SectionDefinition = defineSection({
   type: 'promo-banner-grid',
   name: 'Promo Banner Grid',
+  icon: 'Image',
+  category: 'marketing',
   description: 'Three equal promo cards with product imagery and CTAs',
   target: 'body',
   settings: [
@@ -118,6 +124,8 @@ export const promoBannerGridSection: SectionDefinition = defineSection({
 export const tabbedProductGridSection: SectionDefinition = defineSection({
   type: 'tabbed-product-grid',
   name: 'Tabbed Product Grid',
+  icon: 'Grid3x3',
+  category: 'commerce',
   description: 'Featured products grid with pill-tab filters',
   target: 'body',
   settings: [
@@ -142,6 +150,8 @@ export const tabbedProductGridSection: SectionDefinition = defineSection({
 export const categoryIconsSection: SectionDefinition = defineSection({
   type: 'category-icons',
   name: 'Category Icons',
+  icon: 'FolderTree',
+  category: 'commerce',
   description: 'Row of circular category tiles with icon imagery',
   target: 'body',
   settings: [
@@ -157,6 +167,8 @@ export const categoryIconsSection: SectionDefinition = defineSection({
 export const categorySidebarSection: SectionDefinition = defineSection({
   type: 'category-sidebar',
   name: 'Category Sidebar',
+  icon: 'PanelLeft',
+  category: 'commerce',
   description: 'Vertical category nav with live product preview panel',
   target: 'body',
   limit: 1,
@@ -232,6 +244,12 @@ const manifest = defineTheme({
     baseFontSize: '16px',
     lineHeight: '1.6',
   },
+
+  fonts: [
+    { label: "Space Grotesk", value: "'Space Grotesk', sans-serif" },
+    { label: "JetBrains Mono", value: "'JetBrains Mono', monospace" },
+    { label: "Cairo", value: "'Cairo', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1280px',

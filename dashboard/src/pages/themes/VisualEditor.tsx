@@ -18,7 +18,7 @@ import type {
   ManifestSchema,
   SectionInstance as Section,
   SectionSetting,
-} from '../../components/theme-editor/types';
+} from '@matjar/theme-shared/types/theme';
 
 interface ThemeCustomization {
   themeId: string | null;
@@ -65,7 +65,16 @@ interface ManifestEnvelope {
   data: { schema: ManifestSchema };
 }
 interface TemplatesEnvelope {
-  data?: { templates?: Array<{ id: string; declaredByTheme: boolean }> };
+  data?: {
+    templates?: Array<{
+      id: string;
+      declaredByTheme: boolean;
+      /** English fallback label from the backend template map (1.4.5) */
+      label?: string;
+      /** Storefront route the preview iframe should show for this template */
+      previewPath?: string;
+    }>;
+  };
 }
 interface PreviewUrlEnvelope {
   data: { previewUrl: string };
@@ -80,33 +89,46 @@ interface PreviewUrlEnvelope {
 type RightPanelTab = 'section' | 'theme' | 'css';
 
 /**
- * Friendly labels for the platform template ids. Kept in lockstep
- * with the backend allow-list in services/themeValidator.js.
- * Resolved via i18n in the component — the map is kept as a fallback
- * for contexts where the hook isn't available.
+ * Page-selector entry. Labels and preview paths come from the backend
+ * template endpoint (single source of truth next to the allow-list in
+ * services/themeValidator.js); the dashboard translates by stable id
+ * (`themes:editor.template.<id>`) and uses the backend label only as
+ * the i18n fallback.
  */
-const TEMPLATE_LABELS: Record<string, string> = {
-  index: 'Home',
-  product: 'Product page',
-  collection: 'Collection / Category',
-  cart: 'Cart',
-  search: 'Search results',
-  page: 'Static pages',
-};
+interface PageOption {
+  id: string;
+  label: string;
+  previewPath?: string;
+}
 
 /**
- * Preview path for each template. Generic slugs are good enough for
- * the first render — the preview iframe's storefront routes know
- * how to resolve `:slug` to the first active product/category.
+ * Read-compat shim (audit 1.5.3): older backend documents persist
+ * section visibility as `enabled` while the SDK's canonical field is
+ * `disabled`. Normalise every section list on read so editor code can
+ * rely on `disabled` alone. The toggle API still speaks `enabled` on
+ * the wire — that translation happens in exactly one place
+ * (handleToggleSection).
  */
-const TEMPLATE_PREVIEW_PATHS: Record<string, string> = {
-  index: '/',
-  product: '/products',
-  collection: '/categories',
-  cart: '/cart',
-  search: '/search',
-  page: '/',
-};
+function normalizeSection(s: Section): Section {
+  const disabled = s.disabled === true || s.enabled === false;
+  return { ...s, disabled, enabled: !disabled };
+}
+
+function normalizeCustomization(cust: ThemeCustomization): ThemeCustomization {
+  const byTpl = cust.sectionsByTemplate
+    ? Object.fromEntries(
+        Object.entries(cust.sectionsByTemplate).map(([k, list]) => [
+          k,
+          (list || []).map(normalizeSection),
+        ])
+      )
+    : cust.sectionsByTemplate;
+  return {
+    ...cust,
+    sections: (cust.sections || []).map(normalizeSection),
+    sectionsByTemplate: byTpl,
+  };
+}
 
 export default function VisualEditor() {
   const navigate = useNavigate();
@@ -123,8 +145,8 @@ export default function VisualEditor() {
   const [hasChanges, setHasChanges] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [currentPage, setCurrentPage] = useState('index');
-  const [pageOptions, setPageOptions] = useState<Array<{ id: string; label: string }>>([
-    { id: 'index', label: t('themes:editor.template.index', { defaultValue: TEMPLATE_LABELS.index }) },
+  const [pageOptions, setPageOptions] = useState<PageOption[]>([
+    { id: 'index', label: t('themes:editor.template.index', { defaultValue: 'Home' }), previewPath: '/' },
   ]);
   const [previewReloadKey, setPreviewReloadKey] = useState(0);
   const [rightPanel, setRightPanel] = useState<RightPanelTab>('theme');
@@ -135,22 +157,63 @@ export default function VisualEditor() {
   const previewReloadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previewIframeRef = useRef<HTMLIFrameElement | null>(null);
 
+  // Origin of the preview iframe, derived from the generated preview URL.
+  // Every postMessage into the frame uses this as targetOrigin (never
+  // '*') so protocol messages can't leak to a frame that navigated away.
+  // The storefront side (ThemeProvider) mirrors this with a
+  // source===parent check plus an origin allowlist.
+  const previewOriginRef = useRef<string | null>(null);
+  useEffect(() => {
+    try {
+      previewOriginRef.current = previewUrl
+        ? new URL(previewUrl, window.location.origin).origin
+        : null;
+    } catch {
+      previewOriginRef.current = null;
+    }
+  }, [previewUrl]);
+
+  /**
+   * Live-preview channel (audit 1.1). Sends one of the ThemeProvider
+   * protocol messages (THEME_UPDATE / SECTION_UPDATE / SECTION_TOGGLE /
+   * SECTION_REORDER / SETTINGS_UPDATE) into the preview iframe so edits
+   * render in-memory without a server round-trip. Returns whether the
+   * message was actually posted — callers fall back to the debounced
+   * `theme-published` refetch when it wasn't (iframe not ready yet).
+   */
+  const postToPreview = useCallback((msg: Record<string, unknown>): boolean => {
+    const frame = previewIframeRef.current;
+    const origin = previewOriginRef.current;
+    if (!frame?.contentWindow || !origin) return false;
+    try {
+      frame.contentWindow.postMessage(msg, origin);
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
   // Soft refresh: tell the preview iframe to refetch /store-info in place.
   // The storefront StoreContext listens for `theme-published` and calls its
   // internal refresh() — React tree, scroll position, and component state
-  // are preserved (no iframe remount, no flicker). This replaces the old
-  // key-based remount path for all auto-save triggered refreshes; the hard
-  // remount is kept only as a fallback for publish/rollback when the
-  // storefront bundle itself may have changed.
+  // are preserved (no iframe remount, no flicker). Since 1.1 this is only
+  // used for structural changes the live protocol can't express (add /
+  // duplicate / delete section, block edits, custom CSS, non-index
+  // templates); simple setting edits go through postToPreview instead.
   const postPreviewRefresh = useCallback(() => {
     const frame = previewIframeRef.current;
     if (!frame || !frame.contentWindow) {
       console.warn('[theme-editor] preview iframe not ready, skipping refresh');
       return;
     }
+    const origin = previewOriginRef.current;
+    if (!origin) {
+      // No known preview origin — hard remount rather than posting with '*'.
+      setPreviewReloadKey((k) => k + 1);
+      return;
+    }
     try {
-      frame.contentWindow.postMessage({ type: 'theme-published' }, '*');
-      console.log('[theme-editor] posted theme-published to preview iframe');
+      frame.contentWindow.postMessage({ type: 'theme-published' }, origin);
     } catch (err) {
       console.warn('[theme-editor] postMessage failed, falling back to reload', err);
       try {
@@ -176,7 +239,7 @@ export default function VisualEditor() {
     try {
       setLoading(true);
       const response = (await api.themeCustomization.get()) as CustomizationEnvelope;
-      const cust = response.data.customization;
+      const cust = normalizeCustomization(response.data.customization);
       setCustomization(cust);
 
       const themeSlug = cust?.themeSlug || 'modern';
@@ -192,15 +255,17 @@ export default function VisualEditor() {
       // endpoint fails so the editor still works offline.
       try {
         const tplRes = (await api.themeCustomization.listTemplates()) as TemplatesEnvelope;
-        const list: Array<{ id: string; declaredByTheme: boolean }> =
-          tplRes.data?.templates || [];
+        const list = tplRes.data?.templates || [];
         if (Array.isArray(list) && list.length > 0) {
           setPageOptions(
             list.map((tpl) => ({
               id: tpl.id,
+              // Stable-id i18n first; the backend's English label is only
+              // the defaultValue so untranslated ids still read well.
               label: t(`themes:editor.template.${tpl.id}`, {
-                defaultValue: TEMPLATE_LABELS[tpl.id] || tpl.id,
+                defaultValue: tpl.label || tpl.id,
               }),
+              previewPath: tpl.previewPath || '/',
             }))
           );
         }
@@ -252,7 +317,15 @@ export default function VisualEditor() {
     }, 800);
   }, [postPreviewRefresh]);
 
-  const scheduleAutoSave = useCallback((updater?: () => Promise<void>) => {
+  const scheduleAutoSave = useCallback((
+    updater?: () => Promise<void>,
+    opts: { refreshPreview?: boolean } = {}
+  ) => {
+    // `refreshPreview: false` is passed by edit paths that already
+    // pushed the change into the iframe via the live postMessage
+    // protocol — re-fetching /store-info would be redundant network
+    // noise (and is what the audit's <100 ms / no-fetch criterion bans).
+    const { refreshPreview = true } = opts;
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     setSaveStatus('saving');
     autoSaveTimerRef.current = setTimeout(async () => {
@@ -260,7 +333,7 @@ export default function VisualEditor() {
         if (updater) await updater();
         setHasChanges(true);
         setSaveStatus('saved');
-        schedulePreviewReload();
+        if (refreshPreview) schedulePreviewReload();
         setTimeout(() => setSaveStatus((s) => (s === 'saved' ? 'idle' : s)), 1500);
       } catch (err) {
         console.error('Auto-save failed:', err);
@@ -278,7 +351,7 @@ export default function VisualEditor() {
         undefined,
         { template: currentPage }
       )) as CustomizationEnvelope;
-      setCustomization(response.data.customization);
+      setCustomization(normalizeCustomization(response.data.customization));
       setHasChanges(true);
       schedulePreviewReload();
       toast.success(t('themes:editor.toast.section_added'));
@@ -300,28 +373,45 @@ export default function VisualEditor() {
       sectionsByTemplate: byTpl,
       isDraft: true,
     });
+    // Live preview: SECTION_REORDER carries the new ordered id list.
+    // The ThemeProvider protocol only maps the flat (index) section
+    // bucket, so other templates fall back to the debounced refetch.
+    const covered =
+      currentPage === 'index' &&
+      postToPreview({
+        type: 'SECTION_REORDER',
+        sectionIds: reorderedSections.map((s) => s.id),
+      });
     scheduleAutoSave(async () => {
       await api.themeCustomization.updateSections(reorderedSections, { template: currentPage });
-    });
+    }, { refreshPreview: !covered });
   };
 
-  const handleToggleSection = async (sectionId: string, enabled: boolean) => {
+  /** `enable` = desired visibility; the wire API still calls it `enabled`. */
+  const handleToggleSection = async (sectionId: string, enable: boolean) => {
     if (!customization) return;
+    // Live preview first — instant feedback while the API call runs.
+    const covered =
+      currentPage === 'index' &&
+      postToPreview({ type: 'SECTION_TOGGLE', sectionId, enabled: enable });
     try {
-      const response = (await api.themeCustomization.toggleSection(sectionId, enabled, {
+      const response = (await api.themeCustomization.toggleSection(sectionId, enable, {
         template: currentPage,
       })) as CustomizationEnvelope;
-      setCustomization(response.data.customization);
+      const cust = normalizeCustomization(response.data.customization);
+      setCustomization(cust);
       setHasChanges(true);
-      schedulePreviewReload();
+      if (!covered) schedulePreviewReload();
       if (selectedSection?.id === sectionId) {
-        const byTpl = response.data.customization.sectionsByTemplate || {};
-        const list = byTpl[currentPage] || response.data.customization.sections || [];
+        const byTpl = cust.sectionsByTemplate || {};
+        const list = byTpl[currentPage] || cust.sections || [];
         const updated = list.find((s: Section) => s.id === sectionId);
         if (updated) setSelectedSection(updated);
       }
     } catch (error) {
       console.error('Failed to toggle section:', error);
+      // The optimistic live toggle is now wrong — reconcile the iframe.
+      if (covered) schedulePreviewReload();
       toast.error(t('themes:editor.toast.error_toggle_section'));
     }
   };
@@ -332,7 +422,7 @@ export default function VisualEditor() {
       const response = (await api.themeCustomization.duplicateSection(sectionId, {
         template: currentPage,
       })) as CustomizationEnvelope;
-      setCustomization(response.data.customization);
+      setCustomization(normalizeCustomization(response.data.customization));
       setHasChanges(true);
       schedulePreviewReload();
       toast.success(t('themes:editor.toast.section_duplicated'));
@@ -348,7 +438,7 @@ export default function VisualEditor() {
       const response = (await api.themeCustomization.removeSection(sectionId, {
         template: currentPage,
       })) as CustomizationEnvelope;
-      setCustomization(response.data.customization);
+      setCustomization(normalizeCustomization(response.data.customization));
       setHasChanges(true);
       schedulePreviewReload();
       if (selectedSection?.id === sectionId) setSelectedSection(null);
@@ -373,11 +463,18 @@ export default function VisualEditor() {
       const nextBucket = { ...(customization.settings?.[category] || {}), ...partial };
       const nextSettings = { ...customization.settings, [category]: nextBucket };
       setCustomization({ ...customization, settings: nextSettings, isDraft: true });
+      // Live preview: THEME_UPDATE with the FULL accumulated bucket —
+      // the ThemeProvider replaces each bucket wholesale in its live
+      // override state, so a partial would drop earlier unfetched edits.
+      const covered = postToPreview({
+        type: 'THEME_UPDATE',
+        settings: { [category]: nextBucket },
+      });
       scheduleAutoSave(async () => {
         await api.themeCustomization.updateSettings({ [category]: partial });
-      });
+      }, { refreshPreview: !covered });
     },
-    [customization, scheduleAutoSave]
+    [customization, scheduleAutoSave, postToPreview]
   );
 
   const handleUpdateThemeSetting = useCallback(
@@ -386,11 +483,18 @@ export default function VisualEditor() {
       const nextTheme = { ...(customization.settings?.theme || {}), [key]: value };
       const nextSettings = { ...customization.settings, theme: nextTheme };
       setCustomization({ ...customization, settings: nextSettings, isDraft: true });
+      // Live preview: manifest-level globals ride the SETTINGS_UPDATE
+      // message under the `theme` bucket (requires the ThemeProvider
+      // merge to include `theme` — fixed as part of 1.1).
+      const covered = postToPreview({
+        type: 'SETTINGS_UPDATE',
+        settings: { theme: nextTheme },
+      });
       scheduleAutoSave(async () => {
         await api.themeCustomization.updateThemeSetting(key, value);
-      });
+      }, { refreshPreview: !covered });
     },
-    [customization, scheduleAutoSave]
+    [customization, scheduleAutoSave, postToPreview]
   );
 
   const handleSaveCustomCSS = useCallback(
@@ -425,6 +529,31 @@ export default function VisualEditor() {
     if (section) setRightPanel('section');
   }, []);
 
+  // Live-coverage bookkeeping for section edits. `SECTION_UPDATE` only
+  // expresses setting changes; block add/remove/edit has no protocol
+  // message, so any pending block change forces the refetch path on the
+  // next save.
+  const liveSettingsPostedRef = useRef(false);
+  const pendingBlockChangesRef = useRef(false);
+
+  /**
+   * Called synchronously by ManifestSectionEditor on every keystroke,
+   * BEFORE its debounced save. Pushes the change into the iframe via
+   * SECTION_UPDATE (<100 ms, no network).
+   */
+  const handleSectionLiveChange = useCallback(
+    (sectionId: string, settings: Record<string, unknown>, kind: 'settings' | 'blocks') => {
+      if (kind === 'blocks') {
+        pendingBlockChangesRef.current = true;
+        return;
+      }
+      liveSettingsPostedRef.current =
+        currentPage === 'index' &&
+        postToPreview({ type: 'SECTION_UPDATE', sectionId, settings });
+    },
+    [currentPage, postToPreview]
+  );
+
   const handleSaveSectionSettings = async (
     sectionId: string,
     settings: Record<string, unknown>,
@@ -439,10 +568,18 @@ export default function VisualEditor() {
         blocks,
         { template: currentPage }
       )) as CustomizationEnvelope;
-      setCustomization(response.data.customization);
+      setCustomization(normalizeCustomization(response.data.customization));
       setHasChanges(true);
       setSaveStatus('saved');
-      schedulePreviewReload();
+      // Skip the /store-info refetch when the whole batch was already
+      // live-rendered via SECTION_UPDATE (settings-only edits on index).
+      const covered =
+        currentPage === 'index' &&
+        liveSettingsPostedRef.current &&
+        !pendingBlockChangesRef.current;
+      if (!covered) schedulePreviewReload();
+      liveSettingsPostedRef.current = false;
+      pendingBlockChangesRef.current = false;
       setTimeout(() => setSaveStatus((s) => (s === 'saved' ? 'idle' : s)), 1500);
       // Don't reset selectedSection from response — local state already has fresh values
     } catch (error) {
@@ -548,8 +685,9 @@ export default function VisualEditor() {
           setRightPanel('theme');
           // Point the preview iframe at the route that renders the
           // selected template so the merchant sees the right page
-          // even before they publish.
-          const path = TEMPLATE_PREVIEW_PATHS[id] || '/';
+          // even before they publish. The route comes from the backend
+          // template metadata (1.4.5).
+          const path = pageOptions.find((p) => p.id === id)?.previewPath || '/';
           if (previewUrl) {
             try {
               const u = new URL(previewUrl);
@@ -596,6 +734,7 @@ export default function VisualEditor() {
           <ScrollArea className="flex-1">
             <Canvas
               sections={currentSections}
+              sectionDefs={manifestSchema?.sections}
               onReorder={handleReorderSections}
               onToggleSection={handleToggleSection}
               onSelectSection={handleSelectSection}
@@ -665,6 +804,7 @@ export default function VisualEditor() {
                   setRightPanel('theme');
                 }}
                 onSave={handleSaveSectionSettings}
+                onLiveChange={handleSectionLiveChange}
                 onToggle={handleToggleSection}
               />
             )}
@@ -682,7 +822,10 @@ export default function VisualEditor() {
                     (customization.settings?.theme as Record<string, unknown>) || {}
                   }
                   defaultColors={manifestSchema?.colors || {}}
+                  colorLabels={manifestSchema?.colorLabels || {}}
                   defaultTypography={manifestSchema?.typography || {}}
+                  defaultLayout={manifestSchema?.layout || {}}
+                  manifestFonts={manifestSchema?.fonts || []}
                   onUpdate={handleUpdateGlobalSettings}
                   onUpdateThemeSetting={handleUpdateThemeSetting}
                 />

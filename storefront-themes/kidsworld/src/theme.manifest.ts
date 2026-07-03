@@ -7,6 +7,8 @@ import type { SectionDefinition } from '@matjar/theme-shared/types/theme';
 export const heroSection: SectionDefinition = defineSection({
   type: 'hero',
   name: 'Hero Banner',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Playful full-width gradient hero with animated SVG decorations, bold headline, and yellow pill CTA button',
   target: 'body',
   limit: 1,
@@ -26,6 +28,8 @@ export const heroSection: SectionDefinition = defineSection({
 export const categoriesSection: SectionDefinition = defineSection({
   type: 'categories',
   name: 'Category Bubbles',
+  icon: 'FolderTree',
+  category: 'commerce',
   description: 'Colorful rounded category bubbles with styled letter icons for kid-friendly browsing',
   target: 'body',
   limit: 1,
@@ -58,6 +62,8 @@ export const categoriesSection: SectionDefinition = defineSection({
 export const shopByAgeSection: SectionDefinition = defineSection({
   type: 'shop-by-age',
   name: 'Shop by Age',
+  icon: 'Users',
+  category: 'commerce',
   description: 'Age-band picker that links into the catalog with a matching `age` query param',
   target: 'body',
   limit: 1,
@@ -88,6 +94,8 @@ export const shopByAgeSection: SectionDefinition = defineSection({
 export const trustBadgesSection: SectionDefinition = defineSection({
   type: 'trust-badges',
   name: 'Trust Badges',
+  icon: 'ShieldCheck',
+  category: 'marketing',
   description: 'Safety and quality trust indicators displayed in a card grid',
   target: 'body',
   limit: 1,
@@ -117,6 +125,8 @@ export const trustBadgesSection: SectionDefinition = defineSection({
 export const featuredProductsSection: SectionDefinition = defineSection({
   type: 'featured-products',
   name: 'Best Sellers',
+  icon: 'Star',
+  category: 'commerce',
   description: 'Grid of best-selling toys with ratings and add-to-cart',
   target: 'body',
   limit: 1,
@@ -139,6 +149,8 @@ export const featuredProductsSection: SectionDefinition = defineSection({
 export const newArrivalsSection: SectionDefinition = defineSection({
   type: 'new-arrivals',
   name: 'New Adventures',
+  icon: 'Sparkles',
+  category: 'commerce',
   description: 'Scrollable carousel of newly arrived toys ready for playtime',
   target: 'body',
   limit: 1,
@@ -156,6 +168,8 @@ export const newArrivalsSection: SectionDefinition = defineSection({
 export const newsletterSection: SectionDefinition = defineSection({
   type: 'newsletter',
   name: 'Fun Club CTA',
+  icon: 'Mail',
+  category: 'marketing',
   description: 'Colorful email signup section with playful gradient and fun messaging',
   target: 'body',
   limit: 1,
@@ -200,6 +214,12 @@ const manifest = defineTheme({
     baseFontSize: '16px',
     lineHeight: '1.6',
   },
+
+  fonts: [
+    { label: "Fredoka", value: "'Fredoka', sans-serif" },
+    { label: "Nunito", value: "'Nunito', sans-serif" },
+    { label: "Baloo Bhaijaan 2", value: "'Baloo Bhaijaan 2', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1280px',

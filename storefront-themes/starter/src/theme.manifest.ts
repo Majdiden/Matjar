@@ -7,6 +7,8 @@ import type { SectionDefinition } from '@matjar/theme-shared/types/theme';
 export const heroSection: SectionDefinition = defineSection({
   type: 'hero',
   name: 'Hero',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Simple centered text hero with a single call-to-action button',
   target: 'body',
   limit: 1,
@@ -21,6 +23,8 @@ export const heroSection: SectionDefinition = defineSection({
 export const featuredProductsSection: SectionDefinition = defineSection({
   type: 'featured-products',
   name: 'Featured Products',
+  icon: 'Star',
+  category: 'commerce',
   description: 'Clean product grid with a view-all link',
   target: 'body',
   settings: [
@@ -37,6 +41,8 @@ export const featuredProductsSection: SectionDefinition = defineSection({
 export const trustBadgesSection: SectionDefinition = defineSection({
   type: 'trust-badges',
   name: 'Trust Badges',
+  icon: 'ShieldCheck',
+  category: 'marketing',
   description: 'Minimal three-column feature strip',
   target: 'body',
   limit: 1,
@@ -61,6 +67,8 @@ export const trustBadgesSection: SectionDefinition = defineSection({
 export const categoriesSection: SectionDefinition = defineSection({
   type: 'categories',
   name: 'Categories',
+  icon: 'FolderTree',
+  category: 'commerce',
   description: 'Simple horizontal list of category chips',
   target: 'body',
   limit: 1,
@@ -73,6 +81,8 @@ export const categoriesSection: SectionDefinition = defineSection({
 export const newsletterSection: SectionDefinition = defineSection({
   type: 'newsletter',
   name: 'Newsletter',
+  icon: 'Mail',
+  category: 'marketing',
   description: 'Simple email subscription row',
   target: 'body',
   limit: 1,
@@ -113,6 +123,11 @@ const manifest = defineTheme({
     baseFontSize: '16px',
     lineHeight: '1.6',
   },
+
+  fonts: [
+    { label: "Inter", value: "Inter, system-ui, sans-serif" },
+    { label: "Cairo", value: "'Cairo', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1152px',

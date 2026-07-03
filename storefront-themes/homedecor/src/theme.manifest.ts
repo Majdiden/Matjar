@@ -7,6 +7,8 @@ import type { SectionDefinition } from '@matjar/theme-shared/types/theme';
 export const heroSection: SectionDefinition = defineSection({
   type: 'hero',
   name: 'Hero Banner',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Dark full-width hero with gold accent badge, headline, and dual CTA buttons',
   target: 'body',
   limit: 1,
@@ -26,6 +28,8 @@ export const heroSection: SectionDefinition = defineSection({
 export const categoriesSection: SectionDefinition = defineSection({
   type: 'categories',
   name: 'Shop by Room',
+  icon: 'FolderTree',
+  category: 'commerce',
   description: 'Room-based category grid with gold icon accents and warm tile backgrounds',
   target: 'body',
   limit: 1,
@@ -41,6 +45,8 @@ export const categoriesSection: SectionDefinition = defineSection({
 export const featuredProductsSection: SectionDefinition = defineSection({
   type: 'featured-products',
   name: "Editor's Picks",
+  icon: 'Star',
+  category: 'commerce',
   description: 'Hand-curated product grid with gold accent labels',
   target: 'body',
   settings: [
@@ -62,6 +68,8 @@ export const featuredProductsSection: SectionDefinition = defineSection({
 export const philosophySection: SectionDefinition = defineSection({
   type: 'philosophy',
   name: 'Philosophy',
+  icon: 'Quote',
+  category: 'content',
   description: 'Brand values section with warm background and three pillar cards',
   target: 'body',
   limit: 1,
@@ -91,6 +99,8 @@ export const philosophySection: SectionDefinition = defineSection({
 export const trendingCarouselSection: SectionDefinition = defineSection({
   type: 'trending-carousel',
   name: 'Trending Now',
+  icon: 'Star',
+  category: 'commerce',
   description: 'Inspiration carousel of trending products',
   target: 'body',
   limit: 1,
@@ -105,6 +115,8 @@ export const trendingCarouselSection: SectionDefinition = defineSection({
 export const newsletterSection: SectionDefinition = defineSection({
   type: 'newsletter',
   name: 'Newsletter Signup',
+  icon: 'Mail',
+  category: 'marketing',
   description: 'Dark newsletter section with gold CTA button',
   target: 'body',
   limit: 1,
@@ -147,6 +159,12 @@ const manifest = defineTheme({
     baseFontSize: '16px',
     lineHeight: '1.6',
   },
+
+  fonts: [
+    { label: "Cormorant Garamond", value: "'Cormorant Garamond', Georgia, serif" },
+    { label: "Inter", value: "Inter, system-ui, sans-serif" },
+    { label: "Noto Naskh Arabic", value: "'Noto Naskh Arabic', serif" },
+  ],
 
   layout: {
     maxWidth: '1280px',

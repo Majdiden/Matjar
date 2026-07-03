@@ -74,6 +74,22 @@ export const ALLOWED_TEMPLATE_IDS = Object.freeze([
 
 const ALLOWED_TEMPLATE_SET = new Set(ALLOWED_TEMPLATE_IDS);
 
+// Editor-facing metadata for each allow-listed template. Lives next to
+// ALLOWED_TEMPLATE_IDS so the two never drift; served verbatim by
+// GET /theme-customization/templates. `label` is an English fallback —
+// the dashboard translates by stable id (themes:editor.template.<id>)
+// and only shows this string when no i18n entry exists. `previewPath`
+// is the storefront route the editor points the preview iframe at when
+// the merchant switches templates.
+export const TEMPLATE_METADATA = Object.freeze({
+  index: Object.freeze({ label: "Home", previewPath: "/" }),
+  product: Object.freeze({ label: "Product page", previewPath: "/products" }),
+  collection: Object.freeze({ label: "Collection / Category", previewPath: "/categories" }),
+  cart: Object.freeze({ label: "Cart", previewPath: "/cart" }),
+  search: Object.freeze({ label: "Search results", previewPath: "/search" }),
+  page: Object.freeze({ label: "Static pages", previewPath: "/" }),
+});
+
 /**
  * Validate a caller-supplied template id. Returns the canonical id on
  * success; throws on anything outside the allow-list. Used by the
@@ -611,7 +627,7 @@ function validateLayoutBucket(layout, errors) {
     // without unit grammar. Anything else gets the CSS-length rule.
     if (
       typeof value === "string" &&
-      /^(standard|minimal|centered|wide|boxed|rounded|square|pill)$/i.test(value.trim())
+      /^(standard|minimal|centered|expanded|transparent|wide|boxed|rounded|square|pill)$/i.test(value.trim())
     ) {
       // Keyword layout values — still guard against injection.
       const marker = hasCssInjectionMarker(value.trim());

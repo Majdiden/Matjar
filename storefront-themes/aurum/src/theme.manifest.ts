@@ -20,6 +20,8 @@ const U = (id: string, w = 1200) =>
 export const splitHeroSection: SectionDefinition = defineSection({
   type: 'aurum-split-hero',
   name: 'Split Hero',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Full-bleed two-panel editorial hero with headline and CTA',
   target: 'body',
   limit: 1,
@@ -36,6 +38,8 @@ export const splitHeroSection: SectionDefinition = defineSection({
 export const marqueeSection: SectionDefinition = defineSection({
   type: 'aurum-marquee',
   name: 'Press Marquee',
+  icon: 'Megaphone',
+  category: 'marketing',
   description: 'Infinite scrolling strip of serif press wordmarks',
   target: 'body',
   settings: [
@@ -47,6 +51,8 @@ export const marqueeSection: SectionDefinition = defineSection({
 export const spotlightSection: SectionDefinition = defineSection({
   type: 'aurum-spotlight',
   name: 'Editorial Spotlight',
+  icon: 'Star',
+  category: 'content',
   description: 'Large editorial image beside a single featured product',
   target: 'body',
   settings: [
@@ -59,6 +65,8 @@ export const spotlightSection: SectionDefinition = defineSection({
 export const collectionTabsSection: SectionDefinition = defineSection({
   type: 'aurum-collection-tabs',
   name: 'Shop by Collection',
+  icon: 'Layers',
+  category: 'commerce',
   description: 'Underline category tabs over a filtered product grid',
   target: 'body',
   settings: [
@@ -70,6 +78,8 @@ export const collectionTabsSection: SectionDefinition = defineSection({
 export const editorialSection: SectionDefinition = defineSection({
   type: 'aurum-editorial',
   name: 'Editorial Story',
+  icon: 'Newspaper',
+  category: 'content',
   description: 'Centered serif headline with two staggered portrait images',
   target: 'body',
   settings: [
@@ -83,6 +93,8 @@ export const editorialSection: SectionDefinition = defineSection({
 export const productRailSection: SectionDefinition = defineSection({
   type: 'aurum-product-rail',
   name: 'Product Rail',
+  icon: 'Grid3x3',
+  category: 'commerce',
   description: 'Newest products with a view-all link',
   target: 'body',
   settings: [
@@ -99,6 +111,8 @@ export const productRailSection: SectionDefinition = defineSection({
 export const trustSection: SectionDefinition = defineSection({
   type: 'aurum-trust',
   name: 'Trust Columns',
+  icon: 'ShieldCheck',
+  category: 'marketing',
   description: 'Statement heading with three service reassurance columns',
   target: 'body',
   settings: [
@@ -129,6 +143,8 @@ export const trustSection: SectionDefinition = defineSection({
 export const collectionsShowcaseSection: SectionDefinition = defineSection({
   type: 'aurum-collections-showcase',
   name: 'Collections Showcase',
+  icon: 'Layers',
+  category: 'commerce',
   description: 'Tall category cards with overlaid labels and shop buttons',
   target: 'body',
   settings: [
@@ -143,6 +159,8 @@ export const collectionsShowcaseSection: SectionDefinition = defineSection({
 export const statementSection: SectionDefinition = defineSection({
   type: 'aurum-statement',
   name: 'Scroll Statement',
+  icon: 'Type',
+  category: 'content',
   description: 'Huge serif statement whose lines brighten as they enter view',
   target: 'body',
   settings: [
@@ -153,6 +171,8 @@ export const statementSection: SectionDefinition = defineSection({
 export const gallerySection: SectionDefinition = defineSection({
   type: 'aurum-gallery',
   name: 'Social Gallery',
+  icon: 'Instagram',
+  category: 'media',
   description: 'Square image grid with a social handle button',
   target: 'body',
   settings: [
@@ -223,6 +243,13 @@ const manifest = defineTheme({
     baseFontSize: '15px',
     lineHeight: '1.6',
   },
+
+  fonts: [
+    { label: "Prata", value: "'Prata', serif" },
+    { label: "Jost", value: "'Jost', sans-serif" },
+    { label: "Amiri", value: "'Amiri', serif" },
+    { label: "Tajawal", value: "'Tajawal', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1440px',

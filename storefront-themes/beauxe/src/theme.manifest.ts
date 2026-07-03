@@ -16,6 +16,8 @@ import type { SectionDefinition, SectionInstance } from '@matjar/theme-shared/ty
 export const beauxeTopBarSection: SectionDefinition = defineSection({
   type: 'beauxe-top-bar',
   name: 'Top Announcement Bar',
+  icon: 'Megaphone',
+  category: 'layout',
   target: 'body',
   limit: 1,
   settings: [
@@ -28,6 +30,8 @@ export const beauxeTopBarSection: SectionDefinition = defineSection({
 export const beauxeHeroSection: SectionDefinition = defineSection({
   type: 'beauxe-hero',
   name: 'Model Hero',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Large model photo with serif headline pulled over pink/cream backdrop',
   target: 'body',
   limit: 1,
@@ -44,6 +48,8 @@ export const beauxeHeroSection: SectionDefinition = defineSection({
 export const beauxeFeatureStripSection: SectionDefinition = defineSection({
   type: 'beauxe-feature-strip',
   name: 'Feature Strip',
+  icon: 'Sparkles',
+  category: 'marketing',
   description: '4-icon strip (free shipping, cruelty-free, vegan, secure payment)',
   target: 'body',
   settings: [],
@@ -74,6 +80,8 @@ export const beauxeFeatureStripSection: SectionDefinition = defineSection({
 export const beauxeCategoryTilesSection: SectionDefinition = defineSection({
   type: 'beauxe-category-tiles',
   name: 'Category Tiles',
+  icon: 'FolderTree',
+  category: 'commerce',
   description: 'Shop by category: 3 pink/cream tiles with product imagery',
   target: 'body',
   settings: [
@@ -102,6 +110,8 @@ export const beauxeCategoryTilesSection: SectionDefinition = defineSection({
 export const beauxeProductGridSection: SectionDefinition = defineSection({
   type: 'beauxe-product-grid',
   name: 'Product Grid',
+  icon: 'Grid3x3',
+  category: 'commerce',
   target: 'body',
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
@@ -118,6 +128,8 @@ export const beauxeProductGridSection: SectionDefinition = defineSection({
 export const beauxeBannerSection: SectionDefinition = defineSection({
   type: 'beauxe-banner',
   name: 'CTA Banner',
+  icon: 'Megaphone',
+  category: 'marketing',
   description: 'Full-width pink banner with serif heading and CTA',
   target: 'body',
   settings: [
@@ -133,6 +145,8 @@ export const beauxeBannerSection: SectionDefinition = defineSection({
 export const beauxeTestimonialsSection: SectionDefinition = defineSection({
   type: 'beauxe-testimonials',
   name: 'Testimonials',
+  icon: 'Quote',
+  category: 'marketing',
   target: 'body',
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
@@ -198,6 +212,13 @@ const manifest = defineTheme({
     baseFontSize: '15px',
     lineHeight: '1.65',
   },
+
+  fonts: [
+    { label: "Playfair Display", value: "'Playfair Display', serif" },
+    { label: "Nunito", value: "'Nunito', sans-serif" },
+    { label: "Amiri", value: "'Amiri', serif" },
+    { label: "Tajawal", value: "'Tajawal', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1280px',

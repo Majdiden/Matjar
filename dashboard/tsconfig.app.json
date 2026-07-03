@@ -26,7 +26,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@matjar/theme-shared/*": ["../storefront-themes/_shared/*"]
     }
   },
   "include": ["src"]

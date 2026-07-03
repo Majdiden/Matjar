@@ -396,24 +396,63 @@
     "color_picker": {
       "palette": "لوحة الألوان",
       "recent": "المستخدمة حاليًا"
+    },
+    "layout_labels": {
+      "maxWidth": "أقصى عرض للمحتوى",
+      "headerStyle": "نمط الترويسة",
+      "footerStyle": "نمط التذييل"
+    },
+    "layout_options": {
+      "standard": "قياسي",
+      "minimal": "مبسّط",
+      "centered": "مُوسّط",
+      "expanded": "موسّع"
     }
   },
   "sections": {
-    "hero": { "name": "بانر الرئيسي" },
-    "featured-products": { "name": "المنتجات المميزة" },
-    "new-arrivals": { "name": "وصل حديثًا" },
-    "categories": { "name": "الفئات" },
-    "newsletter": { "name": "النشرة البريدية" },
-    "trust-badges": { "name": "شارات الثقة" },
-    "product-recommendations": { "name": "قد يعجبك أيضًا" }
+    "hero": {
+      "name": "بانر الرئيسي"
+    },
+    "featured-products": {
+      "name": "المنتجات المميزة"
+    },
+    "new-arrivals": {
+      "name": "وصل حديثًا"
+    },
+    "categories": {
+      "name": "الفئات"
+    },
+    "newsletter": {
+      "name": "النشرة البريدية"
+    },
+    "trust-badges": {
+      "name": "شارات الثقة"
+    },
+    "product-recommendations": {
+      "name": "قد يعجبك أيضًا"
+    }
   },
   "settings": {
-    "heading": { "label": "العنوان" },
-    "subheading": { "label": "العنوان الفرعي" },
-    "title": { "label": "العنوان" },
-    "description": { "label": "الوصف" },
-    "button_text": { "label": "نص الزر" },
-    "button_link": { "label": "رابط الزر" },
-    "image": { "label": "صورة" }
+    "heading": {
+      "label": "العنوان"
+    },
+    "subheading": {
+      "label": "العنوان الفرعي"
+    },
+    "title": {
+      "label": "العنوان"
+    },
+    "description": {
+      "label": "الوصف"
+    },
+    "button_text": {
+      "label": "نص الزر"
+    },
+    "button_link": {
+      "label": "رابط الزر"
+    },
+    "image": {
+      "label": "صورة"
+    }
   }
 }

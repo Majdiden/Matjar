@@ -7,6 +7,8 @@ import type { SectionDefinition } from '@matjar/theme-shared/types/theme';
 export const heroSection: SectionDefinition = defineSection({
   type: 'hero',
   name: 'Hero Banner',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Bold full-bleed dark hero with diagonal red accent and uppercase typography',
   target: 'body',
   limit: 1,
@@ -29,6 +31,8 @@ export const heroSection: SectionDefinition = defineSection({
 export const categoriesSection: SectionDefinition = defineSection({
   type: 'categories',
   name: 'Shop by Sport',
+  icon: 'FolderTree',
+  category: 'commerce',
   description: 'Category grid with action-shot overlays and hover border highlight',
   target: 'body',
   limit: 1,
@@ -49,6 +53,8 @@ export const categoriesSection: SectionDefinition = defineSection({
 export const featuredProductsSection: SectionDefinition = defineSection({
   type: 'featured-products',
   name: 'Top Picks',
+  icon: 'Star',
+  category: 'commerce',
   description: 'Featured products grid on a light background with red accent hover',
   target: 'body',
   settings: [
@@ -71,6 +77,8 @@ export const featuredProductsSection: SectionDefinition = defineSection({
 export const ctaBannerSection: SectionDefinition = defineSection({
   type: 'cta-banner',
   name: 'CTA Banner',
+  icon: 'Megaphone',
+  category: 'marketing',
   description: 'Full-width red call-to-action banner with headline, body copy, and button',
   target: 'body',
   limit: 1,
@@ -88,6 +96,8 @@ export const ctaBannerSection: SectionDefinition = defineSection({
 export const performanceGearCarouselSection: SectionDefinition = defineSection({
   type: 'performance-gear',
   name: 'Performance Gear Carousel',
+  icon: 'Zap',
+  category: 'commerce',
   description: 'Horizontal carousel showcasing performance-focused products',
   target: 'body',
   limit: 1,
@@ -107,6 +117,8 @@ export const performanceGearCarouselSection: SectionDefinition = defineSection({
 export const trustBadgesSection: SectionDefinition = defineSection({
   type: 'trust-badges',
   name: 'Trust Badges',
+  icon: 'ShieldCheck',
+  category: 'marketing',
   description: 'Three-column feature badges highlighting returns, pro gear, and delivery',
   target: 'body',
   limit: 1,
@@ -161,6 +173,12 @@ const manifest = defineTheme({
     baseFontSize: '16px',
     lineHeight: '1.6',
   },
+
+  fonts: [
+    { label: "Bebas Neue", value: "'Bebas Neue', sans-serif" },
+    { label: "Barlow", value: "'Barlow', sans-serif" },
+    { label: "Cairo", value: "'Cairo', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1280px',

@@ -16,6 +16,8 @@ import type { SectionDefinition, SectionInstance } from '@matjar/theme-shared/ty
 export const topStripSection: SectionDefinition = defineSection({
   type: 'glowing-top-strip',
   name: 'Top Announcement Strip',
+  icon: 'Megaphone',
+  category: 'layout',
   target: 'body',
   limit: 1,
   settings: [
@@ -26,6 +28,8 @@ export const topStripSection: SectionDefinition = defineSection({
 export const glowingHeroSection: SectionDefinition = defineSection({
   type: 'glowing-hero',
   name: 'Editorial Hero',
+  icon: 'LayoutTemplate',
+  category: 'content',
   description: 'Large serif headline with soft pastel/leaf backdrop and CTA',
   target: 'body',
   limit: 1,
@@ -42,6 +46,8 @@ export const glowingHeroSection: SectionDefinition = defineSection({
 export const glowingPromoCardsSection: SectionDefinition = defineSection({
   type: 'glowing-promo-cards',
   name: 'Three Promo Cards',
+  icon: 'Image',
+  category: 'marketing',
   description: 'Row of 3 promo cards (collection / new / offer)',
   target: 'body',
   settings: [],
@@ -69,6 +75,8 @@ export const glowingPromoCardsSection: SectionDefinition = defineSection({
 export const glowingProductGridSection: SectionDefinition = defineSection({
   type: 'glowing-product-grid',
   name: 'Product Grid',
+  icon: 'Grid3x3',
+  category: 'commerce',
   description: 'Clean grid of products with SALE badges',
   target: 'body',
   settings: [
@@ -90,6 +98,8 @@ export const glowingProductGridSection: SectionDefinition = defineSection({
 export const glowingQuoteSection: SectionDefinition = defineSection({
   type: 'glowing-quote',
   name: 'Centered Quote',
+  icon: 'Quote',
+  category: 'content',
   target: 'body',
   settings: [
     { id: 'quote', type: 'textarea', label: 'Quote', default: '' },
@@ -100,6 +110,8 @@ export const glowingQuoteSection: SectionDefinition = defineSection({
 export const glowingInstagramSection: SectionDefinition = defineSection({
   type: 'glowing-instagram',
   name: 'Instagram Row',
+  icon: 'Instagram',
+  category: 'media',
   target: 'body',
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
@@ -168,6 +180,13 @@ const manifest = defineTheme({
     baseFontSize: '15px',
     lineHeight: '1.7',
   },
+
+  fonts: [
+    { label: "Cormorant Garamond", value: "'Cormorant Garamond', Georgia, serif" },
+    { label: "Inter", value: "Inter, system-ui, sans-serif" },
+    { label: "Amiri", value: "'Amiri', serif" },
+    { label: "Tajawal", value: "'Tajawal', sans-serif" },
+  ],
 
   layout: {
     maxWidth: '1280px',
