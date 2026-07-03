@@ -88,7 +88,23 @@
       }
     },
     "item": {
-      "label_placeholder": "Label"
+      "label_placeholder": "e.g. Home, About, Shop",
+      "field": {
+        "label": "Link name",
+        "type": "Type",
+        "url": "URL or path",
+        "url_external": "External URL",
+        "resource": "Linked to",
+        "target": "Opens in"
+      },
+      "type": {
+        "link": "Link / path",
+        "external": "External URL",
+        "collection": "Collection",
+        "product": "Product",
+        "category": "Category",
+        "page": "Page"
+      }
     },
     "preview": {
       "empty": "Add items to see a preview.",
@@ -114,6 +130,11 @@
       "delete_title": "Delete menu?",
       "delete_description": "\"{{title}}\" will be permanently removed.",
       "delete_confirm": "Delete"
+    },
+    "validate": {
+      "item_name_required": "Every menu item needs a name.",
+      "item_url_required": "\"{{name}}\" needs a URL or path.",
+      "item_resource_required": "\"{{name}}\" needs a {{type}} selected."
     }
   },
   "item": {

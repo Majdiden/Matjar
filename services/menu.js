@@ -25,26 +25,34 @@ const slugify = (str) =>
  * Recursively validate a menu items tree.
  * Throws APIError on the first violation found.
  */
-function walkValidate(items, path = "items") {
+function walkValidate(items, position = "") {
   if (!Array.isArray(items)) return;
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const loc = `${path}[${i}]`;
+    // Human-readable name for the offending row — the client validates
+    // first in the merchant's language, so these strings are only a
+    // backstop, but they must still read like a person wrote them (not
+    // `items[0].url`).
+    const at = position ? `${position}.${i + 1}` : `${i + 1}`;
+    const name =
+      item.label && typeof item.label === "string" && item.label.trim()
+        ? `"${item.label.trim()}"`
+        : `Menu item ${at}`;
     if (!item.label || typeof item.label !== "string" || !item.label.trim()) {
-      throw new APIError(`${loc}.label is required`, 400);
+      throw new APIError(`Menu item ${at} needs a name.`, 400);
     }
     const type = item.type || "link";
     if (["link", "external"].includes(type)) {
       if (!item.url || !item.url.trim()) {
-        throw new APIError(`${loc}.url is required when type is "${type}"`, 400);
+        throw new APIError(`${name} needs a link (URL or path).`, 400);
       }
     } else if (["collection", "product", "category", "page"].includes(type)) {
       if (!item.resourceId) {
-        throw new APIError(`${loc}.resourceId is required when type is "${type}"`, 400);
+        throw new APIError(`${name} needs a ${type} selected.`, 400);
       }
     }
     if (item.children && item.children.length > 0) {
-      walkValidate(item.children, `${loc}.children`);
+      walkValidate(item.children, at);
     }
   }
 }

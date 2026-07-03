@@ -88,7 +88,23 @@
       }
     },
     "item": {
-      "label_placeholder": "التسمية"
+      "label_placeholder": "مثال: الرئيسية، من نحن، المتجر",
+      "field": {
+        "label": "اسم الرابط",
+        "type": "النوع",
+        "url": "الرابط أو المسار",
+        "url_external": "رابط خارجي",
+        "resource": "مرتبط بـ",
+        "target": "يفتح في"
+      },
+      "type": {
+        "link": "رابط / مسار",
+        "external": "رابط خارجي",
+        "collection": "مجموعة",
+        "product": "منتج",
+        "category": "فئة",
+        "page": "صفحة"
+      }
     },
     "preview": {
       "empty": "أضف عناصر لرؤية المعاينة.",
@@ -114,6 +130,11 @@
       "delete_title": "حذف القائمة؟",
       "delete_description": "سيتم حذف «{{title}}» بشكل دائم.",
       "delete_confirm": "حذف"
+    },
+    "validate": {
+      "item_name_required": "كل عنصر في القائمة يحتاج إلى اسم.",
+      "item_url_required": "\"{{name}}\" يحتاج إلى رابط أو مسار.",
+      "item_resource_required": "\"{{name}}\" يحتاج إلى تحديد {{type}}."
     }
   },
   "item": {

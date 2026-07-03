@@ -221,82 +221,103 @@ const ItemRow: React.FC<ItemRowProps> = ({
       className="border rounded-lg p-3 bg-card"
       style={{ marginInlineStart: `${item.depth * 24}px` }}
     >
-      <div className="flex items-center gap-2 mb-2">
-        {hasChildren && (
-          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setExpanded(e => !e)}>
-            {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3 rtl:rotate-180" />}
+      {/* Row 1: link name (roomy, full-width) + type */}
+      <div className="flex items-start gap-2">
+        {hasChildren ? (
+          <Button variant="ghost" size="icon" className="h-9 w-6 shrink-0" onClick={() => setExpanded(e => !e)}>
+            {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />}
           </Button>
+        ) : (
+          <span className="w-6 shrink-0" />
         )}
-        {!hasChildren && <span className="w-5" />}
-        <Input
-          className="h-7 text-sm flex-1"
-          placeholder={t('menus:form.item.label_placeholder')}
-          value={item.label}
-          onChange={e => onChange(index, { label: e.target.value })}
-        />
-        <Select value={item.type} onValueChange={v => onChange(index, { type: v as ItemType, resourceId: '', url: '' })}>
-          <SelectTrigger className="h-7 w-32 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {(['link', 'external', 'collection', 'product', 'category', 'page'] as ItemType[]).map(t => (
-              <SelectItem key={t} value={t} className="text-xs capitalize">{t}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={item.target} onValueChange={v => onChange(index, { target: v as Target })}>
-          <SelectTrigger className="h-7 w-24 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="_self" className="text-xs">{t('menus:form.items.target.same_tab')}</SelectItem>
-            <SelectItem value="_blank" className="text-xs">
-              <span className="flex items-center gap-1"><ExternalLink className="h-3 w-3" />{t('menus:form.items.target.new_tab')}</span>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        {/* Actions */}
-        <div className="flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.move_up')} onClick={() => onMoveUp(index)}>
-            <ArrowUp className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.move_down')} onClick={() => onMoveDown(index)}>
-            <ArrowDown className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.indent')} onClick={() => onIndent(index)}>
-            <Indent className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.outdent')} onClick={() => onOutdent(index)}>
-            <Outdent className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.add_child')} onClick={() => onAddChild(index)}>
-            <Plus className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
-            title={t('menus:form.items.action.delete')} onClick={() => onDelete(index)}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+        <div className="flex-1 min-w-0 space-y-1">
+          <Label className="text-xs text-muted-foreground">{t('menus:form.item.field.label')}</Label>
+          <Input
+            className="h-9 w-full text-sm"
+            placeholder={t('menus:form.item.label_placeholder')}
+            value={item.label}
+            onChange={e => onChange(index, { label: e.target.value })}
+          />
+        </div>
+        <div className="w-40 shrink-0 space-y-1">
+          <Label className="text-xs text-muted-foreground">{t('menus:form.item.field.type')}</Label>
+          <Select value={item.type} onValueChange={v => onChange(index, { type: v as ItemType, resourceId: '', url: '' })}>
+            <SelectTrigger className="h-9 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(['link', 'external', 'collection', 'product', 'category', 'page'] as ItemType[]).map(tp => (
+                <SelectItem key={tp} value={tp} className="text-sm">{t(`menus:form.item.type.${tp}`)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* URL / Resource fields */}
-      {needsUrl && (
-        <div className="ms-7 mt-1">
-          <Input
-            className="h-7 text-xs"
-            placeholder={item.type === 'external' ? 'https://example.com' : '/path-or-url'}
-            value={item.url}
-            onChange={e => onChange(index, { url: e.target.value })}
-          />
+      {/* Row 2: link target (URL or resource) + open-in */}
+      <div className="flex items-end gap-2 mt-2 ms-8">
+        <div className="flex-1 min-w-0 space-y-1">
+          {needsUrl ? (
+            <>
+              <Label className="text-xs text-muted-foreground">
+                {item.type === 'external'
+                  ? t('menus:form.item.field.url_external')
+                  : t('menus:form.item.field.url')}
+              </Label>
+              <Input
+                className="h-9 w-full text-sm"
+                placeholder={item.type === 'external' ? 'https://example.com' : '/path-or-url'}
+                value={item.url}
+                onChange={e => onChange(index, { url: e.target.value })}
+              />
+            </>
+          ) : (
+            <>
+              <Label className="text-xs text-muted-foreground">{t('menus:form.item.field.resource')}</Label>
+              <ResourcePicker type={item.type} value={item.resourceId} onChange={id => onChange(index, { resourceId: id })} />
+            </>
+          )}
         </div>
-      )}
-      {needsResource && (
-        <div className="ms-7 mt-1">
-          <ResourcePicker type={item.type} value={item.resourceId} onChange={id => onChange(index, { resourceId: id })} />
+        <div className="w-36 shrink-0 space-y-1">
+          <Label className="text-xs text-muted-foreground">{t('menus:form.item.field.target')}</Label>
+          <Select value={item.target} onValueChange={v => onChange(index, { target: v as Target })}>
+            <SelectTrigger className="h-9 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_self" className="text-xs">{t('menus:form.items.target.same_tab')}</SelectItem>
+              <SelectItem value="_blank" className="text-xs">
+                <span className="flex items-center gap-1"><ExternalLink className="h-3 w-3" />{t('menus:form.items.target.new_tab')}</span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      )}
+      </div>
+
+      {/* Row 3: actions */}
+      <div className="flex items-center gap-0.5 mt-2 ms-8">
+        <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.move_up')} onClick={() => onMoveUp(index)}>
+          <ArrowUp className="h-3.5 w-3.5" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.move_down')} onClick={() => onMoveDown(index)}>
+          <ArrowDown className="h-3.5 w-3.5" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.indent')} onClick={() => onIndent(index)}>
+          <Indent className="h-3.5 w-3.5" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.outdent')} onClick={() => onOutdent(index)}>
+          <Outdent className="h-3.5 w-3.5" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-7 w-7" title={t('menus:form.items.action.add_child')} onClick={() => onAddChild(index)}>
+          <Plus className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive ms-auto"
+          title={t('menus:form.items.action.delete')} onClick={() => onDelete(index)}
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </div>
     </div>
   );
 };
@@ -477,8 +498,35 @@ export const MenuForm: React.FC = () => {
 
   // ── Save / delete ──────────────────────────────────────────────────────
 
+  /**
+   * Catch the common menu-item mistakes (empty name, a link with no URL,
+   * a resource type with nothing selected) before the round-trip, and
+   * point at the offending row by name — the backend rejects these too,
+   * but a merchant should never see the raw API message.
+   */
+  const validateItems = (items: FlatItem[]): string | null => {
+    for (const item of items) {
+      if (!item.label.trim()) {
+        return t('menus:form.validate.item_name_required');
+      }
+      const name = item.label.trim();
+      if (['link', 'external'].includes(item.type) && !item.url.trim()) {
+        return t('menus:form.validate.item_url_required', { name });
+      }
+      if (['collection', 'product', 'category', 'page'].includes(item.type) && !item.resourceId) {
+        return t('menus:form.validate.item_resource_required', {
+          name,
+          type: t(`menus:form.item.type.${item.type}`),
+        });
+      }
+    }
+    return null;
+  };
+
   const handleSave = async () => {
     if (!title.trim()) { toast.error(t('menus:form.toast.title_required')); return; }
+    const itemError = validateItems(flatItems);
+    if (itemError) { toast.error(itemError); return; }
     setSaving(true);
     const payload = {
       title: title.trim(),
