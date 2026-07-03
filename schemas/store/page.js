@@ -30,8 +30,10 @@ const pageSchema = new Schema({
   title: { type: String, required: true, trim: true, maxlength: 200 },
   // HTML body. Size-capped at the service layer (see services/page.js) but
   // Mongoose also guards with a generous 100KB maxlength so a direct write
-  // can't bloat the document. Rich-text editors in the dashboard compose
-  // this as sanitized HTML.
+  // can't bloat the document. Sanitized SERVER-SIDE on every create/update
+  // (services/page.js → utils/sanitizePageHtml.js): scripts/styles/iframes,
+  // event-handler attributes and javascript: URLs are stripped before
+  // persist, since storefronts render this via dangerouslySetInnerHTML.
   content: { type: String, default: "", maxlength: 102400 },
   metaTitle: { type: String, trim: true, maxlength: 200, default: "" },
   metaDescription: { type: String, trim: true, maxlength: 500, default: "" },

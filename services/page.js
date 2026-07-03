@@ -7,6 +7,7 @@ import {
   deletePageRepo,
 } from "../repositories/page.js";
 import { APIError } from "../middlewares/errorHandler.js";
+import { sanitizePageHtml } from "../utils/sanitizePageHtml.js";
 
 // Hard cap on stored HTML body. Matches the schema `maxlength` so the
 // service layer surfaces a clean 400 before Mongoose throws a cryptic
@@ -147,7 +148,12 @@ export const createPage = async (models, data = {}) => {
         return derived;
       })();
   const locale = normaliseLocale(data.locale);
+  // Type/size-check the raw input (clean 400s), then sanitize — the stored
+  // value must be safe to render via dangerouslySetInnerHTML on storefronts.
+  // Re-check size afterwards: entity-escaping can grow the string slightly.
   assertContentSize(content);
+  const cleanContent = sanitizePageHtml(content);
+  assertContentSize(cleanContent);
 
   await assertSlugUnique(models, slug, locale);
 
@@ -156,7 +162,7 @@ export const createPage = async (models, data = {}) => {
   const doc = await createPageRepo(models, {
     slug,
     title: title.trim(),
-    content: content || "",
+    content: cleanContent,
     metaTitle: metaTitle ? String(metaTitle).trim() : "",
     metaDescription: metaDescription ? String(metaDescription).trim() : "",
     locale,
@@ -196,8 +202,11 @@ export const updatePage = async (models, id, patch = {}) => {
   }
 
   if (patch.content !== undefined) {
+    // Same pipeline as createPage: raw type/size check → sanitize → re-check.
     assertContentSize(patch.content);
-    allowed.content = patch.content || "";
+    const cleanContent = sanitizePageHtml(patch.content);
+    assertContentSize(cleanContent);
+    allowed.content = cleanContent;
   }
 
   if (patch.metaTitle !== undefined) {

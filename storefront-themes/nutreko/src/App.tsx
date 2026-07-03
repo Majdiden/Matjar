@@ -12,6 +12,7 @@ import Wishlist from '@shared/pages/Wishlist';
 import NotFound from '@shared/pages/NotFound';
 import Contact from '@shared/pages/Contact';
 import About from '@shared/pages/About';
+import PageView from '@shared/pages/PageView';
 import Login from '@shared/pages/Login';
 import Register from '@shared/pages/Register';
 import Account from '@shared/pages/Account';
@@ -50,6 +51,7 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
+        <Route path="/pages/:slug" element={<PageView />} />
         <Route path="*" element={<NotFound />} />
       </Route>
       </Routes>
