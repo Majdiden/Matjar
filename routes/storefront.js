@@ -58,6 +58,19 @@ router.use(storefrontApiLimiter);
  * The token is a stable per-store secret (settings.previewToken) — anyone
  * without it sees only live content. Drafts aren't sensitive, so a shared
  * link token is sufficient.
+ *
+ * TOKEN DUALITY (audit 1.8) — two unrelated tokens ride `?preview=`:
+ *   1. STORE preview token (`tenant.settings.previewToken`) — stable, minted
+ *      at store creation by services/tenant.js (backfilled by the starter
+ *      endpoint). Grants: DRAFT/unpublished CONTENT on the public data
+ *      endpoints (this function). Think "owner draft link".
+ *   2. EDITOR preview token (`tenant.themeCustomization.previewToken` +
+ *      `previewTokenExpiry`) — short-lived, minted per editor session by
+ *      generatePreviewTokenService (services/themeCustomization.js). Grants:
+ *      the DRAFT THEME CUSTOMIZATION on /store-info (below) and the iframe
+ *      frame-embed relaxation in middlewares/storefrontServe.js.
+ * They are validated independently; a token of one kind grants nothing from
+ * the other.
  */
 function isOwnerPreview(req) {
   const token = typeof req.query.preview === "string" ? req.query.preview : null;
