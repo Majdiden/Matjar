@@ -5,7 +5,7 @@
 set -e
 
 THEMES_DIR="$(cd "$(dirname "$0")/../storefront-themes" && pwd)"
-THEMES=(modern elegance techhub freshmart starter artisan sportzone bookshelf kidsworld homedecor glowing beauxe nutreko milmaa)
+THEMES=(modern elegance techhub freshmart starter artisan sportzone bookshelf kidsworld homedecor glowing beauxe nutreko milmaa aurum)
 
 echo "=========================================="
 echo "Building ${#THEMES[@]} storefront themes"
