@@ -1,5 +1,12 @@
 # E-commerce Templating Engine - Product Requirements Document
 
+> **⚠️ SUPERSEDED — DO NOT IMPLEMENT.** This Liquid-style templating PRD does
+> **not** describe the shipped system. Matjar themes are **React/Vite bundles**
+> driven by `theme.manifest.ts` (see `docs/themes/THEME-AUDIT-2026-06.md` for
+> the real architecture and `docs/themes/THIRD-PARTY-THEMES.md` for the
+> third-party isolation boundary). This document is kept for historical
+> context only; it will mislead you about how theming works today.
+
 ## 1. Executive Summary
 
 ### 1.1 Overview
