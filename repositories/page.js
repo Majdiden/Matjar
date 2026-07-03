@@ -16,7 +16,17 @@ export const listPagesRepo = async (
       { slug: { $regex: search, $options: "i" } },
     ];
   }
-  if (published !== undefined) filter.isPublished = published;
+  if (published !== undefined) {
+    filter.isPublished = published;
+    // Scheduled publishing (audit 6.5): the published-only listing (the
+    // storefront surface) must also exclude pages scheduled for the future.
+    // Uses $and because `search` may already occupy the top-level $or.
+    if (published === true) {
+      filter.$and = [
+        { $or: [{ publishAt: null }, { publishAt: { $lte: new Date() } }] },
+      ];
+    }
+  }
   if (locale) filter.locale = locale;
 
   const skip = (parseInt(page) - 1) * parseInt(limit);

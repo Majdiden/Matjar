@@ -24,6 +24,8 @@ interface PageFormData {
   metaDescription: string;
   locale: string;
   isPublished: boolean;
+  /** datetime-local input value; '' = publish immediately */
+  publishAt: string;
 }
 
 const DEFAULT_FORM: PageFormData = {
@@ -34,7 +36,17 @@ const DEFAULT_FORM: PageFormData = {
   metaDescription: '',
   locale: 'en',
   isPublished: false,
+  publishAt: '',
 };
+
+/** ISO string from the API → value for <input type="datetime-local"> (local tz). */
+function toDatetimeLocal(iso?: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 function slugify(s: string): string {
   return s
@@ -64,7 +76,7 @@ export const PageForm: React.FC = () => {
     (async () => {
       try {
         const res = (await api.pages.get(id!)) as {
-          data?: Partial<PageFormData> & { _id?: string };
+          data?: Partial<PageFormData> & { _id?: string; publishAt?: string | null };
         };
         const p = res?.data;
         if (!p) return;
@@ -76,6 +88,7 @@ export const PageForm: React.FC = () => {
           metaDescription: p.metaDescription || '',
           locale: p.locale || 'en',
           isPublished: !!p.isPublished,
+          publishAt: toDatetimeLocal(p.publishAt),
         });
         setSlugEdited(true);
       } catch {
@@ -107,6 +120,8 @@ export const PageForm: React.FC = () => {
       const payload = {
         ...form,
         slug: form.slug || slugify(form.title),
+        // '' = no schedule → null clears any previous schedule server-side
+        publishAt: form.publishAt ? new Date(form.publishAt).toISOString() : null,
       };
       if (isEdit) {
         await api.pages.update(id!, payload);
@@ -252,6 +267,20 @@ export const PageForm: React.FC = () => {
                 : t('pages:form.field.is_published.label_draft')}
             </Label>
           </div>
+          {form.isPublished && (
+            <div className="space-y-1 mt-4">
+              <Label>{t('pages:form.field.publish_at.label')}</Label>
+              <Input
+                type="datetime-local"
+                className="max-w-xs"
+                value={form.publishAt}
+                onChange={(e) => setField('publishAt', e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                {t('pages:form.field.publish_at.hint')}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

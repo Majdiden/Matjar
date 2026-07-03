@@ -126,6 +126,18 @@ export const getPageBySlug = async (models, slug, locale) => {
   return page;
 };
 
+// Parse an optional scheduled-publish timestamp. Accepts Date/ISO string;
+// empty/null clears the schedule. Invalid dates 400 rather than persisting NaN.
+const parsePublishAt = (value) => {
+  if (value === undefined) return undefined; // not in patch — leave as-is
+  if (value === null || value === "") return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) {
+    throw new APIError("publishAt must be a valid date", 400);
+  }
+  return d;
+};
+
 export const createPage = async (models, data = {}) => {
   const { title, content, metaTitle, metaDescription, isPublished } = data;
   if (!title || typeof title !== "string" || !title.trim()) {
@@ -168,6 +180,7 @@ export const createPage = async (models, data = {}) => {
     locale,
     isPublished: willPublish,
     publishedAt: willPublish ? now : null,
+    publishAt: parsePublishAt(data.publishAt) ?? null,
     createdAt: now,
     updatedAt: now,
   });
@@ -232,6 +245,11 @@ export const updatePage = async (models, id, patch = {}) => {
       allowed.publishedAt = new Date();
     }
   }
+
+  // Scheduled publishing (audit 6.5): optional future timestamp; the
+  // storefront read gate enforces it at request time (no cron).
+  const publishAt = parsePublishAt(patch.publishAt);
+  if (publishAt !== undefined) allowed.publishAt = publishAt;
 
   const updated = await updatePageRepo(models, id, allowed);
   if (!updated) throw new APIError("Page not found", 404);

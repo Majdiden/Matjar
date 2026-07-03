@@ -49,7 +49,7 @@ interface CustomFieldsListResponse {
 interface ApiErrorLike { message?: string; error?: string }
 
 const FIELD_TYPE_VALUES = ['string', 'number', 'boolean', 'date', 'json', 'url', 'color', 'richtext'] as const;
-const RESOURCE_VALUES = ['product', 'category', 'order', 'customer', 'store'] as const;
+const RESOURCE_VALUES = ['product', 'category', 'order', 'customer', 'store', 'page'] as const;
 
 export const CustomFields: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);

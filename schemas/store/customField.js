@@ -5,7 +5,7 @@ const customFieldSchema = new Schema({
   tenantId: { type: Schema.Types.ObjectId, ref: "Tenant", required: true, index: true },
 
   // Which resource this field belongs to
-  resource: { type: String, required: true, enum: ["Product", "Order", "User", "Category", "Company"] },
+  resource: { type: String, required: true, enum: ["Product", "Order", "User", "Category", "Company", "Page"] },
   resourceId: { type: Schema.Types.ObjectId, required: true },
 
   // Field definition

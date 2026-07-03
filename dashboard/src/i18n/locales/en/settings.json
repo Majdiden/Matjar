@@ -454,7 +454,8 @@
         "category": "Category",
         "order": "Order",
         "customer": "Customer",
-        "store": "Store"
+        "store": "Store",
+        "page": "Page"
       },
       "type": {
         "string": "String",
