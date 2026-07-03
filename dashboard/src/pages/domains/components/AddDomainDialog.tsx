@@ -7,11 +7,11 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '../../components/ui/dialog';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
+} from '../../../components/ui/dialog';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
 import {
   Loader2,
   ArrowRight,
@@ -22,8 +22,8 @@ import {
   Globe,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { api } from '../../lib/api-client';
-import { errMsg } from '../../lib/errors';
+import { api } from '../../../lib/api-client';
+import { errMsg } from '../../../lib/errors';
 
 type Step = 'input' | 'verify' | 'done';
 

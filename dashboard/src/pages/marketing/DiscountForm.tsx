@@ -1,56 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, X, Search, Tag, ShoppingBag, Percent, Truck } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Tag, ShoppingBag, Percent, Truck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../lib/api-client";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { Badge } from "../../components/ui/badge";
 import { Switch } from "../../components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card";
 import { Skeleton } from "../../components/ui/skeleton";
 import { Select } from "../../components/ui/select";
 import { toast } from "sonner";
-
-type DiscountMethod =
-  | "amount_off_products"
-  | "amount_off_order"
-  | "buy_x_get_y"
-  | "free_shipping";
-
-interface PickerItem {
-  _id: string;
-  name: string;
-}
-
-interface BxgyState {
-  buyProducts: PickerItem[];
-  buyCategories: PickerItem[];
-  buyQuantity: string;
-  getProducts: PickerItem[];
-  getCategories: PickerItem[];
-  getQuantity: string;
-  getDiscountType: "percentage" | "fixed";
-  getDiscountValue: string;
-  maxUsesPerOrder: string;
-}
-
-interface FormState {
-  code: string;
-  method: DiscountMethod;
-  type: "percentage" | "fixed";
-  value: string;
-  minOrderAmount: string;
-  usageLimit: string;
-  perUserLimit: string;
-  expiresAt: string;
-  isActive: boolean;
-  combinesWith: { product: boolean; order: boolean; shipping: boolean };
-  applicableProducts: PickerItem[];
-  applicableCategories: PickerItem[];
-  bxgy: BxgyState;
-}
+import type { DiscountMethod, PickerItem, BxgyState, FormState } from "./discount-form-types";
+import { DiscountAppliesToSection } from "./DiscountAppliesToSection";
+import { DiscountBxgySections } from "./DiscountBxgySections";
+import { DiscountRequirementsSection } from "./DiscountRequirementsSection";
+import { DiscountCombinationsSection } from "./DiscountCombinationsSection";
 
 interface RawIdOrObject {
   _id?: string | number;
@@ -468,32 +433,13 @@ export default function DiscountForm() {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">{t('marketing.discount.form.section.applies_to')}</CardTitle>
-                  <CardDescription>
-                    {t('marketing.discount.form.section.applies_to_desc')}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <PickerField
-                    label={t('marketing.discount.form.field.products_picker.label')}
-                    placeholder={t('marketing.discount.form.field.products_picker.placeholder')}
-                    options={allProducts}
-                    selected={form.applicableProducts}
-                    onChange={(next) => setForm({ ...form, applicableProducts: next })}
-                    noMatchesText={t('marketing.discount.form.picker_no_matches')}
-                  />
-                  <PickerField
-                    label={t('marketing.discount.form.field.categories_picker.label')}
-                    placeholder={t('marketing.discount.form.field.categories_picker.placeholder')}
-                    options={allCategories}
-                    selected={form.applicableCategories}
-                    onChange={(next) => setForm({ ...form, applicableCategories: next })}
-                    noMatchesText={t('marketing.discount.form.picker_no_matches')}
-                  />
-                </CardContent>
-              </Card>
+              <DiscountAppliesToSection
+                form={form}
+                setForm={setForm}
+                allProducts={allProducts}
+                allCategories={allCategories}
+                t={t}
+              />
             </>
           )}
 
@@ -512,163 +458,16 @@ export default function DiscountForm() {
           )}
 
           {form.method === "buy_x_get_y" && (
-            <>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">{t('marketing.discount.form.section.customer_buys')}</CardTitle>
-                  <CardDescription>{t('marketing.discount.form.section.customer_buys_desc')}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>{t('marketing.discount.form.field.bxgy_buy_quantity.label')}</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={form.bxgy.buyQuantity}
-                      onChange={(e) => setBxgy("buyQuantity", e.target.value)}
-                    />
-                  </div>
-                  <PickerField
-                    label={t('marketing.discount.form.field.bxgy_buy_products.label')}
-                    placeholder={t('marketing.discount.form.field.products_picker.placeholder')}
-                    options={allProducts}
-                    selected={form.bxgy.buyProducts}
-                    onChange={(next) => setBxgy("buyProducts", next)}
-                    noMatchesText={t('marketing.discount.form.picker_no_matches')}
-                  />
-                  <PickerField
-                    label={t('marketing.discount.form.field.bxgy_buy_categories.label')}
-                    placeholder={t('marketing.discount.form.field.categories_picker.placeholder')}
-                    options={allCategories}
-                    selected={form.bxgy.buyCategories}
-                    onChange={(next) => setBxgy("buyCategories", next)}
-                    noMatchesText={t('marketing.discount.form.picker_no_matches')}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {t('marketing.discount.form.field.bxgy_buy_any_hint')}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">{t('marketing.discount.form.section.customer_gets')}</CardTitle>
-                  <CardDescription>{t('marketing.discount.form.section.customer_gets_desc')}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>{t('marketing.discount.form.field.bxgy_get_quantity.label')}</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={form.bxgy.getQuantity}
-                        onChange={(e) => setBxgy("getQuantity", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{t('marketing.discount.form.field.bxgy_max_uses.label')}</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={form.bxgy.maxUsesPerOrder}
-                        onChange={(e) => setBxgy("maxUsesPerOrder", e.target.value)}
-                        placeholder={t('marketing.discount.form.field.bxgy_max_uses.placeholder')}
-                      />
-                    </div>
-                  </div>
-                  <PickerField
-                    label={t('marketing.discount.form.field.bxgy_get_products.label')}
-                    placeholder={t('marketing.discount.form.field.products_picker.placeholder')}
-                    options={allProducts}
-                    selected={form.bxgy.getProducts}
-                    onChange={(next) => setBxgy("getProducts", next)}
-                    noMatchesText={t('marketing.discount.form.picker_no_matches')}
-                  />
-                  <PickerField
-                    label={t('marketing.discount.form.field.bxgy_get_categories.label')}
-                    placeholder={t('marketing.discount.form.field.categories_picker.placeholder')}
-                    options={allCategories}
-                    selected={form.bxgy.getCategories}
-                    onChange={(next) => setBxgy("getCategories", next)}
-                    noMatchesText={t('marketing.discount.form.picker_no_matches')}
-                  />
-                  <div className="space-y-2">
-                    <Label>{t('marketing.discount.form.field.bxgy_discount_type.label')}</Label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <Select
-                        value={form.bxgy.getDiscountType}
-                        onChange={(e) => setBxgy("getDiscountType", e.target.value as "percentage" | "fixed")}
-                        options={[
-                          { value: "percentage", label: t('marketing.discount.form.type_option.percentage') },
-                          { value: "fixed", label: t('marketing.discount.form.type_option.fixed') },
-                        ]}
-                      />
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={form.bxgy.getDiscountValue}
-                        onChange={(e) => setBxgy("getDiscountValue", e.target.value)}
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {t('marketing.discount.form.field.bxgy_free_hint')}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </>
+            <DiscountBxgySections
+              form={form}
+              setBxgy={setBxgy}
+              allProducts={allProducts}
+              allCategories={allCategories}
+              t={t}
+            />
           )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t('marketing.discount.form.section.requirements')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t('marketing.discount.form.field.min_order_amount.label')}</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.minOrderAmount}
-                    onChange={(e) => setForm({ ...form, minOrderAmount: e.target.value })}
-                    placeholder={t('marketing.discount.form.field.min_order_amount.placeholder')}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('marketing.discount.form.field.usage_limit.label')}</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={form.usageLimit}
-                    onChange={(e) => setForm({ ...form, usageLimit: e.target.value })}
-                    placeholder={t('marketing.discount.form.field.usage_limit.placeholder')}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('marketing.discount.form.field.per_user_limit.label')}</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={form.perUserLimit}
-                    onChange={(e) => setForm({ ...form, perUserLimit: e.target.value })}
-                    placeholder={t('marketing.discount.form.field.per_user_limit.placeholder')}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('marketing.discount.form.field.expires_at.label')}</Label>
-                  <Input
-                    type="datetime-local"
-                    value={form.expiresAt}
-                    onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DiscountRequirementsSection form={form} setForm={setForm} t={t} />
         </div>
 
         <div className="space-y-6">
@@ -692,25 +491,7 @@ export default function DiscountForm() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t('marketing.discount.form.section.combinations')}</CardTitle>
-              <CardDescription>
-                {t('marketing.discount.form.section.combinations_desc')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {(["product", "order", "shipping"] as const).map((k) => (
-                <label key={k} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="capitalize">{t('marketing.discount.form.field.combines_with', { kind: k })}</span>
-                  <Switch
-                    checked={form.combinesWith[k]}
-                    onCheckedChange={(v) => setCombines(k, v)}
-                  />
-                </label>
-              ))}
-            </CardContent>
-          </Card>
+          <DiscountCombinationsSection form={form} setCombines={setCombines} t={t} />
         </div>
       </div>
     </form>
@@ -748,81 +529,3 @@ const ValueFields: React.FC<{
   </div>
 );
 
-function PickerField({
-  label,
-  placeholder,
-  options,
-  selected,
-  onChange,
-  noMatchesText,
-}: {
-  label: string;
-  placeholder: string;
-  options: PickerItem[];
-  selected: PickerItem[];
-  onChange: (next: PickerItem[]) => void;
-  noMatchesText: string;
-}) {
-  const [query, setQuery] = useState("");
-  const selectedIds = new Set(selected.map((s) => s._id));
-  const filtered = options
-    .filter((o) => !selectedIds.has(o._id))
-    .filter((o) => o.name.toLowerCase().includes(query.toLowerCase()))
-    .slice(0, 20);
-
-  const add = (item: PickerItem) => {
-    onChange([...selected, item]);
-    setQuery("");
-  };
-  const remove = (id: string) => onChange(selected.filter((s) => s._id !== id));
-
-  return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      {selected.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {selected.map((item) => (
-            <Badge key={item._id} variant="secondary" className="text-xs gap-1 pe-1">
-              {item.name}
-              <button
-                type="button"
-                onClick={() => remove(item._id)}
-                className="rounded-sm hover:bg-muted-foreground/20 p-0.5"
-                aria-label={`Remove ${item.name}`}
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      )}
-      <div className="relative">
-        <Search className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder}
-          className="ps-8 h-9"
-        />
-      </div>
-      {query && (
-        <div className="max-h-48 overflow-y-auto rounded-md border bg-popover text-sm">
-          {filtered.length === 0 ? (
-            <div className="px-3 py-2 text-muted-foreground text-xs">{noMatchesText}</div>
-          ) : (
-            filtered.map((item) => (
-              <button
-                key={item._id}
-                type="button"
-                onClick={() => add(item)}
-                className="block w-full text-start px-3 py-1.5 hover:bg-accent focus:bg-accent focus:outline-none"
-              >
-                {item.name}
-              </button>
-            ))
-          )}
-        </div>
-      )}
-    </div>
-  );
-}

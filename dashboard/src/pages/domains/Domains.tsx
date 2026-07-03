@@ -41,7 +41,10 @@ import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
 import type { DomainRegistryRow, DomainInfoResponse } from './types';
 import { isTransitional, daysUntilExpiry } from './types';
-import { AddDomainDialog } from './AddDomainDialog';
+import { AddDomainDialog } from './components/AddDomainDialog';
+import { LiveStoreBanner } from './components/LiveStoreBanner';
+import { SetupProgress, stepIndex } from './components/SetupProgress';
+import { DnsRecordsBlock } from './components/DnsRecordsBlock';
 import { errMsg } from '../../lib/errors';
 import { EmptyState } from '../../components/EmptyState';
 
@@ -263,10 +266,9 @@ export const Domains: React.FC = () => {
       </div>
 
       {/* -- Hero: your store is live at ------------------------------ */}
-      <PrimaryDomainHero
+      <LiveStoreBanner
         hostname={primary?.hostname || domainInfo?.activeDomain || ''}
         onCopy={(h) => copyText(h, t('domains:toast.address_copied'))}
-        t={t}
       />
 
       {/* -- Platform subdomain --------------------------------------- */}
@@ -402,57 +404,6 @@ export const Domains: React.FC = () => {
     </div>
   );
 };
-
-// =============================================================================
-// Hero: big "your store is live at" card
-// =============================================================================
-
-function PrimaryDomainHero({
-  hostname,
-  onCopy,
-  t,
-}: {
-  hostname: string;
-  onCopy: (h: string) => void;
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}) {
-  if (!hostname) return null;
-  return (
-    <Card className="border-green-200 dark:border-green-900/50 bg-green-50/50 dark:bg-green-950/10">
-      <CardContent className="py-6">
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center shrink-0">
-            <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-muted-foreground">
-              {t('domains:list.hero.live_at')}
-            </p>
-            <p
-              className="font-mono text-xl md:text-2xl font-semibold truncate mt-0.5"
-              title={hostname}
-            >
-              {hostname}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button variant="outline" size="sm" onClick={() => onCopy(hostname)}>
-              <Copy className="h-3.5 w-3.5 me-1.5" />
-              {t('domains:list.hero.copy')}
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => window.open(`https://${hostname}`, '_blank')}
-            >
-              <ExternalLink className="h-3.5 w-3.5 me-1.5" />
-              {t('domains:list.hero.visit')}
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 // =============================================================================
 // Platform subdomain card
@@ -649,30 +600,6 @@ const TONE_PILL: Record<PlainStatus['tone'], string> = {
   neutral: 'bg-muted text-muted-foreground',
 };
 
-// Healthy lifecycle steps the merchant sees during provisioning.
-const SETUP_STEP_KEYS = [
-  { key: 'pending_dns', labelKey: 'domains:setup_steps.verify_ownership' },
-  { key: 'ownership_verified', labelKey: 'domains:setup_steps.check_routing' },
-  { key: 'dns_verified', labelKey: 'domains:setup_steps.issue_cert' },
-  { key: 'active', labelKey: 'domains:setup_steps.live' },
-] as const;
-
-function stepIndex(status: DomainRegistryRow['status']): number {
-  switch (status) {
-    case 'pending_dns':
-      return 0;
-    case 'ownership_verified':
-      return 1;
-    case 'dns_verified':
-    case 'provisioning_ssl':
-      return 2;
-    case 'active':
-      return 3;
-    default:
-      return -1;
-  }
-}
-
 function CustomDomainCard({
   row,
   actionLoading,
@@ -857,155 +784,6 @@ function CustomDomainCard({
 // =============================================================================
 // CustomDomainCard sub-blocks
 // =============================================================================
-
-function SetupProgress({
-  currentStatus,
-  t,
-}: {
-  currentStatus: DomainRegistryRow['status'];
-  t: (key: string) => string;
-}) {
-  const currentIdx = stepIndex(currentStatus);
-  return (
-    <div className="pt-1">
-      <div className="flex items-center">
-        {SETUP_STEP_KEYS.map((step, i) => {
-          const done = i < currentIdx;
-          const active = i === currentIdx;
-          return (
-            <React.Fragment key={step.key}>
-              <div className="flex flex-col items-center gap-1.5 min-w-0">
-                <div
-                  className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-semibold border-2 ${
-                    done
-                      ? 'bg-green-500 border-green-500 text-white'
-                      : active
-                        ? 'bg-blue-500 border-blue-500 text-white'
-                        : 'bg-muted border-muted-foreground/20 text-muted-foreground'
-                  }`}
-                >
-                  {done ? (
-                    <CheckCircle2 className="h-3 w-3" />
-                  ) : active ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : (
-                    i + 1
-                  )}
-                </div>
-                <span
-                  className={`text-[10px] text-center whitespace-nowrap ${
-                    done || active ? 'font-medium' : 'text-muted-foreground'
-                  }`}
-                >
-                  {t(step.labelKey)}
-                </span>
-              </div>
-              {i < SETUP_STEP_KEYS.length - 1 && (
-                <div
-                  className={`flex-1 h-0.5 mx-1 -mt-4 rounded ${
-                    done ? 'bg-green-500' : 'bg-muted-foreground/20'
-                  }`}
-                />
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function DnsRecordsBlock({
-  row,
-  onCopy,
-  t,
-}: {
-  row: DomainRegistryRow;
-  onCopy: (text: string, label?: string) => void;
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}) {
-  const records: Array<{
-    type: string;
-    name: string;
-    value: string;
-    purpose: string;
-  }> = [];
-
-  if (row.verification?.recordName && row.verification?.recordValue) {
-    records.push({
-      type: 'TXT',
-      name: row.verification.recordName,
-      value: row.verification.recordValue,
-      purpose: t('domains:dns.purpose_ownership'),
-    });
-  }
-  if (row.dns?.expectedTarget) {
-    records.push({
-      type: row.dns.targetType || 'CNAME',
-      name: row.hostname,
-      value: row.dns.expectedTarget,
-      purpose: t('domains:dns.purpose_routing'),
-    });
-  }
-
-  if (records.length === 0) return null;
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">{t('domains:dns.records_title')}</p>
-        <span className="text-xs text-muted-foreground">
-          {t('domains:dns.propagation_hint')}
-        </span>
-      </div>
-      <div className="space-y-2">
-        {records.map((rec, i) => (
-          <div
-            key={i}
-            className="border rounded-lg p-3 bg-muted/20 space-y-2"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <Badge variant="outline" className="font-mono text-xs">
-                {rec.type}
-              </Badge>
-              <span className="text-xs text-muted-foreground">{rec.purpose}</span>
-            </div>
-            <DnsField label={t('domains:dns.field.name')} value={rec.name} onCopy={onCopy} />
-            <DnsField label={t('domains:dns.field.value')} value={rec.value} onCopy={onCopy} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function DnsField({
-  label,
-  value,
-  onCopy,
-}: {
-  label: string;
-  value: string;
-  onCopy: (text: string, copyLabel?: string) => void;
-}) {
-  return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="text-muted-foreground w-12 shrink-0">{label}</span>
-      <code className="font-mono bg-background px-2 py-1 rounded border flex-1 truncate">
-        {value}
-      </code>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-6 w-6 shrink-0"
-        onClick={() => onCopy(value, `${label} copied`)}
-        aria-label={`Copy ${label}`}
-      >
-        <Copy className="h-3 w-3" />
-      </Button>
-    </div>
-  );
-}
 
 function DnsMismatchBlock({
   row,

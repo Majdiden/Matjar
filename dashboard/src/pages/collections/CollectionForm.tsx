@@ -15,26 +15,19 @@ import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from '../../components/ui/collapsible';
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from '../../components/ui/dialog';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '../../components/ui/table';
-import {
-  Save, Trash2, Loader2, Plus, X, ChevronDown, ChevronUp,
-  Eye, ArrowUp, ArrowDown, Search,
+  Save, Trash2, Loader2, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
+import {
+  CollectionRuleBuilder, CollectionPreviewDialog, defaultOperatorFor, type Rule,
+} from './CollectionRuleBuilder';
+import {
+  CollectionProductsCard, CollectionProductPickerDialog, type Product,
+} from './CollectionProductPicker';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-interface Rule {
-  field: string;
-  operator: string;
-  value: string;
-}
 
 interface CollectionFormData {
   title: string;
@@ -48,15 +41,6 @@ interface CollectionFormData {
   sortOrder: string;
   isPublished: boolean;
   seo: { title: string; description: string };
-}
-
-interface Product {
-  _id: string;
-  name: string;
-  slug: string;
-  price: number;
-  images: string[];
-  status: string;
 }
 
 // GET /collections/:id — server returns the collection under `data` or
@@ -97,17 +81,6 @@ interface ApiErrorLike { message?: string; error?: string }
 
 // ─── Constants (values only — labels built from t() inside component) ─────────
 
-const RULE_FIELDS_VALUES = [
-  { value: 'title',     type: 'string' },
-  { value: 'tag',       type: 'string' },
-  { value: 'price',     type: 'number' },
-  { value: 'inventory', type: 'number' },
-  { value: 'category',  type: 'string' },
-];
-
-const STRING_OPERATOR_VALUES = ['equals', 'not_equals', 'contains', 'starts_with', 'ends_with', 'in'];
-const NUMBER_OPERATOR_VALUES = ['equals', 'not_equals', 'greater_than', 'less_than'];
-
 const SORT_ORDER_VALUES = [
   'manual', 'best-selling', 'title-asc', 'title-desc',
   'price-asc', 'price-desc', 'created-desc', 'created-asc',
@@ -139,15 +112,6 @@ function slugify(str: string): string {
     .replace(/^-|-$/g, '');
 }
 
-function fieldType(fieldValue: string): 'string' | 'number' {
-  const f = RULE_FIELDS_VALUES.find((r) => r.value === fieldValue);
-  return (f?.type as 'string' | 'number') || 'string';
-}
-
-function defaultOperatorFor(fieldValue: string): string {
-  return fieldType(fieldValue) === 'number' ? NUMBER_OPERATOR_VALUES[0] : STRING_OPERATOR_VALUES[0];
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const CollectionForm: React.FC = () => {
@@ -157,30 +121,10 @@ export const CollectionForm: React.FC = () => {
   const isEdit = Boolean(id && id !== 'new');
   const confirm = useConfirm();
 
-  // Build translated label arrays inside the component so t() is available
-  const RULE_FIELDS = RULE_FIELDS_VALUES.map((f) => ({
-    ...f,
-    label: t(`products.collections.form.rules.field.${f.value}`),
-  }));
-
-  const STRING_OPERATORS = STRING_OPERATOR_VALUES.map((v) => ({
-    value: v,
-    label: t(`products.collections.form.rules.operator.${v}`),
-  }));
-
-  const NUMBER_OPERATORS = NUMBER_OPERATOR_VALUES.map((v) => ({
-    value: v,
-    label: t(`products.collections.form.rules.operator.${v}`),
-  }));
-
   const SORT_ORDERS = SORT_ORDER_VALUES.map((v) => ({
     value: v,
     label: t(`products.collections.form.sort_order.${v.replace(/-/g, '_')}`),
   }));
-
-  function operatorsFor(fieldValue: string) {
-    return fieldType(fieldValue) === 'number' ? NUMBER_OPERATORS : STRING_OPERATORS;
-  }
 
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -609,162 +553,26 @@ export const CollectionForm: React.FC = () => {
 
       {/* Manual: products list */}
       {form.type === 'manual' && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>{t('products.collections.form.section.products')}</CardTitle>
-              <Button size="sm" variant="secondary" onClick={() => setPickerOpen(true)}>
-                <Plus className="h-4 w-4 me-1" />{t('products.collections.form.products.add_button')}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {collectionProducts.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">
-                {t('products.collections.form.products.no_products')}
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('products.collections.form.products.column.product')}</TableHead>
-                    <TableHead>{t('products.collections.form.products.column.price')}</TableHead>
-                    <TableHead className="w-28">{t('products.collections.form.products.column.order')}</TableHead>
-                    <TableHead className="w-10" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {collectionProducts.map((p, i) => (
-                    <TableRow key={p._id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {p.images?.[0] && (
-                            <img src={p.images[0]} alt={p.name} className="h-8 w-8 rounded object-cover" />
-                          )}
-                          <span className="text-sm font-medium">{p.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm">${p.price?.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost" size="icon" className="h-7 w-7"
-                            disabled={i === 0}
-                            onClick={() => moveProduct(i, 'up')}
-                          >
-                            <ArrowUp className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost" size="icon" className="h-7 w-7"
-                            disabled={i === collectionProducts.length - 1}
-                            onClick={() => moveProduct(i, 'down')}
-                          >
-                            <ArrowDown className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost" size="icon" className="h-7 w-7 text-destructive"
-                          onClick={() => removeCollectionProduct(p)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+        <CollectionProductsCard
+          products={collectionProducts}
+          onOpenPicker={() => setPickerOpen(true)}
+          onMoveProduct={moveProduct}
+          onRemoveProduct={removeCollectionProduct}
+        />
       )}
 
       {/* Smart: rules */}
       {form.type === 'smart' && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>{t('products.collections.form.section.rules')}</CardTitle>
-              {isEdit && (
-                <Button size="sm" variant="outline" onClick={handlePreview}>
-                  <Eye className="h-4 w-4 me-1" />{t('products.collections.form.preview.button')}
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Match toggle */}
-            <div className="flex items-center gap-3 text-sm">
-              <span>{t('products.collections.form.rules.match_prefix')}</span>
-              <Select
-                value={form.rulesMatch}
-                onValueChange={(v: 'all' | 'any') => setField('rulesMatch', v)}
-              >
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ALL</SelectItem>
-                  <SelectItem value="any">ANY</SelectItem>
-                </SelectContent>
-              </Select>
-              <span>of the conditions</span>
-            </div>
-
-            {/* Rule rows */}
-            {form.rules.length === 0 && (
-              <p className="text-sm text-muted-foreground">{t('products.collections.form.rules.no_rules')}</p>
-            )}
-            {form.rules.map((rule, i) => {
-              const ops = operatorsFor(rule.field);
-              return (
-                <div key={i} className="flex gap-2 items-center flex-wrap">
-                  {/* Field */}
-                  <Select value={rule.field} onValueChange={(v) => updateRule(i, { field: v })}>
-                    <SelectTrigger className="w-36">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {RULE_FIELDS.map((f) => (
-                        <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {/* Operator */}
-                  <Select value={rule.operator} onValueChange={(v) => updateRule(i, { operator: v })}>
-                    <SelectTrigger className="w-44">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ops.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {/* Value */}
-                  <Input
-                    className="w-44"
-                    value={rule.value}
-                    onChange={(e) => updateRule(i, { value: e.target.value })}
-                    placeholder={fieldType(rule.field) === 'number' ? '0' : 'value'}
-                    type={fieldType(rule.field) === 'number' ? 'number' : 'text'}
-                  />
-
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeRule(i)}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              );
-            })}
-
-            <Button variant="secondary" size="sm" onClick={addRule}>
-              <Plus className="h-4 w-4 me-1" />Add condition
-            </Button>
-          </CardContent>
-        </Card>
+        <CollectionRuleBuilder
+          rules={form.rules}
+          rulesMatch={form.rulesMatch}
+          isEdit={isEdit}
+          onRulesMatchChange={(v) => setField('rulesMatch', v)}
+          onAddRule={addRule}
+          onUpdateRule={updateRule}
+          onRemoveRule={removeRule}
+          onPreview={handlePreview}
+        />
       )}
 
       {/* Publish status */}
@@ -817,118 +625,25 @@ export const CollectionForm: React.FC = () => {
       </Card>
 
       {/* Product Picker Dialog */}
-      <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>{t('products.collections.picker.title')}</DialogTitle>
-          </DialogHeader>
-          <div className="relative mb-3">
-            <Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              className="ps-8"
-              placeholder={t('products.collections.picker.search_placeholder')}
-              value={pickerSearch}
-              onChange={(e) => setPickerSearch(e.target.value)}
-            />
-          </div>
-          <div className="overflow-y-auto flex-1 min-h-0">
-            {pickerLoading ? (
-              <div className="space-y-2 p-2">
-                {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
-              </div>
-            ) : pickerResults.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">{t('products.collections.picker.no_products')}</p>
-            ) : (
-              <Table>
-                <TableBody>
-                  {pickerResults.map((p) => (
-                    <TableRow
-                      key={p._id}
-                      className="cursor-pointer"
-                      onClick={() => togglePickerProduct(p._id)}
-                    >
-                      <TableCell className="w-8">
-                        <input
-                          type="checkbox"
-                          checked={pickerSelected.has(p._id)}
-                          readOnly
-                          className="accent-primary"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {p.images?.[0] && (
-                            <img src={p.images[0]} alt={p.name} className="h-8 w-8 rounded object-cover" />
-                          )}
-                          <span className="text-sm">{p.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        ${p.price?.toFixed(2)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPickerOpen(false)}>{t('common:action.cancel')}</Button>
-            <Button onClick={confirmAddProducts} disabled={pickerSelected.size === 0}>
-              {pickerSelected.size > 0
-                ? t('products.collections.picker.add_button', { count: pickerSelected.size })
-                : t('products.collections.picker.add_button_empty')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CollectionProductPickerDialog
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        search={pickerSearch}
+        onSearchChange={setPickerSearch}
+        results={pickerResults}
+        selected={pickerSelected}
+        loading={pickerLoading}
+        onToggleProduct={togglePickerProduct}
+        onConfirm={confirmAddProducts}
+      />
 
       {/* Smart Preview Dialog */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>{t('products.collections.preview.title')}</DialogTitle>
-          </DialogHeader>
-          <div className="overflow-y-auto flex-1 min-h-0">
-            {previewLoading ? (
-              <div className="space-y-2 p-2">
-                {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
-              </div>
-            ) : previewProducts.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                {t('products.collections.preview.no_products')}
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('products.collections.preview.column.product')}</TableHead>
-                    <TableHead>{t('products.collections.preview.column.price')}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {previewProducts.map((p) => (
-                    <TableRow key={p._id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {p.images?.[0] && (
-                            <img src={p.images[0]} alt={p.name} className="h-8 w-8 rounded object-cover" />
-                          )}
-                          <span className="text-sm">{p.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm">${p.price?.toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setPreviewOpen(false)}>{t('common:action.close')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CollectionPreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        products={previewProducts}
+        loading={previewLoading}
+      />
     </div>
   );
 };
