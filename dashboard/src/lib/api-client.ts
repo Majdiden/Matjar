@@ -326,7 +326,34 @@ export const api = {
       to?: string;
     }) => api.get('/orders/stats', { params }),
 
+    // Server-side CSV export (audit 5.6.2) — streams the filtered list with
+    // no row ceiling. Fetched as a blob (so the Bearer token is attached)
+    // and downloaded client-side. Same filter params as getAll.
+    exportCsv: (params?: {
+      status?: string;
+      search?: string;
+      paymentStatus?: string;
+      fulfillmentStatus?: string;
+      tag?: string;
+      from?: string;
+      to?: string;
+      sort?: string;
+    }) => api.get('/orders/export.csv', { params, responseType: 'blob' }),
+
     getById: (id: string) => api.get(`/orders/${id}`),
+
+    // Scoped line editing (audit 5.3) — replace the order's line items.
+    // Server-guarded to unpaid + unfulfilled + Pending/Confirmed orders.
+    editLines: (
+      id: string,
+      payload: { items: Array<{ productId: string; variantId?: string; quantity: number; price?: number }> },
+    ) => api.put(`/orders/${id}/lines`, payload),
+
+    // Resend a customer order-status email (audit 5.6.1). `template` is one
+    // of the notifier's statuses (Pending/Processing/Shipped/Delivered/
+    // Cancelled/Refunded). Audit-logged server-side.
+    resendNotification: (id: string, template: string) =>
+      api.post(`/orders/${id}/notifications/resend`, { template }),
 
     // Draft / manual orders (audit 5.2). Create + complete are guarded by
     // the Idempotency-Key middleware so a double-click can't produce two
@@ -672,6 +699,18 @@ export const api = {
       });
     },
 
+    // Media library upload (audit 6.6) — records an Asset with preset
+    // "content" + the original filename, and returns the created row so
+    // the caller can insert/select it without a re-fetch.
+    contentImage: (file: File, alt?: string) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      if (alt) formData.append('alt', alt);
+      return api.post('/upload/content', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
     deleteImage: (imageUrl: string) =>
       api.delete('/upload/image', { data: { imageUrl } }),
 
@@ -930,6 +969,30 @@ export const api = {
       isPublished: boolean;
     }>) => api.put(`/pages/${id}`, data),
     delete: (id: string) => api.delete(`/pages/${id}`),
+  },
+
+  // Media library (audit 6.6). Browse/reuse uploaded assets. Uploads go
+  // through api.upload.contentImage; deletion reuses api.upload.deleteImage.
+  assets: {
+    list: (params?: {
+      page?: number;
+      limit?: number;
+      preset?: string;
+      search?: string;
+    }) => api.get('/assets', { params }),
+    updateAlt: (id: string, alt: string) => api.patch(`/assets/${id}`, { alt }),
+  },
+
+  // URL redirects (audit 6.7). 301/302 mapping of old storefront paths.
+  redirects: {
+    list: (params?: { page?: number; limit?: number; search?: string }) =>
+      api.get('/redirects', { params }),
+    get: (id: string) => api.get(`/redirects/${id}`),
+    create: (data: { fromPath: string; toPath: string; statusCode?: number }) =>
+      api.post('/redirects', data),
+    update: (id: string, data: Partial<{ fromPath: string; toPath: string; statusCode: number }>) =>
+      api.put(`/redirects/${id}`, data),
+    delete: (id: string) => api.delete(`/redirects/${id}`),
   },
 };
 
