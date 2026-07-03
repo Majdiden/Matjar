@@ -5,8 +5,8 @@
  */
 import React from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { useCategory, useCategories } from '@shared/hooks/useProducts';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { useCategory, useCategories } from '@matjar/theme-shared/hooks/useProducts';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { TonmartProductCard } from '../components/TonmartProductCard';
 import { useTranslation } from 'react-i18next';
 

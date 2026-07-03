@@ -1,16 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { StoreProvider } from '@shared/contexts/StoreContext';
-import { CartProvider } from '@shared/contexts/CartContext';
-import { ThemeProvider } from '@shared/theme/ThemeProvider';
-import { ToastProvider } from '@shared/components/primitives/Toast';
-import { CompareProvider } from '@shared/components/commerce/ProductCompare';
-import { ConfirmProvider } from '@shared/components/primitives/ConfirmDialog';
+import { StoreProvider } from '@matjar/theme-shared/contexts/StoreContext';
+import { CartProvider } from '@matjar/theme-shared/contexts/CartContext';
+import { ThemeProvider } from '@matjar/theme-shared/theme/ThemeProvider';
+import { ToastProvider } from '@matjar/theme-shared/components/primitives/Toast';
+import { CompareProvider } from '@matjar/theme-shared/components/commerce/ProductCompare';
+import { ConfirmProvider } from '@matjar/theme-shared/components/primitives/ConfirmDialog';
 import manifest from './theme.manifest';
-import '../../_shared/i18n'
-import { LanguageProvider } from '../../_shared/i18n/LanguageProvider'
-import { registerThemeResources } from '../../_shared/i18n'
+import '@matjar/theme-shared/i18n'
+import { LanguageProvider } from '@matjar/theme-shared/i18n/LanguageProvider'
+import { registerThemeResources } from '@matjar/theme-shared/i18n'
 import { themeResources } from './i18n/theme'
 
 import App from './App';

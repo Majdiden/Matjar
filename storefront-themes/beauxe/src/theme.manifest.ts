@@ -1,6 +1,6 @@
-import { defineTheme } from '@shared/theme/defineTheme';
-import { defineSection } from '@shared/theme/defineSection';
-import type { SectionDefinition, SectionInstance } from '@shared/types/theme';
+import { defineTheme } from '@matjar/theme-shared/theme/defineTheme';
+import { defineSection } from '@matjar/theme-shared/theme/defineSection';
+import type { SectionDefinition, SectionInstance } from '@matjar/theme-shared/types/theme';
 
 /**
  * BEAUXE — model-led cosmetics theme.

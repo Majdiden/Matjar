@@ -10,10 +10,10 @@
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useStore } from '@shared/contexts/StoreContext';
-import { useCart } from '@shared/contexts/CartContext';
-import { reviewsApi } from '@shared/api/client';
-import { useThemeCard } from '@shared/theme/ThemeCardProvider';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { useCart } from '@matjar/theme-shared/contexts/CartContext';
+import { reviewsApi } from '@matjar/theme-shared/api/client';
+import { useThemeCard } from '@matjar/theme-shared/theme/ThemeCardProvider';
 import { useTranslation } from 'react-i18next';
 
 interface Spec { key: string; value: string }

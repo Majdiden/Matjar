@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
+  "workspaces": [
+    "storefront-themes/_shared",
+    "storefront-themes/*",
+    "dashboard"
+  ],
   "scripts": {
     "start": "node ./index.js",
     "dev:api": "nodemon ./index.js",
     "dev:dashboard": "cd dashboard && npm run dev",
-    "build:dashboard": "cd dashboard && npm ci --include=dev && npm run build",
+    "build:dashboard": "npm ci --include=dev && npm run build --workspace dashboard",
     "dev:platform-admin": "cd platform-admin && npm run dev",
     "build:platform-admin": "cd platform-admin && npm ci --include=dev && npm run build",
     "dev": "echo 'Run npm run dev:api (backend) and npm run dev:dashboard (frontend) in separate terminals'",

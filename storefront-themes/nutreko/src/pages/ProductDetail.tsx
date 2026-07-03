@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useProduct } from '@shared/hooks/useProducts';
-import { useStore } from '@shared/contexts/StoreContext';
-import { useCart } from '@shared/contexts/CartContext';
-import { VariantPicker, type Variant } from '@shared/components/commerce/VariantPicker';
-import GuaranteedCheckout from '@shared/components/commerce/GuaranteedCheckout';
-import ProductReviews from '@shared/components/commerce/ProductReviews';
-import ProductDescription from '@shared/components/commerce/ProductDescription';
-import { ImageZoom } from '@shared/components/commerce/ImageZoom';
-import { SocialShare } from '@shared/components/marketing/SocialShare';
-import { PreorderBadge } from '@shared/components/commerce/PreorderBadge';
-import { getPreorderState } from '@shared/utils/preorder';
+import { useProduct } from '@matjar/theme-shared/hooks/useProducts';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { useCart } from '@matjar/theme-shared/contexts/CartContext';
+import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
+import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
+import ProductReviews from '@matjar/theme-shared/components/commerce/ProductReviews';
+import ProductDescription from '@matjar/theme-shared/components/commerce/ProductDescription';
+import { ImageZoom } from '@matjar/theme-shared/components/commerce/ImageZoom';
+import { SocialShare } from '@matjar/theme-shared/components/marketing/SocialShare';
+import { PreorderBadge } from '@matjar/theme-shared/components/commerce/PreorderBadge';
+import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import NutrekoProductCard from '../components/NutrekoProductCard';
 
 const LIME = 'var(--color-primary)';

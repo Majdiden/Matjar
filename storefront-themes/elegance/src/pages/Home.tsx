@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
-import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
-import { ProductCard } from '@shared/components/commerce/ProductCard';
-import { ProductRail } from '@shared/components/commerce/ProductRail';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
-import { QuickView } from '@shared/components/discovery/QuickView';
-import { MerchantSections } from '@shared/theme/SectionRenderer';
-import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
+import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
+import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
+import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
+import { MerchantSections } from '@matjar/theme-shared/theme/SectionRenderer';
+import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import EditorialHero from '../components/EditorialHero';
-import type { Product } from '@shared/types/commerce';
+import type { Product } from '@matjar/theme-shared/types/commerce';
 
 const HARDCODED_IDS = ['hero', 'collections', 'featured-products', 'editorial-banner', 'new-arrivals', 'trust-bar'];
 

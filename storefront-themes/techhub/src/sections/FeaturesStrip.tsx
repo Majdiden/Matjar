@@ -4,8 +4,8 @@
  * and renders them in an equal-width row with minimal dividers.
  */
 import React from 'react';
-import { useThemeSettings } from '@shared/theme/ThemeProvider';
-import type { SectionComponentProps } from '@shared/components/sections';
+import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import type { SectionComponentProps } from '@matjar/theme-shared/components/sections';
 import { useTranslation } from 'react-i18next';
 
 interface FeatureBlock {

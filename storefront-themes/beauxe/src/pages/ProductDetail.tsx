@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useProduct } from '@shared/hooks/useProducts';
-import { useStore } from '@shared/contexts/StoreContext';
-import { useCart } from '@shared/contexts/CartContext';
+import { useProduct } from '@matjar/theme-shared/hooks/useProducts';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useTranslation } from 'react-i18next';
-import { VariantPicker, type Variant } from '@shared/components/commerce/VariantPicker';
-import GuaranteedCheckout from '@shared/components/commerce/GuaranteedCheckout';
-import { getPreorderState } from '@shared/utils/preorder';
-import ProductReviews from '@shared/components/commerce/ProductReviews';
-import ProductDescription from '@shared/components/commerce/ProductDescription';
+import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
+import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
+import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
+import ProductReviews from '@matjar/theme-shared/components/commerce/ProductReviews';
+import ProductDescription from '@matjar/theme-shared/components/commerce/ProductDescription';
 import BeauxeProductCard from '../components/BeauxeProductCard';
 
 /**

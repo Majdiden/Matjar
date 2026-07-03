@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { useCategory } from '@shared/hooks/useProducts';
-import ProductCard from '@shared/components/ProductCard';
+import { useCategory } from '@matjar/theme-shared/hooks/useProducts';
+import ProductCard from '@matjar/theme-shared/components/ProductCard';
 import { useTranslation } from 'react-i18next';
 
 const CategoryPage: React.FC = () => {

@@ -7,8 +7,8 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useThemeSettings } from '@shared/theme/ThemeProvider';
-import type { SectionComponentProps } from '@shared/components/sections';
+import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import type { SectionComponentProps } from '@matjar/theme-shared/components/sections';
 import { useTranslation } from 'react-i18next';
 
 interface PromoBlock {

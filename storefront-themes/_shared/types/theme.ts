@@ -227,6 +227,14 @@ export interface ThemeManifest {
   name: string;
   /** Version (semver) */
   version: string;
+  /**
+   * Minimum platform (`@matjar/theme-shared`) version this theme requires,
+   * as a semver string (e.g. "2.0.0"). The shared package is the versioned
+   * contract themes pin against; the platform may refuse to activate a
+   * theme whose requirement exceeds the running SDK version. Optional —
+   * omitted means "any".
+   */
+  minPlatformVersion?: string;
   /** Theme description */
   description: string;
   /** Author info */

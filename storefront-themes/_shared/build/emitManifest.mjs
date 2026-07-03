@@ -12,8 +12,9 @@
  * 1. `closeBundle` fires after Vite has written the React bundle to
  *    `dist/`.
  * 2. We spawn esbuild programmatically to bundle the manifest entry
- *    (with the `@shared` alias resolved) into a temporary ESM file in
- *    the OS temp directory.
+ *    (with `@matjar/theme-shared` aliased to the workspace package's
+ *    source directory) into a temporary ESM file in the OS temp
+ *    directory.
  * 3. We dynamic-import that temp file and read its default export.
  *    Because `defineTheme()` / `defineSection()` are pure data
  *    helpers and `universalSections.ts` contains no React/runtime
@@ -22,7 +23,7 @@
  *
  * Usage in a theme's vite.config.ts:
  *
- *   import emitManifest from '../_shared/build/emitManifest.mjs';
+ *   import emitManifest from '@matjar/theme-shared/build/emitManifest.mjs';
  *   export default defineConfig({
  *     plugins: [react(), emitManifest()],
  *     ...
@@ -30,7 +31,7 @@
  *
  * Assumes the calling theme follows the standard layout:
  *   - entry at `src/theme.manifest.ts`
- *   - shared runtime at `../_shared`
+ *   - `@matjar/theme-shared` resolvable from the theme (npm workspace)
  *   - output at `dist/manifest.json`
  */
 
@@ -58,7 +59,22 @@ export default function emitManifestPlugin(options = {}) {
         return;
       }
 
-      const sharedAlias = path.resolve(themeRoot, "../_shared");
+      // Locate the shared SDK package as the theme resolves it (npm
+      // workspace symlink → storefront-themes/_shared). Aliasing the bare
+      // package name to the source DIRECTORY lets esbuild path-resolve
+      // extensionless deep imports (e.g. `@matjar/theme-shared/theme/
+      // defineTheme` → `defineTheme.ts`) without consulting the package's
+      // `exports` map, which maps subpaths verbatim (no extension guessing).
+      const workspaceRequire = createRequire(path.join(themeRoot, "package.json"));
+      let sharedAlias;
+      try {
+        sharedAlias = path.dirname(
+          workspaceRequire.resolve("@matjar/theme-shared/package.json")
+        );
+      } catch {
+        // Fallback for a theme built outside the workspace (legacy layout).
+        sharedAlias = path.resolve(themeRoot, "../_shared");
+      }
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "matjar-manifest-"));
       const tmpFile = path.join(tmpDir, `manifest-${Date.now()}.mjs`);
 
@@ -87,7 +103,7 @@ export default function emitManifestPlugin(options = {}) {
           platform: "node",
           target: "node18",
           outfile: tmpFile,
-          alias: { "@shared": sharedAlias },
+          alias: { "@matjar/theme-shared": sharedAlias },
           logLevel: "silent",
         });
 

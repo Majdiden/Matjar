@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '@shared/contexts/StoreContext';
-import { useThemeSettings } from '@shared/theme/ThemeProvider';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
 
 interface EditorialHeroProps {
   /** Featured-product photo used as the full-bleed image when the merchant

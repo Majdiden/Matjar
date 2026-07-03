@@ -21,11 +21,11 @@
  */
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '@shared/contexts/CartContext';
-import { useStore } from '@shared/contexts/StoreContext';
-import { useCompare } from '@shared/components/commerce/ProductCompare';
-import type { Product } from '@shared/types/commerce';
-import { getPreorderState } from '@shared/utils/preorder';
+import { useCart } from '@matjar/theme-shared/contexts/CartContext';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { useCompare } from '@matjar/theme-shared/components/commerce/ProductCompare';
+import type { Product } from '@matjar/theme-shared/types/commerce';
+import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import { useTranslation } from 'react-i18next';
 
 interface Props {

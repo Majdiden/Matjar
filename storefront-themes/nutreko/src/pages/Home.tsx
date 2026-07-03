@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { SectionRenderer } from '@shared/theme/SectionRenderer';
-import { QuickView } from '@shared/components/discovery/QuickView';
+import { SectionRenderer } from '@matjar/theme-shared/theme/SectionRenderer';
+import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { NUTREKO_SECTION_REGISTRY } from '../sections';
 
 const Home: React.FC = () => {

@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useProducts, useCategories } from '@shared/hooks/useProducts';
+import { useProducts, useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import AurumProductCard from '../components/AurumProductCard';
-import { QuickView } from '@shared/components/discovery/QuickView';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 
 /**
  * Aurum Products page — dark editorial collection grid.

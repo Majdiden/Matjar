@@ -14,8 +14,8 @@
  */
 import React, { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useProducts, useCategories } from '@shared/hooks/useProducts';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { useProducts, useCategories } from '@matjar/theme-shared/hooks/useProducts';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { TonmartProductCard } from '../components/TonmartProductCard';
 import { useTranslation } from 'react-i18next';
 

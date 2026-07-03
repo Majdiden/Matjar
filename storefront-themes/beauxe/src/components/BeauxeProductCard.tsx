@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '@shared/contexts/CartContext';
-import { useStore } from '@shared/contexts/StoreContext';
-import { useThemeSetting } from '@shared/theme/ThemeProvider';
-import { getPreorderState } from '@shared/utils/preorder';
+import { useCart } from '@matjar/theme-shared/contexts/CartContext';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
+import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import { useTranslation } from 'react-i18next';
 
 /**

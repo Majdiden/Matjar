@@ -9,11 +9,11 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@shared/components/sections';
-import { useThemeSettings } from '@shared/theme/ThemeProvider';
-import { useFeaturedProducts, useProducts, useCategories } from '@shared/hooks/useProducts';
-import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@matjar/theme-shared/components/sections';
+import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useFeaturedProducts, useProducts, useCategories } from '@matjar/theme-shared/hooks/useProducts';
+import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import AurumProductCard from '../components/AurumProductCard';
 
 const serif = { fontFamily: 'var(--font-family-heading)' } as const;

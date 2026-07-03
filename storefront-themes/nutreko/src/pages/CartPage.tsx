@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useCart } from '@shared/contexts/CartContext';
-import { useStore } from '@shared/contexts/StoreContext';
+import { useCart } from '@matjar/theme-shared/contexts/CartContext';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 
 const CartPage: React.FC = () => {
   const { t } = useTranslation('theme');

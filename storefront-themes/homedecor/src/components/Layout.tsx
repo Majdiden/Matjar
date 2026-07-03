@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useStore } from '@shared/contexts/StoreContext';
-import { useCart } from '@shared/contexts/CartContext';
-import { useCategories } from '@shared/hooks/useProducts';
-import { useMenu, type MenuItem } from '@shared/hooks/useMenu';
-import { Drawer } from '@shared/components/primitives/Drawer';
-import { SearchBar } from '@shared/components/navigation/SearchBar';
-import { MobileBottomNav } from '@shared/components/navigation/MobileBottomNav';
-import CartDrawer from '@shared/components/CartDrawer';
-import { LanguageSwitcher } from '../../../_shared/components/LanguageSwitcher';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { useCart } from '@matjar/theme-shared/contexts/CartContext';
+import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
+import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
+import { Drawer } from '@matjar/theme-shared/components/primitives/Drawer';
+import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
+import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
+import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
+import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');

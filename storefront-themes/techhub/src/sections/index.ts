@@ -6,7 +6,7 @@
  * `<SectionRenderer registry={TECHHUB_SECTION_REGISTRY} />` so the
  * theme-local section types resolve alongside the built-ins.
  */
-import { DEFAULT_SECTION_REGISTRY, type SectionComponent } from '@shared/components/sections';
+import { DEFAULT_SECTION_REGISTRY, type SectionComponent } from '@matjar/theme-shared/components/sections';
 import { HeroShowcaseSection } from './HeroShowcase';
 import { CategorySidebarSection } from './CategorySidebar';
 import { PromoBannerGridSection } from './PromoBannerGrid';

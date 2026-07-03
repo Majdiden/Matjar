@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useProducts, useCategories } from '@shared/hooks/useProducts';
-import ProductCard from '@shared/components/ProductCard';
+import { useProducts, useCategories } from '@matjar/theme-shared/hooks/useProducts';
+import ProductCard from '@matjar/theme-shared/components/ProductCard';
 import { useTranslation } from 'react-i18next';
 
 const Products: React.FC = () => {

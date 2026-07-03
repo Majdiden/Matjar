@@ -7,10 +7,10 @@
  * the dashboard.
  */
 import React, { useState } from 'react';
-import { SectionRenderer } from '@shared/theme/SectionRenderer';
-import { QuickView } from '@shared/components/discovery/QuickView';
+import { SectionRenderer } from '@matjar/theme-shared/theme/SectionRenderer';
+import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { TECHHUB_SECTION_REGISTRY } from '../sections';
-import type { Product } from '@shared/types/commerce';
+import type { Product } from '@matjar/theme-shared/types/commerce';
 
 const Home: React.FC = () => {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);

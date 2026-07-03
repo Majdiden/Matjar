@@ -4,12 +4,27 @@
 
 set -e
 
-THEMES_DIR="$(cd "$(dirname "$0")/../storefront-themes" && pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+THEMES_DIR="$REPO_ROOT/storefront-themes"
 THEMES=(modern elegance techhub freshmart starter artisan sportzone bookshelf kidsworld homedecor glowing beauxe nutreko milmaa aurum)
 
 echo "=========================================="
 echo "Building ${#THEMES[@]} storefront themes"
 echo "=========================================="
+
+# Install ONCE at the repo root: npm workspaces hoist every theme's
+# dependencies (plus @matjar/theme-shared) into the root node_modules
+# against the single root lockfile — there are no per-theme lockfiles
+# any more. Use `npm ci --include=dev` so the build is deterministic
+# AND pulls vite / @vitejs/plugin-react, which live in devDependencies —
+# without --include=dev they are skipped under NODE_ENV=production
+# (Render), leaving `npx vite build` to auto-download an unpinned vite
+# or fail.
+if [ ! -d "$REPO_ROOT/node_modules" ]; then
+  echo ""
+  echo "▸ Installing workspace dependencies (npm ci at repo root)..."
+  (cd "$REPO_ROOT" && npm ci --include=dev --silent)
+fi
 
 FAILED=()
 
@@ -25,15 +40,6 @@ for theme in "${THEMES[@]}"; do
   echo "▸ Building $theme..."
 
   cd "$THEME_DIR"
-
-  # Install deps if needed. Use `npm ci --include=dev` so the build is
-  # deterministic (matches the committed lockfile) AND pulls vite /
-  # @vitejs/plugin-react, which live in devDependencies — without
-  # --include=dev they are skipped under NODE_ENV=production (Render),
-  # leaving `npx vite build` to auto-download an unpinned vite or fail.
-  if [ ! -d "node_modules" ]; then
-    npm ci --include=dev --silent
-  fi
 
   # Build. Capture vite's REAL exit code via PIPESTATUS — piping straight
   # into `if ... | tail` masks a failed build behind tail's exit 0, which

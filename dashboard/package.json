@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@matjar/theme-shared": "2.0.0",
     "@fontsource/ibm-plex-sans-arabic": "^5.2.9",
     "@fontsource/inter": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",

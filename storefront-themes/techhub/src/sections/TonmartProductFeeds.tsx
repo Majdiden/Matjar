@@ -9,11 +9,11 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useThemeSettings } from '@shared/theme/ThemeProvider';
-import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
-import { ProductRail } from '@shared/components/commerce/ProductRail';
-import type { SectionComponentProps } from '@shared/components/sections';
+import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useFeaturedProducts, useProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
+import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
+import type { SectionComponentProps } from '@matjar/theme-shared/components/sections';
 import { TonmartProductCard } from '../components/TonmartProductCard';
 import { useTranslation } from 'react-i18next';
 

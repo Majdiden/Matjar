@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useCategory, useCategories } from '@shared/hooks/useProducts';
+import { useCategory, useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import MilmaaProductCard from '../components/MilmaaProductCard';
-import { QuickView } from '@shared/components/discovery/QuickView';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
+import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 
 const DARK_TEAL = 'var(--color-foreground)';
 const PINK = 'var(--color-accent)';

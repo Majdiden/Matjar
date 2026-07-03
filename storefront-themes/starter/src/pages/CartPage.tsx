@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '@shared/contexts/CartContext';
-import { useStore } from '@shared/contexts/StoreContext';
+import { useCart } from '@matjar/theme-shared/contexts/CartContext';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useTranslation } from 'react-i18next';
 
 const CartPage: React.FC = () => {

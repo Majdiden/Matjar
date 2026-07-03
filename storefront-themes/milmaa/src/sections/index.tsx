@@ -6,12 +6,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@shared/components/sections';
-import { useThemeSettings } from '@shared/theme/ThemeProvider';
-import { useFeaturedProducts, useProducts } from '@shared/hooks/useProducts';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
-import { ProductRail } from '@shared/components/commerce/ProductRail';
-import { Hero } from '@shared/components/sections/Hero';
+import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@matjar/theme-shared/components/sections';
+import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useFeaturedProducts, useProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
+import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
+import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import MilmaaProductCard from '../components/MilmaaProductCard';
 
 // Niche default hero image (organic/wellness) so the editorial hero is never empty.

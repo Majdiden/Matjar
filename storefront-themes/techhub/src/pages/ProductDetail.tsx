@@ -19,17 +19,17 @@
  */
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useProduct } from '@shared/hooks/useProducts';
-import { useStore } from '@shared/contexts/StoreContext';
-import { useCart } from '@shared/contexts/CartContext';
+import { useProduct } from '@matjar/theme-shared/hooks/useProducts';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useTranslation } from 'react-i18next';
-import ProductDetailExtras from '@shared/components/commerce/ProductDetailExtras';
-import GuaranteedCheckout from '@shared/components/commerce/GuaranteedCheckout';
-import { VariantPicker, type Variant } from '@shared/components/commerce/VariantPicker';
-import { ImageZoom } from '@shared/components/commerce/ImageZoom';
-import { SocialShare } from '@shared/components/marketing/SocialShare';
-import { useCompare } from '@shared/components/commerce/ProductCompare';
-import { getPreorderState } from '@shared/utils/preorder';
+import ProductDetailExtras from '@matjar/theme-shared/components/commerce/ProductDetailExtras';
+import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
+import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
+import { ImageZoom } from '@matjar/theme-shared/components/commerce/ImageZoom';
+import { SocialShare } from '@matjar/theme-shared/components/marketing/SocialShare';
+import { useCompare } from '@matjar/theme-shared/components/commerce/ProductCompare';
+import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

@@ -10,10 +10,10 @@
  */
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useThemeSettings } from '@shared/theme/ThemeProvider';
-import { useCategories, useProducts } from '@shared/hooks/useProducts';
-import { PriceDisplay } from '@shared/components/commerce/PriceDisplay';
-import type { SectionComponentProps } from '@shared/components/sections';
+import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { PriceDisplay } from '@matjar/theme-shared/components/commerce/PriceDisplay';
+import type { SectionComponentProps } from '@matjar/theme-shared/components/sections';
 import { useTranslation } from 'react-i18next';
 
 export const CategorySidebarSection: React.FC<SectionComponentProps> = ({ id }) => {

@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@shared/theme/ThemeProvider';
-import { useFeaturedProducts, useCategories, useProducts } from '@shared/hooks/useProducts';
-import { ProductCard } from '@shared/components/commerce/ProductCard';
-import { ProductRail } from '@shared/components/commerce/ProductRail';
-import { Hero } from '@shared/components/sections/Hero';
+import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
+import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
+import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 
 // Niche default hero image — a clean tech/gadget lifestyle shot — so the
 // hero is never empty even before the merchant sets one.
 const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1600&q=80&auto=format&fit=crop';
-import { Carousel } from '@shared/components/primitives/Carousel';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
-import { QuickView } from '@shared/components/discovery/QuickView';
-import { CountdownTimer } from '@shared/components/marketing/CountdownTimer';
-import { MerchantSections } from '@shared/theme/SectionRenderer';
+import { Carousel } from '@matjar/theme-shared/components/primitives/Carousel';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
+import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
+import { CountdownTimer } from '@matjar/theme-shared/components/marketing/CountdownTimer';
+import { MerchantSections } from '@matjar/theme-shared/theme/SectionRenderer';
 
 // IDs that this theme renders inline above. MerchantSections will render
 // any other section instances the merchant added in the dashboard.
 const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'trust-badges', 'new-arrivals', 'newsletter'];
-import { useIntersectionObserver } from '@shared/hooks/useIntersectionObserver';
-import type { Product } from '@shared/types/commerce';
+import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
+import type { Product } from '@matjar/theme-shared/types/commerce';
 
 const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);

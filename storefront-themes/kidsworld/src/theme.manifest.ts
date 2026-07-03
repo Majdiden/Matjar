@@ -1,6 +1,6 @@
-import { defineTheme } from '@shared/theme/defineTheme';
-import { defineSection } from '@shared/theme/defineSection';
-import type { SectionDefinition } from '@shared/types/theme';
+import { defineTheme } from '@matjar/theme-shared/theme/defineTheme';
+import { defineSection } from '@matjar/theme-shared/theme/defineSection';
+import type { SectionDefinition } from '@matjar/theme-shared/types/theme';
 
 // ─── Section Definitions ─────────────────────────────────────────
 

@@ -11,12 +11,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "strict": true,
-    "paths": {
-      "@shared/*": ["../_shared/*"],
-      "@shared": ["../_shared/index.ts"]
-    },
-    "baseUrl": "."
+    "strict": true
   },
-  "include": ["src", "../_shared"]
+  "include": ["src"]
 }

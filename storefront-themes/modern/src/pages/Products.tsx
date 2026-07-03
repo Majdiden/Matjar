@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useProducts, useCategories } from '@shared/hooks/useProducts';
-import { ProductCard } from '@shared/components/commerce/ProductCard';
-import { Breadcrumbs } from '@shared/components/navigation/Breadcrumbs';
-import { Pagination } from '@shared/components/navigation/Pagination';
-import { GridListToggle } from '@shared/components/discovery/GridListToggle';
-import { QuickView } from '@shared/components/discovery/QuickView';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
-import { Drawer } from '@shared/components/primitives/Drawer';
-import { useViewport } from '@shared/hooks/useViewport';
-import type { Product } from '@shared/types/commerce';
+import { useProducts, useCategories } from '@matjar/theme-shared/hooks/useProducts';
+import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
+import { Breadcrumbs } from '@matjar/theme-shared/components/navigation/Breadcrumbs';
+import { Pagination } from '@matjar/theme-shared/components/navigation/Pagination';
+import { GridListToggle } from '@matjar/theme-shared/components/discovery/GridListToggle';
+import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
+import { Drawer } from '@matjar/theme-shared/components/primitives/Drawer';
+import { useViewport } from '@matjar/theme-shared/hooks/useViewport';
+import type { Product } from '@matjar/theme-shared/types/commerce';
 
 const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

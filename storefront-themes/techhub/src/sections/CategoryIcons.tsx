@@ -5,9 +5,9 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useThemeSettings } from '@shared/theme/ThemeProvider';
-import { useCategories } from '@shared/hooks/useProducts';
-import type { SectionComponentProps } from '@shared/components/sections';
+import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
+import type { SectionComponentProps } from '@matjar/theme-shared/components/sections';
 
 export const CategoryIconsSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);

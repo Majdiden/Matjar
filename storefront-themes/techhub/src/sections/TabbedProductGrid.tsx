@@ -8,12 +8,12 @@
  * Exposed as section type `tabbed-product-grid`.
  */
 import React, { useState } from 'react';
-import { useThemeSettings } from '@shared/theme/ThemeProvider';
-import { useProducts, useFeaturedProducts } from '@shared/hooks/useProducts';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
-import { ProductRail } from '@shared/components/commerce/ProductRail';
+import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useProducts, useFeaturedProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
+import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import { TonmartProductCard } from '../components/TonmartProductCard';
-import type { SectionComponentProps } from '@shared/components/sections';
+import type { SectionComponentProps } from '@matjar/theme-shared/components/sections';
 import { useTranslation } from 'react-i18next';
 
 type TabKey = 'featured' | 'newest' | 'best-sellers' | 'on-sale';

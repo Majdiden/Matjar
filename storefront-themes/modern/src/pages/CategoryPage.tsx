@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useCategory } from '@shared/hooks/useProducts';
-import ProductCard from '@shared/components/ProductCard';
+import { useCategory } from '@matjar/theme-shared/hooks/useProducts';
+import ProductCard from '@matjar/theme-shared/components/ProductCard';
 
 const CategoryPage: React.FC = () => {
   const { t } = useTranslation('theme');

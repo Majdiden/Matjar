@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useProducts, useCategories, useFeaturedProducts } from '@shared/hooks/useProducts';
+import { useProducts, useCategories, useFeaturedProducts } from '@matjar/theme-shared/hooks/useProducts';
 import BeauxeProductCard from '../components/BeauxeProductCard';
-import { QuickView } from '@shared/components/discovery/QuickView';
-import { Skeleton } from '@shared/components/primitives/Skeleton';
-import { useStore } from '@shared/contexts/StoreContext';
+import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
+import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useTranslation } from 'react-i18next';
 
 /**
