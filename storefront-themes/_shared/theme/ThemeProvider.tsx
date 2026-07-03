@@ -164,7 +164,7 @@ export function useSectionEnabled(sectionId: string): boolean {
  * like the existing `getSections(template)` path.
  */
 export function useTemplateSections(templateId: string): SectionInstance[] {
-  const { manifest, sectionsByTemplate, settings, isSectionEnabled } = useTheme();
+  const { manifest, sectionsByTemplate, settings } = useTheme();
 
   // Raw list for the requested template (tenant bucket wins; else
   // manifest default). No fallback to the home bucket — empty means
@@ -193,8 +193,13 @@ export function useTemplateSections(templateId: string): SectionInstance[] {
 
   return raw
     .filter((s: any) => s && s.id && s.type)
+    // Visibility is carried on the instance itself (disabled/enabled). We do
+    // NOT run `isSectionEnabled(s.id)` here: that helper resolves ids against
+    // the flat INDEX bucket, so a section living in a non-index template
+    // (search/collection/page/product) is never in that list and would be
+    // wrongly dropped. The instance-level flags above are the source of truth
+    // for per-template visibility.
     .filter((s: any) => s.disabled !== true && s.enabled !== false)
-    .filter((s: any) => isSectionEnabled(s.id))
     .map((s: any): SectionInstance => {
       const typeDefs = sectionDefaults[s.type] || {};
       // Section-specific merged settings from the context may have
@@ -462,6 +467,29 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
         } else if (override.type) {
           const typeDefs = sectionDefaults[override.type] || {};
           sectionSettings[override.id] = { ...typeDefs, ...(override.settings || {}) };
+        }
+      }
+    }
+
+    // Same treatment for the per-template section buckets (search /
+    // collection / page / product / …). Section components resolve their
+    // own settings by id via `useThemeSettings(id)` → `merged.sections[id]`,
+    // so a section that lives ONLY in a non-index bucket (never in the flat
+    // `overrides.sections` index list) would otherwise resolve to empty
+    // settings and render blank. Fold every template bucket's instances in
+    // here so they render with their authored settings on their own page.
+    const byTpl = (overrides as any)?.sectionsByTemplate;
+    if (byTpl && typeof byTpl === 'object') {
+      for (const list of Object.values(byTpl)) {
+        if (!Array.isArray(list)) continue;
+        for (const inst of list as any[]) {
+          if (!inst?.id) continue;
+          if (sectionSettings[inst.id]) {
+            sectionSettings[inst.id] = { ...sectionSettings[inst.id], ...(inst.settings || {}) };
+          } else if (inst.type) {
+            const typeDefs = sectionDefaults[inst.type] || {};
+            sectionSettings[inst.id] = { ...typeDefs, ...(inst.settings || {}) };
+          }
         }
       }
     }

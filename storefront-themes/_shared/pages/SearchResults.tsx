@@ -4,6 +4,7 @@ import { useProducts } from '../hooks/useProducts';
 import { ProductCard } from '../components/commerce/ProductCard';
 import { Skeleton } from '../components/primitives/Skeleton';
 import { useThemeCard } from '../theme/ThemeCardProvider';
+import { TemplateSections } from '../theme/SectionRenderer';
 import { useTranslation } from 'react-i18next';
 import type { Product } from '../types/commerce';
 
@@ -61,6 +62,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   return (
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-8 ${className}`}>
+      {/* Merchant-composed sections for the "search" template (audit 1.3
+          follow-up). Renders nothing when the merchant hasn't added any. */}
+      <TemplateSections template="search" className="mb-8" onQuickView={onQuickView} />
       <div className="mb-4">{homeLink}</div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-1">

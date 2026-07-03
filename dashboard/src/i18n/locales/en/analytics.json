@@ -12,10 +12,17 @@
       "revenue_over_time": {
         "title": "Revenue Over Time"
       },
+      "orders_over_time": {
+        "title": "Orders Over Time"
+      },
       "top_products": {
         "title": "Top Products",
         "description": "Best performing products by revenue"
       }
+    },
+    "series": {
+      "revenue": "Revenue",
+      "orders": "Orders"
     },
     "range": {
       "7": "Last 7 days",

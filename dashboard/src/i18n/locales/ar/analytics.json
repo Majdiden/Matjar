@@ -12,10 +12,17 @@
       "revenue_over_time": {
         "title": "الإيرادات عبر الزمن"
       },
+      "orders_over_time": {
+        "title": "الطلبات عبر الزمن"
+      },
       "top_products": {
         "title": "أفضل المنتجات",
         "description": "المنتجات الأعلى أداءً حسب الإيرادات"
       }
+    },
+    "series": {
+      "revenue": "الإيرادات",
+      "orders": "الطلبات"
     },
     "range": {
       "7": "آخر 7 أيام",

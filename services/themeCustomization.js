@@ -19,7 +19,37 @@ import {
   ALLOWED_TEMPLATE_IDS,
 } from "./themeValidator.js";
 import { validateCustomCSS } from "./cssPolicy.js";
+import { sanitizePageHtml } from "../utils/sanitizePageHtml.js";
 import { APIError } from "../middlewares/errorHandler.js";
+
+/**
+ * Sanitize any `richtext`-typed section settings before they are
+ * persisted (audit 6.8.1). This is the customization write-path security
+ * boundary: the values are later rendered on the storefront via
+ * dangerouslySetInnerHTML, so we run them through the SAME allowlist as
+ * CMS pages (6.2 — utils/sanitizePageHtml.js). Non-richtext settings are
+ * left untouched; plain-text bodies survive verbatim (plain text is
+ * valid HTML), so pre-existing values render unchanged.
+ *
+ * The set of richtext keys is derived from the active theme's manifest
+ * section definition, so it automatically tracks any section type that
+ * declares a richtext setting.
+ */
+function sanitizeSectionRichTextSettings(themeSlug, sectionType, settings) {
+  if (!settings || typeof settings !== "object") return settings;
+  const manifest = getThemeManifest(themeSlug);
+  const def = (manifest?.sections || []).find((s) => s.type === sectionType);
+  if (!def) return settings;
+  const richKeys = (def.settings || [])
+    .filter((s) => s.type === "richtext")
+    .map((s) => s.id);
+  if (richKeys.length === 0) return settings;
+  const out = { ...settings };
+  for (const key of richKeys) {
+    if (typeof out[key] === "string") out[key] = sanitizePageHtml(out[key]);
+  }
+  return out;
+}
 
 /**
  * Retry budget for concurrent publish attempts. Two merchants clicking
@@ -400,6 +430,33 @@ export const getThemeCustomizationService = async (tenantId) => {
     themeSettingsSchema: Array.isArray(manifest?.settings) ? manifest.settings : [],
   };
 
+  // Annotate every returned section instance with `known` — whether its
+  // `type` is still declared by the active theme's manifest (audit 1.7b).
+  // A persisted section whose type was removed from a rebuilt manifest is
+  // `known: false`; the dashboard editor flags it (warning row, no guessed
+  // controls) and the storefront skips it. Additive read-time only — we do
+  // not restructure the merge above or persist anything.
+  const knownTypes = new Set(
+    (Array.isArray(manifest?.sections) ? manifest.sections : [])
+      .map((d) => d?.type)
+      .filter(Boolean)
+  );
+  const annotateKnown = (list) =>
+    Array.isArray(list)
+      ? list.map((s) =>
+          s && typeof s === "object" ? { ...s, known: knownTypes.has(s.type) } : s
+        )
+      : list;
+
+  merged.sections = annotateKnown(merged.sections);
+  if (merged.sectionsByTemplate && typeof merged.sectionsByTemplate === "object") {
+    const annotatedByTpl = {};
+    for (const [tpl, list] of Object.entries(merged.sectionsByTemplate)) {
+      annotatedByTpl[tpl] = annotateKnown(list);
+    }
+    merged.sectionsByTemplate = annotatedByTpl;
+  }
+
   return merged;
 };
 
@@ -548,9 +605,16 @@ export const updateThemeSectionsService = async (
     throw new APIError(`Invalid section configuration: ${errors.join("; ")}`, 400);
   }
 
+  // Sanitize richtext settings on this bulk write path too (audit 6.8.1)
+  // before persisting — the values render as raw HTML on the storefront.
+  const sanitizedSections = sections.map((sec) => ({
+    ...sec,
+    settings: sanitizeSectionRichTextSettings(themeSlug, sec.type, sec.settings),
+  }));
+
   const tenant = await updateTenantCustomizationSectionsRepo(
     tenantId,
-    sections,
+    sanitizedSections,
     templateId
   );
 
@@ -667,6 +731,33 @@ export const updateCustomCSSService = async (tenantId, css) => {
 
   return tenant.themeCustomization;
 };
+
+/**
+ * Constant-time validation of an EDITOR preview token (audit 1.8 token
+ * duality — this is `themeCustomization.previewToken`, NOT the stable
+ * store owner-draft `settings.previewToken`). Returns true only when the
+ * supplied token matches the stored one AND it hasn't expired.
+ *
+ * This is the exact check /store-info runs for `?preview=`; extracted so
+ * the CMS page-preview endpoint (audit 6.4) can reuse it verbatim rather
+ * than minting a new token type. Comparison is constant-time to deny a
+ * timing oracle even though the 32-byte CSPRNG token makes enumeration
+ * infeasible anyway.
+ */
+export function isValidEditorPreviewToken(tenant, token) {
+  const tc = tenant?.themeCustomization || {};
+  if (!token || typeof token !== "string" || !tc.previewToken || !tc.previewTokenExpiry) {
+    return false;
+  }
+  const storedBuf = Buffer.from(tc.previewToken, "utf8");
+  const providedBuf = Buffer.from(token, "utf8");
+  let match = false;
+  if (storedBuf.length === providedBuf.length) {
+    match = crypto.timingSafeEqual(storedBuf, providedBuf);
+  }
+  const notExpired = new Date(tc.previewTokenExpiry).getTime() > Date.now();
+  return match && notExpired;
+}
 
 // Preview token policy constants. The merchant can ask for a shorter
 // or longer expiry from the dashboard, but we clamp to these bounds so
@@ -1106,7 +1197,12 @@ export const addSectionService = async (
     type: sectionType,
     enabled: true,
     order: 0,
-    settings: { ...defaultSettings, ...filteredCustom },
+    // Sanitize any richtext settings supplied at add time (audit 6.8.1).
+    settings: sanitizeSectionRichTextSettings(
+      themeSlug,
+      sectionType,
+      { ...defaultSettings, ...filteredCustom }
+    ),
     ...(defaultBlocks ? { blocks: defaultBlocks } : {}),
   };
 
@@ -1195,7 +1291,10 @@ export const updateSectionSettingsService = async (
     materializeMissingManifestSection(tenant, list, sectionId, templateId);
   if (!section) throw new Error("Section not found");
 
-  section.settings = settings || {};
+  // Sanitize richtext settings on the write path (audit 6.8.1) before
+  // they are persisted and later injected into the storefront DOM.
+  const themeSlug = tenant.settings?.activeTheme || "modern";
+  section.settings = sanitizeSectionRichTextSettings(themeSlug, section.type, settings || {});
   if (Array.isArray(blocks)) section.blocks = blocks;
 
   await writeTemplateSections(Tenant, tenantId, templateId, list);

@@ -1,5 +1,8 @@
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import logger from "../utils/logger.js";
+import { reloadAllManifests } from "../services/themeManifestRegistry.js";
+import { syncThemeCatalog, auditTenantThemeManifests } from "../services/themeCatalogSync.js";
+import { clearThemeCache } from "../middlewares/storefrontServe.js";
 import {
   createThemeService,
   getThemeService,
@@ -21,6 +24,45 @@ import {
   getThemePreviewImagePathService,
   withThemePreviewImage,
 } from "../services/theme.js";
+
+/**
+ * @route   POST /api/themes/reload-manifests
+ * @desc    Re-scan every theme's built `dist/manifest.json` into the in-memory
+ *          registry and re-converge the theme catalog rows, WITHOUT a process
+ *          restart (audit 1.6). Wire this into the deploy step that copies
+ *          fresh `dist/` bundles to production so editor schema + publish
+ *          validation pick up rebuilt themes immediately.
+ * @access  Platform admin (cross-tenant ops)
+ */
+export const reloadManifests = asyncHandler(async (req, res) => {
+  // 1. Reload manifests from disk into the registry.
+  const count = reloadAllManifests();
+  // 2. Drop the storefront dist-path cache so re-/newly-built themes serve
+  //    their new bundles on the next request instead of a stale negative hit.
+  clearThemeCache();
+  // 3. Converge the admin-DB catalog rows onto the freshly-loaded manifests
+  //    (name/description/preview/etc.) so the dashboard theme grid updates too.
+  const sync = await syncThemeCatalog();
+  // 4. Loudly flag any tenant whose active theme lost its manifest (1.6c).
+  await auditTenantThemeManifests();
+
+  logger.info("[themes] manifests reloaded via endpoint", {
+    manifestCount: count,
+    synced: sync.synced?.length ?? 0,
+    deactivated: sync.deactivated ?? 0,
+    by: req.platformUser?.email || req.platformUser?.id,
+  });
+
+  res.json({
+    success: true,
+    message: `Reloaded ${count} theme manifest(s)`,
+    data: {
+      manifestCount: count,
+      synced: sync.synced,
+      deactivated: sync.deactivated,
+    },
+  });
+});
 
 /**
  * @route   POST /api/themes

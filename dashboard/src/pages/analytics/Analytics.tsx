@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getTenantCurrency, getTenantLocale } from '../../lib/format';
+import {
+  Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis,
+} from 'recharts';
+import { getTenantCurrency, getTenantLocale, formatDate } from '../../lib/format';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import {
+  ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig,
+} from '../../components/ui/chart';
 import { StatCard } from '../../components/StatCard';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -31,7 +37,11 @@ interface TopProduct { _id: string; name: string; totalSold: number; totalRevenu
 const PERIOD_VALUES = ['7', '30', '90', '365'] as const;
 
 export default function Analytics() {
-  const { t } = useTranslation(['analytics']);
+  const { t, i18n } = useTranslation(['analytics']);
+  // recharts lays cartesian axes left-to-right; under RTL we reverse the
+  // x-axis and flip the y-axis to the start (right) edge so the series
+  // reads newest-on-the-left like the rest of the Arabic UI.
+  const isRTL = i18n.dir() === 'rtl';
   const [stats, setStats] = useState<Stats | null>(null);
   const [salesData, setSalesData] = useState<SalesPoint[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -81,6 +91,31 @@ export default function Analytics() {
   const formatCurrency = (v: number) =>
     new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(v);
 
+  // Compact currency/number for axis ticks (e.g. "SDG 1.2K") — keeps the
+  // axis legible when values run large, in the tenant's locale.
+  const formatCompactCurrency = (v: number) => {
+    try {
+      return new Intl.NumberFormat(getTenantLocale(), {
+        style: 'currency', currency: getTenantCurrency(),
+        notation: 'compact', maximumFractionDigits: 1,
+      }).format(v);
+    } catch {
+      return formatCurrency(v);
+    }
+  };
+  const formatCompactNumber = (v: number) =>
+    new Intl.NumberFormat(getTenantLocale(), { notation: 'compact', maximumFractionDigits: 1 }).format(v);
+  // Short axis-tick date in the tenant locale (no raw toLocaleDateString).
+  const formatAxisDate = (d: string) =>
+    new Intl.DateTimeFormat(getTenantLocale(), { month: 'short', day: 'numeric' }).format(new Date(d));
+
+  const revenueConfig = {
+    revenue: { label: t('analytics.series.revenue'), color: 'hsl(var(--primary))' },
+  } satisfies ChartConfig;
+  const ordersConfig = {
+    orders: { label: t('analytics.series.orders'), color: '#1baf7a' },
+  } satisfies ChartConfig;
+
   // Icons render muted-foreground via StatCard — no ad-hoc per-stat
   // colouring (audit 3.8.7).
   const statCards = [
@@ -89,8 +124,6 @@ export default function Analytics() {
     { label: t('analytics.metric.avg_order_value'), value: formatCurrency(stats?.averageOrderValue || 0), icon: TrendingUp },
     { label: t('analytics.metric.total_products'), value: (stats?.totalProducts || 0).toLocaleString(), icon: Package },
   ];
-
-  const maxRevenue = Math.max(...salesData.map(d => d.revenue), 1);
 
   if (loading) {
     return (
@@ -139,7 +172,7 @@ export default function Analytics() {
         ))}
       </div>
 
-      {/* Revenue Chart */}
+      {/* Revenue over time — area chart (chart kit / recharts) */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
@@ -153,36 +186,102 @@ export default function Analytics() {
           {salesData.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">{t('analytics.empty.no_sales')}</div>
           ) : (
-            <div className="space-y-2">
-              <div className="flex items-end gap-[2px] h-48">
-                {salesData.map((point, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center" title={
-                    `${new Date(point.date).toLocaleDateString()}: ${formatCurrency(point.revenue)} (${point.orders} orders)`
-                  }>
-                    <div
-                      className="w-full bg-primary/80 rounded-t hover:bg-primary transition-colors min-h-[2px]"
-                      style={{ height: `${(point.revenue / maxRevenue) * 100}%` }}
+            <ChartContainer config={revenueConfig} className="h-64 w-full">
+              <AreaChart accessibilityLayer data={salesData} margin={{ left: 8, right: 8, top: 8 }}>
+                <defs>
+                  <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  reversed={isRTL}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={24}
+                  tickFormatter={formatAxisDate}
+                />
+                <YAxis
+                  orientation={isRTL ? 'right' : 'left'}
+                  tickLine={false}
+                  axisLine={false}
+                  width={56}
+                  tickFormatter={(v) => formatCompactCurrency(Number(v))}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(v) => formatDate(v as string, 'medium')}
+                      formatter={(value) => formatCurrency(Number(value))}
                     />
-                  </div>
-                ))}
-              </div>
-              {salesData.length <= 31 && (
-                <div className="flex gap-[2px]">
-                  {salesData.map((point, i) => {
-                    const show = i === 0 || i === salesData.length - 1 || i % Math.ceil(salesData.length / 7) === 0;
-                    return (
-                      <div key={i} className="flex-1 text-center">
-                        {show && (
-                          <span className="text-[9px] text-muted-foreground">
-                            {new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                  }
+                />
+                <Area
+                  dataKey="revenue"
+                  type="monotone"
+                  fill="url(#fillRevenue)"
+                  stroke="var(--color-revenue)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Orders over time — bar chart. Separate chart (not a dual axis)
+          because order counts and revenue live on different scales. */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <ShoppingCart className="h-4 w-4" />{t('analytics.chart.orders_over_time.title')}
+          </CardTitle>
+          <CardDescription>
+            {t(`analytics.range.${period as typeof PERIOD_VALUES[number]}`)}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {salesData.length === 0 ? (
+            <div className="text-center text-muted-foreground py-12">{t('analytics.empty.no_sales')}</div>
+          ) : (
+            <ChartContainer config={ordersConfig} className="h-64 w-full">
+              <BarChart accessibilityLayer data={salesData} margin={{ left: 8, right: 8, top: 8 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  reversed={isRTL}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={24}
+                  tickFormatter={formatAxisDate}
+                />
+                <YAxis
+                  orientation={isRTL ? 'right' : 'left'}
+                  tickLine={false}
+                  axisLine={false}
+                  width={40}
+                  allowDecimals={false}
+                  tickFormatter={(v) => formatCompactNumber(Number(v))}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(v) => formatDate(v as string, 'medium')}
+                      formatter={(value) =>
+                        new Intl.NumberFormat(getTenantLocale()).format(Number(value))
+                      }
+                    />
+                  }
+                />
+                <Bar dataKey="orders" fill="var(--color-orders)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ChartContainer>
           )}
         </CardContent>
       </Card>

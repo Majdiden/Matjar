@@ -26,6 +26,20 @@ export interface TextareaSetting extends SectionSettingBase {
   default?: string;
 }
 
+/**
+ * Rich-text body (audit 6.8.1). Authored with the dashboard TipTap
+ * editor, stored as HTML, sanitized server-side on the customization
+ * write path with the same allowlist as CMS pages (6.2), and rendered
+ * via dangerouslySetInnerHTML in the section component. Plain-text
+ * values remain valid (plain text is valid HTML), so existing
+ * `textarea` body values render unchanged after the type switch.
+ */
+export interface RichTextSetting extends SectionSettingBase {
+  type: 'richtext';
+  default?: string;
+  placeholder?: string;
+}
+
 export interface NumberSetting extends SectionSettingBase {
   type: 'number';
   default?: number;
@@ -82,6 +96,7 @@ export interface ProductSetting extends SectionSettingBase {
 export type SectionSetting =
   | TextSetting
   | TextareaSetting
+  | RichTextSetting
   | NumberSetting
   | RangeSetting
   | CheckboxSetting
@@ -187,6 +202,14 @@ export interface SectionInstance {
   enabled?: boolean;
   /** Explicit ordering index assigned by the dashboard editor */
   order?: number;
+  /**
+   * Read-time annotation from `GET /theme-customization` (audit 1.7):
+   * whether this instance's `type` is still declared by the active
+   * theme's manifest. `false` marks a section whose type was removed
+   * from a rebuilt manifest — the editor flags it and the storefront
+   * skips it. Absent means "not annotated" (treat as known).
+   */
+  known?: boolean;
   settings: Record<string, any>;
   blocks?: BlockInstance[];
 }

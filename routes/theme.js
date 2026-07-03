@@ -2,7 +2,13 @@ import express from "express";
 import { authenticate, optionalAuth } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
 import {
+  platformAuthenticate,
+  requireScope,
+  PLATFORM_SCOPES,
+} from "../middlewares/platformAdmin.js";
+import {
   createTheme,
+  reloadManifests,
   getThemes,
   getActiveThemes,
   getPopularThemes,
@@ -23,6 +29,18 @@ import {
 } from "../controllers/theme.js";
 
 const router = express.Router();
+
+// Platform-admin ops endpoint (audit 1.6) — cross-tenant, NOT gated by the
+// tenant `authenticate` below. Reloads theme manifests from disk + re-syncs
+// the catalog after a bundle deploy, no process restart required. Gated by
+// the platform-admin token (own auth stack) and the tenant-lifecycle scope,
+// which is the platform's "mutating platform-wide operation" scope.
+router.post(
+  "/reload-manifests",
+  platformAuthenticate,
+  requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
+  reloadManifests
+);
 
 // Public routes (viewable by anyone, optional auth for tenant context)
 router.get("/", optionalAuth, getThemes);

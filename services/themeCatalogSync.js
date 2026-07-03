@@ -37,6 +37,7 @@
  */
 
 import logger from "../utils/logger.js";
+import { getTenantsRepo } from "../repositories/tenant.js";
 import {
   getBuiltInThemeSlugs,
   getThemeManifest,
@@ -139,6 +140,61 @@ function buildInsertDefaults() {
       licenseType: "unlimited",
     },
   };
+}
+
+/**
+ * Audit tenants' active themes against the loaded manifest registry and
+ * log LOUDLY for any tenant whose active theme has no manifest on disk
+ * (audit 1.6c). This is the "unbuilt active theme" case the storefront
+ * silently degrades from at request time (middlewares/storefrontServe.js
+ * falls back to the default theme) — here we surface it once, at boot and
+ * after every reload, so operators notice a missing bundle instead of only
+ * seeing merchants mysteriously render the default theme.
+ *
+ * Best-effort: a failure here must never block boot or the reload endpoint.
+ *
+ * @returns {Promise<{missing: number}>}
+ */
+export async function auditTenantThemeManifests() {
+  try {
+    const loaded = new Set(getBuiltInThemeSlugs());
+    // Only tenants that have explicitly picked an active theme.
+    const tenants = await getTenantsRepo(
+      { name: 1, domain: 1, "settings.activeTheme": 1 },
+      { "settings.activeTheme": { $nin: [null, ""] } }
+    );
+
+    let missing = 0;
+    for (const tenant of tenants) {
+      const slug = tenant?.settings?.activeTheme;
+      if (slug && !loaded.has(slug)) {
+        missing += 1;
+        logger.error(
+          `[themeCatalogSync] tenant active theme "${slug}" has NO manifest on disk — ` +
+            `storefront will fall back to the default theme`,
+          {
+            tenantId: tenant?._id?.toString?.(),
+            domain: tenant?.domain,
+            themeSlug: slug,
+          }
+        );
+      }
+    }
+
+    if (missing === 0) {
+      logger.info("[themeCatalogSync] tenant active-theme audit clean");
+    } else {
+      logger.error(
+        `[themeCatalogSync] ${missing} tenant(s) reference an unbuilt/missing theme manifest`
+      );
+    }
+    return { missing };
+  } catch (err) {
+    logger.warn("[themeCatalogSync] tenant theme audit failed", {
+      error: err.message,
+    });
+    return { missing: 0 };
+  }
 }
 
 /**

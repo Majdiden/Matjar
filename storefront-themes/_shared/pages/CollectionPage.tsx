@@ -4,6 +4,7 @@ import { useCollection } from '../hooks/useCollections';
 import { ProductCard } from '../components/commerce/ProductCard';
 import { Skeleton } from '../components/primitives/Skeleton';
 import { useThemeCard } from '../theme/ThemeCardProvider';
+import { TemplateSections } from '../theme/SectionRenderer';
 import { useTranslation } from 'react-i18next';
 import type { Product } from '../types/commerce';
 
@@ -66,6 +67,9 @@ const CollectionPage: React.FC<CollectionPageProps> = ({
 
   return (
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-8 ${className}`}>
+      {/* Merchant-composed sections for the "collection" template (audit 1.3
+          follow-up). Renders nothing when the merchant added none. */}
+      <TemplateSections template="collection" className="mb-8" onQuickView={onQuickView} />
       {loading && !collection ? (
         <div className="animate-pulse mb-8">
           <div className="aspect-[3/1] bg-gray-200 rounded-lg mb-4" />

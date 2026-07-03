@@ -6,7 +6,7 @@
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, ChevronDown, ChevronRight, Plus, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
+import { X, ChevronDown, ChevronRight, Plus, Trash2, GripVertical, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import SettingControl from './SettingControl';
 import { resolveSectionMeta } from './sectionMeta';
 import { ScrollArea } from '../ui/scroll-area';
@@ -154,8 +154,15 @@ export default function ManifestSectionEditor({
     [expandedBlock, scheduleSave, editedSettings, onLiveChange]
   );
 
-  const settingsSchema: SectionSetting[] =
-    sectionDefinition?.settings || inferSettings(editedSettings);
+  // A section whose type is no longer in the manifest (audit 1.7): the
+  // backend annotates it `known: false`. We must NOT run inferSettings for
+  // it — guessing controls for a type the theme can't render is exactly the
+  // asymmetry 1.7 closes. inferSettings stays ONLY for the legitimate
+  // fallback: a KNOWN section type whose manifest def lacks a settings array.
+  const isUnknown = section.known === false;
+  const settingsSchema: SectionSetting[] = isUnknown
+    ? []
+    : sectionDefinition?.settings || inferSettings(editedSettings);
 
   // Manifest definition wins for icon/name (1.4); static map is fallback.
   const meta = resolveSectionMeta(section.type, sectionDefinition);
@@ -218,7 +225,24 @@ export default function ManifestSectionEditor({
       {/* Scrollable settings */}
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-5">
-          {settingsSchema.length === 0 && (!sectionDefinition?.blocks || sectionDefinition.blocks.length === 0) && (
+          {isUnknown && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-amber-800">
+                    {t('themes:editor.section_editor.unsupported_title')}
+                  </p>
+                  <p className="text-[11px] text-amber-700 mt-1 leading-snug">
+                    {t('themes:editor.section_editor.unsupported_description')}
+                  </p>
+                  <p className="text-[10px] text-amber-600 mt-1 font-mono">{section.type}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isUnknown && settingsSchema.length === 0 && (!sectionDefinition?.blocks || sectionDefinition.blocks.length === 0) && (
             <p className="text-xs text-slate-400 italic">
               {t('themes:editor.section_editor.no_settings')}
             </p>

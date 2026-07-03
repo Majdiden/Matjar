@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { usePage } from '../hooks/usePage';
+import { TemplateSections } from '../theme/SectionRenderer';
 import NotFound from './NotFound';
 
 interface PageViewProps {
@@ -69,6 +70,9 @@ const PageView: React.FC<PageViewProps> = ({ className = '' }) => {
 
   return (
     <div className={`max-w-3xl mx-auto px-4 sm:px-6 py-12 ${className}`}>
+      {/* Merchant-composed sections for the "page" template (audit 1.3
+          follow-up). Renders nothing when the merchant added none. */}
+      <TemplateSections template="page" className="mb-8" />
       <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
       <div
         className="leading-relaxed [&_h2]:font-semibold [&_h2]:text-xl [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:mb-4 [&_a]:underline [&_ul]:list-disc [&_ul]:ps-6 [&_ul]:mb-4"

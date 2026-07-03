@@ -256,7 +256,9 @@
       "padding_hint": "CSS padding value (e.g., \"3rem 0\" or \"2rem 1rem\")",
       "image_url": "Image URL",
       "save_changes": "Save Changes",
-      "no_changes": "No Changes"
+      "no_changes": "No Changes",
+      "unsupported_title": "Section no longer supported",
+      "unsupported_description": "This section type is not part of the current theme, so it will not render on your storefront. Delete it to keep your layout clean."
     },
     "control": {
       "text": {
@@ -388,7 +390,8 @@
       "duplicate": "Duplicate",
       "delete": "Delete",
       "delete_confirm_title": "Delete this section?",
-      "delete_confirm_description": "The section and its settings will be removed from the draft."
+      "delete_confirm_description": "The section and its settings will be removed from the draft.",
+      "unsupported_section": "Not supported by this theme"
     },
     "color_picker": {
       "palette": "Palette",

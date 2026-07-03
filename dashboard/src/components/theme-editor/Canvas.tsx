@@ -6,7 +6,7 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GripVertical, Eye, EyeOff, Copy, Trash2, Plus, MoreHorizontal } from 'lucide-react';
+import { GripVertical, Eye, EyeOff, Copy, Trash2, Plus, MoreHorizontal, AlertTriangle } from 'lucide-react';
 import { resolveSectionMeta } from './sectionMeta';
 import type { SectionDefinition, SectionInstance } from '@matjar/theme-shared/types/theme';
 import {
@@ -54,6 +54,14 @@ export default function Canvas({
   const [dropIndex, setDropIndex] = useState<number | null>(null);
 
   const defByType = new Map((sectionDefs || []).map((d) => [d.type, d]));
+  // A section is "unsupported" (audit 1.7) when its type is no longer
+  // declared by the active theme's manifest. Trust the backend `known`
+  // annotation first; fall back to the loaded manifest schema when we
+  // actually have one (an empty/absent schema means we simply can't tell,
+  // so we must NOT flag everything as unknown).
+  const hasManifestSchema = Array.isArray(sectionDefs) && sectionDefs.length > 0;
+  const isUnknownType = (s: Section) =>
+    s.known === false || (hasManifestSchema && !defByType.has(s.type));
   const sortedSections = [...sections].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   // Bucket by area
@@ -120,6 +128,7 @@ export default function Canvas({
               key={s.id}
               section={s}
               sectionDef={defByType.get(s.type)}
+              unknown={isUnknownType(s)}
               selected={selectedSectionId === s.id}
               onClick={() => onSelectSection(s)}
               onToggle={() => onToggleSection(s.id, s.disabled === true)}
@@ -145,6 +154,7 @@ export default function Canvas({
                 <SectionRow
                   section={s}
                   sectionDef={defByType.get(s.type)}
+                  unknown={isUnknownType(s)}
                   selected={selectedSectionId === s.id}
                   onClick={() => onSelectSection(s)}
                   onToggle={() => onToggleSection(s.id, s.disabled === true)}
@@ -185,6 +195,7 @@ export default function Canvas({
               key={s.id}
               section={s}
               sectionDef={defByType.get(s.type)}
+              unknown={isUnknownType(s)}
               selected={selectedSectionId === s.id}
               onClick={() => onSelectSection(s)}
               onToggle={() => onToggleSection(s.id, s.disabled === true)}
@@ -223,6 +234,8 @@ function DropIndicator() {
 interface SectionRowProps {
   section: Section;
   sectionDef?: SectionDefinition;
+  /** True when the section's type is no longer in the theme manifest (1.7). */
+  unknown?: boolean;
   selected: boolean;
   onClick: () => void;
   onToggle: () => void;
@@ -238,6 +251,7 @@ interface SectionRowProps {
 function SectionRow({
   section,
   sectionDef,
+  unknown,
   selected,
   onClick,
   onToggle,
@@ -259,6 +273,46 @@ function SectionRow({
   // The editor row just needs a display hint, so default to an empty bag.
   const settings = section.settings || {};
   const subtitle = (settings.heading as string) || (settings.title as string) || '';
+
+  const handleDeleteClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (await confirm({
+      title: t('themes:editor.canvas.delete_confirm_title'),
+      description: t('themes:editor.canvas.delete_confirm_description'),
+      confirmText: t('themes:editor.canvas.delete'),
+      variant: 'destructive',
+    })) onDelete();
+  };
+
+  // Unsupported section: its type was removed from a rebuilt manifest, so
+  // it will NOT render on the storefront. Show a distinct amber warning
+  // row with a delete affordance and no toggle/duplicate/settings (those
+  // are meaningless for a type the theme can't render). Not draggable.
+  if (unknown) {
+    return (
+      <div
+        onClick={onClick}
+        className="group relative flex items-center gap-1.5 px-2 py-1.5 rounded-md cursor-pointer transition border border-amber-200 bg-amber-50 hover:bg-amber-100"
+      >
+        <div className="h-7 w-7 rounded shrink-0 flex items-center justify-center bg-amber-100 text-amber-600">
+          <AlertTriangle className="h-3.5 w-3.5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-medium truncate text-amber-800">{sectionName}</p>
+          <p className="text-[10px] text-amber-600 truncate">
+            {t('themes:editor.canvas.unsupported_section')}
+          </p>
+        </div>
+        <button
+          onClick={handleDeleteClick}
+          className="h-6 w-6 flex items-center justify-center rounded text-amber-500 hover:text-red-600 hover:bg-white opacity-0 group-hover:opacity-100 transition"
+          title={t('themes:editor.canvas.delete')}
+        >
+          <Trash2 className="h-3 w-3" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div

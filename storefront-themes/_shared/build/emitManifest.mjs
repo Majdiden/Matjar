@@ -37,6 +37,7 @@
 
 import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
+import crypto from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
 import os from "node:os";
@@ -122,8 +123,20 @@ export default function emitManifestPlugin(options = {}) {
           );
         }
 
-        // Attach build-time hash so backend can detect drift between the
-        // bundle and its manifest artifact.
+        // Attach build-time metadata so the backend can detect drift
+        // between a deployed bundle and its manifest artifact and expose
+        // freshness (audit 1.6). `buildHash` is a content hash of the
+        // manifest payload itself (excluding the metadata keys so it's
+        // stable across rebuilds of identical authored content);
+        // `builtAt` is the wall-clock build timestamp.
+        const buildHash = crypto
+          .createHash("sha256")
+          .update(JSON.stringify(manifest))
+          .digest("hex")
+          .slice(0, 16);
+        manifest.buildHash = buildHash;
+        manifest.builtAt = new Date().toISOString();
+
         const serialized = JSON.stringify(manifest, null, 2);
         const outPath = path.resolve(themeRoot, outFile);
         fs.mkdirSync(path.dirname(outPath), { recursive: true });

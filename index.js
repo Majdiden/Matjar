@@ -17,7 +17,7 @@ import hpp from "hpp";
 import { RedisStore } from "connect-redis";
 import config from "./config/index.js";
 import { connectDb } from "./utils/connectionManager.js";
-import { syncThemeCatalog } from "./services/themeCatalogSync.js";
+import { syncThemeCatalog, auditTenantThemeManifests } from "./services/themeCatalogSync.js";
 import { initRedis } from "./config/redis.js";
 import RouteConfig from "./server/route.config.js";
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
@@ -172,6 +172,10 @@ const startServer = async () => {
     // existing catalog rows continue to serve.
     try {
       await syncThemeCatalog();
+      // Loudly surface any tenant whose active theme has no built manifest
+      // (audit 1.6c) — otherwise the only symptom is a silent fall back to
+      // the default theme at request time.
+      await auditTenantThemeManifests();
     } catch (err) {
       logger.error("Theme catalog sync failed at boot", { error: err.message });
       captureException(err, { extra: { scope: "themeCatalogSync.boot" } });

@@ -259,7 +259,9 @@
       "padding_hint": "قيمة CSS للمسافة الداخلية (مثل: \"3rem 0\" أو \"2rem 1rem\")",
       "image_url": "رابط الصورة",
       "save_changes": "حفظ التغييرات",
-      "no_changes": "لا توجد تغييرات"
+      "no_changes": "لا توجد تغييرات",
+      "unsupported_title": "القسم لم يعد مدعومًا",
+      "unsupported_description": "نوع هذا القسم ليس جزءًا من القالب الحالي، لذلك لن يظهر في متجرك. احذفه للحفاظ على تنسيق نظيف."
     },
     "control": {
       "text": {
@@ -391,7 +393,8 @@
       "duplicate": "تكرار",
       "delete": "حذف",
       "delete_confirm_title": "حذف هذا القسم؟",
-      "delete_confirm_description": "ستتم إزالة القسم وإعداداته من المسودة."
+      "delete_confirm_description": "ستتم إزالة القسم وإعداداته من المسودة.",
+      "unsupported_section": "غير مدعوم في هذا القالب"
     },
     "color_picker": {
       "palette": "لوحة الألوان",
