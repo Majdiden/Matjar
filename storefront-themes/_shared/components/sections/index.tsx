@@ -13,7 +13,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings } from '../../theme/ThemeProvider';
+import { useThemeSettings, useSectionBlocks } from '../../theme/ThemeProvider';
 import { useFeaturedProducts, useProducts, useCategories } from '../../hooks/useProducts';
 import { ProductCard } from '../commerce/ProductCard';
 import { Carousel } from '../primitives/Carousel';
@@ -190,18 +190,32 @@ export const ImageWithTextSection: React.FC<SectionComponentProps> = ({ id }) =>
 
 export const GallerySection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
-  const images: string[] = Array.isArray(s.images) ? s.images : [];
+  const blocks = useSectionBlocks(id);
   const cols = Number(s.columns) || 3;
+  // Images come from editable BLOCKS; the legacy `images` JSON setting (which
+  // the dashboard could never edit) remains as a fallback for old data.
+  const images: Array<{ src: string; alt?: string; link?: string }> = blocks.length
+    ? blocks
+        .filter((b) => b.type === 'image' && b.settings?.image)
+        .map((b) => ({ src: b.settings.image, alt: b.settings.alt, link: b.settings.link }))
+    : (Array.isArray(s.images) ? s.images : []).map((src: string) => ({ src }));
   if (images.length === 0) return null;
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16" style={appearanceStyle(s)}>
       {s.heading && <h2 className="text-3xl font-bold text-center mb-10">{s.heading}</h2>}
       <div className={`grid grid-cols-2 md:grid-cols-${cols} gap-3`}>
-        {images.map((src, i) => (
-          <div key={i} className="aspect-square overflow-hidden rounded-lg bg-gray-100">
-            <img src={src} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-          </div>
-        ))}
+        {images.map((img, i) => {
+          const tile = (
+            <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
+              <img src={img.src} alt={img.alt || ''} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+            </div>
+          );
+          return img.link ? (
+            <Link key={i} to={img.link}>{tile}</Link>
+          ) : (
+            <React.Fragment key={i}>{tile}</React.Fragment>
+          );
+        })}
       </div>
     </section>
   );
@@ -211,8 +225,15 @@ export const GallerySection: React.FC<SectionComponentProps> = ({ id }) => {
 
 export const FeaturesSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
-  const features: Array<{ icon?: string; title: string; description: string }> =
-    Array.isArray(s.features) ? s.features : [];
+  const blocks = useSectionBlocks(id);
+  // Feature entries come from editable BLOCKS (with placeholder defaults so a
+  // freshly added section renders); legacy `features` JSON setting kept as a
+  // fallback for old data.
+  const features: Array<{ icon?: string; title: string; description: string }> = blocks.length
+    ? blocks
+        .filter((b) => b.type === 'feature' && (b.settings?.title || b.settings?.description))
+        .map((b) => ({ icon: b.settings.icon, title: b.settings.title, description: b.settings.description }))
+    : Array.isArray(s.features) ? s.features : [];
   if (features.length === 0) return null;
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16" style={appearanceStyle(s)}>
@@ -265,8 +286,15 @@ export const VideoSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 export const TestimonialsSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
-  const items: Array<{ quote: string; author: string; role?: string; avatar?: string }> =
-    Array.isArray(s.testimonials) ? s.testimonials : [];
+  const blocks = useSectionBlocks(id);
+  // Quotes come from editable BLOCKS (with placeholder defaults so a freshly
+  // added section renders); legacy `testimonials` JSON setting kept as a
+  // fallback for old data.
+  const items: Array<{ quote: string; author: string; role?: string; avatar?: string }> = blocks.length
+    ? blocks
+        .filter((b) => b.type === 'testimonial' && b.settings?.quote)
+        .map((b) => ({ quote: b.settings.quote, author: b.settings.author, role: b.settings.role, avatar: b.settings.avatar }))
+    : Array.isArray(s.testimonials) ? s.testimonials : [];
   if (items.length === 0) return null;
   return (
     <section className="bg-gray-50 py-16" style={appearanceStyle(s)}>
