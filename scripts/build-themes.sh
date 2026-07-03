@@ -1,15 +1,41 @@
 #!/bin/bash
 # Build all storefront themes to static dist files
 # Usage: bash scripts/build-themes.sh
+#
+# Themes are DISCOVERED by scanning storefront-themes/* (audit 2.3) —
+# there is no hand-maintained theme array any more. A directory is a
+# theme when it is not a shared/tooling dir (skip names starting with
+# `_` or `.`, and the `create-theme` scaffolder) AND it carries the
+# minimal theme contract (package.json + src/theme.manifest.ts). This
+# means `npm run create-theme` → `bash scripts/build-themes.sh` picks
+# the new theme up with zero edits here.
+#
+# After each successful build the theme's PACKAGE is linted with
+# scripts/validate-theme.js (audit 2.5). A validation error FAILS the
+# build for that theme.
 
 set -e
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 THEMES_DIR="$REPO_ROOT/storefront-themes"
-THEMES=(modern elegance techhub freshmart starter artisan sportzone bookshelf kidsworld homedecor glowing beauxe nutreko milmaa aurum)
+
+# ─── Discover themes ─────────────────────────────────────────────
+THEMES=()
+for dir in "$THEMES_DIR"/*/; do
+  name="$(basename "$dir")"
+  # Skip shared/tooling directories and the scaffolder.
+  case "$name" in
+    _*|.*|create-theme) continue ;;
+  esac
+  # A real theme has the minimal contract: package.json + manifest entry.
+  if [ -f "$dir/package.json" ] && [ -f "$dir/src/theme.manifest.ts" ]; then
+    THEMES+=("$name")
+  fi
+done
 
 echo "=========================================="
-echo "Building ${#THEMES[@]} storefront themes"
+echo "Building ${#THEMES[@]} storefront themes (discovered)"
+echo "  ${THEMES[*]}"
 echo "=========================================="
 
 # Install ONCE at the repo root: npm workspaces hoist every theme's
@@ -56,7 +82,14 @@ for theme in "${THEMES[@]}"; do
     echo "✗ $theme built but dist/manifest.json is missing"
     FAILED+=("$theme (no manifest.json)")
   else
-    echo "✓ $theme built successfully"
+    # Package validation (audit 2.5) — lint the built theme. A validation
+    # error fails the build for this theme.
+    if node "$REPO_ROOT/scripts/validate-theme.js" "$theme"; then
+      echo "✓ $theme built + validated successfully"
+    else
+      echo "✗ $theme built but FAILED package validation"
+      FAILED+=("$theme (validation)")
+    fi
   fi
 done
 
