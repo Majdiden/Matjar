@@ -168,7 +168,12 @@ const OperationsCard: React.FC<{
   // fulfillment actions.
   const paymentSettled = paymentStatus === 'Paid' || paymentStatus === 'Partially Refunded';
 
-  if (orderStatus === 'Cancelled') {
+  if (orderStatus === 'Draft') {
+    // Draft orders (audit 5.2): the banner above the card owns the two
+    // primary actions (Complete / Delete) — the operations strip only
+    // explains the state and offers no payment/fulfillment shortcuts.
+    summary = tOC('orders:detail.draft.next_action_summary');
+  } else if (orderStatus === 'Cancelled') {
     summary = tOC('orders:detail.next_action.cancelled_summary');
   } else if (paymentStatus === 'Not Paid') {
     // Manual transfer methods (bank transfer, etc.) must be verified against
@@ -215,7 +220,7 @@ const OperationsCard: React.FC<{
   // ── Overflow payment transitions (everything legal from the current
   //    paymentStatus, minus whatever is already surfaced as primary).
   const moreActions: { label: string; onClick: () => void; dangerous?: boolean }[] = [];
-  if (canWrite) {
+  if (canWrite && orderStatus !== 'Draft') {
     if (paymentStatus === 'Not Paid') {
       if (!isCod) moreActions.push({ label: tOC('orders:detail.action.mark_paid'), onClick: () => onPaymentAction('mark_paid', tOC('orders:detail.action.mark_paid')) });
       moreActions.push({ label: tOC('orders:detail.action.mark_failed'), onClick: () => onPaymentAction('mark_failed', tOC('orders:detail.action.mark_failed'), true), dangerous: true });
@@ -241,8 +246,12 @@ const OperationsCard: React.FC<{
     </Button>
   );
 
-  const canChangeStatus = orderStatus !== 'Delivered' && orderStatus !== 'Cancelled' && canWrite;
+  // Draft hides the normal transition dropdown — leaving a draft goes
+  // through "Complete order" / "Delete draft" only (audit 5.2.7).
+  const canChangeStatus =
+    orderStatus !== 'Draft' && orderStatus !== 'Delivered' && orderStatus !== 'Cancelled' && canWrite;
   const showVerify =
+    orderStatus !== 'Draft' &&
     isManualMethod &&
     (paymentStatus === 'Not Paid' || paymentStatus === 'Failed') &&
     canWrite;

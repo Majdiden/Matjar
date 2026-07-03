@@ -6,7 +6,7 @@ import { useSetBreadcrumbs } from '../../../contexts/breadcrumb-context';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { ArrowLeft, Printer, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Printer, AlertCircle, FileText, Loader2, CheckCircle2, Trash2, Pencil } from 'lucide-react';
 import { api } from '../../../lib/api-client';
 import { toast } from 'sonner';
 import type { Order, OrderStatus, CustomerContext, Payment } from '../../../types';
@@ -48,6 +48,8 @@ export const OrderDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  // Draft banner actions (audit 5.2.7) — busy flag shared by Complete/Delete.
+  const [draftActionBusy, setDraftActionBusy] = useState(false);
 
   // Payments / refunds — loaded once the order is in hand. Refund history
   // and the refund dialog both read from this; the dialog re-fetches after
@@ -181,6 +183,51 @@ export const OrderDetails: React.FC = () => {
     }
   };
 
+  // Draft → Pending: stock decrements + notifications fire server-side.
+  const handleCompleteDraft = async () => {
+    if (!order) return;
+    const ok = await confirm({
+      title: t('orders:detail.draft.complete_confirm_title'),
+      description: t('orders:detail.draft.complete_confirm_description'),
+      confirmText: t('orders:detail.draft.complete_order'),
+    });
+    if (!ok) return;
+    try {
+      setDraftActionBusy(true);
+      const res = await api.orders.completeDraft(order._id) as { responseObject?: Order };
+      setOrder(res?.responseObject || null);
+      if (!res?.responseObject) await loadOrder(order._id);
+      toast.success(t('orders:toast.draft_completed'));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : null;
+      toast.error(msg || t('orders:toast.draft_complete_failed'));
+    } finally {
+      setDraftActionBusy(false);
+    }
+  };
+
+  // Hard delete — only legal while the order is still a Draft.
+  const handleDeleteDraft = async () => {
+    if (!order) return;
+    const ok = await confirm({
+      title: t('orders:detail.draft.delete_confirm_title'),
+      description: t('orders:detail.draft.delete_confirm_description'),
+      variant: 'destructive',
+      confirmText: t('orders:detail.draft.delete_draft'),
+    });
+    if (!ok) return;
+    try {
+      setDraftActionBusy(true);
+      await api.orders.deleteDraft(order._id);
+      toast.success(t('orders:toast.draft_deleted'));
+      navigate('/dashboard/orders');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : null;
+      toast.error(msg || t('orders:toast.draft_delete_failed'));
+      setDraftActionBusy(false);
+    }
+  };
+
   const formatPrice = (price: number) =>
     new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(price);
 
@@ -259,6 +306,46 @@ export const OrderDetails: React.FC = () => {
             <DocumentsMenu order={order} payments={payments} />
           </div>
         </div>
+
+        {/* Draft banner (audit 5.2.7) — a draft is not a live order yet:
+            no stock held, no notifications sent. Primary actions live
+            here; the status card below hides its transition dropdown. */}
+        {order.status === 'Draft' && (
+          <Card className="border-dashed border-primary/40 bg-primary/5">
+            <CardContent className="flex flex-wrap items-center gap-3 px-5 py-4">
+              <FileText className="h-5 w-5 text-primary shrink-0" />
+              <div className="flex-1 min-w-52">
+                <p className="text-sm font-semibold">{t('orders:detail.draft.banner_title')}</p>
+                <p className="text-sm text-muted-foreground">{t('orders:detail.draft.banner_description')}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={draftActionBusy || !can('orders.write')}
+                  onClick={() => navigate(`/dashboard/orders/new?draft=${order._id}`)}
+                >
+                  <Pencil className="h-4 w-4 me-2" />{t('orders:detail.draft.edit_draft')}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  disabled={draftActionBusy || !can('orders.write')}
+                  onClick={handleDeleteDraft}
+                >
+                  <Trash2 className="h-4 w-4 me-2" />{t('orders:detail.draft.delete_draft')}
+                </Button>
+                <Button size="sm" disabled={draftActionBusy || !can('orders.write')} onClick={handleCompleteDraft}>
+                  {draftActionBusy
+                    ? <Loader2 className="h-4 w-4 me-2 animate-spin" />
+                    : <CheckCircle2 className="h-4 w-4 me-2" />}
+                  {t('orders:detail.draft.complete_order')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Unified operations card — statuses + next action + payment transitions */}
         <OperationsSection />

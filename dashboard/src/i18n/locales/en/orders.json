@@ -18,7 +18,8 @@
       "processing": "Processing",
       "shipped": "Shipped",
       "delivered": "Delivered",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "draft": "Drafts"
     },
     "search": {
       "placeholder": "Search by order # or customer..."
@@ -81,7 +82,8 @@
     },
     "guest": "Guest",
     "item_count_one": "{{count}} item",
-    "item_count_other": "{{count}} items"
+    "item_count_other": "{{count}} items",
+    "create_order": "Create order"
   },
   "detail": {
     "placed": "Placed {{date}}",
@@ -119,8 +121,8 @@
       "record_manual_refund": "Record manual refund",
       "mark_paid": "Mark as paid",
       "mark_failed": "Mark as failed",
-      "capture": "Capture",
-      "void": "Void",
+      "capture": "Capture payment",
+      "void": "Void authorization",
       "cancel": "Cancel order",
       "mark_fulfilled": "Mark as fulfilled",
       "mark_delivered": "Mark as delivered",
@@ -143,9 +145,6 @@
       "cannot_be_undone": "This action cannot be undone.",
       "change_status": "Change status",
       "no_permission": "You lack the orders.write permission",
-      "capture": "Capture payment",
-      "void": "Void authorization",
-      "mark_failed": "Mark as failed",
       "fulfill_remaining": "Fulfill remaining"
     },
     "item": {
@@ -292,6 +291,18 @@
       "label_max_ordered": "ordered",
       "label_max_received": "received",
       "max_label": "max {{max}} {{labelMax}}"
+    },
+    "draft": {
+      "banner_title": "This is a draft order",
+      "banner_description": "No stock is reserved and no notifications have been sent. Complete the order to place it, or delete the draft.",
+      "complete_order": "Complete order",
+      "delete_draft": "Delete draft",
+      "edit_draft": "Edit draft",
+      "complete_confirm_title": "Complete this draft order?",
+      "complete_confirm_description": "Stock will be decremented for every line item and the customer will be notified. The order becomes a live pending order.",
+      "delete_confirm_title": "Delete this draft?",
+      "delete_confirm_description": "The draft will be permanently deleted. This cannot be undone.",
+      "next_action_summary": "Draft order — complete it to reserve stock and notify the customer, or delete it."
     }
   },
   "dialog": {
@@ -418,7 +429,11 @@
     "lifecycle_load_failed": "Failed to load order lifecycle",
     "view_set_default": "{{view}} view set as default",
     "payment_action_updated": "{{label}} — updated",
-    "payment_action_failed": "Failed: {{label}}"
+    "payment_action_failed": "Failed: {{label}}",
+    "draft_completed": "Draft completed — order is now pending",
+    "draft_complete_failed": "Failed to complete draft",
+    "draft_deleted": "Draft deleted",
+    "draft_delete_failed": "Failed to delete draft"
   },
   "validation": {
     "note_empty": "Note cannot be empty",
@@ -662,6 +677,79 @@
       "refund_reason": "Refund reason",
       "loading": "Loading refund receipt…",
       "error": "Failed to load order"
+    }
+  },
+  "create": {
+    "title": "Create order",
+    "edit_title": "Edit draft order",
+    "description": "Compose a manual order and save it as a draft",
+    "section": {
+      "products": "Products",
+      "customer": "Customer",
+      "addresses": "Addresses",
+      "shipping": "Shipping",
+      "discount": "Discount",
+      "notes": "Notes & tags",
+      "summary": "Summary"
+    },
+    "product_search_placeholder": "Search products…",
+    "no_products_found": "No products found",
+    "no_lines": "No items yet — search for a product above to add it.",
+    "line": {
+      "variant": "Variant",
+      "qty": "Qty",
+      "unit_price": "Unit price",
+      "total": "Total",
+      "unknown_product": "Unknown product"
+    },
+    "customer": {
+      "existing": "Existing customer",
+      "guest": "Guest",
+      "change": "Change",
+      "email": "Email"
+    },
+    "customer_search_placeholder": "Search customers by name or email…",
+    "no_customers_found": "No customers found",
+    "addresses_hint": "Optional while drafting — a shipping address is required to complete the order.",
+    "billing_same": "Billing address same as shipping",
+    "shipping": {
+      "method": "Shipping method",
+      "none": "No shipping",
+      "custom": "Custom rate…",
+      "custom_name": "Rate name",
+      "custom_price": "Price"
+    },
+    "discount": {
+      "type": "Discount type",
+      "none": "No discount",
+      "amount": "Fixed amount",
+      "percentage": "Percentage",
+      "value_amount": "Discount amount",
+      "value_percentage": "Discount (%)",
+      "manual_hint": "Manual discount — applied directly, without a discount code."
+    },
+    "note": "Order note",
+    "tags": "Tags",
+    "tags_placeholder": "Comma-separated, e.g. wholesale, phone-order",
+    "summary": {
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "shipping": "Shipping",
+      "estimated_total": "Estimated total",
+      "tax_hint": "Tax is calculated on save — final totals appear on the order page."
+    },
+    "save_draft": "Save draft",
+    "save_changes": "Save changes",
+    "toast": {
+      "no_lines": "Add at least one line item",
+      "no_customer": "Select a customer or switch to guest entry",
+      "guest_email_required": "Guest email is required",
+      "custom_shipping_name_required": "Custom shipping needs a name",
+      "draft_created": "Draft order created",
+      "draft_updated": "Draft order updated",
+      "save_failed": "Failed to save draft",
+      "load_draft_failed": "Failed to load draft",
+      "not_a_draft": "This order is no longer a draft"
     }
   }
 }

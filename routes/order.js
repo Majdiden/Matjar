@@ -1,6 +1,10 @@
 import { Router } from "express";
 import {
   createOrderController,
+  createDraftOrderController,
+  updateDraftOrderController,
+  completeDraftOrderController,
+  deleteDraftOrderController,
   getOrderController,
   getOrdersController,
   getOrderStatsController,
@@ -46,6 +50,17 @@ orderRoutes.get("/my-orders", orderLookupLimiter, getUserOrdersController);
 // Order-list stats (audit 5.4.3) — MUST stay above "/:id" so the literal
 // "stats" segment isn't captured as an order id.
 orderRoutes.get("/stats", requirePermission("orders.read"), getOrderStatsController);
+
+// Draft / manual orders (audit 5.2) — staff tooling, so deliberately NOT
+// behind checkoutLimiter or plan limits. POST /draft sits above "/:id"
+// routes so the literal segment can never be captured as an order id.
+// Idempotency-Key support via the shared middleware (dashboard sends the
+// header through idempotentConfig()).
+orderRoutes.post("/draft", requirePermission("orders.write"), idem, createDraftOrderController);
+orderRoutes.put("/:id/draft", requirePermission("orders.write"), updateDraftOrderController);
+orderRoutes.post("/:id/complete", requirePermission("orders.write"), idem, completeDraftOrderController);
+// Hard delete — service layer restricts it to status === "Draft".
+orderRoutes.delete("/:id", requirePermission("orders.write"), deleteDraftOrderController);
 
 orderRoutes.get("/:id", orderLookupLimiter, getOrderController);
 orderRoutes.post("/:id/cancel", cancelOrderController);

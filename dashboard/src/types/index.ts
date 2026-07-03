@@ -326,6 +326,7 @@ export interface OrderItem {
 }
 
 export type OrderStatus =
+  | 'Draft'
   | 'Pending'
   | 'Confirmed'
   | 'Processing'
@@ -395,14 +396,14 @@ export interface Theme {
   isDefault: boolean;
   previewImage?: string;
   screenshots: string[];
-  settings: ThemeSettings;
+  // NOTE: the legacy `settings`/`features` catalog fields were retired
+  // (audit 1.2) — a theme's configuration lives in its built manifest.
   templates: Record<string, string>;
   assets: {
     css: string[];
     js: string[];
     fonts: string[];
   };
-  features: string[];
   statistics: {
     installCount: number;
     activeInstalls: number;

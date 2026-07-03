@@ -14,8 +14,11 @@ export const CustomerCard: React.FC = () => {
   const { t } = useTranslation(['orders', 'common']);
   const { order, customerContext, customerContextLoading, formatPrice } = useOrderDetail();
 
+  // Join defensively — draft/manual guest orders may carry an email-only
+  // guestCustomer (no names), which a naive template would render as
+  // "undefined undefined".
   const customerName = order.user?.name
-    || (order.guestCustomer ? `${order.guestCustomer.firstName} ${order.guestCustomer.lastName}` : '')
+    || [order.guestCustomer?.firstName, order.guestCustomer?.lastName].filter(Boolean).join(' ')
     || (order.shippingAddress?.firstName ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : t('orders:detail.customer.guest'));
   const customerEmail = order.user?.email || order.guestCustomer?.email || t('orders:detail.customer.not_available');
   const customerPhone = order.user?.phone || order.guestCustomer?.phone || order.shippingAddress?.phone || t('orders:detail.customer.not_available');

@@ -92,7 +92,7 @@ const canCancelOrders = (p) => hasPerm(p, "orders.cancel") || hasPerm(p, "orders
  * Concurrency: two requests can still race here, so the create call is
  * wrapped in a retry loop further down (createOrderWithUniqueNumber).
  */
-const generateOrderNumber = async (models) => {
+export const generateOrderNumber = async (models) => {
   const last = await models.Order
     .findOne({ orderNumber: { $exists: true, $ne: null } })
     .sort({ createdAt: -1 })
@@ -115,7 +115,7 @@ const generateOrderNumber = async (models) => {
  * fires (E11000 on tenantId+orderNumber), regenerate the number and retry.
  * Caps at 5 attempts so a genuinely broken state still surfaces an error.
  */
-const createOrderWithUniqueNumber = async (models, baseDoc, session) => {
+export const createOrderWithUniqueNumber = async (models, baseDoc, session) => {
   const MAX_ATTEMPTS = 5;
   let lastError;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
@@ -126,15 +126,21 @@ const createOrderWithUniqueNumber = async (models, baseDoc, session) => {
         {
           ...baseDoc,
           orderNumber,
-          history: [
-            {
-              event: "created",
-              status: "Pending",
-              note: `Order ${orderNumber} received and awaiting processing`,
-              by: baseDoc.user || null,
-              at: new Date(),
-            },
-          ],
+          // Callers that need a custom initial history entry (e.g. draft
+          // orders — event "created", note "draft") pass it on baseDoc;
+          // the storefront checkout path keeps its historical default.
+          history:
+            Array.isArray(baseDoc.history) && baseDoc.history.length > 0
+              ? baseDoc.history
+              : [
+                  {
+                    event: "created",
+                    status: "Pending",
+                    note: `Order ${orderNumber} received and awaiting processing`,
+                    by: baseDoc.user || null,
+                    at: new Date(),
+                  },
+                ],
         },
         session
       );
@@ -149,6 +155,152 @@ const createOrderWithUniqueNumber = async (models, baseDoc, session) => {
     }
   }
   throw lastError || new APIError("Could not allocate a unique order number", 500);
+};
+
+/**
+ * Resolve a single order line to its product/variant snapshot and
+ * (optionally) allocate stock or pre-order capacity for it.
+ *
+ * Extracted from the createOrderService per-line loop (audit 5.2.2) so the
+ * draft-order service can reuse the exact same snapshot + validation logic
+ * without duplicating it. `allocateStock: false` performs only the reads
+ * and validations (used when creating drafts, which must NOT touch stock);
+ * `allocateStock: true` is the storefront checkout behaviour — atomic
+ * decrement / pre-order reservation with insufficient-stock errors.
+ *
+ * @param {Object} models - tenant-scoped models
+ * @param {Object} item - { productId, variantId?, quantity, isPreorder?, preorderExpectedShipDate? }
+ * @param {import("mongoose").ClientSession|null} session
+ * @param {Object} [opts]
+ * @param {boolean} [opts.allocateStock=true]
+ * @returns {Promise<{product, variant, isPreorder, preorderExpectedShipDate}>}
+ */
+export const resolveOrderLine = async (
+  models,
+  { productId, variantId, quantity, isPreorder = false, preorderExpectedShipDate },
+  session = null,
+  { allocateStock = true } = {}
+) => {
+  // Product read bound to the session (when present) — ensures the
+  // product/variant shape we read is consistent with the atomic stock
+  // decrement performed below.
+  const product = await getAProductRepo(models, {}, { _id: productId }, session);
+  if (!product) throw new APIError(`Product not found: ${productId}`, 404);
+
+  let variant = null;
+
+  if (variantId) {
+    variant = (product.variants || []).find(
+      (v) => v && v._id && v._id.toString() === String(variantId)
+    );
+    if (!variant) {
+      throw new APIError(`Variant no longer available for ${product.name}`, 400);
+    }
+    if (allocateStock) {
+      if (isPreorder) {
+        // Reserve against the variant's preorder counter when it has its
+        // own preorder block, otherwise fall back to the product's.
+        const useVariantPreorder = !!variant.preorder?.enabled;
+        const result = useVariantPreorder
+          ? await reserveVariantPreorderRepo(models, productId, variant._id, quantity, session)
+          : await reservePreorderRepo(models, productId, quantity, session);
+        if (!result) {
+          throw new APIError(`Pre-order capacity exhausted for ${product.name}`, 400);
+        }
+      } else {
+        const result = await decrementVariantStockRepo(
+          models,
+          productId,
+          variant._id,
+          quantity,
+          session
+        );
+        if (!result) {
+          throw new APIError(
+            `Insufficient stock for ${product.name} (${
+              variant.optionValues?.map((o) => o.value).join(" / ") || variant.sku
+            })`,
+            400
+          );
+        }
+      }
+    }
+  } else {
+    // Variant-less product — guard against accidentally selling a
+    // variant-enabled product without a selection.
+    if (product.hasVariants) {
+      throw new APIError(`${product.name} requires a variant selection`, 400);
+    }
+    if (allocateStock) {
+      if (isPreorder) {
+        const result = await reservePreorderRepo(models, productId, quantity, session);
+        if (!result) {
+          throw new APIError(`Pre-order capacity exhausted for ${product.name}`, 400);
+        }
+      } else {
+        const result = await decrementStockRepo(models, productId, quantity, session);
+        if (!result) {
+          throw new APIError(`Insufficient stock for ${product.name}`, 400);
+        }
+      }
+    }
+  }
+
+  return { product, variant, isPreorder: !!isPreorder, preorderExpectedShipDate };
+};
+
+/**
+ * Distribute an order-level product/order discount and tax across lines
+ * pro-rata by line subtotal, absorbing rounding error in the last line so
+ * the sums exactly match the order-level totals. Shared by the storefront
+ * checkout path and the draft-order service (audit 5.2).
+ *
+ * @param {Array<{unitPrice:number, quantity:number}>} lines
+ * @param {number} productOrderDiscount
+ * @param {number} tax
+ * @returns {Array<{discount:number, tax:number}>}
+ */
+export const computeLineAllocations = (lines, productOrderDiscount, tax) => {
+  const orderSubtotal = lines.reduce(
+    (sum, l) => sum + (l.unitPrice || 0) * (l.quantity || 0),
+    0
+  );
+  const allocations = lines.map((l, idx) => {
+    const lineTotal = (l.unitPrice || 0) * (l.quantity || 0);
+    const share = orderSubtotal > 0 ? lineTotal / orderSubtotal : idx === 0 ? 1 : 0;
+    return {
+      discount: Math.round((productOrderDiscount || 0) * share * 100) / 100,
+      tax: Math.round((tax || 0) * share * 100) / 100,
+    };
+  });
+  // Reconcile rounding: last line absorbs the residual.
+  if (allocations.length > 0) {
+    const dSum = allocations.reduce((s, a) => s + a.discount, 0);
+    const tSum = allocations.reduce((s, a) => s + a.tax, 0);
+    const last = allocations[allocations.length - 1];
+    last.discount = Math.round((last.discount + ((productOrderDiscount || 0) - dSum)) * 100) / 100;
+    last.tax = Math.round((last.tax + ((tax || 0) - tSum)) * 100) / 100;
+    if (last.discount < 0) last.discount = 0;
+    if (last.tax < 0) last.tax = 0;
+  }
+  return allocations;
+};
+
+/**
+ * Resolve a product document's thumbnail URL for an order-line snapshot.
+ * The product carries either an `images[]` array (new schema) or a single
+ * `image` string (legacy). Snapshotted on the line so the dashboard
+ * renders a thumbnail even if the product's media is later removed.
+ */
+export const resolveProductImage = (p) => {
+  if (!p) return undefined;
+  if (Array.isArray(p.images) && p.images.length > 0) {
+    const first = p.images[0];
+    if (typeof first === "string") return first;
+    if (first && typeof first === "object") return first.url || first.src || undefined;
+  }
+  if (typeof p.image === "string") return p.image;
+  return undefined;
 };
 
 /**
@@ -232,111 +384,29 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
     const lines = [];
 
     for (const item of cart.items) {
-      // Product read also bound to session — ensures the product/variant
-      // shape we read here is consistent with the atomic stock decrement
-      // we'll perform a few lines below.
-      const product = await getAProductRepo(models, {}, { _id: item.product }, session);
-      if (!product) throw new APIError(`Product not found: ${item.product}`, 404);
-
-      // Resolve the variant (if any) — cart items reference variants by
-      // their subdocument _id. We need the resolved variant for both stock
-      // accounting and so the order line snapshot is independent of any
-      // future edits to the product document.
-      let variant = null;
       // The cart marks `isPreorder` at add-to-cart time when it accepted
       // the line against pre-order capacity rather than on-hand stock.
-      // We honour that signal here so we hit the right counter (real
-      // stock vs. preorder reservations). The pre-order config may
-      // inherit from the product when the variant doesn't override.
-      const isPreorder = !!item.isPreorder;
-
-      if (item.variantId) {
-        variant = (product.variants || []).find(
-          (v) => v && v._id && v._id.toString() === String(item.variantId)
-        );
-        if (!variant) {
-          throw new APIError(
-            `Variant no longer available for ${product.name}`,
-            400
-          );
-        }
-        if (isPreorder) {
-          // Reserve against the variant's preorder counter when it has
-          // its own preorder block, otherwise fall back to the product's.
-          const useVariantPreorder = !!variant.preorder?.enabled;
-          const result = useVariantPreorder
-            ? await reserveVariantPreorderRepo(
-                models,
-                item.product,
-                variant._id,
-                item.quantity,
-                session
-              )
-            : await reservePreorderRepo(models, item.product, item.quantity, session);
-          if (!result) {
-            throw new APIError(
-              `Pre-order capacity exhausted for ${product.name}`,
-              400
-            );
-          }
-        } else {
-          const result = await decrementVariantStockRepo(
-            models,
-            item.product,
-            variant._id,
-            item.quantity,
-            session
-          );
-          if (!result) {
-            throw new APIError(
-              `Insufficient stock for ${product.name} (${
-                variant.optionValues?.map((o) => o.value).join(" / ") || variant.sku
-              })`,
-              400
-            );
-          }
-        }
-      } else {
-        // Variant-less product — guard against accidentally selling a
-        // variant-enabled product without a selection. We require the
-        // storefront to always pick a variant for `hasVariants` products.
-        if (product.hasVariants) {
-          throw new APIError(
-            `${product.name} requires a variant selection`,
-            400
-          );
-        }
-        if (isPreorder) {
-          const result = await reservePreorderRepo(
-            models,
-            item.product,
-            item.quantity,
-            session
-          );
-          if (!result) {
-            throw new APIError(
-              `Pre-order capacity exhausted for ${product.name}`,
-              400
-            );
-          }
-        } else {
-          const result = await decrementStockRepo(
-            models,
-            item.product,
-            item.quantity,
-            session
-          );
-          if (!result) {
-            throw new APIError(`Insufficient stock for ${product.name}`, 400);
-          }
-        }
-      }
+      // resolveOrderLine honours that signal so we hit the right counter
+      // (real stock vs. preorder reservations). The snapshot + atomic
+      // allocation logic itself lives in resolveOrderLine — shared with
+      // the draft-order service (audit 5.2.2).
+      const resolved = await resolveOrderLine(
+        models,
+        {
+          productId: item.product,
+          variantId: item.variantId,
+          quantity: item.quantity,
+          isPreorder: !!item.isPreorder,
+          preorderExpectedShipDate: item.preorderExpectedShipDate,
+        },
+        session
+      );
 
       lines.push({
-        product,
+        product: resolved.product,
         quantity: item.quantity,
-        variant,
-        isPreorder,
+        variant: resolved.variant,
+        isPreorder: resolved.isPreorder,
         preorderExpectedShipDate: item.preorderExpectedShipDate,
       });
     }
@@ -562,26 +632,8 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
     // discounts are intentionally excluded (they apply to shipping, not
     // goods). Rounding error is absorbed by the last line so the sum
     // exactly matches the order-level totals.
-    const orderSubtotal = quote.subtotal || 0;
     const productOrderDiscount = Math.max(0, (quote.discount || 0) - (quote.shippingDiscount || 0));
-    const lineAllocations = quote.lines.map((l, idx) => {
-      const lineTotal = (l.unitPrice || 0) * (l.quantity || 0);
-      const share = orderSubtotal > 0 ? lineTotal / orderSubtotal : (idx === 0 ? 1 : 0);
-      return {
-        discount: Math.round(productOrderDiscount * share * 100) / 100,
-        tax: Math.round((quote.tax || 0) * share * 100) / 100,
-      };
-    });
-    // Reconcile rounding: last line absorbs the residual.
-    if (lineAllocations.length > 0) {
-      const dSum = lineAllocations.reduce((s, a) => s + a.discount, 0);
-      const tSum = lineAllocations.reduce((s, a) => s + a.tax, 0);
-      const last = lineAllocations[lineAllocations.length - 1];
-      last.discount = Math.round((last.discount + (productOrderDiscount - dSum)) * 100) / 100;
-      last.tax = Math.round((last.tax + ((quote.tax || 0) - tSum)) * 100) / 100;
-      if (last.discount < 0) last.discount = 0;
-      if (last.tax < 0) last.tax = 0;
-    }
+    const lineAllocations = computeLineAllocations(quote.lines, productOrderDiscount, quote.tax || 0);
 
     // ── Customer snapshot ─────────────────────────────────────────────
     // Immutable identity captured once at creation. For authenticated
@@ -633,22 +685,6 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
       };
     }
 
-    // Product image resolver — the product document carries either an
-    // `images[]` array (new schema) or a single `image` string (legacy).
-    // We snapshot the first available URL onto the line so the dashboard
-    // renders a thumbnail even if the product's media is later removed.
-    const imageForLine = (line) => {
-      const p = line.productDoc || null;
-      if (!p) return undefined;
-      if (Array.isArray(p.images) && p.images.length > 0) {
-        const first = p.images[0];
-        if (typeof first === "string") return first;
-        if (first && typeof first === "object") return first.url || first.src || undefined;
-      }
-      if (typeof p.image === "string") return p.image;
-      return undefined;
-    };
-
     const adjustedTotal = giftCardApplied
       ? Math.max(0, quote.totalAmount - giftCardApplied.amount)
       : quote.totalAmount;
@@ -681,7 +717,7 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
             (ol) => ol.product && ol.product._id && l.product &&
               ol.product._id.toString() === l.product.toString()
           );
-          const imageUrl = originalLine ? imageForLine({ productDoc: originalLine.product }) : undefined;
+          const imageUrl = originalLine ? resolveProductImage(originalLine.product) : undefined;
           const alloc = lineAllocations[idx] || { discount: 0, tax: 0 };
           return {
             product: l.product,
@@ -980,7 +1016,7 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
   }
 };
 
-const formatOrderForDashboard = (order) => {
+export const formatOrderForDashboard = (order) => {
   if (!order) return null;
 
   let subtotal = 0;
@@ -1056,15 +1092,27 @@ export const getOrderService = async (models, orderId, userId, permissions) => {
   if (!order) throw new APIError("Order not found", 404);
 
   const isOwner = order.user && order.user._id && order.user._id.toString() === userId;
-  if (!canReadAllOrders(permissions) && !isOwner) {
-    throw new APIError("Access denied to this order", 403);
+  if (!canReadAllOrders(permissions)) {
+    if (!isOwner) throw new APIError("Access denied to this order", 403);
+    // Draft orders are dashboard-only (audit 5.2.4) — a customer must not
+    // see a draft composed on their account until it's completed. Same 404
+    // shape as a missing order so drafts can't be enumerated.
+    if (order.status === "Draft") throw new APIError("Order not found", 404);
   }
 
   return { success: true, statusCode: 200, message: "Order retrieved successfully", responseObject: formatOrderForDashboard(order) };
 };
 
 export const getOrdersService = async (models, filters, options, userId, permissions) => {
-  if (!canReadAllOrders(permissions)) filters.user = userId;
+  if (!canReadAllOrders(permissions)) {
+    filters.user = userId;
+    // Storefront-facing list (customer account orders) — never surface
+    // drafts (audit 5.2.4). If a customer explicitly asks for Draft they
+    // get the same exclusion filter, i.e. an empty result.
+    if (!filters.status || filters.status === "Draft") {
+      filters.status = { $ne: "Draft" };
+    }
+  }
 
   const result = await getOrdersRepo(models, filters, options);
   return {
@@ -1567,7 +1615,7 @@ const getEffectiveFulfilledQuantityForLine = (order, line) => {
   return 0;
 };
 
-const requireOrderWrite = (permissions) => {
+export const requireOrderWrite = (permissions) => {
   if (!canWriteOrders(permissions)) {
     throw new APIError("You do not have permission to manage order fulfillment", 403);
   }
@@ -2710,10 +2758,12 @@ export const getCustomerContextService = async (
   let type;
   let customerId = null;
   let email = null;
+  // Drafts are not real orders yet — keep them out of lifetime stats.
+  const notDraft = { $ne: "Draft" };
   if (order.user) {
     type = "customer";
     customerId = String(order.user);
-    match = { tenantId, user: order.user };
+    match = { tenantId, user: order.user, status: notDraft };
   } else if (order.guestCustomer?.email) {
     type = "guest";
     email = String(order.guestCustomer.email).toLowerCase();
@@ -2721,6 +2771,7 @@ export const getCustomerContextService = async (
       tenantId,
       user: { $in: [null, undefined] },
       "guestCustomer.email": order.guestCustomer.email,
+      status: notDraft,
     };
   } else {
     return {

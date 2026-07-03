@@ -117,8 +117,26 @@ export const deleteOrderRepo = async (models, orderId) => {
   return await models.Order.findByIdAndDelete(orderId);
 };
 
+/**
+ * Guarded hard delete — removes the order only when it still matches
+ * `filters` (e.g. { _id, status: "Draft" }). Returns the deleted doc or
+ * null when the guard lost a race (order transitioned in the meantime).
+ * Used by the draft-order service: hard delete is allowed ONLY while the
+ * order is still a Draft (audit 5.2.6).
+ */
+export const deleteOrderWhereRepo = async (models, filters) => {
+  return await models.Order.findOneAndDelete(filters);
+};
+
 export const getOrdersByUserRepo = async (models, userId, options = {}) => {
-  return await getOrdersRepo(models, { user: userId }, options);
+  // Customer-facing order history (GET /orders/my-orders). Draft orders
+  // are dashboard-only until completed (audit 5.2.4) — exclude them here
+  // so a merchant-composed draft never leaks into the account order list.
+  return await getOrdersRepo(
+    models,
+    { user: userId, status: { $ne: "Draft" } },
+    options
+  );
 };
 
 export const getOrdersByStatusRepo = async (models, status, options = {}) => {

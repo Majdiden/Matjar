@@ -26,7 +26,7 @@ import {
 import {
   ShoppingCart, MoreHorizontal, Eye, DollarSign, Clock, CheckCircle2,
   Truck, Package as PackageIcon, XCircle, Search, Filter, Download,
-  RefreshCw, GitBranch, LayoutGrid, List, Pin, PinOff, X,
+  RefreshCw, GitBranch, LayoutGrid, List, Pin, PinOff, X, FileText, Plus,
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
@@ -131,11 +131,12 @@ const displayOrderNumber = (orderNumber?: string | null, fallbackId?: string) =>
   return fallbackId ? `#${fallbackId.slice(-8)}` : '';
 };
 
-type StatusTab = '' | 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+type StatusTab = '' | 'Draft' | 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
 
 // TAB_DEFS labels are resolved inside the component using t()
 const TAB_DEFS_META: { id: StatusTab; icon: React.ElementType; labelKey: string }[] = [
   { id: '', labelKey: 'orders:list.filter.all', icon: ShoppingCart },
+  { id: 'Draft', labelKey: 'orders:list.filter.draft', icon: FileText },
   { id: 'Pending', labelKey: 'orders:list.filter.pending', icon: Clock },
   { id: 'Processing', labelKey: 'orders:list.filter.processing', icon: PackageIcon },
   { id: 'Shipped', labelKey: 'orders:list.filter.shipped', icon: Truck },
@@ -147,6 +148,7 @@ const TAB_DEFS_META: { id: StatusTab; icon: React.ElementType; labelKey: string 
 // destructive=red, info=neutral gray. Brand blue is never used for status.
 const statusVariant = (status: string): 'success' | 'warning' | 'destructive' | 'info' | 'outline' => {
   switch (status) {
+    case 'Draft': return 'outline';
     case 'Delivered': return 'success';
     case 'Shipped':
     case 'Processing': return 'info';
@@ -476,9 +478,14 @@ export const Orders: React.FC = () => {
         title={t('orders:list.title')}
         description={t('orders:list.description')}
         actions={(
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 me-2" /> {t('common:action.export')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 me-2" /> {t('common:action.export')}
+            </Button>
+            <Button size="sm" onClick={() => navigate('/dashboard/orders/new')}>
+              <Plus className="h-4 w-4 me-2" /> {t('orders:list.create_order')}
+            </Button>
+          </div>
         )}
       />
 

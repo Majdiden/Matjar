@@ -116,6 +116,22 @@ function idempotentConfig(extra?: AxiosRequestConfig): AxiosRequestConfig {
   };
 }
 
+// Payload shared by POST /orders/draft and PUT /orders/:id/draft (audit
+// 5.2). Line prices are optional overrides; customer is either an existing
+// user id or an inline guest contact; shipping is a configured method or a
+// custom { name, price }; discount is MANUAL (not a discount code).
+export interface DraftOrderPayload {
+  items: Array<{ productId: string; variantId?: string; quantity: number; price?: number }>;
+  customerId?: string;
+  guestCustomer?: { email: string; firstName?: string; lastName?: string; phone?: string };
+  shippingAddress?: Record<string, string | undefined>;
+  billingAddress?: Record<string, string | undefined>;
+  shippingMethod?: { id?: string; name: string; price: number } | null;
+  discount?: { type: 'amount' | 'percentage'; value: number } | null;
+  note?: string;
+  tags?: string[];
+}
+
 // API client methods. Generic return type defaults to `unknown` — callers
 // pick a concrete type (`api.get<MyResponse>(...)`) when they need it, or
 // narrow with a type guard at the use site. We don't default to `any`
@@ -312,6 +328,17 @@ export const api = {
 
     getById: (id: string) => api.get(`/orders/${id}`),
 
+    // Draft / manual orders (audit 5.2). Create + complete are guarded by
+    // the Idempotency-Key middleware so a double-click can't produce two
+    // drafts or double-decrement stock on completion.
+    createDraft: (payload: DraftOrderPayload) =>
+      api.post('/orders/draft', payload, idempotentConfig()),
+    updateDraft: (id: string, payload: DraftOrderPayload) =>
+      api.put(`/orders/${id}/draft`, payload),
+    completeDraft: (id: string) =>
+      api.post(`/orders/${id}/complete`, {}, idempotentConfig()),
+    deleteDraft: (id: string) => api.delete(`/orders/${id}`),
+
     updateStatus: (id: string, status: string) =>
       api.patch(`/orders/${id}/status`, { status }),
 
@@ -426,8 +453,9 @@ export const api = {
 
     update: (id: string, data: unknown) => api.put(`/themes/${id}`, data),
 
-    updateSettings: (id: string, settings: Record<string, unknown>) =>
-      api.patch(`/themes/${id}/settings`, { settings }),
+    // NOTE: PATCH /themes/:id/settings was removed with the retirement of
+    // the legacy Theme.settings blob (audit 1.2) — theme configuration
+    // lives in the built manifest, not on catalog rows.
 
     install: (id: string) => api.post(`/themes/${id}/install`),
 
@@ -471,12 +499,16 @@ export const api = {
      * explicitly so the network tab doubles as audit.
      */
     updateSections: (
+      // Accepts the SDK SectionInstance shape: `disabled` is canonical,
+      // `enabled` is legacy read-compat, `order` may be backfilled server-side.
       sections: Array<{
         id: string;
         type: string;
-        enabled: boolean;
-        order: number;
+        enabled?: boolean;
+        disabled?: boolean;
+        order?: number;
         settings?: Record<string, unknown>;
+        blocks?: unknown[];
       }>,
       opts: { template?: string } = {}
     ) => {

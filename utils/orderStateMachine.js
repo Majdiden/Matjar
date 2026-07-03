@@ -10,12 +10,18 @@ import { APIError } from "../middlewares/errorHandler.js";
 
 // ─── Order status ──────────────────────────────────────────────────
 //
+// Draft → Pending (merchant completes a manually-composed order)
 // Pending → Processing → Shipped → Delivered
 //                ↘ Cancelled    ↗ Refunded
 // Pending → Cancelled
 //
 // Cancelled and Refunded are terminal.
+//
+// Draft is the pre-order state for dashboard-composed orders (audit 5.2):
+// no stock is allocated and no notifications fire until the draft is
+// completed (Draft → Pending) or it is cancelled/deleted.
 const ORDER_TRANSITIONS = {
+  Draft: ["Pending", "Cancelled"],
   Pending: ["Confirmed", "Processing", "Cancelled"],
   Confirmed: ["Processing", "Cancelled"],
   Processing: ["Shipped", "Cancelled"],

@@ -149,6 +149,10 @@ const orderSchema = new Schema({
   status: {
     type: String,
     enum: [
+      // Dashboard-composed manual order awaiting completion (audit 5.2).
+      // Drafts hold no stock, send no notifications, and are excluded
+      // from all storefront-facing queries and order stats.
+      "Draft",
       "Pending",
       "Confirmed",
       "Processing",

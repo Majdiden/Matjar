@@ -391,12 +391,25 @@ router.get(
     // the tenant's declared activeTheme and, when they diverge,
     // return null (causing the fallback bundle to use its manifest
     // defaults instead of choking on foreign section types).
+    // `sectionsByTemplate` is the canonical per-template store (audit
+    // 1.3); the flat `sections` key is kept in the response as an alias
+    // of the index bucket so older theme bundles keep rendering.
+    const draftByTpl =
+      tc.sectionsByTemplate && typeof tc.sectionsByTemplate === "object"
+        ? tc.sectionsByTemplate
+        : {};
+    const publishedByTpl =
+      tc.published?.sectionsByTemplate && typeof tc.published.sectionsByTemplate === "object"
+        ? tc.published.sectionsByTemplate
+        : {};
+
     let themeCustomization = null;
     if (servePreview) {
       themeCustomization = {
         themeSlug: activeTheme,
         settings: tc.settings || {},
-        sections: tc.sections || [],
+        sections: Array.isArray(draftByTpl.index) ? draftByTpl.index : [],
+        sectionsByTemplate: draftByTpl,
         customCSS: tc.customCSS || "",
         version: null,
         publishedAt: null,
@@ -406,7 +419,8 @@ router.get(
       themeCustomization = {
         themeSlug: tc.published.themeSlug,
         settings: tc.published.settings,
-        sections: tc.published.sections,
+        sections: Array.isArray(publishedByTpl.index) ? publishedByTpl.index : [],
+        sectionsByTemplate: publishedByTpl,
         customCSS: tc.published.customCSS,
         version: tc.published.version,
         publishedAt: tc.published.publishedAt,
@@ -1012,6 +1026,13 @@ router.get(
     }
 
     if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // Draft orders are dashboard-only until completed (audit 5.2.4) —
+    // never expose them through the public tracking endpoint. Same 404
+    // shape as a missing order so drafts can't be enumerated.
+    if (order.status === "Draft") {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 

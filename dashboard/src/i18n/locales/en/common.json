@@ -189,7 +189,8 @@
     "Requested": "Requested",
     "Approved": "Approved",
     "Rejected": "Rejected",
-    "Received": "Received"
+    "Received": "Received",
+    "Draft": "Draft"
   },
   "pagination": {
     "page_of": "Page {{n}} of {{total}}",
@@ -218,5 +219,37 @@
     "switch": "Change language",
     "english": "English",
     "arabic": "العربية"
+  },
+  "editor": {
+    "toolbar": {
+      "paragraph": "Paragraph",
+      "heading2": "Heading",
+      "heading3": "Subheading",
+      "bold": "Bold",
+      "italic": "Italic",
+      "bullet_list": "Bulleted list",
+      "ordered_list": "Numbered list",
+      "blockquote": "Quote",
+      "link": "Link",
+      "image": "Image",
+      "divider": "Divider",
+      "clear_formatting": "Clear formatting"
+    },
+    "link_dialog": {
+      "title": "Insert link",
+      "url_label": "Link URL",
+      "url_placeholder": "https://example.com",
+      "apply": "Apply",
+      "remove": "Remove link"
+    },
+    "image_dialog": {
+      "title": "Insert image",
+      "url_label": "Image URL",
+      "url_placeholder": "https://example.com/image.jpg",
+      "insert": "Insert",
+      "upload": "Upload",
+      "uploading": "Uploading…",
+      "no_url": "Upload did not return an image URL"
+    }
   }
 }

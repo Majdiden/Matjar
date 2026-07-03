@@ -189,7 +189,8 @@
     "Requested": "مطلوب",
     "Approved": "موافق عليه",
     "Rejected": "مرفوض",
-    "Received": "تم الاستلام"
+    "Received": "تم الاستلام",
+    "Draft": "مسودة"
   },
   "pagination": {
     "page_of": "صفحة {{n}} من {{total}}",
@@ -218,5 +219,37 @@
     "switch": "تغيير اللغة",
     "english": "English",
     "arabic": "العربية"
+  },
+  "editor": {
+    "toolbar": {
+      "paragraph": "فقرة",
+      "heading2": "عنوان",
+      "heading3": "عنوان فرعي",
+      "bold": "غامق",
+      "italic": "مائل",
+      "bullet_list": "قائمة نقطية",
+      "ordered_list": "قائمة مرقّمة",
+      "blockquote": "اقتباس",
+      "link": "رابط",
+      "image": "صورة",
+      "divider": "فاصل",
+      "clear_formatting": "مسح التنسيق"
+    },
+    "link_dialog": {
+      "title": "إدراج رابط",
+      "url_label": "عنوان الرابط",
+      "url_placeholder": "https://example.com",
+      "apply": "تطبيق",
+      "remove": "إزالة الرابط"
+    },
+    "image_dialog": {
+      "title": "إدراج صورة",
+      "url_label": "رابط الصورة",
+      "url_placeholder": "https://example.com/image.jpg",
+      "insert": "إدراج",
+      "upload": "رفع",
+      "uploading": "جارٍ الرفع…",
+      "no_url": "لم يُرجِع الرفع رابط صورة"
+    }
   }
 }

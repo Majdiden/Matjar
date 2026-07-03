@@ -18,7 +18,8 @@
       "processing": "قيد المعالجة",
       "shipped": "تم الشحن",
       "delivered": "تم التسليم",
-      "cancelled": "ملغى"
+      "cancelled": "ملغى",
+      "draft": "المسودات"
     },
     "search": {
       "placeholder": "ابحث برقم الطلب أو اسم العميل..."
@@ -81,7 +82,8 @@
     },
     "guest": "ضيف",
     "item_count_one": "عنصر واحد",
-    "item_count_other": "{{count}} عناصر"
+    "item_count_other": "{{count}} عناصر",
+    "create_order": "إنشاء طلب"
   },
   "detail": {
     "placed": "تم الطلب {{date}}",
@@ -289,6 +291,18 @@
       "label_max_ordered": "مطلوب",
       "label_max_received": "مستلم",
       "max_label": "الحد الأقصى {{max}} {{labelMax}}"
+    },
+    "draft": {
+      "banner_title": "هذا طلب مسودة",
+      "banner_description": "لم يتم حجز أي مخزون ولم تُرسل أي إشعارات. أكمل الطلب لتفعيله، أو احذف المسودة.",
+      "complete_order": "إكمال الطلب",
+      "delete_draft": "حذف المسودة",
+      "edit_draft": "تعديل المسودة",
+      "complete_confirm_title": "إكمال طلب المسودة هذا؟",
+      "complete_confirm_description": "سيتم خصم المخزون لكل عنصر وسيتم إشعار العميل. سيصبح الطلب طلباً فعلياً قيد الانتظار.",
+      "delete_confirm_title": "حذف هذه المسودة؟",
+      "delete_confirm_description": "سيتم حذف المسودة نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+      "next_action_summary": "طلب مسودة — أكمله لحجز المخزون وإشعار العميل، أو احذفه."
     }
   },
   "dialog": {
@@ -415,7 +429,11 @@
     "lifecycle_load_failed": "فشل تحميل دورة حياة الطلب",
     "view_set_default": "تم تعيين عرض {{view}} افتراضياً",
     "payment_action_updated": "{{label}} — تم التحديث",
-    "payment_action_failed": "فشل: {{label}}"
+    "payment_action_failed": "فشل: {{label}}",
+    "draft_completed": "اكتملت المسودة — الطلب الآن قيد الانتظار",
+    "draft_complete_failed": "فشل إكمال المسودة",
+    "draft_deleted": "تم حذف المسودة",
+    "draft_delete_failed": "فشل حذف المسودة"
   },
   "validation": {
     "note_empty": "لا يمكن أن تكون الملاحظة فارغة",
@@ -659,6 +677,79 @@
       "refund_reason": "سبب الاسترداد",
       "loading": "جاري تحميل إيصال الاسترداد…",
       "error": "فشل تحميل الطلب"
+    }
+  },
+  "create": {
+    "title": "إنشاء طلب",
+    "edit_title": "تعديل طلب مسودة",
+    "description": "أنشئ طلباً يدوياً واحفظه كمسودة",
+    "section": {
+      "products": "المنتجات",
+      "customer": "العميل",
+      "addresses": "العناوين",
+      "shipping": "الشحن",
+      "discount": "الخصم",
+      "notes": "الملاحظات والوسوم",
+      "summary": "الملخص"
+    },
+    "product_search_placeholder": "ابحث عن المنتجات…",
+    "no_products_found": "لم يتم العثور على منتجات",
+    "no_lines": "لا توجد عناصر بعد — ابحث عن منتج أعلاه لإضافته.",
+    "line": {
+      "variant": "المتغير",
+      "qty": "الكمية",
+      "unit_price": "سعر الوحدة",
+      "total": "الإجمالي",
+      "unknown_product": "منتج غير معروف"
+    },
+    "customer": {
+      "existing": "عميل حالي",
+      "guest": "زائر",
+      "change": "تغيير",
+      "email": "البريد الإلكتروني"
+    },
+    "customer_search_placeholder": "ابحث عن العملاء بالاسم أو البريد الإلكتروني…",
+    "no_customers_found": "لم يتم العثور على عملاء",
+    "addresses_hint": "اختياري أثناء المسودة — عنوان الشحن مطلوب لإكمال الطلب.",
+    "billing_same": "عنوان الفوترة مطابق لعنوان الشحن",
+    "shipping": {
+      "method": "طريقة الشحن",
+      "none": "بدون شحن",
+      "custom": "سعر مخصص…",
+      "custom_name": "اسم الشحنة",
+      "custom_price": "السعر"
+    },
+    "discount": {
+      "type": "نوع الخصم",
+      "none": "بدون خصم",
+      "amount": "مبلغ ثابت",
+      "percentage": "نسبة مئوية",
+      "value_amount": "قيمة الخصم",
+      "value_percentage": "الخصم (%)",
+      "manual_hint": "خصم يدوي — يُطبق مباشرة، بدون كود خصم."
+    },
+    "note": "ملاحظة الطلب",
+    "tags": "الوسوم",
+    "tags_placeholder": "مفصولة بفواصل، مثل: جملة، طلب-هاتفي",
+    "summary": {
+      "subtotal": "المجموع الفرعي",
+      "discount": "الخصم",
+      "shipping": "الشحن",
+      "estimated_total": "الإجمالي التقديري",
+      "tax_hint": "تُحسب الضريبة عند الحفظ — تظهر الإجماليات النهائية في صفحة الطلب."
+    },
+    "save_draft": "حفظ المسودة",
+    "save_changes": "حفظ التغييرات",
+    "toast": {
+      "no_lines": "أضف عنصراً واحداً على الأقل",
+      "no_customer": "اختر عميلاً أو بدّل إلى إدخال زائر",
+      "guest_email_required": "البريد الإلكتروني للزائر مطلوب",
+      "custom_shipping_name_required": "الشحن المخصص يحتاج إلى اسم",
+      "draft_created": "تم إنشاء طلب المسودة",
+      "draft_updated": "تم تحديث طلب المسودة",
+      "save_failed": "فشل حفظ المسودة",
+      "load_draft_failed": "فشل تحميل المسودة",
+      "not_a_draft": "لم يعد هذا الطلب مسودة"
     }
   }
 }

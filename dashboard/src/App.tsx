@@ -14,6 +14,7 @@ import { Products } from './pages/products/Products';
 import { ProductForm } from './pages/products/ProductForm';
 import { Categories } from './pages/categories/Categories';
 import { Orders } from './pages/orders/Orders';
+import { OrderCreate } from './pages/orders/create/OrderCreate';
 import { OrderDetails } from './pages/orders/detail';
 import OrderLifecycle from './pages/orders/OrderLifecycle';
 import PackingSlip from './pages/orders/documents/PackingSlip';
@@ -90,6 +91,7 @@ function App() {
             <Route path="products/:id/edit" element={<RequirePermission permission="products.write"><ProductForm /></RequirePermission>} />
             <Route path="categories" element={<RequirePermission permission="products.read"><Categories /></RequirePermission>} />
             <Route path="orders" element={<RequirePermission permission="orders.read"><Orders /></RequirePermission>} />
+            <Route path="orders/new" element={<RequirePermission permission="orders.write"><OrderCreate /></RequirePermission>} />
             <Route path="orders/:id" element={<RequirePermission permission="orders.read"><OrderDetails /></RequirePermission>} />
             <Route path="orders/:id/lifecycle" element={<RequirePermission permission="orders.read"><OrderLifecycle /></RequirePermission>} />
             <Route path="themes" element={<RequirePermission permission={['themes.read', 'themes.write']}><Themes /></RequirePermission>} />

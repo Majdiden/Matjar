@@ -21,6 +21,12 @@ import {
   getCustomerContextService,
   updateOrderAddressesService,
 } from "../services/order.js";
+import {
+  createDraftOrderService,
+  updateDraftOrderService,
+  completeDraftOrderService,
+  deleteDraftOrderService,
+} from "../services/draftOrder.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import { logAudit } from "../utils/audit.js";
 import { signOrderAccessToken } from "../utils/misc.js";
@@ -64,6 +70,111 @@ export const createOrderController = asyncHandler(async (req, res) => {
         email,
       });
     }
+  }
+  res.status(result.statusCode).json(result);
+});
+
+// ─── Draft / manual orders (audit 5.2) ────────────────────────────
+// Admin-composed orders that skip the cart. All four endpoints require
+// orders.write (enforced at the route AND in the service layer) and are
+// NOT behind checkoutLimiter / plan limits — they're staff tooling, not
+// shopper endpoints.
+
+/**
+ * Create a draft order (no stock allocation, no notifications).
+ */
+export const createDraftOrderController = asyncHandler(async (req, res) => {
+  const permissions = await getEffectivePermissions(req);
+  const result = await createDraftOrderService(
+    req.models,
+    req.tenantId,
+    req.body,
+    req.user.userId,
+    permissions
+  );
+  if (result.success) {
+    logAudit(req.models, {
+      action: "order.draft_created",
+      resource: "Order",
+      resourceId: result.responseObject?._id,
+      metadata: {
+        orderNumber: result.responseObject?.orderNumber,
+        total: result.responseObject?.totalAmount,
+      },
+      req,
+    });
+  }
+  res.status(result.statusCode).json(result);
+});
+
+/**
+ * Wholesale-edit a draft (lines / customer / addresses / shipping /
+ * discount / note / tags) while the order is still a Draft.
+ */
+export const updateDraftOrderController = asyncHandler(async (req, res) => {
+  const permissions = await getEffectivePermissions(req);
+  const result = await updateDraftOrderService(
+    req.models,
+    req.params.id,
+    req.body,
+    req.user.userId,
+    permissions
+  );
+  if (result.success) {
+    logAudit(req.models, {
+      action: "order.draft_updated",
+      resource: "Order",
+      resourceId: req.params.id,
+      metadata: { total: result.responseObject?.totalAmount },
+      req,
+    });
+  }
+  res.status(result.statusCode).json(result);
+});
+
+/**
+ * Complete a draft (Draft → Pending): decrements stock in a transaction
+ * and fires the merchant/customer notifications of the create flow.
+ */
+export const completeDraftOrderController = asyncHandler(async (req, res) => {
+  const permissions = await getEffectivePermissions(req);
+  const result = await completeDraftOrderService(
+    req.models,
+    req.params.id,
+    req.user.userId,
+    permissions,
+    req.tenantId
+  );
+  if (result.success) {
+    logAudit(req.models, {
+      action: "order.draft_completed",
+      resource: "Order",
+      resourceId: req.params.id,
+      changes: { status: { from: "Draft", to: "Pending" } },
+      req,
+    });
+  }
+  res.status(result.statusCode).json(result);
+});
+
+/**
+ * Hard-delete a draft. Allowed only while status === "Draft".
+ */
+export const deleteDraftOrderController = asyncHandler(async (req, res) => {
+  const permissions = await getEffectivePermissions(req);
+  const result = await deleteDraftOrderService(
+    req.models,
+    req.params.id,
+    req.user.userId,
+    permissions
+  );
+  if (result.success) {
+    logAudit(req.models, {
+      action: "order.draft_deleted",
+      resource: "Order",
+      resourceId: req.params.id,
+      req,
+    });
   }
   res.status(result.statusCode).json(result);
 });

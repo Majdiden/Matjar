@@ -104,6 +104,7 @@ export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' |
 // Semantic status colours (audit 3.8.3) — brand blue is never a status.
 export const orderStatusVariant = (s: OrderStatus): BadgeVariant => {
   switch (s) {
+    case 'Draft': return 'outline';
     case 'Pending': return 'warning';
     case 'Confirmed':
     case 'Processing':

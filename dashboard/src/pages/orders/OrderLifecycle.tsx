@@ -23,6 +23,7 @@ import {
   ArrowUpRight,
   Check,
   Clock,
+  FileText,
   GitBranch,
   Loader2,
   Package,
@@ -47,6 +48,7 @@ interface TreeNode {
 const FLOW_STATES: OrderStatus[] = ['Pending', 'Processing', 'Shipped', 'Delivered'];
 
 const STATE_ICON: Record<OrderStatus, React.ElementType> = {
+  Draft: FileText,
   Pending: Clock,
   Confirmed: Check,
   Processing: Package,
