@@ -9,6 +9,7 @@ import { Badge } from '../../components/ui/badge';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { errMsg } from '../../lib/errors';
 
 type StaffRole = 'admin' | 'manager' | 'staff';
 
@@ -21,17 +22,6 @@ interface InviteVerifyPayload {
   email?: string;
   role?: StaffRole;
 }
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object') {
-    const e = err as { response?: { data?: { message?: unknown } }; message?: unknown };
-    const serverMsg = e.response?.data?.message;
-    if (typeof serverMsg === 'string') return serverMsg;
-    if (typeof e.message === 'string') return e.message;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 export const AcceptInvite: React.FC = () => {
   const { t } = useTranslation(['staff', 'common']);

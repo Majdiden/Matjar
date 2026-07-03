@@ -1,6 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../../components/ui/card';
+import { PageHeader } from '../../components/PageHeader';
+import { errMsg } from '../../lib/errors';
+import { formatDate } from '../../lib/format';
+import { useListPage } from '../../hooks/useListPage';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
@@ -51,23 +55,29 @@ const statusVariant = (status: string) => {
 
 export const Fulfillments: React.FC = () => {
   const { t } = useTranslation(['orders', 'common']);
-  const [fulfillments, setFulfillments] = useState<Fulfillment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('');
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState({ total: 0, pages: 1 });
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useViewMode('fulfillments.viewMode', 'table');
 
-  const loadFulfillments = useCallback(async () => {
-    try {
-      setLoading(true);
+  const {
+    items: fulfillments,
+    setItems: setFulfillments,
+    loading,
+    page,
+    setPage,
+    search,
+    setSearch,
+    filters,
+    setFilter,
+    pagination,
+    reload,
+  } = useListPage<Fulfillment, { status: string }>({
+    initialFilters: { status: '' },
+    fetcher: async ({ page, limit, search, filters }) => {
       const params: { page: number; limit: number; status?: string; search?: string } = {
         page,
-        limit: 20,
+        limit,
       };
-      if (statusFilter) params.status = statusFilter;
+      if (filters.status) params.status = filters.status;
       if (search) params.search = search;
       const res = (await api.fulfillments.getAll(params)) as {
         responseObject?: {
@@ -79,19 +89,13 @@ export const Fulfillments: React.FC = () => {
           pagination?: { total: number; pages: number };
         };
       };
-      setFulfillments(res.responseObject?.fulfillments || res.data?.fulfillments || []);
-      setPagination(res.responseObject?.pagination || res.data?.pagination || { total: 0, pages: 1 });
-    } catch (err) {
-      const e = err as { message?: string };
-      toast.error(e?.message || t('orders:fulfillment.toast.load_failed'));
-    } finally {
-      setLoading(false);
-    }
-  }, [page, statusFilter, search, t]);
-
-  useEffect(() => {
-    loadFulfillments();
-  }, [loadFulfillments]);
+      return {
+        items: res.responseObject?.fulfillments || res.data?.fulfillments || [],
+        pagination: res.responseObject?.pagination || res.data?.pagination || { total: 0, pages: 1 },
+      };
+    },
+    onError: (err) => toast.error(errMsg(err, t('orders:fulfillment.toast.load_failed'))),
+  });
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
@@ -99,8 +103,7 @@ export const Fulfillments: React.FC = () => {
       toast.success(t('orders:fulfillment.toast.status_updated'));
       setFulfillments(prev => prev.map(f => f._id === id ? { ...f, status: newStatus } : f));
     } catch (err) {
-      const e = err as { message?: string };
-      toast.error(e?.message || t('orders:fulfillment.toast.status_update_failed'));
+      toast.error(errMsg(err, t('orders:fulfillment.toast.status_update_failed')));
     }
   };
 
@@ -125,7 +128,7 @@ export const Fulfillments: React.FC = () => {
     if (ok) toast.success(t('orders:fulfillment.toast.bulk_updated_other', { count: ok, status }));
     if (failed) toast.error(t('orders:fulfillment.toast.bulk_failed', { count: failed }));
     setSelected(new Set());
-    loadFulfillments();
+    reload();
   };
 
   const getOrderNumber = (order: Fulfillment['order']) => {
@@ -135,10 +138,10 @@ export const Fulfillments: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('orders:fulfillment.list.title')}</h1>
-        <p className="text-muted-foreground mt-1">{t('orders:fulfillment.list.description')}</p>
-      </div>
+      <PageHeader
+        title={t('orders:fulfillment.list.title')}
+        description={t('orders:fulfillment.list.description')}
+      />
 
       <FilterPills
         items={[
@@ -148,8 +151,8 @@ export const Fulfillments: React.FC = () => {
           { id: 'delivered', label: t('orders:fulfillment.list.filter.delivered'), icon: CheckCircle2 },
           { id: 'cancelled', label: t('orders:fulfillment.list.filter.cancelled'), icon: XCircle },
         ]}
-        value={statusFilter}
-        onChange={(v) => { setStatusFilter(v); setPage(1); }}
+        value={filters.status}
+        onChange={(v) => setFilter('status', v)}
       />
 
       <div className="flex items-center gap-3">
@@ -159,7 +162,7 @@ export const Fulfillments: React.FC = () => {
             placeholder={t('orders:fulfillment.list.search.placeholder')}
             className="ps-9"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="ms-auto">
@@ -259,7 +262,7 @@ export const Fulfillments: React.FC = () => {
                   </TableCell>
                   <TableCell>{f.carrier || '-'}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {new Date(f.createdAt).toLocaleDateString()}
+                    {formatDate(f.createdAt)}
                   </TableCell>
                   <TableCell className="text-end">
                     {f.status !== 'delivered' && f.status !== 'cancelled' && (
@@ -323,7 +326,7 @@ export const Fulfillments: React.FC = () => {
                     </div>
                   </div>
                   <div className="pt-2 border-t flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{new Date(f.createdAt).toLocaleDateString()}</span>
+                    <span>{formatDate(f.createdAt)}</span>
                     {f.status !== 'delivered' && f.status !== 'cancelled' && (
                       <Select
                         value={f.status}

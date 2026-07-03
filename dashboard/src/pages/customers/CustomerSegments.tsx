@@ -10,6 +10,7 @@ import { Users, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
+import { errMsg } from '../../lib/errors';
 
 interface SegmentFilters {
   totalSpentMin?: number;
@@ -34,15 +35,6 @@ interface Segment {
 
 const formatMoney = (n: number) =>
   new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(n || 0);
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === 'string') return m;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 const CustomerSegments: React.FC = () => {
   const { t } = useTranslation(['customers', 'common']);

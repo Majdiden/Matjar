@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getTenantCurrency, getTenantLocale } from '../../lib/format';
+import { formatPrice, formatDate } from '../../lib/format';
+import { errMsg } from '../../lib/errors';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -8,6 +9,9 @@ import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Skeleton } from '../../components/ui/skeleton';
 import { FilterPills } from '../../components/ui/filter-pills';
+import { PageHeader } from '../../components/PageHeader';
+import { StatCard } from '../../components/StatCard';
+import { DataTable, type DataTableColumn } from '../../components/DataTable';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,9 +25,6 @@ import {
   Truck, Package as PackageIcon, XCircle, Search, Filter, Download,
   RefreshCw, GitBranch, LayoutGrid, List, Pin, PinOff, X,
 } from 'lucide-react';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '../../components/ui/table';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { toCSV, downloadCSV } from '../../lib/utils';
@@ -46,9 +47,6 @@ type OrdersListParams = {
   status?: string;
   search?: string;
 };
-
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(price);
 
 // Stored order numbers already include a leading "#" (e.g. "#1042"), so we
 // strip it before re-prefixing in the UI to avoid rendering "##1042".
@@ -120,11 +118,6 @@ export const Orders: React.FC = () => {
       return next;
     });
   };
-  const toggleSelectAll = () => {
-    if (selected.size === orders.length) setSelected(new Set());
-    else setSelected(new Set(orders.map((o) => o._id)));
-  };
-
   const handleBulkStatus = async (status: OrderStatus) => {
     if (selected.size === 0) return;
     const ids = [...selected];
@@ -195,8 +188,7 @@ export const Orders: React.FC = () => {
       setOrders((response.responseObject.orders as Order[] | undefined) || []);
       if (response.responseObject.pagination) setPagination(response.responseObject.pagination);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || t('orders:toast.load_failed'));
+      toast.error(errMsg(err, t('orders:toast.load_failed')));
       setOrders([]);
     } finally {
       setLoading(false);
@@ -210,8 +202,7 @@ export const Orders: React.FC = () => {
       setOrders((prev) => prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o)));
       loadStats();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || t('orders:toast.status_update_failed'));
+      toast.error(errMsg(err, t('orders:toast.status_update_failed')));
     }
   };
 
@@ -241,8 +232,7 @@ export const Orders: React.FC = () => {
       downloadCSV(csv, 'orders');
       toast.success(all.length === 1 ? t('orders:toast.export_success', { count: all.length }) : t('orders:toast.export_success_plural', { count: all.length }));
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : null;
-      toast.error(msg || t('orders:toast.export_failed'));
+      toast.error(errMsg(err, t('orders:toast.export_failed')));
     }
   };
 
@@ -253,42 +243,137 @@ export const Orders: React.FC = () => {
       { label: t('orders:list.stat.delivered'), value: stats.delivered.toLocaleString(), icon: CheckCircle2, description: t('orders:list.stat.completed_orders') },
       { label: t('orders:list.stat.total_revenue'), value: formatPrice(stats.revenue), icon: DollarSign, description: t('orders:list.stat.gross_sales') },
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [stats, t]
   );
+
+  const tableColumns: DataTableColumn<Order>[] = [
+    {
+      id: 'order',
+      headerKey: 'orders:list.column.order',
+      headClassName: 'w-[120px]',
+      cellClassName: 'font-semibold tabular-nums',
+      cell: (order) => (
+        <div className="flex items-center gap-2">
+          <span>{displayOrderNumber(order.orderNumber, order._id)}</span>
+          {(order.replacementOf || (order.replacementOrders && order.replacementOrders.length > 0)) && (
+            <span
+              className="inline-flex items-center gap-1 h-5 px-1.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30"
+              title={order.replacementOf ? t('orders:list.replacement.label') : t('orders:list.replacement.has_replacements_plural', { count: order.replacementOrders!.length })}
+            >
+              <GitBranch className="h-3 w-3" />
+              {order.replacementOf ? t('orders:list.replacement.label') : `${order.replacementOrders!.length}×`}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: 'customer',
+      headerKey: 'orders:list.column.customer',
+      cell: (order) => (
+        <div className="flex flex-col">
+          <span className="font-medium text-sm">{order.user?.name || t('orders:list.guest')}</span>
+          {order.user?.email && (
+            <span className="text-xs text-muted-foreground">{order.user.email}</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: 'date',
+      headerKey: 'orders:list.column.date',
+      cellClassName: 'text-sm text-muted-foreground whitespace-nowrap',
+      cell: (order) => formatDate(order.createdAt),
+    },
+    {
+      id: 'items',
+      headerKey: 'orders:list.column.items',
+      align: 'center',
+      cellClassName: 'text-sm tabular-nums',
+      cell: (order) => order.products.length,
+    },
+    {
+      id: 'status',
+      headerKey: 'orders:list.column.status',
+      cell: (order) => (
+        <Badge variant={statusVariant(order.status)} className="text-[10px] h-5">
+          {t(`common:status.${order.status}`, { defaultValue: order.status })}
+        </Badge>
+      ),
+    },
+    {
+      id: 'payment',
+      headerKey: 'orders:list.column.payment',
+      cell: (order) => (
+        <Badge variant={paymentVariant(order.paymentStatus)} className="text-[10px] h-5">
+          {t(`common:status.${order.paymentStatus}`, { defaultValue: order.paymentStatus })}
+        </Badge>
+      ),
+    },
+    {
+      id: 'total',
+      headerKey: 'orders:list.column.total',
+      align: 'end',
+      cellClassName: 'font-semibold tabular-nums',
+      cell: (order) => formatPrice(order.totalAmount),
+    },
+    {
+      id: 'actions',
+      headClassName: 'w-[50px]',
+      cell: (order) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuLabel>{t('orders:list.dropdown.actions')}</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/orders/${order._id}`); }}
+            >
+              <Eye className="me-2 h-4 w-4" /> {t('orders:list.dropdown.view_details')}
+            </DropdownMenuItem>
+            {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-xs">{t('orders:list.dropdown.update_status')}</DropdownMenuLabel>
+                {(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] as OrderStatus[])
+                  .filter((s) => s !== order.status)
+                  .map((s) => (
+                    <DropdownMenuItem
+                      key={s}
+                      onClick={(e) => { e.stopPropagation(); handleStatusChange(order._id, s); }}
+                    >
+                      {t(`common:status.${s}`, { defaultValue: s })}
+                    </DropdownMenuItem>
+                  ))}
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('orders:list.title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t('orders:list.description')}
-          </p>
-        </div>
-        <Button variant="outline" size="sm" onClick={handleExport}>
-          <Download className="h-4 w-4 me-2" /> {t('common:action.export')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('orders:list.title')}
+        description={t('orders:list.description')}
+        actions={(
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 me-2" /> {t('common:action.export')}
+          </Button>
+        )}
+      />
 
       {/* Stat strip */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((s) => {
-          const Icon = s.icon;
-          return (
-            <Card key={s.label} className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-muted-foreground">{s.label}</p>
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="text-2xl font-bold">{s.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{s.description}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {statCards.map((s) => (
+          <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} description={s.description} />
+        ))}
       </div>
 
       {/* Filter pills */}
@@ -395,122 +480,16 @@ export const Orders: React.FC = () => {
           </CardContent>
         </Card>
       ) : viewMode === 'table' ? (
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[40px]">
-                  <input
-                    type="checkbox"
-                    checked={selected.size === orders.length && orders.length > 0}
-                    onChange={toggleSelectAll}
-                    className="h-4 w-4 rounded border-gray-300"
-                  />
-                </TableHead>
-                <TableHead className="w-[120px]">{t('orders:list.column.order')}</TableHead>
-                <TableHead>{t('orders:list.column.customer')}</TableHead>
-                <TableHead>{t('orders:list.column.date')}</TableHead>
-                <TableHead className="text-center">{t('orders:list.column.items')}</TableHead>
-                <TableHead>{t('orders:list.column.status')}</TableHead>
-                <TableHead>{t('orders:list.column.payment')}</TableHead>
-                <TableHead className="text-end">{t('orders:list.column.total')}</TableHead>
-                <TableHead className="w-[50px]" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow
-                  key={order._id}
-                  className={`cursor-pointer ${selected.has(order._id) ? 'bg-primary/5' : ''}`}
-                  onClick={() => navigate(`/dashboard/orders/${order._id}`)}
-                >
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={selected.has(order._id)}
-                      onChange={() => toggleSelect(order._id)}
-                      className="h-4 w-4 rounded border-gray-300"
-                    />
-                  </TableCell>
-                  <TableCell className="font-semibold tabular-nums">
-                    <div className="flex items-center gap-2">
-                      <span>{displayOrderNumber(order.orderNumber, order._id)}</span>
-                      {(order.replacementOf || (order.replacementOrders && order.replacementOrders.length > 0)) && (
-                        <span
-                          className="inline-flex items-center gap-1 h-5 px-1.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30"
-                          title={order.replacementOf ? t('orders:list.replacement.label') : t('orders:list.replacement.has_replacements_plural', { count: order.replacementOrders!.length })}
-                        >
-                          <GitBranch className="h-3 w-3" />
-                          {order.replacementOf ? t('orders:list.replacement.label') : `${order.replacementOrders!.length}×`}
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{order.user?.name || t('orders:list.guest')}</span>
-                      {order.user?.email && (
-                        <span className="text-xs text-muted-foreground">{order.user.email}</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-center text-sm tabular-nums">
-                    {order.products.length}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariant(order.status)} className="text-[10px] h-5">
-                      {t(`common:status.${order.status}`, { defaultValue: order.status })}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={paymentVariant(order.paymentStatus)} className="text-[10px] h-5">
-                      {t(`common:status.${order.paymentStatus}`, { defaultValue: order.paymentStatus })}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-end font-semibold tabular-nums">
-                    {formatPrice(order.totalAmount)}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuLabel>{t('orders:list.dropdown.actions')}</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/orders/${order._id}`); }}
-                        >
-                          <Eye className="me-2 h-4 w-4" /> {t('orders:list.dropdown.view_details')}
-                        </DropdownMenuItem>
-                        {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuLabel className="text-xs">{t('orders:list.dropdown.update_status')}</DropdownMenuLabel>
-                            {(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] as OrderStatus[])
-                              .filter((s) => s !== order.status)
-                              .map((s) => (
-                                <DropdownMenuItem
-                                  key={s}
-                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(order._id, s); }}
-                                >
-                                  {t(`common:status.${s}`, { defaultValue: s })}
-                                </DropdownMenuItem>
-                              ))}
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+        <DataTable<Order>
+          columns={tableColumns}
+          rows={orders}
+          rowKey={(order) => order._id}
+          onRowClick={(order) => navigate(`/dashboard/orders/${order._id}`)}
+          selected={selected}
+          onSelectedChange={setSelected}
+          pagination={{ ...pagination, page }}
+          onPageChange={setPage}
+        />
       ) : (
         <div className="space-y-2">
           {orders.map((order) => {
@@ -578,7 +557,7 @@ export const Orders: React.FC = () => {
                         <span>•</span>
                         <span>{order.products.length === 1 ? t('orders:list.item_count_one', { count: 1 }) : t('orders:list.item_count_other', { count: order.products.length })}</span>
                         <span>•</span>
-                        <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                        <span>{formatDate(order.createdAt)}</span>
                       </div>
                     </div>
 
@@ -631,8 +610,8 @@ export const Orders: React.FC = () => {
         </div>
       )}
 
-      {/* Pagination */}
-      {pagination.pages > 1 && !loading && (
+      {/* Pagination (cards view — the table view's pagination is integrated in DataTable) */}
+      {viewMode !== 'table' && pagination.pages > 1 && !loading && (
         <div className="flex items-center justify-between pt-2">
           <p className="text-sm text-muted-foreground">
             {t('common:pagination.showing', { from: ((page - 1) * pagination.limit) + 1, to: Math.min(page * pagination.limit, pagination.total), total: pagination.total })}

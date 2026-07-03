@@ -42,21 +42,14 @@ import { useConfirm } from '../../components/ui/use-confirm';
 import type { DomainRegistryRow, DomainInfoResponse } from './types';
 import { isTransitional, daysUntilExpiry } from './types';
 import { AddDomainDialog } from './AddDomainDialog';
+import { errMsg } from '../../lib/errors';
+import { EmptyState } from '../../components/EmptyState';
 
 // Poll every 10s while any row is in a transitional state
 // (pending_dns, ownership_verified, dns_verified, provisioning_ssl).
 // The state machine advances asynchronously so the dashboard reflects
 // it without a manual refresh.
 const POLL_INTERVAL_MS = 10_000;
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === 'string') return m;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 // =============================================================================
 // Main page
@@ -310,10 +303,16 @@ export const Domains: React.FC = () => {
         </div>
 
         {customDomains.length === 0 ? (
-          <CustomDomainEmptyState
-            canAdd={!!domainInfo?.canUseCustomDomain}
-            onAdd={() => setAddOpen(true)}
-            t={t}
+          <EmptyState
+            icon={Globe}
+            title={t('domains:list.empty.title')}
+            description={t('domains:list.empty.hint')}
+            action={domainInfo?.canUseCustomDomain ? (
+              <Button onClick={() => setAddOpen(true)}>
+                <Plus className="h-4 w-4 me-1.5" />
+                {t('domains:list.empty.action')}
+              </Button>
+            ) : undefined}
           />
         ) : (
           <div className="space-y-4">
@@ -1126,38 +1125,3 @@ function friendlySslError(raw: string): string {
   return raw;
 }
 
-// =============================================================================
-// Empty state
-// =============================================================================
-
-function CustomDomainEmptyState({
-  canAdd,
-  onAdd,
-  t,
-}: {
-  canAdd: boolean;
-  onAdd: () => void;
-  t: (key: string) => string;
-}) {
-  return (
-    <Card className="border-dashed">
-      <CardContent className="py-10 text-center space-y-3">
-        <div className="h-12 w-12 mx-auto rounded-full bg-muted flex items-center justify-center">
-          <Globe className="h-6 w-6 text-muted-foreground" />
-        </div>
-        <div className="space-y-1">
-          <p className="font-medium">{t('domains:list.empty.title')}</p>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            {t('domains:list.empty.hint')}
-          </p>
-        </div>
-        {canAdd && (
-          <Button onClick={onAdd}>
-            <Plus className="h-4 w-4 me-1.5" />
-            {t('domains:list.empty.action')}
-          </Button>
-        )}
-      </CardContent>
-    </Card>
-  );
-}

@@ -17,6 +17,7 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
+import { errMsg } from '../../lib/errors';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -68,15 +69,6 @@ interface MenuDetailResponse {
   isActive?: boolean;
   items?: MenuItem[];
 }
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === 'string') return m;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 

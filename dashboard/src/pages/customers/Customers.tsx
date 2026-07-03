@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getTenantCurrency, getTenantLocale } from '../../lib/format';
+import { formatPrice, formatDate } from '../../lib/format';
+import { errMsg } from '../../lib/errors';
 import { Link } from 'react-router-dom';
 import { api } from '../../lib/api-client';
+import { PageHeader } from '../../components/PageHeader';
+import { StatCard } from '../../components/StatCard';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
@@ -47,17 +50,6 @@ interface CustomerDetail {
   stats: { totalOrders: number; totalSpent: number; avgOrderValue: number };
 }
 
-// Narrow thrown values from api-client. Errors may be the server's JSON
-// body, a plain string, or an Axios error.
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === 'string') return m;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
-
 interface CustomerListResponse {
   data: {
     customers: Customer[];
@@ -73,9 +65,6 @@ const TAB_IDS: { id: StatusTab; icon: React.ElementType }[] = [
   { id: 'active', icon: UserCheck },
   { id: 'inactive', icon: UserX },
 ];
-
-const formatPrice = (n: number) =>
-  new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(n);
 
 export default function Customers() {
   const { t } = useTranslation(['customers', 'common']);
@@ -271,7 +260,7 @@ export default function Customers() {
                     <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> {customer.phone}</span>
                   )}
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" /> {t('customers.detail.joined', { date: new Date(customer.createdAt).toLocaleDateString() })}
+                    <Calendar className="h-3.5 w-3.5" /> {t('customers.detail.joined', { date: formatDate(customer.createdAt) })}
                   </span>
                 </div>
               </div>
@@ -285,20 +274,9 @@ export default function Customers() {
             { label: t('customers.detail.stat.total_orders'), value: detailStats.totalOrders, icon: ShoppingCart },
             { label: t('customers.detail.stat.total_spent'), value: formatPrice(detailStats.totalSpent || 0), icon: DollarSign },
             { label: t('customers.detail.stat.avg_order_value'), value: formatPrice(detailStats.avgOrderValue || 0), icon: TrendingUp },
-          ].map((s) => {
-            const Icon = s.icon;
-            return (
-              <Card key={s.label}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-muted-foreground">{s.label}</p>
-                    <Icon className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <p className="text-2xl font-bold">{s.value}</p>
-                </CardContent>
-              </Card>
-            );
-          })}
+          ].map((s) => (
+            <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} className="hover:shadow-none" />
+          ))}
         </div>
 
         {/* Recent orders */}
@@ -326,7 +304,7 @@ export default function Customers() {
                         #{order.orderNumber ? String(order.orderNumber).replace(/^#+/, '') : order._id.slice(-8)}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {formatDate(order.createdAt)}
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -347,37 +325,21 @@ export default function Customers() {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('customers.list.title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t('customers.list.subtitle')}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+      <PageHeader
+        title={t('customers.list.title')}
+        description={t('customers.list.subtitle')}
+        actions={(
           <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 me-2" /> {t('common:action.export')}
           </Button>
-        </div>
-      </div>
+        )}
+      />
 
       {/* Stat strip */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((s) => {
-          const Icon = s.icon;
-          return (
-            <Card key={s.label} className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-muted-foreground">{s.label}</p>
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="text-2xl font-bold">{s.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{s.description}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {statCards.map((s) => (
+          <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} description={s.description} />
+        ))}
       </div>
 
       {/* Filter pills */}
@@ -509,7 +471,7 @@ export default function Customers() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                      {new Date(c.createdAt).toLocaleDateString()}
+                      {formatDate(c.createdAt)}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -588,7 +550,7 @@ export default function Customers() {
                     <div className="hidden md:flex flex-col items-end text-end">
                       <span className="text-xs text-muted-foreground">{t('customers.list.column.joined')}</span>
                       <span className="text-sm font-medium">
-                        {new Date(c.createdAt).toLocaleDateString()}
+                        {formatDate(c.createdAt)}
                       </span>
                     </div>
 

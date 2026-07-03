@@ -10,6 +10,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { ArrowLeft, Eye, Loader2, Save } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { errMsg } from '../../lib/errors';
 
 interface SegmentFilters {
   totalSpentMin?: number | '';
@@ -54,15 +55,6 @@ interface RawSegment {
   description?: string;
   filters?: Partial<Record<keyof SegmentFiltersPayload, unknown>>;
 }
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === 'string') return m;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 const emptyForm = (): { name: string; description: string; filters: SegmentFilters } => ({
   name: '',

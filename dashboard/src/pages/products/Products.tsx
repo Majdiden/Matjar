@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getTenantCurrency, getTenantLocale } from '../../lib/format';
+import { formatPrice } from '../../lib/format';
+import { errMsg } from '../../lib/errors';
 import { Link, useNavigate } from 'react-router-dom';
+import { PageHeader } from '../../components/PageHeader';
+import { StatCard } from '../../components/StatCard';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -37,11 +40,6 @@ interface ProductListResponseShape {
     pagination?: { total: number };
   };
 }
-
-interface ApiErrorLike { message?: string; error?: string }
-
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(price);
 
 type StatusTab = 'all' | 'active' | 'draft' | 'archived' | 'low-stock';
 
@@ -103,8 +101,7 @@ export const Products: React.FC = () => {
       setProducts(list);
       if (response.responseObject.pagination) setPagination(response.responseObject.pagination);
     } catch (err: unknown) {
-      const e = err as ApiErrorLike;
-      toast.error(e?.message || t('products.toast.load_failed'));
+      toast.error(errMsg(err, t('products.toast.load_failed')));
       setProducts([]);
     } finally {
       setLoading(false);
@@ -124,8 +121,7 @@ export const Products: React.FC = () => {
       loadProducts();
       loadStats();
     } catch (err: unknown) {
-      const e = err as ApiErrorLike;
-      toast.error(e?.message || t('products.toast.delete_failed'));
+      toast.error(errMsg(err, t('products.toast.delete_failed')));
     }
   };
 
@@ -144,8 +140,7 @@ export const Products: React.FC = () => {
       loadProducts();
       loadStats();
     } catch (err: unknown) {
-      const e = err as ApiErrorLike;
-      toast.error(e?.message || t('products.toast.bulk_delete_failed'));
+      toast.error(errMsg(err, t('products.toast.bulk_delete_failed')));
     }
   };
 
@@ -194,8 +189,7 @@ export const Products: React.FC = () => {
       downloadCSV(csv, 'products');
       toast.success(t('products.toast.exported', { count: all.length }));
     } catch (err: unknown) {
-      const e = err as ApiErrorLike;
-      toast.error(e?.message || t('products.toast.export_failed'));
+      toast.error(errMsg(err, t('products.toast.export_failed')));
     }
   };
 
@@ -209,40 +203,28 @@ export const Products: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('products.list.title')}</h1>
-          <p className="text-muted-foreground mt-1">{t('products.list.subtitle')}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 me-2" />{t('common:action.export')}
-          </Button>
-          <Button asChild>
-            <Link to="/dashboard/products/new">
-              <Plus className="h-4 w-4 me-2" />{t('products.list.new_product')}
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title={t('products.list.title')}
+        description={t('products.list.subtitle')}
+        actions={(
+          <>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 me-2" />{t('common:action.export')}
+            </Button>
+            <Button asChild>
+              <Link to="/dashboard/products/new">
+                <Plus className="h-4 w-4 me-2" />{t('products.list.new_product')}
+              </Link>
+            </Button>
+          </>
+        )}
+      />
 
       {/* Stat strip */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((s) => {
-          const Icon = s.icon;
-          return (
-            <Card key={s.label} className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-muted-foreground">{s.label}</p>
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <p className="text-2xl font-bold">{s.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{s.description}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {statCards.map((s) => (
+          <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} description={s.description} />
+        ))}
       </div>
 
       {/* Filter pills */}

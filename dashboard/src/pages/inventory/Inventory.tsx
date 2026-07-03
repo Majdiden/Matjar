@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getTenantCurrency, getTenantLocale } from '../../lib/format';
+import { formatPrice, formatDate } from '../../lib/format';
+import { errMsg } from '../../lib/errors';
 import { api } from '../../lib/api-client';
+import { PageHeader } from '../../components/PageHeader';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
@@ -30,17 +32,6 @@ interface InventoryItem {
   lowStockThreshold?: number;
   updatedAt: string;
 }
-
-const formatPrice = (n: number) => new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(n);
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === 'string') return m;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 interface InventoryQuery {
   page: number;
@@ -150,10 +141,10 @@ export default function Inventory() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('inventory.list.title')}</h1>
-        <p className="text-muted-foreground">{t('inventory.list.subtitle')}</p>
-      </div>
+      <PageHeader
+        title={t('inventory.list.title')}
+        description={t('inventory.list.subtitle')}
+      />
 
       <FilterPills
         items={[
@@ -264,7 +255,7 @@ export default function Inventory() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm">
-                          {new Date(item.updatedAt).toLocaleDateString()}
+                          {formatDate(item.updatedAt)}
                         </TableCell>
                         <TableCell className="text-end">
                           {hasVariants ? (
@@ -347,7 +338,7 @@ export default function Inventory() {
                             </div>
                           )}
                           <div className="pt-2 border-t flex items-center justify-between text-xs text-muted-foreground">
-                            <span>{t('inventory.card_updated', { date: new Date(item.updatedAt).toLocaleDateString() })}</span>
+                            <span>{t('inventory.card_updated', { date: formatDate(item.updatedAt) })}</span>
                             {hasVariants ? (
                               <Button
                                 variant="outline"

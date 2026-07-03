@@ -26,6 +26,7 @@ import { toCSV, downloadCSV } from '../../lib/utils';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
+import { errMsg } from '../../lib/errors';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -73,17 +74,6 @@ const roleBadgeVariant = (role: StaffRole): 'default' | 'secondary' | 'outline' 
 
 const fmtDate = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString() : '—';
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object') {
-    const e = err as { response?: { data?: { message?: unknown } }; message?: unknown };
-    const serverMsg = e.response?.data?.message;
-    if (typeof serverMsg === 'string') return serverMsg;
-    if (typeof e.message === 'string') return e.message;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 interface RolesListResponse {
   roles?: CustomRole[];

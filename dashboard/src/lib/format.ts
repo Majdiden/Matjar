@@ -44,3 +44,42 @@ export function formatPrice(
 }
 
 export const formatCurrency = formatPrice;
+
+export type DateStyle = "short" | "medium" | "long" | "full";
+
+// Tenant-locale date formatter. With no `style` it matches the output of
+// a bare `date.toLocaleDateString()` (numeric date) but respects the
+// merchant's locale instead of the browser default.
+export function formatDate(
+  date: string | number | Date | null | undefined,
+  style?: DateStyle,
+): string {
+  if (date == null || date === "") return "";
+  const d = date instanceof Date ? date : new Date(date);
+  if (isNaN(d.getTime())) return "";
+  try {
+    return new Intl.DateTimeFormat(
+      getTenantLocale(),
+      style ? { dateStyle: style } : undefined,
+    ).format(d);
+  } catch {
+    return d.toLocaleDateString();
+  }
+}
+
+export function formatDateTime(
+  date: string | number | Date | null | undefined,
+  style: DateStyle = "medium",
+): string {
+  if (date == null || date === "") return "";
+  const d = date instanceof Date ? date : new Date(date);
+  if (isNaN(d.getTime())) return "";
+  try {
+    return new Intl.DateTimeFormat(getTenantLocale(), {
+      dateStyle: style,
+      timeStyle: "short",
+    }).format(d);
+  } catch {
+    return d.toLocaleString();
+  }
+}

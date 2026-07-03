@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { useViewMode, ViewToggle } from '../../components/ui/view-toggle';
+import { errMsg } from '../../lib/errors';
 
 interface Review {
   _id: string;
@@ -38,15 +39,6 @@ interface ReviewsListResponse {
   reviews: Review[];
   pagination: { pages: number; total: number };
 }
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === 'string') return m;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 export default function Reviews() {
   const { t } = useTranslation(['reviews', 'common']);

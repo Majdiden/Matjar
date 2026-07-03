@@ -23,6 +23,7 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
+import { errMsg } from '../../lib/errors';
 
 interface WebhookEndpoint {
   _id: string;
@@ -38,15 +39,6 @@ interface WebhookEndpoint {
 interface WebhooksListResponse {
   webhooks?: WebhookEndpoint[];
 }
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === 'string') return m;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 const AVAILABLE_EVENTS = [
   { group: 'Orders', events: ['order.created', 'order.updated', 'order.cancelled', 'order.fulfilled', 'order.refunded'] },

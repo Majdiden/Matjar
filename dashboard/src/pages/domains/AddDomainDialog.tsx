@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../../lib/api-client';
+import { errMsg } from '../../lib/errors';
 
 type Step = 'input' | 'verify' | 'done';
 
@@ -69,15 +70,6 @@ interface VerifyResponse {
   message?: string;
   data?: { verified?: boolean; message?: string };
 }
-
-const errMsg = (err: unknown, fallback: string): string => {
-  if (err && typeof err === 'object' && 'message' in err) {
-    const m = (err as { message?: unknown }).message;
-    if (typeof m === 'string') return m;
-  }
-  if (typeof err === 'string') return err;
-  return fallback;
-};
 
 export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
   const { t } = useTranslation(['domains', 'common']);
