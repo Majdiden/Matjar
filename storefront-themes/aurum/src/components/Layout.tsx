@@ -100,7 +100,7 @@ const Layout: React.FC = () => {
       )}
 
       {/* ═══ HEADER ══════════════════════════════════════════════ */}
-      <header className="sticky top-0 z-40 bg-night/95 backdrop-blur border-b border-line">
+      <header className="sticky top-0 z-40 bg-night border-b border-line">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center py-5 gap-4">
             {/* Start: nav (desktop) / hamburger (mobile) */}
