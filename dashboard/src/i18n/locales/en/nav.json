@@ -8,9 +8,11 @@
     },
     "orders": {
       "title": "Orders",
-      "orders": "Orders",
       "all_orders": "All orders",
-      "fulfillments": "Fulfillments",
+      "fulfillments": "Fulfillments"
+    },
+    "payments": {
+      "title": "Payments",
       "payments": "Payments",
       "transactions": "Transactions",
       "payment_methods": "Payment methods"
@@ -18,7 +20,6 @@
     "catalog": {
       "title": "Catalog",
       "products": "Products",
-      "all_products": "All products",
       "categories": "Categories",
       "collections": "Collections",
       "inventory": "Inventory"
@@ -26,8 +27,9 @@
     "customers": {
       "title": "Customers",
       "customers": "Customers",
-      "all_customers": "All Customers",
+      "all_customers": "All customers",
       "segments": "Segments",
+      "companies": "Companies",
       "reviews": "Reviews"
     },
     "marketing": {

@@ -8,9 +8,11 @@
     },
     "orders": {
       "title": "الطلبات",
-      "orders": "الطلبات",
       "all_orders": "جميع الطلبات",
-      "fulfillments": "عمليات التنفيذ",
+      "fulfillments": "عمليات التنفيذ"
+    },
+    "payments": {
+      "title": "المدفوعات",
       "payments": "المدفوعات",
       "transactions": "المعاملات",
       "payment_methods": "طرق الدفع"
@@ -18,7 +20,6 @@
     "catalog": {
       "title": "الكتالوج",
       "products": "المنتجات",
-      "all_products": "جميع المنتجات",
       "categories": "الفئات",
       "collections": "المجموعات",
       "inventory": "المخزون"
@@ -28,6 +29,7 @@
       "customers": "العملاء",
       "all_customers": "جميع العملاء",
       "segments": "شرائح العملاء",
+      "companies": "الشركات",
       "reviews": "المراجعات"
     },
     "marketing": {

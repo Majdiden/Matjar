@@ -4,37 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/auth-context';
 import { useLanguage } from '../../i18n/LanguageProvider';
 import {
-  LayoutDashboard,
-  Package,
-  FolderTree,
-  ShoppingCart,
-  Palette,
-  Globe,
   LogOut,
   Store,
-  Tag,
   Settings as SettingsIcon,
-  Users,
-  BarChart3,
-  MessageSquare,
-  Warehouse,
-  Truck,
-  FileCode,
-  Shield,
-  CreditCard,
-  Wallet,
-  Crown,
-  Key,
-  Webhook,
-  Layers,
-  ListTree,
-  FileText,
-  Gift,
-  UserCog,
   ChevronRight,
   Menu,
   ChevronsUpDown,
-  Bell,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
@@ -82,152 +57,68 @@ import { fireNativeNotification } from '../../lib/notification-effects';
 import { NotificationBell } from '../NotificationBell';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { toast } from 'sonner';
+import { api } from '../../lib/api-client';
+import { buildNavGroups, flattenNav, type NavItem } from './nav';
 
-interface NavItem {
-  name: string;
-  href: string;
-  icon: React.ElementType;
-  badge?: string;
-  children?: NavItem[];
-  // If set, the user must have at least one of these permission keys
-  // for the item to appear in the sidebar. Omit to make public to any
-  // authenticated dashboard user.
-  permission?: string | string[];
+// ---------------------------------------------------------------------------
+// Pending-orders badge (audit 4.2.4)
+//
+// GET /api/orders/stats is a single cheap server-side aggregation (5.4.3);
+// its `pending` figure feeds the badge on the Orders link. A module-level
+// cache with a modest TTL means the desktop aside and the mobile Sheet (two
+// SidebarContent instances) plus route-to-route remounts share ONE fetch —
+// we only refresh when the cache has gone stale during navigation.
+// ---------------------------------------------------------------------------
+const PENDING_BADGE_TTL_MS = 60_000;
+let pendingOrdersCache: { value: number; fetchedAt: number } | null = null;
+
+function usePendingOrdersCount(): number {
+  const { can } = useAuth();
+  const location = useLocation();
+  const [count, setCount] = React.useState(pendingOrdersCache?.value ?? 0);
+
+  React.useEffect(() => {
+    if (!can('orders.read')) return;
+    if (pendingOrdersCache && Date.now() - pendingOrdersCache.fetchedAt < PENDING_BADGE_TTL_MS) {
+      setCount(pendingOrdersCache.value);
+      return;
+    }
+    let cancelled = false;
+    api.orders
+      .getStats()
+      .then((res) => {
+        const stats = (res as { responseObject?: { pending?: number } }).responseObject;
+        const pending = Number(stats?.pending) || 0;
+        pendingOrdersCache = { value: pending, fetchedAt: Date.now() };
+        if (!cancelled) setCount(pending);
+      })
+      .catch(() => {
+        // Non-fatal — the badge simply stays hidden if stats are offline.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [can, location.pathname]);
+
+  return count;
 }
 
-interface NavGroup {
-  label: string;
-  groupKey: string;
-  items: NavItem[];
-}
-
-// Nav data uses translation keys; labels are resolved in render.
-const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
-  {
-    label: t('nav:sidebar.home.title'),
-    groupKey: 'home',
-    items: [
-      { name: t('nav:sidebar.home.dashboard'), href: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.read' },
-      { name: t('nav:sidebar.home.analytics'), href: '/dashboard/analytics', icon: BarChart3, permission: 'analytics.read' },
-      { name: t('nav:sidebar.home.notifications'), href: '/dashboard/notifications', icon: Bell },
-    ],
-  },
-  {
-    label: t('nav:sidebar.orders.title'),
-    groupKey: 'orders',
-    items: [
-      {
-        name: t('nav:sidebar.orders.orders'),
-        href: '/dashboard/orders',
-        icon: ShoppingCart,
-        permission: 'orders.read',
-        children: [
-          { name: t('nav:sidebar.orders.all_orders'), href: '/dashboard/orders', icon: ShoppingCart, permission: 'orders.read' },
-        ],
-      },
-      { name: t('nav:sidebar.orders.fulfillments'), href: '/dashboard/fulfillments', icon: Truck, permission: ['fulfillments.read', 'fulfillments.write'] },
-      {
-        name: t('nav:sidebar.orders.payments'),
-        href: '/dashboard/payments',
-        icon: CreditCard,
-        permission: 'payments.read',
-        children: [
-          { name: t('nav:sidebar.orders.transactions'), href: '/dashboard/payments', icon: CreditCard, permission: 'payments.read' },
-          { name: t('nav:sidebar.orders.payment_methods'), href: '/dashboard/payments/methods', icon: Wallet, permission: 'settings.write' },
-        ],
-      },
-    ],
-  },
-  {
-    label: t('nav:sidebar.catalog.title'),
-    groupKey: 'catalog',
-    items: [
-      {
-        name: t('nav:sidebar.catalog.products'),
-        href: '/dashboard/products',
-        icon: Package,
-        permission: 'products.read',
-        children: [
-          { name: t('nav:sidebar.catalog.all_products'), href: '/dashboard/products', icon: Package, permission: 'products.read' },
-          { name: t('nav:sidebar.catalog.categories'), href: '/dashboard/categories', icon: FolderTree, permission: 'products.read' },
-          { name: t('nav:sidebar.catalog.collections'), href: '/dashboard/collections', icon: Layers, permission: 'products.read' },
-        ],
-      },
-      { name: t('nav:sidebar.catalog.inventory'), href: '/dashboard/inventory', icon: Warehouse, permission: ['inventory.read', 'inventory.write'] },
-    ],
-  },
-  {
-    label: t('nav:sidebar.customers.title'),
-    groupKey: 'customers',
-    items: [
-      {
-        name: t('nav:sidebar.customers.customers'),
-        href: '/dashboard/customers',
-        icon: Users,
-        permission: ['customers.read', 'customers.write'],
-        children: [
-          { name: t('nav:sidebar.customers.all_customers'), href: '/dashboard/customers', icon: Users, permission: ['customers.read', 'customers.write'] },
-          { name: t('nav:sidebar.customers.segments'), href: '/dashboard/customers/segments', icon: Users, permission: ['customers.read', 'customers.write'] },
-        ],
-      },
-      { name: t('nav:sidebar.customers.reviews'), href: '/dashboard/reviews', icon: MessageSquare, permission: ['reviews.read', 'reviews.moderate'] },
-    ],
-  },
-  {
-    label: t('nav:sidebar.marketing.title'),
-    groupKey: 'marketing',
-    items: [
-      { name: t('nav:sidebar.marketing.discounts'), href: '/dashboard/marketing/discounts', icon: Tag, permission: ['discounts.read', 'discounts.write'] },
-      { name: t('nav:sidebar.marketing.gift_cards'), href: '/dashboard/gift-cards', icon: Gift, permission: ['discounts.read', 'discounts.write'] },
-    ],
-  },
-  {
-    label: t('nav:sidebar.storefront.title'),
-    groupKey: 'storefront',
-    items: [
-      {
-        name: t('nav:sidebar.storefront.themes'),
-        href: '/dashboard/themes',
-        icon: Palette,
-        permission: ['themes.read', 'themes.write'],
-        children: [
-          { name: t('nav:sidebar.storefront.theme_library'), href: '/dashboard/themes', icon: Palette, permission: ['themes.read', 'themes.write'] },
-          { name: t('nav:sidebar.storefront.visual_editor'), href: '/dashboard/themes/editor', icon: Palette, permission: 'themes.write' },
-        ],
-      },
-      { name: t('nav:sidebar.storefront.navigation'), href: '/dashboard/menus', icon: ListTree, permission: ['themes.read', 'themes.write'] },
-      { name: t('nav:sidebar.storefront.pages'), href: '/dashboard/pages', icon: FileText, permission: ['themes.read', 'themes.write'] },
-      { name: t('nav:sidebar.storefront.domains'), href: '/dashboard/domains', icon: Globe, permission: ['domains.read', 'domains.write'] },
-    ],
-  },
-  {
-    label: t('nav:sidebar.settings.title'),
-    groupKey: 'settings',
-    items: [
-      { name: t('nav:sidebar.settings.settings'), href: '/dashboard/settings', icon: SettingsIcon, permission: ['settings.read', 'settings.write'] },
-      { name: t('nav:sidebar.settings.subscription'), href: '/dashboard/subscription', icon: Crown, permission: 'settings.read' },
-      { name: t('nav:sidebar.settings.custom_fields'), href: '/dashboard/custom-fields', icon: FileCode, permission: 'settings.write' },
-      { name: t('nav:sidebar.settings.webhooks'), href: '/dashboard/webhooks', icon: Webhook, permission: 'settings.write' },
-    ],
-  },
-  {
-    label: t('nav:sidebar.team_security.title'),
-    groupKey: 'team_security',
-    items: [
-      { name: t('nav:sidebar.team_security.staff'), href: '/dashboard/staff', icon: UserCog, permission: 'team.manage' },
-      { name: t('nav:sidebar.team_security.permissions'), href: '/dashboard/permissions', icon: Key, permission: 'team.manage' },
-      { name: t('nav:sidebar.team_security.audit_logs'), href: '/dashboard/audit-logs', icon: Shield, permission: 'audit.read' },
-    ],
-  },
-];
-
-const flattenNav = (items: NavItem[]): NavItem[] =>
-  items.flatMap((i) => (i.children ? [i, ...i.children] : [i]));
-
-function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
+function NavLink({
+  item,
+  isActive,
+  onClick,
+  badge,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  onClick?: () => void;
+  badge?: number;
+}) {
+  const { href } = item;
+  if (!href) return null; // link-less toggle parents never reach NavLink
   return (
     <Link
-      to={item.href}
+      to={href}
       onClick={onClick}
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all',
@@ -238,9 +129,18 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
     >
       <item.icon className="h-4 w-4 shrink-0" />
       <span className="truncate">{item.name}</span>
-      {item.badge && (
-        <Badge variant="secondary" className="ms-auto text-xs">
-          {item.badge}
+      {badge !== undefined && badge > 0 && (
+        // Brand-accent pill so the count reads on the dark sidebar surface;
+        // when the row itself is active (also bg-primary) invert to white.
+        <Badge
+          className={cn(
+            'ms-auto h-5 min-w-5 justify-center px-1.5 text-xs tabular-nums border-transparent',
+            isActive
+              ? 'bg-primary-foreground text-primary'
+              : 'bg-primary text-primary-foreground'
+          )}
+        >
+          {badge > 99 ? '99+' : badge}
         </Badge>
       )}
     </Link>
@@ -261,7 +161,9 @@ function NavGroupItem({
   onNavigate?: () => void;
 }) {
   const childActive = (item.children || []).some(
-    (c) => pathname === c.href || (c.href !== '/dashboard' && pathname.startsWith(c.href + '/'))
+    (c) =>
+      !!c.href &&
+      (pathname === c.href || (c.href !== '/dashboard' && pathname.startsWith(c.href + '/')))
   );
   const [open, setOpen] = React.useState(childActive);
 
@@ -290,6 +192,7 @@ function NavGroupItem({
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-1 space-y-1 ps-7">
         {(item.children || []).map((child) => {
+          if (!child.href) return null; // children are always links
           const isActive =
             pathname === child.href ||
             (child.href !== '/dashboard' && pathname.startsWith(child.href + '/'));
@@ -314,7 +217,14 @@ function NavGroupItem({
   );
 }
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarContent({
+  onNavigate,
+  pendingOrders = 0,
+}: {
+  onNavigate?: () => void;
+  /** Pending-orders count for the Orders badge (audit 4.2.4); hidden at 0. */
+  pendingOrders?: number;
+}) {
   const location = useLocation();
   const { can } = useAuth();
   const { t } = useTranslation(['nav']);
@@ -375,15 +285,18 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               <div className="space-y-1">
                 {group.items.map((item) => {
                   if (item.children && item.children.length > 0) {
+                    // Pure group toggle (audit 4.1) — parents with children
+                    // carry no href, so key by name.
                     return (
                       <NavGroupItem
-                        key={item.href}
+                        key={item.href ?? item.name}
                         item={item}
                         pathname={location.pathname}
                         onNavigate={onNavigate}
                       />
                     );
                   }
+                  if (!item.href) return null;
                   const isActive =
                     location.pathname === item.href ||
                     (item.href !== '/dashboard' && location.pathname.startsWith(item.href));
@@ -393,6 +306,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       item={item}
                       isActive={isActive}
                       onClick={onNavigate}
+                      badge={item.badgeKey === 'pendingOrders' ? pendingOrders : undefined}
                     />
                   );
                 })}
@@ -484,6 +398,10 @@ const DashboardLayoutInner: React.FC = () => {
   // prompt itself is rendered below as a centered modal.
   useNotifications();
 
+  // Pending-orders count for the sidebar badge (audit 4.2.4). Fetched here
+  // once and shared by the desktop aside and the mobile Sheet.
+  const pendingOrders = usePendingOrdersCount();
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -492,12 +410,17 @@ const DashboardLayoutInner: React.FC = () => {
   // Build breadcrumb from path — uses translated nav item names
   const getBreadcrumbs = () => {
     const path = location.pathname;
-    // Build a flat list of nav items for lookup using translated names
+    // Build a flat list of linkable nav items for lookup using translated
+    // names (toggle parents have no href and can't be crumbs). Prefer an
+    // exact href match over the first prefix match so e.g.
+    // /dashboard/payments/methods resolves to "Payment methods".
     const navGroups = buildNavGroups(t);
-    const allNavItems = navGroups.flatMap((g) => flattenNav(g.items));
-    const navItem = allNavItems.find(
-      (item) => item.href === path || (item.href !== '/dashboard' && path.startsWith(item.href))
-    );
+    const allNavItems = navGroups
+      .flatMap((g) => flattenNav(g.items))
+      .filter((item): item is NavItem & { href: string } => !!item.href);
+    const navItem =
+      allNavItems.find((item) => item.href === path) ??
+      allNavItems.find((item) => item.href !== '/dashboard' && path.startsWith(item.href));
     if (!navItem || path === '/dashboard') return null;
 
     // Handle sub-pages like /dashboard/orders/:id
@@ -526,7 +449,7 @@ const DashboardLayoutInner: React.FC = () => {
         <div dir={dir} className="flex h-screen overflow-hidden bg-background">
         {/* Desktop Sidebar — dark surface via sidebar-scoped tokens (3.8.6) */}
         <aside className="sidebar-surface hidden lg:flex lg:w-64 lg:flex-col lg:border-e">
-          <SidebarContent />
+          <SidebarContent pendingOrders={pendingOrders} />
 
           {/* User section — pinned to the bottom of the sidebar. */}
           <div className="shrink-0 border-t p-3">
@@ -584,7 +507,7 @@ const DashboardLayoutInner: React.FC = () => {
                   its inner ScrollArea actually scrolls on mobile (the nav is
                   taller than the viewport on small screens). */}
               <SheetContent side="left" className="sidebar-surface w-64 p-0 flex flex-col overflow-hidden">
-                <SidebarContent onNavigate={() => setMobileOpen(false)} />
+                <SidebarContent onNavigate={() => setMobileOpen(false)} pendingOrders={pendingOrders} />
               </SheetContent>
             </Sheet>
 
