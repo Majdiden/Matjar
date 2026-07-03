@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getTenantCurrency, getTenantLocale } from '../../lib/format';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { StatCard } from '../../components/StatCard';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -80,11 +81,13 @@ export default function Analytics() {
   const formatCurrency = (v: number) =>
     new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency: getTenantCurrency() }).format(v);
 
+  // Icons render muted-foreground via StatCard — no ad-hoc per-stat
+  // colouring (audit 3.8.7).
   const statCards = [
-    { label: t('analytics.metric.total_revenue'), value: formatCurrency(stats?.totalRevenue || 0), icon: DollarSign, color: 'text-green-600' },
-    { label: t('analytics.metric.total_orders'), value: (stats?.totalOrders || 0).toLocaleString(), icon: ShoppingCart, color: 'text-blue-600' },
-    { label: t('analytics.metric.avg_order_value'), value: formatCurrency(stats?.averageOrderValue || 0), icon: TrendingUp, color: 'text-purple-600' },
-    { label: t('analytics.metric.total_products'), value: (stats?.totalProducts || 0).toLocaleString(), icon: Package, color: 'text-orange-600' },
+    { label: t('analytics.metric.total_revenue'), value: formatCurrency(stats?.totalRevenue || 0), icon: DollarSign },
+    { label: t('analytics.metric.total_orders'), value: (stats?.totalOrders || 0).toLocaleString(), icon: ShoppingCart },
+    { label: t('analytics.metric.avg_order_value'), value: formatCurrency(stats?.averageOrderValue || 0), icon: TrendingUp },
+    { label: t('analytics.metric.total_products'), value: (stats?.totalProducts || 0).toLocaleString(), icon: Package },
   ];
 
   const maxRevenue = Math.max(...salesData.map(d => d.revenue), 1);
@@ -109,7 +112,7 @@ export default function Analytics() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('analytics.title')}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('analytics.title')}</h1>
           <p className="text-muted-foreground">{t('analytics.subtitle')}</p>
         </div>
         <DropdownMenu>
@@ -129,18 +132,10 @@ export default function Analytics() {
         </DropdownMenu>
       </div>
 
-      {/* Stat Cards */}
+      {/* Stat Cards — shared StatCard (audit 3.8.4) */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map(card => (
-          <Card key={card.label}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{card.label}</CardTitle>
-              <card.icon className={`h-4 w-4 ${card.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{card.value}</div>
-            </CardContent>
-          </Card>
+          <StatCard key={card.label} label={card.label} value={card.value} icon={card.icon} />
         ))}
       </div>
 

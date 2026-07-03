@@ -115,12 +115,13 @@ export const Payments: React.FC = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
-      pending: { variant: 'outline', label: t('payments:transaction.detail.status.pending') },
-      succeeded: { variant: 'default', label: t('payments:transaction.detail.status.succeeded') },
+    // Semantic status colours (audit 3.8.3).
+    const map: Record<string, { variant: 'success' | 'warning' | 'destructive' | 'info' | 'outline'; label: string }> = {
+      pending: { variant: 'warning', label: t('payments:transaction.detail.status.pending') },
+      succeeded: { variant: 'success', label: t('payments:transaction.detail.status.succeeded') },
       failed: { variant: 'destructive', label: t('payments:transaction.detail.status.failed') },
-      refunded: { variant: 'secondary', label: t('payments:transaction.detail.status.refunded') },
-      partially_refunded: { variant: 'secondary', label: t('payments:transaction.detail.status.partial_refund') },
+      refunded: { variant: 'info', label: t('payments:transaction.detail.status.refunded') },
+      partially_refunded: { variant: 'info', label: t('payments:transaction.detail.status.partial_refund') },
     };
     const s = map[status] || { variant: 'outline' as const, label: status };
     return <Badge variant={s.variant}>{s.label}</Badge>;

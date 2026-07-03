@@ -42,12 +42,14 @@ interface Fulfillment {
   createdAt: string;
 }
 
+// Semantic status colours (audit 3.8.3): success=green, warning=amber,
+// destructive=red, info=neutral gray. Brand blue is never used for status.
 const statusVariant = (status: string) => {
   switch (status) {
-    case 'delivered': return 'default' as const;
-    case 'shipped': return 'default' as const;
-    case 'in_progress': return 'secondary' as const;
-    case 'pending': return 'outline' as const;
+    case 'delivered': return 'success' as const;
+    case 'shipped': return 'info' as const;
+    case 'in_progress': return 'info' as const;
+    case 'pending': return 'warning' as const;
     case 'cancelled': return 'destructive' as const;
     default: return 'outline' as const;
   }

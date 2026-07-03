@@ -67,12 +67,14 @@ const TAB_DEFS_META: { id: StatusTab; icon: React.ElementType; labelKey: string 
   { id: 'Cancelled', labelKey: 'orders:list.filter.cancelled', icon: XCircle },
 ];
 
-const statusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+// Semantic status colours (audit 3.8.3): success=green, warning=amber,
+// destructive=red, info=neutral gray. Brand blue is never used for status.
+const statusVariant = (status: string): 'success' | 'warning' | 'destructive' | 'info' | 'outline' => {
   switch (status) {
-    case 'Delivered': return 'default';
+    case 'Delivered': return 'success';
     case 'Shipped':
-    case 'Processing': return 'secondary';
-    case 'Pending': return 'outline';
+    case 'Processing': return 'info';
+    case 'Pending': return 'warning';
     case 'Cancelled': return 'destructive';
     default: return 'outline';
   }
@@ -81,13 +83,13 @@ const statusVariant = (status: string): 'default' | 'secondary' | 'destructive' 
 type ViewMode = 'cards' | 'table';
 const VIEW_PREF_KEY = 'orders.viewMode';
 
-const paymentVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+const paymentVariant = (status: string): 'success' | 'warning' | 'destructive' | 'info' | 'outline' => {
   switch (status) {
-    case 'Paid': return 'default';
-    case 'Failed':
-    case 'Refunded': return 'destructive';
-    case 'Not Paid': return 'outline';
-    default: return 'secondary';
+    case 'Paid': return 'success';
+    case 'Failed': return 'destructive';
+    case 'Refunded': return 'info';
+    case 'Not Paid': return 'warning';
+    default: return 'info';
   }
 };
 
@@ -101,13 +103,15 @@ export const Orders: React.FC = () => {
   const [tab, setTab] = useState<StatusTab>('');
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, pages: 1 });
   const [stats, setStats] = useState({ total: 0, pending: 0, revenue: 0, delivered: 0 });
+  // Table is the default view (audit 3.8.5) — cards remain opt-in and the
+  // stored preference still wins.
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    if (typeof window === 'undefined') return 'cards';
-    return (localStorage.getItem(VIEW_PREF_KEY) as ViewMode) || 'cards';
+    if (typeof window === 'undefined') return 'table';
+    return (localStorage.getItem(VIEW_PREF_KEY) as ViewMode) || 'table';
   });
   const [defaultView, setDefaultView] = useState<ViewMode>(() => {
-    if (typeof window === 'undefined') return 'cards';
-    return (localStorage.getItem(VIEW_PREF_KEY) as ViewMode) || 'cards';
+    if (typeof window === 'undefined') return 'table';
+    return (localStorage.getItem(VIEW_PREF_KEY) as ViewMode) || 'table';
   });
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
@@ -499,7 +503,7 @@ export const Orders: React.FC = () => {
                 className={`hover:shadow-md transition-shadow cursor-pointer group ${selected.has(order._id) ? 'border-primary/50 bg-primary/5' : ''}`}
                 onClick={() => navigate(`/dashboard/orders/${order._id}`)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center gap-4">
                     <input
                       type="checkbox"

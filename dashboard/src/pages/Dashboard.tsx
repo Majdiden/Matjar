@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { StatCard } from '../components/StatCard';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
@@ -177,7 +178,7 @@ export const Dashboard: React.FC = () => {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('dashboard:title')}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('dashboard:title')}</h1>
           <p className="text-muted-foreground">{t('dashboard:subtitle')}</p>
         </div>
         <Button asChild>
@@ -210,21 +211,11 @@ export const Dashboard: React.FC = () => {
         </Card>
       )}
 
-      {/* Stats */}
+      {/* Stats — shared StatCard (audit 3.8.4) */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statCards.map((card) => {
-          const Icon = card.icon;
           const content = (
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{card.title}</CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{card.value}</div>
-                <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
-              </CardContent>
-            </Card>
+            <StatCard label={card.title} value={card.value} icon={card.icon} description={card.description} />
           );
           return card.href ? (
             <Link key={card.title} to={card.href}>{content}</Link>
@@ -269,7 +260,7 @@ export const Dashboard: React.FC = () => {
                     </div>
                     <div className="text-end">
                       <p className="text-sm font-medium">{formatPrice(order.totalAmount)}</p>
-                      <Badge variant={order.status === 'Delivered' ? 'default' : order.status === 'Cancelled' ? 'destructive' : 'secondary'} className="text-xs">
+                      <Badge variant={order.status === 'Delivered' ? 'success' : order.status === 'Cancelled' ? 'destructive' : order.status === 'Pending' ? 'warning' : 'info'} className="text-xs">
                         {t(`common:status.${order.status}`, { defaultValue: order.status })}
                       </Badge>
                     </div>

@@ -8,18 +8,24 @@ export const badgeVariants = cva(
   "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
+      // Semantic status system (audit 3.8.3): status badges use the soft
+      // token pairs — success (green), warning (amber), destructive (red),
+      // info (neutral gray). Brand blue (`default`) is reserved for
+      // interactive/selected chips, never status.
       variant: {
         default:
           "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
+          "border-transparent bg-destructive-soft text-destructive-soft-foreground",
         outline: "text-foreground",
         success:
-          "border-transparent bg-emerald-500 text-white shadow hover:bg-emerald-500/80",
+          "border-transparent bg-success-soft text-success-soft-foreground",
         warning:
-          "border-transparent bg-amber-500 text-white shadow hover:bg-amber-500/80",
+          "border-transparent bg-warning-soft text-warning-soft-foreground",
+        info:
+          "border-transparent bg-muted text-muted-foreground",
       },
     },
     defaultVariants: {

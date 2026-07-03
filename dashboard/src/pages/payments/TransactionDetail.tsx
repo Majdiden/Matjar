@@ -132,11 +132,12 @@ export const TransactionDetail: React.FC = () => {
   const formatCurrency = (amount: number, currency = 'USD') =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount || 0);
 
-  const statusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
-    if (status === 'completed' || status === 'succeeded') return 'default';
-    if (status === 'refunded' || status === 'partially_refunded') return 'secondary';
+  // Semantic status colours (audit 3.8.3).
+  const statusVariant = (status: string): 'success' | 'warning' | 'destructive' | 'info' | 'outline' => {
+    if (status === 'completed' || status === 'succeeded') return 'success';
+    if (status === 'refunded' || status === 'partially_refunded') return 'info';
     if (status === 'failed') return 'destructive';
-    return 'outline';
+    return 'warning'; // pending
   };
 
   const statusLabel = (s: string) => {

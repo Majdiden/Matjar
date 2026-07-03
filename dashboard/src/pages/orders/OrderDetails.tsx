@@ -1080,7 +1080,7 @@ export const OrderDetails: React.FC = () => {
 
                         <div className="flex items-center flex-wrap gap-2 mt-2">
                           {isFullyFulfilled && (
-                            <Badge variant="default" className="h-5 text-[10px]">{t('common:status.Fulfilled')}</Badge>
+                            <Badge variant="success" className="h-5 text-[10px]">{t('common:status.Fulfilled')}</Badge>
                           )}
                           {isPartial && (
                             <Badge variant="secondary" className="h-5 text-[10px]">
@@ -1272,7 +1272,7 @@ export const OrderDetails: React.FC = () => {
                       ? customerContext.type === 'guest'
                       : !order.user;
                     return (
-                      <Badge variant={isGuest ? 'secondary' : 'default'} className="text-xs">
+                      <Badge variant={isGuest ? 'secondary' : 'info'} className="text-xs">
                         {isGuest ? t('orders:detail.customer.guest') : t('orders:detail.customer.customer')}
                       </Badge>
                     );
@@ -2500,17 +2500,18 @@ const OrderTimeline: React.FC<{ order: Order }> = ({ order }) => {
 };
 
 // ─── Status pill + variant helpers ───────────────────────────────────
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning';
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info';
 
+// Semantic status colours (audit 3.8.3) — brand blue is never a status.
 const orderStatusVariant = (s: OrderStatus): BadgeVariant => {
   switch (s) {
-    case 'Pending': return 'secondary';
+    case 'Pending': return 'warning';
     case 'Confirmed':
     case 'Processing':
-    case 'Shipped': return 'default';
+    case 'Shipped': return 'info';
     case 'Delivered': return 'success';
-    case 'Cancelled':
-    case 'Refunded': return 'destructive';
+    case 'Cancelled': return 'destructive';
+    case 'Refunded': return 'info';
     case 'Archived': return 'outline';
     default: return 'outline';
   }
@@ -2518,11 +2519,11 @@ const orderStatusVariant = (s: OrderStatus): BadgeVariant => {
 
 const paymentStatusVariant = (s: PaymentStatus): BadgeVariant => {
   switch (s) {
-    case 'Not Paid': return 'secondary';
-    case 'Authorized': return 'default';
+    case 'Not Paid': return 'warning';
+    case 'Authorized': return 'info';
     case 'Paid': return 'success';
-    case 'Partially Refunded': return 'warning';
-    case 'Refunded':
+    case 'Partially Refunded': return 'info';
+    case 'Refunded': return 'info';
     case 'Failed': return 'destructive';
     case 'Voided': return 'outline';
     default: return 'outline';
@@ -2531,8 +2532,8 @@ const paymentStatusVariant = (s: PaymentStatus): BadgeVariant => {
 
 const fulfillmentStatusVariant = (s: FulfillmentStatus): BadgeVariant => {
   switch (s) {
-    case 'Unfulfilled': return 'secondary';
-    case 'Partially Fulfilled': return 'default';
+    case 'Unfulfilled': return 'warning';
+    case 'Partially Fulfilled': return 'warning';
     case 'Fulfilled': return 'success';
     case 'Returned':
     case 'Cancelled': return 'destructive';

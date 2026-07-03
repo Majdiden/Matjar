@@ -422,7 +422,7 @@ export const PaymentMethods: React.FC = () => {
                             <div className="flex items-center gap-1 flex-wrap">
                               {p.enabled ? (
                                 configured ? (
-                                  <Badge variant="secondary" className="gap-1 text-[10px]">
+                                  <Badge variant="success" className="gap-1 text-[10px]">
                                     <Check className="h-3 w-3" /> {t('payments:method.provider.configured_badge')}
                                   </Badge>
                                 ) : (

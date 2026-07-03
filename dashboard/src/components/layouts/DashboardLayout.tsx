@@ -230,10 +230,10 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
       to={item.href}
       onClick={onClick}
       className={cn(
-        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent',
+        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all',
         isActive
-          ? 'bg-accent text-accent-foreground font-medium'
-          : 'text-muted-foreground hover:text-foreground'
+          ? 'bg-primary text-primary-foreground font-medium'
+          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
       )}
     >
       <item.icon className="h-4 w-4 shrink-0" />
@@ -299,10 +299,10 @@ function NavGroupItem({
               to={child.href}
               onClick={onNavigate}
               className={cn(
-                'block rounded-md px-3 py-1.5 text-sm transition-all hover:bg-accent',
+                'block rounded-md px-3 py-1.5 text-sm transition-all',
                 isActive
-                  ? 'bg-accent text-accent-foreground font-medium'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-primary text-primary-foreground font-medium'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
               )}
             >
               {child.name}
@@ -524,8 +524,8 @@ const DashboardLayoutInner: React.FC = () => {
     <DirectionProvider dir={dir}>
       <TooltipProvider delayDuration={0}>
         <div dir={dir} className="flex h-screen overflow-hidden bg-background">
-        {/* Desktop Sidebar */}
-        <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-e">
+        {/* Desktop Sidebar — dark surface via sidebar-scoped tokens (3.8.6) */}
+        <aside className="sidebar-surface hidden lg:flex lg:w-64 lg:flex-col lg:border-e">
           <SidebarContent />
 
           {/* User section — pinned to the bottom of the sidebar. */}
@@ -583,7 +583,7 @@ const DashboardLayoutInner: React.FC = () => {
                   `flex-1 min-h-0` resolves against the sheet's full height and
                   its inner ScrollArea actually scrolls on mobile (the nav is
                   taller than the viewport on small screens). */}
-              <SheetContent side="left" className="w-64 p-0 flex flex-col overflow-hidden">
+              <SheetContent side="left" className="sidebar-surface w-64 p-0 flex flex-col overflow-hidden">
                 <SidebarContent onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>
@@ -675,8 +675,8 @@ const DashboardLayoutInner: React.FC = () => {
             </div>
           </header>
 
-          {/* Page content */}
-          <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+          {/* Page content — light neutral canvas behind white cards (3.8.1) */}
+          <main className="flex-1 overflow-y-auto bg-canvas p-4 lg:p-6">
             <Outlet />
           </main>
         </div>

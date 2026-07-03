@@ -27,46 +27,80 @@ body { font-family: var(--font-app); }
 html[lang='ar'], html[lang='ar'] * { letter-spacing: 0 !important; }
 
 @layer base {
+  /*
+   * Design tokens (audit 3.8) — slightly warmed neutral scale (stone-leaning
+   * hues instead of the default cold slate), an explicit brand ramp
+   * (base/hover/active/soft), semantic status colours, a `--canvas` token for
+   * the app content background (white cards sit on it), and a dark sidebar
+   * surface. Everything below is consumed via Tailwind theme colors in
+   * tailwind.config.js.
+   */
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 24 10% 10%;
+    /* App content canvas — light warm neutral behind white cards. */
+    --canvas: 40 12% 97%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 24 10% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 24 10% 10%;
+    /* Brand ramp — blue is reserved for interactive elements, never status. */
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --primary-hover: 224.3 76.3% 48%;
+    --primary-active: 226.4 71% 40%;
+    --primary-soft: 214 100% 96.9%;
+    --primary-soft-foreground: 224.3 76.3% 48%;
+    --secondary: 30 8% 95.5%;
+    --secondary-foreground: 24 10% 16%;
+    --muted: 30 8% 95.5%;
+    --muted-foreground: 25 5% 45%;
+    --accent: 30 8% 95.5%;
+    --accent-foreground: 24 10% 16%;
+    /* Semantic status colours (audit 3.8.3). Soft pairs are for badges. */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --destructive-soft: 0 93.3% 94.1%;
+    --destructive-soft-foreground: 0 69.6% 35.3%;
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 140.6 84.2% 92.5%;
+    --success-soft-foreground: 142.8 64.2% 24.1%;
+    --warning: 32.1 94.6% 43.7%;
+    --warning-foreground: 0 0% 100%;
+    --warning-soft: 48 96.5% 88.8%;
+    --warning-soft-foreground: 22.7 82.5% 31.4%;
+    --border: 30 6% 89%;
+    --input: 30 6% 89%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Dark sidebar surface (audit 3.8.6) — near-black slate, light text,
+       brand-blue active indicator. Applied via `.sidebar-surface` below. */
+    --sidebar-background: 222 22% 10%;
+    --sidebar-foreground: 214 16% 90%;
+    --sidebar-muted-foreground: 218 11% 64%;
+    --sidebar-primary: 221.2 83.2% 53.3%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 17% 17%;
+    --sidebar-accent-foreground: 210 17% 95%;
+    --sidebar-border: 220 15% 19%;
+    --sidebar-ring: 221.2 83.2% 53.3%;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
+    --canvas: 222.2 84% 4.9%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
     --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-hover: 217.2 91.2% 66%;
+    --primary-active: 217.2 91.2% 72%;
+    --primary-soft: 217 60% 18%;
+    --primary-soft-foreground: 213 90% 75%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
@@ -75,17 +109,56 @@ html[lang='ar'], html[lang='ar'] * { letter-spacing: 0 !important; }
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
+    --destructive-soft: 0 60% 15%;
+    --destructive-soft-foreground: 0 90% 77%;
+    --success: 142.1 70.6% 45.3%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 143 64% 14%;
+    --success-soft-foreground: 141 70% 70%;
+    --warning: 37.7 92.1% 50.2%;
+    --warning-foreground: 0 0% 100%;
+    --warning-soft: 22 80% 14%;
+    --warning-soft-foreground: 43 96% 66%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-muted-foreground: 218 11% 64%;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer components {
+  /*
+   * Dark sidebar scope (audit 3.8.6). Applying this class remaps the generic
+   * shadcn tokens to the sidebar-* tokens, so every existing utility inside
+   * (bg-background, text-muted-foreground, hover:bg-accent, border-b, …)
+   * inherits the dark surface automatically. Because it is pure CSS-variable
+   * remapping on a wrapper class, both the RTL layout and the mobile Sheet
+   * get it for free — the desktop <aside> and the mobile <SheetContent>
+   * simply carry the same class.
+   */
+  .sidebar-surface {
+    --background: var(--sidebar-background);
+    --foreground: var(--sidebar-foreground);
+    --muted-foreground: var(--sidebar-muted-foreground);
+    --accent: var(--sidebar-accent);
+    --accent-foreground: var(--sidebar-accent-foreground);
+    --secondary: var(--sidebar-accent);
+    --secondary-foreground: var(--sidebar-accent-foreground);
+    --border: var(--sidebar-border);
+    --input: var(--sidebar-border);
+    --ring: var(--sidebar-ring);
+    --primary: var(--sidebar-primary);
+    --primary-foreground: var(--sidebar-primary-foreground);
+    background-color: hsl(var(--sidebar-background));
+    color: hsl(var(--sidebar-foreground));
   }
 }
 

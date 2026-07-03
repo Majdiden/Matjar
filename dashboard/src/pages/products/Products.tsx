@@ -54,7 +54,8 @@ export const Products: React.FC = () => {
   const [tab, setTab] = useState<StatusTab>('all');
   const [stats, setStats] = useState({ total: 0, active: 0, draft: 0, lowStock: 0, value: 0 });
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useViewMode('products.viewMode', 'cards');
+  // Table is the default view (audit 3.8.5) — cards remain opt-in.
+  const [viewMode, setViewMode] = useViewMode('products.viewMode', 'table');
   const confirm = useConfirm();
 
   const TAB_DEFS: { id: StatusTab; label: string; icon: React.ElementType }[] = [
@@ -317,8 +318,10 @@ export const Products: React.FC = () => {
               {products.map((product) => {
                 const isSelected = selected.has(product._id);
                 const stock = product.stock || 0;
-                const stockVariant: 'destructive' | 'secondary' | 'outline' =
-                  stock === 0 ? 'destructive' : stock < 10 ? 'secondary' : 'outline';
+                // Semantic stock badge (audit 3.8.3): out of stock = red,
+                // low stock = amber, in stock = neutral outline.
+                const stockVariant: 'destructive' | 'warning' | 'outline' =
+                  stock === 0 ? 'destructive' : stock < 10 ? 'warning' : 'outline';
                 return (
                   <TableRow
                     key={product._id}
@@ -361,8 +364,8 @@ export const Products: React.FC = () => {
                     <TableCell>
                       <Badge
                         variant={
-                          product.status === 'active' ? 'default'
-                          : product.status === 'draft' ? 'secondary'
+                          product.status === 'active' ? 'success'
+                          : product.status === 'draft' ? 'info'
                           : 'outline'
                         }
                         className="text-[10px] h-5"
@@ -425,13 +428,13 @@ export const Products: React.FC = () => {
           {products.map((product) => {
             const isSelected = selected.has(product._id);
             const stock = product.stock || 0;
-            const stockVariant: 'destructive' | 'secondary' | 'outline' =
-              stock === 0 ? 'destructive' : stock < 10 ? 'secondary' : 'outline';
+            const stockVariant: 'destructive' | 'warning' | 'outline' =
+              stock === 0 ? 'destructive' : stock < 10 ? 'warning' : 'outline';
             return (
               <div
                 key={product._id}
                 onClick={() => navigate(`/dashboard/products/${product._id}/edit`)}
-                className={`group relative flex items-center gap-4 p-4 rounded-xl border bg-card hover:border-primary/30 hover:shadow-sm transition cursor-pointer ${
+                className={`group relative flex items-center gap-4 p-3 rounded-xl border bg-card hover:border-primary/30 hover:shadow-sm transition cursor-pointer ${
                   isSelected ? 'border-primary/50 bg-primary/5' : ''
                 }`}
               >
@@ -463,8 +466,8 @@ export const Products: React.FC = () => {
                     )}
                     <Badge
                       variant={
-                        product.status === 'active' ? 'default'
-                        : product.status === 'draft' ? 'secondary'
+                        product.status === 'active' ? 'success'
+                        : product.status === 'draft' ? 'info'
                         : 'outline'
                       }
                       className="text-[10px] h-5"

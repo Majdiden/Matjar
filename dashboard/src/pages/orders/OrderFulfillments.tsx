@@ -46,12 +46,13 @@ interface Props {
   onChange?: () => void; // Refresh parent order after a mutation rolls up status
 }
 
+// Semantic status colours (audit 3.8.3).
 const statusVariant = (s: Fulfillment['status']) => {
   switch (s) {
-    case 'Delivered': return 'default' as const;
-    case 'Shipped':   return 'secondary' as const;
+    case 'Delivered': return 'success' as const;
+    case 'Shipped':   return 'info' as const;
     case 'Cancelled': return 'destructive' as const;
-    default:          return 'outline' as const;
+    default:          return 'warning' as const; // Pending
   }
 };
 

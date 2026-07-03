@@ -250,7 +250,7 @@ export default function Customers() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 flex-wrap">
                   <h1 className="text-2xl font-bold tracking-tight">{fullName}</h1>
-                  <Badge variant={customer.isActive !== false ? 'default' : 'destructive'}>
+                  <Badge variant={customer.isActive !== false ? 'success' : 'destructive'}>
                     {customer.isActive !== false ? t('customers.status.active') : t('customers.status.inactive')}
                   </Badge>
                 </div>
@@ -464,7 +464,7 @@ export default function Customers() {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={c.isActive !== false ? 'default' : 'destructive'}
+                        variant={c.isActive !== false ? 'success' : 'destructive'}
                         className="text-[10px] h-5"
                       >
                         {c.isActive !== false ? t('customers.status.active') : t('customers.status.inactive')}
@@ -529,7 +529,7 @@ export default function Customers() {
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-foreground truncate">{fullName}</p>
                         <Badge
-                          variant={c.isActive !== false ? 'default' : 'destructive'}
+                          variant={c.isActive !== false ? 'success' : 'destructive'}
                           className="text-[10px] px-1.5 py-0"
                         >
                           {c.isActive !== false ? t('customers.status.active') : t('customers.status.inactive')}

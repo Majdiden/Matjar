@@ -344,7 +344,7 @@ export const ProductForm: React.FC = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="w-full justify-between">
-                      <Badge variant={formData.status === 'active' ? 'default' : formData.status === 'archived' ? 'secondary' : 'outline'}>
+                      <Badge variant={formData.status === 'active' ? 'success' : formData.status === 'draft' ? 'info' : 'outline'}>
                         {formData.status.charAt(0).toUpperCase() + formData.status.slice(1)}
                       </Badge>
                       <ChevronDown className="h-4 w-4 opacity-50" />
