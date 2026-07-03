@@ -14,14 +14,15 @@ import { Products } from './pages/products/Products';
 import { ProductForm } from './pages/products/ProductForm';
 import { Categories } from './pages/categories/Categories';
 import { Orders } from './pages/orders/Orders';
-import { OrderDetails } from './pages/orders/OrderDetails';
+import { OrderDetails } from './pages/orders/detail';
 import OrderLifecycle from './pages/orders/OrderLifecycle';
 import PackingSlip from './pages/orders/documents/PackingSlip';
 import Invoice from './pages/orders/documents/Invoice';
 import RefundReceipt from './pages/orders/documents/RefundReceipt';
 import { Themes } from './pages/themes/Themes';
 import VisualEditor from './pages/themes/VisualEditor';
-import { Settings } from './pages/Settings';
+import { Settings } from './pages/settings';
+import { Companies } from './pages/companies/Companies';
 import ShippingZoneForm from './pages/ShippingZoneForm';
 import Discounts from './pages/marketing/Discounts';
 import DiscountForm from './pages/marketing/DiscountForm';
@@ -100,6 +101,7 @@ function App() {
             <Route path="marketing/discounts/new" element={<RequirePermission permission="discounts.write"><DiscountForm /></RequirePermission>} />
             <Route path="marketing/discounts/:id/edit" element={<RequirePermission permission="discounts.write"><DiscountForm /></RequirePermission>} />
             <Route path="customers" element={<RequirePermission permission={['customers.read', 'customers.write']}><Customers /></RequirePermission>} />
+            <Route path="companies" element={<RequirePermission permission={['customers.read', 'customers.write']}><Companies /></RequirePermission>} />
             <Route path="customers/segments" element={<RequirePermission permission={['customers.read', 'customers.write']}><CustomerSegments /></RequirePermission>} />
             <Route path="customers/segments/new" element={<RequirePermission permission="customers.write"><CustomerSegmentForm /></RequirePermission>} />
             <Route path="customers/segments/:id/edit" element={<RequirePermission permission="customers.write"><CustomerSegmentForm /></RequirePermission>} />
