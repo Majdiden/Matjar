@@ -6,7 +6,12 @@ import { cva } from "class-variance-authority"
  * Consumers like Calendar and Pagination import from here directly.
  */
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  // Disabled state (audit 3.9.13): clearly reduced contrast (opacity +
+  // desaturation, no shadow) and `cursor-not-allowed` so a disabled CTA
+  // never reads as "half-pressed". `:disabled` only matches real form
+  // controls, so asChild links are unaffected. Native disabled buttons
+  // swallow clicks, so pointer-events-none is not needed.
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 disabled:saturate-50 disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {

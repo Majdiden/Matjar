@@ -11,10 +11,21 @@ import { Textarea } from '../../components/ui/textarea';
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from '../../components/ui/collapsible';
-import { Save, Trash2, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
+import { Select } from '../../components/ui/select';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '../../components/ui/dropdown-menu';
+import { Save, Trash2, Loader2, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
+import { RichTextEditor } from '../../components/RichTextEditor';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
+
+// Storefront locales offered in the Language select (audit 3.9.4).
+// Sourced from tenant settings when the store declares a `languages`
+// list; falls back to the platform-supported pair.
+const FALLBACK_LOCALES = ['en', 'ar'];
 
 interface PageFormData {
   title: string;
@@ -62,7 +73,7 @@ export const PageForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id && id !== 'new');
   const confirm = useConfirm();
-  const { t } = useTranslation(['pages', 'common']);
+  const { t, i18n } = useTranslation(['pages', 'common']);
 
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -70,6 +81,38 @@ export const PageForm: React.FC = () => {
   const [form, setForm] = useState<PageFormData>(DEFAULT_FORM);
   const [slugEdited, setSlugEdited] = useState(false);
   const [seoOpen, setSeoOpen] = useState(false);
+  const [supportedLocales, setSupportedLocales] = useState<string[]>(FALLBACK_LOCALES);
+
+  // Supported storefront locales for the Language select (audit 3.9.4).
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = (await api.domains.getInfo()) as {
+          data?: { settings?: { language?: string; languages?: string[] } };
+          responseObject?: { data?: { settings?: { language?: string; languages?: string[] } } };
+        };
+        const s = res?.data?.settings || res?.responseObject?.data?.settings;
+        const declared = Array.isArray(s?.languages) && s.languages.length > 0
+          ? s.languages
+          : FALLBACK_LOCALES;
+        const withDefault = s?.language ? [s.language, ...declared] : declared;
+        setSupportedLocales([...new Set(withDefault.map((l) => String(l).toLowerCase()))]);
+      } catch {
+        // Keep the fallback pair — the select stays usable offline.
+      }
+    })();
+  }, []);
+
+  // Human label for a locale code in the current dashboard language,
+  // e.g. "ar" → "Arabic" / "العربية".
+  const localeLabel = (code: string): string => {
+    try {
+      const name = new Intl.DisplayNames([i18n.language], { type: 'language' }).of(code);
+      return name && name !== code ? `${name} (${code})` : code;
+    } catch {
+      return code;
+    }
+  };
 
   useEffect(() => {
     if (!isEdit) return;
@@ -166,7 +209,7 @@ export const PageForm: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-3xl mx-auto">
+      <div className="space-y-6">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-48" />
         <Skeleton className="h-48" />
@@ -175,7 +218,7 @@ export const PageForm: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -186,16 +229,30 @@ export const PageForm: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          {isEdit && (
-            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
-              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            </Button>
-          )}
           <Button onClick={handleSave} disabled={saving}>
             {saving
               ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{t('common:state.saving_ellipsis')}</>
               : <><Save className="h-4 w-4 me-2" />{t('common:action.save')}</>}
           </Button>
+          {isEdit && (
+            // Destructive action lives in an overflow menu, away from Save
+            // (audit 3.9.12); the confirm dialog still gates deletion.
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" aria-label={t('common:aria.more')} disabled={deleting}>
+                  {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreVertical className="h-4 w-4" />}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="me-2 h-4 w-4" />{t('common:action.delete')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
 
@@ -224,11 +281,20 @@ export const PageForm: React.FC = () => {
           </div>
           <div className="space-y-1">
             <Label>{t('pages:form.field.locale.label')}</Label>
-            <Input
-              value={form.locale}
-              onChange={(e) => setField('locale', e.target.value.toLowerCase())}
-              placeholder={t('pages:form.field.locale.placeholder')}
-            />
+            {/* Width cap lives on a wrapper: the Select shim anchors its
+                chevron to its own full-width relative box. */}
+            <div className="max-w-xs">
+              <Select
+                value={form.locale}
+                onValueChange={(v) => setField('locale', v)}
+                options={
+                  // Always include the page's saved locale so editing a page in
+                  // a language the store no longer declares doesn't lose data.
+                  [...new Set([...supportedLocales, form.locale].filter(Boolean))]
+                    .map((code) => ({ value: code, label: localeLabel(code) }))
+                }
+              />
+            </div>
             <p className="text-xs text-muted-foreground">
               {t('pages:form.field.locale.hint')}
             </p>
@@ -236,16 +302,34 @@ export const PageForm: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Content */}
+      {/* Content — TipTap visual editor with a raw-HTML escape hatch
+          (audit 6.3). Both tabs round-trip through `form.content`. */}
       <Card>
         <CardHeader><CardTitle>{t('pages:form.section.content.title')}</CardTitle></CardHeader>
         <CardContent>
-          <Textarea
-            className="min-h-[320px] font-mono text-sm"
-            value={form.content}
-            onChange={(e) => setField('content', e.target.value)}
-            placeholder={t('pages:form.field.content.placeholder')}
-          />
+          <Tabs defaultValue="visual">
+            <TabsList>
+              <TabsTrigger value="visual">{t('pages:form.field.content.tab_visual')}</TabsTrigger>
+              <TabsTrigger value="html">{t('pages:form.field.content.tab_html')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="visual">
+              <RichTextEditor
+                value={form.content}
+                onChange={(html) => setField('content', html)}
+                placeholder={t('pages:form.field.content.placeholder')}
+                dir={form.locale === 'ar' ? 'rtl' : 'ltr'}
+              />
+            </TabsContent>
+            <TabsContent value="html">
+              <Textarea
+                dir="ltr"
+                className="min-h-[320px] font-mono text-sm"
+                value={form.content}
+                onChange={(e) => setField('content', e.target.value)}
+                placeholder={t('pages:form.field.content.placeholder_html')}
+              />
+            </TabsContent>
+          </Tabs>
           <p className="text-xs text-muted-foreground mt-2">
             {t('pages:form.field.content.hint')}
           </p>

@@ -29,7 +29,7 @@ import { Bell as BellIcon } from 'lucide-react';
 import { setTenantCurrency, setTenantLocale } from '../../lib/format';
 import { useLanguage } from '../../i18n/LanguageProvider';
 import { Skeleton } from '../../components/ui/skeleton';
-import { FilterPills } from '../../components/ui/filter-pills';
+import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Store, Globe2, Truck, Receipt, Coins, Mail } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
@@ -153,20 +153,27 @@ export const Settings: React.FC = () => {
         <p className="text-muted-foreground">{t('settings.subtitle')}</p>
       </div>
 
-      <FilterPills<SettingsTab>
-        value={tab}
-        onChange={setTab}
-        items={[
-          { id: 'general', label: t('settings.tab.general.label'), icon: Store },
-          { id: 'regional', label: t('settings.tab.regional.label'), icon: Globe2 },
-          { id: 'shipping', label: t('settings.tab.shipping.label'), icon: Truck },
-          { id: 'tax', label: t('settings.tab.tax.label'), icon: Receipt },
-          { id: 'currencies', label: t('settings.tab.currencies.label'), icon: Coins },
-          { id: 'markets', label: t('settings.tab.markets.label'), icon: Globe2 },
-          { id: 'notifications', label: t('settings.tab.notifications.label'), icon: BellIcon },
-          { id: 'email-templates', label: t('settings.tab.email_templates.label'), icon: Mail },
-        ]}
-      />
+      {/* Section navigation uses the shadcn Tabs strip — pills are reserved
+          for list filtering (audit 3.9.10). Same tab state + URL sync. */}
+      <Tabs value={tab} onValueChange={(v) => setTab(v as SettingsTab)}>
+        <TabsList className="h-auto w-full justify-start overflow-x-auto scrollbar-hide">
+          {([
+            { id: 'general', label: t('settings.tab.general.label'), icon: Store },
+            { id: 'regional', label: t('settings.tab.regional.label'), icon: Globe2 },
+            { id: 'shipping', label: t('settings.tab.shipping.label'), icon: Truck },
+            { id: 'tax', label: t('settings.tab.tax.label'), icon: Receipt },
+            { id: 'currencies', label: t('settings.tab.currencies.label'), icon: Coins },
+            { id: 'markets', label: t('settings.tab.markets.label'), icon: Globe2 },
+            { id: 'notifications', label: t('settings.tab.notifications.label'), icon: BellIcon },
+            { id: 'email-templates', label: t('settings.tab.email_templates.label'), icon: Mail },
+          ] as { id: SettingsTab; label: string; icon: React.ElementType }[]).map(({ id, label, icon: Icon }) => (
+            <TabsTrigger key={id} value={id} className="gap-1.5 shrink-0">
+              <Icon className="h-4 w-4" />
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       <div className="mt-6">
         {/* General */}

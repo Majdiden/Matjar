@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '../../components/ui/dialog';
 import {
-  Wallet, Plus, Loader2, Package, CreditCard, Info, Check, CircleAlert, Building2, Trash2, Upload, X,
+  Wallet, Plus, Loader2, Package, CreditCard, Info, CircleAlert, Building2, Trash2, Upload, X,
 } from 'lucide-react';
 
 // Soft-launch: merchants can only add manual-transfer providers. The
@@ -21,6 +21,7 @@ import {
 // re-add them when gateway integrations ship.
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { useSetBreadcrumbs } from '../../contexts/breadcrumb-context';
 
 interface ManualProvider {
   code: string;
@@ -93,7 +94,16 @@ const emptyProvider = (): ManualProvider => ({
 });
 
 export const PaymentMethods: React.FC = () => {
-  const { t } = useTranslation(['payments', 'common']);
+  const { t } = useTranslation(['payments', 'common', 'nav']);
+
+  // The layout's path-based breadcrumb fallback would render the raw
+  // "#methods..." fragment for this route (audit 3.9.3) — override it
+  // with the localized trail.
+  useSetBreadcrumbs([
+    { label: t('nav:sidebar.payments.payments'), href: '/dashboard/payments' },
+    { label: t('nav:sidebar.payments.payment_methods') },
+  ]);
+
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingMap, setSavingMap] = useState<Record<string, boolean>>({});
@@ -329,25 +339,20 @@ export const PaymentMethods: React.FC = () => {
                     {m.type === 'manual' ? <Wallet className="h-5 w-5" /> : m.type === 'cod' ? <Package className="h-5 w-5" /> : <CreditCard className="h-5 w-5" />}
                   </div>
                   <div>
-                    <CardTitle className="flex items-center gap-2">
-                      {m.label}
-                      <Badge variant="outline" className="font-mono text-[10px]">{m.code}</Badge>
-                    </CardTitle>
+                    {/* No internal code chip and no "Enabled/Disabled" text —
+                        the toggle alone communicates state (audit 3.9.1/3.9.2). */}
+                    <CardTitle>{m.label}</CardTitle>
                     {m.description && (
                       <CardDescription className="mt-1">{m.description}</CardDescription>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {m.enabled ? t('payments:method.status.enabled') : t('payments:method.status.disabled')}
-                  </span>
-                  <Switch
-                    checked={!!m.enabled}
-                    onCheckedChange={() => toggleMethodEnabled(m)}
-                    disabled={savingMap[m._id]}
-                  />
-                </div>
+                <Switch
+                  checked={!!m.enabled}
+                  onCheckedChange={() => toggleMethodEnabled(m)}
+                  disabled={savingMap[m._id]}
+                  aria-label={m.enabled ? t('payments:method.status.enabled') : t('payments:method.status.disabled')}
+                />
               </CardHeader>
 
               {m.type === 'manual' && (
@@ -411,7 +416,27 @@ export const PaymentMethods: React.FC = () => {
                                     />
                                   )}
                                 </div>
-                                <div className="font-medium text-sm truncate">{p.label}</div>
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  {/* Subtle semantic status dot (audit 3.9.2 / 3.8.3):
+                                      green = live, red = enabled but unconfigured,
+                                      muted = off. The toggle carries the on/off state. */}
+                                  <span
+                                    aria-hidden="true"
+                                    className={`h-2 w-2 rounded-full shrink-0 ${
+                                      p.enabled
+                                        ? configured ? 'bg-emerald-500' : 'bg-red-500'
+                                        : 'bg-muted-foreground/30'
+                                    }`}
+                                  />
+                                  <span className="sr-only">
+                                    {p.enabled
+                                      ? configured
+                                        ? t('payments:method.provider.configured_badge')
+                                        : t('payments:method.provider.missing_badge')
+                                      : t('payments:method.status.disabled')}
+                                  </span>
+                                  <div className="font-medium text-sm truncate">{p.label}</div>
+                                </div>
                               </div>
                               <Switch
                                 checked={!!p.enabled}
@@ -419,24 +444,18 @@ export const PaymentMethods: React.FC = () => {
                                 onCheckedChange={() => toggleProviderEnabled(m, p.code)}
                               />
                             </div>
-                            <div className="flex items-center gap-1 flex-wrap">
-                              {p.enabled ? (
-                                configured ? (
-                                  <Badge variant="success" className="gap-1 text-[10px]">
-                                    <Check className="h-3 w-3" /> {t('payments:method.provider.configured_badge')}
-                                  </Badge>
-                                ) : (
+                            {(p.enabled && !configured) || !isSystem ? (
+                              <div className="flex items-center gap-1 flex-wrap">
+                                {p.enabled && !configured && (
                                   <Badge variant="destructive" className="gap-1 text-[10px]">
                                     <CircleAlert className="h-3 w-3" /> {t('payments:method.provider.missing_badge')}
                                   </Badge>
-                                )
-                              ) : (
-                                <Badge variant="outline" className="text-[10px]">{t('payments:method.provider.off_badge')}</Badge>
-                              )}
-                              {!isSystem && (
-                                <Badge variant="outline" className="text-[10px]">{t('payments:method.provider.custom_badge')}</Badge>
-                              )}
-                            </div>
+                                )}
+                                {!isSystem && (
+                                  <Badge variant="outline" className="text-[10px]">{t('payments:method.provider.custom_badge')}</Badge>
+                                )}
+                              </div>
+                            ) : null}
                             {configured && (
                               <div className="mt-2 text-[11px] font-mono text-muted-foreground truncate">
                                 {p.accountNumber || p.phone}

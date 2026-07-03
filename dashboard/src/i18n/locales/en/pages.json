@@ -47,14 +47,17 @@
         "hint": "/pages/{{slug}}"
       },
       "locale": {
-        "label": "Locale",
+        "label": "Language",
         "placeholder": "en",
-        "hint": "The storefront language this page is written for (e.g. \"en\", \"ar\", \"fr\"). Create one page per locale."
+        "hint": "The storefront language this page is written for. Create one page per language."
       },
       "content": {
         "label": "Content",
-        "placeholder": "<p>Page content as HTML…</p>",
-        "hint": "HTML body rendered by the storefront page template. Max 100KB."
+        "placeholder": "Write your page content…",
+        "placeholder_html": "<p>Page content as HTML…</p>",
+        "hint": "Rendered by the storefront page template. Max 100KB.",
+        "tab_visual": "Visual",
+        "tab_html": "HTML"
       },
       "is_published": {
         "label_published": "Published",

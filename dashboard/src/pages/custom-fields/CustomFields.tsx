@@ -18,6 +18,7 @@ import {
   TableRow,
 } from '../../components/ui/table';
 import { FileCode, Plus, Pencil, Trash2 } from 'lucide-react';
+import { RichTextEditor } from '../../components/RichTextEditor';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
@@ -208,7 +209,14 @@ export const CustomFields: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <Label>{cf('field.value')}</Label>
-                {form.type === 'json' || form.type === 'richtext' ? (
+                {form.type === 'richtext' ? (
+                  // Shared TipTap editor (audit 6.3.4) — value round-trips as HTML.
+                  <RichTextEditor
+                    value={form.value}
+                    onChange={(html) => setForm(f => ({ ...f, value: html }))}
+                    className="[&_.rte-content]:min-h-[160px]"
+                  />
+                ) : form.type === 'json' ? (
                   <Textarea value={form.value} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} rows={4} />
                 ) : form.type === 'color' ? (
                   <div className="flex gap-2">
