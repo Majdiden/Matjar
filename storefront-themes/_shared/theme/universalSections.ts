@@ -63,9 +63,12 @@ export const universalSections: SectionDefinition[] = [
     description: 'Heading + paragraph with optional CTA',
     target: 'body',
     settings: [
-      { id: 'heading', type: 'text', label: 'Heading', default: '' },
+      // Visible placeholder defaults — a freshly added section must render
+      // something immediately (Shopify-style) instead of an invisible empty
+      // block that looks like "adding the section did nothing".
+      { id: 'heading', type: 'text', label: 'Heading', default: 'Talk about your brand' },
       { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
-      { id: 'body', type: 'textarea', label: 'Body', default: '' },
+      { id: 'body', type: 'textarea', label: 'Body', default: 'Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.' },
       { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
       { id: 'button_url', type: 'url', label: 'Button URL', default: '' },
       ...APPEARANCE_SETTINGS,
@@ -100,8 +103,26 @@ export const universalSections: SectionDefinition[] = [
     settings: [
       { id: 'heading', type: 'text', label: 'Heading', default: '' },
       { id: 'columns', type: 'number', label: 'Columns', default: 3, min: 2, max: 6 },
-      // Note: `images` is a JSON array; the dashboard editor exposes it as a list builder.
       ...APPEARANCE_SETTINGS,
+    ],
+    // Images are BLOCKS so the dashboard block editor can add/remove/reorder
+    // them (a raw JSON `images` setting had no editor UI, so an added gallery
+    // stayed empty and invisible).
+    blocks: [
+      {
+        type: 'image',
+        name: 'Image',
+        settings: [
+          { id: 'image', type: 'image', label: 'Image' },
+          { id: 'alt', type: 'text', label: 'Alt Text', default: '' },
+          { id: 'link', type: 'url', label: 'Link (optional)', default: '' },
+        ],
+      },
+    ],
+    defaultBlocks: [
+      { id: 'gallery-1', type: 'image', settings: {} },
+      { id: 'gallery-2', type: 'image', settings: {} },
+      { id: 'gallery-3', type: 'image', settings: {} },
     ],
   }),
 
@@ -112,8 +133,25 @@ export const universalSections: SectionDefinition[] = [
     target: 'body',
     settings: [
       { id: 'heading', type: 'text', label: 'Heading', default: 'Why Shop With Us' },
-      // `features` is a JSON list of {icon, title, description}
       ...APPEARANCE_SETTINGS,
+    ],
+    // Feature entries are BLOCKS (editable in the dashboard) with placeholder
+    // copy so a freshly added section renders immediately.
+    blocks: [
+      {
+        type: 'feature',
+        name: 'Feature',
+        settings: [
+          { id: 'icon', type: 'text', label: 'Icon (emoji or letter)', default: '' },
+          { id: 'title', type: 'text', label: 'Title', default: '' },
+          { id: 'description', type: 'textarea', label: 'Description', default: '' },
+        ],
+      },
+    ],
+    defaultBlocks: [
+      { id: 'feature-1', type: 'feature', settings: { title: 'Free Shipping', description: 'On all orders over a minimum amount.' } },
+      { id: 'feature-2', type: 'feature', settings: { title: 'Easy Returns', description: 'Simple, hassle-free return policy.' } },
+      { id: 'feature-3', type: 'feature', settings: { title: 'Secure Checkout', description: 'Your payment information is protected.' } },
     ],
   }),
 
@@ -136,8 +174,26 @@ export const universalSections: SectionDefinition[] = [
     target: 'body',
     settings: [
       { id: 'heading', type: 'text', label: 'Heading', default: 'What Customers Say' },
-      // `testimonials` is a JSON list of {quote, author, role, avatar}
       ...APPEARANCE_SETTINGS,
+    ],
+    // Quotes are BLOCKS (editable in the dashboard) with placeholder copy so
+    // a freshly added section renders immediately.
+    blocks: [
+      {
+        type: 'testimonial',
+        name: 'Testimonial',
+        settings: [
+          { id: 'quote', type: 'textarea', label: 'Quote', default: '' },
+          { id: 'author', type: 'text', label: 'Author', default: '' },
+          { id: 'role', type: 'text', label: 'Role / Location', default: '' },
+          { id: 'avatar', type: 'image', label: 'Avatar (optional)' },
+        ],
+      },
+    ],
+    defaultBlocks: [
+      { id: 'testimonial-1', type: 'testimonial', settings: { quote: 'Fantastic quality and fast delivery. Will definitely shop here again!', author: 'Sarah A.' } },
+      { id: 'testimonial-2', type: 'testimonial', settings: { quote: 'Great customer service — they answered all my questions right away.', author: 'Mohammed K.' } },
+      { id: 'testimonial-3', type: 'testimonial', settings: { quote: 'Exactly as described. The whole experience was smooth from start to finish.', author: 'Lina H.' } },
     ],
   }),
 
