@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { PageLoader } from '../PageLoader';
 import { useAuth } from '../../contexts/auth-context';
 import { useLanguage } from '../../i18n/LanguageProvider';
 import {
@@ -600,7 +601,11 @@ const DashboardLayoutInner: React.FC = () => {
 
           {/* Page content — light neutral canvas behind white cards (3.8.1) */}
           <main className="flex-1 overflow-y-auto bg-canvas p-4 lg:p-6">
-            <Outlet />
+            {/* Boundary for the code-split page chunks (audit 3.6) — the
+                spinner shows here so the sidebar/topbar stay put. */}
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
         </div>

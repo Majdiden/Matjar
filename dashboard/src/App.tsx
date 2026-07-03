@@ -1,61 +1,72 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RequirePermission } from './components/RequirePermission';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { ForgotPassword } from './pages/ForgotPassword';
-import { ResetPassword } from './pages/ResetPassword';
-import SetupInProgress from './pages/SetupInProgress';
 import { DashboardLayout } from './components/layouts/DashboardLayout';
-import { Dashboard } from './pages/Dashboard';
-import { Domains } from './pages/domains/Domains';
-import { Products } from './pages/products/Products';
-import { ProductForm } from './pages/products/ProductForm';
-import { Categories } from './pages/categories/Categories';
-import { Orders } from './pages/orders/Orders';
-import { OrderCreate } from './pages/orders/create/OrderCreate';
-import { OrderDetails } from './pages/orders/detail';
-import OrderLifecycle from './pages/orders/OrderLifecycle';
-import PackingSlip from './pages/orders/documents/PackingSlip';
-import Invoice from './pages/orders/documents/Invoice';
-import RefundReceipt from './pages/orders/documents/RefundReceipt';
-import { Themes } from './pages/themes/Themes';
-import VisualEditor from './pages/themes/VisualEditor';
-import { Settings } from './pages/settings';
-import { Companies } from './pages/companies/Companies';
-import ShippingZoneForm from './pages/ShippingZoneForm';
-import Discounts from './pages/marketing/Discounts';
-import DiscountForm from './pages/marketing/DiscountForm';
-import Customers from './pages/customers/Customers';
-import CustomerSegments from './pages/customers/CustomerSegments';
-import CustomerSegmentForm from './pages/customers/CustomerSegmentForm';
-import Analytics from './pages/analytics/Analytics';
-import Reviews from './pages/reviews/Reviews';
-import Inventory from './pages/inventory/Inventory';
-import { Fulfillments } from './pages/fulfillments/Fulfillments';
-import { CustomFields } from './pages/custom-fields/CustomFields';
-import { AuditLogs } from './pages/audit-logs/AuditLogs';
-import Payments from './pages/payments/Payments';
-import PaymentMethods from './pages/payments/PaymentMethods';
-import TransactionDetail from './pages/payments/TransactionDetail';
-import Subscriptions from './pages/subscriptions/Subscriptions';
-import Permissions from './pages/permissions/Permissions';
-import Webhooks from './pages/webhooks/Webhooks';
-import GiftCards from './pages/gift-cards/GiftCards';
-import GiftCardDetail from './pages/gift-cards/GiftCardDetail';
-import GiftCardNew from './pages/gift-cards/GiftCardNew';
-import Collections from './pages/collections/Collections';
-import CollectionForm from './pages/collections/CollectionForm';
-import Menus from './pages/menus/Menus';
-import MenuForm from './pages/menus/MenuForm';
-import Pages from './pages/pages/Pages';
-import PageForm from './pages/pages/PageForm';
-import Staff from './pages/staff/Staff';
-import AcceptInvite from './pages/staff/AcceptInvite';
-import Notifications from './pages/notifications/Notifications';
+import { PageLoader } from './components/PageLoader';
+// Login stays eager — it's the most common cold entry, so a Suspense
+// spinner there would flash on nearly every unauthenticated visit.
+import { Login } from './pages/Login';
 import { Toaster } from './components/ui/sonner';
 import { ConfirmProvider } from './components/ui/confirm-dialog';
+
+// Every route page is code-split (audit 3.6) so the initial bundle no
+// longer carries all ~55 pages. Vite emits one chunk per lazy import;
+// the Suspense boundaries below show PageLoader while a chunk loads.
+const Register = lazy(() => import('./pages/Register').then(m => ({ default: m.Register })));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
+const ResetPassword = lazy(() => import('./pages/ResetPassword').then(m => ({ default: m.ResetPassword })));
+const SetupInProgress = lazy(() => import('./pages/SetupInProgress'));
+const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
+const Domains = lazy(() => import('./pages/domains/Domains').then(m => ({ default: m.Domains })));
+const Products = lazy(() => import('./pages/products/Products').then(m => ({ default: m.Products })));
+const ProductForm = lazy(() => import('./pages/products/ProductForm').then(m => ({ default: m.ProductForm })));
+const Categories = lazy(() => import('./pages/categories/Categories').then(m => ({ default: m.Categories })));
+const Orders = lazy(() => import('./pages/orders/Orders').then(m => ({ default: m.Orders })));
+const OrderCreate = lazy(() => import('./pages/orders/create/OrderCreate').then(m => ({ default: m.OrderCreate })));
+const OrderDetails = lazy(() => import('./pages/orders/detail').then(m => ({ default: m.OrderDetails })));
+const OrderLifecycle = lazy(() => import('./pages/orders/OrderLifecycle'));
+const PackingSlip = lazy(() => import('./pages/orders/documents/PackingSlip'));
+const Invoice = lazy(() => import('./pages/orders/documents/Invoice'));
+const RefundReceipt = lazy(() => import('./pages/orders/documents/RefundReceipt'));
+const Themes = lazy(() => import('./pages/themes/Themes').then(m => ({ default: m.Themes })));
+const VisualEditor = lazy(() => import('./pages/themes/VisualEditor'));
+const Settings = lazy(() => import('./pages/settings').then(m => ({ default: m.Settings })));
+const Companies = lazy(() => import('./pages/companies/Companies').then(m => ({ default: m.Companies })));
+const ShippingZoneForm = lazy(() => import('./pages/ShippingZoneForm'));
+const Discounts = lazy(() => import('./pages/marketing/Discounts'));
+const DiscountForm = lazy(() => import('./pages/marketing/DiscountForm'));
+const Customers = lazy(() => import('./pages/customers/Customers'));
+const CustomerSegments = lazy(() => import('./pages/customers/CustomerSegments'));
+const CustomerSegmentForm = lazy(() => import('./pages/customers/CustomerSegmentForm'));
+const Analytics = lazy(() => import('./pages/analytics/Analytics'));
+const Reviews = lazy(() => import('./pages/reviews/Reviews'));
+const Inventory = lazy(() => import('./pages/inventory/Inventory'));
+const Fulfillments = lazy(() => import('./pages/fulfillments/Fulfillments').then(m => ({ default: m.Fulfillments })));
+const CustomFields = lazy(() => import('./pages/custom-fields/CustomFields').then(m => ({ default: m.CustomFields })));
+const AuditLogs = lazy(() => import('./pages/audit-logs/AuditLogs').then(m => ({ default: m.AuditLogs })));
+const Payments = lazy(() => import('./pages/payments/Payments'));
+const PaymentMethods = lazy(() => import('./pages/payments/PaymentMethods'));
+const TransactionDetail = lazy(() => import('./pages/payments/TransactionDetail'));
+const Subscriptions = lazy(() => import('./pages/subscriptions/Subscriptions'));
+const Permissions = lazy(() => import('./pages/permissions/Permissions'));
+const Webhooks = lazy(() => import('./pages/webhooks/Webhooks'));
+const GiftCards = lazy(() => import('./pages/gift-cards/GiftCards'));
+const GiftCardDetail = lazy(() => import('./pages/gift-cards/GiftCardDetail'));
+const GiftCardNew = lazy(() => import('./pages/gift-cards/GiftCardNew'));
+const Collections = lazy(() => import('./pages/collections/Collections'));
+const CollectionForm = lazy(() => import('./pages/collections/CollectionForm'));
+const Menus = lazy(() => import('./pages/menus/Menus'));
+const MenuForm = lazy(() => import('./pages/menus/MenuForm'));
+const Pages = lazy(() => import('./pages/pages/Pages'));
+const PageForm = lazy(() => import('./pages/pages/PageForm'));
+const MediaLibrary = lazy(() => import('./pages/media/MediaLibrary'));
+const Redirects = lazy(() => import('./pages/redirects/Redirects'));
+const Staff = lazy(() => import('./pages/staff/Staff'));
+const AcceptInvite = lazy(() => import('./pages/staff/AcceptInvite'));
+const Notifications = lazy(() => import('./pages/notifications/Notifications'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Get base path from environment (for production build served at /dashboard/)
 const basename = import.meta.env.MODE === 'production' ? '/dashboard' : '/';
@@ -65,6 +76,10 @@ function App() {
     <BrowserRouter basename={basename}>
       <AuthProvider>
         <ConfirmProvider>
+        {/* Outer boundary catches the standalone lazy routes (register,
+            printable docs, editor). Dashboard child pages have their own
+            boundary inside DashboardLayout so the sidebar never flashes. */}
+        <Suspense fallback={<PageLoader fullScreen />}>
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
@@ -131,7 +146,11 @@ function App() {
             <Route path="pages" element={<RequirePermission permission={['themes.read', 'themes.write']}><Pages /></RequirePermission>} />
             <Route path="pages/new" element={<RequirePermission permission="themes.write"><PageForm /></RequirePermission>} />
             <Route path="pages/:id/edit" element={<RequirePermission permission="themes.write"><PageForm /></RequirePermission>} />
+            <Route path="media" element={<RequirePermission permission="themes.write"><MediaLibrary /></RequirePermission>} />
+            <Route path="redirects" element={<RequirePermission permission={['themes.read', 'themes.write']}><Redirects /></RequirePermission>} />
             <Route path="staff" element={<RequirePermission permission="team.manage"><Staff /></RequirePermission>} />
+            {/* Real 404 inside the shell for unknown /dashboard/* paths */}
+            <Route path="*" element={<NotFound />} />
           </Route>
 
           {/* Printable order documents — rendered outside DashboardLayout
@@ -186,9 +205,11 @@ function App() {
           {/* Redirect root to dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* 404 */}
+          {/* Unknown top-level paths fall into the app; the dashboard's
+              own "*" child then renders the real 404 in the shell. */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
+        </Suspense>
         <Toaster richColors closeButton position="top-right" />
         </ConfirmProvider>
       </AuthProvider>
