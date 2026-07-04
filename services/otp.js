@@ -1,7 +1,7 @@
 /**
  * Email OTP verification service (signup email confirmation).
  *
- * A 6-digit numeric code is emailed to the address the user typed during
+ * A 4-digit numeric code is emailed to the address the user typed during
  * registration; they must enter it back before the tenant is created. We
  * store only a SHA-256 hash of the code in Redis with a short TTL, so a
  * Redis dump never reveals a live code. On successful verification we mint a
@@ -15,6 +15,14 @@
  *   - per-code verify-attempt cap (MAX_VERIFY_ATTEMPTS)
  * Route-level rate limiters (routes/auth.js) add a per-IP ceiling on top.
  *
+ * ENTROPY NOTE: a 4-digit code is only 10,000 possibilities (~13.3 bits) —
+ * an order of magnitude weaker than the previous 6 digits. The verify-attempt
+ * cap is what keeps that safe: with MAX_VERIFY_ATTEMPTS=5 tries per code and a
+ * 10-minute TTL, an online attacker gets at most 5/10000 = 0.05% chance per
+ * code before it's burned, and the per-IP + per-email rate limits stop them
+ * requesting fresh codes fast enough to matter. Keep the attempt cap TIGHT if
+ * you ever revisit these constants.
+ *
  * Enumeration: request() always resolves to a generic success envelope and
  * always sends to the address given — this endpoint confirms the SIGNUP
  * email belongs to the user, so there is no "does an account exist" oracle
@@ -27,13 +35,18 @@ import { signJWT, verifyJWT } from "../utils/misc.js";
 import { sendEmail } from "./providers/email.js";
 import { buildOtpVerificationEmail } from "./emailTemplates/otpVerification.js";
 import logger from "../utils/logger.js";
+import config from "../config/index.js";
 
 const CODE_TTL_SECONDS = 10 * 60; // 10 minutes
 const CODE_TTL_MINUTES = 10;
 const RESEND_COOLDOWN_SECONDS = 45;
 const MAX_SENDS_PER_WINDOW = 8;
 const SEND_WINDOW_SECONDS = 60 * 60; // 1 hour
+// Kept deliberately tight: a 4-digit code is low-entropy (10,000 values), so
+// the attempt cap is the primary brute-force defence — 5 wrong tries burns
+// the code and forces a fresh request (which is itself cooldown/cap-limited).
 const MAX_VERIFY_ATTEMPTS = 5;
+const CODE_DIGITS = 4;
 const VERIFIED_TTL_SECONDS = 30 * 60; // verified marker lives 30 min
 const VERIFY_TOKEN_TTL = "30m";
 const VERIFY_TOKEN_PURPOSE = "email_verify";
@@ -91,8 +104,10 @@ function hashCode(code, email) {
 }
 
 function generateCode() {
-  // 6 digits, cryptographically random, zero-padded.
-  return String(crypto.randomInt(0, 1_000_000)).padStart(6, "0");
+  // 4 digits, cryptographically random, zero-padded. Lower entropy than 6 —
+  // see the ENTROPY NOTE at the top of the file; MAX_VERIFY_ATTEMPTS is the
+  // guardrail that makes a 4-digit code acceptable here.
+  return String(crypto.randomInt(0, 10 ** CODE_DIGITS)).padStart(CODE_DIGITS, "0");
 }
 
 async function kvGet(key) {
@@ -178,17 +193,59 @@ export async function requestEmailOtp({ email, language } = {}) {
     language,
   });
 
+  // Dispatch through the SAME transport every other platform email uses
+  // (services/providers/email.js::sendEmail → Resend in prod). `sendEmail`
+  // NEVER throws for a provider failure — it returns a soft-failure envelope
+  // `{ success: false, error }` so order-status mail can't roll back an order.
+  // That means we MUST inspect the return value here: if we only relied on a
+  // try/catch we'd report "code sent" to the user while Resend rejected the
+  // message (unverified from-domain, bad API key, …) and nothing was delivered.
+  // That silent success is exactly why signup OTPs "weren't arriving" in prod.
   let devCode;
+  let res;
   try {
-    const res = await sendEmail({ to: normalized, subject, text, html });
-    // When email is stubbed (EMAIL_ENABLED=false) or captured (test inbox),
-    // surface the code so the OTP flow is exercisable without a real inbox.
-    if (res?.provider === "log" || res?.provider === "inbox") {
-      devCode = code;
-    }
+    res = await sendEmail({ to: normalized, subject, text, html });
   } catch (err) {
-    logger.warn("OTP email failed to send", { error: err?.message });
-    // Still return success — the client can retry after the cooldown.
+    // Defensive: sendEmail shouldn't throw, but if it ever does treat it as a
+    // hard delivery failure rather than swallowing it.
+    res = { success: false, provider: "throw", error: err?.message };
+  }
+
+  const provider = res?.provider;
+  const emailHash = emailKeyHash(normalized);
+
+  if (provider === "log") {
+    // EMAIL_ENABLED=false → the platform stubbed the send (dev/staging). Echo
+    // the code so the flow is exercisable without a real inbox.
+    devCode = code;
+    if (config.isProduction) {
+      // A production deploy that forgot to set EMAIL_ENABLED=true silently
+      // stubs EVERY email — including this signup-GATING code. Signup cannot
+      // complete without it, so make the misconfiguration LOUD instead of
+      // returning a false success. Required prod env: EMAIL_ENABLED=true,
+      // RESEND_API_KEY, EMAIL_FROM.
+      logger.error(
+        "OTP email was STUBBED in production — the verification code was NOT delivered. " +
+          "Set EMAIL_ENABLED=true plus RESEND_API_KEY and EMAIL_FROM so signup OTPs actually send.",
+        { emailHash }
+      );
+    }
+  } else if (provider === "inbox") {
+    // NODE_ENV=test capture — surface the code for e2e/unit exercising.
+    devCode = code;
+  } else if (res?.success !== true) {
+    // The real provider was invoked but rejected/failed. sendEmail already
+    // logged the provider error; add an OTP-specific loud line so a
+    // non-delivery is traceable to "signup verification code" in prod logs.
+    logger.error(
+      "OTP verification email FAILED to send — the code was not delivered. " +
+        "Check RESEND_API_KEY / EMAIL_FROM (the from-domain must be verified with the provider).",
+      { emailHash, provider, error: res?.error }
+    );
+  } else {
+    // Delivered to the wire (provider === "resend", success). Trace it so a
+    // "didn't get the code" report can be correlated without a debugger.
+    logger.info("OTP verification email dispatched", { emailHash, provider });
   }
 
   return { ok: true, cooldownSeconds: RESEND_COOLDOWN_SECONDS, devCode };
@@ -205,7 +262,7 @@ export async function verifyEmailOtp({ email, code } = {}) {
   const normalized = normalizeEmail(email);
   const submitted = String(code || "").trim();
 
-  if (!normalized || !/^\d{6}$/.test(submitted)) {
+  if (!normalized || !new RegExp(`^\\d{${CODE_DIGITS}}$`).test(submitted)) {
     return { success: false, statusCode: 400, message: "Invalid or expired code" };
   }
 

@@ -84,7 +84,10 @@
     "orders": "الطلبات",
     "products": "المنتجات",
     "more": "المزيد",
-    "menu_title": "القائمة"
+    "menu_title": "القائمة",
+    "create": "إنشاء",
+    "new_order": "طلب جديد",
+    "new_product": "منتج جديد"
   },
   "browser_notifications": {
     "prompt_title": "تفعيل إشعارات المتصفح؟",

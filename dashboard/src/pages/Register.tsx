@@ -31,7 +31,11 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api-client';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { OtpInput } from '../components/OtpInput';
 import { toast } from 'sonner';
+
+// Signup email-OTP length. Must match the backend (services/otp.js).
+const OTP_LENGTH = 4;
 
 interface ThemeOption {
   _id: string;
@@ -82,14 +86,14 @@ const ThemeCardPreview: React.FC<{ src?: string; alt: string; fallbackColor: str
 }) => {
   const [failed, setFailed] = useState(false);
   if (!src || failed) {
-    return <div className="h-28" style={{ backgroundColor: fallbackColor }} />;
+    return <div className="w-full aspect-[16/9]" style={{ backgroundColor: fallbackColor }} />;
   }
   return (
     <img
       src={src}
       alt={alt}
       loading="lazy"
-      className="h-28 w-full object-cover object-top"
+      className="w-full aspect-[16/9] object-cover object-top"
       onError={() => setFailed(true)}
     />
   );
@@ -260,7 +264,7 @@ export const Register: React.FC = () => {
   };
 
   // ── Email-OTP verification ──
-  // Request a 6-digit code for the account email. Used both when first
+  // Request a 4-digit code for the account email. Used both when first
   // entering the OTP step and for the resend action.
   const sendOtp = async () => {
     setOtpSending(true);
@@ -284,7 +288,8 @@ export const Register: React.FC = () => {
   // Verify the entered code; on success stash the token and advance to store.
   const verifyOtpAndAdvance = async () => {
     const code = otpCode.trim();
-    if (code.length !== 6) return;
+    if (code.length !== OTP_LENGTH) return;
+    if (otpVerifying) return; // guard against auto-submit + button double-fire
     setOtpVerifying(true);
     setOtpError('');
     try {
@@ -535,34 +540,34 @@ export const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-clip">
       {/* Top bar with progress */}
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur border-b">
-        <div className="max-w-3xl mx-auto px-6 py-4 grid grid-cols-[1fr_auto_1fr] items-center gap-6">
-          <div className="flex items-center gap-2 justify-self-start">
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 grid grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-6">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
               <Store className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold tracking-tight">Matjar</span>
+            <span className="font-semibold tracking-tight truncate">Matjar</span>
           </div>
-          <div className="w-64 max-w-full">
+          <div className="w-full max-w-64 justify-self-center min-w-0">
             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-blue-600 transition-all duration-500"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="mt-1.5 text-xs text-muted-foreground text-center">
+            <div className="mt-1.5 text-xs text-muted-foreground text-center truncate">
               {t('auth.register.step_of', { current: stepIndex + 1, total: STEPS.length })}
             </div>
           </div>
-          <div className="justify-self-end">
+          <div className="justify-self-end shrink-0">
             <LanguageSwitcher />
           </div>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-10 sm:py-16">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <style>{`
           @keyframes onbIn { 0% { opacity: 0; transform: translateY(18px); } 100% { opacity: 1; transform: translateY(0); } }
           @keyframes onbOut { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-14px); } }
@@ -739,20 +744,17 @@ export const Register: React.FC = () => {
 
             <div className="space-y-4 max-w-sm">
               <div className="space-y-2">
-                <Label htmlFor="otp">{t('auth.register.otp.label')}</Label>
-                <Input
+                <Label htmlFor="otp-0">{t('auth.register.otp.label')}</Label>
+                <OtpInput
                   id="otp"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
-                  placeholder="000000"
-                  dir="ltr"
+                  length={OTP_LENGTH}
                   value={otpCode}
-                  onChange={e => { setOtpError(''); setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6)); }}
-                  onKeyDown={e => { if (e.key === 'Enter' && otpCode.length === 6) verifyOtpAndAdvance(); }}
+                  onChange={(v) => { setOtpError(''); setOtpCode(v); }}
+                  onComplete={verifyOtpAndAdvance}
                   autoFocus
-                  className="text-center text-2xl tracking-[0.5em] font-mono h-14"
-                  aria-invalid={!!otpError}
+                  disabled={otpVerifying}
+                  hasError={!!otpError}
+                  ariaLabel={t('auth.register.otp.label')}
                 />
                 {otpError && <p className="text-xs text-destructive">{otpError}</p>}
               </div>
@@ -938,24 +940,25 @@ export const Register: React.FC = () => {
           </div>
         )}
 
-        {/* Nav buttons */}
+        {/* Nav buttons — stack full-width on mobile (primary action on top via
+            flex-col-reverse), inline space-between from sm up. */}
         {step !== 'welcome' && (
-          <div className="mt-12 flex items-center justify-between">
-            <Button variant="ghost" onClick={back} disabled={submitting}>
+          <div className="mt-12 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Button variant="ghost" onClick={back} disabled={submitting} className="w-full sm:w-auto">
               <ChevronLeft className="me-1 h-4 w-4 rtl:rotate-180" /> {t('common:action.back')}
             </Button>
 
             {step === 'theme' ? (
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                 <Button
                   variant="ghost"
                   onClick={() => submit({ skipTheme: true })}
                   disabled={submitting}
-                  className="h-12"
+                  className="h-12 w-full sm:w-auto"
                 >
                   {t('auth.register.theme_skip')}
                 </Button>
-                <Button size="lg" onClick={() => submit()} disabled={submitting || !canAdvance()} className="h-12 px-8">
+                <Button size="lg" onClick={() => submit()} disabled={submitting || !canAdvance()} className="h-12 px-8 w-full sm:w-auto">
                   {submitting ? (
                     <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.register.creating')}</>
                   ) : (
@@ -967,8 +970,8 @@ export const Register: React.FC = () => {
               <Button
                 size="lg"
                 onClick={next}
-                disabled={otpVerifying || otpCode.length !== 6}
-                className="h-12 px-8"
+                disabled={otpVerifying || otpCode.length !== OTP_LENGTH}
+                className="h-12 px-8 w-full sm:w-auto"
               >
                 {otpVerifying ? (
                   <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.register.otp.verifying')}</>
@@ -977,7 +980,7 @@ export const Register: React.FC = () => {
                 )}
               </Button>
             ) : (
-              <Button size="lg" onClick={next} disabled={!canAdvance()} className="h-12 px-8">
+              <Button size="lg" onClick={next} disabled={!canAdvance()} className="h-12 px-8 w-full sm:w-auto">
                 {t('common:action.continue')} <ChevronRight className="ms-2 h-4 w-4 rtl:rotate-180" />
               </Button>
             )}

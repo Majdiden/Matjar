@@ -4,6 +4,7 @@ import { api } from '../lib/api-client';
 import { setTenantCurrency, setTenantLocale } from '../lib/format';
 import { AuthContext } from './auth-context';
 import { encodeAuthPayload, hydrateAuthFromUrlHash } from '../lib/authHandoff';
+import { teardownPushSubscription } from '../lib/web-push';
 
 // Narrow responses from `/auth/me` and store-picker handoffs without
 // resorting to `any`. Only the fields we actually read are typed; the
@@ -275,6 +276,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (refreshToken) {
       api.post('/auth/logout', { refreshToken }).catch(() => {});
     }
+    // Best-effort: drop this device's Web Push subscription so a shared
+    // device stops receiving the previous user's background alerts. Runs
+    // before clearAuth so the authed unsubscribe call still carries a token.
+    void teardownPushSubscription();
     clearAuth();
   }, [clearAuth]);
 

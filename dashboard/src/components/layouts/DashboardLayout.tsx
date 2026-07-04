@@ -448,7 +448,7 @@ const DashboardLayoutInner: React.FC = () => {
   return (
     <DirectionProvider dir={dir}>
       <TooltipProvider delayDuration={0}>
-        <div dir={dir} className="flex h-screen overflow-hidden bg-background">
+        <div dir={dir} className="flex h-[100dvh] overflow-hidden bg-background">
         {/* Desktop Sidebar — dark surface via sidebar-scoped tokens (3.8.6) */}
         <aside className="sidebar-surface hidden lg:flex lg:w-64 lg:flex-col lg:border-e">
           <SidebarContent pendingOrders={pendingOrders} />
@@ -497,7 +497,7 @@ const DashboardLayoutInner: React.FC = () => {
           {/* Top header — compact + sticky (flex column keeps it pinned while
               only <main> scrolls). Safe-area top padding clears the status bar
               when the PWA runs standalone on a notched phone. */}
-          <header className="flex min-h-14 shrink-0 items-center gap-3 border-b bg-background px-4 pt-[env(safe-area-inset-top)] lg:px-6">
+          <header className="flex min-h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 items-center gap-3 border-b bg-background px-4 pt-[env(safe-area-inset-top)] lg:px-6 lg:min-h-14">
             {/* Mobile brand — the desktop sidebar logo is hidden below lg, so
                 surface the Matjar mark here for identity on phones. */}
             <Link to="/dashboard" className="flex items-center gap-2 lg:hidden">
@@ -610,7 +610,7 @@ const DashboardLayoutInner: React.FC = () => {
           {/* Page content — light neutral canvas behind white cards (3.8.1).
               Extra bottom padding on mobile clears the fixed bottom nav +
               gesture bar; reset to the normal p-6 at lg. */}
-          <main className="flex-1 overflow-y-auto bg-canvas p-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] lg:p-6">
+          <main className="flex-1 overflow-y-auto bg-canvas p-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] lg:p-6 lg:pb-6">
             {/* PWA lifecycle banners (offline / update / install) — outside
                 Suspense so they persist across route changes and remain
                 visible even while a lazy chunk is loading offline. */}

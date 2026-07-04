@@ -9,7 +9,7 @@
  * services/providers/email.js::sendEmail.
  *
  * @param {object} opts
- * @param {string} opts.code               The 6-digit verification code.
+ * @param {string} opts.code               The 4-digit verification code.
  * @param {number} [opts.expiresInMinutes] Displayed to the user.
  * @param {string} [opts.language]         "ar" → Arabic copy; anything else → English.
  */

@@ -30,7 +30,7 @@ import { setTenantCurrency, setTenantLocale } from '../../lib/format';
 import { useLanguage } from '../../i18n/LanguageProvider';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { Store, Globe2, Truck, Receipt, Coins, Mail } from 'lucide-react';
+import { Store, Globe2, Truck, Receipt, Coins, Mail, ShieldCheck } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { errorMessage, type GeneralSettingsState, type ShippingType } from './shared';
@@ -42,10 +42,11 @@ import { CurrencySettings } from './CurrencySettings';
 import { MarketsSettings } from './MarketsSettings';
 import { NotificationSettings } from './NotificationSettings';
 import { EmailTemplates } from './EmailTemplates';
+import { SecurityPanel } from '../security/Security';
 
-type SettingsTab = 'general' | 'regional' | 'shipping' | 'tax' | 'currencies' | 'markets' | 'notifications' | 'email-templates';
+type SettingsTab = 'general' | 'regional' | 'shipping' | 'tax' | 'currencies' | 'markets' | 'notifications' | 'email-templates' | 'security';
 
-const VALID_TABS: SettingsTab[] = ['general', 'regional', 'shipping', 'tax', 'currencies', 'markets', 'notifications', 'email-templates'];
+const VALID_TABS: SettingsTab[] = ['general', 'regional', 'shipping', 'tax', 'currencies', 'markets', 'notifications', 'email-templates', 'security'];
 
 export const Settings: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
@@ -166,6 +167,7 @@ export const Settings: React.FC = () => {
             { id: 'markets', label: t('settings.tab.markets.label'), icon: Globe2 },
             { id: 'notifications', label: t('settings.tab.notifications.label'), icon: BellIcon },
             { id: 'email-templates', label: t('settings.tab.email_templates.label'), icon: Mail },
+            { id: 'security', label: t('settings.tab.security.label'), icon: ShieldCheck },
           ] as { id: SettingsTab; label: string; icon: React.ElementType }[]).map(({ id, label, icon: Icon }) => (
             <TabsTrigger key={id} value={id} className="gap-1.5 shrink-0">
               <Icon className="h-4 w-4" />
@@ -239,6 +241,13 @@ export const Settings: React.FC = () => {
         {tab === 'email-templates' && (
         <div className="space-y-6">
           <EmailTemplates />
+        </div>
+        )}
+
+        {/* Account security — passkeys + email verification */}
+        {tab === 'security' && (
+        <div className="space-y-6">
+          <SecurityPanel />
         </div>
         )}
       </div>

@@ -23,13 +23,21 @@ export default defineConfig(({ mode }) => ({
     // precache, navigateFallback) is base-prefixed to match.
     VitePWA({
       registerType: 'prompt',
+      // Custom service worker source (src/sw.ts) so we can host real Web
+      // Push handlers (`push` + `notificationclick`) that generateSW can't.
+      // The precache + navigation-fallback + runtime-caching that the old
+      // generateSW config produced are replicated inside src/sw.ts, so the
+      // offline behaviour does not regress.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      // Source file name in srcDir; the emitted worker is sw.js at the dist
+      // ROOT. routes/dashboard.js serves it before the SPA catch-all so the
+      // SW installs at scope /dashboard/.
+      filename: 'sw.ts',
       // We register + drive the update/offline UX ourselves via the
       // `virtual:pwa-register/react` hook (components/pwa/PwaManager.tsx),
       // so the plugin must NOT also inject its own registration script.
       injectRegister: false,
-      // Emit sw.js + manifest at the dist ROOT. routes/dashboard.js serves
-      // these real files before the SPA catch-all so the SW can install.
-      filename: 'sw.js',
       manifestFilename: 'manifest.webmanifest',
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png'],
       manifest: {
@@ -51,44 +59,14 @@ export default defineConfig(({ mode }) => ({
           { src: 'pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: {
+      // injectManifest only controls WHAT gets precached; the navigation
+      // fallback + runtime caching now live in src/sw.ts.
+      injectManifest: {
         // Precache the built app shell + hashed assets so a cold, offline
-        // launch still boots the UI. SPA navigations fall back to index.html.
+        // launch still boots the UI.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         // Keep the (large, many-chunk) precache from tripping the default 2 MiB cap.
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-        navigateFallback: '/dashboard/index.html',
-        // Never hijack the API or printable-doc/editor routes with the shell.
-        navigateFallbackDenylist: [/^\/api/, /\/(invoice|packing-slip|refund-receipt)/],
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        runtimeCaching: [
-          {
-            // Previously-viewed API data renders offline: try the network
-            // first (fresh data online), fall back to the cached copy when
-            // the network is down or times out quickly.
-            urlPattern: ({ url, request }) =>
-              url.pathname.startsWith('/api/') && request.method === 'GET',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'matjar-api',
-              networkTimeoutSeconds: 5,
-              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 7 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-          {
-            // Storefront/product imagery and uploaded media — cheap to keep,
-            // avoids re-downloading on flaky connections.
-            urlPattern: ({ url }) => url.pathname.startsWith('/uploads/'),
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'matjar-uploads',
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
       },
       devOptions: {
         // Keep the SW OFF in `vite dev` (avoids caching surprises while

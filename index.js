@@ -19,6 +19,7 @@ import config from "./config/index.js";
 import { connectDb } from "./utils/connectionManager.js";
 import { syncThemeCatalog, auditTenantThemeManifests } from "./services/themeCatalogSync.js";
 import { initRedis } from "./config/redis.js";
+import { initWebPush } from "./utils/webPush.js";
 import RouteConfig from "./server/route.config.js";
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
 import {
@@ -179,6 +180,16 @@ const startServer = async () => {
     } catch (err) {
       logger.error("Theme catalog sync failed at boot", { error: err.message });
       captureException(err, { extra: { scope: "themeCatalogSync.boot" } });
+    }
+
+    // 1c. Configure Web Push (VAPID). Reads keys from env; in dev generates
+    // and persists a stable dev pair to .vapid.json. Non-fatal — if keys are
+    // missing, background push is simply disabled and in-app notifications
+    // continue to work.
+    try {
+      initWebPush();
+    } catch (err) {
+      logger.error("Web Push init failed at boot", { error: err.message });
     }
 
     // 2. Connect to Redis

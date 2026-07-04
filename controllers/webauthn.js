@@ -7,6 +7,8 @@ import {
   verifyRegistration,
   buildAuthenticationOptions,
   verifyAuthentication,
+  listUserPasskeys,
+  deleteUserPasskey,
 } from "../services/webauthn.js";
 
 /**
@@ -22,6 +24,25 @@ function rpFromRequest(req) {
   const proto = req.headers["x-forwarded-proto"] || req.protocol || "http";
   return { rpID: hostname, origin: `${proto}://${host}` };
 }
+
+// ─── Credential management (authenticated) ──────────────────────────
+
+export const listCredentialsController = asyncHandler(async (req, res) => {
+  const passkeys = await listUserPasskeys({
+    models: req.models,
+    userId: req.user.userId,
+  });
+  res.json({ success: true, responseObject: { passkeys } });
+});
+
+export const deleteCredentialController = asyncHandler(async (req, res) => {
+  const result = await deleteUserPasskey({
+    models: req.models,
+    userId: req.user.userId,
+    id: req.params.id,
+  });
+  res.status(result.statusCode).json({ success: result.success, message: result.message });
+});
 
 // ─── Enrollment (authenticated) ─────────────────────────────────────
 

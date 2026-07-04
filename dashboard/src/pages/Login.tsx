@@ -262,6 +262,10 @@ export const Login: React.FC = () => {
                 {t('auth.passkey.enroll_skip')}
               </Button>
             </div>
+
+            {/* Existing accounts that dismiss this can still opt in later from
+                the dashboard Security page — the same enrollment flow. */}
+            <p className="text-xs text-muted-foreground">{t('auth.passkey.manage_later')}</p>
           </div>
         </main>
       </div>

@@ -67,6 +67,64 @@ export const verifyOtpController = asyncHandler(async (req, res) => {
   });
 });
 
+// ─── Authenticated email verification (dashboard Security page) ──────
+//
+// Existing accounts that were created before the signup email-OTP gate (or
+// that skipped it) can verify their email from Settings → Security. Unlike
+// the public signup endpoints, these operate on the LOGGED-IN user's own
+// email (never a client-supplied address) and, on success, flip the durable
+// `emailVerified` flag on the User doc instead of minting a register token.
+
+export const requestEmailVerificationController = asyncHandler(async (req, res) => {
+  const me = await req.models.User.findById(req.user.userId).select("email language").lean();
+  if (!me?.email) {
+    return res.status(401).json({ success: false, message: "Not authenticated" });
+  }
+  const result = await requestEmailOtp({ email: me.email, language: me.language });
+  res.status(200).json({
+    success: true,
+    message: "A verification code has been sent to your email.",
+    responseObject: {
+      email: me.email,
+      cooldownSeconds: result.cooldownSeconds,
+      ...(result.devCode ? { devCode: result.devCode } : {}),
+    },
+  });
+});
+
+export const confirmEmailVerificationController = asyncHandler(async (req, res) => {
+  const { code } = req.body || {};
+  const me = await req.models.User.findById(req.user.userId).select("email emailVerified").lean();
+  if (!me?.email) {
+    return res.status(401).json({ success: false, message: "Not authenticated" });
+  }
+  const result = await verifyEmailOtp({ email: me.email, code });
+  if (!result.success) {
+    return res.status(result.statusCode).json({ success: false, message: result.message });
+  }
+  // Persist the durable flag so the badge survives across sessions. Use a
+  // scoped updateOne (not doc.save) so tenantId is injected by the tenant
+  // scope plugin — a partial `.select()` doc would otherwise trip its
+  // "missing tenantId on validate" guard.
+  if (!me.emailVerified) {
+    await req.models.User.updateOne(
+      { _id: req.user.userId },
+      { $set: { emailVerified: true, emailVerifiedAt: new Date() } }
+    );
+  }
+  logAudit(req.models, {
+    action: "user.email_verified",
+    resource: "User",
+    resourceId: req.user.userId,
+    req,
+  });
+  res.status(200).json({
+    success: true,
+    message: "Email verified",
+    responseObject: { emailVerified: true },
+  });
+});
+
 /**
  * Create an ADDITIONAL store under the authenticated user's account (the
  * "add a store" flow an existing user reaches from the store picker or from
@@ -324,6 +382,21 @@ export const getCurrentUserController = asyncHandler(async (req, res) => {
   } catch {
     permissions = [];
   }
+  // Pull the durable email-verification flag + email so the dashboard
+  // Security surface can show the verified badge / CTA without a second call.
+  let email = null;
+  let emailVerified = false;
+  try {
+    const me = await req.models.User.findById(req.user.userId)
+      .select("email emailVerified")
+      .lean();
+    if (me) {
+      email = me.email || null;
+      emailVerified = !!me.emailVerified;
+    }
+  } catch {
+    // Non-fatal — the dashboard treats missing status as "not verified".
+  }
   res.json({
     success: true,
     message: "User info retrieved successfully",
@@ -333,6 +406,8 @@ export const getCurrentUserController = asyncHandler(async (req, res) => {
       roles: req.user.roles,
       permissions,
       settings,
+      email,
+      emailVerified,
     },
   });
 });

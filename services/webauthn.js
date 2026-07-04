@@ -29,6 +29,7 @@ import {
   findUserCredentialRepo,
   createCredentialRepo,
   updateCredentialCounterRepo,
+  deleteCredentialByIdRepo,
 } from "../repositories/webauthnCredential.js";
 
 const RP_NAME = "Matjar";
@@ -85,6 +86,34 @@ async function kvDel(key) {
 
 const regKey = (tenantId, userId) => `webauthn:chal:reg:${tenantId}:${userId}`;
 const authKey = (flowId) => `webauthn:chal:auth:${flowId}`;
+
+/**
+ * List an authenticated user's enrolled passkeys for the dashboard Security
+ * page. Returns only display-safe fields (never the public key / counter).
+ */
+export async function listUserPasskeys({ models, userId }) {
+  const creds = await listCredentialsByUserRepo(models, userId);
+  return creds.map((c) => ({
+    id: String(c._id),
+    name: c.name || "Passkey",
+    deviceType: c.deviceType || null,
+    backedUp: !!c.backedUp,
+    createdAt: c.createdAt || null,
+    lastUsedAt: c.lastUsedAt || null,
+  }));
+}
+
+/**
+ * Remove one of the user's passkeys by its Mongo _id. Scoped to the user so a
+ * caller can only delete their own credentials.
+ */
+export async function deleteUserPasskey({ models, userId, id }) {
+  const result = await deleteCredentialByIdRepo(models, userId, id);
+  if (!result || result.deletedCount === 0) {
+    return { success: false, statusCode: 404, message: "Passkey not found." };
+  }
+  return { success: true, statusCode: 200, message: "Passkey removed" };
+}
 
 /**
  * Build passkey ENROLLMENT options for an authenticated user.

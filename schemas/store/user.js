@@ -73,6 +73,13 @@ const userSchema = new Schema({
   isActive: { type: Boolean, default: true },
   lastLoginAt: { type: Date },
 
+  // Email-verification state. Set true once the user completes the 4-digit
+  // email-OTP flow — either at signup (the registration gate) or later from
+  // the dashboard Security page (existing accounts opting in). `null`/false
+  // means "never verified"; the dashboard surfaces this as a badge/CTA.
+  emailVerified: { type: Boolean, default: false },
+  emailVerifiedAt: { type: Date, default: null },
+
   // Preferred language for this customer's transactional emails. Defaults
   // to the store's language at signup; used to localize order/account mail.
   language: { type: String, default: "en" },

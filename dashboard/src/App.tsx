@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ComponentType } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -11,62 +11,91 @@ import { Login } from './pages/Login';
 import { Toaster } from './components/ui/sonner';
 import { ConfirmProvider } from './components/ui/confirm-dialog';
 
+// A failed dynamic import almost always means the chunk hash changed under
+// an open tab — a new deploy or a service-worker update, after which the
+// cached index.html still references chunk names the server no longer has.
+// Instead of falling into the error boundary ("something went wrong — please
+// refresh"), reload ONCE to pull the fresh shell. The guard clears on any
+// successful import so a genuinely broken chunk still surfaces (no loop).
+const CHUNK_RELOAD_KEY = 'matjar:chunk-reloaded';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- mirrors React.lazy's own ComponentType<any> signature
+function lazyWithRetry<T extends ComponentType<any>>(
+  factory: () => Promise<{ default: T }>,
+) {
+  return lazy(() =>
+    factory()
+      .then((m) => {
+        sessionStorage.removeItem(CHUNK_RELOAD_KEY);
+        return m;
+      })
+      .catch((err) => {
+        if (!sessionStorage.getItem(CHUNK_RELOAD_KEY)) {
+          sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
+          window.location.reload();
+          return new Promise<{ default: T }>(() => {}); // never resolves; page reloads
+        }
+        throw err;
+      }),
+  );
+}
+
 // Every route page is code-split (audit 3.6) so the initial bundle no
 // longer carries all ~55 pages. Vite emits one chunk per lazy import;
 // the Suspense boundaries below show PageLoader while a chunk loads.
-const Register = lazy(() => import('./pages/Register').then(m => ({ default: m.Register })));
-const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
-const ResetPassword = lazy(() => import('./pages/ResetPassword').then(m => ({ default: m.ResetPassword })));
-const SetupInProgress = lazy(() => import('./pages/SetupInProgress'));
-const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
-const Domains = lazy(() => import('./pages/domains/Domains').then(m => ({ default: m.Domains })));
-const Products = lazy(() => import('./pages/products/Products').then(m => ({ default: m.Products })));
-const ProductForm = lazy(() => import('./pages/products/ProductForm').then(m => ({ default: m.ProductForm })));
-const Categories = lazy(() => import('./pages/categories/Categories').then(m => ({ default: m.Categories })));
-const Orders = lazy(() => import('./pages/orders/Orders').then(m => ({ default: m.Orders })));
-const OrderCreate = lazy(() => import('./pages/orders/create/OrderCreate').then(m => ({ default: m.OrderCreate })));
-const OrderDetails = lazy(() => import('./pages/orders/detail').then(m => ({ default: m.OrderDetails })));
-const OrderLifecycle = lazy(() => import('./pages/orders/OrderLifecycle'));
-const PackingSlip = lazy(() => import('./pages/orders/documents/PackingSlip'));
-const Invoice = lazy(() => import('./pages/orders/documents/Invoice'));
-const RefundReceipt = lazy(() => import('./pages/orders/documents/RefundReceipt'));
-const Themes = lazy(() => import('./pages/themes/Themes').then(m => ({ default: m.Themes })));
-const VisualEditor = lazy(() => import('./pages/themes/VisualEditor'));
-const Settings = lazy(() => import('./pages/settings').then(m => ({ default: m.Settings })));
-const Companies = lazy(() => import('./pages/companies/Companies').then(m => ({ default: m.Companies })));
-const ShippingZoneForm = lazy(() => import('./pages/ShippingZoneForm'));
-const Discounts = lazy(() => import('./pages/marketing/Discounts'));
-const DiscountForm = lazy(() => import('./pages/marketing/DiscountForm'));
-const Customers = lazy(() => import('./pages/customers/Customers'));
-const CustomerSegments = lazy(() => import('./pages/customers/CustomerSegments'));
-const CustomerSegmentForm = lazy(() => import('./pages/customers/CustomerSegmentForm'));
-const Analytics = lazy(() => import('./pages/analytics/Analytics'));
-const Reviews = lazy(() => import('./pages/reviews/Reviews'));
-const Inventory = lazy(() => import('./pages/inventory/Inventory'));
-const Fulfillments = lazy(() => import('./pages/fulfillments/Fulfillments').then(m => ({ default: m.Fulfillments })));
-const CustomFields = lazy(() => import('./pages/custom-fields/CustomFields').then(m => ({ default: m.CustomFields })));
-const AuditLogs = lazy(() => import('./pages/audit-logs/AuditLogs').then(m => ({ default: m.AuditLogs })));
-const Payments = lazy(() => import('./pages/payments/Payments'));
-const PaymentMethods = lazy(() => import('./pages/payments/PaymentMethods'));
-const TransactionDetail = lazy(() => import('./pages/payments/TransactionDetail'));
-const Subscriptions = lazy(() => import('./pages/subscriptions/Subscriptions'));
-const Permissions = lazy(() => import('./pages/permissions/Permissions'));
-const Webhooks = lazy(() => import('./pages/webhooks/Webhooks'));
-const GiftCards = lazy(() => import('./pages/gift-cards/GiftCards'));
-const GiftCardDetail = lazy(() => import('./pages/gift-cards/GiftCardDetail'));
-const GiftCardNew = lazy(() => import('./pages/gift-cards/GiftCardNew'));
-const Collections = lazy(() => import('./pages/collections/Collections'));
-const CollectionForm = lazy(() => import('./pages/collections/CollectionForm'));
-const Menus = lazy(() => import('./pages/menus/Menus'));
-const MenuForm = lazy(() => import('./pages/menus/MenuForm'));
-const Pages = lazy(() => import('./pages/pages/Pages'));
-const PageForm = lazy(() => import('./pages/pages/PageForm'));
-const MediaLibrary = lazy(() => import('./pages/media/MediaLibrary'));
-const Redirects = lazy(() => import('./pages/redirects/Redirects'));
-const Staff = lazy(() => import('./pages/staff/Staff'));
-const AcceptInvite = lazy(() => import('./pages/staff/AcceptInvite'));
-const Notifications = lazy(() => import('./pages/notifications/Notifications'));
-const NotFound = lazy(() => import('./pages/NotFound'));
+const Register = lazyWithRetry(() => import('./pages/Register').then(m => ({ default: m.Register })));
+const ForgotPassword = lazyWithRetry(() => import('./pages/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
+const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword').then(m => ({ default: m.ResetPassword })));
+const SetupInProgress = lazyWithRetry(() => import('./pages/SetupInProgress'));
+const Dashboard = lazyWithRetry(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
+const Domains = lazyWithRetry(() => import('./pages/domains/Domains').then(m => ({ default: m.Domains })));
+const Products = lazyWithRetry(() => import('./pages/products/Products').then(m => ({ default: m.Products })));
+const ProductForm = lazyWithRetry(() => import('./pages/products/ProductForm').then(m => ({ default: m.ProductForm })));
+const Categories = lazyWithRetry(() => import('./pages/categories/Categories').then(m => ({ default: m.Categories })));
+const Orders = lazyWithRetry(() => import('./pages/orders/Orders').then(m => ({ default: m.Orders })));
+const OrderCreate = lazyWithRetry(() => import('./pages/orders/create/OrderCreate').then(m => ({ default: m.OrderCreate })));
+const OrderDetails = lazyWithRetry(() => import('./pages/orders/detail').then(m => ({ default: m.OrderDetails })));
+const OrderLifecycle = lazyWithRetry(() => import('./pages/orders/OrderLifecycle'));
+const PackingSlip = lazyWithRetry(() => import('./pages/orders/documents/PackingSlip'));
+const Invoice = lazyWithRetry(() => import('./pages/orders/documents/Invoice'));
+const RefundReceipt = lazyWithRetry(() => import('./pages/orders/documents/RefundReceipt'));
+const Themes = lazyWithRetry(() => import('./pages/themes/Themes').then(m => ({ default: m.Themes })));
+const VisualEditor = lazyWithRetry(() => import('./pages/themes/VisualEditor'));
+const Settings = lazyWithRetry(() => import('./pages/settings').then(m => ({ default: m.Settings })));
+const Security = lazyWithRetry(() => import('./pages/security/Security').then(m => ({ default: m.Security })));
+const Companies = lazyWithRetry(() => import('./pages/companies/Companies').then(m => ({ default: m.Companies })));
+const ShippingZoneForm = lazyWithRetry(() => import('./pages/ShippingZoneForm'));
+const Discounts = lazyWithRetry(() => import('./pages/marketing/Discounts'));
+const DiscountForm = lazyWithRetry(() => import('./pages/marketing/DiscountForm'));
+const Customers = lazyWithRetry(() => import('./pages/customers/Customers'));
+const CustomerSegments = lazyWithRetry(() => import('./pages/customers/CustomerSegments'));
+const CustomerSegmentForm = lazyWithRetry(() => import('./pages/customers/CustomerSegmentForm'));
+const Analytics = lazyWithRetry(() => import('./pages/analytics/Analytics'));
+const Reviews = lazyWithRetry(() => import('./pages/reviews/Reviews'));
+const Inventory = lazyWithRetry(() => import('./pages/inventory/Inventory'));
+const Fulfillments = lazyWithRetry(() => import('./pages/fulfillments/Fulfillments').then(m => ({ default: m.Fulfillments })));
+const CustomFields = lazyWithRetry(() => import('./pages/custom-fields/CustomFields').then(m => ({ default: m.CustomFields })));
+const AuditLogs = lazyWithRetry(() => import('./pages/audit-logs/AuditLogs').then(m => ({ default: m.AuditLogs })));
+const Payments = lazyWithRetry(() => import('./pages/payments/Payments'));
+const PaymentMethods = lazyWithRetry(() => import('./pages/payments/PaymentMethods'));
+const TransactionDetail = lazyWithRetry(() => import('./pages/payments/TransactionDetail'));
+const Subscriptions = lazyWithRetry(() => import('./pages/subscriptions/Subscriptions'));
+const Permissions = lazyWithRetry(() => import('./pages/permissions/Permissions'));
+const Webhooks = lazyWithRetry(() => import('./pages/webhooks/Webhooks'));
+const GiftCards = lazyWithRetry(() => import('./pages/gift-cards/GiftCards'));
+const GiftCardDetail = lazyWithRetry(() => import('./pages/gift-cards/GiftCardDetail'));
+const GiftCardNew = lazyWithRetry(() => import('./pages/gift-cards/GiftCardNew'));
+const Collections = lazyWithRetry(() => import('./pages/collections/Collections'));
+const CollectionForm = lazyWithRetry(() => import('./pages/collections/CollectionForm'));
+const Menus = lazyWithRetry(() => import('./pages/menus/Menus'));
+const MenuForm = lazyWithRetry(() => import('./pages/menus/MenuForm'));
+const Pages = lazyWithRetry(() => import('./pages/pages/Pages'));
+const PageForm = lazyWithRetry(() => import('./pages/pages/PageForm'));
+const MediaLibrary = lazyWithRetry(() => import('./pages/media/MediaLibrary'));
+const Redirects = lazyWithRetry(() => import('./pages/redirects/Redirects'));
+const Staff = lazyWithRetry(() => import('./pages/staff/Staff'));
+const AcceptInvite = lazyWithRetry(() => import('./pages/staff/AcceptInvite'));
+const Notifications = lazyWithRetry(() => import('./pages/notifications/Notifications'));
+const NotFound = lazyWithRetry(() => import('./pages/NotFound'));
 
 // Get base path from environment (for production build served at /dashboard/)
 const basename = import.meta.env.MODE === 'production' ? '/dashboard' : '/';
@@ -112,6 +141,10 @@ function App() {
             <Route path="themes" element={<RequirePermission permission={['themes.read', 'themes.write']}><Themes /></RequirePermission>} />
             <Route path="themes/customize" element={<Navigate to="/dashboard/themes/editor" replace />} />
             <Route path="settings" element={<RequirePermission permission={['settings.read', 'settings.write']}><Settings /></RequirePermission>} />
+            {/* Security is per-account (passkeys + email verification), not a
+                tenant setting — any authenticated user reaches it, no
+                settings permission required. */}
+            <Route path="security" element={<Security />} />
             <Route path="settings/shipping-zones/new" element={<RequirePermission permission="settings.write"><ShippingZoneForm /></RequirePermission>} />
             <Route path="settings/shipping-zones/:id/edit" element={<RequirePermission permission="settings.write"><ShippingZoneForm /></RequirePermission>} />
             <Route path="marketing/discounts" element={<RequirePermission permission={['discounts.read', 'discounts.write']}><Discounts /></RequirePermission>} />

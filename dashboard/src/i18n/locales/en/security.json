@@ -1,0 +1,41 @@
+{
+  "security": {
+    "title": "Security",
+    "subtitle": "Manage passwordless sign-in and verify your email.",
+    "passkey": {
+      "title": "Passkeys",
+      "subtitle": "Sign in with your fingerprint or Face ID instead of a password.",
+      "unsupported": "This device or browser doesn't support passkeys. Open the dashboard on a device with a fingerprint reader or Face ID to set one up.",
+      "empty": "You haven't added any passkeys yet. Add one below to enable fingerprint / Face ID sign-in.",
+      "name_label": "Passkey name",
+      "name_placeholder": "e.g. My MacBook",
+      "add_cta": "Add passkey",
+      "adding": "Setting up...",
+      "added": "Added {{date}}",
+      "last_used": "Last used {{date}}",
+      "remove_title": "Remove passkey?",
+      "remove_desc": "You'll no longer be able to sign in with \"{{name}}\". You can add it again anytime.",
+      "remove_confirm": "Remove",
+      "toast_added": "Passkey added. You can now sign in with fingerprint / Face ID.",
+      "toast_add_failed": "Couldn't add the passkey. Please try again.",
+      "toast_removed": "Passkey removed.",
+      "toast_remove_failed": "Couldn't remove the passkey. Please try again."
+    },
+    "email": {
+      "title": "Email verification",
+      "subtitle": "Confirm you own",
+      "verified_badge": "Verified",
+      "verified_note": "Your email address is verified.",
+      "verify_cta": "Verify email",
+      "sending": "Sending code...",
+      "enter_code": "Enter the 4-digit code we sent to",
+      "verifying": "Verifying...",
+      "resend": "Resend code",
+      "resend_in": "Resend available in {{seconds}}s",
+      "dev_hint": "Dev mode — your code is:",
+      "error_invalid": "That code is invalid or expired.",
+      "toast_send_failed": "Couldn't send the code. Please try again.",
+      "toast_verified": "Email verified."
+    }
+  }
+}

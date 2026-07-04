@@ -3,6 +3,10 @@ node_modules
 .env.*
 !.env.example
 
+# Dev-only auto-generated Web Push VAPID keypair. Production MUST set
+# VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY env vars instead of relying on this.
+.vapid.json
+
 # Built theme artifacts — source of truth is each theme's
 # `src/theme.manifest.ts`; dist/ is produced by the Vite build in CI
 # (or `bash scripts/build-themes.sh` locally). Keeping it out of git

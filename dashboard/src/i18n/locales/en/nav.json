@@ -84,7 +84,10 @@
     "orders": "Orders",
     "products": "Products",
     "more": "More",
-    "menu_title": "Menu"
+    "menu_title": "Menu",
+    "create": "Create",
+    "new_order": "New order",
+    "new_product": "New product"
   },
   "browser_notifications": {
     "prompt_title": "Enable browser notifications?",

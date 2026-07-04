@@ -12,12 +12,16 @@ import {
   confirmPasswordResetController,
   requestOtpController,
   verifyOtpController,
+  requestEmailVerificationController,
+  confirmEmailVerificationController,
 } from "../controllers/auth.js";
 import {
   registrationOptionsController,
   verifyRegistrationController,
   authenticationOptionsController,
   verifyAuthenticationController,
+  listCredentialsController,
+  deleteCredentialController,
 } from "../controllers/webauthn.js";
 import { authenticate } from "../middlewares/auth.js";
 import { validate } from "../middlewares/validate.js";
@@ -41,7 +45,7 @@ const authRoutes = Router();
 // ─── Email-OTP rate limiters ────────────────────────────────────────
 // Per-IP ceilings on top of the per-email cooldown/cap enforced in
 // services/otp.js. Request is the abuse-sensitive one (sends mail); verify
-// is throttled to blunt brute-forcing the 6-digit code from one host.
+// is throttled to blunt brute-forcing the 4-digit code from one host.
 const MINUTE = 60 * 1000;
 const otpRequestLimiter = createRateLimiter({
   prefix: "otp:request",
@@ -109,6 +113,27 @@ authRoutes.post("/stores", authenticate, addStoreController);
 // authenticator (fingerprint / Face ID) on their account.
 authRoutes.post("/webauthn/register-options", authenticate, registrationOptionsController);
 authRoutes.post("/webauthn/register-verify", authenticate, verifyRegistrationController);
+
+// WebAuthn credential management — the dashboard Security page lists a
+// signed-in user's enrolled passkeys and lets them remove one.
+authRoutes.get("/webauthn/credentials", authenticate, listCredentialsController);
+authRoutes.delete("/webauthn/credentials/:id", authenticate, deleteCredentialController);
+
+// Authenticated email verification (dashboard Security page). Operates on the
+// signed-in user's own email; on confirm it flips the durable emailVerified
+// flag. Reuses the per-IP OTP limiters so it can't be used to spam mail.
+authRoutes.post(
+  "/email/verify-request",
+  authenticate,
+  otpRequestLimiter,
+  requestEmailVerificationController
+);
+authRoutes.post(
+  "/email/verify-confirm",
+  authenticate,
+  otpVerifyLimiter,
+  confirmEmailVerificationController
+);
 
 authRoutes.get("/me", authenticate, getCurrentUserController);
 authRoutes.post("/logout", authenticate, logoutController);

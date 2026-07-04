@@ -178,7 +178,7 @@ export const api = {
     }) => api.post('/auth/register', data),
 
     // ─── Signup email-OTP verification ───────────────────────────────
-    // Request a 6-digit code to the given email. Always resolves 200 with a
+    // Request a 4-digit code to the given email. Always resolves 200 with a
     // generic message. In dev (email disabled) the response carries `devCode`
     // so the flow is exercisable without a real inbox.
     requestOtp: (email: string, language?: string) =>
@@ -210,7 +210,29 @@ export const api = {
         ),
       authenticateVerify: (flowId: string, response: unknown) =>
         api.post('/auth/webauthn/authenticate-verify', { flowId, response }),
+      // Authenticated credential management for the Security page.
+      listCredentials: () =>
+        api.get<{ responseObject?: { passkeys?: Array<{
+          id: string; name: string; deviceType?: string | null; backedUp?: boolean;
+          createdAt?: string | null; lastUsedAt?: string | null;
+        }> } }>('/auth/webauthn/credentials'),
+      deleteCredential: (id: string) =>
+        api.delete(`/auth/webauthn/credentials/${encodeURIComponent(id)}`),
     },
+
+    // ─── Authenticated email verification (Security page) ────────────
+    // Operate on the LOGGED-IN user's own email (no address argument). Request
+    // sends a 4-digit code; confirm flips the durable emailVerified flag.
+    emailVerifyRequest: () =>
+      api.post<{ responseObject?: { email?: string; cooldownSeconds?: number; devCode?: string } }>(
+        '/auth/email/verify-request',
+        {},
+      ),
+    emailVerifyConfirm: (code: string) =>
+      api.post<{ success?: boolean; message?: string; responseObject?: { emailVerified?: boolean } }>(
+        '/auth/email/verify-confirm',
+        { code },
+      ),
 
     // Authenticated "add another store" under the current account — returns a
     // token for the new store so the client hands the user straight in.
@@ -279,6 +301,12 @@ export const api = {
     markAllRead: (before?: string) =>
       api.post('/notifications/read-all', before ? { before } : {}),
     dismiss: (id: string) => api.delete(`/notifications/${id}`),
+    // Web Push (background delivery to the installed PWA).
+    vapidPublicKey: () => api.get('/notifications/vapid-public-key'),
+    pushSubscribe: (subscription: PushSubscriptionJSON, userAgent?: string) =>
+      api.post('/notifications/push/subscribe', { subscription, userAgent }),
+    pushUnsubscribe: (endpoint: string) =>
+      api.post('/notifications/push/unsubscribe', { endpoint }),
   },
 
   // Domain endpoints

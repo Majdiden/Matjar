@@ -10,7 +10,8 @@
       "currencies": { "label": "Currencies" },
       "markets": { "label": "Markets" },
       "notifications": { "label": "Notifications" },
-      "email_templates": { "label": "Order emails" }
+      "email_templates": { "label": "Order emails" },
+      "security": { "label": "Security" }
     },
     "section": {
       "store_info": {

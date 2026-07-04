@@ -8,6 +8,7 @@ import {
 import { useNotificationsContext, type NotificationItem } from '../contexts/notifications-context';
 import { useNotificationLeader } from './useNotificationLeader';
 import { useNotificationPreferences } from './useNotificationPreferences';
+import { ensurePushSubscription, isPushSupported } from '../lib/web-push';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const BACKOFFS_MS = [1000, 2000, 4000, 8000, 16000, 30000];
@@ -106,6 +107,47 @@ export function useNotifications() {
   useEffect(() => {
     ctxRef.current = ctx;
   }, [ctx]);
+
+  // ── Web Push background delivery ──────────────────────────────────────
+  // Once the browser has notification permission, register (or re-register)
+  // a push subscription with the backend so the installed PWA receives order
+  // alerts even when it is backgrounded/closed — the ADDITION on top of the
+  // foreground in-app toasts/SSE below. Uses the Permissions API so a grant
+  // that happens AFTER mount (via the permission prompt or Settings page) is
+  // also caught. Fully best-effort; unsupported browsers no-op.
+  useEffect(() => {
+    if (!isPushSupported()) return;
+    let cancelled = false;
+    let permStatus: PermissionStatus | null = null;
+
+    const trySubscribe = () => {
+      if (cancelled) return;
+      if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+      void ensurePushSubscription();
+    };
+
+    // Attempt immediately in case permission was already granted.
+    trySubscribe();
+
+    // Re-attempt when the permission flips to granted later.
+    if (navigator.permissions?.query) {
+      navigator.permissions
+        .query({ name: 'notifications' as PermissionName })
+        .then((status) => {
+          if (cancelled) return;
+          permStatus = status;
+          status.onchange = () => trySubscribe();
+        })
+        .catch(() => {
+          /* Permissions API unavailable — the initial attempt is enough. */
+        });
+    }
+
+    return () => {
+      cancelled = true;
+      if (permStatus) permStatus.onchange = null;
+    };
+  }, []);
 
   // Follower subscription — fires in-app toast only.
   useEffect(() => {

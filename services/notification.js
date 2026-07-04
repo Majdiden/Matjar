@@ -1,6 +1,7 @@
 import * as repo from "../repositories/notification.js";
 import notificationBus from "../utils/notificationBus.js";
 import logger from "../utils/logger.js";
+import { dispatchPush } from "./pushNotifications.js";
 import { ROLE_PERMISSIONS } from "../middlewares/authorize.js";
 import { sendEmail, isEmailConfigured } from "./providers/email.js";
 import {
@@ -27,6 +28,18 @@ export const emit = async (models, tenantId, event) => {
     // provider's latency.
     void dispatchEmails(models, created).catch((err) =>
       logger.warn("notification.dispatchEmails threw", {
+        tenantId: String(tenantId),
+        type: created?.type,
+        error: err?.message,
+      })
+    );
+
+    // Background Web Push fan-out — same fire-and-forget contract as email.
+    // Delivers a system notification to the merchant's installed PWA even
+    // when it is backgrounded/closed. Non-fatal; never blocks the primary
+    // flow. (See services/pushNotifications.js.)
+    void dispatchPush(models, created, tenantId).catch((err) =>
+      logger.warn("notification.dispatchPush threw", {
         tenantId: String(tenantId),
         type: created?.type,
         error: err?.message,
@@ -68,7 +81,7 @@ export const countUnread = async (models, userId, permissions) =>
  * notifications are for merchant staff — customers get their own
  * transactional emails (order confirmation, etc.) via a different path.
  */
-const STAFF_ROLES = new Set(["admin", "manager", "staff"]);
+export const STAFF_ROLES = new Set(["admin", "manager", "staff"]);
 
 /**
  * Compute effective permissions for a user document (lean shape).
@@ -76,7 +89,7 @@ const STAFF_ROLES = new Set(["admin", "manager", "staff"]);
  * but operates on a user doc + pre-fetched custom roles instead of a
  * request object. Returns a Set; "*" means wildcard.
  */
-function effectivePermissionsFor(user, customRolesById) {
+export function effectivePermissionsFor(user, customRolesById) {
   const perms = new Set();
   const roles = Array.isArray(user.roles) ? user.roles : [];
   for (const role of roles) {

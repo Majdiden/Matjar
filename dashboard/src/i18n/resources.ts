@@ -53,6 +53,8 @@ import enAudit from './locales/en/audit.json'
 import arAudit from './locales/ar/audit.json'
 import enErrors from './locales/en/errors.json'
 import arErrors from './locales/ar/errors.json'
+import enSecurity from './locales/en/security.json'
+import arSecurity from './locales/ar/security.json'
 
 export const resources = {
   en: {
@@ -82,6 +84,7 @@ export const resources = {
     subscriptions: enSubscriptions,
     audit: enAudit,
     errors: enErrors,
+    security: enSecurity,
   },
   ar: {
     common: arCommon,
@@ -110,5 +113,6 @@ export const resources = {
     subscriptions: arSubscriptions,
     audit: arAudit,
     errors: arErrors,
+    security: arSecurity,
   },
 } as const

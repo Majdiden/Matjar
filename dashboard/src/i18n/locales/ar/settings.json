@@ -10,7 +10,8 @@
       "currencies": { "label": "العملات" },
       "markets": { "label": "الأسواق" },
       "notifications": { "label": "الإشعارات" },
-      "email_templates": { "label": "رسائل الطلبات" }
+      "email_templates": { "label": "رسائل الطلبات" },
+      "security": { "label": "الأمان" }
     },
     "section": {
       "store_info": {

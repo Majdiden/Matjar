@@ -86,7 +86,7 @@ export const verifyOtpSchema = z.object({
       .email("Invalid email format"),
     code: z
       .string({ required_error: "Code is required" })
-      .regex(/^\d{6}$/, "Code must be 6 digits"),
+      .regex(/^\d{4}$/, "Code must be 4 digits"),
   }),
 });
 
