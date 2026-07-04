@@ -281,21 +281,23 @@ export const OrderDetails: React.FC = () => {
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/orders')}>
-              <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" />{t('orders:detail.back')}
+        {/* Header stacks on phones: back + title, then the actions on their
+            own wrapping row, so Print/Documents don't collide with the title. */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <Button variant="outline" size="sm" className="shrink-0 px-2" onClick={() => navigate('/dashboard/orders')}>
+              <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" />{t('orders:detail.back')}
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">
                 {t('orders:detail.order_title', { number: order.orderNumber || `#${order._id.slice(-6).toUpperCase()}` })}
               </h1>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-sm truncate">
                 {t('orders:detail.placed', { date: formatDateTime(order.createdAt) })}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             <Button
               variant="outline"
               size="sm"
