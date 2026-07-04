@@ -7,6 +7,8 @@ import logger from "../utils/logger.js";
 import config from "../config/index.js";
 import { resolveTenantByHost } from "../services/domainRegistry.js";
 import { createScopedModels } from "../utils/scopedModel.js";
+import { isStoreDraft } from "../services/storeSetup.js";
+import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
 import {
   buildStorefrontHead,
   injectHead,
@@ -180,6 +182,90 @@ async function resolveThemeSlug(tenant) {
   }
 
   return DEFAULT_THEME;
+}
+
+/** Minimal HTML escaper for the server-rendered coming-soon page. */
+function escapeHtmlAttr(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
+ * Build a branded, self-contained "Coming soon" page for a DRAFT store that
+ * a non-owner is trying to visit. Rendered server-side (the SPA never mounts)
+ * so a draft store leaks nothing about its catalog. Bilingual + RTL-aware via
+ * the tenant's configured language, mirroring buildDraftBanner. Uses logical
+ * properties so the Arabic layout reads right-to-left cleanly.
+ *
+ * @param {object} o
+ * @param {object} o.tenant resolved tenant doc
+ * @param {string} o.baseUrl store origin (for the logo/favicon absolute URL)
+ */
+function buildComingSoonPage({ tenant, baseUrl }) {
+  const s = tenant?.settings || {};
+  const lang = String(s.language || "en").toLowerCase();
+  const isAr = lang.startsWith("ar");
+  const dir = isAr ? "rtl" : "ltr";
+  const storeName = s.storeName || tenant?.name || (isAr ? "المتجر" : "Store");
+  const logoRaw = s.logo || s.favicon || null;
+  const logo = logoRaw
+    ? /^https?:\/\//i.test(logoRaw)
+      ? logoRaw
+      : `${baseUrl}${logoRaw.startsWith("/") ? "" : "/"}${logoRaw}`
+    : null;
+  const faviconRaw = s.favicon || s.logo || null;
+  const favicon = faviconRaw
+    ? /^https?:\/\//i.test(faviconRaw)
+      ? faviconRaw
+      : `${baseUrl}${faviconRaw.startsWith("/") ? "" : "/"}${faviconRaw}`
+    : null;
+
+  const copy = isAr
+    ? {
+        title: `${storeName} — قريباً`,
+        heading: "قريباً",
+        body: "نعمل على إطلاق متجرنا. عودوا إلينا قريباً!",
+      }
+    : {
+        title: `${storeName} — Coming soon`,
+        heading: "Coming soon",
+        body: "We're putting the finishing touches on our store. Check back soon!",
+      };
+
+  const initial = escapeHtmlAttr(storeName.trim().charAt(0).toUpperCase() || "S");
+  const logoBlock = logo
+    ? `<img src="${escapeHtmlAttr(logo)}" alt="${escapeHtmlAttr(storeName)}" ` +
+      `style="max-width:160px;max-height:96px;object-fit:contain;margin-inline:auto;display:block;">`
+    : `<div aria-hidden="true" style="width:80px;height:80px;border-radius:20px;` +
+      `margin-inline:auto;display:flex;align-items:center;justify-content:center;` +
+      `background:#111827;color:#fff;font-size:34px;font-weight:700;">${initial}</div>`;
+
+  return (
+    `<!doctype html><html lang="${escapeHtmlAttr(lang)}" dir="${dir}">` +
+    `<head><meta charset="utf-8">` +
+    `<meta name="viewport" content="width=device-width,initial-scale=1">` +
+    `<meta name="robots" content="noindex">` +
+    `<title>${escapeHtmlAttr(copy.title)}</title>` +
+    (favicon ? `<link rel="icon" href="${escapeHtmlAttr(favicon)}">` : "") +
+    `<style>*{box-sizing:border-box}html,body{margin:0;height:100%}` +
+    `body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;` +
+    `display:flex;align-items:center;justify-content:center;min-height:100vh;` +
+    `padding:24px;background:linear-gradient(160deg,#f9fafb,#eef2f7);color:#111827}` +
+    `.card{text-align:center;max-width:30rem;width:100%}` +
+    `.name{margin:22px 0 4px;font-size:1.05rem;font-weight:600;color:#374151;letter-spacing:.02em}` +
+    `h1{margin:14px 0 10px;font-size:1.9rem;line-height:1.2}` +
+    `p{margin:0;color:#6b7280;line-height:1.6;font-size:1.02rem}` +
+    `.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#f59e0b;` +
+    `margin-inline-end:8px;vertical-align:middle}</style></head>` +
+    `<body><main class="card">${logoBlock}` +
+    `<div class="name">${escapeHtmlAttr(storeName)}</div>` +
+    `<h1><span class="dot"></span>${escapeHtmlAttr(copy.heading)}</h1>` +
+    `<p>${escapeHtmlAttr(copy.body)}</p></main></body></html>`
+  );
 }
 
 /**
@@ -375,6 +461,51 @@ export function createStorefrontMiddleware() {
         }
       }
 
+      // ─── DRAFT store gate: owner-only visibility ────────────────
+      //
+      // A store that hasn't been taken live yet is visible ONLY to its
+      // owner. The owner proves identity with one of:
+      //   • the stable STORE preview token (settings.previewToken) as
+      //     `?preview=<token>` — the "owner draft link",
+      //   • a valid short-lived EDITOR token (themeCustomization.previewToken)
+      //     as `?preview=<token>` — the dashboard's live editor iframe, or
+      //   • `?previewTheme=<slug>` — the dashboard theme-gallery preview.
+      // Anyone else visiting a draft store gets a branded "coming soon" page
+      // instead of the (empty) storefront. A LIVE store is served normally.
+      const previewParam =
+        typeof req.query.preview === "string" ? req.query.preview : "";
+      const isStoreOwnerToken =
+        previewParam.length > 0 &&
+        typeof tenant.settings?.previewToken === "string" &&
+        previewParam === tenant.settings.previewToken;
+      const authorizedPreview =
+        isStoreOwnerToken ||
+        isValidEditorPreviewToken(tenant, previewParam) ||
+        !!previewDist;
+
+      let storeIsDraft = false;
+      try {
+        const models = createScopedModels(mongoose.connection, tenant._id);
+        storeIsDraft = await isStoreDraft(models, tenant);
+      } catch (e) {
+        // On any failure, fail OPEN (serve the storefront) rather than
+        // hiding a live store behind "coming soon".
+        logger.warn("Storefront draft-state check failed; serving storefront", {
+          error: e.message,
+        });
+      }
+
+      if (storeIsDraft && !authorizedPreview) {
+        res.status(200);
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.send(
+          buildComingSoonPage({
+            tenant,
+            baseUrl: `${req.protocol}://${req.get("host")}`,
+          })
+        );
+      }
+
       // SPA fallback — serve index.html for all non-asset routes, with
       // per-tenant <head> injected (favicon, title, OG/Twitter share tags).
       // In preview mode the asset URLs also carry `?previewTheme=<slug>` so
@@ -425,18 +556,10 @@ export function createStorefrontMiddleware() {
           (typeof req.query.preview === "string" && req.query.preview.length > 0) ||
           (typeof req.query.previewTheme === "string" &&
             req.query.previewTheme.trim().length > 0);
-        let showBanner = isPreview;
-        if (!showBanner) {
-          const models = createScopedModels(mongoose.connection, tenant._id);
-          const publishedProducts = await models.Product.countDocuments({ status: "active" });
-          if (publishedProducts === 0) {
-            const draftStarter = await models.Product.countDocuments({
-              isDemo: true,
-              status: "draft",
-            });
-            showBanner = draftStarter > 0;
-          }
-        }
+        // Reuse the draft-state computed above for the owner-only gate — a
+        // draft store served to its owner (or any preview) shows the banner;
+        // a live store never does (unless explicitly previewed).
+        const showBanner = isPreview || storeIsDraft;
         if (showBanner) {
           html = injectBodyBanner(
             html,

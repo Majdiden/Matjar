@@ -279,15 +279,20 @@ export const reorderProducts = async (models, id, productIds) => {
  * - Smart: builds a Mongo query from rules and runs it against the Product model.
  * Returns { products, pagination }.
  */
-export const resolveProducts = async (models, collection, { page = 1, limit = 24, sortOrder } = {}) => {
+export const resolveProducts = async (models, collection, { page = 1, limit = 24, sortOrder, includeDrafts = false } = {}) => {
   const effectiveSortOrder = sortOrder || collection.sortOrder || "manual";
   const pageNum = parseInt(page);
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
 
+  // Owner-preview of a DRAFT store resolves draft products too, so the
+  // collection page isn't empty before the store is published. The public
+  // path keeps the strict `status: "active"` gate.
+  const statusFilter = includeDrafts ? {} : { status: "active" };
+
   if (collection.type === "smart") {
     const rulesFilter = compileRules(collection.rules || [], collection.rulesMatch || "all");
-    const filter = { ...rulesFilter, status: "active" };
+    const filter = { ...rulesFilter, ...statusFilter };
     const sortOpts = sortOrderToMongo(effectiveSortOrder);
 
     const [products, total] = await Promise.all([
@@ -313,7 +318,7 @@ export const resolveProducts = async (models, collection, { page = 1, limit = 24
     // Preserve explicit ordering
     const allProducts = await models.Product.find({
       _id: { $in: productIds },
-      status: "active",
+      ...statusFilter,
     }).lean();
 
     // Re-sort to match the productIds order
@@ -338,12 +343,12 @@ export const resolveProducts = async (models, collection, { page = 1, limit = 24
   // Manual collection with a sort applied
   const sortOpts = sortOrderToMongo(effectiveSortOrder);
   const [products, total] = await Promise.all([
-    models.Product.find({ _id: { $in: productIds }, status: "active" })
+    models.Product.find({ _id: { $in: productIds }, ...statusFilter })
       .sort(sortOpts)
       .skip(skip)
       .limit(limitNum)
       .lean(),
-    models.Product.countDocuments({ _id: { $in: productIds }, status: "active" }),
+    models.Product.countDocuments({ _id: { $in: productIds }, ...statusFilter }),
   ]);
 
   return {

@@ -491,7 +491,7 @@ export async function getAllActiveSetups() {
  * @param {object} models scoped models for the tenant (req.models)
  * @returns {Promise<{products:number, collections:number, pages:number}>}
  */
-export async function publishStarterContent(models) {
+export async function publishStarterContent(models, tenantId) {
   const now = new Date();
 
   const productRes = await models.Product.updateMany(
@@ -509,9 +509,58 @@ export async function publishStarterContent(models) {
     { $set: { isPublished: true, publishedAt: now } }
   );
 
+  // Flip the explicit publish-lifecycle flag so the storefront serves the
+  // store to the PUBLIC (not just the owner) from now on. Best-effort — the
+  // derived isStoreDraft() signal already treats a store with active products
+  // as live, so a missing tenantId here never keeps a published store hidden.
+  if (tenantId) {
+    try {
+      await mongoose
+        .model("Tenant")
+        .updateOne({ _id: tenantId }, { $set: { storeStatus: "live" } });
+    } catch (err) {
+      logger.warn("Failed to flip storeStatus → live on publish", {
+        tenantId: String(tenantId),
+        error: err.message,
+      });
+    }
+  }
+
   return {
     products: productRes?.modifiedCount ?? 0,
     collections: collectionRes?.modifiedCount ?? 0,
     pages: pageRes?.modifiedCount ?? 0,
   };
+}
+
+/**
+ * Is this store still a DRAFT (owner-only) store, i.e. it has never been
+ * taken live?
+ *
+ * Canonical draft signal — deliberately derived rather than trusting the
+ * `storeStatus` flag alone, so that:
+ *   - stores created before `storeStatus` existed are classified correctly
+ *     (they have live products → treated as live), and
+ *   - a store whose starter content was published the "old way" (products
+ *     flipped to active without the flag) is still live.
+ *
+ * A store is DRAFT when it has ZERO live (`status: "active"`) products AND
+ * still carries unpublished `isDemo` starter products. An explicit
+ * `storeStatus: "live"` short-circuits to live. A store the merchant emptied
+ * (no active products, no draft starter) is treated as LIVE (shown normally,
+ * just empty) rather than hidden behind "coming soon".
+ *
+ * @param {object} models scoped tenant models
+ * @param {object} [tenant] resolved tenant doc (for the fast-path flag)
+ * @returns {Promise<boolean>}
+ */
+export async function isStoreDraft(models, tenant) {
+  if (tenant?.storeStatus === "live") return false;
+  const activeProducts = await models.Product.countDocuments({ status: "active" });
+  if (activeProducts > 0) return false;
+  const draftStarter = await models.Product.countDocuments({
+    isDemo: true,
+    status: "draft",
+  });
+  return draftStarter > 0;
 }

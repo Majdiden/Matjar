@@ -33,6 +33,7 @@ import {
   demoCategoryBySlug,
 } from "../services/themeDemoPreview.js";
 import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
+import { isStoreDraft } from "../services/storeSetup.js";
 
 const router = express.Router();
 const productCardSelect =
@@ -80,6 +81,43 @@ function isOwnerPreview(req) {
 /** Product status filter: include drafts in owner-preview, else active only. */
 function productStatusFilter(req) {
   return isOwnerPreview(req) ? {} : { status: "active" };
+}
+
+/**
+ * Storefront read-visibility gate (draft stores).
+ *
+ * Threads two request-scoped signals used by the data endpoints:
+ *   • `req.ownerPreview` — the request carries the valid STORE owner-draft
+ *     token, so DRAFT/unpublished content should be returned.
+ *   • `req.getStoreIsDraft()` — memoised async check of whether the store is
+ *     still a DRAFT (owner-only) store. Endpoints use it so that, for the
+ *     PUBLIC (no owner token) on a draft store, even "active" starter content
+ *     (e.g. demo categories, which stay active while the store is unpublished)
+ *     is withheld — the public gets nothing from a draft store, matching the
+ *     "coming soon" page served by middlewares/storefrontServe.js.
+ *
+ * Products/collections need no draft-store special-case for the public
+ * (their starter content is draft/unpublished and already filtered out); the
+ * memoised check is only actually run by endpoints that need it, and only
+ * once per request.
+ */
+router.use((req, res, next) => {
+  req.ownerPreview = isOwnerPreview(req);
+  let draftPromise;
+  req.getStoreIsDraft = () => {
+    if (!draftPromise) draftPromise = isStoreDraft(req.models, req.tenant);
+    return draftPromise;
+  };
+  next();
+});
+
+/**
+ * Category visibility filter. Owner-preview sees every category (including
+ * `status:"draft"` and demo starter categories); the public sees only
+ * `status:"active"` ones.
+ */
+function categoryStatusFilter(req) {
+  return req.ownerPreview ? {} : { status: "active" };
 }
 
 /**
@@ -266,9 +304,15 @@ router.get(
       return res.json({ success: true, data: demoCategoriesList(demoSlug) });
     }
 
-    const categories = await req.models.Category.find({ isActive: true })
-      .sort({ order: 1, name: 1 })
-      .select("name slug description image parentCategory");
+    // A draft store shows the public NOTHING — even its (active) demo
+    // categories stay owner-only until the store goes live.
+    if (!req.ownerPreview && (await req.getStoreIsDraft())) {
+      return res.json({ success: true, data: { categories: [] } });
+    }
+
+    const categories = await req.models.Category.find(categoryStatusFilter(req))
+      .sort({ sortOrder: 1, name: 1 })
+      .select("name slug description image parent status");
 
     res.json({ success: true, data: { categories } });
   })
@@ -291,9 +335,15 @@ router.get(
       return res.json({ success: true, data: payload });
     }
 
+    // Draft store → public gets a 404 (indistinguishable from a missing
+    // category) for every category page until the store is live.
+    if (!req.ownerPreview && (await req.getStoreIsDraft())) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
+
     const category = await req.models.Category.findOne({
       slug: req.params.slug,
-      isActive: true,
+      ...categoryStatusFilter(req),
     });
 
     if (!category) {

@@ -108,6 +108,12 @@ export const Dashboard: React.FC = () => {
     hasProduct: false, paymentsEnabled: false, themePublished: false, hasOrder: false, hasCustomDomain: false,
   });
   const [starter, setStarter] = useState<{ hasDraftStarter?: boolean; previewUrl?: string } | null>(null);
+  // Whether the merchant actively PICKED a theme during onboarding. When true
+  // the "customize theme" setup step is hidden (their look is already chosen);
+  // when false the step is shown until they publish a customization. `null`
+  // until the store-setup/starter call resolves. Read from the tenant via
+  // GET /store-setup/starter (the dashboard already calls it on mount).
+  const [themeSelected, setThemeSelected] = useState<boolean | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [setupDismissed, setSetupDismissed] = useState(
     () => localStorage.getItem(SETUP_DISMISSED_KEY) === '1'
@@ -121,7 +127,14 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     let active = true;
     api.storeSetup.starter()
-      .then((r) => { if (active) setStarter((r as { responseObject?: { hasDraftStarter?: boolean; previewUrl?: string } }).responseObject || null); })
+      .then((r) => {
+        if (!active) return;
+        const ro = (r as { responseObject?: { hasDraftStarter?: boolean; previewUrl?: string; themeSelected?: boolean } }).responseObject || null;
+        setStarter(ro);
+        // Default to true (hide the theme step) when the flag is absent, so a
+        // stale/older backend never nags a merchant who already has a theme.
+        setThemeSelected(ro?.themeSelected !== false);
+      })
       .catch(() => { /* non-fatal — banner just won't show */ });
     return () => { active = false; };
   }, []);
@@ -221,14 +234,26 @@ export const Dashboard: React.FC = () => {
   const storeUrl = domainInfo?.activeDomain ? storefrontUrl(domainInfo.activeDomain) : '';
 
   // --- Setup checklist (audit 3.7.1) ---------------------------------
-  const setupSteps: SetupStepDef[] = useMemo(() => [
-    { key: 'add_product', done: signals.hasProduct, icon: Package, href: '/dashboard/products/new' },
-    { key: 'payments', done: signals.paymentsEnabled, icon: CreditCard, href: '/dashboard/payments/methods' },
-    { key: 'theme', done: signals.themePublished, icon: Palette, href: '/dashboard/themes/editor' },
-    // Test orders are placed on the storefront itself.
-    { key: 'test_order', done: signals.hasOrder, icon: ShoppingCart, href: storeUrl || '/dashboard/orders', external: Boolean(storeUrl) },
-    { key: 'domain', done: signals.hasCustomDomain, icon: Globe, href: '/dashboard/domains' },
-  ], [signals, storeUrl]);
+  // The "customize theme" step only applies to merchants who SKIPPED theme
+  // selection during onboarding (themeSelected === false). A merchant who
+  // actively picked a theme already has their look chosen, so the step is
+  // hidden and never counts against their setup completion. It's marked done
+  // once a customization is published OR the merchant selected a theme.
+  const setupSteps: SetupStepDef[] = useMemo(() => {
+    const steps: SetupStepDef[] = [
+      { key: 'add_product', done: signals.hasProduct, icon: Package, href: '/dashboard/products/new' },
+      { key: 'payments', done: signals.paymentsEnabled, icon: CreditCard, href: '/dashboard/payments/methods' },
+      { key: 'theme', done: signals.themePublished || themeSelected === true, icon: Palette, href: '/dashboard/themes/editor' },
+      // Test orders are placed on the storefront itself.
+      { key: 'test_order', done: signals.hasOrder, icon: ShoppingCart, href: storeUrl || '/dashboard/orders', external: Boolean(storeUrl) },
+      { key: 'domain', done: signals.hasCustomDomain, icon: Globe, href: '/dashboard/domains' },
+    ];
+    // Hide the theme step entirely for merchants who picked a theme (or while
+    // the flag is still loading — default is "picked", so we don't flash it).
+    return themeSelected === false
+      ? steps
+      : steps.filter((s) => s.key !== 'theme');
+  }, [signals, storeUrl, themeSelected]);
 
   const doneCount = setupSteps.filter((s) => s.done).length;
   const setupComplete = doneCount === setupSteps.length;

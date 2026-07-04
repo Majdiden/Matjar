@@ -48,6 +48,10 @@ export const starterStatusController = asyncHandler(async (req, res) => {
       hasDraftStarter,
       counts: { products: draftProducts, collections: draftCollections, pages: draftPages },
       previewUrl,
+      // Surfaced for the dashboard setup checklist: when the merchant actively
+      // picked a theme at onboarding (true) the "customize theme" step is
+      // hidden; when they skipped it (false) the step is shown until published.
+      themeSelected: req.tenant.themeSelected !== false,
     },
   });
 });
@@ -112,7 +116,7 @@ export const publishStarterController = asyncHandler(async (req, res) => {
   if (!req.models) {
     throw new APIError("Tenant context not found", 400);
   }
-  const counts = await publishStarterContent(req.models);
+  const counts = await publishStarterContent(req.models, req.tenant?._id);
   res.json({
     success: true,
     message: "Starter content published",

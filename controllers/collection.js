@@ -87,11 +87,27 @@ export const storefrontListCollections = asyncHandler(async (req, res) => {
   }
 
   const { page = 1, limit = 20, search } = req.query;
+  const pageNumEarly = parseInt(page);
+  const limitNumEarly = parseInt(limit);
+
+  // Draft store → nothing for the public. Owner-preview (valid store token)
+  // sees ALL collections, including the unpublished demo starter set.
+  if (!req.ownerPreview && (await req.getStoreIsDraft())) {
+    return res.json({
+      success: true,
+      data: {
+        collections: [],
+        pagination: { page: pageNumEarly, limit: limitNumEarly, total: 0, pages: 0 },
+      },
+    });
+  }
+
   const { collections, total } = await CollectionService.listCollections(req.models, {
     page,
     limit,
     search,
-    published: "true",
+    // Owner-preview: no publish filter → include draft/unpublished collections.
+    published: req.ownerPreview ? undefined : "true",
   });
   const pageNum = parseInt(page);
   const limitNum = parseInt(limit);
@@ -119,11 +135,21 @@ export const storefrontGetCollectionByHandle = asyncHandler(async (req, res) => 
     return res.json({ success: true, data: payload });
   }
 
+  // Draft store → 404 to the public (same shape as a missing collection).
+  if (!req.ownerPreview && (await req.getStoreIsDraft())) {
+    return res.status(404).json({ success: false, message: "Collection not found" });
+  }
+
   const collection = await CollectionService.getCollectionByHandle(req.models, req.params.handle);
-  if (!collection.isPublished) {
+  // Unpublished collections are visible only under a valid owner preview.
+  if (!collection.isPublished && !req.ownerPreview) {
     return res.status(404).json({ success: false, message: "Collection not found" });
   }
   const { page = 1, limit = 24 } = req.query;
-  const result = await CollectionService.resolveProducts(req.models, collection, { page, limit });
+  const result = await CollectionService.resolveProducts(req.models, collection, {
+    page,
+    limit,
+    includeDrafts: !!req.ownerPreview,
+  });
   res.json({ success: true, data: { collection, ...result } });
 });
