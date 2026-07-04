@@ -117,6 +117,7 @@ export { Breadcrumbs } from './components/navigation/Breadcrumbs';
 export { SearchBar } from './components/navigation/SearchBar';
 export { Pagination } from './components/navigation/Pagination';
 export { MobileBottomNav } from './components/navigation/MobileBottomNav';
+export { MobileMenu } from './components/navigation/MobileMenu';
 
 // ─── Discovery ───────────────────────────────────────────────────
 export { FilterPanel } from './components/discovery/FilterPanel';

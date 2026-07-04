@@ -5,6 +5,8 @@ import { useStore } from '../contexts/StoreContext';
 import { RatingStars } from '../components/commerce/RatingStars';
 import { useConfirm } from '../components/primitives/ConfirmDialog';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../i18n/LanguageProvider';
+import { COUNTRIES, getCitiesForCountry, optionsWithCurrent, locationLabel } from '../data/locations';
 
 /**
  * Customer account page (/account).
@@ -561,6 +563,7 @@ const AddressesTab: React.FC<{
   accent: string;
 }> = ({ user, onChanged, flash, accent }) => {
   const { t } = useTranslation(['account']);
+  const { lang } = useLanguage();
   const [editing, setEditing] = useState<Address | null>(null);
   const [saving, setSaving] = useState(false);
   const confirm = useConfirm();
@@ -748,13 +751,28 @@ const AddressesTab: React.FC<{
             </div>
             <div>
               <label className={fieldLabel}>{t('account.address.field.city.label')}</label>
-              <input
-                className={inputCls}
-                style={{ '--tw-ring-color': accent } as React.CSSProperties}
-                value={editing.city}
-                onChange={(e) => setEditing({ ...editing, city: e.target.value })}
-                required
-              />
+              {getCitiesForCountry(editing.country) ? (
+                <select
+                  className={`${inputCls} bg-white`}
+                  style={{ '--tw-ring-color': accent } as React.CSSProperties}
+                  value={editing.city}
+                  onChange={(e) => setEditing({ ...editing, city: e.target.value })}
+                  required
+                >
+                  <option value="">{t('common:location.select_city')}</option>
+                  {optionsWithCurrent(getCitiesForCountry(editing.country)!, editing.city).map((o) => (
+                    <option key={o.value} value={o.value}>{locationLabel(o, lang)}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  className={inputCls}
+                  style={{ '--tw-ring-color': accent } as React.CSSProperties}
+                  value={editing.city}
+                  onChange={(e) => setEditing({ ...editing, city: e.target.value })}
+                  required
+                />
+              )}
             </div>
             <div>
               <label className={fieldLabel}>{t('account.address.field.state.label')}</label>
@@ -777,13 +795,18 @@ const AddressesTab: React.FC<{
             </div>
             <div>
               <label className={fieldLabel}>{t('account.address.field.country.label')}</label>
-              <input
-                className={inputCls}
+              <select
+                className={`${inputCls} bg-white`}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
                 value={editing.country}
-                onChange={(e) => setEditing({ ...editing, country: e.target.value })}
+                onChange={(e) => setEditing({ ...editing, country: e.target.value, city: '' })}
                 required
-              />
+              >
+                <option value="">{t('common:location.select_country')}</option>
+                {optionsWithCurrent(COUNTRIES, editing.country).map((o) => (
+                  <option key={o.value} value={o.value}>{locationLabel(o, lang)}</option>
+                ))}
+              </select>
             </div>
             <div className="sm:col-span-2">
               <label className={fieldLabel}>{t('account.address.field.phone.label')}</label>

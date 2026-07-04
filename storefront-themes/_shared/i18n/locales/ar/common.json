@@ -188,6 +188,10 @@
     "previous_slide": "الشريحة السابقة",
     "next_slide": "الشريحة التالية"
   },
+  "location": {
+    "select_country": "اختر الدولة",
+    "select_city": "اختر المدينة / الولاية"
+  },
   "section": {
     "hero": {
       "heading": "أهلاً وسهلاً"

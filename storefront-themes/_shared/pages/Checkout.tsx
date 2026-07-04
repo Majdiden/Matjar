@@ -5,6 +5,8 @@ import { useStore } from '../contexts/StoreContext';
 import { ordersApi, authApi, checkoutApi, giftCardApi, paymentMethodsApi, PaymentMethodPublic, isPreviewMode, notifyPreviewDisabled } from '../api/client';
 import PaymentMethodPicker from '../components/commerce/PaymentMethodPicker';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../i18n/LanguageProvider';
+import { COUNTRIES, getCitiesForCountry, optionsWithCurrent, locationLabel } from '../data/locations';
 
 interface CheckoutProps {
   className?: string;
@@ -58,6 +60,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   const { cart, loading: cartLoading, clearCart } = useCart();
   const { formatPrice, store } = useStore();
   const { t } = useTranslation(['checkout']);
+  const { lang } = useLanguage();
   const giftCardsEnabled = store?.giftCards?.enabled !== false;
 
   const accent = accentColor || 'var(--color-primary, #2563eb)';
@@ -269,6 +272,78 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
   const setBillingField = (key: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setBilling({ ...billing, [key]: e.target.value });
+  };
+
+  // Value setters for the country/city dropdowns. Changing country resets the
+  // dependent city so a stale city never rides along with a new country.
+  const setShippingValue = (key: keyof AddressForm, value: string) => {
+    setShipping((prev) => ({
+      ...prev,
+      [key]: value,
+      ...(key === 'country' ? { city: '' } : {}),
+    }));
+    setSelectedAddressIdx('new');
+  };
+  const setBillingValue = (key: keyof AddressForm, value: string) => {
+    setBilling((prev) => ({
+      ...prev,
+      [key]: value,
+      ...(key === 'country' ? { city: '' } : {}),
+    }));
+  };
+
+  const renderCountrySelect = (
+    value: string,
+    onChange: (v: string) => void,
+    required = false,
+  ) => (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={`${inputClass} bg-white`}
+      style={inputStyle}
+      required={required}
+    >
+      <option value="">{t('common:location.select_country')}</option>
+      {optionsWithCurrent(COUNTRIES, value).map((o) => (
+        <option key={o.value} value={o.value}>{locationLabel(o, lang)}</option>
+      ))}
+    </select>
+  );
+
+  const renderCityField = (
+    value: string,
+    country: string,
+    onChange: (v: string) => void,
+    required = false,
+  ) => {
+    const cities = getCitiesForCountry(country);
+    if (!cities) {
+      return (
+        <input
+          type="text"
+          required={required}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={inputClass}
+          style={inputStyle}
+        />
+      );
+    }
+    return (
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`${inputClass} bg-white`}
+        style={inputStyle}
+        required={required}
+      >
+        <option value="">{t('common:location.select_city')}</option>
+        {optionsWithCurrent(cities, value).map((o) => (
+          <option key={o.value} value={o.value}>{locationLabel(o, lang)}</option>
+        ))}
+      </select>
+    );
   };
 
   const useSavedAddress = (idx: number) => {
@@ -676,7 +751,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.city.label')}</label>
-                  <input type="text" required value={shipping.city} onChange={setShippingField('city')} className={inputClass} style={inputStyle} />
+                  {renderCityField(shipping.city, shipping.country, (v) => setShippingValue('city', v), true)}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.state.label')}</label>
@@ -690,7 +765,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.country.label')}</label>
-                <input type="text" required value={shipping.country} onChange={setShippingField('country')} className={inputClass} style={inputStyle} />
+                {renderCountrySelect(shipping.country, (v) => setShippingValue('country', v), true)}
               </div>
 
               {user && selectedAddressIdx === 'new' && (
@@ -761,11 +836,11 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                     </div>
                     <input placeholder={t('checkout.field.shipping.address.label')} value={billing.addressLine1} onChange={setBillingField('addressLine1')} className={inputClass} style={inputStyle} />
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <input placeholder={t('checkout.field.shipping.city.label')} value={billing.city} onChange={setBillingField('city')} className={inputClass} style={inputStyle} />
+                      {renderCityField(billing.city, billing.country, (v) => setBillingValue('city', v))}
                       <input placeholder={t('checkout.field.shipping.state.label')} value={billing.state} onChange={setBillingField('state')} className={inputClass} style={inputStyle} />
                       <input placeholder={t('checkout.field.shipping.postal.label')} value={billing.postalCode} onChange={setBillingField('postalCode')} className={inputClass} style={inputStyle} />
                     </div>
-                    <input placeholder={t('checkout.field.shipping.country.label')} value={billing.country} onChange={setBillingField('country')} className={inputClass} style={inputStyle} />
+                    {renderCountrySelect(billing.country, (v) => setBillingValue('country', v))}
                   </div>
                 )}
               </div>

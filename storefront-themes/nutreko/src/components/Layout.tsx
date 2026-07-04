@@ -11,6 +11,7 @@ import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
+import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 
 /**
  * Nutreko Layout — bold black header with lime accent.
@@ -140,33 +141,9 @@ const Layout: React.FC = () => {
           </div>
         </div>
 
-        {menuOpen && (
-          <nav className="md:hidden border-t border-white/10 px-6 py-4 space-y-3 text-sm uppercase tracking-wider font-bold">
-            {hasMenu ? (
-              menuItems.map((item) => {
-                const cls = 'block';
-                const href = itemHref(item);
-                return isExternal(item) ? (
-                  <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMenuOpen(false)} className={cls}>{item.label}</a>
-                ) : (
-                  <Link key={item._id || href} to={href} onClick={() => setMenuOpen(false)} className={cls}>{item.label}</Link>
-                );
-              })
-            ) : (
-              <>
-                <Link onClick={() => setMenuOpen(false)} to="/" className="block">{t('theme.nav.home')}</Link>
-                <Link onClick={() => setMenuOpen(false)} to="/products" className="block">{t('theme.nav.shop_all')}</Link>
-                {categories.slice(0, 6).map((cat) => (
-                  <Link key={cat._id} onClick={() => setMenuOpen(false)} to={`/categories/${cat.slug}`} className="block">{cat.name}</Link>
-                ))}
-                <Link onClick={() => setMenuOpen(false)} to="/about" className="block">{t('theme.nav.about')}</Link>
-                <Link onClick={() => setMenuOpen(false)} to="/contact" className="block">{t('theme.nav.contact')}</Link>
-              </>
-            )}
-            <LanguageSwitcher />
-          </nav>
-        )}
       </header>
+
+      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} items={menuItems} />
 
       <main className="flex-1">
         <Outlet />

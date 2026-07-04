@@ -10,6 +10,7 @@ import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
+import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 
 /**
  * Aurum Layout — dark editorial luxury chrome.
@@ -178,31 +179,9 @@ const Layout: React.FC = () => {
           </div>
         )}
 
-        {/* Mobile drawer nav */}
-        {menuOpen && (
-          <nav className="md:hidden border-t border-line px-6 py-5 space-y-3 text-[12px] tracking-[0.15em] uppercase bg-night">
-            <div className="pb-3">
-              <SearchBar variant="expanded" />
-            </div>
-            {hasMenu ? (
-              menuItems.map((item) => {
-                const href = itemHref(item);
-                return isExternal(item) ? (
-                  <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMenuOpen(false)} className="block py-1 text-mute hover:text-ink">{item.label}</a>
-                ) : (
-                  <Link key={item._id || href} onClick={() => setMenuOpen(false)} to={href} className="block py-1 text-mute hover:text-ink">{item.label}</Link>
-                );
-              })
-            ) : (
-              fallbackNav(() => setMenuOpen(false), true)
-            )}
-            <Link onClick={() => setMenuOpen(false)} to="/account" className="block py-1 text-mute hover:text-ink">{t('theme.header.account')}</Link>
-            <div className="pt-2">
-              <LanguageSwitcher />
-            </div>
-          </nav>
-        )}
       </header>
+
+      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} items={menuItems} />
 
       <main className="flex-1">
         <Outlet />

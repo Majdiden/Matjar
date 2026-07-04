@@ -6,6 +6,7 @@ import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
+import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -117,46 +118,15 @@ const Layout: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile drawer menu */}
-          {mobileMenuOpen && (
-            <nav
-              className="md:hidden border-t py-3 space-y-1"
-              style={{ borderColor: 'var(--color-border)' }}
-            >
-              {hasMenu ? (
-                menuItems.map(item => {
-                  const cls = "block px-2 py-2 text-sm transition hover:opacity-80";
-                  const href = itemHref(item);
-                  return isExternal(item) ? (
-                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className={cls} style={{ color: 'var(--color-foreground)' }}>{item.label}</a>
-                  ) : (
-                    <Link key={item._id || href} to={href} onClick={() => setMobileMenuOpen(false)} className={cls} style={{ color: 'var(--color-foreground)' }}>{item.label}</Link>
-                  );
-                })
-              ) : (
-                <>
-                  <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-2 py-2 text-sm transition hover:opacity-80" style={{ color: 'var(--color-foreground)' }}>{t('theme.nav.home')}</Link>
-                  <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block px-2 py-2 text-sm transition hover:opacity-80" style={{ color: 'var(--color-foreground)' }}>{t('theme.nav.products')}</Link>
-                  {categories.slice(0, 4).map(cat => (
-                    <Link
-                      key={cat._id}
-                      to={`/categories/${cat.slug}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block px-2 py-2 text-sm transition hover:opacity-80"
-                      style={{ color: 'var(--color-muted)' }}
-                    >
-                      {cat.name}
-                    </Link>
-                  ))}
-                  <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block px-2 py-2 text-sm transition hover:opacity-80" style={{ color: 'var(--color-foreground)' }}>{t('theme.footer.about')}</Link>
-                  <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="block px-2 py-2 text-sm transition hover:opacity-80" style={{ color: 'var(--color-foreground)' }}>{t('theme.footer.contact')}</Link>
-                </>
-              )}
-              <div className="px-2 pt-2"><LanguageSwitcher /></div>
-            </nav>
-          )}
         </div>
       </header>
+
+      {/* Full-screen slide-over menu */}
+      <MobileMenu
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        items={menuItems}
+      />
 
       <main className="flex-1"><Outlet /></main>
 

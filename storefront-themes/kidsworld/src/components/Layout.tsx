@@ -8,6 +8,7 @@ import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { Drawer } from '@matjar/theme-shared/components/primitives/Drawer';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
+import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
@@ -161,46 +162,8 @@ const Layout: React.FC = () => {
         </div>
       </footer>
 
-      {/* Mobile menu drawer */}
-      <Drawer isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} side="left">
-        <div className="p-6 bg-white h-full">
-          <h2 className="text-lg font-extrabold mb-6">
-            <span className="text-[#ec4899]">Kids</span>
-            <span className="text-[#8b5cf6]">World</span>
-            <span className="text-[#fbbf24] ms-1"><svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span>
-          </h2>
-          <nav className="flex flex-col gap-4">
-            {hasMenu ? (
-              menuItems.map(item => {
-                const cls = "text-gray-600 font-medium hover:text-[#8b5cf6]";
-                const href = itemHref(item);
-                return isExternal(item) ? (
-                  <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</a>
-                ) : (
-                  <Link key={item._id || href} to={href} onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</Link>
-                );
-              })
-            ) : (
-              <>
-                <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-bold hover:text-[#ec4899]">
-                  {t('theme.nav.all_toys')}
-                </Link>
-                {categories.map(cat => (
-                  <Link
-                    key={cat._id}
-                    to={`/categories/${cat.slug}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-gray-600 font-medium hover:text-[#8b5cf6]"
-                  >
-                    {cat.name}
-                  </Link>
-                ))}
-              </>
-            )}
-            <LanguageSwitcher />
-          </nav>
-        </div>
-      </Drawer>
+      {/* Mobile menu */}
+      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} items={menuItems} />
 
       <CartDrawer isOpen={cartOpen} onClose={closeCart} />
 

@@ -6,6 +6,7 @@ import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
+import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
@@ -122,41 +123,10 @@ const Layout: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile Nav */}
-          {mobileMenuOpen && (
-            <nav className="lg:hidden pb-4 border-t border-[var(--color-border)] pt-3 space-y-1">
-              {hasMenu ? (
-                menuItems.map(item => {
-                  const cls = "block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg";
-                  const href = itemHref(item);
-                  return isExternal(item) ? (
-                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</a>
-                  ) : (
-                    <Link key={item._id || href} to={href} onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</Link>
-                  );
-                })
-              ) : (
-                <>
-                  <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">{t('theme.layout.nav.home')}</Link>
-                  <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">{t('theme.layout.nav.collection')}</Link>
-                  {categories.slice(0, 6).map(cat => (
-                    <Link
-                      key={cat._id}
-                      to={`/categories/${cat.slug}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg"
-                    >
-                      {cat.name}
-                    </Link>
-                  ))}
-                  <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-[var(--color-primary)]/80 hover:text-[var(--color-primary)] hover:bg-[var(--color-muted)]/20 rounded-lg">{t('theme.layout.nav.our_story')}</Link>
-                </>
-              )}
-              <div className="px-3 pt-1"><LanguageSwitcher /></div>
-            </nav>
-          )}
         </div>
       </header>
+
+      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} items={menuItems} />
 
       {/* Main Content */}
       <main className="flex-1">

@@ -188,6 +188,10 @@
     "previous_slide": "Previous slide",
     "next_slide": "Next slide"
   },
+  "location": {
+    "select_country": "Select country",
+    "select_city": "Select city / state"
+  },
   "section": {
     "hero": {
       "heading": "Welcome"

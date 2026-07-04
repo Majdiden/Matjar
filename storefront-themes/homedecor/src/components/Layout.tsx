@@ -8,6 +8,7 @@ import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { Drawer } from '@matjar/theme-shared/components/primitives/Drawer';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
+import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 
@@ -142,37 +143,8 @@ const Layout: React.FC = () => {
         </div>
       </footer>
 
-      {/* Mobile Menu Drawer */}
-      <Drawer isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} side="left">
-        <div className="p-6 w-72">
-          <h2 className="text-lg font-semibold text-gray-800 mb-6">{store?.name || 'HomeDecor'}</h2>
-          <nav className="space-y-4">
-            {hasMenu ? (
-              menuItems.map(item => {
-                const cls = "block text-gray-600 hover:text-[#d4a76a] transition";
-                const href = itemHref(item);
-                return isExternal(item) ? (
-                  <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</a>
-                ) : (
-                  <Link key={item._id || href} to={href} onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</Link>
-                );
-              })
-            ) : (
-              <>
-                <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block text-gray-600 hover:text-[#d4a76a] transition">
-                  {t('theme.mobile_menu.shop_all')}
-                </Link>
-                {categories.map(cat => (
-                  <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMobileMenuOpen(false)} className="block text-gray-600 hover:text-[#d4a76a] transition">
-                    {cat.name}
-                  </Link>
-                ))}
-              </>
-            )}
-            <LanguageSwitcher />
-          </nav>
-        </div>
-      </Drawer>
+      {/* Mobile Menu */}
+      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} items={menuItems} />
 
       {/* Cart Drawer */}
       <CartDrawer isOpen={cartOpen} onClose={closeCart} />

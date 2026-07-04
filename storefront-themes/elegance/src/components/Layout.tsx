@@ -6,6 +6,7 @@ import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
+import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
@@ -114,32 +115,10 @@ const Layout: React.FC = () => {
             )}
           </nav>
 
-          {mobileMenuOpen && (
-            <nav className="lg:hidden pb-4 space-y-2 border-t pt-4">
-              {hasMenu ? (
-                menuItems.map(item => {
-                  const cls = "block py-2 text-xs tracking-[0.15em] uppercase text-gray-600";
-                  const href = itemHref(item);
-                  return isExternal(item) ? (
-                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</a>
-                  ) : (
-                    <Link key={item._id || href} to={href} onClick={() => setMobileMenuOpen(false)} className={cls}>{item.label}</Link>
-                  );
-                })
-              ) : (
-                <>
-                  <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">{t('theme.layout.nav.home')}</Link>
-                  <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">{t('theme.layout.nav.shop_all')}</Link>
-                  {categories.slice(0, 6).map(cat => (
-                    <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs tracking-[0.15em] uppercase text-gray-600">{cat.name}</Link>
-                  ))}
-                </>
-              )}
-              <div className="pt-2"><LanguageSwitcher /></div>
-            </nav>
-          )}
         </div>
       </header>
+
+      <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} items={menuItems} />
 
       <main className="flex-1"><Outlet /></main>
 

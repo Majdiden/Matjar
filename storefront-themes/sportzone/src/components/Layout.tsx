@@ -8,6 +8,7 @@ import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
+import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
 import { useTranslation } from 'react-i18next';
 
@@ -100,32 +101,9 @@ const Layout: React.FC = () => {
           </div>
         </div>
 
-        {menuOpen && (
-          <nav className="md:hidden bg-[#111827] border-t border-white/10 px-4 py-3 space-y-2">
-            {hasMenu ? (
-              menuItems.map(item => {
-                const cls = "block text-sm font-bold uppercase text-gray-300 py-2";
-                const href = itemHref(item);
-                return isExternal(item) ? (
-                  <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" onClick={() => setMenuOpen(false)} className={cls}>{item.label}</a>
-                ) : (
-                  <Link key={item._id || href} to={href} onClick={() => setMenuOpen(false)} className={cls}>{item.label}</Link>
-                );
-              })
-            ) : (
-              <>
-                <Link to="/products" onClick={() => setMenuOpen(false)} className="block text-sm font-bold uppercase text-gray-300 py-2">{t('theme.nav.shop')}</Link>
-                {categories.slice(0, 4).map(cat => (
-                  <Link key={cat._id} to={`/categories/${cat.slug}`} onClick={() => setMenuOpen(false)} className="block text-sm font-bold uppercase text-gray-300 py-2">
-                    {cat.name}
-                  </Link>
-                ))}
-              </>
-            )}
-            <LanguageSwitcher />
-          </nav>
-        )}
       </header>
+
+      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} items={menuItems} />
 
       <main className="flex-1"><Outlet /></main>
 
