@@ -5,8 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <!-- viewport-fit=cover enables env(safe-area-inset-*) on notched phones. -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- viewport-fit=cover enables env(safe-area-inset-*) on notched phones.
+         interactive-widget=resizes-content makes the soft keyboard shrink the
+         LAYOUT viewport (so 100dvh + the app shell's internal scroll adapt and
+         restore) instead of scrolling the whole document up — which otherwise
+         leaves whitespace where the content was once the keyboard closes. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="theme-color" content="#2563EB" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />

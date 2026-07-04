@@ -441,6 +441,26 @@ const DashboardLayoutInner: React.FC = () => {
     mainRef.current?.scrollTo({ top: 0, left: 0 });
   }, [location.pathname]);
 
+  // Soft-keyboard whitespace guard (mobile PWA). The app shell is
+  // `h-[100dvh] overflow-hidden` with the scroll living inside <main>, so the
+  // window itself must never scroll. On some mobile browsers, focusing an input
+  // makes the browser scroll the *document* to lift the field above the
+  // keyboard; when the keyboard closes that scroll offset can linger, leaving a
+  // strip of whitespace where the content used to be. When the visual viewport
+  // grows back to ~full height (keyboard dismissed), snap any residual window
+  // scroll back to the top. Guarded on height so it never fires mid-typing.
+  React.useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const onResize = () => {
+      if (vv.height >= window.innerHeight - 1 && window.scrollY !== 0) {
+        window.scrollTo(0, 0);
+      }
+    };
+    vv.addEventListener('resize', onResize);
+    return () => vv.removeEventListener('resize', onResize);
+  }, []);
+
   // Side-effect hook for notifications — mounted here so it lives for the
   // entire lifetime of an authenticated dashboard session. The permission
   // prompt itself is rendered below as a centered modal.
