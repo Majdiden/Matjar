@@ -13,26 +13,38 @@
  * app operator at (spec requirement); defaults to a mailto in dev.
  */
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import mongoose from "mongoose";
 import webpush from "web-push";
 import logger from "./logger.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const VAPID_FILE = path.join(__dirname, "..", ".vapid.json");
 
 let publicKey = null;
 let privateKey = null;
 let subject = null;
 let configured = false;
 
+// Singleton doc holding the auto-generated VAPID keypair, in the admin DB.
+// The keypair must be STABLE across restarts and redeploys — a rotated key
+// silently invalidates every subscription a browser already stored — so we
+// persist it in the database (not a local file, which an ephemeral container
+// filesystem loses on redeploy).
+const VAPID_CONFIG_ID = "vapid";
+function platformConfigCollection() {
+  return mongoose.connection?.db?.collection("platformconfigs") || null;
+}
+
 /**
- * Load or (in dev) generate the VAPID keypair and configure the web-push
- * library. Idempotent — safe to call more than once. Call once at boot.
+ * Configure the web-push library with a VAPID keypair. Idempotent; call once
+ * at boot AFTER the DB is connected.
+ *
+ * Resolution order:
+ *   1. VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY env vars (operator-managed).
+ *   2. A keypair persisted in the admin DB (`platformconfigs._id="vapid"`).
+ *   3. Generate a fresh pair, store it in the DB, and use it.
+ *
+ * This means background push works out of the box in production without any
+ * env configuration, while operators can still pin keys via env vars.
  */
-export function initWebPush() {
+export async function initWebPush() {
   if (configured) return { configured, publicKey };
 
   subject = process.env.VAPID_SUBJECT || "mailto:support@matjar.app";
@@ -42,49 +54,45 @@ export function initWebPush() {
   if (publicKey && privateKey) {
     logger.info("web-push: using VAPID keys from environment");
   } else {
-    // Dev fallback — persist a stable pair so restarts don't invalidate
-    // subscriptions. Production is expected to set the env vars above.
-    if (process.env.NODE_ENV === "production") {
-      logger.error(
-        "web-push: VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY are not set in production. " +
-          "Background push notifications are DISABLED until they are configured."
-      );
-      return { configured: false, publicKey: null };
-    }
     try {
-      if (fs.existsSync(VAPID_FILE)) {
-        const saved = JSON.parse(fs.readFileSync(VAPID_FILE, "utf8"));
-        publicKey = saved.publicKey || null;
-        privateKey = saved.privateKey || null;
-        if (publicKey && privateKey) {
+      const col = platformConfigCollection();
+      if (col) {
+        const doc = await col.findOne({ _id: VAPID_CONFIG_ID });
+        if (doc?.publicKey && doc?.privateKey) {
+          publicKey = doc.publicKey;
+          privateKey = doc.privateKey;
+          if (doc.subject) subject = doc.subject;
+          logger.info("web-push: loaded VAPID keys from the database");
+        } else {
+          const keys = webpush.generateVAPIDKeys();
+          publicKey = keys.publicKey;
+          privateKey = keys.privateKey;
+          await col.updateOne(
+            { _id: VAPID_CONFIG_ID },
+            { $set: { publicKey, privateKey, subject, createdAt: new Date() } },
+            { upsert: true }
+          );
           logger.warn(
-            "web-push: using persisted dev VAPID keys from .vapid.json. " +
-              "Set VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY env vars in production."
+            "web-push: generated and stored a new VAPID keypair in the database. " +
+              "To manage keys yourself (rotation, multi-cluster), set " +
+              "VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY env vars instead."
           );
         }
-      }
-      if (!publicKey || !privateKey) {
-        const keys = webpush.generateVAPIDKeys();
-        publicKey = keys.publicKey;
-        privateKey = keys.privateKey;
-        fs.writeFileSync(
-          VAPID_FILE,
-          JSON.stringify({ publicKey, privateKey }, null, 2),
-          "utf8"
-        );
-        logger.warn(
-          "web-push: generated a NEW dev VAPID keypair and saved it to .vapid.json. " +
-            "Set these as env vars in production (do NOT commit them):\n" +
-            `  VAPID_PUBLIC_KEY=${publicKey}\n` +
-            `  VAPID_PRIVATE_KEY=${privateKey}`
+      } else {
+        logger.error(
+          "web-push: no DB connection when initialising VAPID keys — " +
+            "background push DISABLED. Call initWebPush() after connectDb()."
         );
       }
     } catch (err) {
-      logger.error("web-push: failed to load/generate dev VAPID keys", {
+      logger.error("web-push: failed to load/generate VAPID keys from the DB", {
         error: err?.message,
       });
-      return { configured: false, publicKey: null };
     }
+  }
+
+  if (!publicKey || !privateKey) {
+    return { configured: false, publicKey: null };
   }
 
   try {

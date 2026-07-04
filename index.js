@@ -182,12 +182,13 @@ const startServer = async () => {
       captureException(err, { extra: { scope: "themeCatalogSync.boot" } });
     }
 
-    // 1c. Configure Web Push (VAPID). Reads keys from env; in dev generates
-    // and persists a stable dev pair to .vapid.json. Non-fatal — if keys are
-    // missing, background push is simply disabled and in-app notifications
+    // 1c. Configure Web Push (VAPID). Prefers env vars; otherwise loads (or
+    // generates + persists) a stable keypair in the admin DB so background
+    // push works without env configuration. Non-fatal — if it can't be
+    // configured, background push is disabled and in-app notifications
     // continue to work.
     try {
-      initWebPush();
+      await initWebPush();
     } catch (err) {
       logger.error("Web Push init failed at boot", { error: err.message });
     }
