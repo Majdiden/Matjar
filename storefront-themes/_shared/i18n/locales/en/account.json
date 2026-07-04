@@ -32,19 +32,34 @@
       }
     },
     "field": {
-      "full_name": { "label": "Full name *" },
-      "first_name": { "label": "First name" },
-      "last_name": { "label": "Last name" },
+      "full_name": {
+        "label": "Full name *"
+      },
+      "first_name": {
+        "label": "First name"
+      },
+      "last_name": {
+        "label": "Last name"
+      },
       "email": {
         "label": "Email",
         "hint": "Contact support to change the email tied to this account."
       },
-      "phone": { "label": "Phone", "placeholder": "+1 555 555 5555" },
+      "phone": {
+        "label": "Phone",
+        "placeholder": "+1 555 555 5555"
+      },
       "marketing_opt_in": "Send me promotional emails about new products and offers.",
       "marketing_opt_in_hint": "You can unsubscribe at any time.",
-      "current_password": { "label": "Current password" },
-      "new_password": { "label": "New password" },
-      "confirm_new_password": { "label": "Confirm new password" }
+      "current_password": {
+        "label": "Current password"
+      },
+      "new_password": {
+        "label": "New password"
+      },
+      "confirm_new_password": {
+        "label": "Confirm new password"
+      }
     },
     "address": {
       "title": "Addresses",
@@ -57,16 +72,37 @@
       "new_title": "New address",
       "edit_title": "Edit address",
       "field": {
-        "label": { "label": "Label", "placeholder": "Home, Work…" },
-        "first_name": { "label": "First name" },
-        "last_name": { "label": "Last name" },
-        "address_line1": { "label": "Address line 1 *" },
-        "address_line2": { "label": "Address line 2" },
-        "city": { "label": "City *" },
-        "state": { "label": "State / Province" },
-        "postal_code": { "label": "Postal code *" },
-        "country": { "label": "Country *" },
-        "phone": { "label": "Phone" },
+        "label": {
+          "label": "Label",
+          "placeholder": "Home, Work…"
+        },
+        "first_name": {
+          "label": "First name"
+        },
+        "last_name": {
+          "label": "Last name"
+        },
+        "address_line1": {
+          "label": "Address line 1 *"
+        },
+        "address_line2": {
+          "label": "Address line 2"
+        },
+        "city": {
+          "label": "City *"
+        },
+        "state": {
+          "label": "State / Province"
+        },
+        "postal_code": {
+          "label": "Postal code *"
+        },
+        "country": {
+          "label": "Country *"
+        },
+        "phone": {
+          "label": "Phone"
+        },
         "set_default": "Set as default shipping address"
       },
       "error": {
@@ -166,8 +202,14 @@
     "title": "Welcome back",
     "subtitle": "Sign in to your account to continue.",
     "field": {
-      "email": { "label": "Email", "placeholder": "your@email.com" },
-      "password": { "label": "Password", "placeholder": "••••••••" }
+      "email": {
+        "label": "Email",
+        "placeholder": "your@email.com"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "••••••••"
+      }
     },
     "forgot_link": "Forgot?",
     "submit": "Sign In",
@@ -181,10 +223,22 @@
     "title": "Create an account",
     "subtitle": "Join us to start shopping and tracking orders.",
     "field": {
-      "full_name": { "label": "Full name", "placeholder": "Jane Doe" },
-      "email": { "label": "Email", "placeholder": "your@email.com" },
-      "password": { "label": "Password", "placeholder": "At least 6 characters" },
-      "confirm_password": { "label": "Confirm password", "placeholder": "Re-enter password" }
+      "full_name": {
+        "label": "Full name",
+        "placeholder": "Jane Doe"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "your@email.com"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "At least 6 characters"
+      },
+      "confirm_password": {
+        "label": "Confirm password",
+        "placeholder": "Re-enter password"
+      }
     },
     "submit": "Create Account",
     "submitting": "Creating account...",
@@ -211,5 +265,33 @@
     "adding_to_cart": "Adding…",
     "remove": "Remove from wishlist",
     "no_image": "No image"
+  },
+  "forgot": {
+    "title": "Reset your password",
+    "subtitle": "Enter your email and we'll send you a reset link.",
+    "submit": "Send reset link",
+    "submitting": "Sending…",
+    "check_inbox_title": "Check your inbox",
+    "check_inbox_body": "If an account exists for {{email}}, we've sent a link to reset your password.",
+    "back_to_sign_in": "Back to sign in"
+  },
+  "reset": {
+    "title": "Choose a new password",
+    "subtitle": "Enter a new password for your account.",
+    "field": {
+      "new_password": "New password",
+      "confirm_password": "Confirm password"
+    },
+    "submit": "Reset password",
+    "submitting": "Saving…",
+    "error_min": "Password must be at least 8 characters.",
+    "error_match": "Passwords don't match.",
+    "error_default": "That reset link is invalid or has expired. Request a new one.",
+    "invalid_title": "Invalid reset link",
+    "invalid_body": "This link is missing its token or has expired.",
+    "request_new": "Request a new link",
+    "success_title": "Password updated",
+    "success_body": "You can now sign in with your new password.",
+    "success_redirect": "Redirecting to sign in…"
   }
 }

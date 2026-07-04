@@ -40,7 +40,7 @@ export function buildPasswordResetEmail({ resetUrl, expiresInMinutes = 60, langu
         <p style="margin:0 0 16px 0;line-height:1.6;">لقد تلقّينا طلباً لإعادة تعيين كلمة المرور لحسابك.</p>
         <p style="margin:0 0 24px 0;line-height:1.6;">اضغط الزر أدناه لاختيار كلمة مرور جديدة. ينتهي هذا الرابط خلال <strong>${expiresInMinutes} دقيقة</strong>.</p>
         <p style="margin:0 0 24px 0;">
-          <a href="${resetUrl}" style="background:#4F46E5;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;font-weight:500;">إعادة تعيين كلمة المرور</a>
+          <a href="${resetUrl}" style="background:#2563EB;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;font-weight:500;">إعادة تعيين كلمة المرور</a>
         </p>
         <p style="margin:0 0 8px 0;color:#555;font-size:14px;">أو انسخ هذا الرابط والصقه في متصفحك:</p>
         <p style="margin:0 0 24px 0;word-break:break-all;direction:ltr;text-align:left;">
@@ -79,7 +79,7 @@ export function buildPasswordResetEmail({ resetUrl, expiresInMinutes = 60, langu
       </p>
       <p style="margin:0 0 24px 0;">
         <a href="${resetUrl}"
-           style="background:#4F46E5;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;font-weight:500;">
+           style="background:#2563EB;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;font-weight:500;">
           Reset password
         </a>
       </p>

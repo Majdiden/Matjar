@@ -226,6 +226,21 @@ export const authApi = {
       body: JSON.stringify(data),
     }),
 
+  // Password reset (public). These hit the tenant-resolved /api/auth
+  // endpoints (same host, no session needed); the emailed link brings the
+  // customer back to /reset-password?token= on the storefront.
+  forgotPassword: (email: string) =>
+    request<any>(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token: string, newPassword: string) =>
+    request<any>(`${API_BASE}/auth/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword }),
+    }),
+
   me: () => request<any>(`${STOREFRONT_BASE}/auth/me`),
 
   updateMe: (data: {

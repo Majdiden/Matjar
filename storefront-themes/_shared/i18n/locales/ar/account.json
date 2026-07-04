@@ -32,19 +32,34 @@
       }
     },
     "field": {
-      "full_name": { "label": "الاسم الكامل *" },
-      "first_name": { "label": "الاسم الأول" },
-      "last_name": { "label": "الاسم الأخير" },
+      "full_name": {
+        "label": "الاسم الكامل *"
+      },
+      "first_name": {
+        "label": "الاسم الأول"
+      },
+      "last_name": {
+        "label": "الاسم الأخير"
+      },
       "email": {
         "label": "البريد الإلكتروني",
         "hint": "تواصل مع الدعم لتغيير البريد الإلكتروني المرتبط بهذا الحساب."
       },
-      "phone": { "label": "الهاتف", "placeholder": "+966 5 0123 4567" },
+      "phone": {
+        "label": "الهاتف",
+        "placeholder": "+966 5 0123 4567"
+      },
       "marketing_opt_in": "أرسل لي رسائل ترويجية عن المنتجات والعروض الجديدة.",
       "marketing_opt_in_hint": "يمكنك إلغاء الاشتراك في أي وقت.",
-      "current_password": { "label": "كلمة المرور الحالية" },
-      "new_password": { "label": "كلمة المرور الجديدة" },
-      "confirm_new_password": { "label": "تأكيد كلمة المرور الجديدة" }
+      "current_password": {
+        "label": "كلمة المرور الحالية"
+      },
+      "new_password": {
+        "label": "كلمة المرور الجديدة"
+      },
+      "confirm_new_password": {
+        "label": "تأكيد كلمة المرور الجديدة"
+      }
     },
     "address": {
       "title": "العناوين",
@@ -57,16 +72,37 @@
       "new_title": "عنوان جديد",
       "edit_title": "تعديل العنوان",
       "field": {
-        "label": { "label": "التسمية", "placeholder": "المنزل، العمل…" },
-        "first_name": { "label": "الاسم الأول" },
-        "last_name": { "label": "الاسم الأخير" },
-        "address_line1": { "label": "سطر العنوان 1 *" },
-        "address_line2": { "label": "سطر العنوان 2" },
-        "city": { "label": "المدينة *" },
-        "state": { "label": "الولاية / المقاطعة" },
-        "postal_code": { "label": "الرمز البريدي *" },
-        "country": { "label": "الدولة *" },
-        "phone": { "label": "الهاتف" },
+        "label": {
+          "label": "التسمية",
+          "placeholder": "المنزل، العمل…"
+        },
+        "first_name": {
+          "label": "الاسم الأول"
+        },
+        "last_name": {
+          "label": "الاسم الأخير"
+        },
+        "address_line1": {
+          "label": "سطر العنوان 1 *"
+        },
+        "address_line2": {
+          "label": "سطر العنوان 2"
+        },
+        "city": {
+          "label": "المدينة *"
+        },
+        "state": {
+          "label": "الولاية / المقاطعة"
+        },
+        "postal_code": {
+          "label": "الرمز البريدي *"
+        },
+        "country": {
+          "label": "الدولة *"
+        },
+        "phone": {
+          "label": "الهاتف"
+        },
         "set_default": "تعيين كعنوان شحن افتراضي"
       },
       "error": {
@@ -166,8 +202,14 @@
     "title": "أهلاً بعودتك",
     "subtitle": "سجّل الدخول إلى حسابك للمتابعة.",
     "field": {
-      "email": { "label": "البريد الإلكتروني", "placeholder": "your@email.com" },
-      "password": { "label": "كلمة المرور", "placeholder": "••••••••" }
+      "email": {
+        "label": "البريد الإلكتروني",
+        "placeholder": "your@email.com"
+      },
+      "password": {
+        "label": "كلمة المرور",
+        "placeholder": "••••••••"
+      }
     },
     "forgot_link": "نسيت؟",
     "submit": "تسجيل الدخول",
@@ -181,10 +223,22 @@
     "title": "إنشاء حساب",
     "subtitle": "انضم إلينا لبدء التسوق وتتبع الطلبات.",
     "field": {
-      "full_name": { "label": "الاسم الكامل", "placeholder": "أحمد محمد" },
-      "email": { "label": "البريد الإلكتروني", "placeholder": "your@email.com" },
-      "password": { "label": "كلمة المرور", "placeholder": "6 أحرف على الأقل" },
-      "confirm_password": { "label": "تأكيد كلمة المرور", "placeholder": "أعد إدخال كلمة المرور" }
+      "full_name": {
+        "label": "الاسم الكامل",
+        "placeholder": "أحمد محمد"
+      },
+      "email": {
+        "label": "البريد الإلكتروني",
+        "placeholder": "your@email.com"
+      },
+      "password": {
+        "label": "كلمة المرور",
+        "placeholder": "6 أحرف على الأقل"
+      },
+      "confirm_password": {
+        "label": "تأكيد كلمة المرور",
+        "placeholder": "أعد إدخال كلمة المرور"
+      }
     },
     "submit": "إنشاء حساب",
     "submitting": "جاري إنشاء الحساب...",
@@ -211,5 +265,33 @@
     "adding_to_cart": "جاري الإضافة…",
     "remove": "إزالة من قائمة الأمنيات",
     "no_image": "لا توجد صورة"
+  },
+  "forgot": {
+    "title": "إعادة تعيين كلمة المرور",
+    "subtitle": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين.",
+    "submit": "إرسال رابط إعادة التعيين",
+    "submitting": "جارٍ الإرسال…",
+    "check_inbox_title": "تحقق من بريدك",
+    "check_inbox_body": "إذا كان هناك حساب مرتبط بـ {{email}}، فقد أرسلنا رابطاً لإعادة تعيين كلمة المرور.",
+    "back_to_sign_in": "العودة لتسجيل الدخول"
+  },
+  "reset": {
+    "title": "اختر كلمة مرور جديدة",
+    "subtitle": "أدخل كلمة مرور جديدة لحسابك.",
+    "field": {
+      "new_password": "كلمة المرور الجديدة",
+      "confirm_password": "تأكيد كلمة المرور"
+    },
+    "submit": "إعادة تعيين كلمة المرور",
+    "submitting": "جارٍ الحفظ…",
+    "error_min": "يجب أن تتكوّن كلمة المرور من 8 أحرف على الأقل.",
+    "error_match": "كلمتا المرور غير متطابقتين.",
+    "error_default": "رابط إعادة التعيين غير صالح أو منتهي الصلاحية. اطلب رابطاً جديداً.",
+    "invalid_title": "رابط غير صالح",
+    "invalid_body": "هذا الرابط ينقصه الرمز أو انتهت صلاحيته.",
+    "request_new": "اطلب رابطاً جديداً",
+    "success_title": "تم تحديث كلمة المرور",
+    "success_body": "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.",
+    "success_redirect": "جارٍ التحويل لتسجيل الدخول…"
   }
 }

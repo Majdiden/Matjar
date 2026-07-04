@@ -309,20 +309,46 @@ const requestPasswordReset = async (connection, email) => {
     user.passwordResetUsedAt = null;
     await user.save();
 
-    // Build the absolute URL the user clicks. The dashboard renders the
-    // reset form at /reset-password and reads `?token=` from the URL.
-    const base = dashboardBaseUrl();
-    const resetPath = `/reset-password?token=${encodeURIComponent(rawToken)}`;
-    const resetUrl = base ? `${base}${resetPath}` : resetPath;
-
-    // Localize by the store's language so the reset email matches the
-    // storefront/dashboard the user knows. Best-effort — fall back to English.
+    // Build the ABSOLUTE URL the user clicks, on the tenant's own host.
+    // Staff (admin/manager/staff) reset inside the dashboard at
+    // /dashboard/reset-password; customers reset on the storefront at
+    // /reset-password. Both read `?token=` from the URL. We resolve the
+    // tenant host here so the link is never a bare relative path — the old
+    // code fell back to a relative "/reset-password" whenever the global
+    // dashboard URL env was unset, which is unusable in an email and also
+    // 404'd on the storefront for customers.
     let language;
+    let host = null;
     try {
       const Tenant = connection.model("Tenant");
-      const t = await Tenant.findById(user.tenantId).select("settings.language").lean();
-      language = t?.settings?.language;
-    } catch { /* default to English */ }
+      const tenant = await Tenant.findById(user.tenantId)
+        .select("domains settings.language")
+        .lean();
+      language = tenant?.settings?.language;
+      const custom = tenant?.domains?.customDomain;
+      const sub = tenant?.domains?.subdomain;
+      host =
+        (custom?.name && custom?.isVerified ? custom.name : null) ||
+        sub?.fullDomain ||
+        (sub?.name ? `${sub.name}.${config.platformDomain}` : null) ||
+        null;
+    } catch { /* default to English + the configured dashboard URL */ }
+
+    const isStaff =
+      Array.isArray(user.roles) &&
+      user.roles.some((r) => ["admin", "manager", "staff"].includes(r));
+    const appPath = isStaff ? "/dashboard/reset-password" : "/reset-password";
+    const query = `?token=${encodeURIComponent(rawToken)}`;
+
+    let resetUrl;
+    if (host) {
+      const proto = /localhost|127\.0\.0\.1|::1/.test(host) ? "http" : "https";
+      resetUrl = `${proto}://${host}${appPath}${query}`;
+    } else {
+      // Last resort: the configured dashboard URL (staff-oriented).
+      const base = dashboardBaseUrl();
+      resetUrl = `${base}${appPath}${query}`;
+    }
 
     const { subject, text, html } = buildPasswordResetEmail({
       resetUrl,

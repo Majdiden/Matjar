@@ -12,6 +12,8 @@ import About from '../pages/About';
 import PageView from '../pages/PageView';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import ForgotPassword from '../pages/ForgotPassword';
+import ResetPassword from '../pages/ResetPassword';
 import Account from '../pages/Account';
 import Checkout from '../pages/Checkout';
 import OrderSuccess from '../pages/OrderSuccess';
@@ -47,6 +49,8 @@ export interface ThemePages {
   PageView?: PageComponent;
   Login?: PageComponent;
   Register?: PageComponent;
+  ForgotPassword?: PageComponent;
+  ResetPassword?: PageComponent;
   Account?: PageComponent;
   Checkout?: PageComponent;
   OrderSuccess?: PageComponent;
@@ -106,6 +110,8 @@ export function createThemeApp(options: CreateThemeAppOptions): ThemeAppComponen
     PageView,
     Login,
     Register,
+    ForgotPassword,
+    ResetPassword,
     Account,
     Checkout,
     OrderSuccess,
@@ -133,6 +139,8 @@ export function createThemeApp(options: CreateThemeAppOptions): ThemeAppComponen
             <Route path="/search" element={<P.SearchResults />} />
             <Route path="/login" element={<P.Login />} />
             <Route path="/register" element={<P.Register />} />
+            <Route path="/forgot-password" element={<P.ForgotPassword />} />
+            <Route path="/reset-password" element={<P.ResetPassword />} />
             <Route path="/account" element={<P.Account />} />
             <Route path="/wishlist" element={<P.Wishlist />} />
             <Route path="/contact" element={<P.Contact />} />
