@@ -239,6 +239,10 @@ export const acceptInvite = async (models, tenantId, { token, name, password }) 
       resourceId: user._id,
       permission: "team.manage",
       data: {
+        // `name` backs the localized in-app/push/email copy
+        // ("{{name}} accepted the {{role}} invitation"); falls back to the
+        // invite email when the accepted user has no display name.
+        name: user.name || invite.email,
         email: invite.email,
         role: invite.role,
         userId: String(user._id),

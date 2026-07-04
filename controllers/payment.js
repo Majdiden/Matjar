@@ -771,6 +771,9 @@ export const refundController = asyncHandler(async (req, res) => {
       data: {
         orderNumber: order.orderNumber,
         refundAmount,
+        // `currency` backs the localized amount in the in-app/push/email copy
+        // ("{{amount}} refunded on order {{orderNumber}}").
+        currency: order.baseCurrency || order.presentmentCurrency || null,
         manual: useManual,
         reason: reason || null,
       },

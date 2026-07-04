@@ -8,6 +8,11 @@ import {
   resolveNotificationUrl,
   notificationPreferencesUrl,
 } from "../utils/notificationLinks.js";
+import {
+  renderNotificationCopy,
+  resolveTenantLanguage,
+  pickLanguage,
+} from "./notificationCopy.js";
 
 /**
  * Persist a notification and fan it out to any in-process SSE subscribers.
@@ -138,9 +143,10 @@ function shouldEmailUser(user, notification) {
  * enough to get merchants the alert. Keep the shape stable: tests and
  * downstream log consumers look for the "View in dashboard:" prefix.
  */
-function renderEmail(notification) {
-  const title = notification.title || "Matjar notification";
-  const body = notification.body || "";
+function renderEmail(notification, language) {
+  const copy = renderNotificationCopy(notification, language);
+  const title = copy.title || notification.title || "Matjar notification";
+  const body = copy.body || notification.body || "";
   const deepLink = resolveNotificationUrl(notification);
   const prefsLink = notificationPreferencesUrl();
 
@@ -187,7 +193,7 @@ export async function dispatchEmails(models, notification) {
   let users = [];
   try {
     users = await models.User.find(baseFilter)
-      .select("_id email name firstName lastName roles customRoleIds notificationPreferences")
+      .select("_id email name firstName lastName roles customRoleIds notificationPreferences language")
       .lean();
   } catch (err) {
     logger.warn("notification email: user lookup failed", {
@@ -222,8 +228,11 @@ export async function dispatchEmails(models, notification) {
     }
   }
 
-  const { subject, text } = renderEmail(notification);
   const requiredPerm = notification.permission || null;
+
+  // Tenant store language — the middle fallback when a recipient has no
+  // explicit language preference. Resolved once for the whole fan-out.
+  const tenantLanguage = await resolveTenantLanguage(notification.tenantId);
 
   let sentCount = 0;
   for (const user of users) {
@@ -238,6 +247,10 @@ export async function dispatchEmails(models, notification) {
 
     // Preference gate — explicit opt-in per notification type.
     if (!shouldEmailUser(user, notification)) continue;
+
+    // Render subject/body in THIS recipient's saved language.
+    const language = pickLanguage(user.language, tenantLanguage);
+    const { subject, text } = renderEmail(notification, language);
 
     try {
       await sendEmail({ to: user.email, subject, text });

@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Skeleton } from '../../components/ui/skeleton';
 import { useNotificationsContext, type NotificationItem } from '../../contexts/notifications-context';
 import { resolveNotificationLink } from '../../hooks/useNotifications';
+import { renderNotificationCopy } from '../../lib/notification-copy';
 import { cn } from '../../lib/utils';
 
 function iconForType(type: string): React.ElementType {
@@ -160,6 +161,7 @@ export default function Notifications() {
                 const Icon = iconForType(n.type);
                 const unread = isUnread(n);
                 const link = resolveNotificationLink(n);
+                const { title, body } = renderNotificationCopy(t, n);
                 return (
                   <div
                     key={n._id}
@@ -179,15 +181,15 @@ export default function Notifications() {
                       onClick={() => handleOpen(n)}
                     >
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium">{n.title}</span>
+                        <span className="font-medium">{title}</span>
                         {unread && <Badge className="text-[10px]">{t('notifications.badge.unread')}</Badge>}
                         <Badge variant={severityBadgeVariant(n.severity)} className="text-[10px] capitalize">
                           {n.severity}
                         </Badge>
                       </div>
-                      {n.body && (
+                      {body && (
                         <p className="mt-1 text-sm text-muted-foreground">
-                          {n.body}
+                          {body}
                         </p>
                       )}
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

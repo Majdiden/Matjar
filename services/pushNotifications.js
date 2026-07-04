@@ -27,6 +27,11 @@ import {
   STAFF_ROLES,
   effectivePermissionsFor,
 } from "./notification.js";
+import {
+  renderNotificationCopy,
+  resolveTenantLanguage,
+  pickLanguage,
+} from "./notificationCopy.js";
 
 // Icon + badge live at the dashboard's PWA asset root. Served by
 // routes/dashboard.js from dashboard/dist. Fixed paths so a payload never
@@ -35,14 +40,17 @@ const PUSH_ICON = "/dashboard/pwa-192x192.png";
 const PUSH_BADGE = "/dashboard/pwa-192x192.png";
 
 /**
- * Resolve the set of staff user ids allowed to see a notification.
- * Mirrors the visibility logic of dispatchEmails / the inbox repository:
+ * Resolve the staff users allowed to see a notification. Mirrors the
+ * visibility logic of dispatchEmails / the inbox repository:
  *   - restricted to staff roles (or the explicit recipient list)
  *   - permission gate (notification.permission, null = broadcast)
  * Unlike email there is NO per-type channel opt-in — installing the PWA and
  * granting push permission IS the opt-in.
+ *
+ * Returns the eligible user docs (with `_id` + `language`) so the caller can
+ * render each recipient's push payload in THEIR saved language.
  */
-async function resolveRecipientUserIds(models, notification) {
+async function resolveRecipients(models, notification) {
   const baseFilter = { isActive: true };
   if (
     Array.isArray(notification.recipientUserIds) &&
@@ -56,7 +64,7 @@ async function resolveRecipientUserIds(models, notification) {
   let users = [];
   try {
     users = await models.User.find(baseFilter)
-      .select("_id roles customRoleIds")
+      .select("_id roles customRoleIds language")
       .lean();
   } catch (err) {
     logger.warn("push: recipient lookup failed", {
@@ -68,7 +76,7 @@ async function resolveRecipientUserIds(models, notification) {
   if (users.length === 0) return [];
 
   const requiredPerm = notification.permission || null;
-  if (!requiredPerm) return users.map((u) => u._id);
+  if (!requiredPerm) return users;
 
   // Pre-fetch referenced custom roles in one query for permission resolution.
   const customRoleIdSet = new Set();
@@ -92,16 +100,22 @@ async function resolveRecipientUserIds(models, notification) {
   const eligible = [];
   for (const user of users) {
     const perms = effectivePermissionsFor(user, customRolesById);
-    if (perms.has("*") || perms.has(requiredPerm)) eligible.push(user._id);
+    if (perms.has("*") || perms.has(requiredPerm)) eligible.push(user);
   }
   return eligible;
 }
 
-function buildPayload(notification) {
+/**
+ * Build a push payload with the title/body rendered in `language`. The
+ * localized copy comes from services/notificationCopy.js (shared with email);
+ * on an unmapped type it falls back to the stored English title/body.
+ */
+function buildPayload(notification, language) {
   const path = resolveNotificationPath(notification);
+  const { title, body } = renderNotificationCopy(notification, language);
   return {
-    title: notification.title || "Matjar",
-    body: notification.body || "",
+    title: title || "Matjar",
+    body: body || "",
     icon: PUSH_ICON,
     badge: PUSH_BADGE,
     tag: `matjar-${notification.type || "notification"}`,
@@ -124,20 +138,43 @@ export async function dispatchPush(models, notification, tenantId) {
     if (!notification) return;
     if (!isWebPushConfigured()) return; // no VAPID keys → silently skip
 
-    const userIds = await resolveRecipientUserIds(models, notification);
-    if (userIds.length === 0) return;
+    const recipients = await resolveRecipients(models, notification);
+    if (recipients.length === 0) return;
 
-    const subs = await listSubscriptionsForUsers(models, userIds);
+    const subs = await listSubscriptionsForUsers(
+      models,
+      recipients.map((u) => u._id)
+    );
     if (subs.length === 0) return;
 
-    const payload = buildPayload(notification);
+    // Per-recipient language: resolve each subscription's owning user's saved
+    // language, falling back to the tenant's store language, then English.
+    // Render the payload once per distinct language.
+    const tenantLanguage = await resolveTenantLanguage(
+      notification.tenantId || tenantId
+    );
+    const langByUserId = new Map(
+      recipients.map((u) => [String(u._id), u.language])
+    );
+    const payloadByLang = new Map();
+    const payloadFor = (lang) => {
+      if (!payloadByLang.has(lang)) {
+        payloadByLang.set(lang, buildPayload(notification, lang));
+      }
+      return payloadByLang.get(lang);
+    };
+
     const goneEndpoints = [];
     let sent = 0;
 
     // Send in parallel; collect dead endpoints for pruning.
     await Promise.all(
       subs.map(async (sub) => {
-        const res = await sendPush(sub, payload);
+        const lang = pickLanguage(
+          langByUserId.get(String(sub.user)),
+          tenantLanguage
+        );
+        const res = await sendPush(sub, payloadFor(lang));
         if (res.ok) {
           sent++;
         } else if (res.gone) {

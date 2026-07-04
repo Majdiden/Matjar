@@ -26,6 +26,7 @@ import {
 } from './ui/dropdown-menu';
 import { useNotificationsContext, type NotificationItem } from '../contexts/notifications-context';
 import { resolveNotificationLink } from '../hooks/useNotifications';
+import { renderNotificationCopy } from '../lib/notification-copy';
 import {
   fireNativeNotification,
   playNotificationChime,
@@ -73,7 +74,7 @@ function relativeTime(iso: string): string {
 
 export const NotificationBell: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation(['nav']);
+  const { t } = useTranslation(['nav', 'notifications']);
   const { items, unreadCount, markRead, markAllRead } =
     useNotificationsContext();
 
@@ -146,6 +147,7 @@ export const NotificationBell: React.FC = () => {
             {latestItems.map((n) => {
               const Icon = iconForType(n.type);
               const unread = isItemUnread(n);
+              const { title, body } = renderNotificationCopy(t, n);
               return (
                 <button
                   key={n._id}
@@ -167,14 +169,14 @@ export const NotificationBell: React.FC = () => {
                     <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="truncate font-medium">{n.title}</span>
+                        <span className="truncate font-medium">{title}</span>
                         <span className="shrink-0 text-xs text-muted-foreground">
                           {relativeTime(n.createdAt)}
                         </span>
                       </div>
-                      {n.body && (
+                      {body && (
                         <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
-                          {n.body}
+                          {body}
                         </div>
                       )}
                     </div>

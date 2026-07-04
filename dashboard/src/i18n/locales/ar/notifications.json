@@ -28,6 +28,72 @@
       "payment": "المدفوعات",
       "stock": "المخزون",
       "staff": "الموظفون"
+    },
+    "type": {
+      "order_created": {
+        "title": "طلب جديد",
+        "body": "{{orderNumber}} من {{customerName}}"
+      },
+      "payment_manual_submitted": {
+        "title": "تم إرسال دفعة يدوية",
+        "body": "الطلب {{orderNumber}} بانتظار التحقق من الدفع اليدوي"
+      },
+      "payment_failed": {
+        "title": "فشل الدفع",
+        "body": "فشل دفع الطلب {{orderNumber}}{{errorSuffix}}"
+      },
+      "refund_created": {
+        "title": "تم إصدار استرداد",
+        "body": "تم استرداد {{amount}} على الطلب {{orderNumber}}{{reasonSuffix}}"
+      },
+      "return_requested": {
+        "title": "طلب إرجاع",
+        "body": "تم طلب إرجاع على الطلب {{orderNumber}}{{reasonSuffix}}"
+      },
+      "stock_low": {
+        "title": "مخزون منخفض",
+        "body": "{{name}} عند {{stock}} (الحد {{threshold}})"
+      },
+      "webhook_failed": {
+        "title": "فشل تسليم Webhook",
+        "body": "فشل تسليم أحد الـ Webhooks ويحتاج إلى مراجعة"
+      },
+      "domain_verification_failed": {
+        "title": "فشل التحقق من النطاق",
+        "body": "سجل TXT للنطاق {{domain}} لا يطابق رمز التحقق المتوقع"
+      },
+      "staff_invite_accepted": {
+        "title": "تم قبول دعوة الموظف",
+        "body": "{{name}} قَبِل دعوة {{role}}"
+      },
+      "impersonation_requested": {
+        "title": "الدعم الفني يطلب الوصول",
+        "body": "يريد الدعم الوصول إلى متجرك للتذكرة رقم {{ticket}}. وافق فقط إذا كنت تعمل معهم."
+      },
+      "impersonation_approved": {
+        "title": "تمت الموافقة على وصول الدعم",
+        "body": "لقد وافقت على وصول الدعم للتذكرة رقم {{ticket}}."
+      },
+      "impersonation_denied": {
+        "title": "تم رفض وصول الدعم",
+        "body": "لقد رفضت وصول الدعم للتذكرة رقم {{ticket}}."
+      },
+      "impersonation_started": {
+        "title": "بدأت جلسة الدعم",
+        "body": "الدعم الفني يساعدك الآن في التذكرة رقم {{ticket}}."
+      },
+      "impersonation_revoked": {
+        "title": "أنهيت جلسة الدعم",
+        "body": "لقد أنهيت جلسة الدعم للتذكرة رقم {{ticket}}."
+      },
+      "impersonation_ended": {
+        "title": "انتهت جلسة الدعم",
+        "body": "أنهى الدعم الفني مساعدته في التذكرة رقم {{ticket}}."
+      },
+      "impersonation_expired": {
+        "title": "انتهت صلاحية طلب الدعم",
+        "body": "انتهت صلاحية طلب الدعم للتذكرة رقم {{ticket}}."
+      }
     }
   }
 }

@@ -28,6 +28,72 @@
       "payment": "Payments",
       "stock": "Stock",
       "staff": "Staff"
+    },
+    "type": {
+      "order_created": {
+        "title": "New order",
+        "body": "{{orderNumber}} from {{customerName}}"
+      },
+      "payment_manual_submitted": {
+        "title": "Manual payment submitted",
+        "body": "Order {{orderNumber}} is awaiting manual payment verification"
+      },
+      "payment_failed": {
+        "title": "Payment failed",
+        "body": "Order {{orderNumber}} payment failed{{errorSuffix}}"
+      },
+      "refund_created": {
+        "title": "Refund issued",
+        "body": "{{amount}} refunded on order {{orderNumber}}{{reasonSuffix}}"
+      },
+      "return_requested": {
+        "title": "Return requested",
+        "body": "Return requested on order {{orderNumber}}{{reasonSuffix}}"
+      },
+      "stock_low": {
+        "title": "Low stock",
+        "body": "{{name}} is at {{stock}} (threshold {{threshold}})"
+      },
+      "webhook_failed": {
+        "title": "Webhook delivery failed",
+        "body": "A webhook delivery failed and needs attention"
+      },
+      "domain_verification_failed": {
+        "title": "Domain verification failed",
+        "body": "TXT record for {{domain}} does not match the expected verification code"
+      },
+      "staff_invite_accepted": {
+        "title": "Staff invite accepted",
+        "body": "{{name}} accepted the {{role}} invitation"
+      },
+      "impersonation_requested": {
+        "title": "Customer support is requesting access",
+        "body": "Support wants to access your store for ticket #{{ticket}}. Approve only if you are working with them."
+      },
+      "impersonation_approved": {
+        "title": "Support access approved",
+        "body": "You approved support access for ticket #{{ticket}}."
+      },
+      "impersonation_denied": {
+        "title": "Support access denied",
+        "body": "You denied support access for ticket #{{ticket}}."
+      },
+      "impersonation_started": {
+        "title": "Support session started",
+        "body": "Customer support is now assisting with ticket #{{ticket}}."
+      },
+      "impersonation_revoked": {
+        "title": "Support session ended by you",
+        "body": "You ended the support session for ticket #{{ticket}}."
+      },
+      "impersonation_ended": {
+        "title": "Support session ended",
+        "body": "Customer support finished assisting with ticket #{{ticket}}."
+      },
+      "impersonation_expired": {
+        "title": "Support request expired",
+        "body": "The support request for ticket #{{ticket}} expired."
+      }
     }
   }
 }
