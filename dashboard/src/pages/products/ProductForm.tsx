@@ -177,24 +177,18 @@ export const ProductForm: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      {/* Header stacks on phones (title row, then a full-width save) so the
-          big title and the action button don't collide; unchanged at sm+. */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-          <Button variant="ghost" size="sm" className="shrink-0 px-2" onClick={() => navigate('/dashboard/products')}>
-            <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" />{t('common:action.back')}
-          </Button>
-          <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{isEditMode ? t('products.form.title.edit') : t('products.form.title.create')}</h1>
-            <p className="text-muted-foreground text-sm truncate">
-              {isEditMode ? t('products.form.subtitle.edit') : t('products.form.subtitle.create')}
-            </p>
-          </div>
-        </div>
-        <Button onClick={() => handleSubmit()} disabled={saving} className="w-full sm:w-auto shrink-0">
-          {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
-          {isEditMode ? t('products.form.action.update') : t('products.form.action.create')}
+      {/* Header: just back + title. The save action lives at the BOTTOM of
+          the form (below), where it's reachable after filling everything in. */}
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        <Button variant="ghost" size="sm" className="shrink-0 px-2" onClick={() => navigate('/dashboard/products')}>
+          <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" />{t('common:action.back')}
         </Button>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{isEditMode ? t('products.form.title.edit') : t('products.form.title.create')}</h1>
+          <p className="text-muted-foreground text-sm truncate">
+            {isEditMode ? t('products.form.subtitle.edit') : t('products.form.subtitle.create')}
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -417,6 +411,15 @@ export const ProductForm: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Primary action at the bottom of the form — full-width on phones,
+            right-aligned on desktop. */}
+        <div className="mt-6 flex sm:justify-end">
+          <Button type="submit" disabled={saving} size="lg" className="w-full sm:w-auto">
+            {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
+            {isEditMode ? t('products.form.action.update') : t('products.form.action.create')}
+          </Button>
         </div>
       </form>
     </div>

@@ -73,11 +73,12 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
       active ? 'text-primary' : 'text-muted-foreground',
     );
 
-  // Tapping a tab should bring its page to the top even when you're already
-  // on that route (React Router won't re-navigate, so nothing else resets
-  // the <main> scroll container).
+  // Tapping a tab brings its page to the top even when you're already on
+  // that route. Animate it (smooth) so it reads as a scroll, not a jump —
+  // unless the user prefers reduced motion.
   const scrollMainTop = () => {
-    document.querySelector('main')?.scrollTo({ top: 0, left: 0 });
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    document.querySelector('main')?.scrollTo({ top: 0, left: 0, behavior: reduce ? 'auto' : 'smooth' });
   };
 
   const renderDest = (d: Dest) => {
