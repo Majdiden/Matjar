@@ -44,67 +44,88 @@ function platformConfigCollection() {
  * This means background push works out of the box in production without any
  * env configuration, while operators can still pin keys via env vars.
  */
+/**
+ * VAPID keys are a P-256 (prime256v1) keypair encoded as base64url in a very
+ * specific shape (public = the 65-byte uncompressed EC point ≈ 87 chars,
+ * private = the 32-byte scalar ≈ 43 chars). `openssl` PEM output is NOT this
+ * format. `setVapidDetails` validates and throws on anything malformed, so we
+ * use it as the validator: apply the pair, and on success capture it.
+ */
+function applyKeys(pub, priv, subj) {
+  try {
+    webpush.setVapidDetails(subj, pub, priv);
+    publicKey = pub;
+    privateKey = priv;
+    subject = subj;
+    configured = true;
+    return true;
+  } catch (err) {
+    logger.warn("web-push: a VAPID keypair was rejected", { error: err?.message });
+    return false;
+  }
+}
+
 export async function initWebPush() {
   if (configured) return { configured, publicKey };
 
   subject = process.env.VAPID_SUBJECT || "mailto:support@matjar.app";
-  publicKey = process.env.VAPID_PUBLIC_KEY || null;
-  privateKey = process.env.VAPID_PRIVATE_KEY || null;
+  const envPub = process.env.VAPID_PUBLIC_KEY || null;
+  const envPriv = process.env.VAPID_PRIVATE_KEY || null;
 
-  if (publicKey && privateKey) {
-    logger.info("web-push: using VAPID keys from environment");
-  } else {
-    try {
-      const col = platformConfigCollection();
-      if (col) {
-        const doc = await col.findOne({ _id: VAPID_CONFIG_ID });
-        if (doc?.publicKey && doc?.privateKey) {
-          publicKey = doc.publicKey;
-          privateKey = doc.privateKey;
-          if (doc.subject) subject = doc.subject;
-          logger.info("web-push: loaded VAPID keys from the database");
-        } else {
-          const keys = webpush.generateVAPIDKeys();
-          publicKey = keys.publicKey;
-          privateKey = keys.privateKey;
-          await col.updateOne(
-            { _id: VAPID_CONFIG_ID },
-            { $set: { publicKey, privateKey, subject, createdAt: new Date() } },
-            { upsert: true }
-          );
-          logger.warn(
-            "web-push: generated and stored a new VAPID keypair in the database. " +
-              "To manage keys yourself (rotation, multi-cluster), set " +
-              "VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY env vars instead."
-          );
-        }
-      } else {
-        logger.error(
-          "web-push: no DB connection when initialising VAPID keys — " +
-            "background push DISABLED. Call initWebPush() after connectDb()."
-        );
-      }
-    } catch (err) {
-      logger.error("web-push: failed to load/generate VAPID keys from the DB", {
-        error: err?.message,
-      });
+  // 1. Env-provided keys — but only if they're actually valid VAPID keys.
+  if (envPub && envPriv) {
+    if (applyKeys(envPub, envPriv, subject)) {
+      logger.info("web-push: using VAPID keys from environment");
+      return { configured, publicKey };
     }
+    logger.error(
+      "web-push: VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY are set but INVALID — they " +
+        "must be a P-256 base64url keypair from `npx web-push generate-vapid-keys` " +
+        "(NOT `openssl` PEM output). Ignoring them and using a database-managed keypair."
+    );
   }
 
-  if (!publicKey || !privateKey) {
-    return { configured: false, publicKey: null };
-  }
-
+  // 2. Database-managed keypair — load a valid stored pair, else generate +
+  //    persist a correct one. This makes background push work out of the box.
   try {
-    webpush.setVapidDetails(subject, publicKey, privateKey);
-    configured = true;
+    const col = platformConfigCollection();
+    if (!col) {
+      logger.error(
+        "web-push: no DB connection when initialising VAPID keys — background " +
+          "push DISABLED. Call initWebPush() after connectDb()."
+      );
+      return { configured: false, publicKey: null };
+    }
+    const doc = await col.findOne({ _id: VAPID_CONFIG_ID });
+    if (
+      doc?.publicKey &&
+      doc?.privateKey &&
+      applyKeys(doc.publicKey, doc.privateKey, doc.subject || subject)
+    ) {
+      logger.info("web-push: loaded VAPID keys from the database");
+      return { configured, publicKey };
+    }
+    const keys = webpush.generateVAPIDKeys();
+    if (applyKeys(keys.publicKey, keys.privateKey, subject)) {
+      await col.updateOne(
+        { _id: VAPID_CONFIG_ID },
+        { $set: { publicKey: keys.publicKey, privateKey: keys.privateKey, subject, createdAt: new Date() } },
+        { upsert: true }
+      );
+      logger.warn(
+        "web-push: generated and stored a new VAPID keypair in the database. " +
+          "To manage keys yourself set VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY " +
+          "(from `npx web-push generate-vapid-keys`) instead."
+      );
+      return { configured, publicKey };
+    }
   } catch (err) {
-    logger.error("web-push: setVapidDetails failed", { error: err?.message });
-    configured = false;
-    return { configured: false, publicKey: null };
+    logger.error("web-push: failed to load/generate VAPID keys from the DB", {
+      error: err?.message,
+    });
   }
 
-  return { configured, publicKey };
+  return { configured: false, publicKey: null };
 }
 
 /** The public (application server) key browsers subscribe against. */
