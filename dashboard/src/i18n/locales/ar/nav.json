@@ -79,6 +79,13 @@
     "log_out": "تسجيل الخروج"
   },
   "toggle_menu": "تبديل القائمة",
+  "bottom_nav": {
+    "home": "الرئيسية",
+    "orders": "الطلبات",
+    "products": "المنتجات",
+    "more": "المزيد",
+    "menu_title": "القائمة"
+  },
   "browser_notifications": {
     "prompt_title": "تفعيل إشعارات المتصفح؟",
     "prompt_description": "احصل على تنبيه من نظام التشغيل عند ورود طلب جديد.",

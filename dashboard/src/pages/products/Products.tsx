@@ -30,6 +30,7 @@ import { toCSV, downloadCSV } from '../../lib/utils';
 import type { Product, Category, PaginatedResponse } from '../../types';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { useViewMode, ViewToggle } from '../../components/ui/view-toggle';
+import { useIsMobile } from '../../hooks/use-mobile';
 
 // Shape of the stats roll-up API call — same endpoint as the list, but
 // read differently. Narrowed so the `as PaginatedResponse<Product>`
@@ -56,6 +57,9 @@ export const Products: React.FC = () => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   // Table is the default view (audit 3.8.5) — cards remain opt-in.
   const [viewMode, setViewMode] = useViewMode('products.viewMode', 'table');
+  // Phones always render the card list; the toggle applies from md up.
+  const isMobile = useIsMobile();
+  const effectiveView = isMobile ? 'cards' : viewMode;
   const confirm = useConfirm();
 
   const TAB_DEFS: { id: StatusTab; label: string; icon: React.ElementType }[] = [
@@ -222,7 +226,7 @@ export const Products: React.FC = () => {
       />
 
       {/* Stat strip */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {statCards.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} description={s.description} />
         ))}
@@ -235,8 +239,8 @@ export const Products: React.FC = () => {
         onChange={(v) => { setTab(v as StatusTab); setPage(1); }}
       />
 
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[12rem] max-w-md">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t('products.list.search_placeholder')}
@@ -248,7 +252,7 @@ export const Products: React.FC = () => {
         <Button variant="outline" size="sm">
           <Filter className="h-4 w-4 me-2" />{t('products.list.more_filters')}
         </Button>
-        <div className="ml-auto">
+        <div className="ms-auto hidden md:block">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
         </div>
       </div>
@@ -292,7 +296,7 @@ export const Products: React.FC = () => {
             )}
           </CardContent>
         </Card>
-      ) : viewMode === 'table' ? (
+      ) : effectiveView === 'table' ? (
         <Card>
           <Table>
             <TableHeader>
@@ -484,7 +488,7 @@ export const Products: React.FC = () => {
                 </div>
 
                 {/* Price */}
-                <div className="text-end hidden sm:block">
+                <div className="text-end">
                   <p className="font-semibold">{formatPrice(product.price)}</p>
                   {product.compareAtPrice && product.compareAtPrice > product.price && (
                     <p className="text-xs text-muted-foreground line-through">
@@ -503,7 +507,7 @@ export const Products: React.FC = () => {
                 {/* Actions */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-100 transition md:opacity-0 md:group-hover:opacity-100">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>

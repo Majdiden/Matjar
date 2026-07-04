@@ -31,6 +31,7 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { toCSV, downloadCSV } from '../../lib/utils';
+import { useIsMobile } from '../../hooks/use-mobile';
 import type { Order, OrderStatus, PaginatedResponse } from '../../types';
 
 // The bulk/full export builders tap into a few "decorated" order fields
@@ -174,6 +175,9 @@ const paymentVariant = (status: string): 'success' | 'warning' | 'destructive' |
 export const Orders: React.FC = () => {
   const { t } = useTranslation(['orders', 'common']);
   const navigate = useNavigate();
+  // Phones always get the stacked card view (wide tables are unusable at
+  // 360px); the table/card toggle only applies from md up.
+  const isMobile = useIsMobile();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -199,6 +203,7 @@ export const Orders: React.FC = () => {
     setViewModeState(mode);
     localStorage.setItem(VIEW_PREF_KEY, mode);
   };
+  const effectiveView: ViewMode = isMobile ? 'cards' : viewMode;
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const toggleSelect = (id: string) => {
@@ -487,7 +492,7 @@ export const Orders: React.FC = () => {
       />
 
       {/* Stat strip */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {statCards.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} delta={s.delta} description={s.description} />
         ))}
@@ -501,8 +506,8 @@ export const Orders: React.FC = () => {
       />
 
       {/* Search row */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[12rem] max-w-md">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t('orders:list.search.placeholder')}
@@ -598,7 +603,7 @@ export const Orders: React.FC = () => {
             </div>
           </PopoverContent>
         </Popover>
-        <div className="ms-auto flex items-center gap-2">
+        <div className="ms-auto hidden items-center gap-2 md:flex">
           <div className="inline-flex rounded-md border bg-background p-0.5">
             <button
               type="button"
@@ -667,7 +672,7 @@ export const Orders: React.FC = () => {
             </p>
           </CardContent>
         </Card>
-      ) : viewMode === 'table' ? (
+      ) : effectiveView === 'table' ? (
         <DataTable<Order>
           columns={tableColumns}
           rows={orders}
@@ -762,7 +767,7 @@ export const Orders: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 opacity-0 group-hover:opacity-100 transition"
+                          className="h-9 w-9 opacity-100 transition md:opacity-0 md:group-hover:opacity-100"
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
@@ -801,7 +806,7 @@ export const Orders: React.FC = () => {
       )}
 
       {/* Pagination (cards view — the table view's pagination is integrated in DataTable) */}
-      {viewMode !== 'table' && pagination.pages > 1 && !loading && (
+      {effectiveView !== 'table' && pagination.pages > 1 && !loading && (
         <div className="flex items-center justify-between pt-2">
           <p className="text-sm text-muted-foreground">
             {t('common:pagination.showing', { from: ((page - 1) * pagination.limit) + 1, to: Math.min(page * pagination.limit, pagination.total), total: pagination.total })}

@@ -29,6 +29,24 @@ router.use(
   })
 );
 
+// Serve the PWA + root files that vite-plugin-pwa emits at the dist ROOT
+// (service worker, web manifest, workbox runtime, icons, favicon). These must
+// resolve to the REAL files before the SPA catch-all below — otherwise the
+// "*" handler returns index.html for /dashboard/sw.js and the service worker
+// never installs. `index: false` keeps `/dashboard/` itself falling through to
+// the SPA handler. The SW + manifest revalidate on every load so a deploy is
+// picked up promptly; hashed /assets stay immutable (cached above).
+router.use(
+  express.static(dashboardBuildPath, {
+    index: false,
+    setHeaders: (res, filePath) => {
+      if (/(sw\.js|workbox-[^/]+\.js|manifest\.webmanifest)$/.test(filePath)) {
+        res.set("Cache-Control", "no-cache");
+      }
+    },
+  })
+);
+
 // Serve dashboard HTML for all dashboard routes (SPA fallback).
 // index.html is NOT content-hashed, so it must revalidate on every load —
 // otherwise a cached shell keeps referencing stale asset hashes after a

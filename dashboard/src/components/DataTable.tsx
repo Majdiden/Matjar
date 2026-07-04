@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card } from './ui/card';
+import { Card, CardContent } from './ui/card';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from './ui/table';
@@ -89,6 +89,13 @@ export interface DataTableProps<T> {
   sort?: DataTableSortState;
   onSortChange?: (next: DataTableSortState) => void;
   className?: string;
+  /**
+   * Custom mobile (below `md`) card renderer. When omitted, DataTable
+   * auto-builds a stacked card from the columns (first column as the title,
+   * header-less columns as corner actions, the rest as labelled fields).
+   * Pass `false` to keep the table on mobile (horizontally scrollable).
+   */
+  renderMobileCard?: ((row: T) => React.ReactNode) | false;
 }
 
 export function DataTable<T>({
@@ -108,6 +115,7 @@ export function DataTable<T>({
   sort,
   onSortChange,
   className,
+  renderMobileCard,
 }: DataTableProps<T>) {
   const { t } = useTranslation('common');
   const selectable = !!selected && !!onSelectedChange;
@@ -163,11 +171,93 @@ export function DataTable<T>({
     return <>{empty}</>;
   }
 
+  // A column with neither `header` nor `headerKey` is an action/utility column
+  // (e.g. a row menu) — on the mobile card it renders in the top-end corner
+  // without a label; labelled columns become fields.
+  const hasHeader = (col: DataTableColumn<T>) => col.header !== undefined || !!col.headerKey;
+  const primaryCol = columns[0];
+  const actionCols = columns.slice(1).filter((c) => !hasHeader(c));
+  const fieldCols = columns.slice(1).filter(hasHeader);
+
+  // Default mobile card built from the columns (used unless the caller passes
+  // a custom `renderMobileCard` or opts out with `false`).
+  const defaultMobileCard = (row: T) => {
+    const id = rowKey(row);
+    const isSelected = !!selected?.has(id);
+    return (
+      <Card
+        key={id}
+        className={cn(
+          'transition-shadow',
+          onRowClick && 'cursor-pointer hover:shadow-md active:bg-muted/40',
+          isSelected && 'border-primary/50 bg-primary/5',
+          rowClassName?.(row),
+        )}
+        onClick={onRowClick ? () => onRowClick(row) : undefined}
+      >
+        <CardContent className="p-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex min-w-0 items-start gap-2.5">
+              {selectable && (
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={() => toggleSelect(id)}
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300"
+                />
+              )}
+              <div className="min-w-0 font-semibold">{primaryCol?.cell(row)}</div>
+            </div>
+            {actionCols.length > 0 && (
+              <div className="-me-1 -mt-1 flex shrink-0 items-center" onClick={(e) => e.stopPropagation()}>
+                {actionCols.map((col) => (
+                  <React.Fragment key={col.id}>{col.cell(row)}</React.Fragment>
+                ))}
+              </div>
+            )}
+          </div>
+          {fieldCols.length > 0 && (
+            <dl className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-2">
+              {fieldCols.map((col) => (
+                <div key={col.id} className="flex min-w-0 flex-col gap-0.5">
+                  <dt className="text-xs text-muted-foreground">{renderHeaderLabel(col)}</dt>
+                  <dd className="min-w-0 truncate text-sm">{col.cell(row)}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const cardRenderer = renderMobileCard === false ? null : (renderMobileCard || defaultMobileCard);
+
   return (
     <>
       {bulkBar && selectable && selected!.size > 0 && bulkBar}
 
-      <Card className={className}>
+      {/* Mobile: stacked cards (wide tables don't fit a 360px phone). Opt out
+          with renderMobileCard={false} to keep the scrollable table. */}
+      {cardRenderer && (
+        <div className="space-y-2 md:hidden">
+          {loading
+            ? Array.from({ length: skeletonRows }).map((_, i) => (
+                <Card key={`m-skel-${i}`}>
+                  <CardContent className="space-y-2 p-3">
+                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </CardContent>
+                </Card>
+              ))
+            : rows.map((row) => (renderMobileCard ? (
+                <React.Fragment key={rowKey(row)}>{renderMobileCard(row)}</React.Fragment>
+              ) : defaultMobileCard(row)))}
+        </div>
+      )}
+
+      <Card className={cn(cardRenderer && 'hidden md:block', 'overflow-x-auto', className)}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -256,7 +346,7 @@ export function DataTable<T>({
       </Card>
 
       {pagination && onPageChange && pagination.pages > 1 && !loading && (
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             {t('pagination.showing', {
               from: (pagination.page - 1) * pagination.limit + 1,

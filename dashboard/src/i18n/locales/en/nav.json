@@ -79,6 +79,13 @@
     "log_out": "Log out"
   },
   "toggle_menu": "Toggle menu",
+  "bottom_nav": {
+    "home": "Home",
+    "orders": "Orders",
+    "products": "Products",
+    "more": "More",
+    "menu_title": "Menu"
+  },
   "browser_notifications": {
     "prompt_title": "Enable browser notifications?",
     "prompt_description": "Get an OS-level alert when a new order arrives.",

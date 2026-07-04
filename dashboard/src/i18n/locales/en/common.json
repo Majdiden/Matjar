@@ -257,5 +257,26 @@
     "title": "Page not found",
     "description": "The page you're looking for doesn't exist or may have moved.",
     "back": "Back to dashboard"
+  },
+  "pwa": {
+    "offline": {
+      "banner": "You're offline. Showing the last data we saved — some actions won't work until you're back online."
+    },
+    "update": {
+      "message": "A new version is available.",
+      "refresh": "Refresh"
+    },
+    "install": {
+      "message": "Install Matjar for faster access and offline use.",
+      "cta": "Install app"
+    },
+    "ios": {
+      "hint_prefix": "Install this app: tap",
+      "hint_suffix": "then \"Add to Home Screen\"."
+    }
+  },
+  "share": {
+    "whatsapp": "Share on WhatsApp",
+    "whatsapp_message": "Check out my store: {{url}}"
   }
 }

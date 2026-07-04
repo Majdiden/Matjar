@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
+import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 // Sentry source-map upload is gated on SENTRY_AUTH_TOKEN so forks /
@@ -16,6 +17,85 @@ const sentryProject = process.env.SENTRY_PROJECT
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
+    // Installable PWA + offline tolerance (Sudan: ~90% mobile-only traffic,
+    // slow/unreliable networks, periodic internet shutdowns). The dashboard
+    // is served under /dashboard/, so every generated URL (SW, manifest,
+    // precache, navigateFallback) is base-prefixed to match.
+    VitePWA({
+      registerType: 'prompt',
+      // We register + drive the update/offline UX ourselves via the
+      // `virtual:pwa-register/react` hook (components/pwa/PwaManager.tsx),
+      // so the plugin must NOT also inject its own registration script.
+      injectRegister: false,
+      // Emit sw.js + manifest at the dist ROOT. routes/dashboard.js serves
+      // these real files before the SPA catch-all so the SW can install.
+      filename: 'sw.js',
+      manifestFilename: 'manifest.webmanifest',
+      includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png'],
+      manifest: {
+        name: 'Matjar',
+        short_name: 'Matjar',
+        description: 'Run your store from your phone — orders, products and more.',
+        lang: 'ar',
+        dir: 'rtl',
+        display: 'standalone',
+        orientation: 'portrait',
+        start_url: '/dashboard',
+        scope: '/dashboard/',
+        id: '/dashboard',
+        theme_color: '#2563EB',
+        background_color: '#F8F7F4',
+        icons: [
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      workbox: {
+        // Precache the built app shell + hashed assets so a cold, offline
+        // launch still boots the UI. SPA navigations fall back to index.html.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // Keep the (large, many-chunk) precache from tripping the default 2 MiB cap.
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        navigateFallback: '/dashboard/index.html',
+        // Never hijack the API or printable-doc/editor routes with the shell.
+        navigateFallbackDenylist: [/^\/api/, /\/(invoice|packing-slip|refund-receipt)/],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        runtimeCaching: [
+          {
+            // Previously-viewed API data renders offline: try the network
+            // first (fresh data online), fall back to the cached copy when
+            // the network is down or times out quickly.
+            urlPattern: ({ url, request }) =>
+              url.pathname.startsWith('/api/') && request.method === 'GET',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'matjar-api',
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            // Storefront/product imagery and uploaded media — cheap to keep,
+            // avoids re-downloading on flaky connections.
+            urlPattern: ({ url }) => url.pathname.startsWith('/uploads/'),
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'matjar-uploads',
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
+      },
+      devOptions: {
+        // Keep the SW OFF in `vite dev` (avoids caching surprises while
+        // developing); it is fully exercised in the production build.
+        enabled: false,
+      },
+    }),
     // Only active in production builds AND when credentials are present.
     // In any other case (dev, CI without secrets) this is a no-op.
     mode === 'production' && sentryAuthToken && sentryOrg && sentryProject

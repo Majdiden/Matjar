@@ -38,13 +38,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [permissions, setPermissions] = useState<string[]>([]);
+  // Permissions are persisted to localStorage and hydrated synchronously so
+  // the dashboard is usable OFFLINE after a full reload. Sudan's connectivity
+  // is unreliable (periodic shutdowns), and `/auth/me` — the only source of
+  // permissions — fails offline; without a cached copy every RequirePermission
+  // gate would spin forever and the whole shell would be unreachable.
+  const [permissions, setPermissions] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('permissions');
+      const parsed = stored ? JSON.parse(stored) : null;
+      return Array.isArray(parsed) ? (parsed as string[]) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Update permissions in state AND cache them for offline reloads.
+  const applyPermissions = useCallback((perms: string[]) => {
+    setPermissions(perms);
+    try {
+      localStorage.setItem('permissions', JSON.stringify(perms));
+    } catch {
+      /* storage full / disabled — non-fatal */
+    }
+  }, []);
 
   const clearAuth = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     localStorage.removeItem('userId');
+    localStorage.removeItem('permissions');
     setToken(null);
     setUser(null);
     setPermissions([]);
@@ -128,8 +152,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (s?.currency) setTenantCurrency(s.currency);
             if (s?.language) setTenantLocale(s.language === 'ar' ? 'ar-SD' : 'en-US');
             const perms = meRes?.responseObject?.permissions;
-            if (Array.isArray(perms)) setPermissions(perms);
-          }).catch(() => { /* ignore */ });
+            if (Array.isArray(perms)) applyPermissions(perms);
+          }).catch(() => { /* ignore — cached permissions from localStorage stay in effect offline */ });
         }
       } catch {
         clearAuth();
@@ -137,7 +161,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     setIsLoading(false);
-  }, [clearAuth, refreshAccessToken]);
+  }, [clearAuth, refreshAccessToken, applyPermissions]);
 
   // Establish a client session from a login-shaped responseObject (access +
   // refresh token, user identity, tenant host). Shared by the password login
@@ -169,7 +193,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (s?.currency) setTenantCurrency(s.currency);
       if (s?.language) setTenantLocale(s.language === 'ar' ? 'ar-SD' : 'en-US');
       const perms = meRes?.responseObject?.permissions;
-      if (Array.isArray(perms)) setPermissions(perms);
+      if (Array.isArray(perms)) applyPermissions(perms);
     } catch {
       /* ignore — permissions will fill on refresh */
     }

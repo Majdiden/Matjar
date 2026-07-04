@@ -9,7 +9,6 @@ import {
   Store,
   Settings as SettingsIcon,
   ChevronRight,
-  Menu,
   ChevronsUpDown,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -17,7 +16,7 @@ import { Button } from '../ui/button';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
-import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { Sheet, SheetContent } from '../ui/sheet';
 import {
   Dialog,
   DialogContent,
@@ -60,6 +59,8 @@ import { LanguageSwitcher } from '../LanguageSwitcher';
 import { toast } from 'sonner';
 import { api } from '../../lib/api-client';
 import { buildNavGroups, flattenNav, type NavItem } from './nav';
+import { BottomNav } from './BottomNav';
+import { PwaManager } from '../pwa/PwaManager';
 
 // ---------------------------------------------------------------------------
 // Pending-orders badge (audit 4.2.4)
@@ -493,21 +494,28 @@ const DashboardLayoutInner: React.FC = () => {
 
         {/* Main content area */}
         <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Top header */}
-          <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
-            {/* Mobile menu */}
+          {/* Top header — compact + sticky (flex column keeps it pinned while
+              only <main> scrolls). Safe-area top padding clears the status bar
+              when the PWA runs standalone on a notched phone. */}
+          <header className="flex min-h-14 shrink-0 items-center gap-3 border-b bg-background px-4 pt-[env(safe-area-inset-top)] lg:px-6">
+            {/* Mobile brand — the desktop sidebar logo is hidden below lg, so
+                surface the Matjar mark here for identity on phones. */}
+            <Link to="/dashboard" className="flex items-center gap-2 lg:hidden">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <Store className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <span className="text-base font-semibold">Matjar</span>
+            </Link>
+
+            {/* Full-nav Sheet — opened from the bottom-nav "More" tab. Slides
+                from the start side (left in LTR, right in RTL). flex flex-col +
+                overflow-hidden so SidebarContent's `flex-1 min-h-0` resolves
+                against the sheet's height and its inner ScrollArea scrolls. */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">{t('nav:toggle_menu')}</span>
-                </Button>
-              </SheetTrigger>
-              {/* flex flex-col + overflow-hidden so SidebarContent's
-                  `flex-1 min-h-0` resolves against the sheet's full height and
-                  its inner ScrollArea actually scrolls on mobile (the nav is
-                  taller than the viewport on small screens). */}
-              <SheetContent side="left" className="sidebar-surface w-64 p-0 flex flex-col overflow-hidden">
+              <SheetContent
+                side={dir === 'rtl' ? 'right' : 'left'}
+                className="sidebar-surface w-72 max-w-[85vw] p-0 flex flex-col overflow-hidden"
+              >
                 <SidebarContent onNavigate={() => setMobileOpen(false)} pendingOrders={pendingOrders} />
               </SheetContent>
             </Sheet>
@@ -599,8 +607,14 @@ const DashboardLayoutInner: React.FC = () => {
             </div>
           </header>
 
-          {/* Page content — light neutral canvas behind white cards (3.8.1) */}
-          <main className="flex-1 overflow-y-auto bg-canvas p-4 lg:p-6">
+          {/* Page content — light neutral canvas behind white cards (3.8.1).
+              Extra bottom padding on mobile clears the fixed bottom nav +
+              gesture bar; reset to the normal p-6 at lg. */}
+          <main className="flex-1 overflow-y-auto bg-canvas p-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] lg:p-6">
+            {/* PWA lifecycle banners (offline / update / install) — outside
+                Suspense so they persist across route changes and remain
+                visible even while a lazy chunk is loading offline. */}
+            <PwaManager />
             {/* Boundary for the code-split page chunks (audit 3.6) — the
                 spinner shows here so the sidebar/topbar stay put. */}
             <Suspense fallback={<PageLoader />}>
@@ -608,6 +622,9 @@ const DashboardLayoutInner: React.FC = () => {
             </Suspense>
           </main>
         </div>
+
+        {/* Thumb-reachable bottom navigation (phones only; sidebar at lg+). */}
+        <BottomNav onMore={() => setMobileOpen(true)} pendingOrders={pendingOrders} />
         </div>
         <NotificationPermissionPrompt />
       </TooltipProvider>
