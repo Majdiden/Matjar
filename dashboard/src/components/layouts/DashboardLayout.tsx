@@ -56,6 +56,8 @@ import { useNotifications } from '../../hooks/useNotifications';
 import { fireNativeNotification } from '../../lib/notification-effects';
 import { NotificationBell } from '../NotificationBell';
 import { LanguageSwitcher } from '../LanguageSwitcher';
+import { StoreSwitcherDialog } from './StoreSwitcher';
+import { useMyStores } from '../../hooks/useMyStores';
 import { toast } from 'sonner';
 import { api } from '../../lib/api-client';
 import { buildNavGroups, flattenNav, type NavItem } from './nav';
@@ -391,13 +393,44 @@ const NotificationPermissionPrompt: React.FC = () => {
 };
 
 const DashboardLayoutInner: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, switchStore } = useAuth();
   const location = useLocation();
   const breadcrumbOverride = useBreadcrumbOverride();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [storeSwitcherOpen, setStoreSwitcherOpen] = React.useState(false);
   const { t } = useTranslation(['nav']);
   const { dir } = useLanguage();
+
+  // In-app store switcher data. `currentStore` names the active store in the
+  // account menu; `stores` feeds the switcher dialog.
+  const { stores, currentStore, loading: storesLoading, loaded: storesLoaded } = useMyStores();
+
+  // `?store=<slug>` hint auto-switch. When an old per-store dashboard URL
+  // (store.invoila.io/dashboard/…) redirected the merchant to the app host, it
+  // appended the origin store as a hint. If the visitor's active token is for
+  // a DIFFERENT store, switch to the hinted one once. We strip the hint first
+  // (regardless of outcome) so this can't loop, and switchStore hard-reloads
+  // to a clean URL on success.
+  const autoSwitchedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (!storesLoaded || autoSwitchedRef.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const hint = params.get('store');
+    if (!hint) return;
+    autoSwitchedRef.current = true;
+    params.delete('store');
+    const qs = params.toString();
+    window.history.replaceState(
+      null,
+      '',
+      window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash
+    );
+    const match = stores.find((s) => s.slug === hint);
+    if (match && !match.current) {
+      void switchStore(match.id).catch(() => {});
+    }
+  }, [storesLoaded, stores, switchStore]);
 
   // Reset the content scroll on every route change. <main> is the scroll
   // container (not the window), and React Router keeps its scrollTop across
@@ -491,6 +524,22 @@ const DashboardLayoutInner: React.FC = () => {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setStoreSwitcherOpen(true);
+                  }}
+                >
+                  <Store className="me-2 h-4 w-4 shrink-0" />
+                  <div className="flex min-w-0 flex-col">
+                    <span>{t('nav:store_switcher.switch')}</span>
+                    {currentStore && (
+                      <span className="truncate text-xs text-muted-foreground">
+                        {currentStore.name}
+                      </span>
+                    )}
+                  </div>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
                   <SettingsIcon className="me-2 h-4 w-4" />
                   {t('nav:user_menu.settings')}
@@ -530,6 +579,11 @@ const DashboardLayoutInner: React.FC = () => {
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetContent
                 side={dir === 'rtl' ? 'right' : 'left'}
+                // Radix portals the sheet to <body>, OUTSIDE the DirectionProvider,
+                // so the `dir` is lost and the nav renders LTR in Arabic. Re-apply
+                // it here so logical utilities (ps/pe, ms/me, text-start) resolve
+                // RTL and the panel lays out right-to-left.
+                dir={dir}
                 className="sidebar-surface w-72 max-w-[85vw] p-0 flex flex-col overflow-hidden"
               >
                 <SidebarContent onNavigate={() => setMobileOpen(false)} pendingOrders={pendingOrders} />
@@ -611,6 +665,15 @@ const DashboardLayoutInner: React.FC = () => {
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        setStoreSwitcherOpen(true);
+                      }}
+                    >
+                      <Store className="me-2 h-4 w-4" />
+                      {t('nav:store_switcher.switch')}
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
                       {t('nav:user_menu.settings')}
                     </DropdownMenuItem>
@@ -643,6 +706,14 @@ const DashboardLayoutInner: React.FC = () => {
         <BottomNav onMore={() => setMobileOpen(true)} pendingOrders={pendingOrders} />
         </div>
         <NotificationPermissionPrompt />
+        {/* In-app store switcher — mounted at the layout root so it survives
+            the account dropdown closing (Radix unmounts dropdown content). */}
+        <StoreSwitcherDialog
+          open={storeSwitcherOpen}
+          onOpenChange={setStoreSwitcherOpen}
+          stores={stores}
+          loading={storesLoading}
+        />
         {/* Consent popup (owner) + freeze/glow overlay (owner). The support
             banner is rendered in-flow above the header. */}
         <ImpersonationConsentModal />

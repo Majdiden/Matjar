@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import mongoose from "mongoose";
 import { signJWT, comparePassword } from "../utils/misc.js";
 import { getAUserRepo } from "../repositories/user.js";
 import config from "../config/index.js";
@@ -19,6 +20,77 @@ function refreshExpiresAt() {
   const ms = { d: 86400000, h: 3600000, m: 60000, s: 1000 }[unit];
   return new Date(Date.now() + val * ms);
 }
+
+/**
+ * Resolve every ACTIVE store an email can access from the merchant dashboard.
+ *
+ * "Access" = an owner/admin row in the cross-tenant TenantUser directory OR a
+ * dashboard-capable User row (admin/manager/staff, or any custom role) inside
+ * a tenant. Plain storefront customers are excluded — a customer account must
+ * never surface a store as a dashboard login/switch target. This is the single
+ * source of truth for both the login store-picker and the in-app store
+ * switcher, so the two can never drift.
+ *
+ * Returns lean Tenant docs ({ _id, name, slug, domains }); empty array when the
+ * email has no dashboard-capable account anywhere.
+ */
+const findStoresForEmail = async (email) => {
+  const normalizedEmail = String(email || "").toLowerCase().trim();
+  if (!normalizedEmail) return [];
+
+  const TenantUser = mongoose.model("TenantUser");
+  const User = mongoose.model("User");
+  const Tenant = mongoose.model("Tenant");
+
+  const directoryMatches = await TenantUser.find({
+    email: normalizedEmail,
+    tenantId: { $ne: null },
+  })
+    .select("tenantId")
+    .lean();
+
+  const accountMatches = await User.find({
+    email: normalizedEmail,
+    isActive: true,
+    tenantId: { $ne: null },
+    $or: [
+      { roles: { $elemMatch: { $in: ["admin", "manager", "staff"] } } },
+      { customRoleIds: { $exists: true, $ne: [] } },
+    ],
+  })
+    .select("tenantId")
+    .lean();
+
+  const tenantIds = Array.from(
+    new Set(
+      [...directoryMatches, ...accountMatches]
+        .map((m) => m.tenantId)
+        .filter(Boolean)
+        .map(String)
+    )
+  );
+
+  if (tenantIds.length === 0) return [];
+
+  return Tenant.find({ _id: { $in: tenantIds }, isActive: true })
+    .select("name slug domains")
+    .lean();
+};
+
+/**
+ * Shape a lean Tenant doc into the store summary the dashboard consumes
+ * (id/name/slug + primary host). Kept next to `findStoresForEmail` so the
+ * login picker and the store switcher present identical fields.
+ */
+const toStoreSummary = (t) => ({
+  id: String(t._id),
+  name: t.name,
+  slug: t.slug,
+  domain:
+    t.domains?.subdomain?.fullDomain ||
+    t.domains?.subdomain?.name ||
+    t.slug,
+});
 
 const loginService = async (models, email, password, tenantId) => {
   const user = await getAUserRepo(
@@ -462,6 +534,8 @@ const confirmPasswordReset = async (connection, { token, newPassword }) => {
 };
 
 export {
+  findStoresForEmail,
+  toStoreSummary,
   loginService,
   issueAuthSession,
   refreshTokenService,

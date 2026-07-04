@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { createScopedModels } from "../utils/scopedModel.js";
 import { resolveTenantByHost } from "../services/domainRegistry.js";
+import config from "../config/index.js";
 
 /**
  * Resolve tenant from the request hostname.
@@ -26,6 +27,21 @@ async function resolveTenant(hostname) {
 export const storefrontTenantResolver = async (req, res, next) => {
   try {
     const hostname = req.hostname || req.headers.host;
+
+    // App host (`app.<platformDomain>`) is tenant-agnostic — it serves the
+    // single merchant dashboard for EVERY store. We deliberately skip
+    // host-based tenant resolution here so the tenant is decided by the
+    // authenticated JWT (see middlewares/auth.js: with no host-bound
+    // req.tenantId, the token's tenantId is trusted). Public endpoints that
+    // need no tenant (auth login/register/otp, vapid key) still work because
+    // they never require req.tenant. This must NOT fall through to
+    // resolveTenant — otherwise a tenant whose slug is literally "app" would
+    // hijack the whole dashboard host.
+    if (config.isAppHost(hostname)) {
+      req.isAppHost = true;
+      return next();
+    }
+
     const tenant = await resolveTenant(hostname);
 
     if (!tenant) {

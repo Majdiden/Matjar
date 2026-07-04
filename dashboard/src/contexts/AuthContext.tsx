@@ -3,7 +3,7 @@ import type { User, AuthResponse, LoginCredentials, RegisterData, StoreChoice } 
 import { api } from '../lib/api-client';
 import { setTenantCurrency, setTenantLocale } from '../lib/format';
 import { AuthContext } from './auth-context';
-import { encodeAuthPayload, hydrateAuthFromUrlHash } from '../lib/authHandoff';
+import { encodeAuthPayload, hydrateAuthFromUrlHash, appHost, isAppHost, dashboardBasename } from '../lib/authHandoff';
 import { teardownPushSubscription } from '../lib/web-push';
 
 // Narrow responses from `/auth/me` and store-picker handoffs without
@@ -199,29 +199,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       /* ignore — permissions will fill on refresh */
     }
 
-    const desiredHost = opts.skipHostRedirect ? null : ro.tenantDomain;
-    if (desiredHost) {
-      const currentHost = window.location.host;
-      const currentHostnameFirstLabel = window.location.hostname.split('.')[0];
-      const desiredFirstLabel = desiredHost.split('.')[0];
-      const hostMatches =
-        currentHost === desiredHost ||
-        currentHostnameFirstLabel === desiredFirstLabel;
-      if (!hostMatches) {
-        const isDev = import.meta.env.MODE !== 'production';
-        const targetHost = isDev
-          ? `${desiredFirstLabel}.localhost:${window.location.port || '3000'}`
-          : desiredHost;
-        const handoff = encodeAuthPayload({
-          token: ro.accessToken,
-          refreshToken: ro.refreshToken || null,
-          userId: ro.userId,
-          user: userData,
-        });
-        window.location.href = `${window.location.protocol}//${targetHost}/dashboard#auth=${encodeURIComponent(handoff)}`;
-        await new Promise(() => {});
-      }
+    // Where should this session live? The canonical dashboard home is the
+    // single app host (`app.<platformDomain>`) — the active tenant rides the
+    // JWT, so we never hop to a store subdomain any more. If we're already on
+    // the app host (or the caller asked us to stay put), do nothing. Otherwise
+    // (e.g. someone logged in from an OLD store subdomain), hop to the app
+    // host carrying the session in the URL fragment — localStorage is
+    // per-origin, so the fragment is the only cross-origin transport.
+    if (opts.skipHostRedirect || isAppHost()) return;
+
+    const targetHost = appHost();
+    if (window.location.host !== targetHost) {
+      const handoff = encodeAuthPayload({
+        token: ro.accessToken,
+        refreshToken: ro.refreshToken || null,
+        userId: ro.userId,
+        user: userData,
+      });
+      window.location.href = `${window.location.protocol}//${targetHost}/dashboard#auth=${encodeURIComponent(handoff)}`;
+      await new Promise(() => {});
     }
+  };
+
+  // Switch the active store in place — no host hop. The backend re-issues a
+  // session bound to the chosen tenant; we swap the token/refreshToken/user in
+  // localStorage and hard-reload the dashboard so every store-scoped query
+  // refetches against the new tenant. Stays on the SAME (app) host.
+  const switchStore = async (tenantId: string) => {
+    const res = await api.auth.switchStore(tenantId);
+    const ro = (res as AuthResponse).responseObject;
+    if (!ro?.accessToken || !ro?.userId) {
+      throw new Error('Failed to switch store');
+    }
+    const userData: User = {
+      id: ro.userId,
+      name: ro.name,
+      email: ro.email,
+      tenantId: ro.tenantId || ro.userId,
+      roles: ro.roles,
+    };
+    localStorage.setItem('token', ro.accessToken);
+    if (ro.refreshToken) localStorage.setItem('refreshToken', ro.refreshToken);
+    localStorage.setItem('userId', ro.userId);
+    localStorage.setItem('user', JSON.stringify(userData));
+    // Drop the previous store's cached permissions so the new store's load
+    // fresh from /auth/me after the reload.
+    localStorage.removeItem('permissions');
+    window.location.assign(dashboardBasename() || '/');
   };
 
   // Passwordless passkey login — the caller (Login page) runs the WebAuthn
@@ -299,6 +323,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       loginWithResponse,
       register,
       logout,
+      switchStore,
       permissions,
       can,
     }}>

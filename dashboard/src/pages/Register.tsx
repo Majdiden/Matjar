@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/auth-context';
-import { encodeAuthPayload } from '../lib/authHandoff';
+import { encodeAuthPayload, appHost, isAppHost } from '../lib/authHandoff';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -477,18 +477,27 @@ export const Register: React.FC = () => {
         };
         const ro = r.responseObject || {};
         toast.success(t('auth.toast.store_created'));
-        const tenantDomain = ro.tenantDomain || ro.subdomain || '';
-        if (ro.accessToken && tenantDomain) {
-          // Hand the user straight into the NEW store's dashboard, signed in.
-          const isDev = import.meta.env.MODE !== 'production';
-          const firstLabel = tenantDomain.split('.')[0];
-          const host = isDev ? `${firstLabel}.localhost:${window.location.port || '3000'}` : tenantDomain;
+        if (ro.accessToken) {
+          // Hand the user straight into the NEW store, signed in. The dashboard
+          // is single-host now (app.<platformDomain>) and the new store's
+          // tenant rides the JWT, so we hop to the app host (if we're not
+          // already there) carrying the session in the URL fragment.
           const payload = encodeAuthPayload({
             token: ro.accessToken,
             userId: ro.adminUserId,
             user: { id: ro.adminUserId, name: user?.name, email: user?.email, tenantId: ro.tenantId, roles: ['admin'] },
           });
-          window.location.href = `${window.location.protocol}//${host}/dashboard#auth=${encodeURIComponent(payload)}`;
+          if (isAppHost()) {
+            // Already on the app host — hydrate in place and reload so the new
+            // store's data loads (the token in localStorage already points at it).
+            localStorage.setItem('token', ro.accessToken);
+            if (ro.adminUserId) localStorage.setItem('userId', ro.adminUserId);
+            localStorage.removeItem('permissions');
+            window.location.assign('/dashboard');
+          } else {
+            const host = appHost();
+            window.location.href = `${window.location.protocol}//${host}/dashboard#auth=${encodeURIComponent(payload)}`;
+          }
           return;
         }
         navigate('/dashboard', { replace: true });

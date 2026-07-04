@@ -47,6 +47,22 @@ export interface StoreSelectionResponse {
   data: { stores: StoreChoice[] };
 }
 
+// A store the current user can access from the in-app store switcher.
+export interface StoreSummary {
+  id: string;
+  name: string;
+  slug: string;
+  domain: string;
+  current: boolean;
+}
+
+export interface MyStoresResponse {
+  responseObject?: {
+    currentTenantId: string;
+    stores: StoreSummary[];
+  };
+}
+
 export interface RegisterData {
   name: string;
   email: string;

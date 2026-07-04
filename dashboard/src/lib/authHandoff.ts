@@ -17,6 +17,41 @@
  */
 
 /**
+ * App-host helpers.
+ *
+ * The dashboard now lives on a single, tenant-agnostic host —
+ * `app.<platformDomain>` (app.invoila.io in prod, app.localhost:3000 in dev).
+ * The active tenant rides the JWT, so we never need to hop to a store
+ * subdomain to operate on it. These helpers let the client detect whether it's
+ * already on that host and, if not, build the URL to hop TO it (carrying the
+ * session in a `#auth=` fragment, since localStorage is per-origin).
+ */
+
+/** The platform host suffix WITHOUT the leading app/store label. */
+function platformHostSuffix(): string {
+  if (typeof window === 'undefined') return '';
+  const isDev = import.meta.env.MODE !== 'production';
+  if (isDev) return `localhost:${window.location.port || '3000'}`;
+  const envDomain = import.meta.env.VITE_PLATFORM_DOMAIN as string | undefined;
+  if (envDomain) return envDomain;
+  // Fall back to everything after the current host's first DNS label
+  // (e.g. store.invoila.io → invoila.io → app.invoila.io).
+  const parts = window.location.host.split('.');
+  return parts.length > 1 ? parts.slice(1).join('.') : window.location.host;
+}
+
+/** The canonical dashboard app host, e.g. `app.invoila.io` / `app.localhost:3000`. */
+export function appHost(): string {
+  return `app.${platformHostSuffix()}`;
+}
+
+/** True when the current page is already served from the app host. */
+export function isAppHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.location.hostname.split('.')[0] === 'app';
+}
+
+/**
  * The router basename for the dashboard SPA. In production the dashboard is
  * mounted under `/dashboard`; in dev it's at the root. Raw `window.location`
  * redirects (logout, 401) must include it, otherwise on a store subdomain a

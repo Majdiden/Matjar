@@ -41,7 +41,12 @@ app.use(
         scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://images.unsplash.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        // `data:` is required because the SPA + storefront themes inline
+        // fonts as base64 `data:font/...` URIs (bundled/self-hosted web fonts).
+        // Without it every inlined font is blocked by CSP — flooding the
+        // console with font-src violations and falling back to system fonts.
+        // Same rationale as imgSrc allowing data:/blob: above.
+        fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
         connectSrc: ["'self'", "https://api.stripe.com"],
         frameSrc: ["'self'", "https://js.stripe.com"],
         objectSrc: ["'none'"],

@@ -78,6 +78,13 @@
     "settings": "Settings",
     "log_out": "Log out"
   },
+  "store_switcher": {
+    "switch": "Switch store",
+    "title": "Your stores",
+    "description": "Switch between the stores on your account.",
+    "current": "Current",
+    "empty": "No other stores on your account."
+  },
   "toggle_menu": "Toggle menu",
   "bottom_nav": {
     "home": "Home",

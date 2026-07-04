@@ -1,14 +1,20 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { loginUrl, isOnLoginPage } from './authHandoff';
 
-// API Base URL.
-// Tenant resolution is host-based (the backend reads the Host header to map
-// a subdomain → tenant), so API calls MUST preserve the tenant subdomain.
-// In dev, Vite runs on :5173 and proxies `/api` → `http://localhost:3000`
-// with `changeOrigin: false` so the tenant Host header (`demo.localhost:5173`)
-// reaches the backend intact. Using a relative `/api` base here is what
-// makes that proxy work — hardcoding `localhost:3000` bypasses it and
-// triggers the "Store not found" bare-localhost fallback.
+// API Base URL — always same-origin `/api`.
+//
+// On the app host (`app.<platformDomain>`) the backend resolves the tenant
+// from the authenticated JWT (the Authorization header this client always
+// sends), NOT the Host — so a same-origin `/api` base is exactly right: the
+// tenant rides the token, not the subdomain. There is no longer any
+// requirement that the API host equal a tenant subdomain.
+//
+// On legacy tenant subdomains the backend still resolves the tenant from the
+// Host header, and a relative `/api` base preserves that host too. In dev,
+// Vite runs on :5173 and proxies `/api` → `http://localhost:3000` with
+// `changeOrigin: false` so the Host header reaches the backend intact.
+// Hardcoding `localhost:3000` would bypass that proxy and trip the
+// bare-localhost "Store not found" fallback.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Create axios instance
@@ -243,6 +249,16 @@ export const api = {
       themeSelected?: boolean;
       niche?: string;
     }) => api.post('/auth/stores', data),
+
+    // In-app store switcher. `myStores` lists every store the signed-in
+    // email can access; `switchStore` re-issues a session bound to the chosen
+    // tenant WITHOUT a host hop (the tenant rides the JWT).
+    myStores: () =>
+      api.get<{ responseObject?: { currentTenantId: string; stores: Array<{
+        id: string; name: string; slug: string; domain: string; current: boolean;
+      }> } }>('/auth/my-stores'),
+    switchStore: (tenantId: string) =>
+      api.post('/auth/switch-store', { tenantId }),
 
     // Public signup helper — true if the email already has a dashboard
     // account, so the UI can prompt "sign in to add a store" instead of

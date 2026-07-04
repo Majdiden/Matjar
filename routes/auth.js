@@ -4,6 +4,8 @@ import {
   addStoreController,
   checkEmailController,
   loginController,
+  myStoresController,
+  switchStoreController,
   refreshTokenController,
   getCurrentUserController,
   logoutController,
@@ -108,6 +110,12 @@ authRoutes.post(
 // under their account (reuses their credentials; returns a token for the
 // new store so the client hands them straight in).
 authRoutes.post("/stores", authenticate, addStoreController);
+
+// In-app store switcher (single app-host dashboard). List the stores the
+// authenticated email can access, and re-issue a session for another one
+// WITHOUT a host hop — the active tenant rides the JWT.
+authRoutes.get("/my-stores", authenticate, myStoresController);
+authRoutes.post("/switch-store", authenticate, switchStoreController);
 
 // WebAuthn passkey ENROLLMENT — a signed-in user registers a platform
 // authenticator (fingerprint / Face ID) on their account.

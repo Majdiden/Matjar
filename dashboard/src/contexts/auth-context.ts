@@ -16,6 +16,9 @@ export interface AuthContextType {
   loginWithResponse: (responseObject: NonNullable<AuthResponse['responseObject']>) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
+  // Switch the active store in place (no host hop): re-issues a token for the
+  // chosen tenant, swaps it in, and hard-reloads the dashboard.
+  switchStore: (tenantId: string) => Promise<void>;
   permissions: string[];
   can: (...keys: string[]) => boolean;
 }

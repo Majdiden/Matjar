@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { verifyJWT } from "../utils/misc.js";
 import { createScopedModels } from "../utils/scopedModel.js";
+import { evaluateSubscriptionBlock } from "./subscriptionGate.js";
 import logger from "../utils/logger.js";
 
 /**
@@ -48,6 +49,17 @@ export const authenticate = async (req, res, next) => {
     req.tenantId = tenant._id;
     req.tenant = tenant;
     req.models = createScopedModels(mongoose.connection, tenant._id);
+
+    // Subscription write-gate for the app host. On tenant subdomains the
+    // host-mounted `subscriptionGate` already blocked suspended/cancelled/
+    // deleting stores BEFORE this middleware ran (it had a host-resolved
+    // req.tenant). On the tenant-agnostic app host there is no host tenant at
+    // that point — the tenant is only known here, from the JWT — so we re-run
+    // the same evaluation to keep write-blocking consistent across hosts.
+    if (req.isAppHost) {
+      const blocked = evaluateSubscriptionBlock(tenant, req.method);
+      if (blocked) return res.status(blocked.statusCode).json(blocked.body);
+    }
 
     // Revalidate user is still active and the token wasn't issued
     // before the user's most recent invalidation epoch (a password

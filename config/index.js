@@ -124,6 +124,24 @@ class Config {
     return this.platformDomain;
   }
 
+  // App host — the SINGLE, tenant-agnostic hostname that serves the merchant
+  // dashboard (`app.<platformDomain>`, e.g. app.invoila.io in prod,
+  // app.localhost:3000 in dev). One PWA install, one login, switch between
+  // stores in-app. On this host the tenant is resolved from the JWT, NOT the
+  // Host header — see middlewares/tenantContext.js. `appHost` keeps the port
+  // (used for building redirect URLs); `isAppHost()` strips it for matching
+  // against the port-less `req.hostname`.
+  get appHost() {
+    return `app.${this.platformDomain}`;
+  }
+
+  isAppHost(rawHost) {
+    if (!rawHost) return false;
+    const host = String(rawHost).split(":")[0].trim().toLowerCase().replace(/\.$/, "");
+    const base = String(this.platformDomain).split(":")[0].trim().toLowerCase();
+    return !!base && host === `app.${base}`;
+  }
+
   // Session Configuration
   get sessionSecret() {
     return process.env.SESSION_SECRET || this.jwtSecret;
