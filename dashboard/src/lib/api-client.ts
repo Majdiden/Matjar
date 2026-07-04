@@ -309,6 +309,40 @@ export const api = {
       api.post('/notifications/push/unsubscribe', { endpoint }),
   },
 
+  // Consent-based support impersonation (owner side + impersonating session).
+  impersonation: {
+    // Drives the consent popup (owner), freeze overlay (owner), and support
+    // banner (impersonating session). Returns viewerRole + pending + active.
+    state: () =>
+      api.get<{
+        data?: {
+          viewerRole: 'owner' | 'support';
+          pending: Array<{
+            grantId: string;
+            ticket: string;
+            supportName?: string;
+            supportEmail?: string;
+            code?: string;
+            approvalExpiresAt?: string;
+          }>;
+          active: {
+            grantId: string;
+            ticket: string;
+            supportName?: string;
+            supportEmail?: string;
+            sessionExpiresAt?: string;
+            storeName?: string | null;
+          } | null;
+        };
+      }>('/impersonation/state'),
+    approve: (grantId: string) => api.post(`/impersonation/${grantId}/approve`),
+    deny: (grantId: string) => api.post(`/impersonation/${grantId}/deny`),
+    // Owner ends an active session (revoke — immediate).
+    revoke: (grantId: string) => api.post(`/impersonation/${grantId}/revoke`),
+    // Impersonating support session ends its own session (Exit impersonation).
+    exitSelf: (grantId: string) => api.post(`/impersonation/${grantId}/exit-self`),
+  },
+
   // Domain endpoints
   domains: {
     getInfo: () => api.get('/domains/info'),

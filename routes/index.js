@@ -35,6 +35,7 @@ import notificationRoutes from "../routes/notification.js";
 import pageRoutes from "../routes/page.js";
 import assetRoutes from "../routes/asset.js";
 import redirectRoutes from "../routes/redirect.js";
+import impersonationRoutes from "../routes/impersonation.js";
 
 const router = Router();
 
@@ -75,5 +76,6 @@ router.use("/notifications", notificationRoutes); // In-app notification center 
 router.use("/pages", pageRoutes); // CMS-style static content pages (about, contact, privacy…)
 router.use("/assets", assetRoutes); // Media library (browse/reuse uploaded assets)
 router.use("/redirects", redirectRoutes); // URL redirects (301/302 mapping)
+router.use("/impersonation", impersonationRoutes); // Owner-side support-impersonation consent
 
 export default router;

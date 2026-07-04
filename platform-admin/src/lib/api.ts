@@ -269,6 +269,56 @@ export const api = {
         expiresIn: number;
       };
     },
+
+    // --- Consent-based impersonation (owner must approve) ---
+    // 1. Request access for a ticket → owner gets a real-time consent popup.
+    requestImpersonation: async (tenantId: string, ticket: string) => {
+      const res = await http.post(`/tenants/${tenantId}/impersonation/request`, { ticket });
+      return res.data.data as {
+        grantId: string;
+        status: string;
+        ticket: string;
+        approvalExpiresAt?: string;
+        storeName?: string;
+      };
+    },
+    // 2. Poll the grant while waiting for the owner to approve/deny.
+    pollImpersonation: async (tenantId: string, grantId: string) => {
+      const res = await http.get(`/tenants/${tenantId}/impersonation/${grantId}`);
+      return res.data.data as {
+        grantId: string;
+        status: string;
+        ticket: string;
+        sessionExpiresAt?: string;
+        approvalExpiresAt?: string;
+      };
+    },
+    // 2b. Phone fallback — owner reads the code, support submits it here.
+    approveImpersonationByCode: async (tenantId: string, grantId: string, code: string) => {
+      const res = await http.post(
+        `/tenants/${tenantId}/impersonation/${grantId}/approve-code`,
+        { code }
+      );
+      return res.data.data as { grantId: string; status: string; ticket: string };
+    },
+    // 3. Enter an approved grant → mints the impersonation token.
+    enterImpersonation: async (tenantId: string, grantId: string) => {
+      const res = await http.post(`/tenants/${tenantId}/impersonation/${grantId}/enter`, {});
+      return res.data.data as {
+        token: string;
+        grantId: string;
+        tenantId: string;
+        userId: string;
+        userEmail: string;
+        ticket: string;
+        expiresIn: number;
+      };
+    },
+    // Cancel/exit a grant from the operator side.
+    exitImpersonation: async (tenantId: string, grantId: string) => {
+      const res = await http.post(`/tenants/${tenantId}/impersonation/${grantId}/exit`, {});
+      return res.data.data as { grantId: string; status: string };
+    },
     listOrders: async (
       tenantId: string,
       params: { page?: number; limit?: number; status?: string } = {}

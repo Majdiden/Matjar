@@ -71,6 +71,24 @@ export function resolveNotificationLink(n: NotificationItem): string | null {
   }
 }
 
+/**
+ * Impersonation lifecycle events (impersonation.requested / started / ended /
+ * revoked / approved / denied / expired) ride the SAME SSE notification
+ * stream. Re-broadcast them onto a window event so the ImpersonationProvider
+ * can react instantly (consent popup, freeze overlay on/off, support kick)
+ * without opening a second socket. Best-effort; the provider also polls.
+ */
+export const IMPERSONATION_EVENT = 'matjar:impersonation';
+function bridgeImpersonation(n: NotificationItem) {
+  if (typeof n?.type === 'string' && n.type.startsWith('impersonation.')) {
+    try {
+      window.dispatchEvent(new CustomEvent(IMPERSONATION_EVENT, { detail: n }));
+    } catch {
+      /* no-op — window/CustomEvent unavailable (SSR/tests) */
+    }
+  }
+}
+
 function toastForSeverity(severity: string, title: string, body: string | undefined, id: string) {
   const opts = { id, description: body };
   switch (severity) {
@@ -162,6 +180,7 @@ export function useNotifications() {
         return;
       }
       const n = (msg as { payload: NotificationItem }).payload;
+      bridgeImpersonation(n);
       const p = prefsRef.current[n.type];
       const inbox = !p || p.inbox !== false;
       const toast_ = !p || p.toast !== false;
@@ -196,6 +215,7 @@ export function useNotifications() {
     };
 
     const handleIncoming = (n: NotificationItem) => {
+      bridgeImpersonation(n);
       const p = prefsRef.current[n.type];
       const inbox = !p || p.inbox !== false;
       const toast_ = !p || p.toast !== false;

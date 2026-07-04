@@ -50,6 +50,13 @@ import {
   deletePlan,
   changeTenantPlan,
 } from "../controllers/platformAdmin.js";
+import {
+  requestController as impersonationRequest,
+  pollController as impersonationPoll,
+  approveByCodeController as impersonationApproveByCode,
+  enterController as impersonationEnter,
+  exitController as impersonationExit,
+} from "../controllers/impersonation.js";
 
 const router = Router();
 
@@ -195,11 +202,46 @@ router.get(
 );
 
 // --- Impersonation (support.impersonate) ---
+// Legacy silent mint (kept for back-compat; the consent flow below is preferred).
 router.post(
   "/tenants/:tenantId/impersonate",
   validateObjectId("tenantId"),
   requireScope(PLATFORM_SCOPES.SUPPORT_IMPERSONATE),
   impersonate
+);
+
+// Consent-based impersonation: request → (owner approves) → enter → exit.
+// The owner must explicitly approve in their dashboard (or read the code to
+// support, who submits it via approve-code) before a token is ever minted.
+router.post(
+  "/tenants/:tenantId/impersonation/request",
+  validateObjectId("tenantId"),
+  requireScope(PLATFORM_SCOPES.SUPPORT_IMPERSONATE),
+  impersonationRequest
+);
+router.get(
+  "/tenants/:tenantId/impersonation/:grantId",
+  validateObjectId("tenantId", "grantId"),
+  requireScope(PLATFORM_SCOPES.SUPPORT_IMPERSONATE),
+  impersonationPoll
+);
+router.post(
+  "/tenants/:tenantId/impersonation/:grantId/approve-code",
+  validateObjectId("tenantId", "grantId"),
+  requireScope(PLATFORM_SCOPES.SUPPORT_IMPERSONATE),
+  impersonationApproveByCode
+);
+router.post(
+  "/tenants/:tenantId/impersonation/:grantId/enter",
+  validateObjectId("tenantId", "grantId"),
+  requireScope(PLATFORM_SCOPES.SUPPORT_IMPERSONATE),
+  impersonationEnter
+);
+router.post(
+  "/tenants/:tenantId/impersonation/:grantId/exit",
+  validateObjectId("tenantId", "grantId"),
+  requireScope(PLATFORM_SCOPES.SUPPORT_IMPERSONATE),
+  impersonationExit
 );
 
 // --- Queues (queue.retry; listing requires support.read) ---

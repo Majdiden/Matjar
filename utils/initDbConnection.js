@@ -42,6 +42,7 @@ import pageSchema from "../schemas/store/page.js";
 import redirectSchema from "../schemas/store/redirect.js";
 import webauthnCredentialSchema from "../schemas/store/webauthnCredential.js";
 import pushSubscriptionSchema from "../schemas/store/pushSubscription.js";
+import impersonationGrantSchema from "../schemas/store/impersonationGrant.js";
 
 /**
  * Register all models on a single shared connection.
@@ -95,4 +96,5 @@ export function registerAllModels(connection) {
   connection.model("Redirect", redirectSchema);
   connection.model("WebauthnCredential", webauthnCredentialSchema);
   connection.model("PushSubscription", pushSubscriptionSchema);
+  connection.model("ImpersonationGrant", impersonationGrantSchema);
 }

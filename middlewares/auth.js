@@ -70,6 +70,38 @@ export const authenticate = async (req, res, next) => {
         .json({ success: false, message: "Session has been revoked. Please log in again." });
     }
 
+    // Consent-grant impersonation binding. When the token carries an
+    // `impersonation` claim (minted by services/impersonation.js after the
+    // owner approved), the request is only allowed while the grant is still
+    // ACTIVE and unexpired. This is what makes an owner revoke immediate:
+    // the moment the grant flips to cancelled/ended/expired, the very next
+    // impersonated request 401s — no token blacklist needed.
+    if (decoded.impersonation?.grantId) {
+      const grant = await req.models.ImpersonationGrant.findById(
+        decoded.impersonation.grantId
+      )
+        .select("status sessionExpiresAt supportUserId ticket")
+        .lean();
+      const live =
+        grant &&
+        grant.status === "active" &&
+        grant.sessionExpiresAt &&
+        new Date(grant.sessionExpiresAt).getTime() > Date.now() &&
+        String(grant.supportUserId) === String(decoded.impersonation.supportUserId);
+      if (!live) {
+        return res.status(401).json({
+          success: false,
+          message: "Impersonation session has ended.",
+          code: "impersonation_ended",
+        });
+      }
+      req.impersonation = {
+        grantId: String(decoded.impersonation.grantId),
+        supportUserId: String(decoded.impersonation.supportUserId),
+        ticket: grant.ticket,
+      };
+    }
+
     req.user = {
       userId: decoded.userId,
       tenantId: decoded.tenantId,

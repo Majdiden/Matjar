@@ -1,0 +1,34 @@
+{
+  "consent": {
+    "title": "Customer support is requesting access",
+    "description": "Customer support wants to access your store to help with support ticket #{{ticket}}. Only approve if you are actively working with support on this issue.",
+    "requested_by": "Requested by",
+    "ticket": "Support ticket",
+    "expires_in": "This request expires in {{seconds}}s",
+    "expired": "This request has expired.",
+    "approve": "Approve access",
+    "deny": "Deny",
+    "approving": "Approving…",
+    "denying": "Denying…",
+    "code_hint": "On the phone with support? Read them this code instead:",
+    "code_label": "Consent code",
+    "approved_toast": "Support access approved",
+    "denied_toast": "Request denied",
+    "error": "Could not process your response. Please try again."
+  },
+  "overlay": {
+    "banner": "Customer support is providing manual assistance for support ticket #{{ticket}}.",
+    "subtext": "Your dashboard is temporarily locked while support is assisting. You stay in control — end the session anytime.",
+    "assisting_by": "Assisting: {{name}}",
+    "session_ends": "Session ends at {{time}}",
+    "end_session": "End session",
+    "ending": "Ending…",
+    "ended_toast": "Support session ended. Your dashboard is unlocked."
+  },
+  "banner": {
+    "label": "Impersonating {{store}} · ticket #{{ticket}}",
+    "audited": "All actions are audited",
+    "exit": "Exit impersonation",
+    "exiting": "Exiting…"
+  }
+}

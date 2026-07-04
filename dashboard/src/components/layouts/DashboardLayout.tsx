@@ -61,6 +61,10 @@ import { api } from '../../lib/api-client';
 import { buildNavGroups, flattenNav, type NavItem } from './nav';
 import { BottomNav } from './BottomNav';
 import { PwaManager } from '../pwa/PwaManager';
+import { ImpersonationProvider } from '../../contexts/ImpersonationContext';
+import { ImpersonationConsentModal } from '../impersonation/ImpersonationConsentModal';
+import { ActiveImpersonationOverlay } from '../impersonation/ActiveImpersonationOverlay';
+import { ImpersonationBanner } from '../impersonation/ImpersonationBanner';
 
 // ---------------------------------------------------------------------------
 // Pending-orders badge (audit 4.2.4)
@@ -503,6 +507,9 @@ const DashboardLayoutInner: React.FC = () => {
 
         {/* Main content area */}
         <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Support-impersonation banner (impersonating session only). In-flow
+              so it pushes the header down rather than covering it. */}
+          <ImpersonationBanner />
           {/* Top header — compact + sticky (flex column keeps it pinned while
               only <main> scrolls). Safe-area top padding clears the status bar
               when the PWA runs standalone on a notched phone. */}
@@ -636,6 +643,10 @@ const DashboardLayoutInner: React.FC = () => {
         <BottomNav onMore={() => setMobileOpen(true)} pendingOrders={pendingOrders} />
         </div>
         <NotificationPermissionPrompt />
+        {/* Consent popup (owner) + freeze/glow overlay (owner). The support
+            banner is rendered in-flow above the header. */}
+        <ImpersonationConsentModal />
+        <ActiveImpersonationOverlay />
       </TooltipProvider>
     </DirectionProvider>
   );
@@ -644,7 +655,9 @@ const DashboardLayoutInner: React.FC = () => {
 export const DashboardLayout: React.FC = () => (
   <BreadcrumbProvider>
     <NotificationsProvider>
-      <DashboardLayoutInner />
+      <ImpersonationProvider>
+        <DashboardLayoutInner />
+      </ImpersonationProvider>
     </NotificationsProvider>
   </BreadcrumbProvider>
 );

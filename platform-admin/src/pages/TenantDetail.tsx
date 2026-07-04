@@ -35,6 +35,7 @@ import TenantOrdersTab from './TenantOrdersTab';
 import TenantPaymentsTab from './TenantPaymentsTab';
 import TenantExportsTab from './TenantExportsTab';
 import TenantFailedWebhooksTab from './TenantFailedWebhooksTab';
+import { ImpersonationRequestModal } from './ImpersonationRequestModal';
 
 type Tab = 'overview' | 'orders' | 'payments' | 'exports' | 'webhooks';
 const TABS: { id: Tab; label: string }[] = [
@@ -655,82 +656,13 @@ export default function TenantDetailPage() {
         }}
       />
 
-      <ConfirmModal
+      {/* Consent-based impersonation: request → owner approves → enter. No
+          token is minted until the store owner explicitly consents. */}
+      <ImpersonationRequestModal
         open={modal === 'impersonate'}
         onClose={() => setModal(null)}
-        title="Impersonate tenant admin"
-        description="Mints a short-lived JWT (max 30 minutes) for this tenant's admin user. Every mint is audit-logged with your platform account and the reason below."
-        fields={[
-          {
-            name: 'reason',
-            label: 'Reason',
-            type: 'textarea',
-            required: true,
-            minLength: 4,
-            placeholder: 'Support ticket #1234, reproducing checkout bug, etc.',
-          },
-          {
-            name: 'ttlSeconds',
-            label: 'Token TTL (seconds)',
-            type: 'number',
-            placeholder: '1800',
-            help: 'Max 1800 (30 min). Leave blank for max.',
-          },
-        ]}
-        confirmLabel="Mint & open"
-        onConfirm={async (v) => {
-          setActionLoading('impersonate');
-          try {
-            const ttl = v.ttlSeconds ? Number(v.ttlSeconds) : undefined;
-            const result = await api.tenants.impersonate(tenantId, v.reason, ttl);
-            toast.success('Impersonation token minted');
-            // Open the merchant dashboard on the tenant's host with the
-            // token in the URL fragment so it's not logged in proxies.
-            if (primaryHost) {
-              const isLocal =
-                window.location.hostname === 'localhost' ||
-                window.location.hostname.endsWith('.localhost');
-              // Strip any scheme/port the tenant domain record may have
-              // been saved with — we only want the bare hostname.
-              const bareHost = primaryHost
-                .replace(/^[a-z]+:\/\//i, '')
-                .replace(/:\d+$/, '')
-                .replace(/\/.*$/, '');
-              const proto = isLocal ? window.location.protocol : 'https:';
-              // Dashboard dev server runs on 5173; platform-admin on 5174.
-              // Never reuse platform-admin's port here.
-              const port = isLocal ? ':5173' : '';
-              let target: string;
-              try {
-                const u = new URL(
-                  `${proto}//${bareHost}${port}/login`
-                );
-                u.hash = `impersonation=${encodeURIComponent(result.token)}`;
-                target = u.toString();
-              } catch (e) {
-                toast.error(`Cannot build dashboard URL for host "${bareHost}"`);
-                console.error('Impersonation URL build failed', { bareHost, e });
-                return;
-              }
-              const opened = window.open(target, '_blank', 'noopener');
-              if (!opened) {
-                // Popup blocked — fall back to copying the token.
-                navigator.clipboard?.writeText(result.token).catch(() => {});
-                toast.info('Popup blocked — token copied to clipboard');
-              }
-            } else {
-              // No host — fall back to showing the token so the operator
-              // can paste it manually.
-              navigator.clipboard?.writeText(result.token).catch(() => {});
-              toast.info('Token copied to clipboard (no tenant host available)');
-            }
-          } catch (err) {
-            toast.error(err instanceof Error ? err.message : 'Impersonation failed');
-            throw err;
-          } finally {
-            setActionLoading(null);
-          }
-        }}
+        tenantId={tenantId}
+        primaryHost={primaryHost}
       />
 
       <ConfirmModal
