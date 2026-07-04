@@ -87,7 +87,9 @@
     "menu_title": "القائمة",
     "create": "إنشاء",
     "new_order": "طلب جديد",
-    "new_product": "منتج جديد"
+    "new_product": "منتج جديد",
+    "new_order_desc": "طلب يدوي أو مسودة",
+    "new_product_desc": "أضف إلى الكتالوج"
   },
   "browser_notifications": {
     "prompt_title": "تفعيل إشعارات المتصفح؟",

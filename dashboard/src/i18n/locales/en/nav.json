@@ -87,7 +87,9 @@
     "menu_title": "Menu",
     "create": "Create",
     "new_order": "New order",
-    "new_product": "New product"
+    "new_product": "New product",
+    "new_order_desc": "Manual or draft order",
+    "new_product_desc": "Add to your catalog"
   },
   "browser_notifications": {
     "prompt_title": "Enable browser notifications?",

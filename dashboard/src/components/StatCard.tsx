@@ -38,12 +38,14 @@ export const StatCard: React.FC<StatCardProps> = ({ label, value, description, i
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
       </div>
-      <div className="flex items-baseline gap-2">
-        <p className="tabular-nums tracking-tight text-2xl font-semibold">{value}</p>
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 min-w-0">
+        {/* Responsive size + min-w-0 so long amounts (e.g. "SDG 10,500.00")
+            shrink to the card on phones instead of spilling out of it. */}
+        <p className="tabular-nums tracking-tight text-xl sm:text-2xl font-semibold min-w-0 break-words leading-tight">{value}</p>
         {delta && (
           <span
             className={cn(
-              'inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium',
+              'inline-flex shrink-0 items-center rounded-full px-1.5 py-0.5 text-xs font-medium',
               trendClass[delta.trend ?? 'neutral'],
             )}
           >

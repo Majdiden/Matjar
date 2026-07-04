@@ -7,7 +7,6 @@ import { useAuth } from '../../contexts/auth-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 
@@ -74,10 +73,17 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
       active ? 'text-primary' : 'text-muted-foreground',
     );
 
+  // Tapping a tab should bring its page to the top even when you're already
+  // on that route (React Router won't re-navigate, so nothing else resets
+  // the <main> scroll container).
+  const scrollMainTop = () => {
+    document.querySelector('main')?.scrollTo({ top: 0, left: 0 });
+  };
+
   const renderDest = (d: Dest) => {
     const active = isActive(d.href);
     return (
-      <Link key={d.key} to={d.href} className={itemClass(active)}>
+      <Link key={d.key} to={d.href} onClick={scrollMainTop} className={itemClass(active)}>
         <span className="relative">
           <d.icon className="h-6 w-6" strokeWidth={active ? 2.4 : 2} />
           {d.badge && pendingOrders > 0 && (
@@ -99,7 +105,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
       <div className="mx-auto flex max-w-lg items-stretch">
         {left.map(renderDest)}
 
-        {/* Raised centre quick-action — create an order or a product. */}
+        {/* Raised centre quick-action — create an order or a product. The
+            + rotates 45° into an × while the menu is open. */}
         {showAction && (
           <div className="relative flex flex-1 items-start justify-center">
             <DropdownMenu open={actionOpen} onOpenChange={setActionOpen}>
@@ -107,23 +114,47 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
                 <button
                   type="button"
                   aria-label={t('bottom_nav.create')}
-                  className="-mt-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform active:scale-95"
+                  className="-mt-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform duration-200 active:scale-95"
+                  style={{ transform: actionOpen ? 'rotate(45deg)' : 'rotate(0deg)' }}
                 >
                   <Plus className="h-7 w-7" strokeWidth={2.4} />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" align="center" sideOffset={12} className="min-w-52">
+              <DropdownMenuContent
+                side="top"
+                align="center"
+                sideOffset={16}
+                className="w-[min(90vw,20rem)] space-y-1.5 p-2"
+              >
                 {canCreateOrder && (
-                  <DropdownMenuItem onClick={() => navigate('/dashboard/orders/new')}>
-                    <ClipboardList className="me-2 h-4 w-4" />
-                    {t('bottom_nav.new_order')}
-                  </DropdownMenuItem>
+                  <button
+                    type="button"
+                    onClick={() => { setActionOpen(false); navigate('/dashboard/orders/new'); }}
+                    className="flex w-full items-center gap-3 rounded-xl p-3 text-start transition-colors hover:bg-accent focus:bg-accent focus:outline-none"
+                  >
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <ClipboardList className="h-6 w-6" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold">{t('bottom_nav.new_order')}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{t('bottom_nav.new_order_desc')}</span>
+                    </span>
+                  </button>
                 )}
                 {canCreateProduct && (
-                  <DropdownMenuItem onClick={() => navigate('/dashboard/products/new')}>
-                    <PackagePlus className="me-2 h-4 w-4" />
-                    {t('bottom_nav.new_product')}
-                  </DropdownMenuItem>
+                  <button
+                    type="button"
+                    onClick={() => { setActionOpen(false); navigate('/dashboard/products/new'); }}
+                    className="flex w-full items-center gap-3 rounded-xl p-3 text-start transition-colors hover:bg-accent focus:bg-accent focus:outline-none"
+                  >
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <PackagePlus className="h-6 w-6" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold">{t('bottom_nav.new_product')}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{t('bottom_nav.new_product_desc')}</span>
+                    </span>
+                  </button>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>

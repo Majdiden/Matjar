@@ -42,9 +42,13 @@ export const Login: React.FC = () => {
   const [passkeySupported, setPasskeySupported] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [enrollLoading, setEnrollLoading] = useState(false);
-  // Prefill the email when the signup flow sent the user here ("an account
-  // with this email already exists — sign in to add a store").
-  const [email, setEmail] = useState((location.state as { email?: string } | null)?.email || '');
+  // Prefill the email: the signup handoff wins, otherwise remember the last
+  // email this device signed in with so returning users don't retype it.
+  const [email, setEmail] = useState(
+    (location.state as { email?: string } | null)?.email ||
+      localStorage.getItem('matjar:lastEmail') ||
+      '',
+  );
   const [password, setPassword] = useState('');
   const [stores, setStores] = useState<StoreChoice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -179,6 +183,8 @@ export const Login: React.FC = () => {
       return;
     }
     setIsLoading(true);
+    // Remember this email for next time (prefilled above on return visits).
+    try { localStorage.setItem('matjar:lastEmail', email.trim().toLowerCase()); } catch { /* storage disabled */ }
     try {
       await finishLogin();
     } catch (err) {
