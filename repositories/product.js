@@ -170,6 +170,48 @@ const deleteAProductRepo = async (models, findQuery = {}) => {
   return await models.Product.deleteOne(findQuery);
 };
 
+/**
+ * Products for the store SHARE CARD (Open Graph image).
+ *
+ * Mirrors the storefront featured-products selection
+ * (`{ status: "active", featured: true }` — see routes/storefront.js) so the
+ * shared card shows the same hero products the merchant curated. If no product
+ * is flagged featured, falls back to the most recent active products so a
+ * brand-new store still gets a populated card. Newest-first within each set.
+ */
+const getShareCardProductsRepo = async (models, limit = 3) => {
+  const select = "name price compareAtPrice currency images";
+
+  // Featured first (mirrors the storefront featured-products selection).
+  const featured = await models.Product.find({ status: "active", featured: true })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .select(select)
+    .lean();
+
+  if (featured.length >= limit) return featured;
+
+  // Fewer than `limit` featured (or none at all): top up with the most recent
+  // active products so the card always shows a full 3-in-a-row, keeping the
+  // curated featured ones first and never duplicating them.
+  const have = new Set(featured.map((p) => String(p._id)));
+  const fillers = await models.Product.find({
+    status: "active",
+    _id: { $nin: featured.map((p) => p._id) },
+  })
+    .sort({ createdAt: -1 })
+    .limit(limit - featured.length)
+    .select(select)
+    .lean();
+
+  const out = [...featured];
+  for (const f of fillers) {
+    if (out.length >= limit) break;
+    if (!have.has(String(f._id))) out.push(f);
+  }
+  return out;
+};
+
 export {
   getProductsRepo,
   getAProductRepo,
@@ -184,4 +226,5 @@ export {
   reserveVariantPreorderRepo,
   releaseVariantPreorderRepo,
   deleteAProductRepo,
+  getShareCardProductsRepo,
 };

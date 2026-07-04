@@ -2,6 +2,7 @@ import apiRouter from "../routes/index.js";
 import platformAdminRouter from "../routes/platformAdmin.js";
 import platformAdminAppRouter from "../routes/platformAdminApp.js";
 import storefrontRouter from "../routes/storefront.js";
+import ogRouter from "../routes/og.js";
 import dashboardRouter from "../routes/dashboard.js";
 import { storefrontTenantResolver } from "../middlewares/tenantContext.js";
 import { subscriptionGate } from "../middlewares/subscriptionGate.js";
@@ -32,6 +33,13 @@ export default function (app) {
   // Mounted BEFORE the storefront catch-all so /platform/* never falls
   // through to tenant theme serving.
   app.use("/platform", platformAdminAppRouter);
+
+  // Public OG share-card image (host-resolved to a tenant). Mounted BEFORE
+  // the storefront catch-all so `/og/store-card.png` returns the composed PNG
+  // instead of falling through to the theme SPA. No tenant resolver here — the
+  // handler resolves the tenant from the request host itself (subdomain OR
+  // custom domain), matching the storefront serving path.
+  app.use("/og", ogRouter);
 
   // Canonical-host redirect — after API/dashboard so admin tooling
   // on non-primary hosts still works, before storefront so shopper

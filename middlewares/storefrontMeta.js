@@ -48,12 +48,20 @@ export function buildStorefrontHead({ tenant, baseUrl, path = "/", product }) {
   const s = tenant?.settings || {};
   const storeName = s.storeName || tenant?.name || "Store";
   const favicon = absUrl(baseUrl, s.favicon || s.logo);
-  const logo = absUrl(baseUrl, s.logo);
   const url = `${baseUrl}${path || "/"}`;
+
+  // The dynamically composed store SHARE CARD (logo + 3 featured products),
+  // served by GET /og/store-card.png on the tenant's own host. Absolute so
+  // social crawlers can fetch it. Used as the store/home OG image and the
+  // site-wide default; product pages keep their own product image below.
+  const storeCardUrl = `${baseUrl}/og/store-card.png`;
 
   let title;
   let description;
   let image;
+  // Whether `image` is the 1200×630 composed card (drives og:image:width/height
+  // and the large Twitter card). Product images have unknown dimensions.
+  let isComposedCard = false;
 
   if (product) {
     const priceNum = Number(product.price);
@@ -67,11 +75,18 @@ export function buildStorefrontHead({ tenant, baseUrl, path = "/", product }) {
     description =
       (product.description ? String(product.description).replace(/\s+/g, " ").trim().slice(0, 200) : "") ||
       `${product.name} · ${priceLabel.trim()}`;
-    image = absUrl(baseUrl, product.images?.[0]) || logo;
+    // Product page keeps its product image; fall back to the composed store
+    // card (never the bare logo) when the product has no image.
+    image = absUrl(baseUrl, product.images?.[0]);
+    if (!image) {
+      image = storeCardUrl;
+      isComposedCard = true;
+    }
   } else {
     title = storeName;
     description = s.storeDescription || `Shop ${storeName}`;
-    image = logo;
+    image = storeCardUrl;
+    isComposedCard = true;
   }
 
   const tags = [
@@ -85,6 +100,9 @@ export function buildStorefrontHead({ tenant, baseUrl, path = "/", product }) {
     metaTag("og:description", description),
     metaTag("og:url", url),
     image ? metaTag("og:image", image) : "",
+    isComposedCard ? metaTag("og:image:width", "1200") : "",
+    isComposedCard ? metaTag("og:image:height", "630") : "",
+    isComposedCard ? metaTag("og:image:type", "image/png") : "",
     // Twitter
     metaTag("twitter:card", image ? "summary_large_image" : "summary", "name"),
     metaTag("twitter:title", title, "name"),
