@@ -16,6 +16,7 @@
 import mongoose from "mongoose";
 import webpush from "web-push";
 import logger from "./logger.js";
+import { encryptSecret, decryptSecret, isEncrypted } from "./secretCrypto.js";
 
 let publicKey = null;
 let privateKey = null;
@@ -26,7 +27,8 @@ let configured = false;
 // The keypair must be STABLE across restarts and redeploys — a rotated key
 // silently invalidates every subscription a browser already stored — so we
 // persist it in the database (not a local file, which an ephemeral container
-// filesystem loses on redeploy).
+// filesystem loses on redeploy). The PRIVATE key is encrypted at rest with
+// AES-256-GCM (utils/secretCrypto.js); the public key is not secret.
 const VAPID_CONFIG_ID = "vapid";
 function platformConfigCollection() {
   return mongoose.connection?.db?.collection("platformconfigs") || null;
@@ -97,19 +99,44 @@ export async function initWebPush() {
       return { configured: false, publicKey: null };
     }
     const doc = await col.findOne({ _id: VAPID_CONFIG_ID });
-    if (
-      doc?.publicKey &&
-      doc?.privateKey &&
-      applyKeys(doc.publicKey, doc.privateKey, doc.subject || subject)
-    ) {
-      logger.info("web-push: loaded VAPID keys from the database");
-      return { configured, publicKey };
+    if (doc?.publicKey && doc?.privateKey) {
+      // The private key is stored encrypted at rest; decryptSecret transparently
+      // passes through legacy plaintext keys written before encryption existed.
+      let storedPriv;
+      try {
+        storedPriv = decryptSecret(doc.privateKey);
+      } catch (err) {
+        logger.error(
+          "web-push: stored VAPID private key could not be decrypted (wrong " +
+            "SECRET_ENCRYPTION_KEY/JWT_SECRET, or tampering) — regenerating.",
+          { error: err?.message }
+        );
+        storedPriv = null;
+      }
+      if (storedPriv && applyKeys(doc.publicKey, storedPriv, doc.subject || subject)) {
+        logger.info("web-push: loaded VAPID keys from the database");
+        // Opportunistically migrate a legacy plaintext key to encrypted at rest.
+        if (!isEncrypted(doc.privateKey)) {
+          try {
+            await col.updateOne(
+              { _id: VAPID_CONFIG_ID },
+              { $set: { privateKey: encryptSecret(storedPriv), encryptedAt: new Date() } }
+            );
+            logger.info("web-push: migrated stored VAPID private key to encrypted-at-rest");
+          } catch (err) {
+            logger.warn("web-push: failed to migrate VAPID private key to encrypted-at-rest", {
+              error: err?.message,
+            });
+          }
+        }
+        return { configured, publicKey };
+      }
     }
     const keys = webpush.generateVAPIDKeys();
     if (applyKeys(keys.publicKey, keys.privateKey, subject)) {
       await col.updateOne(
         { _id: VAPID_CONFIG_ID },
-        { $set: { publicKey: keys.publicKey, privateKey: keys.privateKey, subject, createdAt: new Date() } },
+        { $set: { publicKey: keys.publicKey, privateKey: encryptSecret(keys.privateKey), subject, createdAt: new Date() } },
         { upsert: true }
       );
       logger.warn(

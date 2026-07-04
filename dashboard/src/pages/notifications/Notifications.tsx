@@ -14,7 +14,7 @@ import {
   Users,
   Webhook,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { relativeTime } from '../../lib/relative-time';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -62,16 +62,8 @@ function isUnread(n: NotificationItem): boolean {
   return !(n.readBy || []).some((r) => r.userId === me);
 }
 
-function relativeTime(iso: string): string {
-  try {
-    return formatDistanceToNow(new Date(iso), { addSuffix: true });
-  } catch {
-    return '';
-  }
-}
-
 export default function Notifications() {
-  const { t } = useTranslation(['notifications', 'common']);
+  const { t, i18n } = useTranslation(['notifications', 'common']);
   const navigate = useNavigate();
   const {
     items,
@@ -193,7 +185,7 @@ export default function Notifications() {
                         </p>
                       )}
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        <span>{relativeTime(n.createdAt)}</span>
+                        <span>{relativeTime(n.createdAt, i18n.language)}</span>
                         <span>{n.type}</span>
                         {link && <span>{t('notifications.action.click_to_open')}</span>}
                       </div>

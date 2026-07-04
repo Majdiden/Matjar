@@ -14,7 +14,7 @@ import {
   Settings as SettingsIcon,
   CheckCheck,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { relativeTime } from '../lib/relative-time';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import {
@@ -64,17 +64,9 @@ function isItemUnread(n: NotificationItem): boolean {
   return !(n.readBy || []).some((r) => r.userId === me);
 }
 
-function relativeTime(iso: string): string {
-  try {
-    return formatDistanceToNow(new Date(iso), { addSuffix: true });
-  } catch {
-    return '';
-  }
-}
-
 export const NotificationBell: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation(['nav', 'notifications']);
+  const { t, i18n } = useTranslation(['nav', 'notifications']);
   const { items, unreadCount, markRead, markAllRead } =
     useNotificationsContext();
 
@@ -171,7 +163,7 @@ export const NotificationBell: React.FC = () => {
                       <div className="flex items-center justify-between gap-2">
                         <span className="truncate font-medium">{title}</span>
                         <span className="shrink-0 text-xs text-muted-foreground">
-                          {relativeTime(n.createdAt)}
+                          {relativeTime(n.createdAt, i18n.language)}
                         </span>
                       </div>
                       {body && (
