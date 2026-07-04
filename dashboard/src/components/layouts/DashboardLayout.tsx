@@ -395,6 +395,15 @@ const DashboardLayoutInner: React.FC = () => {
   const { t } = useTranslation(['nav']);
   const { dir } = useLanguage();
 
+  // Reset the content scroll on every route change. <main> is the scroll
+  // container (not the window), and React Router keeps its scrollTop across
+  // navigations — so without this the next page opened mid-scroll instead of
+  // at the top and the merchant had to scroll up again.
+  const mainRef = React.useRef<HTMLElement>(null);
+  React.useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [location.pathname]);
+
   // Side-effect hook for notifications — mounted here so it lives for the
   // entire lifetime of an authenticated dashboard session. The permission
   // prompt itself is rendered below as a centered modal.
@@ -610,7 +619,7 @@ const DashboardLayoutInner: React.FC = () => {
           {/* Page content — light neutral canvas behind white cards (3.8.1).
               Extra bottom padding on mobile clears the fixed bottom nav +
               gesture bar; reset to the normal p-6 at lg. */}
-          <main className="flex-1 overflow-y-auto bg-canvas p-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] lg:p-6 lg:pb-6">
+          <main ref={mainRef} className="flex-1 overflow-y-auto bg-canvas p-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] lg:p-6 lg:pb-6">
             {/* PWA lifecycle banners (offline / update / install) — outside
                 Suspense so they persist across route changes and remain
                 visible even while a lazy chunk is loading offline. */}

@@ -80,6 +80,13 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   // Step state
   const [step, setStep] = useState<Step>(1);
 
+  // Checkout steps are state-driven, not routes, so the shared route-level
+  // ScrollToTop never fires here — advancing a step would leave the shopper
+  // scrolled halfway down. Reset to the top whenever the step changes.
+  useEffect(() => {
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, left: 0 });
+  }, [step]);
+
   // Form state
   const [email, setEmail] = useState('');
   const [acceptsMarketing, setAcceptsMarketing] = useState(false);
