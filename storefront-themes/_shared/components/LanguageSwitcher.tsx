@@ -3,9 +3,12 @@ import { useLanguage } from '../i18n/LanguageProvider'
 
 interface Props {
   className?: string
+  /** Open the menu upward (for use near the bottom of the viewport, e.g. the
+   *  slide-over menu footer) so the panel isn't clipped off-screen. */
+  openUp?: boolean
 }
 
-export function LanguageSwitcher({ className = '' }: Props) {
+export function LanguageSwitcher({ className = '', openUp = false }: Props) {
   const { lang, setLang } = useLanguage()
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -55,23 +58,29 @@ export function LanguageSwitcher({ className = '' }: Props) {
       {open && (
         <div
           role="menu"
-          className="absolute end-0 top-full mt-1 min-w-[8rem] rounded-md border border-gray-200 bg-white shadow-lg z-50 py-1 text-sm"
+          className={`absolute end-0 ${openUp ? 'bottom-full mb-2' : 'top-full mt-2'} min-w-[11rem] rounded-2xl border shadow-xl z-50 p-1.5 text-sm overflow-hidden`}
+          style={{
+            backgroundColor: 'var(--color-background, #ffffff)',
+            borderColor: 'var(--color-border, #e5e7eb)',
+          }}
         >
           <button
             type="button"
             role="menuitem"
             onClick={() => choose('en')}
-            className={`block w-full text-start px-3 py-1.5 hover:bg-gray-100 ${lang === 'en' ? 'font-semibold' : ''}`}
+            className={`flex w-full items-center justify-between text-start px-4 py-2.5 rounded-xl transition-colors hover:bg-black/[0.06] ${lang === 'en' ? 'font-semibold' : ''}`}
           >
             English
+            {lang === 'en' && <span aria-hidden="true">✓</span>}
           </button>
           <button
             type="button"
             role="menuitem"
             onClick={() => choose('ar')}
-            className={`block w-full text-start px-3 py-1.5 hover:bg-gray-100 ${lang === 'ar' ? 'font-semibold' : ''}`}
+            className={`flex w-full items-center justify-between text-start px-4 py-2.5 rounded-xl transition-colors hover:bg-black/[0.06] ${lang === 'ar' ? 'font-semibold' : ''}`}
           >
             العربية
+            {lang === 'ar' && <span aria-hidden="true">✓</span>}
           </button>
         </div>
       )}

@@ -205,7 +205,7 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
           className="px-5 py-4 border-t shrink-0"
           style={{ borderColor: 'var(--color-border)' }}
         >
-          <LanguageSwitcher />
+          <LanguageSwitcher openUp />
         </div>
       </div>
     </>
