@@ -58,6 +58,35 @@ export const registerTenantSchema = z.object({
     themeSlug: z.string().optional(),
     niche: z.string().optional(),
     subscriptionPlan: z.string().optional(),
+    // Onboarding: false when the user skipped the theme step (default theme
+    // is still applied). Defaults to true server-side when omitted.
+    themeSelected: z.boolean().optional(),
+    // Proof-of-email-verification token minted by POST /auth/otp/verify. The
+    // register controller validates it against `email` when present.
+    emailVerificationToken: z.string().optional(),
+  }),
+});
+
+// ─── Email-OTP validators ──────────────────────────────────────────
+
+export const requestOtpSchema = z.object({
+  body: z.object({
+    email: z
+      .string({ required_error: "Email is required" })
+      .email("Invalid email format"),
+    // Optional UI language so the OTP email matches the dashboard locale.
+    language: z.string().max(10).optional(),
+  }),
+});
+
+export const verifyOtpSchema = z.object({
+  body: z.object({
+    email: z
+      .string({ required_error: "Email is required" })
+      .email("Invalid email format"),
+    code: z
+      .string({ required_error: "Code is required" })
+      .regex(/^\d{6}$/, "Code must be 6 digits"),
   }),
 });
 

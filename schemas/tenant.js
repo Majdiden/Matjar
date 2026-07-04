@@ -334,6 +334,25 @@ const tenantSchema = new Schema({
 
   isActive: { type: Boolean, default: true },
 
+  // Whether the merchant actively PICKED a theme during onboarding (true) or
+  // skipped the theme step and got the default look applied (false). Consumed
+  // by the dashboard onboarding checklist to nudge "choose a theme". Default
+  // true so pre-existing stores (and API callers that don't send the flag)
+  // aren't shown as incomplete.
+  themeSelected: { type: Boolean, default: true },
+
+  // Publish lifecycle. `draft` until the merchant takes the store live
+  // (publishStarterContent flips it to `live`). A DRAFT store is visible
+  // only to its owner via the stable preview token (settings.previewToken);
+  // the public sees a branded "coming soon" page instead of the storefront.
+  //
+  // NOTE: this flag is a fast-path hint, not the sole source of truth — the
+  // storefront also treats any store that has live (`status: "active"`)
+  // products as live regardless of this value, so stores created before this
+  // field existed are never mis-classified as draft. See isStoreDraft() in
+  // services/storeSetup.js.
+  storeStatus: { type: String, enum: ["draft", "live"], default: "draft" },
+
   // Data lifecycle.
   //
   // `suspendedAt` — set when a platform admin or billing event flips

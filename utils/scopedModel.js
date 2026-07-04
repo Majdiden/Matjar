@@ -246,6 +246,7 @@ const TENANT_SCOPED_MODELS = [
   "Notification",
   "Page",
   "Redirect",
+  "WebauthnCredential",
 ];
 
 /**

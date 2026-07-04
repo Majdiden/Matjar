@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { User, LoginCredentials, RegisterData, StoreChoice } from '../types';
+import type { User, AuthResponse, LoginCredentials, RegisterData, StoreChoice } from '../types';
 
 export interface AuthContextType {
   user: User | null;
@@ -10,6 +10,10 @@ export interface AuthContextType {
   // email owning multiple stores). Returns `void` when the login
   // completed and the user is now authenticated.
   login: (credentials: LoginCredentials) => Promise<{ stores: StoreChoice[] } | void>;
+  // Establish a session from an already-verified login response — used by the
+  // passwordless passkey (WebAuthn) sign-in, where the WebAuthn ceremony (not
+  // a password) produced the tokens.
+  loginWithResponse: (responseObject: NonNullable<AuthResponse['responseObject']>) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   permissions: string[];

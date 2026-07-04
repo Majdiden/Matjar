@@ -40,6 +40,7 @@ import idempotencyRecordSchema from "../schemas/store/idempotencyRecord.js";
 import notificationSchema from "../schemas/store/notification.js";
 import pageSchema from "../schemas/store/page.js";
 import redirectSchema from "../schemas/store/redirect.js";
+import webauthnCredentialSchema from "../schemas/store/webauthnCredential.js";
 
 /**
  * Register all models on a single shared connection.
@@ -91,4 +92,5 @@ export function registerAllModels(connection) {
   connection.model("Notification", notificationSchema);
   connection.model("Page", pageSchema);
   connection.model("Redirect", redirectSchema);
+  connection.model("WebauthnCredential", webauthnCredentialSchema);
 }

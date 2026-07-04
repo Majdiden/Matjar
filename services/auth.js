@@ -77,6 +77,46 @@ const loginService = async (models, email, password, tenantId) => {
   };
 };
 
+/**
+ * Mint an access token + refresh token for an already-authenticated user
+ * (no password check). Shared by the passwordless passkey (WebAuthn) login
+ * flow. Mirrors the token issuance in `loginService` exactly so a passkey
+ * session is indistinguishable from a password session downstream.
+ *
+ * @param {object} models   tenant-scoped models
+ * @param {object} user     user doc with { _id, email, name, roles, tokenVersion }
+ * @param {string} tenantId
+ */
+const issueAuthSession = async (models, user, tenantId) => {
+  const tokenPayload = {
+    userId: user._id.toString(),
+    tenantId: tenantId.toString(),
+    roles: user.roles,
+    tokenVersion: user.tokenVersion ?? 0,
+  };
+  const accessToken = signJWT(tokenPayload);
+
+  const family = crypto.randomUUID();
+  const rawRefreshToken = crypto.randomUUID();
+  const hashed = hashToken(rawRefreshToken);
+
+  await models.RefreshToken.create({
+    user: user._id,
+    token: hashed,
+    family,
+    expiresAt: refreshExpiresAt(),
+  });
+
+  return {
+    accessToken,
+    refreshToken: rawRefreshToken,
+    userId: user._id.toString(),
+    email: user.email,
+    name: user.name,
+    roles: user.roles,
+  };
+};
+
 const refreshTokenService = async (models, rawRefreshToken, tokenDoc) => {
   if (tokenDoc.isRevoked) {
     await models.RefreshToken.updateMany({ family: tokenDoc.family }, { $set: { isRevoked: true } });
@@ -397,6 +437,7 @@ const confirmPasswordReset = async (connection, { token, newPassword }) => {
 
 export {
   loginService,
+  issueAuthSession,
   refreshTokenService,
   logoutService,
   changePasswordService,

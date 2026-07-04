@@ -26,6 +26,8 @@ import {
   Baby,
   Home as HomeIcon,
   ShoppingBag,
+  Mail,
+  RefreshCw,
 } from 'lucide-react';
 import { api } from '../lib/api-client';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
@@ -37,15 +39,19 @@ interface ThemeOption {
   slug: string;
   description: string;
   categories: string[];
+  // Homepage screenshot served at /api/themes/<slug>/preview. May be absent
+  // for a theme that hasn't been rebuilt with one — we fall back to the
+  // palette block below.
+  previewImage?: string;
   settings?: {
     colors?: { primary?: string; secondary?: string; accent?: string; background?: string };
   };
   statistics?: { rating: number; installCount: number };
 }
 
-type Step = 'welcome' | 'account' | 'store' | 'niche' | 'theme';
+type Step = 'welcome' | 'account' | 'otp' | 'store' | 'niche' | 'theme';
 
-const STEPS: Step[] = ['welcome', 'account', 'store', 'niche', 'theme'];
+const STEPS: Step[] = ['welcome', 'account', 'otp', 'store', 'niche', 'theme'];
 
 // Public storefront domain suffix shown next to the subdomain field.
 // Configurable via VITE_STORE_DOMAIN_SUFFIX; defaults to invoila.io.
@@ -64,10 +70,35 @@ const NICHE_ICONS: Record<string, React.ReactNode> = {
   general: <ShoppingBag className="h-5 w-5" />,
 };
 
+/**
+ * Theme card preview image with a graceful fallback: if the theme ships no
+ * screenshot (or the request 404s), fall back to the solid palette block —
+ * mirrors the ThemeScreenshot pattern on the Themes page.
+ */
+const ThemeCardPreview: React.FC<{ src?: string; alt: string; fallbackColor: string }> = ({
+  src,
+  alt,
+  fallbackColor,
+}) => {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) {
+    return <div className="h-28" style={{ backgroundColor: fallbackColor }} />;
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      className="h-28 w-full object-cover object-top"
+      onError={() => setFailed(true)}
+    />
+  );
+};
+
 export const Register: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation(['auth', 'common']);
+  const { t, i18n } = useTranslation(['auth', 'common']);
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
 
   // "Add a store" mode: an already-signed-in user creates an ADDITIONAL store
@@ -106,6 +137,16 @@ export const Register: React.FC = () => {
   const [themesLoading, setThemesLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // ── Email-OTP verification state ──
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [otpCooldown, setOtpCooldown] = useState(0); // seconds until resend allowed
+  const [otpDevCode, setOtpDevCode] = useState<string | null>(null); // dev-only helper
+  // Proof-of-verification token minted by the backend on a correct code.
+  const [emailVerificationToken, setEmailVerificationToken] = useState('');
 
   const stepIndex = STEPS.indexOf(step);
   const progress = ((stepIndex + 1) / STEPS.length) * 100;
@@ -197,9 +238,70 @@ export const Register: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [relevantThemes]);
 
+  // Resend countdown — ticks the OTP cooldown down to zero.
+  useEffect(() => {
+    if (otpCooldown <= 0) return;
+    const id = window.setTimeout(() => setOtpCooldown(c => Math.max(0, c - 1)), 1000);
+    return () => window.clearTimeout(id);
+  }, [otpCooldown]);
+
   const update = (k: keyof typeof form, v: string) => {
     setForm(p => ({ ...p, [k]: v }));
     setTouched(prev => (prev[k] ? prev : { ...prev, [k]: true }));
+    // Changing the email invalidates any prior verification — force a fresh
+    // OTP round-trip so the token can't outlive the address it was minted for.
+    if (k === 'email') {
+      setEmailVerificationToken('');
+      setOtpCode('');
+      setOtpError('');
+      setOtpCooldown(0);
+      setOtpDevCode(null);
+    }
+  };
+
+  // ── Email-OTP verification ──
+  // Request a 6-digit code for the account email. Used both when first
+  // entering the OTP step and for the resend action.
+  const sendOtp = async () => {
+    setOtpSending(true);
+    setOtpError('');
+    setOtpDevCode(null);
+    try {
+      const res = await api.auth.requestOtp(form.email.trim().toLowerCase(), i18n.language);
+      const ro = res.responseObject;
+      setOtpCooldown(ro?.cooldownSeconds || 45);
+      // In dev (platform email disabled) the backend echoes the code so the
+      // flow is testable without a real inbox. Never present in production.
+      if (ro?.devCode) setOtpDevCode(ro.devCode);
+    } catch (err) {
+      const e = err as { message?: string; error?: string };
+      setOtpError(e?.message || e?.error || t('auth.register.otp.error_send'));
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  // Verify the entered code; on success stash the token and advance to store.
+  const verifyOtpAndAdvance = async () => {
+    const code = otpCode.trim();
+    if (code.length !== 6) return;
+    setOtpVerifying(true);
+    setOtpError('');
+    try {
+      const res = await api.auth.verifyOtp(form.email.trim().toLowerCase(), code);
+      const token = res.responseObject?.verificationToken;
+      if (res.success && token) {
+        setEmailVerificationToken(token);
+        goTo('store');
+      } else {
+        setOtpError(t('auth.register.otp.error_invalid'));
+      }
+    } catch (err) {
+      const e = err as { message?: string; error?: string };
+      setOtpError(e?.message || e?.error || t('auth.register.otp.error_invalid'));
+    } finally {
+      setOtpVerifying(false);
+    }
   };
 
   const goTo = (target: Step) => {
@@ -212,7 +314,17 @@ export const Register: React.FC = () => {
     }, 360);
   };
   const next = () => {
+    // The OTP step verifies the code instead of a plain field advance.
+    if (step === 'otp') { verifyOtpAndAdvance(); return; }
     tryAdvance(() => {
+      // Leaving the account step: send the verification code, then reveal the
+      // OTP step. Skip the resend if a code is still within its cooldown
+      // window (e.g. the user stepped back and forward again).
+      if (step === 'account') {
+        goTo('otp');
+        if (otpCooldown <= 0) void sendOtp();
+        return;
+      }
       const i = STEPS.indexOf(step);
       if (i < STEPS.length - 1) goTo(STEPS[i + 1]);
     });
@@ -311,10 +423,16 @@ export const Register: React.FC = () => {
     return Object.keys(validateStep(step)).length === 0;
   };
 
-  const submit = async () => {
-    const errs = validateStep('theme');
-    setTouched(prev => ({ ...prev, themeSlug: true }));
-    if (Object.keys(errs).length > 0) return;
+  const submit = async (opts?: { skipTheme?: boolean }) => {
+    // "Skip for now" launches with no explicit theme — the default look is
+    // still applied at setup (installDefaultTheme), and the tenant records
+    // themeSelected:false so the dashboard can nudge "choose a theme" later.
+    const skipTheme = !!opts?.skipTheme;
+    if (!skipTheme) {
+      const errs = validateStep('theme');
+      setTouched(prev => ({ ...prev, themeSlug: true }));
+      if (Object.keys(errs).length > 0) return;
+    }
     // Re-run prior-step validations as a final guard so nothing slipped in
     // via direct URL / back button after clearing an error. Add-mode has no
     // account step (the user is already signed in).
@@ -323,6 +441,12 @@ export const Register: React.FC = () => {
       : { ...validateStep('account'), ...validateStep('store'), ...validateStep('niche') };
     if (Object.keys(priorErrs).length > 0) {
       setError(t('auth.register.general_error'));
+      return;
+    }
+    // A brand-new account must have a verified email before we create it.
+    if (!addMode && !emailVerificationToken) {
+      setError(t('auth.register.otp.error_required'));
+      goTo('otp');
       return;
     }
     setError('');
@@ -334,7 +458,8 @@ export const Register: React.FC = () => {
         const r = (await api.auth.addStore({
           storeName: form.storeName,
           subdomain: form.subdomain,
-          themeSlug: form.themeSlug,
+          themeSlug: skipTheme ? undefined : form.themeSlug,
+          themeSelected: !skipTheme,
           niche: form.niche,
         })) as {
           responseObject?: {
@@ -377,9 +502,11 @@ export const Register: React.FC = () => {
         password: form.password,
         storeName: form.storeName,
         subdomain: form.subdomain,
-        themeSlug: form.themeSlug,
+        themeSlug: skipTheme ? undefined : form.themeSlug,
+        themeSelected: !skipTheme,
         niche: form.niche,
         subscriptionPlan: 'trial',
+        emailVerificationToken,
       })) as {
         responseObject?: {
           subdomain?: string;
@@ -597,6 +724,70 @@ export const Register: React.FC = () => {
           </div>
         )}
 
+        {step === 'otp' && (
+          <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
+            <div>
+              <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                <Mail className="h-6 w-6" />
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('auth.register.otp.title')}</h1>
+              <p className="mt-2 text-muted-foreground">
+                {t('auth.register.otp.subtitle')}{' '}
+                <span className="font-medium text-foreground" dir="ltr">{form.email}</span>
+              </p>
+            </div>
+
+            <div className="space-y-4 max-w-sm">
+              <div className="space-y-2">
+                <Label htmlFor="otp">{t('auth.register.otp.label')}</Label>
+                <Input
+                  id="otp"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  placeholder="000000"
+                  dir="ltr"
+                  value={otpCode}
+                  onChange={e => { setOtpError(''); setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6)); }}
+                  onKeyDown={e => { if (e.key === 'Enter' && otpCode.length === 6) verifyOtpAndAdvance(); }}
+                  autoFocus
+                  className="text-center text-2xl tracking-[0.5em] font-mono h-14"
+                  aria-invalid={!!otpError}
+                />
+                {otpError && <p className="text-xs text-destructive">{otpError}</p>}
+              </div>
+
+              {/* Dev-only helper: the backend echoes the code when platform
+                  email is disabled so the flow is testable without an inbox. */}
+              {otpDevCode && (
+                <Alert>
+                  <AlertDescription className="text-xs">
+                    {t('auth.register.otp.dev_hint')}{' '}
+                    <code className="font-mono font-semibold" dir="ltr">{otpDevCode}</code>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="text-sm text-muted-foreground">
+                {t('auth.register.otp.no_code')}{' '}
+                {otpCooldown > 0 ? (
+                  <span>{t('auth.register.otp.resend_in', { seconds: otpCooldown })}</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={sendOtp}
+                    disabled={otpSending}
+                    className="inline-flex items-center gap-1 font-medium text-foreground hover:underline disabled:opacity-50"
+                  >
+                    {otpSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                    {t('auth.register.otp.resend')}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {step === 'store' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
@@ -724,7 +915,11 @@ export const Register: React.FC = () => {
                           <Check className="h-3.5 w-3.5" />
                         </div>
                       )}
-                      <div className="h-28" style={{ backgroundColor: colors?.primary || '#6366f1' }} />
+                      <ThemeCardPreview
+                        src={theme.previewImage}
+                        alt={theme.name}
+                        fallbackColor={colors?.primary || '#6366f1'}
+                      />
                       <div className="p-3 bg-card">
                         <div className="font-medium text-sm">{theme.name}</div>
                         <div className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{theme.description}</div>
@@ -751,11 +946,34 @@ export const Register: React.FC = () => {
             </Button>
 
             {step === 'theme' ? (
-              <Button size="lg" onClick={submit} disabled={submitting || !canAdvance()} className="h-12 px-8">
-                {submitting ? (
-                  <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.register.creating')}</>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => submit({ skipTheme: true })}
+                  disabled={submitting}
+                  className="h-12"
+                >
+                  {t('auth.register.theme_skip')}
+                </Button>
+                <Button size="lg" onClick={() => submit()} disabled={submitting || !canAdvance()} className="h-12 px-8">
+                  {submitting ? (
+                    <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.register.creating')}</>
+                  ) : (
+                    <>{t('auth.register.launch')}</>
+                  )}
+                </Button>
+              </div>
+            ) : step === 'otp' ? (
+              <Button
+                size="lg"
+                onClick={next}
+                disabled={otpVerifying || otpCode.length !== 6}
+                className="h-12 px-8"
+              >
+                {otpVerifying ? (
+                  <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.register.otp.verifying')}</>
                 ) : (
-                  <>{t('auth.register.launch')}</>
+                  <>{t('auth.register.otp.verify')} <ChevronRight className="ms-2 h-4 w-4 rtl:rotate-180" /></>
                 )}
               </Button>
             ) : (

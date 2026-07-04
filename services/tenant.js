@@ -52,6 +52,11 @@ const addATenantService = async (tenantData) => {
       domain: fullSubdomain,
       email: tenantData.email,
       subscriptionPlan: tenantData.subscriptionPlan || "trial",
+      // Whether the merchant actively picked a theme during onboarding. The
+      // dashboard sends `themeSelected: false` when the user skips the theme
+      // step (the default theme is still applied by installDefaultTheme during
+      // setup). Legacy callers that omit the flag default to `true`.
+      themeSelected: tenantData.themeSelected !== false,
       setupStatus: {
         status: "pending",
         setupToken,
@@ -227,6 +232,7 @@ const addStoreForExistingUserService = (existingUser, storeData = {}) =>
     storeName: storeData.storeName,
     subdomain: storeData.subdomain,
     themeSlug: storeData.themeSlug,
+    themeSelected: storeData.themeSelected,
     niche: storeData.niche,
     currency: storeData.currency,
     language: storeData.language,

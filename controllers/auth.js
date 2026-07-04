@@ -11,14 +11,60 @@ import {
 } from "../services/auth.js";
 import { getEffectivePermissions } from "../middlewares/authorize.js";
 import { addATenantService, addStoreForExistingUserService } from "../services/tenant.js";
+import { requestEmailOtp, verifyEmailOtp, verifyEmailVerificationToken } from "../services/otp.js";
 import { signJWT } from "../utils/misc.js";
-import { asyncHandler } from "../middlewares/errorHandler.js";
+import { asyncHandler, APIError } from "../middlewares/errorHandler.js";
 import { createScopedModels } from "../utils/scopedModel.js";
 import { logAudit } from "../utils/audit.js";
 
 export const registerTenantController = asyncHandler(async (req, res) => {
+  // Email-OTP gate. When the client supplies an `emailVerificationToken`
+  // (minted by POST /auth/otp/verify), it MUST be valid and bound to the
+  // email being registered — otherwise the request is rejected. The token is
+  // optional at the API layer for backward compatibility (existing tests /
+  // non-dashboard callers), but the dashboard onboarding flow always sends
+  // it, so a real signup can't skip email verification.
+  if (req.body.emailVerificationToken) {
+    const ok = verifyEmailVerificationToken(req.body.emailVerificationToken, req.body.email);
+    if (!ok) {
+      throw new APIError("Email verification is invalid or has expired. Please verify your email again.", 400);
+    }
+  }
   const result = await addATenantService(req.body);
   res.status(result.statusCode).json(result);
+});
+
+/**
+ * Request a signup email-verification OTP. Always returns a generic success
+ * envelope (this endpoint confirms the user's OWN email, so there's no
+ * account-existence oracle to leak). `devCode` is included only when platform
+ * email is disabled (dev/CI) so the flow is exercisable without a real inbox.
+ */
+export const requestOtpController = asyncHandler(async (req, res) => {
+  const { email, language } = req.body || {};
+  const result = await requestEmailOtp({ email, language });
+  res.status(200).json({
+    success: true,
+    message: "If the address is valid, a verification code has been sent.",
+    responseObject: {
+      cooldownSeconds: result.cooldownSeconds,
+      ...(result.devCode ? { devCode: result.devCode } : {}),
+    },
+  });
+});
+
+/**
+ * Verify a signup email OTP. On success returns a short-lived signed
+ * verification token the register call carries as proof of verification.
+ */
+export const verifyOtpController = asyncHandler(async (req, res) => {
+  const { email, code } = req.body || {};
+  const result = await verifyEmailOtp({ email, code });
+  res.status(result.statusCode).json({
+    success: result.success,
+    message: result.message,
+    responseObject: result.success ? { verificationToken: result.verificationToken } : null,
+  });
 });
 
 /**
@@ -42,6 +88,7 @@ export const addStoreController = asyncHandler(async (req, res) => {
     storeName: req.body.storeName,
     subdomain: req.body.subdomain,
     themeSlug: req.body.themeSlug,
+    themeSelected: req.body.themeSelected,
     niche: req.body.niche,
     currency: req.body.currency,
     language: req.body.language,
@@ -250,7 +297,7 @@ export const getCurrentUserController = asyncHandler(async (req, res) => {
   try {
     const Tenant = (await import("mongoose")).default.model("Tenant");
     const tenant = await Tenant.findById(req.user.tenantId)
-      .select("settings.currency settings.timezone settings.language name")
+      .select("settings.currency settings.timezone settings.language name themeSelected")
       .lean();
     if (tenant) {
       settings = {
@@ -258,6 +305,10 @@ export const getCurrentUserController = asyncHandler(async (req, res) => {
         timezone: tenant.settings?.timezone || "Africa/Khartoum",
         language: tenant.settings?.language || "en",
         storeName: tenant.name,
+        // Onboarding-checklist signal: did the merchant pick a theme, or skip
+        // and get the default? Defaults to true so pre-existing stores don't
+        // show the "choose a theme" nudge. Consumed by the checklist agent.
+        themeSelected: tenant.themeSelected !== false,
       };
     }
   } catch {

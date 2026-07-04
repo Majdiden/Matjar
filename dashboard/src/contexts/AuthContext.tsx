@@ -139,6 +139,75 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, [clearAuth, refreshAccessToken]);
 
+  // Establish a client session from a login-shaped responseObject (access +
+  // refresh token, user identity, tenant host). Shared by the password login
+  // and the passwordless passkey (WebAuthn) login so both paths store state,
+  // hydrate permissions, and perform the cross-host hop identically.
+  const establishSession = async (
+    ro: NonNullable<AuthResponse['responseObject']>,
+    opts: { skipHostRedirect?: boolean } = {},
+  ) => {
+    const userData: User = {
+      id: ro.userId,
+      name: ro.name,
+      email: ro.email,
+      tenantId: ro.tenantId || ro.userId,
+      roles: ro.roles,
+    };
+
+    localStorage.setItem('token', ro.accessToken);
+    if (ro.refreshToken) localStorage.setItem('refreshToken', ro.refreshToken);
+    localStorage.setItem('userId', ro.userId);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setToken(ro.accessToken);
+    setUser(userData);
+
+    try {
+      const res = await api.auth.me();
+      const meRes = res as AuthMeResponse;
+      const s = meRes?.responseObject?.settings;
+      if (s?.currency) setTenantCurrency(s.currency);
+      if (s?.language) setTenantLocale(s.language === 'ar' ? 'ar-SD' : 'en-US');
+      const perms = meRes?.responseObject?.permissions;
+      if (Array.isArray(perms)) setPermissions(perms);
+    } catch {
+      /* ignore — permissions will fill on refresh */
+    }
+
+    const desiredHost = opts.skipHostRedirect ? null : ro.tenantDomain;
+    if (desiredHost) {
+      const currentHost = window.location.host;
+      const currentHostnameFirstLabel = window.location.hostname.split('.')[0];
+      const desiredFirstLabel = desiredHost.split('.')[0];
+      const hostMatches =
+        currentHost === desiredHost ||
+        currentHostnameFirstLabel === desiredFirstLabel;
+      if (!hostMatches) {
+        const isDev = import.meta.env.MODE !== 'production';
+        const targetHost = isDev
+          ? `${desiredFirstLabel}.localhost:${window.location.port || '3000'}`
+          : desiredHost;
+        const handoff = encodeAuthPayload({
+          token: ro.accessToken,
+          refreshToken: ro.refreshToken || null,
+          userId: ro.userId,
+          user: userData,
+        });
+        window.location.href = `${window.location.protocol}//${targetHost}/dashboard#auth=${encodeURIComponent(handoff)}`;
+        await new Promise(() => {});
+      }
+    }
+  };
+
+  // Passwordless passkey login — the caller (Login page) runs the WebAuthn
+  // ceremony and hands us the verified responseObject to turn into a session.
+  const loginWithResponse = async (ro: NonNullable<AuthResponse['responseObject']>) => {
+    if (!ro?.accessToken || !ro?.userId) {
+      throw new Error('Invalid response from server');
+    }
+    await establishSession(ro);
+  };
+
   const login = async (credentials: LoginCredentials) => {
     const response = await api.auth.login(
       credentials.email,
@@ -157,74 +226,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       throw new Error('Invalid response from server');
     }
 
-    const userData: User = {
-      id: ro.userId,
-      name: ro.name,
-      email: ro.email,
-      tenantId: ro.tenantId || ro.userId,
-      roles: ro.roles,
-    };
-
-    localStorage.setItem('token', ro.accessToken);
-    if (ro.refreshToken) localStorage.setItem('refreshToken', ro.refreshToken);
-    localStorage.setItem('userId', ro.userId);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setToken(ro.accessToken);
-    setUser(userData);
-
-    // Fetch tenant settings + permissions so the dashboard renders
-    // correctly immediately after login. Without this, RequirePermission
-    // and sidebar gating stall on an empty permissions array until the
-    // next full page load (when the init effect below calls /auth/me).
-    try {
-      const res = await api.auth.me();
-      const meRes = res as AuthMeResponse;
-      const s = meRes?.responseObject?.settings;
-      if (s?.currency) setTenantCurrency(s.currency);
-      if (s?.language) setTenantLocale(s.language === 'ar' ? 'ar-SD' : 'en-US');
-      const perms = meRes?.responseObject?.permissions;
-      if (Array.isArray(perms)) setPermissions(perms);
-    } catch {
-      /* ignore — user can still navigate, permissions will fill on refresh */
-    }
-
-    // Host/tenant binding — the API's auth middleware rejects any
-    // request whose JWT tenantId disagrees with the host's resolved
-    // tenant. If we just signed in to a store that lives on a
-    // different host than the one the dashboard is currently loaded
-    // from, redirect to the correct host so every subsequent API
-    // call lands on the same tenant.
-    // `skipHostRedirect` keeps the session on the CURRENT origin (used by the
-    // store-picker "Create a new store" flow, which needs an authenticated
-    // session on the main domain to call the add-store endpoint without being
-    // bounced to a store subdomain first).
-    const desiredHost = (credentials as { skipHostRedirect?: boolean }).skipHostRedirect ? null : ro.tenantDomain;
-    if (desiredHost) {
-      const currentHost = window.location.host;
-      const currentHostnameFirstLabel = window.location.hostname.split('.')[0];
-      const desiredFirstLabel = desiredHost.split('.')[0];
-      const hostMatches =
-        currentHost === desiredHost ||
-        currentHostnameFirstLabel === desiredFirstLabel;
-      if (!hostMatches) {
-        const isDev = import.meta.env.MODE !== 'production';
-        const targetHost = isDev
-          ? `${desiredFirstLabel}.localhost:${window.location.port || '3000'}`
-          : desiredHost;
-        // localStorage is per-origin, so tokens we just wrote on this
-        // host aren't visible to the target subdomain. Pass them in
-        // the URL fragment and have the target rehydrate on mount.
-        const handoff = encodeAuthPayload({
-          token: ro.accessToken,
-          refreshToken: ro.refreshToken || null,
-          userId: ro.userId,
-          user: userData,
-        });
-        window.location.href = `${window.location.protocol}//${targetHost}/dashboard#auth=${encodeURIComponent(handoff)}`;
-        // Prevent the caller's local navigate from firing first.
-        await new Promise(() => {});
-      }
-    }
+    await establishSession(ro, {
+      skipHostRedirect: (credentials as { skipHostRedirect?: boolean }).skipHostRedirect,
+    });
   };
 
   const register = async (data: RegisterData) => {
@@ -263,6 +267,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       isAuthenticated: !!token && !!user,
       isLoading,
       login,
+      loginWithResponse,
       register,
       logout,
       permissions,

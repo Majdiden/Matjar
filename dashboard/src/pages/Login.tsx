@@ -18,18 +18,30 @@ import {
   ShoppingBag,
   TrendingUp,
   Zap,
+  Fingerprint,
 } from 'lucide-react';
-import type { StoreChoice } from '../types';
+import {
+  startAuthentication,
+  startRegistration,
+  type PublicKeyCredentialRequestOptionsJSON,
+  type PublicKeyCredentialCreationOptionsJSON,
+} from '@simplewebauthn/browser';
+import { api } from '../lib/api-client';
+import type { AuthResponse, StoreChoice } from '../types';
 
-type Step = 'credentials' | 'pick-store';
+type Step = 'credentials' | 'pick-store' | 'enroll-passkey';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated } = useAuth();
+  const { login, loginWithResponse, isAuthenticated } = useAuth();
   const { t } = useTranslation(['auth', 'common']);
 
   const [step, setStep] = useState<Step>('credentials');
+  // Passkey (WebAuthn platform authenticator) capability + in-flight state.
+  const [passkeySupported, setPasskeySupported] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [enrollLoading, setEnrollLoading] = useState(false);
   // Prefill the email when the signup flow sent the user here ("an account
   // with this email already exists — sign in to add a store").
   const [email, setEmail] = useState((location.state as { email?: string } | null)?.email || '');
@@ -42,8 +54,28 @@ export const Login: React.FC = () => {
   const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || '/dashboard';
 
   useEffect(() => {
-    if (isAuthenticated) navigate(from, { replace: true });
-  }, [isAuthenticated, from, navigate]);
+    // Don't bounce away while we're showing the one-time passkey-enrollment
+    // prompt — the user IS authenticated at that point but we want them to
+    // answer the prompt first.
+    if (isAuthenticated && step !== 'enroll-passkey') navigate(from, { replace: true });
+  }, [isAuthenticated, from, navigate, step]);
+
+  // Feature-detect a platform authenticator (Touch ID / Face ID / Windows
+  // Hello). The passkey affordances stay hidden unless the browser exposes
+  // PublicKeyCredential AND a user-verifying platform authenticator is
+  // actually available.
+  useEffect(() => {
+    let cancelled = false;
+    const PKC = typeof window !== 'undefined' ? window.PublicKeyCredential : undefined;
+    if (PKC?.isUserVerifyingPlatformAuthenticatorAvailable) {
+      PKC.isUserVerifyingPlatformAuthenticatorAvailable()
+        .then((ok) => { if (!cancelled) setPasskeySupported(!!ok); })
+        .catch(() => { if (!cancelled) setPasskeySupported(false); });
+    }
+    return () => { cancelled = true; };
+  }, []);
+
+  const PASSKEY_PROMPT_KEY = 'matjar.passkey.enrollPrompted';
 
   const finishLogin = async (tenantId?: string) => {
     const result = await login({ email, password, tenantId });
@@ -60,12 +92,83 @@ export const Login: React.FC = () => {
         return;
       }
     }
-    // Token is already in localStorage at this point. If the context
-    // re-render hasn't committed yet the effect below will catch it,
-    // but navigate immediately as the happy path.
+    // If we reach here after `login()` resolved, no cross-host hop happened
+    // (a hop never returns control), so we're staying on this origin and it's
+    // safe to offer passkey enrollment. Token is already in localStorage.
     if (localStorage.getItem('token')) {
+      const alreadyPrompted = localStorage.getItem(PASSKEY_PROMPT_KEY) === '1';
+      if (passkeySupported && !alreadyPrompted) {
+        setStep('enroll-passkey');
+        return;
+      }
       navigate(from, { replace: true });
     }
+  };
+
+  // ── Passwordless sign-in with an enrolled passkey ──
+  const handlePasskeyLogin = async () => {
+    setError('');
+    if (!email.trim()) {
+      setError(t('auth.passkey.enter_email_first'));
+      return;
+    }
+    setPasskeyLoading(true);
+    try {
+      const optRes = await api.auth.webauthn.authenticateOptions(email.trim().toLowerCase());
+      const ro = optRes.responseObject;
+      if (!ro?.hasCredentials || !ro.options || !ro.flowId) {
+        setError(t('auth.passkey.none_found'));
+        return;
+      }
+      const assertion = await startAuthentication({
+        optionsJSON: ro.options as PublicKeyCredentialRequestOptionsJSON,
+      });
+      const verifyRes = (await api.auth.webauthn.authenticateVerify(ro.flowId, assertion)) as AuthResponse;
+      const vro = verifyRes.responseObject;
+      if (!vro?.accessToken) {
+        setError(t('auth.passkey.failed'));
+        return;
+      }
+      await loginWithResponse(vro);
+      if (localStorage.getItem('token')) navigate(from, { replace: true });
+    } catch (err) {
+      const e = err as { name?: string; message?: string };
+      // User dismissed the OS prompt — not an error worth shouting about.
+      if (e?.name !== 'NotAllowedError' && e?.name !== 'AbortError') {
+        setError(e?.message || t('auth.passkey.failed'));
+      }
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
+
+  // ── Enroll a passkey after a password login (one-time prompt) ──
+  const enrollPasskey = async () => {
+    setEnrollLoading(true);
+    setError('');
+    try {
+      const optRes = (await api.auth.webauthn.registerOptions()) as { responseObject?: unknown };
+      const attResp = await startRegistration({
+        optionsJSON: optRes.responseObject as PublicKeyCredentialCreationOptionsJSON,
+      });
+      await api.auth.webauthn.registerVerify(attResp);
+      localStorage.setItem(PASSKEY_PROMPT_KEY, '1');
+      navigate(from, { replace: true });
+    } catch (err) {
+      const e = err as { name?: string; message?: string };
+      if (e?.name === 'NotAllowedError' || e?.name === 'AbortError') {
+        skipEnroll();
+      } else {
+        setError(e?.message || t('auth.passkey.enroll_failed'));
+      }
+    } finally {
+      setEnrollLoading(false);
+    }
+  };
+
+  const skipEnroll = () => {
+    localStorage.setItem(PASSKEY_PROMPT_KEY, '1');
+    navigate(from, { replace: true });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,6 +217,56 @@ export const Login: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  // One-time post-login prompt to set up biometric sign-in.
+  if (step === 'enroll-passkey') {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <header className="border-b">
+          <div className="max-w-5xl mx-auto px-6 py-4 flex items-center gap-2">
+            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
+              <Store className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <span className="font-semibold tracking-tight">Matjar</span>
+            <div className="ms-auto">
+              <LanguageSwitcher />
+            </div>
+          </div>
+        </header>
+        <main className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-md text-center space-y-6">
+            <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+              <Fingerprint className="h-8 w-8" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight">{t('auth.passkey.enroll_title')}</h1>
+              <p className="text-muted-foreground">{t('auth.passkey.enroll_subtitle')}</p>
+            </div>
+
+            {error && (
+              <Alert variant="destructive" className="text-start">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="space-y-3">
+              <Button className="w-full h-11 text-base" onClick={enrollPasskey} disabled={enrollLoading}>
+                {enrollLoading ? (
+                  <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.passkey.enrolling')}</>
+                ) : (
+                  <><Fingerprint className="me-2 h-4 w-4" /> {t('auth.passkey.enroll_cta')}</>
+                )}
+              </Button>
+              <Button variant="ghost" className="w-full" onClick={skipEnroll} disabled={enrollLoading}>
+                {t('auth.passkey.enroll_skip')}
+              </Button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   // Store picker takes over the whole screen — it deserves more room than
   // the cramped right column of the login split layout.
@@ -324,6 +477,34 @@ export const Login: React.FC = () => {
                     <>{t('auth.login.submit')} <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" /></>
                   )}
                 </Button>
+
+                {/* Passwordless sign-in — only rendered when the device has a
+                    usable platform authenticator (Touch ID / Face ID / Hello). */}
+                {passkeySupported && (
+                  <>
+                    <div className="relative py-1">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs">
+                        <span className="bg-background px-2 text-muted-foreground">{t('auth.passkey.or')}</span>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-11 text-base"
+                      onClick={handlePasskeyLogin}
+                      disabled={isLoading || passkeyLoading}
+                    >
+                      {passkeyLoading ? (
+                        <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.passkey.signing_in')}</>
+                      ) : (
+                        <><Fingerprint className="me-2 h-4 w-4" /> {t('auth.passkey.sign_in')}</>
+                      )}
+                    </Button>
+                  </>
+                )}
               </form>
 
               <div className="text-sm text-muted-foreground text-center">

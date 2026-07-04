@@ -171,7 +171,46 @@ export const api = {
       subscriptionPlan?: string;
       themeSlug?: string;
       niche?: string;
+      // Onboarding: false when the user skipped the theme step.
+      themeSelected?: boolean;
+      // Proof-of-email-verification token from verifyOtp().
+      emailVerificationToken?: string;
     }) => api.post('/auth/register', data),
+
+    // ─── Signup email-OTP verification ───────────────────────────────
+    // Request a 6-digit code to the given email. Always resolves 200 with a
+    // generic message. In dev (email disabled) the response carries `devCode`
+    // so the flow is exercisable without a real inbox.
+    requestOtp: (email: string, language?: string) =>
+      api.post<{ responseObject?: { cooldownSeconds?: number; devCode?: string } }>(
+        '/auth/otp/request',
+        { email, ...(language ? { language } : {}) },
+      ),
+    // Verify a code; on success returns a short-lived verificationToken the
+    // register call carries as proof.
+    verifyOtp: (email: string, code: string) =>
+      api.post<{ success?: boolean; message?: string; responseObject?: { verificationToken?: string } }>(
+        '/auth/otp/verify',
+        { email, code },
+      ),
+
+    // ─── WebAuthn / passkey (fingerprint / Face ID) ──────────────────
+    webauthn: {
+      // Enrollment (authenticated). Returns PublicKeyCredentialCreationOptions.
+      registerOptions: () =>
+        api.post<{ responseObject?: unknown }>('/auth/webauthn/register-options', {}),
+      registerVerify: (response: unknown, name?: string) =>
+        api.post('/auth/webauthn/register-verify', { response, ...(name ? { name } : {}) }),
+      // Passwordless login (public). Options resolves the tenant/user from the
+      // email and returns { hasCredentials, options?, flowId? }.
+      authenticateOptions: (email: string, tenantId?: string) =>
+        api.post<{ responseObject?: { hasCredentials?: boolean; options?: unknown; flowId?: string } }>(
+          '/auth/webauthn/authenticate-options',
+          { email, ...(tenantId ? { tenantId } : {}) },
+        ),
+      authenticateVerify: (flowId: string, response: unknown) =>
+        api.post('/auth/webauthn/authenticate-verify', { flowId, response }),
+    },
 
     // Authenticated "add another store" under the current account — returns a
     // token for the new store so the client hands the user straight in.
@@ -179,6 +218,7 @@ export const api = {
       storeName: string;
       subdomain: string;
       themeSlug?: string;
+      themeSelected?: boolean;
       niche?: string;
     }) => api.post('/auth/stores', data),
 
@@ -633,7 +673,7 @@ export const api = {
 
     // Draft-starter status + owner preview URL (for the publish banner).
     starter: () =>
-      api.get<{ responseObject?: { hasDraftStarter?: boolean; previewUrl?: string; counts?: { products: number; collections: number; pages: number } } }>(
+      api.get<{ responseObject?: { hasDraftStarter?: boolean; previewUrl?: string; themeSelected?: boolean; counts?: { products: number; collections: number; pages: number } } }>(
         '/store-setup/starter',
       ),
 
