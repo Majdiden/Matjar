@@ -128,14 +128,39 @@ self.addEventListener('push', (event: PushEvent) => {
     requireInteraction: false,
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(
+    (async () => {
+      // Don't fire an OS notification if a dashboard tab is currently VISIBLE:
+      // the in-app toast/bell (delivered over the SSE stream) already showed
+      // it, so an OS notification too means the user sees it twice. When the
+      // app is backgrounded/closed, no client is visible → we show it.
+      const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      const appVisible = clients.some(
+        (c) => c.visibilityState === 'visible' && c.url.includes(DASHBOARD_SCOPE)
+      );
+      if (appVisible) return;
+      await self.registration.showNotification(title, options);
+    })()
+  );
 });
+
+// The dashboard SPA runs under basename "/dashboard" while its routes are
+// themselves "/dashboard/…"-prefixed, so a router path like
+// "/dashboard/orders/123" lives at the real URL "/dashboard/dashboard/orders/123".
+// The backend sends the router path in data.url, so prepend the basename here
+// or the deep link 404s → catch-all → dashboard home (why clicks "just opened
+// the dashboard").
+function toRealUrl(path: string): string {
+  const p = path || DASHBOARD_SCOPE;
+  const withBase = p.startsWith(`${DASHBOARD_SCOPE}/dashboard`) ? p : `${DASHBOARD_SCOPE}${p}`;
+  return new URL(withBase, self.location.origin).href;
+}
 
 // ── Web Push: focus/open the dashboard on click ────────────────────────
 self.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close();
   const data = (event.notification.data || {}) as { url?: string };
-  const targetUrl = data.url || DASHBOARD_SCOPE;
+  const targetUrl = toRealUrl(data.url || DASHBOARD_SCOPE);
 
   event.waitUntil(
     (async () => {

@@ -3,7 +3,6 @@ import { toast } from 'sonner';
 import { api } from '../lib/api-client';
 import {
   playNotificationChime,
-  fireNativeNotification,
 } from '../lib/notification-effects';
 import { useNotificationsContext, type NotificationItem } from '../contexts/notifications-context';
 import { useNotificationLeader } from './useNotificationLeader';
@@ -220,15 +219,15 @@ export function useNotifications() {
       const inbox = !p || p.inbox !== false;
       const toast_ = !p || p.toast !== false;
       const sound = !p || p.sound !== false;
-      const browser = !p || p.browser !== false;
       if (inbox) ctxRef.current.addLocal(n);
       // Always cross-tab broadcast so followers apply their own pref filters.
       broadcast({ type: 'notification', payload: n });
       if (toast_) toastForSeverity(n.severity, n.title, n.body, `notif-${n._id}`);
       if (sound) playNotificationChime();
-      if (browser) {
-        fireNativeNotification(n.title, n.body || '', resolveNotificationLink(n) || undefined);
-      }
+      // NB: no native OS notification here — the service worker push handler
+      // is the single source of OS notifications (fired only when no dashboard
+      // tab is visible). Firing one here too caused DUPLICATE notifications
+      // when a tab was open; the foreground surface is the toast + bell above.
     };
 
     const openES = async () => {
