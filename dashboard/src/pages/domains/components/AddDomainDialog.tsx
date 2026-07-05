@@ -213,7 +213,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {step === 'input' && t('domains:add.title_input')}
@@ -381,10 +381,12 @@ function RecordRow({
   onCopy: (v: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-2">
-      <span className="text-muted-foreground w-12 shrink-0">{label}</span>
-      <div className="flex items-center gap-1 min-w-0">
-        <span className="font-mono truncate">{value}</span>
+    <div className="flex items-start justify-between gap-2">
+      <span className="text-muted-foreground w-12 shrink-0 pt-0.5">{label}</span>
+      <div className="flex items-start gap-1 min-w-0 flex-1 justify-end">
+        {/* break-all (not truncate) so the full record name/value is visible
+            and copyable — a truncated DNS value is useless to paste. */}
+        <span className="font-mono break-all text-end">{value}</span>
         <Button
           variant="ghost"
           size="icon"

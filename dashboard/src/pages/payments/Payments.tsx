@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { StatCardRow } from '../../components/StatCardRow';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
@@ -149,8 +150,8 @@ export const Payments: React.FC = () => {
         <p className="text-muted-foreground">{t('payments:list.description')}</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
+      {/* Stats — horizontal snap-scroll on phones, grid on desktop */}
+      <StatCardRow className="sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('payments:list.stat.total_revenue')}</CardTitle>
@@ -187,7 +188,7 @@ export const Payments: React.FC = () => {
             <div className="text-2xl font-bold">{stats.pendingPayments}</div>
           </CardContent>
         </Card>
-      </div>
+      </StatCardRow>
 
       {/* Search */}
       <div className="flex items-center gap-4">

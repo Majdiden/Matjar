@@ -5,6 +5,7 @@ import { errMsg } from '../../lib/errors';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../components/PageHeader';
 import { StatCard } from '../../components/StatCard';
+import { StatCardRow } from '../../components/StatCardRow';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -225,12 +226,12 @@ export const Products: React.FC = () => {
         )}
       />
 
-      {/* Stat strip */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      {/* Stat strip — horizontal snap-scroll on phones, grid on desktop */}
+      <StatCardRow className="sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} description={s.description} />
         ))}
-      </div>
+      </StatCardRow>
 
       {/* Filter pills */}
       <FilterPills

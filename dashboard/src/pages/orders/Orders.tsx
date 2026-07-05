@@ -11,6 +11,7 @@ import { Skeleton } from '../../components/ui/skeleton';
 import { FilterPills } from '../../components/ui/filter-pills';
 import { PageHeader } from '../../components/PageHeader';
 import { StatCard } from '../../components/StatCard';
+import { StatCardRow } from '../../components/StatCardRow';
 import { DataTable, type DataTableColumn, type DataTableSortState } from '../../components/DataTable';
 import type { StatCardDelta } from '../../components/StatCard';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
@@ -491,12 +492,12 @@ export const Orders: React.FC = () => {
         )}
       />
 
-      {/* Stat strip */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      {/* Stat strip — horizontal snap-scroll on phones, grid on desktop */}
+      <StatCardRow className="sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} delta={s.delta} description={s.description} />
         ))}
-      </div>
+      </StatCardRow>
 
       {/* Filter pills */}
       <FilterPills

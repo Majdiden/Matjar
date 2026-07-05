@@ -308,9 +308,9 @@ export const Permissions: React.FC = () => {
                 return (
                   <Card key={group.key}>
                     <CardHeader className="py-3 px-4">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm">{group.label}</CardTitle>
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <CardTitle className="text-sm min-w-0 truncate">{group.label}</CardTitle>
+                        <div className="flex items-center gap-2 shrink-0">
                           <span className="text-xs text-muted-foreground">
                             {allKeys.filter(k => formData.permissions.includes(k)).length}/{allKeys.length}
                           </span>
@@ -327,15 +327,15 @@ export const Permissions: React.FC = () => {
                         {group.permissions.map(perm => (
                           <label
                             key={perm.key}
-                            className="flex items-center gap-2 text-sm cursor-pointer"
+                            className="flex items-start gap-2 text-sm cursor-pointer"
                           >
                             <Switch
                               checked={formData.permissions.includes(perm.key)}
                               onCheckedChange={() => togglePermission(perm.key)}
-                              className="scale-75"
+                              className="scale-75 shrink-0"
                               disabled={isSystemRole}
                             />
-                            <span>{perm.label}</span>
+                            <span className="min-w-0 leading-tight pt-0.5">{perm.label}</span>
                           </label>
                         ))}
                       </div>

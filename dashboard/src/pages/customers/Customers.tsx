@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../../lib/api-client';
 import { PageHeader } from '../../components/PageHeader';
 import { StatCard } from '../../components/StatCard';
+import { StatCardRow } from '../../components/StatCardRow';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
@@ -335,12 +336,12 @@ export default function Customers() {
         )}
       />
 
-      {/* Stat strip */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Stat strip — horizontal snap-scroll on phones, grid on desktop */}
+      <StatCardRow className="sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((s) => (
           <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} description={s.description} />
         ))}
-      </div>
+      </StatCardRow>
 
       {/* Filter pills */}
       <FilterPills

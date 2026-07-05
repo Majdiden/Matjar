@@ -9,6 +9,7 @@ import {
   ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig,
 } from '../../components/ui/chart';
 import { StatCard } from '../../components/StatCard';
+import { StatCardRow } from '../../components/StatCardRow';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -165,12 +166,12 @@ export default function Analytics() {
         </DropdownMenu>
       </div>
 
-      {/* Stat Cards — shared StatCard (audit 3.8.4) */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stat Cards — horizontal snap-scroll on phones, grid on desktop */}
+      <StatCardRow className="sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map(card => (
           <StatCard key={card.label} label={card.label} value={card.value} icon={card.icon} />
         ))}
-      </div>
+      </StatCardRow>
 
       {/* Revenue over time — area chart (chart kit / recharts) */}
       <Card>
