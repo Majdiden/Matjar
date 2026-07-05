@@ -510,12 +510,17 @@ export const Dashboard: React.FC = () => {
           stores — the checklist leads instead of all-zero decoration. */}
       {/* Mobile stats (audit): a single horizontal snap-scroll strip. Each
           card is 80% wide so the next one peeks in at the edge, signalling
-          there's more to swipe. A sales-trend chart rides at the end. The
-          grouped two-column grid below takes over from md upward. */}
+          there's more to swipe. `items-stretch` + `h-full` on every card
+          keeps them all the same height regardless of content. The first
+          card sits flush with the page's other cards (no start bleed); the
+          strip bleeds only at the end (`-me-4`) so the peek reaches the edge.
+          A sales-trend chart rides in the middle. The grouped two-column
+          grid below takes over from md upward. */}
       {hasOrders && (
-        <div className="md:hidden -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 scrollbar-hide">
+        <div className="md:hidden -me-4 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto pb-1 scrollbar-hide">
           <div className="w-[80%] shrink-0 snap-start">
             <StatCard
+              className="h-full"
               label={t('dashboard:metric.revenue')}
               value={formatPrice(orderStats.revenue30d)}
               icon={DollarSign}
@@ -525,6 +530,7 @@ export const Dashboard: React.FC = () => {
           </div>
           <Link to="/dashboard/orders" className="w-[80%] shrink-0 snap-start">
             <StatCard
+              className="h-full"
               label={t('dashboard:metric.orders')}
               value={orderStats.orders30d.toLocaleString()}
               icon={ShoppingCart}
@@ -534,13 +540,17 @@ export const Dashboard: React.FC = () => {
           </Link>
           {salesTrend.length >= 2 && (
             <div className="w-[80%] shrink-0 snap-start">
-              <Card className="h-full">
-                <CardContent className="pt-6">
+              <Card className="flex h-full flex-col">
+                <CardContent className="flex flex-1 flex-col pt-6">
                   <div className="mb-2 flex items-center justify-between">
                     <p className="text-sm font-medium text-muted-foreground">{t('dashboard:metric.sales_trend')}</p>
                     <TrendingUp className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  <SalesSparkline points={salesTrend.map((p) => p.revenue)} />
+                  {/* Fill the remaining height so the chart card matches the
+                      stat cards; the sparkline sits above the caption. */}
+                  <div className="flex flex-1 items-center">
+                    <SalesSparkline points={salesTrend.map((p) => p.revenue)} />
+                  </div>
                   <p className="mt-1 text-xs text-muted-foreground">{t('dashboard:metric.sales_trend_description')}</p>
                 </CardContent>
               </Card>
@@ -548,6 +558,7 @@ export const Dashboard: React.FC = () => {
           )}
           <Link to="/dashboard/products" className="w-[80%] shrink-0 snap-start">
             <StatCard
+              className="h-full"
               label={t('dashboard:metric.products')}
               value={totals.products.toLocaleString()}
               icon={Package}
@@ -556,6 +567,7 @@ export const Dashboard: React.FC = () => {
           </Link>
           <Link to="/dashboard/customers" className="w-[80%] shrink-0 snap-start">
             <StatCard
+              className="h-full"
               label={t('dashboard:metric.customers')}
               value={totals.customers.toLocaleString()}
               icon={Users}

@@ -131,11 +131,13 @@ const ReturnsAndReplacements: React.FC<{
   return (
     <>
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+      {/* Stack the title above the actions on phones; the two action
+          buttons overflowed the card when forced onto one row. */}
+      <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="text-base flex items-center gap-2">
-          <RefreshCw className="h-5 w-5" /> {tR('orders:detail.section.returns.title')}
+          <RefreshCw className="h-5 w-5 shrink-0" /> {tR('orders:detail.section.returns.title')}
         </CardTitle>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button size="sm" variant="outline" onClick={onNewReturn}>
             {tR('orders:detail.action.new_return')}
           </Button>
