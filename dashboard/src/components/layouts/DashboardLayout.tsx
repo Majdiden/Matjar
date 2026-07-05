@@ -611,7 +611,13 @@ const DashboardLayoutInner: React.FC = () => {
   return (
     <DirectionProvider dir={dir}>
       <TooltipProvider delayDuration={0}>
-        <div dir={dir} className="flex h-[100dvh] overflow-hidden bg-background">
+        {/* Pinned to the viewport with `fixed` (not just h-[100dvh] in flow) so
+            the document can never grow taller than the screen — otherwise a
+            page with tall content, or a stray body-level element, makes the
+            WINDOW scroll and leaves empty space below the shell. Only <main>
+            scrolls, internally. h-[100dvh] keeps the dynamic-viewport sizing
+            that avoids the iOS status-bar/home-indicator overshoot. */}
+        <div dir={dir} className="fixed inset-x-0 top-0 flex h-[100dvh] overflow-hidden bg-background">
         {/* Desktop Sidebar — dark surface via sidebar-scoped tokens (3.8.6) */}
         <aside className="sidebar-surface hidden lg:flex lg:w-64 lg:flex-col lg:border-e">
           <SidebarContent pendingOrders={pendingOrders} />

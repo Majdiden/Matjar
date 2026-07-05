@@ -613,6 +613,7 @@ export const Dashboard: React.FC = () => {
                 icon={DollarSign}
                 delta={revenueDelta}
                 description={withTrend(t('dashboard:metric.revenue_description'), revenueDelta)}
+                chart={salesTrend.length >= 2 ? <SalesSparkline points={salesTrend.map((p) => p.revenue)} /> : undefined}
               />
               <Link to="/dashboard/orders">
                 <StatCard
@@ -621,6 +622,7 @@ export const Dashboard: React.FC = () => {
                   icon={ShoppingCart}
                   delta={ordersDelta}
                   description={withTrend(t('dashboard:metric.orders_description'), ordersDelta)}
+                  chart={salesTrend.length >= 2 ? <SalesSparkline points={salesTrend.map((p) => p.orders)} /> : undefined}
                 />
               </Link>
             </div>
@@ -636,6 +638,7 @@ export const Dashboard: React.FC = () => {
                   value={totals.products.toLocaleString()}
                   icon={Package}
                   description={t('dashboard:metric.products_description')}
+                  chart={<SalesSparkline points={cumulativeSeries(productCounts, totals.products)} />}
                 />
               </Link>
               <Link to="/dashboard/customers">
@@ -644,6 +647,7 @@ export const Dashboard: React.FC = () => {
                   value={totals.customers.toLocaleString()}
                   icon={Users}
                   description={t('dashboard:metric.customers_description')}
+                  chart={<SalesSparkline points={cumulativeSeries(customerCounts, totals.customers)} />}
                 />
               </Link>
             </div>
