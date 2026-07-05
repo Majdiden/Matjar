@@ -88,6 +88,47 @@ export const getSalesOverTime = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { salesData: rows } });
 });
 
+// Customers are store users that aren't staff (mirrors controllers/customer.js).
+const CUSTOMER_ONLY_MATCH = { roles: { $nin: ["admin", "manager", "staff"] } };
+
+/**
+ * @route   GET /api/analytics/counts-over-time
+ * @desc    Daily NEW customers and products in [startDate, endDate]. Powers the
+ *          cumulative-growth sparklines on the dashboard's Customers/Products
+ *          stat cards. Returns per-day new counts; the client turns them into a
+ *          running total that ends at the current grand total.
+ * @access  Private (Admin)
+ */
+export const getCountsOverTime = asyncHandler(async (req, res) => {
+  const User = req.models.User;
+  const Product = req.models.Product;
+  const { startDate, endDate } = req.query;
+
+  const dateFilter = {};
+  if (startDate) dateFilter.$gte = new Date(startDate);
+  if (endDate) dateFilter.$lte = new Date(endDate);
+  const createdMatch = Object.keys(dateFilter).length ? { createdAt: dateFilter } : {};
+
+  // Shared "group by calendar day, ascending" tail.
+  const perDay = [
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+    { $project: { _id: 0, date: "$_id", count: 1 } },
+  ];
+
+  const [customers, products] = await Promise.all([
+    User.aggregate([{ $match: { ...CUSTOMER_ONLY_MATCH, ...createdMatch } }, ...perDay]),
+    Product.aggregate([{ $match: { ...createdMatch } }, ...perDay]),
+  ]);
+
+  res.json({ success: true, data: { customers, products } });
+});
+
 /**
  * @route   GET /api/analytics/top-products
  * @desc    Best-selling products by revenue

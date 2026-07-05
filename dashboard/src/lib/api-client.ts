@@ -843,6 +843,10 @@ export const api = {
     getSalesOverTime: (startDate: string, endDate: string) =>
       api.get('/analytics/sales-over-time', { params: { startDate, endDate } }),
 
+    // Daily new customers/products — for the dashboard growth sparklines.
+    getCountsOverTime: (startDate: string, endDate: string) =>
+      api.get('/analytics/counts-over-time', { params: { startDate, endDate } }),
+
     getTopProducts: (limit: number = 5) =>
       api.get('/analytics/top-products', { params: { limit } }),
   },
