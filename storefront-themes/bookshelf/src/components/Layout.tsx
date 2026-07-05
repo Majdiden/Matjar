@@ -12,6 +12,7 @@ import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/Annou
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -156,6 +157,7 @@ const Layout: React.FC = () => {
                 <span className="cursor-pointer hover:text-white transition">{t('theme.footer.about_us')}</span>
                 <Link to="/contact" className="hover:text-white transition">{t('theme.footer.contact')}</Link>
                 <span className="cursor-pointer hover:text-white transition">{t('theme.footer.shipping_returns')}</span>
+                <PolicyLinks className="mt-2" heading={false} linkClassName="hover:text-white transition" />
               </div>
             </div>
           </div>

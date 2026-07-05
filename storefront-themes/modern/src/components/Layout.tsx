@@ -11,6 +11,7 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
@@ -179,6 +180,7 @@ const Layout: React.FC = () => {
                 <li><span className="hover:text-white cursor-pointer">{t('theme.footer.item_returns_exchanges')}</span></li>
                 <li><span className="hover:text-white cursor-pointer">{t('theme.footer.item_faq')}</span></li>
               </ul>
+              <PolicyLinks className="mt-4" heading={false} linkClassName="hover:text-white transition" />
             </div>
             <div>
               <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_newsletter')}</h4>

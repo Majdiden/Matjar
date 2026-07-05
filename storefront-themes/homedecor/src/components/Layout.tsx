@@ -11,6 +11,7 @@ import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/Mobi
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
@@ -134,6 +135,7 @@ const Layout: React.FC = () => {
                 <p className="hover:text-white transition cursor-pointer">{t('theme.footer.shipping_returns')}</p>
                 <p className="hover:text-white transition cursor-pointer">{t('theme.footer.care_instructions')}</p>
                 <Link to="/contact" className="hover:text-white transition block">{t('theme.footer.contact_us')}</Link>
+                <PolicyLinks className="mt-2" heading={false} linkClassName="hover:text-white transition" />
               </div>
             </div>
           </div>

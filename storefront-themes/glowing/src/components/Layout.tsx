@@ -8,6 +8,7 @@ import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
@@ -178,6 +179,7 @@ const Layout: React.FC = () => {
                 <a href="#" className="block hover:text-black">{t('theme.footer.returns')}</a>
                 <a href="#" className="block hover:text-black">{t('theme.footer.faq')}</a>
                 <Link to="/contact" className="block hover:text-black">{t('theme.footer.contact')}</Link>
+                <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:text-black" />
               </div>
             </div>
             <div>

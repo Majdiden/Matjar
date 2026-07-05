@@ -9,6 +9,7 @@ import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
@@ -188,6 +189,7 @@ const Layout: React.FC = () => {
                 <a href="#" className="block hover:text-white transition">{t('theme.footer.item_returns')}</a>
                 <a href="#" className="block hover:text-white transition">{t('theme.footer.item_faqs')}</a>
                 <a href="#" className="block hover:text-white transition">{t('theme.footer.item_contact')}</a>
+                <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:text-white transition" />
               </div>
             </div>
             <div>

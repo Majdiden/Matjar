@@ -7,6 +7,7 @@ import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
@@ -283,6 +284,7 @@ const Layout: React.FC = () => {
                 <a href="#" className="block hover:text-white transition">{t('theme.footer.privacy_policy')}</a>
                 <a href="#" className="block hover:text-white transition">{t('theme.footer.contact_us')}</a>
                 <a href="#" className="block hover:text-white transition">{t('theme.footer.gift_card')}</a>
+                <PolicyLinks className="mt-2.5" heading={false} linkClassName="block hover:text-white transition" />
               </div>
             </div>
           </div>

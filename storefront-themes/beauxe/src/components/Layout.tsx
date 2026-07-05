@@ -11,6 +11,7 @@ import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/Mobi
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 
 /**
  * Beauxe Layout — navy announcement + pink-accent header.
@@ -175,6 +176,7 @@ const Layout: React.FC = () => {
                   </a>
                 ))}
               </div>
+              <PolicyLinks className="mt-6" heading={false} linkClassName="block text-[var(--color-primary)]/80 hover:opacity-100 hover:underline transition" />
             </div>
             {[
               { h: t('theme.footer.shop_heading'), items: [t('theme.footer.shop_all'), t('theme.footer.best_sellers'), t('theme.footer.new_arrivals'), t('theme.footer.gift_sets')] },

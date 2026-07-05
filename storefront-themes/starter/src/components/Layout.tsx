@@ -9,6 +9,7 @@ import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/Mobi
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 import { useTranslation } from 'react-i18next';
 
 const Layout: React.FC = () => {
@@ -148,6 +149,7 @@ const Layout: React.FC = () => {
               <Link to="/products" className="transition hover:opacity-80">{t('theme.footer.products')}</Link>
               <span className="cursor-pointer transition hover:opacity-80">{t('theme.footer.about')}</span>
               <Link to="/contact" className="transition hover:opacity-80">{t('theme.footer.contact')}</Link>
+              <PolicyLinks inline className="contents" linkClassName="transition hover:opacity-80" />
             </div>
           </div>
         </div>

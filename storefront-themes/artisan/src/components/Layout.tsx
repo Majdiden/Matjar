@@ -11,6 +11,7 @@ import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/Annou
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -162,6 +163,7 @@ const Layout: React.FC = () => {
                 <li><span className="hover:text-white cursor-pointer">{t('theme.footer.sustainability')}</span></li>
                 <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.contact')}</Link></li>
               </ul>
+              <PolicyLinks className="mt-4" heading={false} linkClassName="hover:text-white transition" />
             </div>
             <div>
               <h4 className="text-white font-semibold mb-3">{t('theme.footer.circle_heading')}</h4>

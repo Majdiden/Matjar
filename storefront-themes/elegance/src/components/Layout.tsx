@@ -10,6 +10,7 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -145,6 +146,7 @@ const Layout: React.FC = () => {
                 <li><span className="cursor-pointer hover:text-white">{t('theme.footer.shipping_returns')}</span></li>
                 <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.contact')}</Link></li>
               </ul>
+              <PolicyLinks className="mt-4" heading={false} linkClassName="hover:text-white transition" />
             </div>
             <div>
               <h4 className="text-white text-xs tracking-[0.15em] uppercase mb-4">{t('theme.footer.newsletter_heading')}</h4>
