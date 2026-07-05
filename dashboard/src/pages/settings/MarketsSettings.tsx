@@ -179,14 +179,14 @@ export const MarketsSettings: React.FC = () => {
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle className="text-base">{t('settings.section.markets.title')}</CardTitle>
             <CardDescription>
               {t('settings.section.markets.description')}
             </CardDescription>
           </div>
-          <Button onClick={openCreate}>
+          <Button onClick={openCreate} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 me-2" />{t('settings.button.add_market')}
           </Button>
         </CardHeader>
@@ -246,7 +246,7 @@ export const MarketsSettings: React.FC = () => {
             <DialogTitle>{editingId ? t('settings.dialog.edit_market') : t('settings.dialog.new_market')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('settings.field.markets.code.label')}</Label>
                 <Input
@@ -266,7 +266,7 @@ export const MarketsSettings: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('settings.field.markets.currency.label')}</Label>
                 <CurrencyPicker
@@ -334,7 +334,7 @@ export const MarketsSettings: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="flex items-center justify-between border rounded-md px-3 py-2">
                 <div>
                   <p className="text-sm font-medium">{t('settings.field.markets.enabled.label')}</p>

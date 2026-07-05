@@ -96,7 +96,7 @@ export const EmailTemplates: React.FC = () => {
           <CardDescription>{t('settings.section.sender.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{t('settings.field.notifications.from_name.label')}</Label>
               <Input value={config.fromName || ''} onChange={e => setConfig(c => ({ ...c, fromName: e.target.value }))} placeholder={t('settings.field.notifications.from_name.placeholder')} />

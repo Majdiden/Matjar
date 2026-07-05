@@ -179,12 +179,12 @@ export const TaxSettings: React.FC = () => {
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle className="text-base">{t('settings.section.tax_rates.title')}</CardTitle>
             <CardDescription>{t('settings.section.tax_rates.description')}</CardDescription>
           </div>
-          <Button onClick={openCreate}>
+          <Button onClick={openCreate} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 me-2" />{t('settings.button.add_rate')}
           </Button>
         </CardHeader>
@@ -228,7 +228,7 @@ export const TaxSettings: React.FC = () => {
             <DialogTitle>{editingId ? t('settings.dialog.edit_tax_rate') : t('settings.dialog.new_tax_rate')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('settings.field.tax.country.label')}</Label>
                 <CountryPicker

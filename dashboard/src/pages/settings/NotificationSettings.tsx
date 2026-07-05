@@ -108,8 +108,12 @@ export const NotificationSettings: React.FC = () => {
             </div>
           )}
 
-          <div className="overflow-hidden rounded-md border">
-            <div className="grid grid-cols-[minmax(0,1fr)_80px_80px_80px_80px_80px] items-center gap-2 border-b bg-muted/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {/* The channel matrix is intrinsically wide (event + 5 toggles). On
+              phones it scrolls horizontally inside its own container instead of
+              clipping the right-hand channels off-screen. */}
+          <div className="overflow-x-auto rounded-md border">
+           <div className="min-w-[560px]">
+            <div className="grid grid-cols-[minmax(0,1fr)_72px_72px_72px_72px_72px] items-center gap-2 border-b bg-muted/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               <div>{t('settings.notification_channel.event')}</div>
               <div className="text-center">{t('settings.notification_channel.inbox')}</div>
               <div className="text-center">{t('settings.notification_channel.toast')}</div>
@@ -141,7 +145,7 @@ export const NotificationSettings: React.FC = () => {
               return (
                 <div
                   key={type}
-                  className="grid grid-cols-[minmax(0,1fr)_80px_80px_80px_80px_80px] items-center gap-2 border-b px-4 py-3 last:border-b-0"
+                  className="grid grid-cols-[minmax(0,1fr)_72px_72px_72px_72px_72px] items-center gap-2 border-b px-4 py-3 last:border-b-0"
                 >
                   <div className="flex items-start gap-3">
                     <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
@@ -171,6 +175,7 @@ export const NotificationSettings: React.FC = () => {
                 </div>
               );
             })}
+           </div>
           </div>
           <p className="text-xs text-muted-foreground">
             {t('settings.notification_channel_hint')}

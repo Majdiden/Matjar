@@ -136,14 +136,14 @@ const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <CardTitle className="text-base">{t('settings.section.shipping_zones.title')}</CardTitle>
           <CardDescription>
             {t('settings.section.shipping_zones.description')}
           </CardDescription>
         </div>
-        <Button onClick={openCreate} disabled={disabled}>
+        <Button onClick={openCreate} disabled={disabled} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 me-2" />{t('settings.button.add_zone')}
         </Button>
       </CardHeader>

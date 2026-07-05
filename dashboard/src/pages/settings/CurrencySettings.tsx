@@ -97,7 +97,7 @@ export const CurrencySettings: React.FC = () => {
             <div className="space-y-2">
               {draftRates.map((row, i) => (
                 <div key={i} className="flex gap-2 items-center">
-                  <div className="w-40">
+                  <div className="w-32 shrink-0 sm:w-40">
                     <CurrencyPicker
                       value={row.code}
                       onChange={v => updateRow(i, { code: v })}
