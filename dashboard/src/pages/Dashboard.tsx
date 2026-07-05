@@ -11,7 +11,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import {
   Package, ShoppingCart, DollarSign, Plus, Globe, Users, Palette, Tag,
   Settings as SettingsIcon, CreditCard, CheckCircle2, Circle, ChevronDown,
-  ChevronUp, ChevronRight, ExternalLink, X, TrendingUp,
+  ChevronUp, ChevronRight, ExternalLink, X,
 } from 'lucide-react';
 import { api } from '../lib/api-client';
 import { toast } from 'sonner';
@@ -79,11 +79,37 @@ interface SalesOverTimeResponse {
   responseObject?: { salesData?: SalesPoint[] };
 }
 
+// Daily new-count point from GET /analytics/counts-over-time.
+interface CountPoint { date: string; count: number }
+interface CountsOverTimeResponse {
+  data?: { customers?: CountPoint[]; products?: CountPoint[] };
+  responseObject?: { customers?: CountPoint[]; products?: CountPoint[] };
+}
+
+// Turn per-day NEW counts into a running total that ends at `total`, so a
+// "total" stat card's sparkline rises to its current value. Falls back to a
+// flat 2-point line at `total` when nothing changed in the window (an honest
+// "no growth" line rather than an empty card).
+const cumulativeSeries = (rows: CountPoint[], total: number): number[] => {
+  const counts = rows.map((r) => r.count);
+  const sumWindow = counts.reduce((a, b) => a + b, 0);
+  const base = Math.max(0, total - sumWindow);
+  if (counts.length === 0) return [total, total];
+  let running = base;
+  const out = [base];
+  for (const c of counts) { running += c; out.push(running); }
+  return out;
+};
+
 // Dependency-free area sparkline. We deliberately hand-draw an SVG here
 // rather than pull recharts into the dashboard chunk — this page is the
 // mobile-first landing surface and most Sudanese traffic is on slow phone
 // networks, so keeping the bundle lean matters more than a charting lib.
 const SalesSparkline: React.FC<{ points: number[] }> = ({ points }) => {
+  // Unique gradient id per instance — several sparklines render on one screen
+  // (revenue + orders), and a shared id would make them reference the same
+  // (invalid duplicate) def.
+  const gid = React.useId().replace(/:/g, '');
   if (points.length < 2) return null;
   const w = 100;
   const h = 36;
@@ -96,14 +122,14 @@ const SalesSparkline: React.FC<{ points: number[] }> = ({ points }) => {
   const area = `${line} L${w},${h} L0,${h} Z`;
   const [lastX, lastY] = coords[coords.length - 1];
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-12 w-full" aria-hidden="true">
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-10 w-full" aria-hidden="true">
       <defs>
-        <linearGradient id="dashSpark" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="hsl(var(--primary))" stopOpacity="0.22" />
           <stop offset="1" stopColor="hsl(var(--primary))" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={area} fill="url(#dashSpark)" />
+      <path d={area} fill={`url(#${gid})`} />
       <path
         d={line}
         fill="none"
@@ -154,8 +180,11 @@ export const Dashboard: React.FC = () => {
     hasProduct: false, paymentsEnabled: false, themePublished: false, hasOrder: false, hasCustomDomain: false,
   });
   const [starter, setStarter] = useState<{ hasDraftStarter?: boolean; previewUrl?: string } | null>(null);
-  // Last-14-days daily revenue, for the mobile sales-trend chart card.
+  // Last-14-days trends for the mobile stat-card sparklines: daily sales
+  // (revenue + orders) and daily new customers/products.
   const [salesTrend, setSalesTrend] = useState<SalesPoint[]>([]);
+  const [customerCounts, setCustomerCounts] = useState<CountPoint[]>([]);
+  const [productCounts, setProductCounts] = useState<CountPoint[]>([]);
   // Whether the merchant actively PICKED a theme during onboarding. When true
   // the "customize theme" setup step is hidden (their look is already chosen);
   // when false the step is shown until they publish a customization. `null`
@@ -187,18 +216,26 @@ export const Dashboard: React.FC = () => {
     return () => { active = false; };
   }, []);
 
-  // Sales trend for the mobile chart card — last 14 days of daily revenue.
+  // Last-14-day trends for the stat-card sparklines (sales + new counts).
   useEffect(() => {
     let active = true;
-    const end = new Date();
-    const start = new Date(Date.now() - 13 * 86400000);
-    api.analytics.getSalesOverTime(start.toISOString(), end.toISOString())
+    const end = new Date().toISOString();
+    const start = new Date(Date.now() - 13 * 86400000).toISOString();
+    api.analytics.getSalesOverTime(start, end)
       .then((r) => {
         if (!active) return;
         const res = r as SalesOverTimeResponse;
         setSalesTrend(res.data?.salesData || res.responseObject?.salesData || []);
       })
-      .catch(() => { /* non-fatal — the chart card just won't render */ });
+      .catch(() => { /* non-fatal — sparkline just won't render */ });
+    api.analytics.getCountsOverTime(start, end)
+      .then((r) => {
+        if (!active) return;
+        const res = r as CountsOverTimeResponse;
+        setCustomerCounts(res.data?.customers || res.responseObject?.customers || []);
+        setProductCounts(res.data?.products || res.responseObject?.products || []);
+      })
+      .catch(() => { /* non-fatal — sparkline just won't render */ });
     return () => { active = false; };
   }, []);
 
@@ -526,6 +563,7 @@ export const Dashboard: React.FC = () => {
               icon={DollarSign}
               delta={revenueDelta}
               description={t('dashboard:metric.revenue_description')}
+              chart={salesTrend.length >= 2 ? <SalesSparkline points={salesTrend.map((p) => p.revenue)} /> : undefined}
             />
           </div>
           <Link to="/dashboard/orders" className="w-[80%] shrink-0 snap-start">
@@ -536,26 +574,9 @@ export const Dashboard: React.FC = () => {
               icon={ShoppingCart}
               delta={ordersDelta}
               description={t('dashboard:metric.orders_description')}
+              chart={salesTrend.length >= 2 ? <SalesSparkline points={salesTrend.map((p) => p.orders)} /> : undefined}
             />
           </Link>
-          {salesTrend.length >= 2 && (
-            <div className="w-[80%] shrink-0 snap-start">
-              <Card className="flex h-full flex-col">
-                <CardContent className="flex flex-1 flex-col pt-6">
-                  <div className="mb-2 flex items-center justify-between">
-                    <p className="text-sm font-medium text-muted-foreground">{t('dashboard:metric.sales_trend')}</p>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  {/* Fill the remaining height so the chart card matches the
-                      stat cards; the sparkline sits above the caption. */}
-                  <div className="flex flex-1 items-center">
-                    <SalesSparkline points={salesTrend.map((p) => p.revenue)} />
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{t('dashboard:metric.sales_trend_description')}</p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
           <Link to="/dashboard/products" className="w-[80%] shrink-0 snap-start">
             <StatCard
               className="h-full"
@@ -563,6 +584,7 @@ export const Dashboard: React.FC = () => {
               value={totals.products.toLocaleString()}
               icon={Package}
               description={t('dashboard:metric.products_description')}
+              chart={<SalesSparkline points={cumulativeSeries(productCounts, totals.products)} />}
             />
           </Link>
           <Link to="/dashboard/customers" className="w-[80%] shrink-0 snap-start">
@@ -572,6 +594,7 @@ export const Dashboard: React.FC = () => {
               value={totals.customers.toLocaleString()}
               icon={Users}
               description={t('dashboard:metric.customers_description')}
+              chart={<SalesSparkline points={cumulativeSeries(customerCounts, totals.customers)} />}
             />
           </Link>
         </div>

@@ -19,6 +19,12 @@ export interface StatCardProps {
   icon?: React.ElementType;
   /** Optional delta chip rendered next to the value. */
   delta?: StatCardDelta;
+  /**
+   * Optional mini chart (e.g. a sparkline) pinned to the bottom of the card.
+   * Bottom-aligned via `mt-auto` so a row of cards keeps a consistent
+   * baseline whether or not each one has a chart.
+   */
+  chart?: React.ReactNode;
   className?: string;
 }
 
@@ -31,9 +37,11 @@ const trendClass: Record<StatDeltaTrend, string> = {
 // Shared stat card (audit 3.8.4): label, value in
 // `tabular-nums tracking-tight text-2xl font-semibold`, optional delta
 // chip, optional muted icon.
-export const StatCard: React.FC<StatCardProps> = ({ label, value, description, icon: Icon, delta, className }) => (
+export const StatCard: React.FC<StatCardProps> = ({ label, value, description, icon: Icon, delta, chart, className }) => (
   <Card className={cn('hover:shadow-md transition-shadow', className)}>
-    <CardContent className="pt-6">
+    {/* h-full + flex column so, when the card is stretched to a row's tallest
+        sibling, the optional chart pins to the bottom via `mt-auto`. */}
+    <CardContent className="flex h-full flex-col pt-6">
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
@@ -54,6 +62,7 @@ export const StatCard: React.FC<StatCardProps> = ({ label, value, description, i
         )}
       </div>
       {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
+      {chart && <div className="mt-auto pt-3">{chart}</div>}
     </CardContent>
   </Card>
 );
