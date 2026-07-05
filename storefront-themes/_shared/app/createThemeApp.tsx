@@ -10,6 +10,7 @@ import NotFound from '../pages/NotFound';
 import Contact from '../pages/Contact';
 import About from '../pages/About';
 import PageView from '../pages/PageView';
+import PolicyPage from '../pages/PolicyPage';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import ForgotPassword from '../pages/ForgotPassword';
@@ -108,6 +109,7 @@ export function createThemeApp(options: CreateThemeAppOptions): ThemeAppComponen
     Contact,
     About,
     PageView,
+    PolicyPage,
     Login,
     Register,
     ForgotPassword,
@@ -146,6 +148,7 @@ export function createThemeApp(options: CreateThemeAppOptions): ThemeAppComponen
             <Route path="/contact" element={<P.Contact />} />
             <Route path="/about" element={<P.About />} />
             <Route path="/pages/:slug" element={<P.PageView />} />
+            <Route path="/policies/:key" element={<P.PolicyPage />} />
             {routes.map((r) => (
               <Route key={r.path} path={r.path} element={r.element} />
             ))}

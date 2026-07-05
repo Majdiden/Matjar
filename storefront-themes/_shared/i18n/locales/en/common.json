@@ -163,7 +163,16 @@
     "cookie_policy": "Cookie policy",
     "made_with_love": "Made with love",
     "all_rights_reserved": "All rights reserved",
-    "powered_by": "Powered by"
+    "powered_by": "Powered by",
+    "policies": {
+      "privacy": "Privacy Policy",
+      "returns": "Return & Refund Policy",
+      "delivery": "Delivery Policy",
+      "cod": "Cash on Delivery Policy",
+      "heading": "Our Policies",
+      "empty": "This policy hasn't been published yet.",
+      "contact_heading": "Contact us"
+    }
   },
   "aria": {
     "cart": "Cart",

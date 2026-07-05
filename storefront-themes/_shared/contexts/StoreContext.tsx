@@ -19,6 +19,15 @@ export interface StoreInfo {
   };
   socialLinks?: Record<string, string>;
   contactInfo?: Record<string, string>;
+  /** Store contact / company info (settings.contact). */
+  contact?: {
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+  } | null;
+  /** Merchant-authored store policies keyed by slug (privacy/returns/delivery/
+   *  cod). Only policies with a body are present. Body is server-sanitised HTML. */
+  policies?: Record<string, { title?: string | null; body: string }> | null;
   giftCards?: {
     enabled: boolean;
   };

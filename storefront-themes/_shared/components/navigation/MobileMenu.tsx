@@ -5,6 +5,7 @@ import { useStore } from '../../contexts/StoreContext';
 import { useCategories } from '../../hooks/useProducts';
 import { type MenuItem } from '../../hooks/useMenu';
 import { useLanguage } from '../../i18n/LanguageProvider';
+import { PolicyLinks } from '../PolicyLinks';
 import { cn } from '../../utils/cn';
 
 interface MobileMenuProps {
@@ -199,6 +200,13 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
               {renderLeaf({ label: t('footer:footer.contact.title', { defaultValue: 'Contact' }), url: '/contact' })}
             </>
           )}
+
+          {/* Store policies — only renders when the merchant has published any. */}
+          <PolicyLinks
+            className="mt-4 pt-4 border-t"
+            linkClassName="block py-2 text-sm opacity-80 hover:opacity-100 transition"
+            onNavigate={onClose}
+          />
         </nav>
 
         {/* Footer — language toggle. An inline segmented control (not a

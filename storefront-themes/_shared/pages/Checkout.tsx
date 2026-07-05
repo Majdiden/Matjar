@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import { useStore } from '../contexts/StoreContext';
 import { ordersApi, authApi, checkoutApi, giftCardApi, paymentMethodsApi, PaymentMethodPublic, isPreviewMode, notifyPreviewDisabled } from '../api/client';
 import PaymentMethodPicker from '../components/commerce/PaymentMethodPicker';
+import { PolicyLinks } from '../components/PolicyLinks';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { COUNTRIES, getCitiesForCountry, optionsWithCurrent, locationLabel } from '../data/locations';
@@ -962,6 +963,14 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   {submitting ? t('checkout.action.placing') : t('checkout.action.place_order', { total: formatPrice(summaryTotal) })}
                 </button>
               </div>
+
+              {/* Store policy links (delivery / returns / cash-on-delivery /
+                  privacy) — only shown for policies the merchant published. */}
+              <PolicyLinks
+                inline
+                className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs opacity-70"
+                linkClassName="hover:underline"
+              />
             </div>
           )}
         </div>
