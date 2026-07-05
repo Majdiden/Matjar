@@ -43,7 +43,7 @@ const Layout: React.FC = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
               {store?.logo ? (
-                <img src={store.logo} alt={store.name} className="h-8" />
+                <img src={store.logo} alt={store.name} className="h-11 w-auto max-w-[180px] object-contain" />
               ) : (
                 <span className="text-xl font-bold" style={{ color: 'var(--color-primary, #2563eb)' }}>
                   {store?.name || 'Store'}

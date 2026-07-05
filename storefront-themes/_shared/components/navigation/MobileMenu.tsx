@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useStore } from '../../contexts/StoreContext';
 import { useCategories } from '../../hooks/useProducts';
 import { type MenuItem } from '../../hooks/useMenu';
-import { LanguageSwitcher } from '../LanguageSwitcher';
+import { useLanguage } from '../../i18n/LanguageProvider';
 import { cn } from '../../utils/cn';
 
 interface MobileMenuProps {
@@ -34,6 +34,7 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
   const { t } = useTranslation(['common', 'nav', 'footer', 'theme']);
   const { store } = useStore();
   const { categories } = useCategories();
+  const { lang, setLang } = useLanguage();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const hasMenu = items.length > 0;
   const heading = title || store?.name || 'Menu';
@@ -200,12 +201,45 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
           )}
         </nav>
 
-        {/* Footer — language switcher */}
+        {/* Footer — language toggle. An inline segmented control (not a
+            floating dropdown) so it can never open off-screen or get clipped
+            by the panel edge at the bottom of the menu. */}
         <div
           className="px-5 py-4 border-t shrink-0"
           style={{ borderColor: 'var(--color-border)' }}
         >
-          <LanguageSwitcher openUp />
+          <div
+            className="flex gap-1 rounded-2xl border p-1"
+            role="group"
+            aria-label={t('common:aria.language', { defaultValue: 'Language' })}
+            style={{ borderColor: 'var(--color-border)' }}
+          >
+            {([
+              { code: 'en' as const, label: 'English' },
+              { code: 'ar' as const, label: 'العربية' },
+            ]).map(({ code, label }) => {
+              const active = lang === code;
+              return (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setLang(code)}
+                  aria-pressed={active}
+                  className={cn(
+                    'flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition',
+                    !active && 'opacity-70 hover:opacity-100',
+                  )}
+                  style={
+                    active
+                      ? { backgroundColor: 'var(--color-primary, #2563eb)', color: '#ffffff' }
+                      : { color: 'var(--color-foreground)' }
+                  }
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </>

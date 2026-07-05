@@ -38,12 +38,23 @@ const PAGE_BG = "#eef2f7";
 const TILE_BG = "#f1f5f9";
 const BORDER = "#e2e8f0";
 
-// Logo-centric layout: a large centred logo, the store name, and a
-// one/two-line description. No product grid — a store with few products
-// left empty tiles, and the logo + description reads cleaner everywhere.
-const LOGO = 172;
-const LOGO_RADIUS = 40;
-const LOGO_TOP = 96;
+// "Profile card" layout — a professional, recognisable share-card pattern:
+// a brand-gradient header band, a white rounded logo BADGE overlapping its
+// bottom edge (so the logo always sits on white — reads cleanly whether the
+// logo is light, dark, or transparent), then the store name, a short
+// description, and a footer row (domain + "Shop now" pill).
+const BAND_H = 230; // brand gradient header band height
+const BADGE_W = 300; // logo badge (rounded rect, holds wide or square logos)
+const BADGE_H = 180;
+const BADGE_TOP = 156; // overlaps the band's bottom edge (16 + BAND_H = 246)
+const BADGE_RADIUS = 32;
+const LOGO_PAD = 22; // padding between the badge edge and the logo
+// The contain region the logo is fit into (inside the badge), + its position
+// on the canvas — reused by the compositor to drop the logo bitmap.
+const LOGO_BOX_W = BADGE_W - LOGO_PAD * 2; // 256
+const LOGO_BOX_H = BADGE_H - LOGO_PAD * 2; // 136
+const LOGO_LEFT = Math.round((CARD_WIDTH - LOGO_BOX_W) / 2);
+const LOGO_TOP = BADGE_TOP + LOGO_PAD;
 
 // ─── Cache ──────────────────────────────────────────────────────────
 //
@@ -108,29 +119,17 @@ function absUrl(baseUrl, maybeUrl) {
   return `${baseUrl}${String(maybeUrl).startsWith("/") ? "" : "/"}${maybeUrl}`;
 }
 
-/** Format a price with the store currency, e.g. `110 SDG`. */
-function formatPrice(amount, currency) {
-  const n = Number(amount);
-  if (!Number.isFinite(n)) return "";
-  let num;
-  try {
-    num = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(n);
-  } catch {
-    num = String(n);
-  }
-  return currency ? `${num} ${currency}` : num;
-}
-
 const FONT_STACK =
   "'Helvetica Neue', Helvetica, Arial, 'Segoe UI', 'Cairo', 'Noto Sans Arabic', sans-serif";
 
 /**
- * Fetch a remote/absolute image and rasterise it into a rounded tile of
- * `w×h`. Returns null on any failure (network, decode, timeout) so the caller
- * can fall back to a neutral placeholder — a broken image must never fail the
- * whole card.
+ * Fetch the store logo and fit it (whole, uncropped) inside a `w×h` box with
+ * transparent padding, so the composite can drop it at a fixed position and
+ * the logo is centred within the box regardless of its aspect ratio. Uses
+ * `fit: contain` (NOT cover) so a wide wordmark or a tall mark is never
+ * cropped — every detail stays visible. Returns null on any failure.
  */
-async function renderImageTile(url, w, h, radius) {
+async function renderLogoContain(url, w, h) {
   if (!url) return null;
   try {
     const controller = new AbortController();
@@ -143,17 +142,15 @@ async function renderImageTile(url, w, h, radius) {
     } finally {
       clearTimeout(t);
     }
-
-    const mask = Buffer.from(
-      `<svg width="${w}" height="${h}"><rect x="0" y="0" width="${w}" height="${h}" rx="${radius}" ry="${radius}" fill="#fff"/></svg>`
-    );
     return await sharp(input)
-      .resize(w, h, { fit: "cover", position: "attention" })
-      .composite([{ input: mask, blend: "dest-in" }])
+      .resize(w, h, {
+        fit: "contain",
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
       .png()
       .toBuffer();
   } catch (e) {
-    logger.warn("OG card image fetch/resize failed; using placeholder", {
+    logger.warn("OG card logo fetch/resize failed; using initial fallback", {
       url: String(url).slice(0, 120),
       error: e.message,
     });
@@ -217,46 +214,75 @@ function wrapText(str, maxChars, maxLines) {
  */
 function buildBaseSvg({ storeName, hasLogo, logoInitial, description, domain }) {
   const cx = CARD_WIDTH / 2;
-  const logoX = cx - LOGO / 2;
+  const bandBottom = 16 + BAND_H;
+  const badgeX = cx - BADGE_W / 2;
+  const badgeBottom = BADGE_TOP + BADGE_H;
 
   const nameText = clip(storeName, 28);
-  const nameFontSize = nameText.length > 18 ? 52 : 60;
-  const nameY = LOGO_TOP + LOGO + 78;
+  const nameFontSize = nameText.length > 18 ? 48 : 56;
+  const nameY = badgeBottom + 60;
 
-  // Description — up to two centred lines.
-  const descLines = wrapText(description, 52, 2);
-  const descStartY = nameY + 58;
+  // Description — up to two centred lines under the name.
+  const descLines = wrapText(description, 58, 2);
+  const descStartY = nameY + 44;
   const descParts = descLines
     .map(
       (line, i) =>
-        `<text x="${cx}" y="${descStartY + i * 42}" text-anchor="middle" font-family="${FONT_STACK}" font-size="30" font-weight="500" fill="${SUBTLE}">${escapeXml(line)}</text>`
+        `<text x="${cx}" y="${descStartY + i * 38}" text-anchor="middle" font-family="${FONT_STACK}" font-size="27" font-weight="500" fill="${SUBTLE}">${escapeXml(line)}</text>`
     )
     .join("\n");
 
-  // Centred "Shop now" pill + domain beneath it.
-  const pillW = 220;
-  const pillH = 58;
-  const pillX = cx - pillW / 2;
-  const pillY = CARD_HEIGHT - 156;
-  const domainY = CARD_HEIGHT - 58;
+  // Footer row: a hairline divider, then domain (start) + "Shop now" pill (end).
+  const footY = 568;
+  const dividerY = 524;
+  const railX = 72;
+  const railEnd = CARD_WIDTH - 72;
+  const pillW = 208;
+  const pillH = 52;
+  const pillX = railEnd - pillW;
+  const pillY = footY - pillH / 2;
 
-  const logoTile = hasLogo
-    ? "" // real logo bitmap composited on top
-    : `<rect x="${logoX}" y="${LOGO_TOP}" width="${LOGO}" height="${LOGO}" rx="${LOGO_RADIUS}" ry="${LOGO_RADIUS}" fill="${BRAND_BLUE}"/>
-       <text x="${cx}" y="${LOGO_TOP + LOGO / 2 + 34}" text-anchor="middle" font-family="${FONT_STACK}" font-size="96" font-weight="700" fill="#ffffff">${escapeXml(logoInitial)}</text>`;
+  // The logo badge is always white; a real logo is composited into it, else the
+  // store initial is drawn in brand colour. Sits half over the band, half over
+  // the card — a faux drop shadow lifts it off the white lower half.
+  const initialInBadge = hasLogo
+    ? ""
+    : `<text x="${cx}" y="${BADGE_TOP + BADGE_H / 2 + 38}" text-anchor="middle" font-family="${FONT_STACK}" font-size="104" font-weight="800" fill="${BRAND_BLUE}">${escapeXml(logoInitial)}</text>`;
 
   return `<svg width="${CARD_WIDTH}" height="${CARD_HEIGHT}" viewBox="0 0 ${CARD_WIDTH} ${CARD_HEIGHT}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="card">
+        <rect x="16" y="16" width="${CARD_WIDTH - 32}" height="${CARD_HEIGHT - 32}" rx="28" ry="28"/>
+      </clipPath>
+      <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${BRAND_BLUE}"/>
+        <stop offset="1" stop-color="${BRAND_BLUE_DARK}"/>
+      </linearGradient>
+    </defs>
+
     <rect x="0" y="0" width="${CARD_WIDTH}" height="${CARD_HEIGHT}" fill="${PAGE_BG}"/>
     <rect x="16" y="16" width="${CARD_WIDTH - 32}" height="${CARD_HEIGHT - 32}" rx="28" ry="28" fill="${CARD_BG}"/>
-    <rect x="16" y="16" width="${CARD_WIDTH - 32}" height="10" rx="5" ry="5" fill="${BRAND_BLUE}"/>
 
-    ${logoTile}
+    <g clip-path="url(#card)">
+      <rect x="16" y="16" width="${CARD_WIDTH - 32}" height="${BAND_H}" fill="url(#band)"/>
+      <circle cx="1035" cy="30" r="150" fill="#ffffff" opacity="0.07"/>
+      <circle cx="150" cy="210" r="120" fill="#ffffff" opacity="0.06"/>
+      <circle cx="880" cy="220" r="70" fill="#ffffff" opacity="0.05"/>
+    </g>
+
+    <!-- logo badge (faux shadow + white plate + subtle border) -->
+    <rect x="${badgeX}" y="${BADGE_TOP + 6}" width="${BADGE_W}" height="${BADGE_H}" rx="${BADGE_RADIUS}" ry="${BADGE_RADIUS}" fill="#0f172a" opacity="0.14"/>
+    <rect x="${badgeX}" y="${BADGE_TOP + 3}" width="${BADGE_W}" height="${BADGE_H}" rx="${BADGE_RADIUS}" ry="${BADGE_RADIUS}" fill="#0f172a" opacity="0.08"/>
+    <rect x="${badgeX}" y="${BADGE_TOP}" width="${BADGE_W}" height="${BADGE_H}" rx="${BADGE_RADIUS}" ry="${BADGE_RADIUS}" fill="${CARD_BG}" stroke="${BORDER}" stroke-width="1"/>
+    ${initialInBadge}
+
     <text x="${cx}" y="${nameY}" text-anchor="middle" font-family="${FONT_STACK}" font-size="${nameFontSize}" font-weight="700" fill="${INK}">${escapeXml(nameText)}</text>
     ${descParts}
 
-    <rect x="${pillX}" y="${pillY}" width="${pillW}" height="${pillH}" rx="29" ry="29" fill="${BRAND_BLUE}"/>
-    <text x="${cx}" y="${pillY + pillH / 2 + 9}" text-anchor="middle" font-family="${FONT_STACK}" font-size="27" font-weight="700" fill="#ffffff">Shop now →</text>
-    <text x="${cx}" y="${domainY}" text-anchor="middle" font-family="${FONT_STACK}" font-size="26" font-weight="600" fill="${SUBTLE}">${escapeXml(clip(domain, 46))}</text>
+    <line x1="${railX}" y1="${dividerY}" x2="${railEnd}" y2="${dividerY}" stroke="${BORDER}" stroke-width="1"/>
+    <text x="${railX}" y="${footY + 8}" text-anchor="start" font-family="${FONT_STACK}" font-size="26" font-weight="600" fill="${SUBTLE}">${escapeXml(clip(domain, 38))}</text>
+    <rect x="${pillX}" y="${pillY}" width="${pillW}" height="${pillH}" rx="26" ry="26" fill="${BRAND_BLUE}"/>
+    <text x="${pillX + pillW / 2}" y="${pillY + pillH / 2 + 9}" text-anchor="middle" font-family="${FONT_STACK}" font-size="25" font-weight="700" fill="#ffffff">Shop now →</text>
   </svg>`;
 }
 
@@ -281,9 +307,9 @@ export async function buildStoreCardPng(tenant, baseUrl) {
   const cached = cacheGet(cacheKey);
   if (cached) return cached;
 
-  // Fetch the store logo (rounded) — the card is logo-forward now.
+  // Fetch the store logo — large and uncropped (contain), the card's subject.
   const logoTile = logoUrl
-    ? await renderImageTile(logoUrl, LOGO, LOGO, LOGO_RADIUS)
+    ? await renderLogoContain(logoUrl, LOGO_BOX_W, LOGO_BOX_H)
     : null;
 
   const logoInitial = (storeName.trim().charAt(0) || "S").toUpperCase();
@@ -297,7 +323,11 @@ export async function buildStoreCardPng(tenant, baseUrl) {
 
   const composites = [];
   if (logoTile) {
-    composites.push({ input: logoTile, left: Math.round((CARD_WIDTH - LOGO) / 2), top: LOGO_TOP });
+    composites.push({
+      input: logoTile,
+      left: Math.round((CARD_WIDTH - LOGO_BOX_W) / 2),
+      top: LOGO_TOP,
+    });
   }
 
   const png = await sharp(Buffer.from(baseSvg))

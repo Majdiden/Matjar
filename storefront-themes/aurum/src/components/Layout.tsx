@@ -133,7 +133,7 @@ const Layout: React.FC = () => {
             {/* Center: serif wordmark / logo */}
             <Link to="/" className="justify-self-center flex items-center" aria-label={brand}>
               {store?.logo ? (
-                <img src={store.logo} alt={brand} className="h-9 md:h-10 object-contain" />
+                <img src={store.logo} alt={brand} className="h-12 md:h-14 w-auto max-w-[200px] object-contain" />
               ) : (
                 <span
                   className="font-display text-2xl md:text-[28px] tracking-[0.18em] uppercase leading-none text-ink"

@@ -39,7 +39,7 @@ const Layout: React.FC = () => {
             {/* Logo — one end of the row */}
             <Link to="/" className="shrink-0">
               {store?.logo ? (
-                <img src={store.logo} alt={store.name} className="h-10" />
+                <img src={store.logo} alt={store.name} className="h-14 w-auto max-w-[200px] object-contain" />
               ) : (
                 <span className="text-2xl tracking-[0.2em] uppercase font-light text-gray-900">
                   {store?.name || 'Elegance'}
