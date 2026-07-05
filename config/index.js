@@ -112,7 +112,7 @@ class Config {
       process.env.PLATFORM_DOMAIN ||
       process.env.DOMAIN_SUFFIX ||
       process.env.BASE_DOMAIN ||
-      "invoila.local"
+      "matjar.local"
     );
   }
 
@@ -124,8 +124,21 @@ class Config {
     return this.platformDomain;
   }
 
+  // Retired platform domains that should 301-redirect (host + path preserved)
+  // to the current `platformDomain`. Comma-separated, bare hosts (no scheme).
+  // Defaults to `invoila.io` — the platform's previous domain. A host equal to
+  // one of these OR any subdomain of it (`<slug>.invoila.io`, `app.invoila.io`)
+  // is redirected to the same label under `platformDomain` — see
+  // middlewares/legacyDomainRedirect.js.
+  get legacyDomains() {
+    return (process.env.LEGACY_DOMAINS || "invoila.io")
+      .split(",")
+      .map((s) => s.trim().toLowerCase().replace(/^\.+|\.+$/g, ""))
+      .filter(Boolean);
+  }
+
   // App host — the SINGLE, tenant-agnostic hostname that serves the merchant
-  // dashboard (`app.<platformDomain>`, e.g. app.invoila.io in prod,
+  // dashboard (`app.<platformDomain>`, e.g. app.matjar.to in prod,
   // app.localhost:3000 in dev). One PWA install, one login, switch between
   // stores in-app. On this host the tenant is resolved from the JWT, NOT the
   // Host header — see middlewares/tenantContext.js. `appHost` keeps the port
@@ -242,7 +255,7 @@ class Config {
   get emailFrom() {
     // Platform sender for Matjar→store-owner mail. Defaults to the Invoila
     // noreply identity; override via EMAIL_FROM.
-    return process.env.EMAIL_FROM || "Matjar <noreply@invoila.io>";
+    return process.env.EMAIL_FROM || "Matjar <noreply@matjar.to>";
   }
 
   // SSL / custom-domain rails.

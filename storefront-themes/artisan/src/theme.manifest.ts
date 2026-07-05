@@ -151,7 +151,7 @@ const manifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'A handcrafted theme with warm brown and amber tones for artisan, handmade, and craft stores. Features a story-driven layout with maker spotlights.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['general', 'beauty'],
 
   colors: {

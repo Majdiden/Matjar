@@ -141,7 +141,7 @@ const manifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'A literary-inspired theme designed for bookstores. Features a violet palette, genre browsing, staff picks, and an inspirational quote section.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['books', 'general'],
 
   colors: {

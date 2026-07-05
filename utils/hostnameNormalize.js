@@ -20,7 +20,7 @@ import config from "../config/index.js";
  *      domains. Platform subdomains skip this check because the
  *      *.localhost setup in dev is intentional.
  *   7. Reject hostnames that fall under the platform's own base
- *      domain — a merchant can't claim `admin.matjar.com` as their
+ *      domain — a merchant can't claim `admin.matjar.to` as their
  *      custom domain even if DNS would let them.
  */
 
@@ -146,7 +146,7 @@ export function validateCustomDomain(raw) {
   }
 
   // Reject any hostname under the platform's own base domain — a
-  // merchant trying to register `rogue.matjar.com` as their "custom"
+  // merchant trying to register `rogue.matjar.to` as their "custom"
   // domain is either confused or attacking us. Platform subdomains
   // are created via a different code path (`kind: platform_subdomain`).
   const baseDomain = (config.baseDomain || "").toLowerCase();

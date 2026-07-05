@@ -159,7 +159,7 @@ const manifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'Minimalist cosmetics theme with editorial serif headings, generous whitespace and clean product grids.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['cosmetics', 'beauty'],
 
   colors: {

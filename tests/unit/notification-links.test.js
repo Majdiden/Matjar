@@ -55,19 +55,19 @@ describe("dashboardBaseUrl", () => {
   });
 
   it("prefers PUBLIC_DASHBOARD_URL", () => {
-    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.app";
-    process.env.DASHBOARD_URL = "https://legacy.matjar.app";
-    assert.equal(dashboardBaseUrl(), "https://admin.matjar.app");
+    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.to";
+    process.env.DASHBOARD_URL = "https://legacy.matjar.to";
+    assert.equal(dashboardBaseUrl(), "https://admin.matjar.to");
   });
 
   it("falls back to DASHBOARD_URL when PUBLIC_DASHBOARD_URL is unset", () => {
-    process.env.DASHBOARD_URL = "https://legacy.matjar.app";
-    assert.equal(dashboardBaseUrl(), "https://legacy.matjar.app");
+    process.env.DASHBOARD_URL = "https://legacy.matjar.to";
+    assert.equal(dashboardBaseUrl(), "https://legacy.matjar.to");
   });
 
   it("strips trailing slashes", () => {
-    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.app///";
-    assert.equal(dashboardBaseUrl(), "https://admin.matjar.app");
+    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.to///";
+    assert.equal(dashboardBaseUrl(), "https://admin.matjar.to");
   });
 
   it("returns empty string when nothing is configured", () => {
@@ -83,9 +83,9 @@ describe("resolveNotificationUrl", () => {
   });
 
   it("prefixes the base URL when configured", () => {
-    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.app";
+    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.to";
     const url = resolveNotificationUrl({ type: "order.created", resourceId: "o1" });
-    assert.equal(url, "https://admin.matjar.app/dashboard/orders/o1");
+    assert.equal(url, "https://admin.matjar.to/dashboard/orders/o1");
   });
 
   it("falls back to relative path when base URL is empty", () => {
@@ -96,7 +96,7 @@ describe("resolveNotificationUrl", () => {
   });
 
   it("returns null for unknown types (even with a base URL)", () => {
-    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.app";
+    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.to";
     assert.equal(resolveNotificationUrl({ type: "does.not.exist" }), null);
   });
 });
@@ -109,10 +109,10 @@ describe("notificationPreferencesUrl", () => {
   });
 
   it("returns the absolute preferences URL when base is set", () => {
-    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.app";
+    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.to";
     assert.equal(
       notificationPreferencesUrl(),
-      "https://admin.matjar.app/dashboard/settings?tab=notifications"
+      "https://admin.matjar.to/dashboard/settings?tab=notifications"
     );
   });
 

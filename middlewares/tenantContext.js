@@ -12,7 +12,7 @@ import config from "../config/index.js";
  *
  * Supports:
  *   - slug.localhost:3000        (local dev with subdomains)
- *   - slug.matjar.com            (production subdomains)
+ *   - slug.matjar.to            (production subdomains)
  *   - custom-domain.com          (custom domains, via Domain registry)
  *   - localhost:3000             (dev fallback → first active tenant)
  */

@@ -40,7 +40,7 @@ function metaTag(property, content, attr = "property") {
  * Build the <head> tags for a storefront request.
  * @param {object} o
  * @param {object} o.tenant   resolved tenant doc (settings.{storeName,storeDescription,logo,favicon,currency})
- * @param {string} o.baseUrl  e.g. "https://store.invoila.io"
+ * @param {string} o.baseUrl  e.g. "https://store.matjar.to"
  * @param {string} o.path     req.originalUrl path (for og:url)
  * @param {object} [o.product] optional product for product pages
  */

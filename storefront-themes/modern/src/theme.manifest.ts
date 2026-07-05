@@ -155,7 +155,7 @@ const manifest: ThemeManifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'A clean, modern theme suitable for any type of store. Features a bold hero, category grid, and product showcases.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['general', 'electronics', 'fashion'],
 
   colors: {

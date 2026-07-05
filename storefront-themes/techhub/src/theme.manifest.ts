@@ -215,7 +215,7 @@ const manifest = defineTheme({
   version: '3.0.0',
   previewImage: '/preview.jpg',
   description: 'A high-tech theme for electronics and gadget stores. Tripartite hero, pill-tab product grids, editorial promo rows and category icons — with optional dark mode.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['electronics', 'general'],
 
   // Light palette — white background with a bright green accent.

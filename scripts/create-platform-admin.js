@@ -3,7 +3,7 @@
  * Bootstrap a platform-admin user.
  *
  *   node scripts/create-platform-admin.js \
- *     --email ops@matjar.com --name "Ops" --password "..." \
+ *     --email ops@matjar.to --name "Ops" --password "..." \
  *     --scopes all
  *
  *   --scopes all  → grants every scope (full access)

@@ -88,7 +88,7 @@ A modern, responsive e-commerce store management dashboard built with React, Typ
 ## 🌐 Domain Management
 
 ### Subdomain
-- Free for all plans: `storename.matjar.com`
+- Free for all plans: `storename.matjar.to`
 - Instant activation
 - Can be updated anytime
 

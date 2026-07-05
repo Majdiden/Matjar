@@ -155,7 +155,7 @@ const manifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'A luxury fashion theme with editorial aesthetics. Features a full-bleed hero, asymmetric collection grid, and refined typography.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['fashion', 'luxury', 'jewelry', 'apparel'],
 
   colors: {

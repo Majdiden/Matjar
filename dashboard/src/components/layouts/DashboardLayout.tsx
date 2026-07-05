@@ -504,7 +504,7 @@ const DashboardLayoutInner: React.FC = () => {
   const { stores, currentStore, loading: storesLoading, loaded: storesLoaded } = useMyStores();
 
   // `?store=<slug>` hint auto-switch. When an old per-store dashboard URL
-  // (store.invoila.io/dashboard/…) redirected the merchant to the app host, it
+  // (store.matjar.to/dashboard/…) redirected the merchant to the app host, it
   // appended the origin store as a hint. If the visitor's active token is for
   // a DIFFERENT store, switch to the hinted one once. We strip the hint first
   // (regardless of outcome) so this can't loop, and switchStore hard-reloads

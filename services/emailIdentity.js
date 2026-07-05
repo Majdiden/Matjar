@@ -2,11 +2,11 @@
  * Email sender identities + branded customer-email template.
  *
  * Two sender classes (per product spec):
- *   - Matjar → store owners (account/ops): "Matjar <noreply@invoila.io>"
+ *   - Matjar → store owners (account/ops): "Matjar <noreply@matjar.to>"
  *     → use `platformFrom()` (config.emailFrom).
  *   - Store → customers: "StoreName <noreply@<store-host>>" where store-host
  *     is the verified custom domain, else the platform subdomain
- *     (e.g. mystore.invoila.io) → use `storeFrom(tenant)`.
+ *     (e.g. mystore.matjar.to) → use `storeFrom(tenant)`.
  *
  * Customer emails are wrapped in a branded envelope with the store logo
  * (when uploaded) and store details in the footer via `wrapStoreEmail`.
@@ -37,11 +37,11 @@ function verifiedCustomDomain(tenant) {
 }
 
 /** The verified platform sender address, parsed from config.emailFrom
- *  ("Matjar <noreply@invoila.io>" → "noreply@invoila.io"). */
+ *  ("Matjar <noreply@matjar.to>" → "noreply@matjar.to"). */
 function platformSenderAddress() {
   const raw = String(config.emailFrom || "");
   const m = raw.match(/<([^>]+)>/);
-  return (m ? m[1] : raw).trim() || "noreply@invoila.io";
+  return (m ? m[1] : raw).trim() || "noreply@matjar.to";
 }
 
 /** The host a store's customer mail appears to come from. */
@@ -58,9 +58,9 @@ export function storeMailHost(tenant) {
  *
  * DELIVERABILITY: the address domain MUST be verified with the email provider
  * (Resend) or the send is rejected. Per-store platform subdomains
- * (store.invoila.io) are NOT individually verified, so sending from them
+ * (store.matjar.to) are NOT individually verified, so sending from them
  * silently fails. We therefore send from the VERIFIED platform address
- * (e.g. noreply@invoila.io) with the STORE NAME as the display name, and only
+ * (e.g. noreply@matjar.to) with the STORE NAME as the display name, and only
  * use the store's own domain when it's a VERIFIED CUSTOM domain. Reply-To
  * carries the store's real contact so replies still reach the merchant.
  */

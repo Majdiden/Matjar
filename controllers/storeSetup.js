@@ -38,7 +38,7 @@ export const starterStatusController = asyncHandler(async (req, res) => {
 
   const host =
     req.tenant.domains?.subdomain?.fullDomain ||
-    `${req.tenant.slug}.${process.env.PLATFORM_DOMAIN || process.env.DOMAIN_SUFFIX || "invoila.io"}`;
+    `${req.tenant.slug}.${process.env.PLATFORM_DOMAIN || process.env.DOMAIN_SUFFIX || "matjar.to"}`;
   const protocol = /(^|\.)localhost(:|$)/.test(host) ? "http" : "https";
   const previewUrl = `${protocol}://${host}/?preview=${encodeURIComponent(previewToken)}`;
 

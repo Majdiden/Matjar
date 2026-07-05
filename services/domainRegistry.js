@@ -69,7 +69,7 @@ function extractSubdomainSlug(host) {
   if (baseDomain && host.endsWith(`.${baseDomain}`)) {
     const prefix = host.slice(0, -(baseDomain.length + 1)); // drop `.baseDomain`
     if (!prefix || prefix.includes(".")) {
-      // `shop.eu.matjar.com` etc. — multi-level subdomains under our
+      // `shop.eu.matjar.to` etc. — multi-level subdomains under our
       // base domain aren't the tenant-slug pattern, they'd have to
       // exist as explicit Domain rows.
       return null;

@@ -154,7 +154,7 @@ const manifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'A vibrant food and grocery theme with a farm-fresh aesthetic. Features green accents, category emoji grids, and a produce-focused layout.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['food', 'general'],
 
   colors: {

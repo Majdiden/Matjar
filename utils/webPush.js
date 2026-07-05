@@ -70,7 +70,7 @@ function applyKeys(pub, priv, subj) {
 export async function initWebPush() {
   if (configured) return { configured, publicKey };
 
-  subject = process.env.VAPID_SUBJECT || "mailto:support@matjar.app";
+  subject = process.env.VAPID_SUBJECT || "mailto:support@matjar.to";
   const envPub = process.env.VAPID_PUBLIC_KEY || null;
   const envPriv = process.env.VAPID_PRIVATE_KEY || null;
 

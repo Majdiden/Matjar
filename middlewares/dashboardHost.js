@@ -4,7 +4,7 @@ import config from "../config/index.js";
  * Dashboard host policy.
  *
  * The merchant dashboard now lives on a single, tenant-agnostic host —
- * `app.<platformDomain>` (e.g. app.invoila.io, or app.localhost:3000 in dev).
+ * `app.<platformDomain>` (e.g. app.matjar.to, or app.localhost:3000 in dev).
  * One PWA install, one login, switch between all your stores in-app; the
  * active tenant rides the JWT.
  *

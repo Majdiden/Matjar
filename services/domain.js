@@ -50,7 +50,7 @@ export const checkSubdomainAvailabilityService = async (subdomain) => {
   if (!validation.valid) throw new APIError(validation.error, 400);
   const isAvailable = await checkSubdomainAvailabilityRepo(subdomain);
   // Platform suffix comes from config so local/staging/white-label
-  // deployments don't get baked-in `matjar.com` responses.
+  // deployments don't get baked-in `matjar.to` responses.
   const suffix = config.domainSuffix || config.baseDomain;
   return { available: isAvailable, subdomain: slug, fullDomain: `${slug}.${suffix}` };
 };

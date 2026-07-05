@@ -212,7 +212,7 @@ const manifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'Single-product plant-based milk theme with pastel teal/cream/pink palette and playful serif headlines.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['beverages', 'food', 'wellness'],
 
   colors: {

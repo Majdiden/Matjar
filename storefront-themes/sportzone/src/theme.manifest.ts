@@ -152,7 +152,7 @@ const manifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'A bold, high-energy theme for sports and fitness stores. Features uppercase typography, a dark hero, red accents, and an action-shot category grid.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['sports', 'general'],
 
   colors: {

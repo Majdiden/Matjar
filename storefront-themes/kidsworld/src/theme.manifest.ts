@@ -193,7 +193,7 @@ const manifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'A vibrant, playful theme built for toy and kids\' product stores. Features bold gradients, colorful category bubbles, and joyful typography.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['toys', 'general'],
 
   colors: {

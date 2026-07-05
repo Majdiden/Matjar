@@ -156,7 +156,7 @@ const manifest = defineTheme({
   version: '1.0.0',
   previewImage: '/preview.jpg',
   description: 'Bold sports-nutrition theme with chunky typography, black/lime palette and high-energy product rails.',
-  author: { name: 'Matjar', website: 'https://matjar.com' },
+  author: { name: 'Matjar', website: 'https://matjar.to' },
   categories: ['supplements', 'health', 'fitness'],
 
   colors: {

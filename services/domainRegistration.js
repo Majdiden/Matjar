@@ -9,7 +9,7 @@ const execAsync = promisify(exec);
  * Domain Registration Service
  * ---------------------------
  * Used by `services/storeSetup.js` when a new tenant is created to
- * register the tenant's **platform subdomain** (e.g. `mystore.matjar.com`).
+ * register the tenant's **platform subdomain** (e.g. `mystore.matjar.to`).
  *
  * This is NOT the custom-domain flow — custom hostnames (merchant's
  * own domain) go through `services/domain.js` → `services/domainRegistry.js`

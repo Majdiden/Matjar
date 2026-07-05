@@ -58,8 +58,8 @@ type Step = 'welcome' | 'account' | 'otp' | 'store' | 'niche' | 'theme';
 const STEPS: Step[] = ['welcome', 'account', 'otp', 'store', 'niche', 'theme'];
 
 // Public storefront domain suffix shown next to the subdomain field.
-// Configurable via VITE_STORE_DOMAIN_SUFFIX; defaults to invoila.io.
-const STORE_DOMAIN_SUFFIX = import.meta.env.VITE_STORE_DOMAIN_SUFFIX || 'invoila.io';
+// Configurable via VITE_STORE_DOMAIN_SUFFIX; defaults to matjar.to.
+const STORE_DOMAIN_SUFFIX = import.meta.env.VITE_STORE_DOMAIN_SUFFIX || 'matjar.to';
 
 const NICHE_IDS = ['fashion', 'electronics', 'food', 'sports', 'books', 'toys', 'home', 'general'] as const;
 

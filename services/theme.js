@@ -430,7 +430,7 @@ const FALLBACK_DEFAULT_THEME = {
   slug: "modern",
   version: "1.0.0",
   description: "Default theme bootstrapped automatically.",
-  author: { name: "Matjar", email: "themes@matjar.io", website: "" },
+  author: { name: "Matjar", email: "themes@matjar.to", website: "" },
   status: "active",
   isDefault: true,
   isPublished: true,

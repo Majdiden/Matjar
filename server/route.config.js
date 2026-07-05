@@ -14,7 +14,7 @@ import config from "../config/index.js";
 export default function (app) {
   // App host (`app.<platformDomain>`) is the tenant-agnostic dashboard home
   // and has NO storefront. Bounce its root to the dashboard so a bare visit to
-  // app.invoila.io lands on the login/shell instead of the storefront 404.
+  // app.matjar.to lands on the login/shell instead of the storefront 404.
   app.get("/", (req, res, next) => {
     if (config.isAppHost(req.hostname || req.headers.host)) {
       return res.redirect(302, "/dashboard");

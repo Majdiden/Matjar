@@ -21,6 +21,7 @@ import { syncThemeCatalog, auditTenantThemeManifests } from "./services/themeCat
 import { initRedis } from "./config/redis.js";
 import { initWebPush } from "./utils/webPush.js";
 import RouteConfig from "./server/route.config.js";
+import { legacyDomainRedirect } from "./middlewares/legacyDomainRedirect.js";
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
 import {
   createRateLimiter,
@@ -66,6 +67,11 @@ app.use(
 // would trust the entire XFF header, which lets clients spoof their IP and
 // evade IP-keyed rate limits. Do NOT change this to `true`.
 app.set("trust proxy", 1);
+
+// Retired-domain redirect — bounce all traffic on the old platform domain(s)
+// (invoila.io, *.invoila.io) to the matjar.to equivalent, host + path
+// preserved, BEFORE any logging/auth/tenant work. See config.legacyDomains.
+app.use(legacyDomainRedirect);
 
 // Request logging
 if (config.isDevelopment) {

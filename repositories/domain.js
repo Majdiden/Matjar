@@ -4,7 +4,7 @@ import config from "../config/index.js";
 const Tenant = () => mongoose.model("Tenant");
 
 // Platform domain suffix — sourced from config so local/staging/
-// white-label deployments don't bake in `matjar.com`.
+// white-label deployments don't bake in `matjar.to`.
 const platformSuffix = () => config.domainSuffix || config.baseDomain;
 
 export const setCustomDomainRepo = async (tenantId, customDomainData) => {

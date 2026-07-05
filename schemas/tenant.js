@@ -8,10 +8,10 @@ const tenantSchema = new Schema({
 
   // Domain Configuration
   domains: {
-    // Subdomain (e.g., mystore.matjar.com)
+    // Subdomain (e.g., mystore.matjar.to)
     subdomain: {
       name: { type: String, required: true, unique: true, lowercase: true }, // e.g., "mystore"
-      fullDomain: { type: String }, // Auto-generated: mystore.matjar.com
+      fullDomain: { type: String }, // Auto-generated: mystore.matjar.to
       isActive: { type: Boolean, default: true },
     },
 
