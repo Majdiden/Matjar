@@ -304,6 +304,43 @@ function getVerificationInstructions(domain, verificationCode, method, opts = {}
   };
 }
 
+/**
+ * Normalise a TXT value for comparison. DNS providers (Cloudflare, Route 53,
+ * some registrars) store/echo TXT values wrapped in double quotes, and those
+ * quotes can survive into the compared string — so an exact `===` against the
+ * bare token fails even though the merchant added the right value. Strip
+ * surrounding quotes + whitespace so `"abc"`, ` abc `, and `abc` all match.
+ */
+const normalizeTxtValue = (s) =>
+  String(s ?? "").trim().replace(/^"+|"+$/g, "").trim();
+
+/**
+ * Resolve TXT records robustly. A container's default resolver (e.g. on
+ * Render) frequently negative-caches a just-added record or lags propagation,
+ * so a merchant who correctly added the record still fails to verify. Query
+ * public resolvers (Cloudflare, Google) first and fall back to the system
+ * resolver. Returns a flat array of strings; never throws (returns []).
+ */
+async function resolveTxtRobust(name) {
+  const serverGroups = [
+    ["1.1.1.1", "1.0.0.1"],
+    ["8.8.8.8", "8.8.4.4"],
+  ];
+  for (const servers of serverGroups) {
+    try {
+      const resolver = new dns.Resolver();
+      resolver.setServers(servers);
+      const records = await resolver.resolveTxt(name);
+      if (records && records.length) return records.flat();
+    } catch {
+      // try the next resolver
+    }
+  }
+  // System resolver as a last resort (lets ENOTFOUND/ENODATA propagate up).
+  const records = await dns.resolveTxt(name);
+  return (records || []).flat();
+}
+
 export const verifyCustomDomainService = async (tenantId) => {
   const tenant = await getATenantRepo({}, { _id: tenantId });
   if (!tenant) throw new APIError("Tenant not found", 404);
@@ -314,9 +351,10 @@ export const verifyCustomDomainService = async (tenantId) => {
   const expectedCode = tenant.domains.customDomain.verificationCode;
 
   try {
-    const txtRecords = await dns.resolveTxt(`_matjar-verification.${domain}`);
-    const allRecords = txtRecords.flat();
-    const isVerified = allRecords.some((record) => record === expectedCode);
+    const allRecords = await resolveTxtRobust(`_matjar-verification.${domain}`);
+    // Tolerant match — strip quotes/whitespace both sides (see normalizeTxtValue).
+    const wanted = normalizeTxtValue(expectedCode);
+    const isVerified = allRecords.some((record) => normalizeTxtValue(record) === wanted);
 
     if (!isVerified) {
       try {
