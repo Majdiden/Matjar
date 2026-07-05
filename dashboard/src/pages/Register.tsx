@@ -113,7 +113,7 @@ export const Register: React.FC = () => {
   // Guard: add-mode requires an authenticated session.
   useEffect(() => {
     if (addMode && !authLoading && !isAuthenticated) {
-      navigate('/login', { replace: true, state: { next: '/register?add=1' } });
+      navigate('/dashboard/login', { replace: true, state: { next: '/dashboard/register?add=1' } });
     }
   }, [addMode, authLoading, isAuthenticated, navigate]);
 
@@ -654,7 +654,7 @@ export const Register: React.FC = () => {
                 style={{ animationDelay: `${linkDelay}ms` }}
               >
                 {t('auth.register.already_have_account')}{' '}
-                <Link to="/login" className="text-foreground font-medium hover:underline">
+                <Link to="/dashboard/login" className="text-foreground font-medium hover:underline">
                   {t('common:action.sign_in')}
                 </Link>
               </div>
@@ -687,7 +687,7 @@ export const Register: React.FC = () => {
                 {emailExists ? (
                   <p className="text-xs text-destructive">
                     {t('auth.validation.email_exists', { defaultValue: 'An account with this email already exists.' })}{' '}
-                    <Link to="/login" state={{ email: form.email }} className="font-semibold underline hover:no-underline">
+                    <Link to="/dashboard/login" state={{ email: form.email }} className="font-semibold underline hover:no-underline">
                       {t('auth.register.sign_in_to_add_store', { defaultValue: 'Sign in to add a store' })}
                     </Link>
                   </p>

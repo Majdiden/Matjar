@@ -14,7 +14,9 @@
     "products": "Products",
     "products_description": "Active products",
     "customers": "Customers",
-    "customers_description": "Registered users"
+    "customers_description": "Registered users",
+    "sales_trend": "Sales trend",
+    "sales_trend_description": "Daily revenue · last 14 days"
   },
   "setup": {
     "title": "Set up your store",

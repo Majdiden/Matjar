@@ -37,18 +37,22 @@ export const PaymentsCard: React.FC = () => {
           )}
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-3 gap-3">
-            <div>
+          {/* On phones these figures stack as label→value rows: currency
+              amounts (Intl inserts a non-breaking space, e.g. "SDG 485,000")
+              are unbreakable and overflow a cramped 3-up grid, pushing the
+              whole page sideways. Three columns only from sm up. */}
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+            <div className="flex items-baseline justify-between gap-2 sm:block">
               <p className="text-muted-foreground text-sm">{t('orders:detail.payment.paid')}</p>
-              <p className="font-semibold text-base">{formatPrice(totalPaid)}</p>
+              <p className="font-semibold text-base tabular-nums text-end sm:text-start">{formatPrice(totalPaid)}</p>
             </div>
-            <div>
+            <div className="flex items-baseline justify-between gap-2 sm:block">
               <p className="text-muted-foreground text-sm">{t('orders:detail.payment.refunded')}</p>
-              <p className="font-semibold text-base">{formatPrice(totalRefunded)}</p>
+              <p className="font-semibold text-base tabular-nums text-end sm:text-start">{formatPrice(totalRefunded)}</p>
             </div>
-            <div>
+            <div className="flex items-baseline justify-between gap-2 sm:block">
               <p className="text-muted-foreground text-sm">{t('orders:detail.payment.refundable')}</p>
-              <p className="font-semibold text-base">{formatPrice(maxRefundable)}</p>
+              <p className="font-semibold text-base tabular-nums text-end sm:text-start">{formatPrice(maxRefundable)}</p>
             </div>
           </div>
           {paymentsLoading ? (

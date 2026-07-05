@@ -72,7 +72,7 @@ export const ResetPassword: React.FC = () => {
       setSuccess(true);
       // Give the success screen a beat so the user sees what happened
       // before bouncing them to the login page.
-      setTimeout(() => navigate('/login', { replace: true }), 2500);
+      setTimeout(() => navigate('/dashboard/login', { replace: true }), 2500);
     } catch (err) {
       const e = err as { response?: { data?: { message?: string } }; message?: string };
       setError(
@@ -100,7 +100,7 @@ export const ResetPassword: React.FC = () => {
             {t('auth.reset.missing_token_body')}
           </p>
           <Link
-            to="/forgot-password"
+            to="/dashboard/forgot-password"
             className="inline-block text-sm font-medium text-foreground hover:underline"
           >
             {t('auth.reset.request_link')}
@@ -133,7 +133,7 @@ export const ResetPassword: React.FC = () => {
               {t('auth.reset.success_body')}
             </p>
             <Link
-              to="/login"
+              to="/dashboard/login"
               className="text-sm font-medium text-foreground hover:underline"
             >
               {t('auth.reset.go_to_sign_in')}
@@ -206,7 +206,7 @@ export const ResetPassword: React.FC = () => {
             </form>
 
             <div className="text-sm text-muted-foreground">
-              <Link to="/login" className="inline-flex items-center hover:text-foreground">
+              <Link to="/dashboard/login" className="inline-flex items-center hover:text-foreground">
                 <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" /> {t('auth.reset.back_to_sign_in')}
               </Link>
             </div>

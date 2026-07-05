@@ -1,5 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+// Side-effect import: attaches the `beforeinstallprompt` listener at module
+// load, BEFORE React mounts, so the (early-firing) event is never missed.
+import './lib/pwa-install'
 import './i18n'
 import './index.css'
 import { initSentry, Sentry } from './sentry'

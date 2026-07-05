@@ -106,5 +106,14 @@
     "enabled_success": "Browser notifications enabled",
     "native_title": "Notifications enabled",
     "native_body": "You will be notified here when a new order arrives."
+  },
+  "passkey_prompt": {
+    "title": "Sign in faster with a passkey",
+    "description": "Add your fingerprint or Face ID to sign in without typing a password next time. You can manage passkeys later in Settings → Security.",
+    "add_cta": "Add passkey",
+    "adding": "Adding…",
+    "not_now": "Not now",
+    "enrolled": "Passkey added — you can now sign in with your fingerprint or Face ID.",
+    "enroll_failed": "Couldn't add the passkey. Please try again."
   }
 }

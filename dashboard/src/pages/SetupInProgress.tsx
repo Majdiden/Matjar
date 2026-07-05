@@ -110,7 +110,7 @@ export default function SetupInProgress() {
     const id = searchParams.get('tenantId');
     const token = sessionStorage.getItem('setupToken');
     if (!id || !token) {
-      navigate('/login');
+      navigate('/dashboard/login');
       return;
     }
     setTenantId(id);
@@ -129,7 +129,7 @@ export default function SetupInProgress() {
       const password = sessionStorage.getItem('setupPassword');
       const id = tenantId || searchParams.get('tenantId') || undefined;
       if (!email || !password) {
-        navigate('/login');
+        navigate('/dashboard/login');
         return;
       }
       sessionStorage.removeItem('setupEmail');
@@ -140,7 +140,7 @@ export default function SetupInProgress() {
       navigate('/dashboard', { replace: true });
     } catch (err) {
       console.error('Auto-login failed:', err);
-      navigate('/login');
+      navigate('/dashboard/login');
     }
   };
 

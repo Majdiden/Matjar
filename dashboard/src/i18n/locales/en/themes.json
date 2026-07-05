@@ -56,6 +56,11 @@
     "loading": "Loading editor…",
     "no_data": "No customization data available",
     "back_to_themes": "Back to themes",
+    "mobile_blocked": {
+      "title": "Theme editing needs a bigger screen",
+      "description": "The visual editor works best on a desktop or laptop. Open your dashboard on a computer to customize your storefront.",
+      "back": "Back to themes"
+    },
     "preview_unavailable": "Preview not available",
     "generate_preview": "Generate Preview",
     "topbar": {

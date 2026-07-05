@@ -144,15 +144,14 @@ self.addEventListener('push', (event: PushEvent) => {
   );
 });
 
-// The dashboard SPA runs under basename "/dashboard" while its routes are
-// themselves "/dashboard/…"-prefixed, so a router path like
-// "/dashboard/orders/123" lives at the real URL "/dashboard/dashboard/orders/123".
-// The backend sends the router path in data.url, so prepend the basename here
-// or the deep link 404s → catch-all → dashboard home (why clicks "just opened
-// the dashboard").
+// The dashboard SPA is served under /dashboard/ and its routes carry the full
+// /dashboard prefix (router basename is "/"), so a router path like
+// "/dashboard/orders/123" is already the real URL. The backend sends that
+// /dashboard-prefixed path in data.url; only prefix it when (defensively) a
+// bare path arrives without the scope.
 function toRealUrl(path: string): string {
   const p = path || DASHBOARD_SCOPE;
-  const withBase = p.startsWith(`${DASHBOARD_SCOPE}/dashboard`) ? p : `${DASHBOARD_SCOPE}${p}`;
+  const withBase = p.startsWith(DASHBOARD_SCOPE) ? p : `${DASHBOARD_SCOPE}${p}`;
   return new URL(withBase, self.location.origin).href;
 }
 

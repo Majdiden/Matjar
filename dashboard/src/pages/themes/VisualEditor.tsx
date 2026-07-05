@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, Loader2, Settings2, Code, Layers } from 'lucide-react';
+import { Plus, Loader2, Settings2, Code, Layers, Monitor } from 'lucide-react';
+import { useIsMobile } from '../../hooks/use-mobile';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import EditorTopBar, { type DeviceMode } from '../../components/theme-editor/EditorTopBar';
@@ -134,6 +135,7 @@ export default function VisualEditor() {
   const navigate = useNavigate();
   const confirm = useConfirm();
   const { t } = useTranslation(['themes', 'common']);
+  const isMobile = useIsMobile();
   const [customization, setCustomization] = useState<ThemeCustomization | null>(null);
   const [manifestSchema, setManifestSchema] = useState<ManifestSchema | null>(null);
   const [loading, setLoading] = useState(true);
@@ -630,6 +632,32 @@ export default function VisualEditor() {
       setPublishing(false);
     }
   };
+
+  // The visual editor is a drag-heavy, multi-pane desktop tool — it's
+  // unusable on a phone. Rather than ship a broken cramped layout, block it
+  // on small screens and tell the merchant to switch to a desktop. Checked
+  // before `loading` so we never even fetch/render the editor on mobile.
+  if (isMobile) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 px-6 text-center">
+        <div className="h-16 w-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5">
+          <Monitor className="h-8 w-8" />
+        </div>
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 max-w-xs">
+          {t('themes:editor.mobile_blocked.title')}
+        </h1>
+        <p className="mt-2 text-sm text-slate-600 max-w-sm">
+          {t('themes:editor.mobile_blocked.description')}
+        </p>
+        <button
+          onClick={() => navigate('/dashboard/themes')}
+          className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+        >
+          {t('themes:editor.mobile_blocked.back')}
+        </button>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

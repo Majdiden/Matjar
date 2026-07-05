@@ -11,7 +11,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import {
   Package, ShoppingCart, DollarSign, Plus, Globe, Users, Palette, Tag,
   Settings as SettingsIcon, CreditCard, CheckCircle2, Circle, ChevronDown,
-  ChevronUp, ChevronRight, ExternalLink, X,
+  ChevronUp, ChevronRight, ExternalLink, X, TrendingUp,
 } from 'lucide-react';
 import { api } from '../lib/api-client';
 import { toast } from 'sonner';
@@ -72,6 +72,52 @@ const pctDelta = (current: number, previous: number): StatCardDelta | undefined 
   };
 };
 
+// Daily point from GET /analytics/sales-over-time.
+interface SalesPoint { date: string; revenue: number; orders: number }
+interface SalesOverTimeResponse {
+  data?: { salesData?: SalesPoint[] };
+  responseObject?: { salesData?: SalesPoint[] };
+}
+
+// Dependency-free area sparkline. We deliberately hand-draw an SVG here
+// rather than pull recharts into the dashboard chunk — this page is the
+// mobile-first landing surface and most Sudanese traffic is on slow phone
+// networks, so keeping the bundle lean matters more than a charting lib.
+const SalesSparkline: React.FC<{ points: number[] }> = ({ points }) => {
+  if (points.length < 2) return null;
+  const w = 100;
+  const h = 36;
+  const max = Math.max(...points);
+  const min = Math.min(...points);
+  const range = max - min || 1;
+  const step = w / (points.length - 1);
+  const coords = points.map((v, i) => [i * step, h - ((v - min) / range) * (h - 6) - 3] as const);
+  const line = coords.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const area = `${line} L${w},${h} L0,${h} Z`;
+  const [lastX, lastY] = coords[coords.length - 1];
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="h-12 w-full" aria-hidden="true">
+      <defs>
+        <linearGradient id="dashSpark" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="hsl(var(--primary))" stopOpacity="0.22" />
+          <stop offset="1" stopColor="hsl(var(--primary))" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill="url(#dashSpark)" />
+      <path
+        d={line}
+        fill="none"
+        stroke="hsl(var(--primary))"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      <circle cx={lastX} cy={lastY} r="2.5" fill="hsl(var(--primary))" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+};
+
 // Setup-checklist dismissal (collapsed-bar state only). Same key style
 // as Orders.tsx's 'orders.viewMode'.
 const SETUP_DISMISSED_KEY = 'dashboard.setupDismissed';
@@ -108,6 +154,8 @@ export const Dashboard: React.FC = () => {
     hasProduct: false, paymentsEnabled: false, themePublished: false, hasOrder: false, hasCustomDomain: false,
   });
   const [starter, setStarter] = useState<{ hasDraftStarter?: boolean; previewUrl?: string } | null>(null);
+  // Last-14-days daily revenue, for the mobile sales-trend chart card.
+  const [salesTrend, setSalesTrend] = useState<SalesPoint[]>([]);
   // Whether the merchant actively PICKED a theme during onboarding. When true
   // the "customize theme" setup step is hidden (their look is already chosen);
   // when false the step is shown until they publish a customization. `null`
@@ -136,6 +184,21 @@ export const Dashboard: React.FC = () => {
         setThemeSelected(ro?.themeSelected !== false);
       })
       .catch(() => { /* non-fatal — banner just won't show */ });
+    return () => { active = false; };
+  }, []);
+
+  // Sales trend for the mobile chart card — last 14 days of daily revenue.
+  useEffect(() => {
+    let active = true;
+    const end = new Date();
+    const start = new Date(Date.now() - 13 * 86400000);
+    api.analytics.getSalesOverTime(start.toISOString(), end.toISOString())
+      .then((r) => {
+        if (!active) return;
+        const res = r as SalesOverTimeResponse;
+        setSalesTrend(res.data?.salesData || res.responseObject?.salesData || []);
+      })
+      .catch(() => { /* non-fatal — the chart card just won't render */ });
     return () => { active = false; };
   }, []);
 
@@ -445,8 +508,65 @@ export const Dashboard: React.FC = () => {
       {/* Stats (audit 3.7.2): rolling-30-day group vs all-time group,
           labelled and visually separated. Hidden for pre-first-order
           stores — the checklist leads instead of all-zero decoration. */}
+      {/* Mobile stats (audit): a single horizontal snap-scroll strip. Each
+          card is 80% wide so the next one peeks in at the edge, signalling
+          there's more to swipe. A sales-trend chart rides at the end. The
+          grouped two-column grid below takes over from md upward. */}
       {hasOrders && (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="md:hidden -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 scrollbar-hide">
+          <div className="w-[80%] shrink-0 snap-start">
+            <StatCard
+              label={t('dashboard:metric.revenue')}
+              value={formatPrice(orderStats.revenue30d)}
+              icon={DollarSign}
+              delta={revenueDelta}
+              description={t('dashboard:metric.revenue_description')}
+            />
+          </div>
+          <Link to="/dashboard/orders" className="w-[80%] shrink-0 snap-start">
+            <StatCard
+              label={t('dashboard:metric.orders')}
+              value={orderStats.orders30d.toLocaleString()}
+              icon={ShoppingCart}
+              delta={ordersDelta}
+              description={t('dashboard:metric.orders_description')}
+            />
+          </Link>
+          {salesTrend.length >= 2 && (
+            <div className="w-[80%] shrink-0 snap-start">
+              <Card className="h-full">
+                <CardContent className="pt-6">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-sm font-medium text-muted-foreground">{t('dashboard:metric.sales_trend')}</p>
+                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <SalesSparkline points={salesTrend.map((p) => p.revenue)} />
+                  <p className="mt-1 text-xs text-muted-foreground">{t('dashboard:metric.sales_trend_description')}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+          <Link to="/dashboard/products" className="w-[80%] shrink-0 snap-start">
+            <StatCard
+              label={t('dashboard:metric.products')}
+              value={totals.products.toLocaleString()}
+              icon={Package}
+              description={t('dashboard:metric.products_description')}
+            />
+          </Link>
+          <Link to="/dashboard/customers" className="w-[80%] shrink-0 snap-start">
+            <StatCard
+              label={t('dashboard:metric.customers')}
+              value={totals.customers.toLocaleString()}
+              icon={Users}
+              description={t('dashboard:metric.customers_description')}
+            />
+          </Link>
+        </div>
+      )}
+
+      {hasOrders && (
+        <div className="hidden gap-6 md:grid lg:grid-cols-2">
           <section>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
               {t('dashboard:stats.last_30_days')}

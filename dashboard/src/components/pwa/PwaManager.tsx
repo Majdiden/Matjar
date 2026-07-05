@@ -4,12 +4,12 @@ import { useRegisterSW } from 'virtual:pwa-register/react';
 import { WifiOff, Download, RefreshCw, X, Share, Plus } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
-
-// Minimal typing for the (non-standard) install prompt event.
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
+import {
+  getInstallPrompt,
+  isAppInstalled,
+  clearInstallPrompt,
+  subscribeInstall,
+} from '../../lib/pwa-install';
 
 const IOS_HINT_DISMISSED_KEY = 'matjar.pwa.iosHintDismissed.v1';
 const INSTALL_DISMISSED_KEY = 'matjar.pwa.installDismissed.v1';
@@ -50,7 +50,13 @@ export const PwaManager: React.FC = () => {
   });
 
   // ── Install affordance ────────────────────────────────────────────────
-  const [installEvent, setInstallEvent] = React.useState<BeforeInstallPromptEvent | null>(null);
+  // Read the install event from the module-level store (populated by the
+  // early listener in lib/pwa-install.ts). Seeding state from the store on
+  // mount is what fixes the "prompt never appears / needs a refresh" bug —
+  // the event usually fires before this component mounts, so a listener
+  // attached *here* would miss it.
+  const [installEvent, setInstallEvent] = React.useState(() => getInstallPrompt());
+  const [appInstalled, setAppInstalled] = React.useState(() => isAppInstalled());
   const [installDismissed, setInstallDismissed] = React.useState(
     () => localStorage.getItem(INSTALL_DISMISSED_KEY) === '1',
   );
@@ -58,28 +64,20 @@ export const PwaManager: React.FC = () => {
     () => localStorage.getItem(IOS_HINT_DISMISSED_KEY) === '1',
   );
 
-  React.useEffect(() => {
-    const onBeforeInstall = (e: Event) => {
-      e.preventDefault(); // suppress the mini-infobar; we show our own affordance
-      setInstallEvent(e as BeforeInstallPromptEvent);
-    };
-    const onInstalled = () => {
-      setInstallEvent(null);
-      localStorage.setItem(INSTALL_DISMISSED_KEY, '1');
-      setInstallDismissed(true);
-    };
-    window.addEventListener('beforeinstallprompt', onBeforeInstall);
-    window.addEventListener('appinstalled', onInstalled);
-    return () => {
-      window.removeEventListener('beforeinstallprompt', onBeforeInstall);
-      window.removeEventListener('appinstalled', onInstalled);
-    };
-  }, []);
+  React.useEffect(
+    () =>
+      subscribeInstall(() => {
+        setInstallEvent(getInstallPrompt());
+        setAppInstalled(isAppInstalled());
+      }),
+    [],
+  );
 
   const doInstall = async () => {
     if (!installEvent) return;
     await installEvent.prompt();
     await installEvent.userChoice.catch(() => undefined);
+    clearInstallPrompt();
     setInstallEvent(null);
   };
 
@@ -92,7 +90,7 @@ export const PwaManager: React.FC = () => {
     setIosHintDismissed(true);
   };
 
-  const showInstall = !!installEvent && !installDismissed && !isStandalone();
+  const showInstall = !!installEvent && !installDismissed && !appInstalled && !isStandalone();
   const showIosHint = isIos() && !isStandalone() && !iosHintDismissed;
 
   if (!online || needRefresh || showInstall || showIosHint) {
