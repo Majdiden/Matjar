@@ -353,8 +353,10 @@ export const OrderDetails: React.FC = () => {
         <OperationsSection />
 
         <div className="grid gap-6 lg:grid-cols-3 lg:items-stretch">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Main Content — min-w-0 so wide/unbreakable children (currency
+              amounts, ids) shrink to the column instead of forcing the whole
+              page to scroll sideways on phones. */}
+          <div className="lg:col-span-2 space-y-6 min-w-0">
             <LineItemsCard />
             <PaymentsCard />
             <div id="fulfillment-card">
@@ -374,7 +376,7 @@ export const OrderDetails: React.FC = () => {
 
           {/* Sidebar — on lg+, fill the main column's height and scroll
               internally so long notes/timelines don't push the page. */}
-          <div className="lg:relative lg:min-h-0">
+          <div className="min-w-0 lg:relative lg:min-h-0">
             <div className="space-y-6 lg:absolute lg:inset-0 lg:overflow-y-auto scrollbar-hide">
               <CustomerCard />
               <TimelineCard />

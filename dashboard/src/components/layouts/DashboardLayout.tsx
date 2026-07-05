@@ -10,7 +10,13 @@ import {
   Settings as SettingsIcon,
   ChevronRight,
   ChevronsUpDown,
+  Fingerprint,
+  Loader2,
 } from 'lucide-react';
+import {
+  startRegistration,
+  type PublicKeyCredentialCreationOptionsJSON,
+} from '@simplewebauthn/browser';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback } from '../ui/avatar';
@@ -392,6 +398,97 @@ const NotificationPermissionPrompt: React.FC = () => {
   );
 };
 
+// Shared with the login-flow enrollment prompt (Login.tsx) so a user is only
+// ever asked once, whichever surface they hit first.
+const PASSKEY_PROMPT_KEY = 'matjar.passkey.enrollPrompted';
+
+/**
+ * One-time passkey-enrollment prompt shown the first time an authenticated
+ * user opens the dashboard. Login.tsx offers this right after a password
+ * sign-in, but users who arrive already authenticated (persistent session,
+ * cross-host handoff, passwordless) never see that — so we offer it here too.
+ * Gated on: platform authenticator available, no passkey enrolled yet, and
+ * not previously answered. Enrolling here means the merchant never has to dig
+ * into Settings → Security to set up fingerprint / Face ID sign-in.
+ */
+const PasskeyEnrollPrompt: React.FC = () => {
+  const { t } = useTranslation(['nav']);
+  const [open, setOpen] = React.useState(false);
+  const [enrolling, setEnrolling] = React.useState(false);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    if (localStorage.getItem(PASSKEY_PROMPT_KEY) === '1') return;
+    const PKC = typeof window !== 'undefined' ? window.PublicKeyCredential : undefined;
+    if (!PKC?.isUserVerifyingPlatformAuthenticatorAvailable) return;
+    PKC.isUserVerifyingPlatformAuthenticatorAvailable()
+      .then((ok) => {
+        if (cancelled || !ok) return;
+        // Only prompt users who don't already have a passkey.
+        return api.auth.webauthn.listCredentials().then((res) => {
+          if (cancelled) return;
+          const count = res.responseObject?.passkeys?.length ?? 0;
+          if (count === 0) setOpen(true);
+        });
+      })
+      .catch(() => { /* non-fatal — just don't prompt */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  const dismiss = () => {
+    localStorage.setItem(PASSKEY_PROMPT_KEY, '1');
+    setOpen(false);
+  };
+
+  const enroll = async () => {
+    setEnrolling(true);
+    try {
+      const optRes = (await api.auth.webauthn.registerOptions()) as { responseObject?: unknown };
+      const attResp = await startRegistration({
+        optionsJSON: optRes.responseObject as PublicKeyCredentialCreationOptionsJSON,
+      });
+      await api.auth.webauthn.registerVerify(attResp);
+      localStorage.setItem(PASSKEY_PROMPT_KEY, '1');
+      setOpen(false);
+      toast.success(t('nav:passkey_prompt.enrolled'));
+    } catch (err) {
+      const e = err as { name?: string; message?: string };
+      // User cancelled the OS sheet — treat as "not now", don't nag again.
+      if (e?.name === 'NotAllowedError' || e?.name === 'AbortError') {
+        dismiss();
+      } else {
+        toast.error(e?.message || t('nav:passkey_prompt.enroll_failed'));
+      }
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) dismiss(); }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="mb-2 h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <Fingerprint className="h-6 w-6" />
+          </div>
+          <DialogTitle>{t('nav:passkey_prompt.title')}</DialogTitle>
+          <DialogDescription>{t('nav:passkey_prompt.description')}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={dismiss} disabled={enrolling}>
+            {t('nav:passkey_prompt.not_now')}
+          </Button>
+          <Button onClick={enroll} disabled={enrolling}>
+            {enrolling
+              ? <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('nav:passkey_prompt.adding')}</>
+              : <><Fingerprint className="me-2 h-4 w-4" /> {t('nav:passkey_prompt.add_cta')}</>}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const DashboardLayoutInner: React.FC = () => {
   const { user, logout, switchStore } = useAuth();
   const location = useLocation();
@@ -472,7 +569,7 @@ const DashboardLayoutInner: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/dashboard/login');
   };
 
   // Build breadcrumb from path — uses translated nav item names
@@ -726,6 +823,7 @@ const DashboardLayoutInner: React.FC = () => {
         <BottomNav onMore={() => setMobileOpen(true)} pendingOrders={pendingOrders} />
         </div>
         <NotificationPermissionPrompt />
+        <PasskeyEnrollPrompt />
         {/* In-app store switcher — mounted at the layout root so it survives
             the account dropdown closing (Radix unmounts dropdown content). */}
         <StoreSwitcherDialog

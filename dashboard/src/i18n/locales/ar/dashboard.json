@@ -14,7 +14,9 @@
     "products": "المنتجات",
     "products_description": "المنتجات النشطة",
     "customers": "العملاء",
-    "customers_description": "المستخدمون المسجّلون"
+    "customers_description": "المستخدمون المسجّلون",
+    "sales_trend": "اتجاه المبيعات",
+    "sales_trend_description": "الإيرادات اليومية · آخر ١٤ يوماً"
   },
   "setup": {
     "title": "أعدّ متجرك",

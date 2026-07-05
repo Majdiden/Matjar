@@ -33,6 +33,59 @@ interface ProductGetResponse {
 
 interface ApiErrorLike { message?: string; error?: string }
 
+// Server validation payload. The backend returns descriptive per-field
+// problems under `errors` (see middlewares/validate.js + errorHandler.js):
+//   { message: "Validation failed", errors: [{ field: "body.description",
+//     message: "Description must be at least 10 characters" }, ...] }
+// Mongoose validation failures return `errors` as a plain string[] instead,
+// so handle both shapes.
+interface ServerFieldError { field?: string; message?: string }
+interface ApiValidationPayload extends ApiErrorLike {
+  errors?: Array<ServerFieldError | string>;
+}
+
+// Maps a server field path (after stripping the "body." prefix) onto the
+// form field we can highlight inline. Anything not listed (variants, seo…)
+// still surfaces in the toast text so the message is never just "failed".
+const SERVER_FIELD_TO_FORM: Partial<Record<string, keyof ProductFormData>> = {
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  compareAtPrice: 'salePrice',
+  category: 'category',
+  stock: 'stock',
+  sku: 'sku',
+  slug: 'slug',
+  images: 'images',
+};
+
+// Turn a server validation payload into inline field errors + a flat list of
+// every human-readable problem (for the toast). Returns empty when the error
+// isn't a structured validation payload (network error, 500, etc.).
+function parseServerValidation(err: unknown): {
+  fieldErrors: Partial<Record<keyof ProductFormData, string>>;
+  messages: string[];
+} {
+  const payload = err as ApiValidationPayload | null;
+  const fieldErrors: Partial<Record<keyof ProductFormData, string>> = {};
+  const messages: string[] = [];
+  if (payload && Array.isArray(payload.errors)) {
+    for (const entry of payload.errors) {
+      if (typeof entry === 'string') {
+        if (entry.trim()) messages.push(entry);
+        continue;
+      }
+      const msg = entry?.message;
+      if (!msg) continue;
+      messages.push(msg);
+      const rawField = (entry.field || '').replace(/^body\./, '').split('.')[0];
+      const formKey = SERVER_FIELD_TO_FORM[rawField];
+      if (formKey && !fieldErrors[formKey]) fieldErrors[formKey] = msg;
+    }
+  }
+  return { fieldErrors, messages };
+}
+
 export const ProductForm: React.FC = () => {
   const { t } = useTranslation(['products', 'common']);
   const navigate = useNavigate();
@@ -127,7 +180,18 @@ export const ProductForm: React.FC = () => {
       navigate('/dashboard/products');
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
-      toast.error(e?.message || t(isEditMode ? 'products.toast.save_failed_update' : 'products.toast.save_failed_create'));
+      const fallback = t(isEditMode ? 'products.toast.save_failed_update' : 'products.toast.save_failed_create');
+      // Surface the backend's descriptive per-field validation messages
+      // instead of the generic top-level "Validation failed". Field-level
+      // problems are shown inline on the matching inputs; the toast lists
+      // every problem so nothing (variants, images, seo…) is hidden.
+      const { fieldErrors, messages } = parseServerValidation(err);
+      if (messages.length > 0) {
+        setFormErrors(prev => ({ ...prev, ...fieldErrors }));
+        toast.error(messages.length === 1 ? messages[0] : `${fallback}: ${messages.join(' • ')}`);
+      } else {
+        toast.error(e?.message || fallback);
+      }
     } finally {
       setSaving(false);
     }

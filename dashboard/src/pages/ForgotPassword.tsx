@@ -80,7 +80,7 @@ export const ForgotPassword: React.FC = () => {
               .
             </div>
             <Link
-              to="/login"
+              to="/dashboard/login"
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" /> {t('auth.forgot.back_to_sign_in')}
@@ -128,7 +128,7 @@ export const ForgotPassword: React.FC = () => {
             </form>
 
             <div className="text-sm text-muted-foreground">
-              <Link to="/login" className="inline-flex items-center hover:text-foreground">
+              <Link to="/dashboard/login" className="inline-flex items-center hover:text-foreground">
                 <ArrowLeft className="h-4 w-4 me-1 rtl:rotate-180" /> {t('auth.forgot.back_to_sign_in')}
               </Link>
             </div>

@@ -216,7 +216,7 @@ export const Login: React.FC = () => {
     setIsLoading(true);
     try {
       await login({ email, password, tenantId: stores[0]?.id, skipHostRedirect: true });
-      navigate('/register?add=1');
+      navigate('/dashboard/register?add=1');
     } catch (err) {
       const e = err as { message?: string };
       setError(e?.message || t('auth.toast.store_sign_in_failed'));
@@ -450,7 +450,7 @@ export const Login: React.FC = () => {
                     <Label htmlFor="password">{t('auth.field.password.label')}</Label>
                     <div className="flex items-center gap-3">
                       <Link
-                        to="/forgot-password"
+                        to="/dashboard/forgot-password"
                         className="text-xs text-muted-foreground hover:text-foreground"
                       >
                         {t('auth.forgot_password_link')}
@@ -519,7 +519,7 @@ export const Login: React.FC = () => {
 
               <div className="text-sm text-muted-foreground text-center">
                 {t('auth.login.new_to_matjar')}{' '}
-                <Link to="/register" className="text-foreground font-medium hover:underline">
+                <Link to="/dashboard/register" className="text-foreground font-medium hover:underline">
                   {t('auth.login.create_store')}
                 </Link>
               </div>

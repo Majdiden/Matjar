@@ -97,8 +97,13 @@ const AcceptInvite = lazyWithRetry(() => import('./pages/staff/AcceptInvite'));
 const Notifications = lazyWithRetry(() => import('./pages/notifications/Notifications'));
 const NotFound = lazyWithRetry(() => import('./pages/NotFound'));
 
-// Get base path from environment (for production build served at /dashboard/)
-const basename = import.meta.env.MODE === 'production' ? '/dashboard' : '/';
+// Router basename is always "/" — routes carry their real /dashboard-prefixed
+// paths. In production the app is served under /dashboard/ and the asset base
+// (vite `base`) handles that; the router matches the full window path as-is.
+// Setting basename to "/dashboard" here would double the prefix (every route
+// would resolve to /dashboard/dashboard/*), which is exactly the bug this
+// avoids.
+const basename = '/';
 
 function App() {
   return (
@@ -110,13 +115,17 @@ function App() {
             boundary inside DashboardLayout so the sidebar never flashes. */}
         <Suspense fallback={<PageLoader fullScreen />}>
         <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/setup" element={<SetupInProgress />} />
-          <Route path="/staff/accept" element={<AcceptInvite />} />
+          {/* Public routes. The whole SPA is served under /dashboard/ (both
+              in prod and via the dev fallback), and the router basename is
+              "/" — so every route carries its real, full path. Public pages
+              therefore live at /dashboard/login etc., matching the dashboard
+              section instead of doubling up to /dashboard/dashboard. */}
+          <Route path="/dashboard/login" element={<Login />} />
+          <Route path="/dashboard/register" element={<Register />} />
+          <Route path="/dashboard/forgot-password" element={<ForgotPassword />} />
+          <Route path="/dashboard/reset-password" element={<ResetPassword />} />
+          <Route path="/dashboard/setup" element={<SetupInProgress />} />
+          <Route path="/dashboard/staff/accept" element={<AcceptInvite />} />
 
           {/* Protected routes */}
           <Route

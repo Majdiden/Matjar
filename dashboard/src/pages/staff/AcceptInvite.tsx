@@ -74,7 +74,7 @@ export const AcceptInvite: React.FC = () => {
       await api.post('/staff/invites/accept', { token, name: name.trim(), password });
       setDone(true);
       toast.success(t('staff.accept_invite.toast.created'));
-      setTimeout(() => navigate('/login'), 2000);
+      setTimeout(() => navigate('/dashboard/login'), 2000);
     } catch (err) {
       toast.error(errMsg(err, t('staff.accept_invite.toast.accept_failed')));
     } finally {
@@ -107,7 +107,7 @@ export const AcceptInvite: React.FC = () => {
               <h2 className="text-lg font-semibold">{t('staff.accept_invite.invalid_title')}</h2>
               <p className="text-muted-foreground mt-1">{tokenState.message}</p>
             </div>
-            <Button variant="outline" onClick={() => navigate('/login')}>
+            <Button variant="outline" onClick={() => navigate('/dashboard/login')}>
               {t('staff.accept_invite.go_to_login')}
             </Button>
           </CardContent>

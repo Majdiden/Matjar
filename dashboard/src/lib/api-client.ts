@@ -271,7 +271,7 @@ export const api = {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('userId');
-      window.location.href = '/login';
+      window.location.href = loginUrl();
     },
 
     me: () => api.get('/auth/me'),

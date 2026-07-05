@@ -52,13 +52,15 @@ export function isAppHost(): boolean {
 }
 
 /**
- * The router basename for the dashboard SPA. In production the dashboard is
- * mounted under `/dashboard`; in dev it's at the root. Raw `window.location`
- * redirects (logout, 401) must include it, otherwise on a store subdomain a
+ * The real base path of the dashboard SPA. Routes carry the full `/dashboard`
+ * prefix (the router basename itself is "/"), and the app is served under
+ * `/dashboard/` in production and via the dev-server fallback in development.
+ * Raw `window.location` redirects (logout, 401, post-auth home) must therefore
+ * target `/dashboard` in BOTH environments — otherwise on a store subdomain a
  * bare `/login` falls through to the STOREFRONT instead of the dashboard login.
  */
 export function dashboardBasename(): string {
-  return import.meta.env.MODE === 'production' ? '/dashboard' : '';
+  return '/dashboard';
 }
 
 /** Absolute URL of the dashboard login page, basename-aware. */
