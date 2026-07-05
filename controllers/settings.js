@@ -1,6 +1,31 @@
 import { APIError } from "../middlewares/errorHandler.js";
 import mongoose from "mongoose";
+import sanitizeHtml from "sanitize-html";
 import { logAudit } from "../utils/audit.js";
+
+// The four store policies the merchant can author. Keys map 1:1 to
+// settings.policies.<key> and to the storefront policy routes.
+const POLICY_KEYS = ["privacy", "returns", "delivery", "cod"];
+
+// Rich-text policy bodies are authored by the merchant but RENDERED TO
+// CUSTOMERS, so they must be sanitised on write to prevent stored XSS.
+// Allow the formatting tags the dashboard editor produces; strip scripts,
+// event handlers, iframes, styles, etc.
+const POLICY_SANITIZE_OPTIONS = {
+  allowedTags: [
+    "p", "br", "strong", "b", "em", "i", "u", "s", "blockquote",
+    "ul", "ol", "li", "h1", "h2", "h3", "h4", "a", "span", "hr",
+  ],
+  allowedAttributes: { a: ["href", "target", "rel"] },
+  allowedSchemes: ["http", "https", "mailto", "tel"],
+  transformTags: {
+    // Force safe link behaviour on any anchor that survives.
+    a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
+  },
+};
+
+const sanitizePolicyBody = (html) =>
+  sanitizeHtml(String(html ?? ""), POLICY_SANITIZE_OPTIONS).trim();
 
 const ALLOWED_CURRENCIES = ["SDG", "USD", "EUR", "GBP", "AED", "SAR", "EGP", "CAD", "AUD", "JPY", "INR"];
 const ALLOWED_TIMEZONES_PATTERN = /^[A-Za-z_\/]+$/;
@@ -193,6 +218,28 @@ export const updateSettings = async (req, res, next) => {
 
     if (settings.logo !== undefined) updateData["settings.logo"] = settings.logo;
     if (settings.favicon !== undefined) updateData["settings.favicon"] = settings.favicon;
+
+    // Store contact / company info.
+    if (settings.contact !== undefined && settings.contact !== null) {
+      const c = settings.contact;
+      if (c.email !== undefined) updateData["settings.contact.email"] = String(c.email || "").trim().slice(0, 200);
+      if (c.phone !== undefined) updateData["settings.contact.phone"] = String(c.phone || "").trim().slice(0, 60);
+      if (c.address !== undefined) updateData["settings.contact.address"] = String(c.address || "").trim().slice(0, 500);
+    }
+
+    // Store policies — title (plain) + body (sanitised rich-text HTML).
+    if (settings.policies !== undefined && settings.policies !== null) {
+      for (const key of POLICY_KEYS) {
+        const p = settings.policies[key];
+        if (!p || typeof p !== "object") continue;
+        if (p.title !== undefined) {
+          updateData[`settings.policies.${key}.title`] = String(p.title || "").trim().slice(0, 150);
+        }
+        if (p.body !== undefined) {
+          updateData[`settings.policies.${key}.body`] = sanitizePolicyBody(p.body).slice(0, 50000);
+        }
+      }
+    }
 
     if (settings.currency !== undefined) {
       if (!ALLOWED_CURRENCIES.includes(settings.currency)) {

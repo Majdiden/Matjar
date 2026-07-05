@@ -87,6 +87,22 @@ const tenantSchema = new Schema({
     storeDescription: { type: String, default: null },
     logo: { type: String, default: null },
     favicon: { type: String, default: null },
+    // Store contact / company info — shown in the storefront footer and on the
+    // policy pages. Plain strings (address may contain newlines).
+    contact: {
+      email: { type: String, default: null },
+      phone: { type: String, default: null },
+      address: { type: String, default: null },
+    },
+    // Store policies. Each has a merchant-authored title + a rich-text (HTML)
+    // body, surfaced in the storefront footer, on dedicated policy pages, and
+    // in checkout. Bodies are sanitised on write (controllers/settings.js).
+    policies: {
+      privacy: { title: { type: String, default: null }, body: { type: String, default: null } },
+      returns: { title: { type: String, default: null }, body: { type: String, default: null } },
+      delivery: { title: { type: String, default: null }, body: { type: String, default: null } },
+      cod: { title: { type: String, default: null }, body: { type: String, default: null } },
+    },
     // Stable per-store secret for the owner draft-preview link.
     previewToken: { type: String, default: null },
     shipping: {

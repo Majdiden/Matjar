@@ -3,15 +3,36 @@
     "title": "الإعدادات",
     "subtitle": "إدارة إعدادات متجرك",
     "tab": {
-      "general": { "label": "عام" },
-      "regional": { "label": "الإعدادات الإقليمية" },
-      "shipping": { "label": "الشحن" },
-      "tax": { "label": "الضريبة" },
-      "currencies": { "label": "العملات" },
-      "markets": { "label": "الأسواق" },
-      "notifications": { "label": "الإشعارات" },
-      "email_templates": { "label": "رسائل الطلبات" },
-      "security": { "label": "الأمان" }
+      "general": {
+        "label": "عام"
+      },
+      "regional": {
+        "label": "الإعدادات الإقليمية"
+      },
+      "shipping": {
+        "label": "الشحن"
+      },
+      "tax": {
+        "label": "الضريبة"
+      },
+      "currencies": {
+        "label": "العملات"
+      },
+      "markets": {
+        "label": "الأسواق"
+      },
+      "notifications": {
+        "label": "الإشعارات"
+      },
+      "email_templates": {
+        "label": "رسائل الطلبات"
+      },
+      "security": {
+        "label": "الأمان"
+      },
+      "policies": {
+        "label": "السياسات"
+      }
     },
     "section": {
       "store_info": {
@@ -61,6 +82,10 @@
       "status_templates": {
         "title": "قوالب الحالات",
         "description": "خصّص الرسالة المرسلة عند انتقال الطلب إلى كل حالة. اترك القالب فارغاً للرجوع إلى القالب الافتراضي. يمكنك استخدام العناصر النائبة {{orderNumber}} و{{customerName}} و{{totalAmount}}."
+      },
+      "contact": {
+        "title": "معلومات التواصل",
+        "description": "تظهر في تذييل متجرك وصفحات السياسات."
       }
     },
     "field": {
@@ -182,6 +207,20 @@
         },
         "body": {
           "label": "نص الرسالة"
+        }
+      },
+      "contact": {
+        "email": {
+          "label": "بريد المتجر",
+          "placeholder": "store@example.com"
+        },
+        "phone": {
+          "label": "رقم الهاتف",
+          "placeholder": "+249 …"
+        },
+        "address": {
+          "label": "عنوان الشركة",
+          "placeholder": "الشارع، المدينة، الدولة"
         }
       }
     },
@@ -488,6 +527,37 @@
       "saving": "جاري الحفظ...",
       "validation": {
         "resource_key_required": "المورد والمفتاح مطلوبان"
+      }
+    },
+    "policy": {
+      "field": {
+        "title": {
+          "label": "العنوان"
+        },
+        "body": {
+          "label": "المحتوى",
+          "placeholder": "اكتب سياستك…"
+        }
+      },
+      "privacy": {
+        "label": "سياسة الخصوصية",
+        "description": "كيف تجمع بيانات العملاء وتستخدمها وتحميها.",
+        "title_placeholder": "سياسة الخصوصية"
+      },
+      "returns": {
+        "label": "سياسة الإرجاع والاسترداد",
+        "description": "قواعد الإرجاع والاستبدال والاسترداد.",
+        "title_placeholder": "سياسة الإرجاع والاسترداد"
+      },
+      "delivery": {
+        "label": "سياسة التوصيل",
+        "description": "طرق الشحن والمناطق والأوقات والتكاليف.",
+        "title_placeholder": "سياسة التوصيل"
+      },
+      "cod": {
+        "label": "سياسة الدفع عند الاستلام",
+        "description": "كيف يعمل الدفع عند الاستلام وأي شروط.",
+        "title_placeholder": "سياسة الدفع عند الاستلام"
       }
     }
   }

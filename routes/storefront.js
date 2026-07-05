@@ -496,6 +496,18 @@ router.get(
           themeCustomization: effectiveCustomization,
           socialLinks: tenant.settings?.socialLinks || null,
           contactInfo: tenant.settings?.contactInfo || null,
+          contact: tenant.settings?.contact || null,
+          // Only expose policies that actually have a body — the storefront
+          // shows a link/section per present policy and hides the rest.
+          policies: (() => {
+            const src = tenant.settings?.policies || {};
+            const out = {};
+            for (const key of ["privacy", "returns", "delivery", "cod"]) {
+              const p = src[key];
+              if (p && p.body) out[key] = { title: p.title || null, body: p.body };
+            }
+            return Object.keys(out).length ? out : null;
+          })(),
           giftCards: {
             enabled: tenant.settings?.giftCards?.enabled !== false,
           },

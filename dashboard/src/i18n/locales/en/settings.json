@@ -3,15 +3,36 @@
     "title": "Settings",
     "subtitle": "Manage your store configuration",
     "tab": {
-      "general": { "label": "General" },
-      "regional": { "label": "Regional" },
-      "shipping": { "label": "Shipping" },
-      "tax": { "label": "Tax" },
-      "currencies": { "label": "Currencies" },
-      "markets": { "label": "Markets" },
-      "notifications": { "label": "Notifications" },
-      "email_templates": { "label": "Order emails" },
-      "security": { "label": "Security" }
+      "general": {
+        "label": "General"
+      },
+      "regional": {
+        "label": "Regional"
+      },
+      "shipping": {
+        "label": "Shipping"
+      },
+      "tax": {
+        "label": "Tax"
+      },
+      "currencies": {
+        "label": "Currencies"
+      },
+      "markets": {
+        "label": "Markets"
+      },
+      "notifications": {
+        "label": "Notifications"
+      },
+      "email_templates": {
+        "label": "Order emails"
+      },
+      "security": {
+        "label": "Security"
+      },
+      "policies": {
+        "label": "Policies"
+      }
     },
     "section": {
       "store_info": {
@@ -61,6 +82,10 @@
       "status_templates": {
         "title": "Status Templates",
         "description": "Customize the email sent when an order moves to each status. Leave a template empty to fall back to the built-in default. You can use the placeholders {{orderNumber}}, {{customerName}}, and {{totalAmount}}."
+      },
+      "contact": {
+        "title": "Contact information",
+        "description": "Shown in your storefront footer and on your policy pages."
       }
     },
     "field": {
@@ -182,6 +207,20 @@
         },
         "body": {
           "label": "Body"
+        }
+      },
+      "contact": {
+        "email": {
+          "label": "Store email",
+          "placeholder": "store@example.com"
+        },
+        "phone": {
+          "label": "Phone number",
+          "placeholder": "+249 …"
+        },
+        "address": {
+          "label": "Company address",
+          "placeholder": "Street, city, country"
         }
       }
     },
@@ -488,6 +527,37 @@
       "saving": "Saving...",
       "validation": {
         "resource_key_required": "Resource and key are required"
+      }
+    },
+    "policy": {
+      "field": {
+        "title": {
+          "label": "Title"
+        },
+        "body": {
+          "label": "Content",
+          "placeholder": "Write your policy…"
+        }
+      },
+      "privacy": {
+        "label": "Privacy Policy",
+        "description": "How you collect, use and protect customer data.",
+        "title_placeholder": "Privacy Policy"
+      },
+      "returns": {
+        "label": "Return & Refund Policy",
+        "description": "Your rules for returns, exchanges and refunds.",
+        "title_placeholder": "Return & Refund Policy"
+      },
+      "delivery": {
+        "label": "Delivery Policy",
+        "description": "Shipping methods, areas, times and costs.",
+        "title_placeholder": "Delivery Policy"
+      },
+      "cod": {
+        "label": "Cash on Delivery Policy",
+        "description": "How cash on delivery works and any conditions.",
+        "title_placeholder": "Cash on Delivery Policy"
       }
     }
   }
