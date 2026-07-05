@@ -15,3 +15,16 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Caveat', cursive; }
 html[lang='ar'], html[lang='ar'] * { letter-spacing: 0 !important; }
 html[dir='rtl'], html[dir='rtl'] body { direction: rtl; }
 html[dir='ltr'], html[dir='ltr'] body { direction: ltr; }
+
+/* --- iOS input-zoom guard (matjar) --- */
+/* iOS Safari auto-zooms the page when a focused input has font-size < 16px.
+   Force >=16px on touch devices so focusing any field never triggers a zoom.
+   Plain (unlayered) + !important so it reliably overrides utility text sizes. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select,
+  [contenteditable="true"] {
+    font-size: 16px !important;
+  }
+}

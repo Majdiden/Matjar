@@ -320,3 +320,16 @@ html[lang='ar'], html[lang='ar'] * { letter-spacing: 0 !important; }
       inset 0 0 40px 10px hsl(38 92% 50% / 0.45);
   }
 }
+
+/* --- iOS input-zoom guard (matjar) --- */
+/* iOS Safari auto-zooms the page when a focused input has font-size < 16px.
+   Force >=16px on touch devices so focusing any field never triggers a zoom.
+   Plain (unlayered) + !important so it reliably overrides utility text sizes. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select,
+  [contenteditable="true"] {
+    font-size: 16px !important;
+  }
+}
