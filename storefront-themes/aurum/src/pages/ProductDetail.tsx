@@ -77,7 +77,7 @@ const ProductDetail: React.FC = () => {
           {t('theme.product_detail.not_found_title')}
         </h1>
         <p className="text-mute mb-8">{t('theme.product_detail.not_found_body')}</p>
-        <Link to="/products" className="inline-block px-8 py-3.5 border border-ink/60 text-ink text-[11px] tracking-[0.22em] uppercase hover:bg-ink hover:text-black transition-colors">
+        <Link to="/products" className="inline-block px-8 py-3.5 border border-ink/60 text-ink text-[11px] tracking-[0.22em] uppercase hover:bg-ink hover:text-night transition-colors">
           {t('theme.product_detail.back_to_shop')}
         </Link>
       </div>
@@ -251,8 +251,8 @@ const ProductDetail: React.FC = () => {
                 </>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${inStock ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                  <span className={inStock ? 'text-emerald-400' : 'text-red-400'}>
+                  <span className={`w-2 h-2 rounded-full ${inStock ? 'bg-success' : 'bg-error'}`} />
+                  <span className={inStock ? 'text-success' : 'text-error'}>
                     {inStock
                       ? t('theme.product_detail.in_stock')
                       : preState.mode === 'soldOut'
@@ -269,7 +269,7 @@ const ProductDetail: React.FC = () => {
                 <div className="flex items-center border border-ink/60">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="w-11 h-12 text-lg text-ink hover:bg-ink hover:text-black transition"
+                    className="w-11 h-12 text-lg text-ink hover:bg-ink hover:text-night transition"
                     aria-label={t('theme.product_detail.qty_decrease')}
                   >
                     &minus;
@@ -277,7 +277,7 @@ const ProductDetail: React.FC = () => {
                   <span className="w-11 text-center text-sm font-medium text-ink">{qty}</span>
                   <button
                     onClick={() => setQty(qty + 1)}
-                    className="w-11 h-12 text-lg text-ink hover:bg-ink hover:text-black transition"
+                    className="w-11 h-12 text-lg text-ink hover:bg-ink hover:text-night transition"
                     aria-label={t('theme.product_detail.qty_increase')}
                   >
                     +
@@ -286,7 +286,7 @@ const ProductDetail: React.FC = () => {
                 <button
                   onClick={handleAdd}
                   disabled={!canAddToCart}
-                  className="flex-1 h-12 bg-white text-black text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-neutral-200 disabled:bg-neutral-600 disabled:text-neutral-400 transition"
+                  className="flex-1 h-12 bg-ink text-night text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-ink/90 disabled:bg-line disabled:text-mute transition"
                 >
                   {needsSelection
                   ? t('product:card.options')
@@ -302,7 +302,7 @@ const ProductDetail: React.FC = () => {
                 <Link
                   to="/checkout"
                   onClick={handleAdd}
-                  className="block w-full h-12 border border-ink/60 text-ink text-center leading-[3rem] text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-ink hover:text-black transition"
+                  className="block w-full h-12 border border-ink/60 text-ink text-center leading-[3rem] text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-ink hover:text-night transition"
                 >
                   {t('theme.product_detail.buy_it_now')}
                 </Link>

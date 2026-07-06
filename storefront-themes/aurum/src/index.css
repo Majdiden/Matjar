@@ -5,16 +5,24 @@ body { font-family: var(--font-app); }
 @tailwind components;
 @tailwind utilities;
 
+/* Fallback palette for the first paint, before ThemeProvider injects the
+   live customizer values. Keys mirror the manifest + the tokens Tailwind
+   reads (background/foreground/muted/border/accent) so a merchant's colour
+   edits flow through one source of truth. */
 :root {
-  --color-primary: #f4f1ea;
-  --color-secondary: #a6a29a;
+  --color-background: #141414;
+  --color-foreground: #f4f1ea;
+  --color-muted: #a6a29a;
+  --color-border: #2b2b2b;
   --color-accent: #c8a24b;
+  --color-error: #e5484d;
+  --color-success: #5fae6e;
 }
 
 body {
   font-family: 'Jost', 'Tajawal', system-ui, sans-serif;
-  background: #141414;
-  color: #f4f1ea;
+  background: var(--color-background, #141414);
+  color: var(--color-foreground, #f4f1ea);
   -webkit-font-smoothing: antialiased;
 }
 

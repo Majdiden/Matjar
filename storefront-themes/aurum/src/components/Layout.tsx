@@ -96,7 +96,7 @@ const Layout: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-night text-ink">
       {/* ═══ ANNOUNCEMENT BAR ════════════════════════════════════ */}
       {showBar && (
-        <div className="bg-black text-[10px] tracking-[0.3em] uppercase text-gold py-2.5 text-center px-4">
+        <div className="bg-night text-[10px] tracking-[0.3em] uppercase text-gold py-2.5 text-center px-4">
           {barText}
         </div>
       )}
@@ -162,7 +162,7 @@ const Layout: React.FC = () => {
               <button onClick={openCart} className="relative text-mute hover:text-ink transition-colors uppercase tracking-[0.15em]">
                 {t('theme.header.cart')}
                 {(cart?.itemCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-3.5 min-w-[16px] h-4 px-1 bg-gold text-black text-[9px] rounded-full flex items-center justify-center font-semibold">
+                  <span className="absolute -top-2 -end-3.5 min-w-[16px] h-4 px-1 bg-gold text-night text-[9px] rounded-full flex items-center justify-center font-semibold">
                     {cart?.itemCount}
                   </span>
                 )}
@@ -263,7 +263,7 @@ const Layout: React.FC = () => {
                 />
                 <button
                   type="submit"
-                  className="px-5 text-[10px] tracking-[0.22em] uppercase text-ink hover:bg-ink hover:text-black transition-colors"
+                  className="px-5 text-[10px] tracking-[0.22em] uppercase text-ink hover:bg-ink hover:text-night transition-colors"
                 >
                   {t('theme.footer.subscribe')}
                 </button>
