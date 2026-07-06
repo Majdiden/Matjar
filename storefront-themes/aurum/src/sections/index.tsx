@@ -22,7 +22,7 @@ const serif = { fontFamily: 'var(--font-family-heading)' } as const;
 const OutlineLink: React.FC<{ to: string; children: React.ReactNode; className?: string }> = ({ to, children, className = '' }) => (
   <Link
     to={to}
-    className={`inline-block border border-ink/60 px-8 py-3.5 text-[11px] tracking-[0.22em] uppercase text-ink hover:bg-ink hover:text-black transition-colors duration-300 ${className}`}
+    className={`inline-block border border-ink/60 px-8 py-3.5 text-[11px] tracking-[0.22em] uppercase text-ink hover:bg-ink hover:text-night transition-colors duration-300 ${className}`}
   >
     {children}
   </Link>
@@ -48,17 +48,17 @@ const SplitHeroSection: React.FC<SectionComponentProps> = ({ id }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
         <div className="relative h-full flex flex-col justify-end items-start p-8 md:p-14">
           <h1
-            className="text-4xl sm:text-5xl md:text-6xl leading-[1.1] text-white max-w-xl"
+            className="text-4xl sm:text-5xl md:text-6xl leading-[1.1] text-ink max-w-xl"
             style={serif}
           >
             {s.heading || t('theme.hero.heading')}
           </h1>
-          <p className="mt-5 text-sm md:text-base text-white/75 max-w-md leading-relaxed">
+          <p className="mt-5 text-sm md:text-base text-ink/75 max-w-md leading-relaxed">
             {s.subheading || t('theme.hero.subheading')}
           </p>
           <Link
             to={s.cta_url || '/products'}
-            className="mt-8 inline-block bg-white text-black px-10 py-4 text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-neutral-200 transition-colors duration-300"
+            className="mt-8 inline-block bg-ink text-night px-10 py-4 text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-ink/90 transition-colors duration-300"
           >
             {s.cta_text || t('theme.hero.cta')}
           </Link>
@@ -92,7 +92,7 @@ const MarqueeSection: React.FC<SectionComponentProps> = ({ id }) => {
 
   return (
     <section
-      className="aurum-marquee overflow-hidden bg-black border-y border-line py-8"
+      className="aurum-marquee overflow-hidden bg-night border-y border-line py-8"
       style={{ '--aurum-marquee-duration': `${speed}s` } as React.CSSProperties}
       aria-label={t('theme.section.marquee.aria_label')}
     >
@@ -399,10 +399,10 @@ const CollectionsShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
             )}
             <div className="absolute inset-0 bg-black/25 group-hover:bg-black/40 transition-colors duration-500" />
             <div className="relative h-full flex flex-col items-center justify-center gap-5 p-4 text-center">
-              <span className="text-[13px] md:text-sm tracking-[0.3em] uppercase text-white">
+              <span className="text-[13px] md:text-sm tracking-[0.3em] uppercase text-ink">
                 {card.label}
               </span>
-              <span className="border border-white/80 px-5 py-2.5 text-[10px] tracking-[0.22em] uppercase text-white group-hover:bg-white group-hover:text-black transition-colors duration-300">
+              <span className="border border-ink/70 px-5 py-2.5 text-[10px] tracking-[0.22em] uppercase text-ink group-hover:bg-ink group-hover:text-night transition-colors duration-300">
                 {t('theme.section.showcase.cta')}
               </span>
             </div>
@@ -420,7 +420,7 @@ const StatementLine: React.FC<{ text: string; index: number }> = ({ text, index 
   return (
     <span
       ref={ref as React.RefObject<HTMLSpanElement>}
-      className={`block transition-colors duration-700 ease-out ${isIntersecting ? 'text-ink' : 'text-neutral-700'}`}
+      className={`block transition-colors duration-700 ease-out ${isIntersecting ? 'text-ink' : 'text-mute/30'}`}
       style={{ transitionDelay: `${index * 120}ms` }}
     >
       {text}
@@ -489,7 +489,7 @@ const GallerySection: React.FC<SectionComponentProps> = ({ id, section }) => {
             href={s.handle_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-12 inline-block border border-ink/60 px-8 py-3.5 text-[11px] tracking-[0.22em] uppercase text-ink hover:bg-ink hover:text-black transition-colors duration-300"
+            className="mt-12 inline-block border border-ink/60 px-8 py-3.5 text-[11px] tracking-[0.22em] uppercase text-ink hover:bg-ink hover:text-night transition-colors duration-300"
           >
             {s.handle || t('theme.section.gallery.handle')}
           </a>

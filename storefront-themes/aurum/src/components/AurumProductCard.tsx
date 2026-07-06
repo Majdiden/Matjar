@@ -70,7 +70,7 @@ export const AurumProductCard: React.FC<Props> = ({ product }) => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-neutral-400">
+              <span className="text-[10px] tracking-[0.3em] uppercase text-mute">
                 {t('theme.product_card.no_image')}
               </span>
             </div>
@@ -78,7 +78,7 @@ export const AurumProductCard: React.FC<Props> = ({ product }) => {
 
           {/* PRE-ORDER chip */}
           {isPreorder && (
-            <span className="absolute top-3 start-3 px-2.5 py-1 text-[10px] tracking-[0.15em] uppercase font-medium bg-white text-black">
+            <span className="absolute top-3 start-3 px-2.5 py-1 text-[10px] tracking-[0.15em] uppercase font-medium bg-ink text-night">
               {t('theme.product_card.pre_order')}
             </span>
           )}
@@ -90,7 +90,7 @@ export const AurumProductCard: React.FC<Props> = ({ product }) => {
               onClick={handleAdd}
               disabled={isSoldOut && !requiresOptions}
               aria-label={label}
-              className="group/btn flex items-center h-11 rounded-full bg-white text-black shadow-lg overflow-hidden disabled:opacity-60 hover:shadow-xl transition-shadow"
+              className="group/btn flex items-center h-11 rounded-full bg-ink text-night shadow-lg overflow-hidden disabled:opacity-60 hover:shadow-xl transition-shadow"
             >
               <span className="w-11 h-11 shrink-0 flex items-center justify-center">
                 {adding ? (

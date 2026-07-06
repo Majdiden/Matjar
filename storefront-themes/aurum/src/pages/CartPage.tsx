@@ -25,7 +25,7 @@ const CartPage: React.FC = () => {
         <p className="text-mute mb-8">{t('theme.cart.empty_subtitle')}</p>
         <Link
           to="/products"
-          className="inline-block px-8 py-3.5 bg-white text-black text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-neutral-200 transition"
+          className="inline-block px-8 py-3.5 bg-ink text-night text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-ink/90 transition"
         >
           {t('theme.cart.start_shopping')}
         </Link>
@@ -37,7 +37,7 @@ const CartPage: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
       <div className="flex items-center justify-between mb-10">
         <h1 className="text-4xl text-ink" style={{ fontFamily: 'var(--font-family-heading)' }}>{t('theme.cart.title')}</h1>
-        <button onClick={clearCart} className="text-[11px] tracking-[0.15em] uppercase text-mute hover:text-red-400 transition">
+        <button onClick={clearCart} className="text-[11px] tracking-[0.15em] uppercase text-mute hover:text-error transition">
           {t('theme.cart.clear')}
         </button>
       </div>
@@ -65,21 +65,21 @@ const CartPage: React.FC = () => {
                 <div className="flex items-center border border-line">
                   <button
                     onClick={() => updateItem(item.productId, Math.max(0, item.quantity - 1), item.variant?.id)}
-                    className="px-3 py-1 text-ink hover:bg-ink hover:text-black text-sm transition"
+                    className="px-3 py-1 text-ink hover:bg-ink hover:text-night text-sm transition"
                   >
                     -
                   </button>
                   <span className="px-3 py-1 border-x border-line text-sm text-ink">{item.quantity}</span>
                   <button
                     onClick={() => updateItem(item.productId, item.quantity + 1, item.variant?.id)}
-                    className="px-3 py-1 text-ink hover:bg-ink hover:text-black text-sm transition"
+                    className="px-3 py-1 text-ink hover:bg-ink hover:text-night text-sm transition"
                   >
                     +
                   </button>
                 </div>
                 <button
                   onClick={() => removeItem(item.productId, item.variant?.id)}
-                  className="text-[11px] tracking-[0.15em] uppercase text-mute hover:text-red-400 transition"
+                  className="text-[11px] tracking-[0.15em] uppercase text-mute hover:text-error transition"
                 >
                   {t('theme.cart.remove')}
                 </button>
@@ -114,7 +114,7 @@ const CartPage: React.FC = () => {
         </div>
         <Link
           to="/checkout"
-          className="block text-center w-full mt-6 py-3.5 bg-white text-black text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-neutral-200 transition"
+          className="block text-center w-full mt-6 py-3.5 bg-ink text-night text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-ink/90 transition"
         >
           {t('theme.cart.checkout')}
         </Link>

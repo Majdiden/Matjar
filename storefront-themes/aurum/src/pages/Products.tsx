@@ -74,7 +74,7 @@ const Sidebar: React.FC<{
                 name="availability"
                 checked={availability === opt.value}
                 onChange={() => onAvailability(opt.value)}
-                className="accent-[#c8a24b]"
+                className="accent-gold"
               />
               {t(opt.labelKey)}
             </label>
