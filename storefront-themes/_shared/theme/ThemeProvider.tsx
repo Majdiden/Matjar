@@ -334,6 +334,25 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
             return { ...prev, sections };
           });
           break;
+        case 'SCROLL_TO_SECTION': {
+          // Editor asked us to reveal a section it just added/edited. The node
+          // carries data-section-id; it may render a frame later (just added),
+          // so retry briefly before giving up.
+          const sid = (data as any).sectionId;
+          if (sid) {
+            let tries = 0;
+            const tryScroll = () => {
+              const el = document.querySelector(`[data-section-id="${sid}"]`);
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              } else if (tries++ < 40) {
+                window.setTimeout(tryScroll, 100);
+              }
+            };
+            tryScroll();
+          }
+          break;
+        }
         case 'SECTION_REORDER':
           setLiveOverrides((prev: any) => {
             const existingSections = prev?.sections || baseOverrides?.sections || [];

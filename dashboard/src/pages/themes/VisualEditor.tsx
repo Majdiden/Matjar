@@ -346,6 +346,11 @@ export default function VisualEditor() {
 
   const handleAddSection = async (sectionType: string) => {
     if (!customization) return;
+    const prevIds = new Set(
+      ((customization.sectionsByTemplate?.[currentPage] as Section[] | undefined) ||
+        (customization.sections as Section[] | undefined) ||
+        []).map((s) => s.id)
+    );
     try {
       const response = (await api.themeCustomization.addSection(
         sectionType,
@@ -353,9 +358,19 @@ export default function VisualEditor() {
         undefined,
         { template: currentPage }
       )) as CustomizationEnvelope;
-      setCustomization(normalizeCustomization(response.data.customization));
+      const cust = normalizeCustomization(response.data.customization);
+      setCustomization(cust);
       setHasChanges(true);
       schedulePreviewReload();
+      // Select + scroll the preview to the newly added section.
+      const list = (cust.sectionsByTemplate?.[currentPage] as Section[] | undefined) ||
+        (cust.sections as Section[] | undefined) || [];
+      const added = list.find((s) => !prevIds.has(s.id));
+      if (added) {
+        setSelectedSection(added);
+        setRightPanel('section');
+        postToPreview({ type: 'SCROLL_TO_SECTION', sectionId: added.id });
+      }
       toast.success(t('themes:editor.toast.section_added'));
     } catch (error) {
       console.error('Failed to add section:', error);
@@ -528,8 +543,12 @@ export default function VisualEditor() {
   // a section and its settings take focus.
   const handleSelectSection = useCallback((section: Section | null) => {
     setSelectedSection(section);
-    if (section) setRightPanel('section');
-  }, []);
+    if (section) {
+      setRightPanel('section');
+      // Scroll the preview to the section being edited (Shopify-style).
+      postToPreview({ type: 'SCROLL_TO_SECTION', sectionId: section.id });
+    }
+  }, [postToPreview]);
 
   // Live-coverage bookkeeping for section edits. `SECTION_UPDATE` only
   // expresses setting changes; block add/remove/edit has no protocol

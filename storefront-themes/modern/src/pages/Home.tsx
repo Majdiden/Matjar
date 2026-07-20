@@ -44,6 +44,7 @@ const Home: React.FC = () => {
   const news = useThemeSettings('newsletter');
   const trustBadgeBlocks = useSectionBlocks('trust-badges');
   const promoBlocks = useSectionBlocks('promo-banners');
+  const categoryTileBlocks = useSectionBlocks('categories');
 
   // The merchant's composed layout for the home template — ORDERED and
   // enabled-filtered. Rendering in THIS order (instead of a fixed JSX order)
@@ -96,6 +97,20 @@ const Home: React.FC = () => {
           align: 'start' as const,
         },
       ];
+
+  // Custom category tiles the merchant authored as section blocks in the
+  // visual editor. Blocks WITH a title win over the auto-populated Category
+  // records; when none are filled in, CategoryShowcase falls back to the
+  // store's categories (the original behaviour).
+  const customCategoryTiles = categoryTileBlocks
+    .filter((b) => b.type === 'tile' && typeof b.settings?.title === 'string' && b.settings.title.trim())
+    .map((b) => ({
+      id: b.id,
+      title: b.settings.title as string,
+      subtitle: (b.settings.subtitle as string) || undefined,
+      image: (b.settings.image as string) || undefined,
+      link: (b.settings.link as string) || undefined,
+    }));
 
   // Bespoke renderers keyed by section TYPE. `orderedSections` is already
   // enabled-filtered, so these only need their extra content conditions.
@@ -150,17 +165,23 @@ const Home: React.FC = () => {
       </Carousel>
     ),
 
-    'categories': () => categories.length > 0 && (
+    'categories': () => (customCategoryTiles.length > 0 || categories.length > 0) && (
       <CategoryShowcase
         ref={categoriesRef as React.RefObject<HTMLElement>}
         className={`transition-opacity duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${categoriesVisible ? 'opacity-100' : 'opacity-0'}`}
         visible={categoriesVisible}
         categories={categories}
+        tiles={customCategoryTiles.length > 0 ? customCategoryTiles : undefined}
         heading={cats.heading || t('theme.section.categories.heading')}
         subheading={cats.subheading || t('theme.section.categories.subheading')}
         maxCategories={cats.max_categories || 6}
         showCount={cats.show_product_count !== false}
         countLabel={(count) => t('theme.section.categories.items_count', { count })}
+        layout={cats.layout}
+        columns={Number(cats.columns) || 3}
+        cardAspect={cats.card_aspect}
+        cardOverlay={cats.card_overlay !== false}
+        headingAlignment={cats.heading_alignment}
       />
     ),
 
@@ -295,14 +316,26 @@ const Home: React.FC = () => {
           section the merchant added — so reordering in the editor works and
           added sections land exactly where they were placed. */}
       {orderedSections.map((s) => {
+        // Each section is wrapped in a `data-section-id` anchor so the
+        // dashboard editor can scrollIntoView the matching element;
+        // `scroll-mt-20` clears the sticky header. A plain block div doesn't
+        // affect full-width section layout.
         const renderBlock = blockRenderers[s.type];
         if (renderBlock) {
-          return <React.Fragment key={s.id}>{renderBlock()}</React.Fragment>;
+          return (
+            <div key={s.id} data-section-id={s.id} className="scroll-mt-20">
+              {renderBlock()}
+            </div>
+          );
         }
         if (HARDCODED_TYPES.includes(s.type)) return null; // no content (shouldn't happen)
         const Component = DEFAULT_SECTION_REGISTRY[s.type];
         if (!Component) return null; // unknown type — silently skipped for shoppers
-        return <Component key={s.id} id={s.id} section={s} onQuickView={setQuickViewProduct} />;
+        return (
+          <div key={s.id} data-section-id={s.id} className="scroll-mt-20">
+            <Component id={s.id} section={s} onQuickView={setQuickViewProduct} />
+          </div>
+        );
       })}
 
       {/* Quick View Modal */}

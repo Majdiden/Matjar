@@ -37,18 +37,56 @@ export const categoriesSection: SectionDefinition = defineSection({
   name: 'Category Grid',
   icon: 'FolderTree',
   category: 'commerce',
-  description: 'Display product categories in a responsive grid',
+  description: 'Shop-by-category tiles — auto-filled from your store categories, or add your own custom tiles with images and links',
   target: 'body',
   limit: 1,
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
     { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'layout', type: 'select', label: 'Layout', default: 'bento', options: [
+      { value: 'bento', label: 'Editorial (feature tile)' },
+      { value: 'grid', label: 'Uniform grid' },
+      { value: 'rail', label: 'Carousel rail' },
+    ], info: 'Editorial promotes the first tile to a double-size feature on desktop when there are 5+ tiles' },
+    { id: 'columns', type: 'select', label: 'Desktop Columns', default: '3', options: [
+      { value: '2', label: '2 Columns' },
+      { value: '3', label: '3 Columns' },
+      { value: '4', label: '4 Columns' },
+      { value: '5', label: '5 Columns' },
+      { value: '6', label: '6 Columns' },
+    ]},
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 6, min: 2, max: 12 },
     { id: 'show_product_count', type: 'checkbox', label: 'Show Product Count', default: true },
-    { id: 'layout', type: 'select', label: 'Layout', default: 'grid', options: [
-      { value: 'grid', label: 'Grid' },
-      { value: 'carousel', label: 'Carousel' },
+    { id: 'card_aspect', type: 'select', label: 'Tile Shape', default: '4/5', options: [
+      { value: '4/5', label: 'Portrait (4:5)' },
+      { value: '1/1', label: 'Square (1:1)' },
+      { value: '3/4', label: 'Tall (3:4)' },
+      { value: '16/9', label: 'Wide (16:9)' },
     ]},
+    { id: 'card_overlay', type: 'checkbox', label: 'Text Over Image', default: true, info: 'Off puts the tile name below the image instead' },
+    { id: 'heading_alignment', type: 'select', label: 'Heading Alignment', default: 'center', options: [
+      { value: 'center', label: 'Center' },
+      { value: 'start', label: 'Start' },
+    ]},
+  ],
+  blocks: [
+    {
+      type: 'tile',
+      name: 'Custom Tile',
+      settings: [
+        { id: 'title', type: 'text', label: 'Title', default: '', info: 'Required — tiles without a title are hidden' },
+        { id: 'subtitle', type: 'text', label: 'Subtitle', default: '' },
+        { id: 'image', type: 'image', label: 'Image', info: 'Optional — a designed colour panel is used if empty' },
+        { id: 'link', type: 'url', label: 'Link URL', default: '', info: 'e.g. /categories/phones or /products?sort=newest' },
+      ],
+    },
+  ],
+  // Two empty placeholder tiles so the block rows are discoverable in the
+  // editor. Tiles without a title never render — the section keeps
+  // auto-populating from the store's categories until one is filled in.
+  defaultBlocks: [
+    { id: 'tile-1', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
+    { id: 'tile-2', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
   ],
 });
 
@@ -267,7 +305,10 @@ const manifest: ThemeManifest = defineTheme({
   templates: {
     index: [
       { id: 'hero', type: 'hero', settings: {} },
-      { id: 'categories', type: 'categories', settings: {} },
+      { id: 'categories', type: 'categories', settings: {}, blocks: [
+        { id: 'tile-1', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
+        { id: 'tile-2', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
+      ]},
       { id: 'featured-products', type: 'featured-products', settings: {} },
       { id: 'trust-badges', type: 'trust-badges', settings: {}, blocks: [
         { id: 'badge-1', type: 'badge', settings: { icon: 'shipping', title: 'Free Shipping', description: 'On orders over $50' } },

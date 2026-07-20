@@ -488,19 +488,41 @@ export const NewArrivalsSection: React.FC<SectionComponentProps> = ({ id, onQuic
 export const CategoriesSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('common');
   const s = useThemeSettings(id);
+  const blocks = useSectionBlocks(id);
   const { categories } = useCategories();
-  if (!categories || categories.length === 0) return null;
+  // Merchant-authored custom tiles (editable `tile` blocks). Tiles with a
+  // title win over the auto-populated Category records; otherwise the
+  // section keeps auto-filling from the store's categories.
+  const tiles = blocks
+    .filter((b) => b.type === 'tile' && typeof b.settings?.title === 'string' && b.settings.title.trim())
+    .map((b) => ({
+      id: b.id,
+      title: b.settings.title as string,
+      subtitle: (b.settings.subtitle as string) || undefined,
+      image: (b.settings.image as string) || undefined,
+      link: (b.settings.link as string) || undefined,
+    }));
+  if (tiles.length === 0 && (!categories || categories.length === 0)) return null;
   // Delegates to the shared premium showcase (editorial image tiles, mobile
   // snap rail, desktop bento) so merchant-added category sections match the
-  // curated homepage treatment. Appearance overrides still apply.
+  // curated homepage treatment. Layout/columns/aspect/overlay settings are
+  // honoured when the theme's manifest exposes them; themes without those
+  // settings keep the default editorial presentation. Appearance overrides
+  // still apply.
   return (
     <CategoryShowcase
-      categories={categories}
+      categories={categories || []}
+      tiles={tiles.length > 0 ? tiles : undefined}
       heading={s.heading || t('section.categories.heading')}
       subheading={s.subheading}
       maxCategories={Number(s.max_categories) || 6}
       showCount={s.show_product_count !== false}
       countLabel={(count: number) => t('section.categories.items_count', { count })}
+      layout={s.layout}
+      columns={Number(s.columns) || 3}
+      cardAspect={s.card_aspect}
+      cardOverlay={s.card_overlay !== false}
+      headingAlignment={s.heading_alignment}
       style={appearanceStyle(s)}
     />
   );

@@ -84,7 +84,13 @@ export const SectionRenderer: React.FC<SectionRendererProps> = ({
             ? <MissingSectionPlaceholder key={s.id} type={s.type} />
             : null;
         }
-        return <Component key={s.id} id={s.id} section={s} onQuickView={onQuickView} />;
+        // data-section-id anchors let the editor scroll the preview to a
+        // section it just added/edited (SCROLL_TO_SECTION).
+        return (
+          <div key={s.id} data-section-id={s.id} className="scroll-mt-20">
+            <Component id={s.id} section={s} onQuickView={onQuickView} />
+          </div>
+        );
       })}
     </>
   );
@@ -122,7 +128,11 @@ export const MerchantSections: React.FC<MerchantSectionsProps> = ({
             ? <MissingSectionPlaceholder key={s.id} type={s.type} />
             : null;
         }
-        return <Component key={s.id} id={s.id} section={s} onQuickView={onQuickView} />;
+        return (
+          <div key={s.id} data-section-id={s.id} className="scroll-mt-20">
+            <Component id={s.id} section={s} onQuickView={onQuickView} />
+          </div>
+        );
       })}
     </>
   );
