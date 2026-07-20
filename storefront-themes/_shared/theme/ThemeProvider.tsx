@@ -375,6 +375,16 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
         theme: { ...(baseOverrides?.settings?.theme || {}), ...(liveOverrides?.settings?.theme || {}) },
       },
       sections: liveOverrides.sections || baseOverrides?.sections,
+      // Live section edits (reorder/toggle/update) arrive as the flat
+      // `sections` array, but rendering reads the canonical
+      // `sectionsByTemplate.index` bucket (useTemplateSections). Mirror the live
+      // flat list into the index bucket so those edits reflect in the editor
+      // preview WITHOUT a publish — otherwise a store that has a populated
+      // sectionsByTemplate never updates live. Only the index template is
+      // edited live; other templates keep their base buckets.
+      sectionsByTemplate: liveOverrides.sections
+        ? { ...(baseOverrides?.sectionsByTemplate || {}), index: liveOverrides.sections }
+        : baseOverrides?.sectionsByTemplate,
     };
   }, [baseOverrides, liveOverrides]);
 
