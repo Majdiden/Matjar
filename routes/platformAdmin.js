@@ -57,6 +57,10 @@ import {
   enterController as impersonationEnter,
   exitController as impersonationExit,
 } from "../controllers/impersonation.js";
+import {
+  getPlatformFeatures,
+  updatePlatformFeatures,
+} from "../controllers/featureFlags.js";
 
 const router = Router();
 
@@ -68,6 +72,10 @@ router.use(platformAuthenticate);
 
 // Session info (no scope required beyond being authenticated).
 router.get("/me", platformMe);
+
+// --- Platform feature flags ---
+router.get("/features", requireScope(PLATFORM_SCOPES.SUPPORT_READ), getPlatformFeatures);
+router.put("/features", requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE), updatePlatformFeatures);
 
 // --- Tenant inspection (support.read) ---
 router.get("/tenants", requireScope(PLATFORM_SCOPES.SUPPORT_READ), listTenants);

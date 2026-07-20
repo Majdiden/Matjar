@@ -24,6 +24,7 @@ import auditLogRoutes from "../routes/auditLog.js";
 import marketRoutes from "../routes/market.js";
 import companyRoutes from "../routes/company.js";
 import customFieldRoutes from "../routes/customField.js";
+import featureRoutes from "../routes/features.js";
 import customerSegmentRoutes from "../routes/customerSegment.js";
 import webhookRoutes from "../routes/webhook.js";
 import collectionRoutes from "../routes/collection.js";
@@ -76,6 +77,7 @@ router.use("/notifications", notificationRoutes); // In-app notification center 
 router.use("/pages", pageRoutes); // CMS-style static content pages (about, contact, privacy…)
 router.use("/assets", assetRoutes); // Media library (browse/reuse uploaded assets)
 router.use("/redirects", redirectRoutes); // URL redirects (301/302 mapping)
+router.use("/features", featureRoutes); // Effective platform feature flags (dashboard read)
 router.use("/impersonation", impersonationRoutes); // Owner-side support-impersonation consent
 
 export default router;
