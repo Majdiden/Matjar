@@ -56,24 +56,28 @@ const GuaranteedCheckout: React.FC<Props> = (props) => {
 
         const isUrl = (s?: string) => !!s && /^(https?:|\/)/.test(s);
         for (const m of methods) {
-          // Merchant-uploaded provider icons take priority — each manual
-          // provider can contribute its own image, and a URL in `logo`
-          // is rendered instead of a stock SVG.
           const providers = (m as any).providers as
             | { code?: string; logo?: string }[]
             | undefined;
           let contributed = false;
           if (providers && providers.length) {
+            // Manual method — show ONLY the enabled providers the server
+            // returned (each with its own uploaded image or stock logo). Do
+            // NOT fall through to providerLogos: that's the STATIC list of ALL
+            // providers (including disabled ones), so it would surface methods
+            // the merchant turned off.
             for (const p of providers) {
               const logo = p.logo || '';
               if (isUrl(logo)) { push(p.code || logo, logo); contributed = true; }
               else if (logo) { push(logo); contributed = true; }
             }
-          }
-          // Brand logos on the method itself (e.g. visa, mastercard).
-          const logos = m.providerLogos && m.providerLogos.length > 0 ? m.providerLogos : [];
-          for (const l of logos) {
-            if (l) { push(l); contributed = true; }
+          } else {
+            // Non-manual (card/gateway) — the accepted brand logos on the
+            // method itself (e.g. visa, mastercard).
+            const logos = m.providerLogos && m.providerLogos.length > 0 ? m.providerLogos : [];
+            for (const l of logos) {
+              if (l) { push(l); contributed = true; }
+            }
           }
           // Every available method should show at least ONE badge — its own.
           // Without this, a Cash-on-Delivery-only store (which has no provider
