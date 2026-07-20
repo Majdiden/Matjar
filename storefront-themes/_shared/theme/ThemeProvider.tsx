@@ -135,6 +135,20 @@ export function useThemeSetting<T = any>(key: string): T | undefined {
 }
 
 /**
+ * Shortcut hook: read a single merged global layout setting — e.g.
+ * `useLayoutSetting('headerStyle')` / `useLayoutSetting('footerStyle')`.
+ * Values come from the reactive merged settings (manifest defaults +
+ * tenant overrides + live editor SETTINGS_UPDATE messages), so variants
+ * that key off these re-render live in the visual editor preview.
+ */
+export function useLayoutSetting<K extends keyof MergedThemeSettings['layout']>(
+  key: K,
+): MergedThemeSettings['layout'][K] {
+  const { settings } = useTheme();
+  return settings.layout?.[key];
+}
+
+/**
  * Shortcut hook: current color mode ("light" | "dark").
  */
 export function useColorMode(): 'light' | 'dark' {
