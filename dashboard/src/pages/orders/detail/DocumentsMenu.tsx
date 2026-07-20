@@ -13,6 +13,7 @@ import { api } from '../../../lib/api-client';
 import { toast } from 'sonner';
 import { errMsg } from '../../../lib/errors';
 import { useAuth } from '../../../contexts/auth-context';
+import { useFeatures } from '../../../contexts/features-context';
 
 // Customer-notification templates the backend can resend (audit 5.6.1) —
 // these mirror ORDER_NOTIFICATION_STATUSES in services/orderNotifications.js.
@@ -27,6 +28,7 @@ const RESEND_TEMPLATES = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Canc
 export const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order, payments }) => {
   const { t: tDM } = useTranslation(['orders', 'common']);
   const { can } = useAuth();
+  const { hasFeature } = useFeatures();
   const refunds = (payments || []).filter((p) => p?.status === 'refunded');
   const open = (doc: string) => window.open(orderDocUrl(order._id, doc), '_blank', 'noopener,noreferrer');
 
@@ -61,23 +63,27 @@ export const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({
         <DropdownMenuItem onClick={() => open('invoice')}>
           <Receipt className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.invoice')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => open('packing-slip')}>
-          <Package className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.packing_slip')}
-        </DropdownMenuItem>
-        {refunds.length === 0 ? (
-          <DropdownMenuItem disabled>
-            <ArrowDownLeft className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.refund_receipt')}
+        {hasFeature('orders.fulfillment') && (
+          <DropdownMenuItem onClick={() => open('packing-slip')}>
+            <Package className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.packing_slip')}
           </DropdownMenuItem>
-        ) : (
-          refunds.map((r) => (
-            <DropdownMenuItem
-              key={r._id}
-              onClick={() => open(`refund-receipt/${r._id}`)}
-            >
-              <ArrowDownLeft className="h-4 w-4 me-2" />
-              {tDM('orders:detail.documents.refund_receipt')} · {formatRefundLabel(r)}
+        )}
+        {hasFeature('payments.transactions') && (
+          refunds.length === 0 ? (
+            <DropdownMenuItem disabled>
+              <ArrowDownLeft className="h-4 w-4 me-2" /> {tDM('orders:detail.documents.refund_receipt')}
             </DropdownMenuItem>
-          ))
+          ) : (
+            refunds.map((r) => (
+              <DropdownMenuItem
+                key={r._id}
+                onClick={() => open(`refund-receipt/${r._id}`)}
+              >
+                <ArrowDownLeft className="h-4 w-4 me-2" />
+                {tDM('orders:detail.documents.refund_receipt')} · {formatRefundLabel(r)}
+              </DropdownMenuItem>
+            ))
+          )
         )}
         {canWrite && !isDraft && (
           <>

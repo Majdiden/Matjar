@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import type { Order, OrderStatus, CustomerContext, Payment } from '../../../types';
 import { OrderFulfillments } from '../OrderFulfillments';
 import { useAuth } from '../../../contexts/auth-context';
+import { useFeatures } from '../../../contexts/features-context';
 import { useConfirm } from '../../../components/ui/use-confirm';
 import { OrderDetailContext, usePaymentMethodMeta, type PaymentActionKey } from './context';
 import {
@@ -33,6 +34,7 @@ export const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { can } = useAuth();
+  const { hasFeature } = useFeatures();
   const confirm = useConfirm();
   const [paymentActionBusy, setPaymentActionBusy] = useState(false);
   const [recordManualOpen, setRecordManualOpen] = useState(false);
@@ -298,13 +300,15 @@ export const OrderDetails: React.FC = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.open(orderDocUrl(order._id, 'packing-slip'), '_blank', 'noopener,noreferrer')}
-            >
-              <Printer className="h-4 w-4 me-2" />{t('orders:detail.action.print')}
-            </Button>
+            {hasFeature('orders.fulfillment') && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(orderDocUrl(order._id, 'packing-slip'), '_blank', 'noopener,noreferrer')}
+              >
+                <Printer className="h-4 w-4 me-2" />{t('orders:detail.action.print')}
+              </Button>
+            )}
             <DocumentsMenu order={order} payments={payments} />
           </div>
         </div>
@@ -358,13 +362,15 @@ export const OrderDetails: React.FC = () => {
               page to scroll sideways on phones. */}
           <div className="lg:col-span-2 space-y-6 min-w-0">
             <LineItemsCard />
-            <PaymentsCard />
-            <div id="fulfillment-card">
-              <OrderFulfillments order={order} onChange={() => loadOrder(order._id)} />
-            </div>
-            <ReturnsCard />
+            {hasFeature('payments.transactions') && <PaymentsCard />}
+            {hasFeature('orders.fulfillment') && (
+              <div id="fulfillment-card">
+                <OrderFulfillments order={order} onChange={() => loadOrder(order._id)} />
+              </div>
+            )}
+            {hasFeature('orders.returns') && <ReturnsCard />}
             <AddressCards />
-            {order.notes && (
+            {hasFeature('orders.notes') && order.notes && (
               <Card>
                 <CardHeader><CardTitle className="text-base">{t('orders:detail.section.order_notes.title')}</CardTitle></CardHeader>
                 <CardContent>
@@ -379,8 +385,8 @@ export const OrderDetails: React.FC = () => {
           <div className="min-w-0 lg:relative lg:min-h-0">
             <div className="space-y-6 lg:absolute lg:inset-0 lg:overflow-y-auto scrollbar-hide">
               <CustomerCard />
-              <TimelineCard />
-              <NotesAndTagsCards />
+              {hasFeature('orders.timeline') && <TimelineCard />}
+              {hasFeature('orders.notes') && <NotesAndTagsCards />}
             </div>
           </div>
         </div>

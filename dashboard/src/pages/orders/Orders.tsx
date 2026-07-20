@@ -12,6 +12,7 @@ import { FilterPills } from '../../components/ui/filter-pills';
 import { PageHeader } from '../../components/PageHeader';
 import { StatCard } from '../../components/StatCard';
 import { StatCardRow } from '../../components/StatCardRow';
+import { useFeatures } from '../../contexts/features-context';
 import { DataTable, type DataTableColumn, type DataTableSortState } from '../../components/DataTable';
 import type { StatCardDelta } from '../../components/StatCard';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
@@ -175,6 +176,7 @@ const paymentVariant = (status: string): 'success' | 'warning' | 'destructive' |
 
 export const Orders: React.FC = () => {
   const { t } = useTranslation(['orders', 'common']);
+  const { hasFeature } = useFeatures();
   const navigate = useNavigate();
   // Phones always get the stacked card view (wide tables are unusable at
   // 360px); the table/card toggle only applies from md up.
@@ -572,16 +574,18 @@ export const Orders: React.FC = () => {
                 ...PAYMENT_STATUS_OPTIONS.map((s) => ({ value: s, label: t(`common:status.${s}`, { defaultValue: s }) })),
               ]}
             />
-            <Select
-              label={t('orders:list.filters.fulfillment_status')}
-              className="h-9"
-              value={draftFilters.fulfillmentStatus}
-              onValueChange={(v) => setDraftFilters((f) => ({ ...f, fulfillmentStatus: v }))}
-              options={[
-                { value: '', label: t('orders:list.filters.any') },
-                ...FULFILLMENT_STATUS_OPTIONS.map((s) => ({ value: s, label: t(`common:status.${s}`, { defaultValue: s }) })),
-              ]}
-            />
+            {hasFeature('orders.fulfillment') && (
+              <Select
+                label={t('orders:list.filters.fulfillment_status')}
+                className="h-9"
+                value={draftFilters.fulfillmentStatus}
+                onValueChange={(v) => setDraftFilters((f) => ({ ...f, fulfillmentStatus: v }))}
+                options={[
+                  { value: '', label: t('orders:list.filters.any') },
+                  ...FULFILLMENT_STATUS_OPTIONS.map((s) => ({ value: s, label: t(`common:status.${s}`, { defaultValue: s }) })),
+                ]}
+              />
+            )}
             <div>
               <label className="block text-sm font-medium mb-2" htmlFor="orders-filter-tag">
                 {t('orders:list.filters.tag')}
