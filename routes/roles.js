@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
+import { requireFeature } from "../middlewares/featureGate.js";
 import {
   listRolesController,
   createRoleController,
@@ -16,8 +17,8 @@ const router = Router();
 router.use(authenticate);
 
 router.get("/", requirePermission("team.manage"), listRolesController);
-router.post("/", requirePermission("team.manage"), createRoleController);
-router.patch("/:id", requirePermission("team.manage"), updateRoleController);
-router.delete("/:id", requirePermission("team.manage"), deleteRoleController);
+router.post("/", requirePermission("team.manage"), requireFeature("team.advancedRoles"), createRoleController);
+router.patch("/:id", requirePermission("team.manage"), requireFeature("team.advancedRoles"), updateRoleController);
+router.delete("/:id", requirePermission("team.manage"), requireFeature("team.advancedRoles"), deleteRoleController);
 
 export default router;

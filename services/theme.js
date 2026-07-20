@@ -26,6 +26,7 @@ import {
 import { APIError } from "../middlewares/errorHandler.js";
 import { getThemeManifest, getBuiltInThemeSlugs } from "./themeManifestRegistry.js";
 import { seedThemeDemoData } from "./themeDemoData.js";
+import { getAllowedThemeSlugs } from "./featureFlags.js";
 
 /**
  * Append an audit row to ThemeCustomizationVersion for a
@@ -132,15 +133,26 @@ export const createThemeService = async (themeData) => {
   return await createThemeRepo(themeData);
 };
 
-export const getThemeService = async (themeId) => {
+// `enforceAllowlist` is opt-in so the shared getters stay usable for
+// internal/rendering lookups (e.g. resolving a tenant's current active
+// theme) even when that theme isn't in the catalog allowlist. Only the
+// public catalog endpoints pass `{ enforceAllowlist: true }`, which 404s
+// a disallowed slug so it can't be browsed.
+export const getThemeService = async (themeId, { enforceAllowlist = false } = {}) => {
   const theme = await getThemeByIdRepo(themeId);
   if (!theme) throw new APIError("Theme not found", 404);
+  if (enforceAllowlist && !(await isSlugAllowed(theme.slug))) {
+    throw new APIError("Theme not found", 404);
+  }
   return theme;
 };
 
-export const getThemeBySlugService = async (slug) => {
+export const getThemeBySlugService = async (slug, { enforceAllowlist = false } = {}) => {
   const theme = await getThemeBySlugRepo(slug);
   if (!theme) throw new APIError("Theme not found", 404);
+  if (enforceAllowlist && !(await isSlugAllowed(theme.slug))) {
+    throw new APIError("Theme not found", 404);
+  }
   return theme;
 };
 
@@ -202,13 +214,46 @@ export const withThemePreviewImage = (theme) => {
   return obj;
 };
 
+// ─── Theme catalog allowlist ─────────────────────────────────────
+//
+// When the platform's `themes.catalogAll` flag is OFF, only the
+// allow-listed slugs (`themes.allowedSlugs`, default modern + starter)
+// are offered/installable. `getAllowedThemeSlugs()` returns `null` when
+// the full catalog is enabled (unrestricted). Restriction is applied at
+// presentation + install time only — the `themes` collection itself is
+// never filtered, so flipping the flag ON instantly reveals every theme,
+// and tenants already on a non-allowlisted theme keep rendering it
+// (storefront serving reads manifests, not this filter).
+
+/** Keep only allow-listed themes; unrestricted (null allowlist) passes through. */
+async function filterByAllowlist(themes) {
+  const allowed = await getAllowedThemeSlugs();
+  if (!allowed) return themes;
+  const set = new Set(allowed);
+  return (themes || []).filter((t) => t && set.has(t.slug));
+}
+
+/** True when a slug is offered under the current allowlist. */
+async function isSlugAllowed(slug) {
+  const allowed = await getAllowedThemeSlugs();
+  return !allowed || allowed.includes(slug);
+}
+
 export const getActiveThemesService = async (filters = {}) => {
   const themes = await getActiveThemesRepo(filters);
-  return themes.map(withThemePreviewImage);
+  const allowed = await filterByAllowlist(themes);
+  return allowed.map(withThemePreviewImage);
 };
 
 export const getThemesService = async (options = {}) => {
-  return await getThemesRepo(options);
+  const result = await getThemesRepo(options);
+  // getThemesRepo may return either a bare array or a paginated
+  // `{ themes, ... }` envelope — filter the theme list in either shape.
+  if (Array.isArray(result)) return await filterByAllowlist(result);
+  if (result && Array.isArray(result.themes)) {
+    return { ...result, themes: await filterByAllowlist(result.themes) };
+  }
+  return result;
 };
 
 export const updateThemeService = async (themeId, updates) => {
@@ -245,6 +290,7 @@ export const installThemeService = async (themeId, tenantId) => {
   const theme = await getThemeByIdRepo(themeId);
   if (!theme) throw new APIError("Theme not found", 404);
   if (theme.status !== "active") throw new APIError("Only active themes can be installed", 400);
+  if (!(await isSlugAllowed(theme.slug))) throw new APIError("Theme not available", 403);
 
   const Tenant = mongoose.model("Tenant");
   const currentTenant = await Tenant.findById(tenantId);
@@ -384,12 +430,15 @@ export const uninstallThemeService = async (themeId, tenantId) => {
 
 export const searchThemesService = async (searchQuery, options = {}) => {
   if (!searchQuery?.trim()) throw new APIError("Search query is required", 400);
-  return await searchThemesRepo(searchQuery, options);
+  return await filterByAllowlist(await searchThemesRepo(searchQuery, options));
 };
 
-export const getThemesByCategoryService = async (category, options = {}) => getThemesByCategoryRepo(category, options);
-export const getPopularThemesService = async (limit = 10) => getPopularThemesRepo(limit);
-export const getLatestThemesService = async (limit = 10) => getLatestThemesRepo(limit);
+export const getThemesByCategoryService = async (category, options = {}) =>
+  filterByAllowlist(await getThemesByCategoryRepo(category, options));
+export const getPopularThemesService = async (limit = 10) =>
+  filterByAllowlist(await getPopularThemesRepo(limit));
+export const getLatestThemesService = async (limit = 10) =>
+  filterByAllowlist(await getLatestThemesRepo(limit));
 
 /**
  * Public theme configuration. The legacy `Theme.settings`/`features`

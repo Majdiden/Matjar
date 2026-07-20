@@ -2,6 +2,7 @@ import { Router } from "express";
 import * as RedirectController from "../controllers/redirect.js";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
+import { requireFeature } from "../middlewares/featureGate.js";
 import { validateObjectId } from "../middlewares/platformAdmin.js";
 
 /**
@@ -12,6 +13,7 @@ import { validateObjectId } from "../middlewares/platformAdmin.js";
 const router = Router();
 
 router.use(authenticate);
+router.use(requireFeature("redirects"));
 
 const vid = validateObjectId("id");
 

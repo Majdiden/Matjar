@@ -8,6 +8,7 @@ import config from "../config/index.js";
 import logger from "../utils/logger.js";
 import { createScopedModels } from "../utils/scopedModel.js";
 import { initializeStoreSetup } from "./storeSetup.js";
+import { getAllowedThemeSlugs } from "./featureFlags.js";
 import { enqueueStoreSetup } from "./jobs/index.js";
 import { upsertPlatformSubdomainDomain } from "./domainRegistry.js";
 import { APIError } from "../middlewares/errorHandler.js";
@@ -38,6 +39,17 @@ const addATenantService = async (tenantData) => {
     }
 
     const fullSubdomain = `${slug}.${config.domainSuffix}`;
+
+    // Restrict the chosen theme to the platform allowlist (feature-flagged).
+    // A disallowed/unknown slug falls back to the default theme rather than
+    // failing registration. `getAllowedThemeSlugs()` returns null when the full
+    // catalog is enabled (unrestricted).
+    const allowedThemes = await getAllowedThemeSlugs();
+    const requestedTheme = tenantData.themeSlug;
+    const themeSlug =
+      requestedTheme && (!allowedThemes || allowedThemes.includes(requestedTheme))
+        ? requestedTheme
+        : "modern";
 
     // One-time setup token — gates the unauthenticated /store-setup/status
     // poll endpoint so a third party who happens to know the tenantId
@@ -78,7 +90,15 @@ const addATenantService = async (tenantData) => {
         currency: tenantData.currency || "SDG",
         timezone: tenantData.timezone || "Africa/Khartoum",
         language: tenantData.language || "en",
-        activeTheme: tenantData.themeSlug || "modern",
+        activeTheme: themeSlug,
+        // Order-email sender defaults (requirement): display name = store name,
+        // address = no-reply@<platform subdomain>. emailIdentity.storeFrom()
+        // honors the name always and the address only when the domain is
+        // actually sendable (verified) — see services/emailIdentity.js.
+        notifications: {
+          fromName: storeName,
+          fromEmail: `no-reply@${fullSubdomain}`,
+        },
       },
     };
 
@@ -90,7 +110,9 @@ const addATenantService = async (tenantData) => {
     // (audit 1.2); catalog rows carry no renderable configuration.
     if (tenantData.themeSlug) {
       const Theme = mongoose.model("Theme");
-      const selectedTheme = await Theme.findOne({ slug: tenantData.themeSlug, status: "active" });
+      // Use the allowlist-validated slug (falls back to the default theme when
+      // the requested one is disallowed) rather than the raw request value.
+      const selectedTheme = await Theme.findOne({ slug: themeSlug, status: "active" });
       if (selectedTheme) {
         tenantPayload.themeCustomization = {
           themeId: selectedTheme._id,

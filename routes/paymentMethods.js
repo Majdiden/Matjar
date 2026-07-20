@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
+import { requireFeature } from "../middlewares/featureGate.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import { seedDefaultPaymentMethods } from "../services/storeSetup.js";
 
@@ -46,7 +47,7 @@ const redactConfig = (method) => {
 // Stripe is parked; no gateway integrations available yet.
 const GATEWAY_CATALOG = [];
 
-router.use(authenticate, requirePermission("settings.write"));
+router.use(authenticate, requirePermission("settings.write"), requireFeature("payments.methods"));
 
 /**
  * GET / — list all payment methods (enabled + disabled) for tenant.

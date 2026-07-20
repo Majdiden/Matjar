@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
+import { requireFeature } from "../middlewares/featureGate.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 
 const router = Router();
-router.use(authenticate, requirePermission("audit.read"));
+router.use(authenticate, requirePermission("audit.read"), requireFeature("auditLogs"));
 
 router.get("/", asyncHandler(async (req, res) => {
   const { page = 1, limit = 50, resource, action, actor } = req.query;

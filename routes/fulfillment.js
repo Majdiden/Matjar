@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
+import { requireFeature } from "../middlewares/featureGate.js";
 import { createFulfillment, getFulfillments, updateFulfillment } from "../controllers/fulfillment.js";
 
 const router = Router();
 
 router.use(authenticate);
+router.use(requireFeature("orders.fulfillment"));
 
 router.get("/", requirePermission("fulfillments.read", "fulfillments.write"), getFulfillments);
 router.post("/", requirePermission("fulfillments.write"), createFulfillment);

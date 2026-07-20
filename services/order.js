@@ -33,6 +33,7 @@ import { notifyOrderStatusChange, recordOrderNotified, notifyMerchantNewOrder, O
 import { emit as emitNotification } from "./notification.js";
 import { guardTransition } from "../utils/orderStateMachine.js";
 import { logStateChange } from "../utils/auditLog.js";
+import { isFeatureEnabled } from "./featureFlags.js";
 
 /**
  * Retry-on-VersionError helper.
@@ -547,6 +548,15 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
       resolvedPaymentLabel = "Gift Card";
       sanitizedPaymentDetails = {};
     } else if (paymentMethodCode) {
+      // Defense in depth: when payment-methods management is disabled at
+      // the platform level, COD is the only method the storefront may use.
+      // Reject a crafted checkout POST that names any other method.
+      if (
+        paymentMethodCode !== "cod" &&
+        !(await isFeatureEnabled("payments.methods"))
+      ) {
+        throw new APIError(`Payment method not available: ${paymentMethodCode}`, 400);
+      }
       const configured = models.PaymentMethod
         ? await models.PaymentMethod.findOne({ code: paymentMethodCode, enabled: true }).session(session)
         : null;

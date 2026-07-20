@@ -34,6 +34,7 @@ import {
 } from "../services/themeDemoPreview.js";
 import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
 import { isStoreDraft } from "../services/storeSetup.js";
+import { isFeatureEnabled } from "../services/featureFlags.js";
 
 const router = express.Router();
 const productCardSelect =
@@ -1560,7 +1561,14 @@ router.get(
       // Hide a manual method entirely when the merchant hasn't yet
       // configured any usable provider — avoids a dead checkout option.
       .filter((m) => m.type !== "manual" || m.providers.length > 0);
-    res.json({ success: true, data: { methods: sanitized } });
+    // When payment-methods management is disabled at the platform level,
+    // COD is the only method the storefront may ever offer — suppress any
+    // manual-transfer or gateway rows regardless of tenant DB state.
+    const methodsAllowed = await isFeatureEnabled("payments.methods");
+    const visible = methodsAllowed
+      ? sanitized
+      : sanitized.filter((m) => m.code === "cod");
+    res.json({ success: true, data: { methods: visible } });
   })
 );
 

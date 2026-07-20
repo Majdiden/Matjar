@@ -1,6 +1,7 @@
 import express from "express";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
+import { requireFeature } from "../middlewares/featureGate.js";
 import {
   createPaymentIntentController,
   webhookController,
@@ -37,10 +38,10 @@ if (stripeEnabled) {
   router.post("/create-intent", gatewayDisabled);
 }
 
-router.get("/", authenticate, requirePermission("payments.read"), listPaymentsController);
-router.get("/order/:orderId", authenticate, requirePermission("payments.read"), listOrderPaymentsController);
-router.get("/:id", authenticate, requirePermission("payments.read"), getPaymentController);
-router.post("/refund", authenticate, requirePermission("payments.refund"), idempotency(), refundController);
-router.post("/verify-manual", authenticate, requirePermission("payments.verify"), verifyManualPaymentController);
+router.get("/", authenticate, requirePermission("payments.read"), requireFeature("payments.transactions"), listPaymentsController);
+router.get("/order/:orderId", authenticate, requirePermission("payments.read"), requireFeature("payments.transactions"), listOrderPaymentsController);
+router.get("/:id", authenticate, requirePermission("payments.read"), requireFeature("payments.transactions"), getPaymentController);
+router.post("/refund", authenticate, requirePermission("payments.refund"), requireFeature("payments.transactions"), idempotency(), refundController);
+router.post("/verify-manual", authenticate, requirePermission("payments.verify"), requireFeature("payments.transactions"), verifyManualPaymentController);
 
 export default router;

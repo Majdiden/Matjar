@@ -21,6 +21,7 @@ import {
 } from "../controllers/domain.js";
 import { authenticate, optionalAuth } from "../middlewares/auth.js";
 import { isAdmin, requirePermission } from "../middlewares/authorize.js";
+import { requireFeature } from "../middlewares/featureGate.js";
 import { domainCheckLimiter } from "../middlewares/rateLimiters.js";
 
 const router = express.Router();
@@ -94,7 +95,7 @@ router.patch("/subdomain", requirePermission("domains.write"), updateSubdomain);
  * @example POST /api/domains/custom
  *          Body: { "domain": "mystore.com", "verificationMethod": "dns" }
  */
-router.post("/custom", requirePermission("domains.write"), addCustomDomain);
+router.post("/custom", requirePermission("domains.write"), requireFeature("domains.custom"), addCustomDomain);
 
 /**
  * @route   POST /api/domains/custom/verify
@@ -102,7 +103,7 @@ router.post("/custom", requirePermission("domains.write"), addCustomDomain);
  * @access  Private (Tenant Admin)
  * @example POST /api/domains/custom/verify
  */
-router.post("/custom/verify", requirePermission("domains.write"), verifyCustomDomain);
+router.post("/custom/verify", requirePermission("domains.write"), requireFeature("domains.custom"), verifyCustomDomain);
 
 /**
  * @route   DELETE /api/domains/custom/:domainId?
@@ -113,8 +114,8 @@ router.post("/custom/verify", requirePermission("domains.write"), verifyCustomDo
  * @access  Private (Tenant Admin)
  * @example DELETE /api/domains/custom
  */
-router.delete("/custom/:domainId", requirePermission("domains.write"), removeCustomDomain);
-router.delete("/custom", requirePermission("domains.write"), removeCustomDomain);
+router.delete("/custom/:domainId", requirePermission("domains.write"), requireFeature("domains.custom"), removeCustomDomain);
+router.delete("/custom", requirePermission("domains.write"), requireFeature("domains.custom"), removeCustomDomain);
 
 /**
  * @route   POST /api/domains/custom/ssl
@@ -122,7 +123,7 @@ router.delete("/custom", requirePermission("domains.write"), removeCustomDomain)
  * @access  Private (Tenant Admin)
  * @example POST /api/domains/custom/ssl
  */
-router.post("/custom/ssl", requirePermission("domains.write"), enableSSL);
+router.post("/custom/ssl", requirePermission("domains.write"), requireFeature("domains.custom"), enableSSL);
 
 // ============================================
 // PRIMARY DOMAIN MANAGEMENT

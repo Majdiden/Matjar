@@ -63,11 +63,36 @@ export function storeMailHost(tenant) {
  * (e.g. noreply@matjar.to) with the STORE NAME as the display name, and only
  * use the store's own domain when it's a VERIFIED CUSTOM domain. Reply-To
  * carries the store's real contact so replies still reach the merchant.
+ *
+ * The merchant's configured `settings.notifications.fromName` is ALWAYS honored
+ * as the display name. Their `fromEmail` (defaulted to no-reply@<subdomain> at
+ * store creation) is honored as the address ONLY when its domain is actually
+ * sendable — a verified custom domain or the platform root domain — otherwise
+ * we keep the deliverability-safe platform sender. So the stored default shows
+ * in settings and "just works" the moment the domain becomes sendable, without
+ * breaking delivery in the meantime.
  */
 export function storeFrom(tenant) {
-  const storeName = tenant?.settings?.storeName || tenant?.name || "Store";
+  const notif = tenant?.settings?.notifications || {};
+  const storeName =
+    notif.fromName || tenant?.settings?.storeName || tenant?.name || "Store";
+
   const custom = verifiedCustomDomain(tenant);
-  const addr = custom ? `noreply@${custom}` : platformSenderAddress();
+  let addr = custom ? `noreply@${custom}` : platformSenderAddress();
+
+  // Domains we can actually send from (verified with the provider): a verified
+  // custom domain, or the platform root domain. A per-store subdomain
+  // (mystore.matjar.to) is NOT individually verified → never send from it.
+  const platformDomain = platformSenderAddress().split("@")[1];
+  const sendable = [custom, platformDomain]
+    .filter(Boolean)
+    .map((d) => String(d).toLowerCase());
+  const configured = String(notif.fromEmail || "").trim().toLowerCase();
+  const configuredDomain = configured.includes("@") ? configured.split("@")[1] : "";
+  if (configured && sendable.includes(configuredDomain)) {
+    addr = configured;
+  }
+
   return `${storeName} <${addr}>`;
 }
 

@@ -2,6 +2,7 @@ import express from "express";
 import * as SettingsController from "../controllers/settings.js";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
+import { requireFeature } from "../middlewares/featureGate.js";
 
 const router = express.Router();
 
@@ -20,22 +21,24 @@ router.delete("/shipping/zones/:zoneId", canWrite, SettingsController.deleteShip
 
 // Tax rates — granular CRUD. The bulk PUT still works for one-shot
 // imports; these endpoints exist for the dashboard's per-row UX.
-router.get("/tax/rates", canRead, SettingsController.listTaxRates);
-router.post("/tax/rates", canWrite, SettingsController.createTaxRate);
-router.put("/tax/rates/:rateId", canWrite, SettingsController.updateTaxRate);
-router.delete("/tax/rates/:rateId", canWrite, SettingsController.deleteTaxRate);
+const taxEnabled = requireFeature("settings.tax");
+router.get("/tax/rates", canRead, taxEnabled, SettingsController.listTaxRates);
+router.post("/tax/rates", canWrite, taxEnabled, SettingsController.createTaxRate);
+router.put("/tax/rates/:rateId", canWrite, taxEnabled, SettingsController.updateTaxRate);
+router.delete("/tax/rates/:rateId", canWrite, taxEnabled, SettingsController.deleteTaxRate);
 
 // Markets — Shopify-style geographic groupings (countries → currency,
 // language, price adjustment). The bulk PUT still works for one-shot
 // imports; per-row endpoints exist for the dashboard's UX.
-router.get("/markets", canRead, SettingsController.listMarkets);
-router.post("/markets", canWrite, SettingsController.createMarket);
-router.put("/markets/:marketId", canWrite, SettingsController.updateMarket);
-router.delete("/markets/:marketId", canWrite, SettingsController.deleteMarket);
+const marketsEnabled = requireFeature("settings.markets");
+router.get("/markets", canRead, marketsEnabled, SettingsController.listMarkets);
+router.post("/markets", canWrite, marketsEnabled, SettingsController.createMarket);
+router.put("/markets/:marketId", canWrite, marketsEnabled, SettingsController.updateMarket);
+router.delete("/markets/:marketId", canWrite, marketsEnabled, SettingsController.deleteMarket);
 
 // Currencies — base currency + FX rates table. PUT replaces the rates map
 // wholesale (no partial-merge surprises).
-router.put("/currencies", canWrite, SettingsController.updateCurrencies);
+router.put("/currencies", canWrite, requireFeature("settings.currencies"), SettingsController.updateCurrencies);
 
 // Order status notifications — per-status email template config. PUT
 // merges per-status (so the merchant can edit one template without

@@ -222,7 +222,7 @@ export const getDefaultTheme = asyncHandler(async (req, res) => {
  * @access  Public
  */
 export const getThemeById = asyncHandler(async (req, res) => {
-  const theme = await getThemeService(req.params.id);
+  const theme = await getThemeService(req.params.id, { enforceAllowlist: true });
 
   res.json({
     success: true,
@@ -236,7 +236,7 @@ export const getThemeById = asyncHandler(async (req, res) => {
  * @access  Public
  */
 export const getThemeBySlug = asyncHandler(async (req, res) => {
-  const theme = await getThemeBySlugService(req.params.slug);
+  const theme = await getThemeBySlugService(req.params.slug, { enforceAllowlist: true });
 
   res.json({
     success: true,
