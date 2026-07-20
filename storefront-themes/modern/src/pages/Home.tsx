@@ -3,23 +3,30 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@matjar/theme-shared/theme/ThemeProvider';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
-import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
-import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
+import { ProductCarousel } from '@matjar/theme-shared/components/commerce/ProductCarousel';
 import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import { CategoryShowcase } from '@matjar/theme-shared/components/sections/CategoryShowcase';
 
 // Niche default hero image — a clean tech/gadget lifestyle shot — so the
 // hero is never empty even before the merchant sets one.
 const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1600&q=80&auto=format&fit=crop';
+
+// Niche default promo-banner imagery (same Unsplash-style defaults as the
+// hero) so the promo slideshow is never empty before the merchant uploads
+// their own campaign art.
+const PROMO_DEFAULT_IMAGES = [
+  'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=1600&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=1600&q=80&auto=format&fit=crop',
+];
 import { Carousel } from '@matjar/theme-shared/components/primitives/Carousel';
-import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { CountdownTimer } from '@matjar/theme-shared/components/marketing/CountdownTimer';
+import { ImageCarousel } from '@matjar/theme-shared/components/marketing/ImageCarousel';
 import { MerchantSections } from '@matjar/theme-shared/theme/SectionRenderer';
 
 // IDs that this theme renders inline above. MerchantSections will render
 // any other section instances the merchant added in the dashboard.
-const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'trust-badges', 'new-arrivals', 'newsletter'];
+const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'trust-badges', 'promo-banners', 'new-arrivals', 'newsletter'];
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
@@ -31,15 +38,18 @@ const Home: React.FC = () => {
   const cats = useThemeSettings('categories');
   const feat = useThemeSettings('featured-products');
   const trust = useThemeSettings('trust-badges');
+  const promo = useThemeSettings('promo-banners');
   const arrivals = useThemeSettings('new-arrivals');
   const news = useThemeSettings('newsletter');
   const trustBadgeBlocks = useSectionBlocks('trust-badges');
+  const promoBlocks = useSectionBlocks('promo-banners');
 
   // Section visibility
   const heroEnabled = useSectionEnabled('hero');
   const catsEnabled = useSectionEnabled('categories');
   const featEnabled = useSectionEnabled('featured-products');
   const trustEnabled = useSectionEnabled('trust-badges');
+  const promoEnabled = useSectionEnabled('promo-banners');
   const arrivalsEnabled = useSectionEnabled('new-arrivals');
   const newsEnabled = useSectionEnabled('newsletter');
 
@@ -51,7 +61,44 @@ const Home: React.FC = () => {
   // Animate sections on scroll
   const { ref: categoriesRef, isIntersecting: categoriesVisible } = useIntersectionObserver({ threshold: 0.1 });
   const { ref: featuredRef, isIntersecting: featuredVisible } = useIntersectionObserver({ threshold: 0.1 });
+  const { ref: promoRef, isIntersecting: promoVisible } = useIntersectionObserver({ threshold: 0.1 });
   const { ref: newArrivalsRef, isIntersecting: newArrivalsVisible } = useIntersectionObserver({ threshold: 0.1 });
+
+  // Promo slideshow slides — merchant-configured blocks (dashboard) first;
+  // when none carry an image yet, fall back to a tasteful translated default
+  // pair so the section never renders empty frames.
+  const configuredPromo = promoBlocks.filter((b) => b.type === 'slide' && b.settings?.image);
+  const promoSlides = configuredPromo.length > 0
+    ? configuredPromo.map((b) => ({
+        image: b.settings.image as string,
+        href: (b.settings.link as string) || undefined,
+        alt: (b.settings.alt as string) || undefined,
+        title: (b.settings.title as string) || undefined,
+        subtitle: (b.settings.subtitle as string) || undefined,
+        ctaLabel: (b.settings.cta_label as string) || undefined,
+        ctaHref: (b.settings.cta_url as string) || undefined,
+        align: (b.settings.align as 'start' | 'center' | 'end') || 'start',
+      }))
+    : [
+        {
+          image: PROMO_DEFAULT_IMAGES[0],
+          href: '/products',
+          alt: t('theme.section.promo-banners.slide1_title'),
+          title: t('theme.section.promo-banners.slide1_title'),
+          subtitle: t('theme.section.promo-banners.slide1_subtitle'),
+          ctaLabel: t('theme.section.promo-banners.slide1_cta'),
+          align: 'start' as const,
+        },
+        {
+          image: PROMO_DEFAULT_IMAGES[1],
+          href: '/products?sort=newest',
+          alt: t('theme.section.promo-banners.slide2_title'),
+          title: t('theme.section.promo-banners.slide2_title'),
+          subtitle: t('theme.section.promo-banners.slide2_subtitle'),
+          ctaLabel: t('theme.section.promo-banners.slide2_cta'),
+          align: 'start' as const,
+        },
+      ];
 
   return (
     <div>
@@ -129,45 +176,26 @@ const Home: React.FC = () => {
         />
       )}
 
-      {/* Featured Products */}
+      {/* Featured Products — premium swipeable carousel (shared ProductCarousel) */}
       {featEnabled && (
       <section
         ref={featuredRef as React.RefObject<HTMLElement>}
         className={`max-w-7xl mx-auto px-4 sm:px-6 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold">{feat.heading || t('theme.section.featured-products.heading')}</h2>
-            {feat.subheading && <p className="text-gray-500 mt-1">{feat.subheading}</p>}
-          </div>
-          <Link
-            to={feat.view_all_url || '/products'}
-            className="text-sm font-medium hover:underline flex items-center gap-1"
-            style={{ color: 'var(--color-primary, #2563eb)' }}
-          >
-            {t('theme.section.featured-products.view_all')}
-            <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </div>
-        {featuredLoading ? (
-          <Skeleton.ProductGrid count={parseInt(feat.columns) || 4} />
-        ) : (
-          <ProductRail columns={(Number(feat.columns) || 4) as 2 | 3 | 4 | 5}>
-            {featured.map((product) => (
-              <ProductCard key={product._id} product={product} onQuickView={feat.show_quick_view !== false ? setQuickViewProduct : undefined}>
-                <ProductCard.Image showBadge showQuickView={feat.show_quick_view !== false} hoverSwap />
-                <ProductCard.Body>
-                  <ProductCard.Title />
-                  {feat.show_rating !== false && <ProductCard.Rating />}
-                  <ProductCard.Price showCompareAt showDiscount className="mt-2" />
-                  {feat.show_add_to_cart !== false && <ProductCard.Actions fullWidth className="mt-3" addToCartText={t('theme.section.featured-products.add_to_cart')} />}
-                </ProductCard.Body>
-              </ProductCard>
-            ))}
-          </ProductRail>
-        )}
+        <ProductCarousel
+          products={featured}
+          loading={featuredLoading}
+          heading={feat.heading || t('theme.section.featured-products.heading')}
+          subheading={feat.subheading || undefined}
+          viewAllHref={feat.view_all_url || '/products'}
+          viewAllLabel={t('theme.section.featured-products.view_all')}
+          desktopSlides={(Number(feat.columns) || 4) as 2 | 3 | 4 | 5}
+          onQuickView={feat.show_quick_view !== false ? setQuickViewProduct : undefined}
+          showRating={feat.show_rating !== false}
+          showAddToCart={feat.show_add_to_cart !== false}
+          addToCartLabel={t('theme.section.featured-products.add_to_cart')}
+          hoverSwap
+        />
       </section>
       )}
 
@@ -206,44 +234,46 @@ const Home: React.FC = () => {
         </section>
       )}
 
-      {/* New Arrivals Carousel */}
+      {/* Promo Banners — merchant-facing clickable image slideshow (shared
+          ImageCarousel). Slides come from the section's dashboard-editable
+          blocks; a translated default pair renders until the merchant
+          uploads campaign art, so the section is never empty. */}
+      {promoEnabled && promoSlides.length > 0 && (
+      <section
+        ref={promoRef as React.RefObject<HTMLElement>}
+        className={`max-w-7xl mx-auto px-4 sm:px-6 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${promoVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+      >
+        <ImageCarousel
+          slides={promoSlides}
+          autoPlay={promo.autoplay === false ? 0 : (Number(promo.autoplay_interval) || 5) * 1000}
+          aspect={promo.aspect_ratio || '21/9'}
+          rounded={promo.rounded !== false}
+          showArrows={promo.show_arrows !== false}
+          showDots={promo.show_dots !== false}
+        />
+      </section>
+      )}
+
+      {/* New Arrivals — premium swipeable carousel (shared ProductCarousel) */}
       {arrivalsEnabled && (
       <section
         ref={newArrivalsRef as React.RefObject<HTMLElement>}
         className={`max-w-7xl mx-auto px-4 sm:px-6 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${newArrivalsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold">{arrivals.heading || t('theme.section.new-arrivals.heading')}</h2>
-            {arrivals.subheading && <p className="text-gray-500 mt-1">{arrivals.subheading}</p>}
-          </div>
-          <Link
-            to={arrivals.view_all_url || '/products?sort=newest'}
-            className="text-sm font-medium hover:underline flex items-center gap-1"
-            style={{ color: 'var(--color-primary, #2563eb)' }}
-          >
-            {t('theme.section.new-arrivals.see_more')}
-            <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </div>
-        {newLoading ? (
-          <Skeleton.ProductGrid count={4} />
-        ) : (
-          <ProductRail columns={4}>
-            {newArrivals.map((product) => (
-              <ProductCard key={product._id} product={product} onQuickView={setQuickViewProduct}>
-                <ProductCard.Image showBadge showQuickView />
-                <ProductCard.Body>
-                  <ProductCard.Title />
-                  <ProductCard.Price showCompareAt showDiscount className="mt-2" />
-                  {arrivals.show_add_to_cart !== false && <ProductCard.Actions fullWidth className="mt-3" addToCartText={t('theme.section.new-arrivals.add_to_cart')} />}
-                </ProductCard.Body>
-              </ProductCard>
-            ))}
-          </ProductRail>
-        )}
+        <ProductCarousel
+          products={newArrivals}
+          loading={newLoading}
+          heading={arrivals.heading || t('theme.section.new-arrivals.heading')}
+          subheading={arrivals.subheading || undefined}
+          viewAllHref={arrivals.view_all_url || '/products?sort=newest'}
+          viewAllLabel={t('theme.section.new-arrivals.see_more')}
+          desktopSlides={4}
+          onQuickView={setQuickViewProduct}
+          showRating={false}
+          showAddToCart={arrivals.show_add_to_cart !== false}
+          addToCartLabel={t('theme.section.new-arrivals.add_to_cart')}
+          autoPlay={arrivals.autoplay ? 5000 : 0}
+        />
       </section>
       )}
 

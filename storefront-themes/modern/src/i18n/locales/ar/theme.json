@@ -37,6 +37,14 @@
         "easy_returns_title": "إرجاع سهل",
         "easy_returns_desc": "ضمان استرداد الأموال خلال 30 يوماً"
       },
+      "promo-banners": {
+        "slide1_title": "عروض كبيرة على أفضل الأجهزة",
+        "slide1_subtitle": "وفّر على الأجهزة التي تتمناها — لفترة محدودة.",
+        "slide1_cta": "تسوق العروض",
+        "slide2_title": "وصل حديثاً",
+        "slide2_subtitle": "منتجات جديدة كل أسبوع — كن أول من يقتنيها.",
+        "slide2_cta": "تسوق الجديد"
+      },
       "new-arrivals": {
         "heading": "الوصول حديثاً",
         "subheading": "وصل للتو إلى متجرنا",

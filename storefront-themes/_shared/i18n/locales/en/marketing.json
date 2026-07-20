@@ -34,5 +34,8 @@
       "email": "Share via Email",
       "copy": "Copy link"
     }
+  },
+  "banner": {
+    "open": "View offer"
   }
 }

@@ -110,6 +110,52 @@ export const trustBadgesSection: SectionDefinition = defineSection({
   ],
 });
 
+export const promoBannersSection: SectionDefinition = defineSection({
+  type: 'promo-banners',
+  name: 'Promo Banners',
+  icon: 'Images',
+  category: 'marketing',
+  description: 'Clickable image banner slideshow for promotions, campaigns and lookbooks',
+  target: 'body',
+  limit: 1,
+  settings: [
+    { id: 'autoplay', type: 'checkbox', label: 'Auto-play', default: true },
+    { id: 'autoplay_interval', type: 'number', label: 'Auto-play Interval', default: 5, min: 2, max: 15, step: 1 },
+    { id: 'aspect_ratio', type: 'select', label: 'Banner Shape', default: '21/9', options: [
+      { value: '16/9', label: 'Tall (16:9)' },
+      { value: '21/9', label: 'Standard (21:9)' },
+      { value: '3/1', label: 'Slim (3:1)' },
+    ]},
+    { id: 'rounded', type: 'checkbox', label: 'Rounded Corners', default: true },
+    { id: 'show_arrows', type: 'checkbox', label: 'Show Arrows', default: true },
+    { id: 'show_dots', type: 'checkbox', label: 'Show Dots', default: true },
+  ],
+  blocks: [
+    {
+      type: 'slide',
+      name: 'Banner Slide',
+      settings: [
+        { id: 'image', type: 'image', label: 'Image' },
+        { id: 'link', type: 'url', label: 'Link URL', default: '', info: 'The whole banner becomes clickable' },
+        { id: 'alt', type: 'text', label: 'Image Description', default: '', info: 'For accessibility and SEO' },
+        { id: 'title', type: 'text', label: 'Title', default: '' },
+        { id: 'subtitle', type: 'text', label: 'Subtitle', default: '' },
+        { id: 'cta_label', type: 'text', label: 'Button Label', default: '' },
+        { id: 'cta_url', type: 'url', label: 'Button URL', default: '', info: 'Falls back to the banner link' },
+        { id: 'align', type: 'select', label: 'Text Alignment', default: 'start', options: [
+          { value: 'start', label: 'Start' },
+          { value: 'center', label: 'Center' },
+          { value: 'end', label: 'End' },
+        ]},
+      ],
+    },
+  ],
+  defaultBlocks: [
+    { id: 'promo-slide-1', type: 'slide', settings: { image: '', link: '/products', align: 'start' } },
+    { id: 'promo-slide-2', type: 'slide', settings: { image: '', link: '/products?sort=newest', align: 'start' } },
+  ],
+});
+
 export const newArrivalsSection: SectionDefinition = defineSection({
   type: 'new-arrivals',
   name: 'New Arrivals',
@@ -213,6 +259,7 @@ const manifest: ThemeManifest = defineTheme({
     categoriesSection,
     featuredProductsSection,
     trustBadgesSection,
+    promoBannersSection,
     newArrivalsSection,
     newsletterSection,
   ],
@@ -226,6 +273,10 @@ const manifest: ThemeManifest = defineTheme({
         { id: 'badge-1', type: 'badge', settings: { icon: 'shipping', title: 'Free Shipping', description: 'On orders over $50' } },
         { id: 'badge-2', type: 'badge', settings: { icon: 'lock', title: 'Secure Payment', description: '256-bit SSL encryption' } },
         { id: 'badge-3', type: 'badge', settings: { icon: 'return', title: 'Easy Returns', description: '30-day money back guarantee' } },
+      ]},
+      { id: 'promo-banners', type: 'promo-banners', settings: {}, blocks: [
+        { id: 'promo-slide-1', type: 'slide', settings: { image: '', link: '/products', align: 'start' } },
+        { id: 'promo-slide-2', type: 'slide', settings: { image: '', link: '/products?sort=newest', align: 'start' } },
       ]},
       { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
       { id: 'newsletter', type: 'newsletter', settings: {} },

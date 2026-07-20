@@ -20,6 +20,7 @@ import { Carousel } from '../primitives/Carousel';
 import { Skeleton } from '../primitives/Skeleton';
 import type { SectionInstance } from '../../types/theme';
 import { CategoryShowcase } from './CategoryShowcase';
+import { ImageCarousel } from '../marketing/ImageCarousel';
 
 /**
  * Per-section appearance overrides (from the shared APPEARANCE_SETTINGS).
@@ -545,6 +546,41 @@ export const TrustBadgesSection: React.FC<SectionComponentProps> = ({ id }) => {
   );
 };
 
+// ─── Promo Banners (clickable image slideshow) ───────────────────
+
+export const PromoBannersSection: React.FC<SectionComponentProps> = ({ id }) => {
+  const s = useThemeSettings(id);
+  const blocks = useSectionBlocks(id);
+  // Slides come from editable BLOCKS; only slides with an image render, so
+  // a freshly added, unconfigured section stays invisible to shoppers
+  // instead of showing empty frames.
+  const slides = blocks
+    .filter((b) => b.type === 'slide' && b.settings?.image)
+    .map((b) => ({
+      image: b.settings.image,
+      href: b.settings.link || undefined,
+      alt: b.settings.alt || undefined,
+      title: b.settings.title || undefined,
+      subtitle: b.settings.subtitle || undefined,
+      ctaLabel: b.settings.cta_label || undefined,
+      ctaHref: b.settings.cta_url || undefined,
+      align: (b.settings.align as 'start' | 'center' | 'end') || 'start',
+    }));
+  if (slides.length === 0) return null;
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10" style={appearanceStyle(s)}>
+      <ImageCarousel
+        slides={slides}
+        autoPlay={s.autoplay === false ? 0 : (Number(s.autoplay_interval) || 5) * 1000}
+        aspect={s.aspect_ratio || '21/9'}
+        rounded={s.rounded !== false}
+        showArrows={s.show_arrows !== false}
+        showDots={s.show_dots !== false}
+      />
+    </section>
+  );
+};
+
 // ─── Registry ────────────────────────────────────────────────────
 
 export type SectionComponent = React.FC<SectionComponentProps>;
@@ -563,6 +599,7 @@ export const DEFAULT_SECTION_REGISTRY: Record<string, SectionComponent> = {
   spacer: SpacerSection,
   'featured-products': FeaturedProductsSection,
   'new-arrivals': NewArrivalsSection,
+  'promo-banners': PromoBannersSection,
   categories: CategoriesSection,
   'trust-badges': TrustBadgesSection,
 };
