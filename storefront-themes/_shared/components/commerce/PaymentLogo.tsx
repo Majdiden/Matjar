@@ -99,6 +99,11 @@ const PaymentLogo: React.FC<Props> = ({ code, className, src, size }) => {
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
+            // A little inset so the logo shows FULLY (contain, never cropped)
+            // with breathing room instead of touching the tile edges. All
+            // tiles share the same w×h so icons stay visually consistent.
+            padding: Math.max(1, Math.round(h * 0.1)),
+            boxSizing: 'border-box',
           }}
         >
           <img

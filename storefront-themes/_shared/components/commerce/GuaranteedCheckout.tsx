@@ -54,6 +54,7 @@ const GuaranteedCheckout: React.FC<Props> = (props) => {
           out.push({ code, src });
         };
 
+        const isUrl = (s?: string) => !!s && /^(https?:|\/)/.test(s);
         for (const m of methods) {
           // Merchant-uploaded provider icons take priority — each manual
           // provider can contribute its own image, and a URL in `logo`
@@ -61,20 +62,27 @@ const GuaranteedCheckout: React.FC<Props> = (props) => {
           const providers = (m as any).providers as
             | { code?: string; logo?: string }[]
             | undefined;
+          let contributed = false;
           if (providers && providers.length) {
             for (const p of providers) {
               const logo = p.logo || '';
-              if (/^(https?:|\/)/.test(logo)) {
-                push(p.code || logo, logo);
-              } else if (logo) {
-                push(logo);
-              }
+              if (isUrl(logo)) { push(p.code || logo, logo); contributed = true; }
+              else if (logo) { push(logo); contributed = true; }
             }
           }
-          // Fall back to method-level logo codes (e.g. visa, mastercard).
+          // Brand logos on the method itself (e.g. visa, mastercard).
           const logos = m.providerLogos && m.providerLogos.length > 0 ? m.providerLogos : [];
           for (const l of logos) {
-            if (l) push(l);
+            if (l) { push(l); contributed = true; }
+          }
+          // Every available method should show at least ONE badge — its own.
+          // Without this, a Cash-on-Delivery-only store (which has no provider
+          // or brand logos) rendered nothing at all. Prefer the method's
+          // uploaded icon, else its code (→ stock SVG: cod, bank, card, …).
+          if (!contributed) {
+            const icon = (m as any).icon as string | undefined;
+            if (isUrl(icon)) push(m.code, icon);
+            else push(m.code);
           }
         }
         setBadges(out);
