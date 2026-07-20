@@ -33,6 +33,23 @@ import logger from "./utils/logger.js";
 // Initialize Express app
 const app = express();
 
+// The theme editor embeds a tenant storefront (a platform subdomain, e.g.
+// glory.matjar.to) inside an iframe on the dashboard — so the dashboard's CSP
+// `frame-src` must allow tenant hosts under the platform domain, or the browser
+// blocks the preview ("frame-src ... blocked"). Custom-domain stores are also
+// previewed via their platform subdomain (services/themeCustomization.js), so
+// the wildcard covers every store.
+const platformFrameSrc = [];
+{
+  const pd = config.platformDomain;
+  if (pd) {
+    platformFrameSrc.push(`https://*.${pd}`, `https://${pd}`);
+    if (config.isDevelopment) {
+      platformFrameSrc.push(`http://*.${pd}`, `http://${pd}`);
+    }
+  }
+}
+
 // Security Headers
 app.use(
   helmet({
@@ -49,7 +66,7 @@ app.use(
         // Same rationale as imgSrc allowing data:/blob: above.
         fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
         connectSrc: ["'self'", "https://api.stripe.com"],
-        frameSrc: ["'self'", "https://js.stripe.com"],
+        frameSrc: ["'self'", "https://js.stripe.com", ...platformFrameSrc],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: [],
       },

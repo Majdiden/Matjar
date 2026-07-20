@@ -822,11 +822,14 @@ export const generatePreviewTokenService = async (
     tenant.domains?.customDomain?.isVerified
       ? tenant.domains.customDomain.name
       : null;
-  const host = customDomain
-    ? customDomain
-    : subdomainName
+  // Prefer the platform subdomain for the editor preview even when the store's
+  // primary domain is a custom one: the storefront serves identically there,
+  // and the dashboard's CSP frame-src allows `*.<platformDomain>` (a static
+  // wildcard can't enumerate arbitrary custom domains), so the preview is
+  // always embeddable in the editor iframe.
+  const host = subdomainName
     ? `${subdomainName}.${config.baseDomain}`
-    : config.baseDomain;
+    : customDomain || config.baseDomain;
   const scheme = config.isProduction ? "https" : "http";
   const previewUrl = `${scheme}://${host}/?preview=${token}`;
 
