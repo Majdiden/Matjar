@@ -147,11 +147,26 @@ const Layout: React.FC = () => {
             <p>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), name: store?.name || 'Store' })}</p>
             <div className="flex gap-6">
               <Link to="/products" className="transition hover:opacity-80">{t('theme.footer.products')}</Link>
-              <span className="cursor-pointer transition hover:opacity-80">{t('theme.footer.about')}</span>
+              <Link to="/about" className="transition hover:opacity-80">{t('theme.footer.about')}</Link>
               <Link to="/contact" className="transition hover:opacity-80">{t('theme.footer.contact')}</Link>
               <PolicyLinks inline className="contents" linkClassName="transition hover:opacity-80" />
             </div>
           </div>
+          {/* Store contact details (from Settings → Policies) — only when set. */}
+          {(store?.contact?.email || store?.contact?.phone || store?.contact?.address) && (
+            <div
+              className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-center text-sm"
+              style={{ color: 'var(--color-muted)' }}
+            >
+              {store?.contact?.email && (
+                <a href={`mailto:${store.contact.email}`} className="transition hover:opacity-80">{store.contact.email}</a>
+              )}
+              {store?.contact?.phone && (
+                <a href={`tel:${store.contact.phone}`} dir="ltr" className="transition hover:opacity-80">{store.contact.phone}</a>
+              )}
+              {store?.contact?.address && <span>{store.contact.address}</span>}
+            </div>
+          )}
         </div>
       </footer>
 

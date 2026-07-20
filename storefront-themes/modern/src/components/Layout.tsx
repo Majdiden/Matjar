@@ -160,6 +160,20 @@ const Layout: React.FC = () => {
                   ))}
                 </div>
               )}
+              {/* Store contact details (from Settings → Policies). */}
+              {(store?.contact?.email || store?.contact?.phone || store?.contact?.address) && (
+                <ul className="mt-4 space-y-1 text-sm text-gray-400">
+                  {store?.contact?.email && (
+                    <li><a href={`mailto:${store.contact.email}`} className="hover:text-white transition">{store.contact.email}</a></li>
+                  )}
+                  {store?.contact?.phone && (
+                    <li dir="ltr"><a href={`tel:${store.contact.phone}`} className="hover:text-white transition">{store.contact.phone}</a></li>
+                  )}
+                  {store?.contact?.address && (
+                    <li className="whitespace-pre-line">{store.contact.address}</li>
+                  )}
+                </ul>
+              )}
             </div>
             <div>
               <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_shop')}</h4>
@@ -176,11 +190,10 @@ const Layout: React.FC = () => {
               <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_customer_service')}</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.item_contact_us')}</Link></li>
-                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.item_shipping_policy')}</span></li>
-                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.item_returns_exchanges')}</span></li>
-                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.item_faq')}</span></li>
               </ul>
-              <PolicyLinks className="mt-4" heading={false} linkClassName="hover:text-white transition" />
+              {/* Real, merchant-authored policy links (renders nothing until a
+                  policy is published) replace the old dead placeholder spans. */}
+              <PolicyLinks className="mt-2 space-y-2 text-sm" heading={false} linkClassName="hover:text-white transition" />
             </div>
             <div>
               <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_newsletter')}</h4>
@@ -203,10 +216,7 @@ const Layout: React.FC = () => {
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
             <span>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), brand: store?.name || 'Store' })}</span>
-            <div className="flex gap-4">
-              <span className="hover:text-gray-300 cursor-pointer">{t('theme.footer.privacy_policy')}</span>
-              <span className="hover:text-gray-300 cursor-pointer">{t('theme.footer.terms_of_service')}</span>
-            </div>
+            <PolicyLinks inline className="flex flex-wrap gap-4" heading={false} linkClassName="hover:text-gray-300 transition" />
           </div>
         </div>
       </footer>
