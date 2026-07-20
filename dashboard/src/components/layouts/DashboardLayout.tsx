@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { PageLoader } from '../PageLoader';
 import { useAuth } from '../../contexts/auth-context';
+import { useFeatures } from '../../contexts/features-context';
 import { useLanguage } from '../../i18n/LanguageProvider';
 import {
   LogOut,
@@ -241,9 +242,16 @@ function SidebarContent({
 }) {
   const location = useLocation();
   const { can } = useAuth();
+  const { hasFeature } = useFeatures();
   const { t } = useTranslation(['nav']);
 
   const navGroups = buildNavGroups(t);
+
+  // An item passes the feature gate when it declares no feature or when the
+  // platform flag is enabled. Applied alongside the permission check so a
+  // disabled feature hides the nav item (and, via child pruning, an empty
+  // parent group).
+  const featureOk = (item: NavItem): boolean => !item.feature || hasFeature(item.feature);
 
   const hasPermission = (permission?: string | string[]): boolean => {
     if (!permission) return true;
@@ -253,6 +261,7 @@ function SidebarContent({
 
   const itemVisible = (item: NavItem): boolean => {
     if (item.children?.some(itemVisible)) return true;
+    if (!featureOk(item)) return false;
     if (!item.permission) return true;
     const keys = Array.isArray(item.permission) ? item.permission : [item.permission];
     return can(...keys);
@@ -265,7 +274,7 @@ function SidebarContent({
         .filter(itemVisible)
         .map((i) =>
           i.children
-            ? { ...i, children: i.children.filter((child) => hasPermission(child.permission)) }
+            ? { ...i, children: i.children.filter((child) => hasPermission(child.permission) && featureOk(child)) }
             : i
         )
         .filter((i) => !i.children || i.children.length > 0 || !i.permission),

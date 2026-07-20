@@ -51,6 +51,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('userId');
+      localStorage.removeItem('features');
       if (!isOnLoginPage()) {
         window.location.href = loginUrl();
       }
@@ -271,6 +272,7 @@ export const api = {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('userId');
+      localStorage.removeItem('features');
       window.location.href = loginUrl();
     },
 
@@ -1103,6 +1105,12 @@ export const api = {
       search?: string;
     }) => api.get('/assets', { params }),
     updateAlt: (id: string, alt: string) => api.patch(`/assets/${id}`, { alt }),
+  },
+
+  // Platform feature flags (effective, for the current session). Auth-only;
+  // the merchant dashboard reads these to hide gated nav/routes/tabs.
+  features: {
+    get: () => api.get('/features'),
   },
 
   // URL redirects (audit 6.7). 301/302 mapping of old storefront paths.

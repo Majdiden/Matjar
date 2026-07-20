@@ -4,6 +4,10 @@
     "denied_body": "Ask an admin to grant you the required permission ({{key}}).",
     "denied_body_multiple": "Ask an admin to grant you the required permission (one of: {{keys}})."
   },
+  "feature": {
+    "unavailable_title": "This feature isn't available yet",
+    "unavailable_body": "This feature isn't part of your plan yet. Contact support if you'd like to enable it."
+  },
   "setup": {
     "loading": "Loading setup status...",
     "failed_title": "Setup Failed",

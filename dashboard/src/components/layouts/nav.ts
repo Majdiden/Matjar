@@ -12,6 +12,7 @@
  * visible when the user holds at least one of its permission keys.
  */
 import type React from 'react';
+import type { FeatureKey } from '../../lib/features';
 import {
   BarChart3,
   Bell,
@@ -63,6 +64,9 @@ export interface NavItem {
   // for the item to appear in the sidebar. Omit to make public to any
   // authenticated dashboard user.
   permission?: string | string[];
+  // If set, the platform feature flag must be enabled for the item to appear.
+  // Combined with `permission` (both must pass). Omit to leave ungated.
+  feature?: FeatureKey;
 }
 
 export interface NavGroup {
@@ -87,7 +91,7 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
     groupKey: 'orders',
     items: [
       { name: t('nav:sidebar.orders.all_orders'), href: '/dashboard/orders', icon: ShoppingCart, permission: 'orders.read', badgeKey: 'pendingOrders' },
-      { name: t('nav:sidebar.orders.fulfillments'), href: '/dashboard/fulfillments', icon: Truck, permission: ['fulfillments.read', 'fulfillments.write'] },
+      { name: t('nav:sidebar.orders.fulfillments'), href: '/dashboard/fulfillments', icon: Truck, permission: ['fulfillments.read', 'fulfillments.write'], feature: 'orders.fulfillment' },
     ],
   },
   {
@@ -99,8 +103,8 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
         icon: CreditCard,
         permission: 'payments.read',
         children: [
-          { name: t('nav:sidebar.payments.transactions'), href: '/dashboard/payments', icon: CreditCard, permission: 'payments.read' },
-          { name: t('nav:sidebar.payments.payment_methods'), href: '/dashboard/payments/methods', icon: Wallet, permission: 'settings.write' },
+          { name: t('nav:sidebar.payments.transactions'), href: '/dashboard/payments', icon: CreditCard, permission: 'payments.read', feature: 'payments.transactions' },
+          { name: t('nav:sidebar.payments.payment_methods'), href: '/dashboard/payments/methods', icon: Wallet, permission: 'settings.write', feature: 'payments.methods' },
         ],
       },
     ],
@@ -156,8 +160,8 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
       { name: t('nav:sidebar.storefront.navigation'), href: '/dashboard/menus', icon: ListTree, permission: ['themes.read', 'themes.write'] },
       { name: t('nav:sidebar.storefront.pages'), href: '/dashboard/pages', icon: FileText, permission: ['themes.read', 'themes.write'] },
       { name: t('nav:sidebar.storefront.media'), href: '/dashboard/media', icon: Image, permission: 'themes.write' },
-      { name: t('nav:sidebar.storefront.redirects'), href: '/dashboard/redirects', icon: CornerDownRight, permission: ['themes.read', 'themes.write'] },
-      { name: t('nav:sidebar.storefront.domains'), href: '/dashboard/domains', icon: Globe, permission: ['domains.read', 'domains.write'] },
+      { name: t('nav:sidebar.storefront.redirects'), href: '/dashboard/redirects', icon: CornerDownRight, permission: ['themes.read', 'themes.write'], feature: 'redirects' },
+      { name: t('nav:sidebar.storefront.domains'), href: '/dashboard/domains', icon: Globe, permission: ['domains.read', 'domains.write'], feature: 'domains.custom' },
     ],
   },
   {
@@ -165,9 +169,9 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
     groupKey: 'settings',
     items: [
       { name: t('nav:sidebar.settings.settings'), href: '/dashboard/settings', icon: Settings, permission: ['settings.read', 'settings.write'] },
-      { name: t('nav:sidebar.settings.subscription'), href: '/dashboard/subscription', icon: Crown, permission: 'settings.read' },
-      { name: t('nav:sidebar.settings.custom_fields'), href: '/dashboard/custom-fields', icon: FileCode, permission: 'settings.write' },
-      { name: t('nav:sidebar.settings.webhooks'), href: '/dashboard/webhooks', icon: Webhook, permission: 'settings.write' },
+      { name: t('nav:sidebar.settings.subscription'), href: '/dashboard/subscription', icon: Crown, permission: 'settings.read', feature: 'billing.subscription' },
+      { name: t('nav:sidebar.settings.custom_fields'), href: '/dashboard/custom-fields', icon: FileCode, permission: 'settings.write', feature: 'customFields' },
+      { name: t('nav:sidebar.settings.webhooks'), href: '/dashboard/webhooks', icon: Webhook, permission: 'settings.write', feature: 'webhooks' },
     ],
   },
   {
@@ -175,8 +179,8 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
     groupKey: 'team_security',
     items: [
       { name: t('nav:sidebar.team_security.staff'), href: '/dashboard/staff', icon: UserCog, permission: 'team.manage' },
-      { name: t('nav:sidebar.team_security.permissions'), href: '/dashboard/permissions', icon: Key, permission: 'team.manage' },
-      { name: t('nav:sidebar.team_security.audit_logs'), href: '/dashboard/audit-logs', icon: Shield, permission: 'audit.read' },
+      { name: t('nav:sidebar.team_security.permissions'), href: '/dashboard/permissions', icon: Key, permission: 'team.manage', feature: 'team.advancedRoles' },
+      { name: t('nav:sidebar.team_security.audit_logs'), href: '/dashboard/audit-logs', icon: Shield, permission: 'audit.read', feature: 'auditLogs' },
     ],
   },
 ];

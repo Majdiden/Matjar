@@ -70,6 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('user');
     localStorage.removeItem('userId');
     localStorage.removeItem('permissions');
+    localStorage.removeItem('features');
     setToken(null);
     setUser(null);
     setPermissions([]);
@@ -242,9 +243,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (ro.refreshToken) localStorage.setItem('refreshToken', ro.refreshToken);
     localStorage.setItem('userId', ro.userId);
     localStorage.setItem('user', JSON.stringify(userData));
-    // Drop the previous store's cached permissions so the new store's load
-    // fresh from /auth/me after the reload.
+    // Drop the previous store's cached permissions + feature flags so the new
+    // store's load fresh from /auth/me and /features after the reload.
     localStorage.removeItem('permissions');
+    localStorage.removeItem('features');
     window.location.assign(dashboardBasename() || '/');
   };
 

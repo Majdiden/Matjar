@@ -28,6 +28,8 @@ import { useSearchParams } from 'react-router-dom';
 import { Bell as BellIcon } from 'lucide-react';
 import { setTenantCurrency, setTenantLocale } from '../../lib/format';
 import { useLanguage } from '../../i18n/LanguageProvider';
+import { useFeatures } from '../../contexts/features-context';
+import type { FeatureKey } from '../../lib/features';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Store, Globe2, Truck, Receipt, Coins, Mail, ShieldCheck, ScrollText } from 'lucide-react';
@@ -49,14 +51,30 @@ type SettingsTab = 'general' | 'regional' | 'shipping' | 'tax' | 'currencies' | 
 
 const VALID_TABS: SettingsTab[] = ['general', 'regional', 'shipping', 'tax', 'currencies', 'markets', 'notifications', 'email-templates', 'policies', 'security'];
 
+// Tabs gated behind a platform feature flag. Ungated tabs are always shown.
+const TAB_FEATURES: Partial<Record<SettingsTab, FeatureKey>> = {
+  regional: 'settings.regional',
+  tax: 'settings.tax',
+  currencies: 'settings.currencies',
+  markets: 'settings.markets',
+};
+
 export const Settings: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
   const { setLang } = useLanguage();
+  const { hasFeature } = useFeatures();
   const [loading, setLoading] = useState(true);
   const [savingGeneral, setSavingGeneral] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const urlTab = searchParams.get('tab') as SettingsTab | null;
-  const initialTab: SettingsTab = urlTab && VALID_TABS.includes(urlTab) ? urlTab : 'general';
+  const tabAllowed = (id: SettingsTab): boolean => {
+    const f = TAB_FEATURES[id];
+    return !f || hasFeature(f);
+  };
+  // Deep-link validation is feature-aware: an off-flag `?tab=tax` falls back
+  // to `general` instead of rendering a hidden tab's panel.
+  const validTabs = VALID_TABS.filter(tabAllowed);
+  const initialTab: SettingsTab = urlTab && validTabs.includes(urlTab) ? urlTab : 'general';
   const [tab, setTabState] = useState<SettingsTab>(initialTab);
   const setTab = (next: SettingsTab) => {
     setTabState(next);
@@ -65,7 +83,7 @@ export const Settings: React.FC = () => {
     setSearchParams(sp, { replace: true });
   };
   useEffect(() => {
-    if (urlTab && VALID_TABS.includes(urlTab) && urlTab !== tab) {
+    if (urlTab && validTabs.includes(urlTab) && urlTab !== tab) {
       setTabState(urlTab);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,16 +179,18 @@ export const Settings: React.FC = () => {
         <TabsList className="h-auto w-full justify-start overflow-x-auto scrollbar-hide">
           {([
             { id: 'general', label: t('settings.tab.general.label'), icon: Store },
-            { id: 'regional', label: t('settings.tab.regional.label'), icon: Globe2 },
+            { id: 'regional', label: t('settings.tab.regional.label'), icon: Globe2, feature: 'settings.regional' },
             { id: 'shipping', label: t('settings.tab.shipping.label'), icon: Truck },
-            { id: 'tax', label: t('settings.tab.tax.label'), icon: Receipt },
-            { id: 'currencies', label: t('settings.tab.currencies.label'), icon: Coins },
-            { id: 'markets', label: t('settings.tab.markets.label'), icon: Globe2 },
+            { id: 'tax', label: t('settings.tab.tax.label'), icon: Receipt, feature: 'settings.tax' },
+            { id: 'currencies', label: t('settings.tab.currencies.label'), icon: Coins, feature: 'settings.currencies' },
+            { id: 'markets', label: t('settings.tab.markets.label'), icon: Globe2, feature: 'settings.markets' },
             { id: 'notifications', label: t('settings.tab.notifications.label'), icon: BellIcon },
             { id: 'email-templates', label: t('settings.tab.email_templates.label'), icon: Mail },
             { id: 'policies', label: t('settings.tab.policies.label', { defaultValue: 'Policies' }), icon: ScrollText },
             { id: 'security', label: t('settings.tab.security.label'), icon: ShieldCheck },
-          ] as { id: SettingsTab; label: string; icon: React.ElementType }[]).map(({ id, label, icon: Icon }) => (
+          ] as { id: SettingsTab; label: string; icon: React.ElementType; feature?: FeatureKey }[])
+            .filter(({ id }) => tabAllowed(id))
+            .map(({ id, label, icon: Icon }) => (
             <TabsTrigger key={id} value={id} className="gap-1.5 shrink-0">
               <Icon className="h-4 w-4" />
               {label}

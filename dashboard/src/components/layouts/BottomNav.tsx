@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { LayoutDashboard, ShoppingCart, Package, Menu, Plus, ClipboardList, PackagePlus } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../contexts/auth-context';
+import { useFeatures } from '../../contexts/features-context';
+import type { FeatureKey } from '../../lib/features';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +24,9 @@ interface Dest {
   href: string;
   icon: React.ElementType;
   permission?: string | string[];
+  // Platform feature gate. None of the current dests (home/orders/products)
+  // are gated — this is plumbing so future dests can be.
+  feature?: FeatureKey;
   badge?: boolean;
 }
 
@@ -45,6 +50,7 @@ const RIGHT_DESTS: Dest[] = [
 export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 }) => {
   const { t } = useTranslation('nav');
   const { can } = useAuth();
+  const { hasFeature } = useFeatures();
   const navigate = useNavigate();
   const location = useLocation();
   const [actionOpen, setActionOpen] = React.useState(false);
@@ -55,6 +61,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
       : location.pathname === href || location.pathname.startsWith(href + '/');
 
   const allowed = (d: Dest) => {
+    if (d.feature && !hasFeature(d.feature)) return false;
     if (!d.permission) return true;
     const keys = Array.isArray(d.permission) ? d.permission : [d.permission];
     return can(...keys);

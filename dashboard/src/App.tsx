@@ -1,8 +1,10 @@
 import { lazy, Suspense, type ComponentType } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { FeaturesProvider } from './contexts/FeaturesContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RequirePermission } from './components/RequirePermission';
+import { RequireFeature } from './components/RequireFeature';
 import { DashboardLayout } from './components/layouts/DashboardLayout';
 import { PageLoader } from './components/PageLoader';
 // Login stays eager — it's the most common cold entry, so a Suspense
@@ -109,6 +111,7 @@ function App() {
   return (
     <BrowserRouter basename={basename}>
       <AuthProvider>
+        <FeaturesProvider>
         <ConfirmProvider>
         {/* Outer boundary catches the standalone lazy routes (register,
             printable docs, editor). Dashboard child pages have their own
@@ -138,7 +141,7 @@ function App() {
           >
             <Route index element={<RequirePermission permission="dashboard.read"><Dashboard /></RequirePermission>} />
             <Route path="notifications" element={<Notifications />} />
-            <Route path="domains" element={<RequirePermission permission={['domains.read', 'domains.write']}><Domains /></RequirePermission>} />
+            <Route path="domains" element={<RequireFeature feature="domains.custom"><RequirePermission permission={['domains.read', 'domains.write']}><Domains /></RequirePermission></RequireFeature>} />
             <Route path="products" element={<RequirePermission permission="products.read"><Products /></RequirePermission>} />
             <Route path="products/new" element={<RequirePermission permission="products.write"><ProductForm /></RequirePermission>} />
             <Route path="products/:id/edit" element={<RequirePermission permission="products.write"><ProductForm /></RequirePermission>} />
@@ -146,7 +149,7 @@ function App() {
             <Route path="orders" element={<RequirePermission permission="orders.read"><Orders /></RequirePermission>} />
             <Route path="orders/new" element={<RequirePermission permission="orders.write"><OrderCreate /></RequirePermission>} />
             <Route path="orders/:id" element={<RequirePermission permission="orders.read"><OrderDetails /></RequirePermission>} />
-            <Route path="orders/:id/lifecycle" element={<RequirePermission permission="orders.read"><OrderLifecycle /></RequirePermission>} />
+            <Route path="orders/:id/lifecycle" element={<RequireFeature feature="orders.lifecycle"><RequirePermission permission="orders.read"><OrderLifecycle /></RequirePermission></RequireFeature>} />
             <Route path="themes" element={<RequirePermission permission={['themes.read', 'themes.write']}><Themes /></RequirePermission>} />
             <Route path="themes/customize" element={<Navigate to="/dashboard/themes/editor" replace />} />
             <Route path="settings" element={<RequirePermission permission={['settings.read', 'settings.write']}><Settings /></RequirePermission>} />
@@ -167,15 +170,15 @@ function App() {
             <Route path="analytics" element={<RequirePermission permission="analytics.read"><Analytics /></RequirePermission>} />
             <Route path="reviews" element={<RequirePermission permission={['reviews.read', 'reviews.moderate']}><Reviews /></RequirePermission>} />
             <Route path="inventory" element={<RequirePermission permission={['inventory.read', 'inventory.write']}><Inventory /></RequirePermission>} />
-            <Route path="fulfillments" element={<RequirePermission permission={['fulfillments.read', 'fulfillments.write']}><Fulfillments /></RequirePermission>} />
-            <Route path="custom-fields" element={<RequirePermission permission="settings.write"><CustomFields /></RequirePermission>} />
-            <Route path="audit-logs" element={<RequirePermission permission="audit.read"><AuditLogs /></RequirePermission>} />
-            <Route path="payments" element={<RequirePermission permission="payments.read"><Payments /></RequirePermission>} />
-            <Route path="payments/methods" element={<RequirePermission permission="settings.write"><PaymentMethods /></RequirePermission>} />
-            <Route path="payments/:id" element={<RequirePermission permission="payments.read"><TransactionDetail /></RequirePermission>} />
-            <Route path="subscription" element={<RequirePermission permission="settings.read"><Subscriptions /></RequirePermission>} />
-            <Route path="permissions" element={<RequirePermission permission="team.manage"><Permissions /></RequirePermission>} />
-            <Route path="webhooks" element={<RequirePermission permission="settings.write"><Webhooks /></RequirePermission>} />
+            <Route path="fulfillments" element={<RequireFeature feature="orders.fulfillment"><RequirePermission permission={['fulfillments.read', 'fulfillments.write']}><Fulfillments /></RequirePermission></RequireFeature>} />
+            <Route path="custom-fields" element={<RequireFeature feature="customFields"><RequirePermission permission="settings.write"><CustomFields /></RequirePermission></RequireFeature>} />
+            <Route path="audit-logs" element={<RequireFeature feature="auditLogs"><RequirePermission permission="audit.read"><AuditLogs /></RequirePermission></RequireFeature>} />
+            <Route path="payments" element={<RequireFeature feature="payments.transactions"><RequirePermission permission="payments.read"><Payments /></RequirePermission></RequireFeature>} />
+            <Route path="payments/methods" element={<RequireFeature feature="payments.methods"><RequirePermission permission="settings.write"><PaymentMethods /></RequirePermission></RequireFeature>} />
+            <Route path="payments/:id" element={<RequireFeature feature="payments.transactions"><RequirePermission permission="payments.read"><TransactionDetail /></RequirePermission></RequireFeature>} />
+            <Route path="subscription" element={<RequireFeature feature="billing.subscription"><RequirePermission permission="settings.read"><Subscriptions /></RequirePermission></RequireFeature>} />
+            <Route path="permissions" element={<RequireFeature feature="team.advancedRoles"><RequirePermission permission="team.manage"><Permissions /></RequirePermission></RequireFeature>} />
+            <Route path="webhooks" element={<RequireFeature feature="webhooks"><RequirePermission permission="settings.write"><Webhooks /></RequirePermission></RequireFeature>} />
             <Route path="gift-cards" element={<RequirePermission permission={['discounts.read', 'discounts.write']}><GiftCards /></RequirePermission>} />
             <Route path="gift-cards/new" element={<RequirePermission permission="discounts.write"><GiftCardNew /></RequirePermission>} />
             <Route path="gift-cards/:id" element={<RequirePermission permission={['discounts.read', 'discounts.write']}><GiftCardDetail /></RequirePermission>} />
@@ -189,7 +192,7 @@ function App() {
             <Route path="pages/new" element={<RequirePermission permission="themes.write"><PageForm /></RequirePermission>} />
             <Route path="pages/:id/edit" element={<RequirePermission permission="themes.write"><PageForm /></RequirePermission>} />
             <Route path="media" element={<RequirePermission permission="themes.write"><MediaLibrary /></RequirePermission>} />
-            <Route path="redirects" element={<RequirePermission permission={['themes.read', 'themes.write']}><Redirects /></RequirePermission>} />
+            <Route path="redirects" element={<RequireFeature feature="redirects"><RequirePermission permission={['themes.read', 'themes.write']}><Redirects /></RequirePermission></RequireFeature>} />
             <Route path="staff" element={<RequirePermission permission="team.manage"><Staff /></RequirePermission>} />
             {/* Real 404 inside the shell for unknown /dashboard/* paths */}
             <Route path="*" element={<NotFound />} />
@@ -213,9 +216,11 @@ function App() {
             path="/dashboard/orders/:id/packing-slip"
             element={
               <ProtectedRoute>
-                <RequirePermission permission="orders.read" inline={false}>
-                  <PackingSlip />
-                </RequirePermission>
+                <RequireFeature feature="orders.fulfillment" inline={false}>
+                  <RequirePermission permission="orders.read" inline={false}>
+                    <PackingSlip />
+                  </RequirePermission>
+                </RequireFeature>
               </ProtectedRoute>
             }
           />
@@ -223,9 +228,11 @@ function App() {
             path="/dashboard/orders/:id/refund-receipt/:refundId"
             element={
               <ProtectedRoute>
-                <RequirePermission permission="orders.read" inline={false}>
-                  <RefundReceipt />
-                </RequirePermission>
+                <RequireFeature feature="payments.transactions" inline={false}>
+                  <RequirePermission permission="orders.read" inline={false}>
+                    <RefundReceipt />
+                  </RequirePermission>
+                </RequireFeature>
               </ProtectedRoute>
             }
           />
@@ -254,6 +261,7 @@ function App() {
         </Suspense>
         <Toaster richColors closeButton position="top-right" />
         </ConfirmProvider>
+        </FeaturesProvider>
       </AuthProvider>
     </BrowserRouter>
   );
