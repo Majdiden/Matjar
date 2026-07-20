@@ -76,8 +76,14 @@ router.use(storefrontApiLimiter);
  */
 function isOwnerPreview(req) {
   const token = typeof req.query.preview === "string" ? req.query.preview : null;
+  if (!token) return false;
   const expected = req.tenant?.settings?.previewToken;
-  return !!(token && expected && token === expected);
+  if (expected && token === expected) return true;
+  // The dashboard theme editor opens the storefront with a short-lived EDITOR
+  // preview token (not the store token). Treat it as owner-preview too, so the
+  // merchant sees their DRAFT content (categories, products) while editing
+  // instead of the empty public view a draft store shows everyone else.
+  return isValidEditorPreviewToken(req.tenant, token);
 }
 /** Product status filter: include drafts in owner-preview, else active only. */
 function productStatusFilter(req) {
