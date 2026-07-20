@@ -195,7 +195,9 @@
     "rating": "التقييم",
     "carousel": "عرض دوّار",
     "previous_slide": "الشريحة السابقة",
-    "next_slide": "الشريحة التالية"
+    "next_slide": "الشريحة التالية",
+    "go_to_slide": "الانتقال إلى الشريحة {{index}}",
+    "slide_of": "شريحة {{index}} من {{total}}"
   },
   "location": {
     "select_country": "اختر الدولة",

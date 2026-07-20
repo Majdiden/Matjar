@@ -195,7 +195,9 @@
     "rating": "Rating",
     "carousel": "Carousel",
     "previous_slide": "Previous slide",
-    "next_slide": "Next slide"
+    "next_slide": "Next slide",
+    "go_to_slide": "Go to slide {{index}}",
+    "slide_of": "Slide {{index}} of {{total}}"
   },
   "location": {
     "select_country": "Select country",

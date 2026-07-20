@@ -84,7 +84,7 @@ function ProductCardRoot({ product, children, className, layout = 'grid', onQuic
           'border border-[var(--color-border,#e5e7eb)]',
           'shadow-[var(--shadow-sm)] transition-[transform,box-shadow,border-color]',
           'duration-[var(--duration-base,250ms)] ease-[var(--ease-emphasized,cubic-bezier(0.2,0,0,1))]',
-          'hover:shadow-[var(--shadow-lg)] hover:[transform:var(--hover-lift,translateY(-4px))] hover:border-transparent',
+          'hover:shadow-[var(--shadow-lg)] motion-safe:hover:[transform:var(--hover-lift,translateY(-4px))] hover:border-transparent',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#2563eb)] focus-visible:ring-offset-2',
           layout === 'list' ? 'flex gap-4 p-3' : 'flex flex-col',
           className
@@ -141,9 +141,9 @@ function ProductImage({
         alt={product.name}
         onError={onImgError}
         className={cn(
-          'w-full h-full transition-transform duration-[var(--duration-slow,400ms)] ease-[var(--ease-standard,cubic-bezier(0.4,0,0.2,1))]',
+          'w-full h-full transition-[transform,opacity] duration-[var(--duration-slow,400ms)] ease-[var(--ease-standard,cubic-bezier(0.4,0,0.2,1))]',
           fitCls,
-          hoverSwap && hoverSrc ? 'group-hover:opacity-0' : 'group-hover:scale-[1.06]'
+          hoverSwap && hoverSrc ? 'group-hover:opacity-0' : 'motion-safe:group-hover:scale-[1.06]'
         )}
         loading="lazy"
       />
@@ -160,12 +160,17 @@ function ProductImage({
         />
       )}
 
+      {/* Hairline inset keeps light images from bleeding into the card edge */}
+      <div className="pointer-events-none absolute inset-0 z-[1] ring-1 ring-inset ring-black/[0.04]" aria-hidden="true" />
+
       {/* Badges — token-coloured, translated, stacked top-start */}
       {showBadge && (() => {
         const pre = getPreorderState(product);
         const isPreorder = pre.mode === 'preorder';
         const isPreorderSoldOut = pre.mode === 'soldOut';
-        const badge = 'inline-flex items-center text-[11px] font-bold leading-none px-2.5 py-1 rounded-[var(--radius-sm,6px)] text-white shadow-[var(--shadow-xs)]';
+        const badge =
+          'inline-flex items-center text-[10px] font-bold uppercase tracking-[0.06em] leading-none px-2.5 py-[5px] ' +
+          'rounded-[var(--radius-pill,9999px)] text-white shadow-[var(--shadow-sm)] ring-1 ring-white/20';
         return (
           <div className="absolute top-2.5 start-2.5 z-10 flex flex-col items-start gap-1">
             {discount > 0 && (
@@ -199,11 +204,16 @@ function ProductImage({
           onClick={handleQuickView}
           aria-label={t('common:aria.quick_view', 'Quick view')}
           className={cn(
-            'absolute top-2.5 end-2.5 z-10 grid place-items-center w-9 h-9 rounded-full',
-            'bg-white/95 text-[var(--color-foreground,#111)] shadow-[var(--shadow-md)] backdrop-blur',
-            'transition-all duration-[var(--duration-base,250ms)] hover:scale-110 active:scale-95',
-            'opacity-100 md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0'
+            'absolute top-2.5 end-2.5 z-10 grid place-items-center w-9 h-9 rounded-[var(--radius-pill,9999px)]',
+            'shadow-[var(--shadow-md)] backdrop-blur ring-1 ring-black/[0.06]',
+            'transition-all duration-[var(--duration-base,250ms)] motion-safe:hover:scale-110 motion-safe:active:scale-95',
+            'opacity-100 md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#2563eb)] md:focus-visible:opacity-100'
           )}
+          style={{
+            backgroundColor: 'color-mix(in srgb, var(--color-background, #fff) 94%, transparent)',
+            color: 'var(--color-foreground, #111)',
+          }}
         >
           <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -276,13 +286,13 @@ function ProductPrice({
   return (
     <div className={cn('flex items-baseline gap-2', className)}>
       <span
-        className="font-bold text-base md:text-lg"
+        className="font-bold text-base md:text-lg tracking-tight tabular-nums"
         style={discount > 0 ? { color: 'var(--color-error, #dc2626)' } : { color: 'var(--color-foreground, #111)' }}
       >
         {formatPrice(headline)}
       </span>
       {showCompareAt && discount > 0 && strike && strike > headline && (
-        <span className="text-sm text-[var(--color-muted,#9ca3af)] line-through">
+        <span className="text-[13px] text-[var(--color-muted,#9ca3af)] line-through decoration-from-font tabular-nums">
           {formatPrice(strike)}
         </span>
       )}
@@ -404,9 +414,11 @@ function ProductActions({
         disabled={adding || pre.ctaDisabled}
         className={cn(
           'inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-white',
-          'px-3 py-2 rounded-[var(--radius-sm,6px)] min-h-[36px] whitespace-nowrap shrink-0',
-          'transition-[filter,transform] duration-[var(--duration-fast,150ms)]',
-          'hover:brightness-110 active:scale-95 disabled:opacity-50 disabled:pointer-events-none',
+          'px-3 py-2 rounded-[var(--radius-sm,6px)] min-h-[38px] whitespace-nowrap shrink-0',
+          'shadow-[var(--shadow-xs)] transition-[filter,transform,box-shadow] duration-[var(--duration-fast,150ms)]',
+          'hover:brightness-110 hover:shadow-[var(--shadow-sm)] motion-safe:active:scale-95',
+          'disabled:opacity-50 disabled:pointer-events-none',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#2563eb)] focus-visible:ring-offset-2',
           fullWidth && 'w-full',
           addToCartClassName
         )}
@@ -419,6 +431,11 @@ function ProductActions({
             : undefined
         }
       >
+        {!requiresOptions && pre.mode === 'buy' && !adding && (
+          <svg className="w-3.5 h-3.5 -ms-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+          </svg>
+        )}
         {label}
       </button>
       {pre.lowRemaining && pre.remaining !== null && (
