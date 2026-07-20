@@ -19,6 +19,7 @@ import { ProductCard } from '../commerce/ProductCard';
 import { Carousel } from '../primitives/Carousel';
 import { Skeleton } from '../primitives/Skeleton';
 import type { SectionInstance } from '../../types/theme';
+import { CategoryShowcase } from './CategoryShowcase';
 
 /**
  * Per-section appearance overrides (from the shared APPEARANCE_SETTINGS).
@@ -487,38 +488,20 @@ export const CategoriesSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('common');
   const s = useThemeSettings(id);
   const { categories } = useCategories();
-  const max = Number(s.max_categories) || 6;
   if (!categories || categories.length === 0) return null;
+  // Delegates to the shared premium showcase (editorial image tiles, mobile
+  // snap rail, desktop bento) so merchant-added category sections match the
+  // curated homepage treatment. Appearance overrides still apply.
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold mb-2">{s.heading || t('section.categories.heading')}</h2>
-        {s.subheading && <p className="text-gray-500">{s.subheading}</p>}
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {categories.slice(0, max).map((cat: any) => (
-          <Link
-            key={cat._id}
-            to={`/categories/${cat.slug}`}
-            className="group text-center p-6 rounded-xl border hover:shadow-lg hover:border-gray-300 transition-all"
-          >
-            {cat.image ? (
-              <img src={cat.image} alt={cat.name} className="w-16 h-16 mx-auto mb-3 rounded-full object-cover ring-4 ring-gray-100 group-hover:ring-blue-100 transition" />
-            ) : (
-              <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md group-hover:scale-110 transition-transform" style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}>
-                {cat.name[0]}
-              </div>
-            )}
-            <span className="text-sm font-medium">{cat.name}</span>
-            {s.show_product_count !== false && cat.productCount !== undefined && (
-              <span className="block text-xs text-gray-400 mt-1">
-                {t('section.categories.items_count', { count: cat.productCount })}
-              </span>
-            )}
-          </Link>
-        ))}
-      </div>
-    </section>
+    <CategoryShowcase
+      categories={categories}
+      heading={s.heading || t('section.categories.heading')}
+      subheading={s.subheading}
+      maxCategories={Number(s.max_categories) || 6}
+      showCount={s.show_product_count !== false}
+      countLabel={(count: number) => t('section.categories.items_count', { count })}
+      style={appearanceStyle(s)}
+    />
   );
 };
 

@@ -6,6 +6,7 @@ import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-s
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import { Hero } from '@matjar/theme-shared/components/sections/Hero';
+import { CategoryShowcase } from '@matjar/theme-shared/components/sections/CategoryShowcase';
 
 // Niche default hero image — a clean tech/gadget lifestyle shot — so the
 // hero is never empty even before the merchant sets one.
@@ -111,42 +112,21 @@ const Home: React.FC = () => {
       </Carousel>
       )}
 
-      {/* Categories */}
+      {/* Categories — premium shared showcase (editorial tiles, mobile snap
+          rail, desktop bento with a featured first tile). Scroll reveal is
+          kept on the section, and `visible` staggers the card entrance. */}
       {catsEnabled && categories.length > 0 && (
-        <section
+        <CategoryShowcase
           ref={categoriesRef as React.RefObject<HTMLElement>}
-          className={`max-w-7xl mx-auto px-4 sm:px-6 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-        >
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-2">{cats.heading || t('theme.section.categories.heading')}</h2>
-            {cats.subheading && <p className="text-gray-500">{cats.subheading}</p>}
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.slice(0, cats.max_categories || 6).map((cat, i) => (
-              <Link
-                key={cat._id}
-                to={`/categories/${cat.slug}`}
-                className="group text-center p-6 rounded-xl border hover:shadow-lg hover:border-gray-300 transition-all duration-300"
-                style={{ animationDelay: `${i * 50}ms` }}
-              >
-                {cat.image ? (
-                  <img src={cat.image} alt={cat.name} className="w-16 h-16 mx-auto mb-3 rounded-full object-cover ring-4 ring-gray-100 group-hover:ring-blue-100 transition" />
-                ) : (
-                  <div
-                    className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md group-hover:scale-110 transition-transform"
-                    style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
-                  >
-                    {cat.name[0]}
-                  </div>
-                )}
-                <span className="text-sm font-medium group-hover:text-blue-600 transition">{cat.name}</span>
-                {cats.show_product_count !== false && cat.productCount !== undefined && (
-                  <span className="block text-xs text-gray-400 mt-1">{t('theme.section.categories.items_count', { count: cat.productCount })}</span>
-                )}
-              </Link>
-            ))}
-          </div>
-        </section>
+          className={`transition-opacity duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${categoriesVisible ? 'opacity-100' : 'opacity-0'}`}
+          visible={categoriesVisible}
+          categories={categories}
+          heading={cats.heading || t('theme.section.categories.heading')}
+          subheading={cats.subheading || t('theme.section.categories.subheading')}
+          maxCategories={cats.max_categories || 6}
+          showCount={cats.show_product_count !== false}
+          countLabel={(count) => t('theme.section.categories.items_count', { count })}
+        />
       )}
 
       {/* Featured Products */}
