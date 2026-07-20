@@ -6,9 +6,7 @@
   "in_stock": "متوفر",
   "low_stock": "{{count}} متبقٍ فقط",
   "preorder": "الطلب المسبق",
-  "preorder_badge": {
-    "label": "طلب مسبق"
-  },
+  "preorder_badge": "طلب مسبق",
   "choose_options": "اختر الخيارات",
   "select_options_hint": "اختر الخيارات من صفحة المنتج",
   "only_remaining": "{{count}} متبقٍ فقط",

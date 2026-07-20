@@ -6,9 +6,7 @@
   "in_stock": "In stock",
   "low_stock": "Only {{count}} left",
   "preorder": "Pre-order",
-  "preorder_badge": {
-    "label": "Pre-order"
-  },
+  "preorder_badge": "Pre-order",
   "choose_options": "Choose options",
   "select_options_hint": "Select options on the product page",
   "only_remaining": "Only {{count}} left",
