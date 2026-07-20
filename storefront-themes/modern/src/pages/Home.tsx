@@ -193,7 +193,7 @@ const Home: React.FC = () => {
 
       {/* Trust Badges */}
       {trustEnabled && trust.show_section !== false && (
-        <section className="dark:bg-gray-800/50" style={{ backgroundColor: trust.background_color || '#f9fafb' }}>
+        <section style={{ backgroundColor: trust.background_color || 'var(--color-muted-background, #f9fafb)' }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {trustBadgeBlocks.map((block) => {
@@ -205,11 +205,18 @@ const Home: React.FC = () => {
                   return: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" /></svg>,
                 };
                 return (
-                  <div key={block.id} className="flex items-center gap-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-                    <div className="shrink-0 text-gray-600" style={{ color: trust.accent_color || 'var(--color-primary, #2563eb)' }}>{iconSvgs[icon] || iconSvgs.shipping}</div>
+                  <div
+                    key={block.id}
+                    className="flex items-center gap-4 p-6 rounded-xl shadow-sm border"
+                    style={{
+                      backgroundColor: 'var(--color-background, #ffffff)',
+                      borderColor: 'var(--color-border, #e5e7eb)',
+                    }}
+                  >
+                    <div className="shrink-0" style={{ color: trust.accent_color || 'var(--color-primary, #2563eb)' }}>{iconSvgs[icon] || iconSvgs.shipping}</div>
                     <div>
-                      <h3 className="font-semibold">{title}</h3>
-                      <p className="text-sm text-gray-500">{description}</p>
+                      <h3 className="font-semibold" style={{ color: 'var(--color-foreground, #111827)' }}>{title}</h3>
+                      <p className="text-sm" style={{ color: 'var(--color-muted, #6b7280)' }}>{description}</p>
                     </div>
                   </div>
                 );
