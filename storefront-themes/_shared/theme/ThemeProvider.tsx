@@ -303,13 +303,39 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
   // state — a low-impact exploit (no data read) but still noise we
   // want to cut out.
   useEffect(() => {
-    const dashboardOrigin =
-      (import.meta as any).env?.VITE_DASHBOARD_ORIGIN || window.location.origin;
-    const allowedOrigins = new Set([window.location.origin, dashboardOrigin]);
+    const allowedOrigins = new Set([window.location.origin]);
+    // Explicit build-time override (optional).
+    const envOrigin = (import.meta as any).env?.VITE_DASHBOARD_ORIGIN;
+    if (envOrigin) allowedOrigins.add(envOrigin);
+    // The editor iframe is served on a tenant subdomain
+    // (<slug>.<platformDomain>) but the DASHBOARD that embeds it lives on
+    // app.<platformDomain> — a different origin. Without VITE_DASHBOARD_ORIGIN
+    // set, the editor's postMessage was silently rejected (no live preview /
+    // scroll). Derive the app host from our own subdomain so it works out of
+    // the box. Editor previews always run on the platform subdomain (see
+    // services/themeCustomization.js), so stripping the first label yields the
+    // platform domain.
+    try {
+      const parts = window.location.hostname.split('.');
+      if (parts.length > 2) {
+        const platformDomain = parts.slice(1).join('.');
+        allowedOrigins.add(`${window.location.protocol}//app.${platformDomain}`);
+      }
+    } catch {
+      /* non-fatal */
+    }
+    // In preview mode the storefront is embedded in the editor iframe; the
+    // parent (already verified via event.source below) is the dashboard,
+    // serving draft content under the preview token's authority. Trust it
+    // regardless of origin — same rationale as StoreContext — so live edits
+    // work for custom-domain previews too. Outside preview the allowlist holds.
+    const isPreview =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).has('preview');
 
     const handleMessage = (event: MessageEvent<ThemeUpdateMessage>) => {
       if (event.source !== window.parent) return;
-      if (!allowedOrigins.has(event.origin)) return;
+      if (!isPreview && !allowedOrigins.has(event.origin)) return;
       const { data } = event;
       if (!data || typeof data !== 'object' || !data.type) return;
 
