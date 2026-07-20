@@ -160,6 +160,20 @@ export type PlanInput = {
   sortOrder?: number;
 };
 
+export interface FeatureFlagDef {
+  key: string;
+  type: 'boolean' | 'stringList';
+  default: boolean | string[];
+  group: string;
+  label: string;
+  description: string;
+}
+export interface FeaturesResponse {
+  registry: FeatureFlagDef[];
+  flags: Record<string, boolean | string[]>;
+  themeSlugs: string[];
+}
+
 export const api = {
   login: async (email: string, password: string) => {
     const res = await http.post('/login', { email, password });
@@ -364,6 +378,16 @@ export const api = {
     remove: async (id: string) => {
       const res = await http.delete(`/plans/${id}`);
       return res.data.data as { id: string };
+    },
+  },
+  features: {
+    get: async () => {
+      const res = await http.get('/features');
+      return res.data.data as FeaturesResponse;
+    },
+    update: async (overrides: Record<string, boolean | string[]>) => {
+      const res = await http.put('/features', { overrides });
+      return res.data.data as { flags: Record<string, boolean | string[]> };
     },
   },
   queues: {
