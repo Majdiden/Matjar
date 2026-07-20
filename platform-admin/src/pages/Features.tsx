@@ -80,7 +80,7 @@ export default function Features() {
       setFlags((f) => ({ ...f, [key]: value }));
       setSaving(key);
       try {
-        const res = await api.features.update({ [key]: value });
+        const res = await api.features.update([{ key, value }]);
         setFlags(res.flags);
         toast.success('Saved');
       } catch (err) {

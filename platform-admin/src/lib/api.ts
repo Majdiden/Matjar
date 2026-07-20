@@ -385,8 +385,11 @@ export const api = {
       const res = await http.get('/features');
       return res.data.data as FeaturesResponse;
     },
-    update: async (overrides: Record<string, boolean | string[]>) => {
-      const res = await http.put('/features', { overrides });
+    update: async (updates: Array<{ key: string; value: boolean | string[] }>) => {
+      // Flag ids ride as VALUES (not object keys): the API's mongo-sanitize
+      // strips dots from request KEYS, which would mangle ids like
+      // "payments.methods".
+      const res = await http.put('/features', { updates });
       return res.data.data as { flags: Record<string, boolean | string[]> };
     },
   },

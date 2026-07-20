@@ -30,6 +30,27 @@ function col() {
   return mongoose.connection?.db?.collection("platformconfigs") || null;
 }
 
+/**
+ * Read the stored overrides into a plain `{ key: value }` map.
+ *
+ * Overrides are stored as an ARRAY of `{ k, v }` pairs, NOT an object keyed by
+ * the flag id. Flag keys contain dots (e.g. "payments.methods"), and a dot in a
+ * field NAME is both mangled by express-mongo-sanitize on the way in and
+ * mis-parsed as a nested path by a dot-path `$set`. Keeping the id as a VALUE
+ * sidesteps both. A legacy object form is still tolerated on read.
+ */
+function overridesToMap(raw) {
+  const map = {};
+  if (Array.isArray(raw)) {
+    for (const it of raw) {
+      if (it && typeof it.k === "string") map[it.k] = it.v;
+    }
+  } else if (raw && typeof raw === "object") {
+    for (const [k, v] of Object.entries(raw)) map[k] = v; // legacy form
+  }
+  return map;
+}
+
 /** Coerce a raw override value to the registry-declared type, or return
  *  undefined when it's invalid (so the default is used instead). */
 function coerceOverride(def, value) {
@@ -59,7 +80,7 @@ export async function getEffectiveFlags(/* options */) {
     const c = col();
     if (c) {
       const doc = await c.findOne({ _id: CONFIG_ID });
-      const overrides = doc?.overrides || {};
+      const overrides = overridesToMap(doc?.overrides);
       for (const [key, raw] of Object.entries(overrides)) {
         const def = getFlagDef(key);
         if (!def) continue; // unknown / removed flag → ignore
@@ -99,25 +120,38 @@ export async function getAllowedThemeSlugs() {
  * every value against its declared type; rejects unknown keys with a 400.
  * Returns the fresh effective flags.
  */
-export async function setFeatureOverrides(partial, updatedBy) {
-  if (!partial || typeof partial !== "object" || Array.isArray(partial)) {
-    throw new APIError("overrides must be an object", 400);
-  }
+export async function setFeatureOverrides(updates, updatedBy) {
+  // Accept either an array of { key, value } (the API contract — flag ids ride
+  // as VALUES so express-mongo-sanitize can't mangle the dots) or a plain
+  // object map (back-compat / internal callers).
+  const list = Array.isArray(updates)
+    ? updates
+    : Object.entries(updates || {}).map(([key, value]) => ({ key, value }));
+  if (!list.length) throw new APIError("No feature updates provided", 400);
+
   const c = col();
   if (!c) throw new APIError("Platform config store unavailable", 503);
 
-  const $set = { updatedAt: new Date(), updatedBy: updatedBy || null };
-  for (const [key, value] of Object.entries(partial)) {
+  const doc = await c.findOne({ _id: CONFIG_ID });
+  const current = overridesToMap(doc?.overrides);
+  for (const { key, value } of list) {
     const def = getFlagDef(key);
     if (!def) throw new APIError(`Unknown feature flag: ${key}`, 400);
     const coerced = coerceOverride(def, value);
     if (coerced === undefined) {
       throw new APIError(`Invalid value for feature flag: ${key}`, 400);
     }
-    $set[`overrides.${key}`] = coerced;
+    current[key] = coerced;
   }
 
-  await c.updateOne({ _id: CONFIG_ID }, { $set }, { upsert: true });
+  // Store as an array of { k, v } pairs so no DB field name ever contains a dot
+  // (see overridesToMap).
+  const stored = Object.entries(current).map(([k, v]) => ({ k, v }));
+  await c.updateOne(
+    { _id: CONFIG_ID },
+    { $set: { overrides: stored, updatedAt: new Date(), updatedBy: updatedBy || null } },
+    { upsert: true }
+  );
   invalidateFeatureFlagCache();
   return getEffectiveFlags();
 }

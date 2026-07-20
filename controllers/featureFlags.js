@@ -23,9 +23,17 @@ export const getPlatformFeatures = asyncHandler(async (req, res) => {
   });
 });
 
-/** PUT /api/platform/features  body: { overrides: { key: value, ... } } */
+/**
+ * PUT /api/platform/features
+ * body: { updates: [{ key, value }, ...] }
+ *
+ * Flag ids ride as VALUES (not object keys) because the global
+ * express-mongo-sanitize strips dots from request KEYS, which would otherwise
+ * mangle dotted flag ids like "payments.methods". `overrides` (object map) is
+ * still accepted for back-compat.
+ */
 export const updatePlatformFeatures = asyncHandler(async (req, res) => {
-  const overrides = req.body?.overrides || {};
-  const flags = await setFeatureOverrides(overrides, req.platformUser?.id);
+  const updates = req.body?.updates ?? req.body?.overrides ?? [];
+  const flags = await setFeatureOverrides(updates, req.platformUser?.id);
   res.json({ success: true, data: { flags } });
 });
