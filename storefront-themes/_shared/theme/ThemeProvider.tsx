@@ -692,7 +692,12 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
     const list = overrides?.sections;
     // No customization yet → the manifest's default sections are all visible.
     if (!Array.isArray(list) || list.length === 0) return true;
-    const section = list.find((s: any) => s.id === sectionId);
+    // Match by id OR type: a theme's hard-coded section (e.g. Home calls
+    // useSectionEnabled('categories')) is keyed by the manifest TYPE, but a
+    // seeded/published section instance may carry a generated id. Matching
+    // either avoids wrongly treating a present section as "deleted" (which
+    // hides it) just because its instance id isn't the literal type string.
+    const section = list.find((s: any) => s.id === sectionId || s.type === sectionId);
     // The merchant HAS a customized section list (the dashboard seeds it with
     // the manifest defaults on first edit). If a hard-coded section is NOT in
     // that list, the merchant DELETED it in the editor — so it must hide.

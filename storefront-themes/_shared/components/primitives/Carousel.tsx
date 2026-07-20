@@ -138,7 +138,7 @@ export function Carousel({
               'absolute start-2 top-1/2 -translate-y-1/2 z-10',
               'w-10 h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg',
               'flex items-center justify-center',
-              'opacity-0 group-hover:opacity-100 transition-opacity',
+              'opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity',
               'hover:bg-white dark:hover:bg-gray-800',
               'disabled:opacity-30 disabled:cursor-not-allowed',
               arrowClassName
@@ -156,7 +156,7 @@ export function Carousel({
               'absolute end-2 top-1/2 -translate-y-1/2 z-10',
               'w-10 h-10 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg',
               'flex items-center justify-center',
-              'opacity-0 group-hover:opacity-100 transition-opacity',
+              'opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity',
               'hover:bg-white dark:hover:bg-gray-800',
               'disabled:opacity-30 disabled:cursor-not-allowed',
               arrowClassName
