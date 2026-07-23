@@ -29,11 +29,13 @@ import {
   ShoppingCart, MoreHorizontal, Eye, DollarSign, Clock, CheckCircle2,
   Truck, Package as PackageIcon, XCircle, Search, Filter, Download,
   RefreshCw, GitBranch, LayoutGrid, List, X, FileText, Plus,
+  Phone, MessageCircle, PackageCheck, Banknote,
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { toCSV, downloadCSV } from '../../lib/utils';
 import { useIsMobile } from '../../hooks/use-mobile';
+import { getCustomerPhone, getCustomerName, whatsappUrl, isCodOrder } from './detail/lib';
 import type { Order, OrderStatus, PaginatedResponse } from '../../types';
 
 // The bulk/full export builders tap into a few "decorated" order fields
@@ -677,6 +679,124 @@ export const Orders: React.FC = () => {
             </p>
           </CardContent>
         </Card>
+      ) : isMobile ? (
+        /* ── Mobile order cards (guided, thumb-friendly) ──────────────
+           One card per order: number + status + total up top, customer +
+           city + date, a plain-language payment hint, then the SAME next
+           step the detail stepper would suggest (Confirm → Ship →
+           Deliver) plus Call/WhatsApp shortcuts. Tap anywhere else on
+           the card to open the order. */
+        <div className="space-y-3">
+          {orders.map((order) => {
+            const nextStep: { label: string; status: OrderStatus; icon: React.ElementType } | null =
+              order.status === 'Pending'
+                ? { label: t('orders:detail.stepper.confirm_order'), status: 'Processing', icon: PackageCheck }
+                : order.status === 'Processing' || order.status === 'Confirmed'
+                  ? { label: t('orders:detail.action.mark_shipped'), status: 'Shipped', icon: Truck }
+                  : order.status === 'Shipped'
+                    ? { label: t('orders:detail.action.mark_delivered'), status: 'Delivered', icon: CheckCircle2 }
+                    : null;
+            const isCod = isCodOrder(order);
+            const paid = order.paymentStatus === 'Paid' || order.paymentStatus === 'Partially Refunded';
+            const paymentHint = paid
+              ? (isCod ? t('orders:detail.payment_simple.cod_collected') : t('orders:detail.payment_simple.paid'))
+              : order.paymentStatus === 'Not Paid'
+                ? (isCod ? t('orders:detail.payment_simple.cod_pending') : t('orders:detail.payment_simple.not_paid'))
+                : t(`common:status.${order.paymentStatus}`, { defaultValue: order.paymentStatus });
+            const phone = getCustomerPhone(order);
+            const customerName = order.user?.name || getCustomerName(order) || t('orders:list.guest');
+            const number = displayOrderNumber(order.orderNumber, order._id);
+            return (
+              <Card
+                key={order._id}
+                role="link"
+                tabIndex={0}
+                aria-label={t('orders:list.card.open_order', { number })}
+                className="cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring active:bg-muted/50 motion-reduce:transition-none"
+                onClick={() => navigate(`/dashboard/orders/${order._id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/dashboard/orders/${order._id}`);
+                  }
+                }}
+              >
+                <CardContent className="space-y-3 p-4">
+                  {/* Number + status | total */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <span className="font-semibold tabular-nums">{number}</span>
+                      <Badge variant={statusVariant(order.status)} className="h-5 text-[10px]">
+                        {t(`common:status.${order.status}`, { defaultValue: order.status })}
+                      </Badge>
+                    </div>
+                    <span className="shrink-0 text-base font-bold tabular-nums">{formatPrice(order.totalAmount)}</span>
+                  </div>
+
+                  {/* Customer + city + date */}
+                  <p className="truncate text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground/80">{customerName}</span>
+                    {order.shippingAddress?.city ? ` · ${order.shippingAddress.city}` : ''}
+                    {` · ${formatDate(order.createdAt)}`}
+                  </p>
+
+                  {/* Payment hint, plain language */}
+                  <p
+                    className={`flex items-center gap-1.5 text-xs font-medium ${
+                      paid
+                        ? 'text-success-soft-foreground'
+                        : order.paymentStatus === 'Failed'
+                          ? 'text-destructive'
+                          : 'text-warning-soft-foreground'
+                    }`}
+                  >
+                    <Banknote className="h-3.5 w-3.5 shrink-0" aria-hidden /> {paymentHint}
+                  </p>
+
+                  {/* Next step + contact shortcuts */}
+                  {(nextStep || phone) && (
+                    <div className="flex items-center gap-2 pt-0.5">
+                      {nextStep && (
+                        <Button
+                          size="sm"
+                          className="h-10 flex-1"
+                          onClick={(e) => { e.stopPropagation(); handleStatusChange(order._id, nextStep.status); }}
+                        >
+                          <nextStep.icon className="h-4 w-4 me-2" aria-hidden />
+                          {nextStep.label}
+                        </Button>
+                      )}
+                      {phone && (
+                        <>
+                          <Button asChild variant="outline" size="icon" className="h-10 w-10 shrink-0">
+                            <a
+                              href={`tel:${phone}`}
+                              onClick={(e) => e.stopPropagation()}
+                              aria-label={t('orders:detail.contact.call_aria', { name: customerName })}
+                            >
+                              <Phone className="h-4 w-4" aria-hidden />
+                            </a>
+                          </Button>
+                          <Button asChild variant="outline" size="icon" className="h-10 w-10 shrink-0">
+                            <a
+                              href={whatsappUrl(phone)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              aria-label={t('orders:detail.contact.whatsapp_aria', { name: customerName })}
+                            >
+                              <MessageCircle className="h-4 w-4" aria-hidden />
+                            </a>
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       ) : effectiveView === 'table' ? (
         <DataTable<Order>
           columns={tableColumns}

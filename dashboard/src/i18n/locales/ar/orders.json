@@ -79,7 +79,10 @@
     "guest": "ضيف",
     "item_count_one": "عنصر واحد",
     "item_count_other": "{{count}} عناصر",
-    "create_order": "إنشاء طلب"
+    "create_order": "إنشاء طلب",
+    "card": {
+      "open_order": "فتح الطلب {{number}}"
+    }
   },
   "detail": {
     "placed": "تم الطلب {{date}}",
@@ -218,6 +221,34 @@
       "has_many": "هذا الطلب لديه {{count}} طلبات بديلة."
     },
     "order_title": "الطلب {{number}}",
+    "contact": {
+      "call": "اتصال",
+      "whatsapp": "واتساب",
+      "call_aria": "الاتصال بـ {{name}}",
+      "whatsapp_aria": "مراسلة {{name}} عبر واتساب"
+    },
+    "stepper": {
+      "aria_label": "مراحل الطلب",
+      "step_new": "جديد",
+      "step_confirmed": "مؤكّد",
+      "step_shipped": "تم الشحن",
+      "step_delivered": "تم التسليم",
+      "confirm_order": "تأكيد الطلب",
+      "delivered_summary": "اكتمل كل شيء — تم تسليم هذا الطلب.",
+      "cancelled_title": "تم إلغاء الطلب",
+      "refunded_title": "تم استرداد الطلب",
+      "refunded_summary": "أُعيد المبلغ إلى العميل.",
+      "draft_hint": "أكمل المسودة أدناه لتحويلها إلى طلب فعلي."
+    },
+    "payment_simple": {
+      "cod_pending": "الدفع عند الاستلام — لم يُحصَّل المبلغ بعد",
+      "cod_collected": "تم تحصيل المبلغ",
+      "mark_collected": "تسجيل التحصيل",
+      "paid": "تم استلام الدفعة",
+      "not_paid": "لم يتم الدفع بعد",
+      "waiting_verification": "بانتظار تحققك من الدفعة",
+      "failed": "فشل الدفع — تواصل مع العميل"
+    },
     "status_card": {
       "order": "الطلب",
       "payment": "الدفع",

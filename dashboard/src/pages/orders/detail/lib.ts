@@ -20,6 +20,39 @@ export const orderDocUrl = (orderId: string, doc: string) =>
 
 export const getLineId = (line: OrderItem | undefined | null): string => String(line?._id || '');
 
+// ─── Customer contact helpers (guided-order UX) ──────────────────────
+// The customer's phone can live in several places depending on how the
+// order was placed (registered user, guest checkout, snapshot, or just
+// the shipping address). First hit wins.
+export const getCustomerPhone = (order: Order | null | undefined): string =>
+  order?.user?.phone ||
+  order?.guestCustomer?.phone ||
+  order?.customerSnapshot?.phone ||
+  order?.shippingAddress?.phone ||
+  '';
+
+export const getCustomerName = (order: Order | null | undefined): string => {
+  if (!order) return '';
+  if (order.user?.name) return order.user.name;
+  const guest = order.guestCustomer || order.customerSnapshot;
+  const name = [guest?.firstName, guest?.lastName].filter(Boolean).join(' ');
+  if (name) return name;
+  const addr = order.shippingAddress;
+  return addr?.name || [addr?.firstName, addr?.lastName].filter(Boolean).join(' ');
+};
+
+// wa.me links want digits only, WITH the country code and WITHOUT the
+// international "00" prefix or the "+". We only strip — never guess a
+// country code the merchant didn't store.
+export const whatsappUrl = (phone: string): string =>
+  `https://wa.me/${phone.replace(/\D/g, '').replace(/^00/, '')}`;
+
+// COD detection — same rule the operations logic has always used.
+export const isCodOrder = (order: Pick<Order, 'paymentMethod'> | null | undefined): boolean => {
+  const m = (order?.paymentMethod || '').toLowerCase();
+  return m === 'cod' || m.includes('cash on delivery');
+};
+
 // Scoped order-editing guard (audit 5.3) — mirrors the server's exact gate
 // in services/order.js#canEditOrderLines. Line edits are allowed ONLY while
 // the order is unpaid, unfulfilled, and awaiting processing. Kept in sync

@@ -6,7 +6,7 @@ import { useSetBreadcrumbs } from '../../../contexts/breadcrumb-context';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { ArrowLeft, Printer, AlertCircle, FileText, Loader2, CheckCircle2, Trash2, Pencil } from 'lucide-react';
+import { ArrowLeft, Printer, AlertCircle, FileText, Pencil, Phone, MessageCircle } from 'lucide-react';
 import { api } from '../../../lib/api-client';
 import { toast } from 'sonner';
 import type { Order, OrderStatus, CustomerContext, Payment } from '../../../types';
@@ -16,10 +16,10 @@ import { useFeatures } from '../../../contexts/features-context';
 import { useConfirm } from '../../../components/ui/use-confirm';
 import { OrderDetailContext, usePaymentMethodMeta, type PaymentActionKey } from './context';
 import {
-  orderDocUrl, extractOrder,
+  orderDocUrl, extractOrder, getCustomerPhone, getCustomerName, whatsappUrl,
   type PaymentsListEnvelope, type PaymentsBlock,
 } from './lib';
-import { OperationsSection } from './OperationsCard';
+import { OrderStepperSection } from './OrderStepper';
 import { DocumentsMenu } from './DocumentsMenu';
 import { LineItemsCard } from './LineItemsCard';
 import { PaymentsCard } from './PaymentsCard';
@@ -300,6 +300,32 @@ export const OrderDetails: React.FC = () => {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {(() => {
+              // Call / WhatsApp — the merchant's actual workflow in a
+              // COD + WhatsApp market: confirm the order by phone first.
+              const phone = getCustomerPhone(order);
+              if (!phone) return null;
+              const name = getCustomerName(order) || t('orders:detail.customer.guest');
+              return (
+                <>
+                  <Button asChild variant="outline" size="sm">
+                    <a href={`tel:${phone}`} aria-label={t('orders:detail.contact.call_aria', { name })}>
+                      <Phone className="h-4 w-4 me-2" />{t('orders:detail.contact.call')}
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <a
+                      href={whatsappUrl(phone)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={t('orders:detail.contact.whatsapp_aria', { name })}
+                    >
+                      <MessageCircle className="h-4 w-4 me-2" />{t('orders:detail.contact.whatsapp')}
+                    </a>
+                  </Button>
+                </>
+              );
+            })()}
             {hasFeature('orders.fulfillment') && (
               <Button
                 variant="outline"
@@ -324,37 +350,27 @@ export const OrderDetails: React.FC = () => {
                 <p className="text-sm font-semibold">{t('orders:detail.draft.banner_title')}</p>
                 <p className="text-sm text-muted-foreground">{t('orders:detail.draft.banner_description')}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={draftActionBusy || !can('orders.write')}
-                  onClick={() => navigate(`/dashboard/orders/new?draft=${order._id}`)}
-                >
-                  <Pencil className="h-4 w-4 me-2" />{t('orders:detail.draft.edit_draft')}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                  disabled={draftActionBusy || !can('orders.write')}
-                  onClick={handleDeleteDraft}
-                >
-                  <Trash2 className="h-4 w-4 me-2" />{t('orders:detail.draft.delete_draft')}
-                </Button>
-                <Button size="sm" disabled={draftActionBusy || !can('orders.write')} onClick={handleCompleteDraft}>
-                  {draftActionBusy
-                    ? <Loader2 className="h-4 w-4 me-2 animate-spin" />
-                    : <CheckCircle2 className="h-4 w-4 me-2" />}
-                  {t('orders:detail.draft.complete_order')}
-                </Button>
-              </div>
+              {/* Complete / Delete moved into the guided stepper below —
+                  the banner keeps only the explanation and Edit. */}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={draftActionBusy || !can('orders.write')}
+                onClick={() => navigate(`/dashboard/orders/new?draft=${order._id}`)}
+              >
+                <Pencil className="h-4 w-4 me-2" />{t('orders:detail.draft.edit_draft')}
+              </Button>
             </CardContent>
           </Card>
         )}
 
-        {/* Unified operations card — statuses + next action + payment transitions */}
-        <OperationsSection />
+        {/* Guided status stepper — visual progress + ONE primary action +
+            plain-language payment line (replaces the old operations card) */}
+        <OrderStepperSection
+          onCompleteDraft={handleCompleteDraft}
+          onDeleteDraft={handleDeleteDraft}
+          draftBusy={draftActionBusy}
+        />
 
         <div className="grid gap-6 lg:grid-cols-3 lg:items-stretch">
           {/* Main Content — min-w-0 so wide/unbreakable children (currency

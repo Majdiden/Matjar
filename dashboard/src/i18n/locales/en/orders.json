@@ -79,7 +79,10 @@
     "guest": "Guest",
     "item_count_one": "{{count}} item",
     "item_count_other": "{{count}} items",
-    "create_order": "Create order"
+    "create_order": "Create order",
+    "card": {
+      "open_order": "Open order {{number}}"
+    }
   },
   "detail": {
     "placed": "Placed {{date}}",
@@ -218,6 +221,34 @@
       "has_many": "This order has {{count}} replacement orders."
     },
     "order_title": "Order {{number}}",
+    "contact": {
+      "call": "Call",
+      "whatsapp": "WhatsApp",
+      "call_aria": "Call {{name}}",
+      "whatsapp_aria": "Message {{name}} on WhatsApp"
+    },
+    "stepper": {
+      "aria_label": "Order progress",
+      "step_new": "New",
+      "step_confirmed": "Confirmed",
+      "step_shipped": "Shipped",
+      "step_delivered": "Delivered",
+      "confirm_order": "Confirm order",
+      "delivered_summary": "All done — this order is delivered.",
+      "cancelled_title": "Order cancelled",
+      "refunded_title": "Order refunded",
+      "refunded_summary": "The money was returned to the customer.",
+      "draft_hint": "Complete the draft below to turn it into a live order."
+    },
+    "payment_simple": {
+      "cod_pending": "Cash on delivery — not collected yet",
+      "cod_collected": "Cash collected",
+      "mark_collected": "Mark collected",
+      "paid": "Payment received",
+      "not_paid": "Not paid yet",
+      "waiting_verification": "Waiting for you to verify the payment",
+      "failed": "Payment failed — check with the customer"
+    },
     "status_card": {
       "order": "Order",
       "payment": "Payment",
