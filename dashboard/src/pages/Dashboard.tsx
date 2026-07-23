@@ -86,18 +86,41 @@ interface CountsOverTimeResponse {
   responseObject?: { customers?: CountPoint[]; products?: CountPoint[] };
 }
 
-// Turn per-day NEW counts into a running total that ends at `total`, so a
-// "total" stat card's sparkline rises to its current value. Falls back to a
-// flat 2-point line at `total` when nothing changed in the window (an honest
-// "no growth" line rather than an empty card).
-const cumulativeSeries = (rows: CountPoint[], total: number): number[] => {
-  const counts = rows.map((r) => r.count);
-  const sumWindow = counts.reduce((a, b) => a + b, 0);
+// How many days of daily trend to chart on the stat-card sparklines. Matches
+// the 30-day framing of the revenue/orders KPIs shown on the same cards.
+const TREND_DAYS = 30;
+
+// The analytics aggregations return ONLY the days that had activity, so a
+// low-volume store collapses to 1–2 points (or none) and the sparkline can't
+// draw. Expand the grouped rows into a DENSE array — one value per calendar day
+// across the window — zero-filling the gaps, so the line always spans the full
+// period and reflects the real daily distribution. Dates are compared as UTC
+// 'YYYY-MM-DD', matching the backend's `$dateToString` day grouping.
+const denseDaily = (
+  rows: { date: string }[],
+  key: 'revenue' | 'orders' | 'count',
+  startMs: number,
+  days: number,
+): number[] => {
+  const byDate = new Map(
+    rows.map((r) => [r.date, Number((r as Record<string, unknown>)[key]) || 0]),
+  );
+  const out: number[] = [];
+  for (let i = 0; i < days; i++) {
+    const day = new Date(startMs + i * 86400000).toISOString().slice(0, 10);
+    out.push(byDate.get(day) || 0);
+  }
+  return out;
+};
+
+// Turn a dense per-day NEW-count series into a running total that ends at
+// `total`, so a "total" stat card's sparkline rises to its current value.
+const cumulativeSeries = (daily: number[], total: number): number[] => {
+  const sumWindow = daily.reduce((a, b) => a + b, 0);
   const base = Math.max(0, total - sumWindow);
-  if (counts.length === 0) return [total, total];
   let running = base;
   const out = [base];
-  for (const c of counts) { running += c; out.push(running); }
+  for (const c of daily) { running += c; out.push(running); }
   return out;
 };
 
@@ -180,11 +203,12 @@ export const Dashboard: React.FC = () => {
     hasProduct: false, paymentsEnabled: false, themePublished: false, hasOrder: false, hasCustomDomain: false,
   });
   const [starter, setStarter] = useState<{ hasDraftStarter?: boolean; previewUrl?: string } | null>(null);
-  // Last-14-days trends for the mobile stat-card sparklines: daily sales
-  // (revenue + orders) and daily new customers/products.
-  const [salesTrend, setSalesTrend] = useState<SalesPoint[]>([]);
-  const [customerCounts, setCustomerCounts] = useState<CountPoint[]>([]);
-  const [productCounts, setProductCounts] = useState<CountPoint[]>([]);
+  // Dense daily trends for the stat-card sparklines over the last TREND_DAYS:
+  // sales (revenue + orders) and new customers/products, one value per day.
+  const [revenueSeries, setRevenueSeries] = useState<number[]>([]);
+  const [ordersSeries, setOrdersSeries] = useState<number[]>([]);
+  const [customerDaily, setCustomerDaily] = useState<number[]>([]);
+  const [productDaily, setProductDaily] = useState<number[]>([]);
   // Whether the merchant actively PICKED a theme during onboarding. When true
   // the "customize theme" setup step is hidden (their look is already chosen);
   // when false the step is shown until they publish a customization. `null`
@@ -216,24 +240,31 @@ export const Dashboard: React.FC = () => {
     return () => { active = false; };
   }, []);
 
-  // Last-14-day trends for the stat-card sparklines (sales + new counts).
+  // Daily trends for the stat-card sparklines (sales + new counts) over the
+  // last TREND_DAYS, zero-filled to a dense per-day series so the lines always
+  // span the window instead of collapsing on quiet days.
   useEffect(() => {
     let active = true;
+    const startMs = Date.now() - (TREND_DAYS - 1) * 86400000;
+    const start = new Date(startMs).toISOString();
     const end = new Date().toISOString();
-    const start = new Date(Date.now() - 13 * 86400000).toISOString();
     api.analytics.getSalesOverTime(start, end)
       .then((r) => {
         if (!active) return;
         const res = r as SalesOverTimeResponse;
-        setSalesTrend(res.data?.salesData || res.responseObject?.salesData || []);
+        const rows = res.data?.salesData || res.responseObject?.salesData || [];
+        setRevenueSeries(denseDaily(rows, 'revenue', startMs, TREND_DAYS));
+        setOrdersSeries(denseDaily(rows, 'orders', startMs, TREND_DAYS));
       })
       .catch(() => { /* non-fatal — sparkline just won't render */ });
     api.analytics.getCountsOverTime(start, end)
       .then((r) => {
         if (!active) return;
         const res = r as CountsOverTimeResponse;
-        setCustomerCounts(res.data?.customers || res.responseObject?.customers || []);
-        setProductCounts(res.data?.products || res.responseObject?.products || []);
+        const customers = res.data?.customers || res.responseObject?.customers || [];
+        const products = res.data?.products || res.responseObject?.products || [];
+        setCustomerDaily(denseDaily(customers, 'count', startMs, TREND_DAYS));
+        setProductDaily(denseDaily(products, 'count', startMs, TREND_DAYS));
       })
       .catch(() => { /* non-fatal — sparkline just won't render */ });
     return () => { active = false; };
@@ -563,7 +594,7 @@ export const Dashboard: React.FC = () => {
               icon={DollarSign}
               delta={revenueDelta}
               description={t('dashboard:metric.revenue_description')}
-              chart={salesTrend.length >= 2 ? <SalesSparkline points={salesTrend.map((p) => p.revenue)} /> : undefined}
+              chart={revenueSeries.length >= 2 ? <SalesSparkline points={revenueSeries} /> : undefined}
             />
           </div>
           <Link to="/dashboard/orders" className="w-[80%] shrink-0 snap-start">
@@ -574,7 +605,7 @@ export const Dashboard: React.FC = () => {
               icon={ShoppingCart}
               delta={ordersDelta}
               description={t('dashboard:metric.orders_description')}
-              chart={salesTrend.length >= 2 ? <SalesSparkline points={salesTrend.map((p) => p.orders)} /> : undefined}
+              chart={ordersSeries.length >= 2 ? <SalesSparkline points={ordersSeries} /> : undefined}
             />
           </Link>
           <Link to="/dashboard/products" className="w-[80%] shrink-0 snap-start">
@@ -584,7 +615,7 @@ export const Dashboard: React.FC = () => {
               value={totals.products.toLocaleString()}
               icon={Package}
               description={t('dashboard:metric.products_description')}
-              chart={<SalesSparkline points={cumulativeSeries(productCounts, totals.products)} />}
+              chart={<SalesSparkline points={cumulativeSeries(productDaily, totals.products)} />}
             />
           </Link>
           <Link to="/dashboard/customers" className="w-[80%] shrink-0 snap-start">
@@ -594,7 +625,7 @@ export const Dashboard: React.FC = () => {
               value={totals.customers.toLocaleString()}
               icon={Users}
               description={t('dashboard:metric.customers_description')}
-              chart={<SalesSparkline points={cumulativeSeries(customerCounts, totals.customers)} />}
+              chart={<SalesSparkline points={cumulativeSeries(customerDaily, totals.customers)} />}
             />
           </Link>
         </div>
@@ -613,7 +644,7 @@ export const Dashboard: React.FC = () => {
                 icon={DollarSign}
                 delta={revenueDelta}
                 description={withTrend(t('dashboard:metric.revenue_description'), revenueDelta)}
-                chart={salesTrend.length >= 2 ? <SalesSparkline points={salesTrend.map((p) => p.revenue)} /> : undefined}
+                chart={revenueSeries.length >= 2 ? <SalesSparkline points={revenueSeries} /> : undefined}
               />
               <Link to="/dashboard/orders">
                 <StatCard
@@ -622,7 +653,7 @@ export const Dashboard: React.FC = () => {
                   icon={ShoppingCart}
                   delta={ordersDelta}
                   description={withTrend(t('dashboard:metric.orders_description'), ordersDelta)}
-                  chart={salesTrend.length >= 2 ? <SalesSparkline points={salesTrend.map((p) => p.orders)} /> : undefined}
+                  chart={ordersSeries.length >= 2 ? <SalesSparkline points={ordersSeries} /> : undefined}
                 />
               </Link>
             </div>
@@ -638,7 +669,7 @@ export const Dashboard: React.FC = () => {
                   value={totals.products.toLocaleString()}
                   icon={Package}
                   description={t('dashboard:metric.products_description')}
-                  chart={<SalesSparkline points={cumulativeSeries(productCounts, totals.products)} />}
+                  chart={<SalesSparkline points={cumulativeSeries(productDaily, totals.products)} />}
                 />
               </Link>
               <Link to="/dashboard/customers">
@@ -647,7 +678,7 @@ export const Dashboard: React.FC = () => {
                   value={totals.customers.toLocaleString()}
                   icon={Users}
                   description={t('dashboard:metric.customers_description')}
-                  chart={<SalesSparkline points={cumulativeSeries(customerCounts, totals.customers)} />}
+                  chart={<SalesSparkline points={cumulativeSeries(customerDaily, totals.customers)} />}
                 />
               </Link>
             </div>
