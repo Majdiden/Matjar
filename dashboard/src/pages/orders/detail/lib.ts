@@ -41,11 +41,28 @@ export const getCustomerName = (order: Order | null | undefined): string => {
   return addr?.name || [addr?.firstName, addr?.lastName].filter(Boolean).join(' ');
 };
 
-// wa.me links want digits only, WITH the country code and WITHOUT the
-// international "00" prefix or the "+". We only strip — never guess a
-// country code the merchant didn't store.
+// Sudan's country code — the platform's primary market. Local numbers are
+// stored with the national trunk "0" (e.g. "0903775676"); WhatsApp needs the
+// full international form ("249903775676").
+const DEFAULT_COUNTRY_CODE = '249';
+
+// wa.me links want digits only, in full international form: country code, no
+// "+" or "00". Merchants store numbers in whatever shape the customer typed,
+// so we normalise the common ones:
+//   00249903775676 → 249903775676   (strip international "00")
+//   +249 903 775 676 → 249903775676 (already international)
+//   0903775676     → 249903775676   (national trunk "0" → country code)
+export const normalizeWhatsappNumber = (phone: string): string => {
+  let d = String(phone ?? '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith(DEFAULT_COUNTRY_CODE)) return d;
+  if (d.startsWith('0')) return DEFAULT_COUNTRY_CODE + d.slice(1);
+  return d;
+};
+
 export const whatsappUrl = (phone: string): string =>
-  `https://wa.me/${phone.replace(/\D/g, '').replace(/^00/, '')}`;
+  `https://wa.me/${normalizeWhatsappNumber(phone)}`;
 
 // COD detection — same rule the operations logic has always used.
 export const isCodOrder = (order: Pick<Order, 'paymentMethod'> | null | undefined): boolean => {
