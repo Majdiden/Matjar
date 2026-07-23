@@ -187,21 +187,21 @@ export const Collections: React.FC = () => {
         </Button>
       </div>
 
-      {/* Filters */}
+      {/* Search — its own row */}
+      <form onSubmit={handleSearch} className="flex gap-2">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={t('products.collections.list.search_placeholder')}
+            className="ps-8 w-full"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Button type="submit" variant="secondary" size="sm">{t('common:action.search')}</Button>
+      </form>
+      {/* Controls — separate row */}
       <div className="flex flex-wrap gap-3 items-center">
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="relative">
-            <Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={t('products.collections.list.search_placeholder')}
-              className="ps-8 w-60"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <Button type="submit" variant="secondary" size="sm">{t('common:action.search')}</Button>
-        </form>
-
         <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v as 'all' | 'manual' | 'smart'); setPage(1); }}>
           <SelectTrigger className="w-36">
             <SelectValue placeholder={t('products.collections.list.filter.type_placeholder')} />

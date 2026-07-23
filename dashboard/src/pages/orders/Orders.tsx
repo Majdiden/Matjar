@@ -510,17 +510,18 @@ export const Orders: React.FC = () => {
         onChange={(v) => { setTab(v === 'all' ? '' : (v as StatusTab)); setPage(1); }}
       />
 
-      {/* Search row */}
+      {/* Search — its own row */}
+      <div className="relative w-full max-w-md">
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder={t('orders:list.search.placeholder')}
+          className="ps-9 w-full"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+        />
+      </div>
+      {/* Controls — separate row */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[12rem] max-w-md">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t('orders:list.search.placeholder')}
-            className="ps-9"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
-        </div>
         <Popover
           open={filterOpen}
           onOpenChange={(open) => {

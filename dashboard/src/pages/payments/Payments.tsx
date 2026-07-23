@@ -190,18 +190,19 @@ export const Payments: React.FC = () => {
         </Card>
       </StatCardRow>
 
-      {/* Search */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t('payments:list.search.placeholder')}
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && loadPayments()}
-            className="ps-9"
-          />
-        </div>
+      {/* Search — its own row */}
+      <div className="relative w-full max-w-md">
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder={t('payments:list.search.placeholder')}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && loadPayments()}
+          className="ps-9 w-full"
+        />
+      </div>
+      {/* Controls — separate row */}
+      <div className="flex flex-wrap items-center gap-3">
         <Button variant="outline" onClick={loadPayments}>
           <RefreshCw className="h-4 w-4 me-2" />
           {t('common:action.refresh')}

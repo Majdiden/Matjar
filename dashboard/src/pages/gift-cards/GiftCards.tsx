@@ -439,17 +439,19 @@ const GiftCards: React.FC = () => {
         onChange={(v) => { setStatusFilter(v); setPage(1); }}
       />
 
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            className="ps-9"
-            placeholder={t('marketing.gift_card.list.search_placeholder')}
-            maxLength={4}
-            value={searchLast4}
-            onChange={e => { setSearchLast4(e.target.value.replace(/\D/g, '')); setPage(1); }}
-          />
-        </div>
+      {/* Search — its own row */}
+      <div className="relative w-full max-w-md">
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          className="ps-9 w-full"
+          placeholder={t('marketing.gift_card.list.search_placeholder')}
+          maxLength={4}
+          value={searchLast4}
+          onChange={e => { setSearchLast4(e.target.value.replace(/\D/g, '')); setPage(1); }}
+        />
+      </div>
+      {/* Controls — separate row */}
+      <div className="flex flex-wrap items-center gap-3">
         <div className="ms-auto">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
         </div>

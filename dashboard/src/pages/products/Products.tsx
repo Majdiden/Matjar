@@ -240,16 +240,18 @@ export const Products: React.FC = () => {
         onChange={(v) => { setTab(v as StatusTab); setPage(1); }}
       />
 
+      {/* Search — its own row */}
+      <div className="relative w-full max-w-md">
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder={t('products.list.search_placeholder')}
+          value={searchTerm}
+          onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+          className="ps-9 w-full"
+        />
+      </div>
+      {/* Controls — separate row */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[12rem] max-w-md">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t('products.list.search_placeholder')}
-            value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-            className="ps-9"
-          />
-        </div>
         <Button variant="outline" size="sm">
           <Filter className="h-4 w-4 me-2" />{t('products.list.more_filters')}
         </Button>
