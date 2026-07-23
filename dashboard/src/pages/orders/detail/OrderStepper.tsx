@@ -240,24 +240,24 @@ export const OrderStepperSection: React.FC<{
                     <span
                       aria-hidden
                       className={cn(
-                        'absolute top-4 start-[-50%] h-0.5 w-full transition-colors motion-reduce:transition-none',
+                        'absolute top-5 start-[-50%] h-0.5 w-full transition-colors motion-reduce:transition-none',
                         done ? 'bg-primary' : 'bg-border',
                       )}
                     />
                   )}
                   <span
                     className={cn(
-                      'relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors motion-reduce:transition-none',
+                      'relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors motion-reduce:transition-none',
                       done && 'border-primary bg-primary text-primary-foreground',
                       isCurrent && 'border-primary bg-background text-primary ring-4 ring-primary/15',
                       !done && !isCurrent && 'border-border bg-muted text-muted-foreground',
                     )}
                   >
-                    {done ? <Check className="h-4 w-4" aria-hidden /> : <StepIcon className="h-4 w-4" aria-hidden />}
+                    {done ? <Check className="h-5 w-5" aria-hidden /> : <StepIcon className="h-5 w-5" aria-hidden />}
                   </span>
                   <span
                     className={cn(
-                      'px-0.5 text-center text-[11px] font-medium leading-tight sm:text-xs',
+                      'px-0.5 text-center text-xs font-medium leading-tight sm:text-sm',
                       isCurrent ? 'font-semibold text-foreground' : done ? 'text-foreground' : 'text-muted-foreground',
                     )}
                   >
