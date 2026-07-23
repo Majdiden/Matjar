@@ -11,6 +11,7 @@ import { api } from '../../../lib/api-client';
 import { toast } from 'sonner';
 import type { Order, OrderStatus } from '../../../types';
 import { useConfirm } from '../../../components/ui/use-confirm';
+import { useFeatures } from '../../../contexts/features-context';
 import { useOrderDetail } from './context';
 import {
   orderDocUrl, orderStatusVariant, paymentStatusVariant,
@@ -25,6 +26,7 @@ const STATUS_OPTIONS: OrderStatus[] = ['Pending', 'Processing', 'Shipped', 'Deli
 export const OperationsSection: React.FC = () => {
   const { t } = useTranslation(['orders', 'common']);
   const confirm = useConfirm();
+  const { hasFeature } = useFeatures();
   const {
     order, reload, canWriteOrders, updatingStatus, paymentActionBusy,
     setPaymentActionBusy, isManualMethod, handleStatusChange,
@@ -35,6 +37,7 @@ export const OperationsSection: React.FC = () => {
     <OperationsCard
       order={order}
       canWrite={canWriteOrders}
+      fulfillmentEnabled={hasFeature('orders.fulfillment')}
       updatingStatus={updatingStatus}
       paymentActionBusy={paymentActionBusy}
       isManualMethod={isManualMethod}
@@ -117,6 +120,7 @@ type PaymentActionKey = 'mark_paid' | 'capture' | 'void' | 'mark_failed' | 'reco
 const OperationsCard: React.FC<{
   order: Order;
   canWrite: boolean;
+  fulfillmentEnabled: boolean;
   updatingStatus: boolean;
   paymentActionBusy: boolean;
   isManualMethod: boolean;
@@ -135,6 +139,7 @@ const OperationsCard: React.FC<{
 }> = ({
   order,
   canWrite,
+  fulfillmentEnabled,
   updatingStatus,
   paymentActionBusy,
   isManualMethod,
@@ -206,6 +211,16 @@ const OperationsCard: React.FC<{
   } else if (paymentStatus === 'Voided') {
     summary = tOC('orders:detail.next_action.voided_summary');
     secondary.push({ label: tOC('orders:detail.action.cancel'), onClick: onCancelOrder, variant: 'outline', disabled: !canWrite, disabledReason: noPermReason });
+  } else if (paymentSettled && !fulfillmentEnabled) {
+    // Fulfillment feature is off (COD/simple flow) — never suggest creating a
+    // fulfillment. Advance the ORDER STATUS toward Delivered with plain marks.
+    if (orderStatus === 'Shipped') {
+      primary = { label: tOC('orders:detail.action.mark_delivered'), onClick: onMarkDelivered, disabled: !canWrite, disabledReason: noPermReason };
+    } else if (orderStatus !== 'Delivered') {
+      primary = { label: tOC('orders:detail.action.mark_shipped', { defaultValue: 'Mark as shipped' }), onClick: () => onStatusChange('Shipped'), disabled: !canWrite, disabledReason: noPermReason };
+    } else {
+      summary = tOC('orders:detail.next_action.no_pending');
+    }
   } else if (paymentSettled && fulfillmentStatus === 'Unfulfilled') {
     primary = { label: tOC('orders:detail.action.create_fulfillment'), onClick: onCreateFulfillment, disabled: !canWrite, disabledReason: noPermReason };
     secondary.push({ label: tOC('orders:detail.action.print_packing_slip'), onClick: onPrintPackingSlip, variant: 'outline' });
@@ -262,8 +277,8 @@ const OperationsCard: React.FC<{
 
   return (
     <div className="space-y-4">
-      {/* ── Three separate status cards ─────────────────────────── */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* ── Status cards (fulfillment card hidden when the feature is off) ── */}
+      <div className={`grid gap-4 ${fulfillmentEnabled ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
         {/* Order */}
         <Card>
           <CardContent className={statusCardCls}>
@@ -320,20 +335,22 @@ const OperationsCard: React.FC<{
           </CardContent>
         </Card>
 
-        {/* Fulfillment */}
-        <Card>
-          <CardContent className={statusCardCls}>
-            <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <Truck className="h-5 w-5" /> {tOC('orders:detail.status_card.fulfillment')}
-            </span>
-            <Badge
-              variant={fulfillmentStatusVariant(fulfillmentStatus)}
-              className="justify-center min-w-[120px] self-start text-xs font-medium px-2.5 py-1"
-            >
-              {tOC(`common:status.${fulfillmentStatus}`, { defaultValue: fulfillmentStatus })}
-            </Badge>
-          </CardContent>
-        </Card>
+        {/* Fulfillment — only when the fulfillment feature is enabled */}
+        {fulfillmentEnabled && (
+          <Card>
+            <CardContent className={statusCardCls}>
+              <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                <Truck className="h-5 w-5" /> {tOC('orders:detail.status_card.fulfillment')}
+              </span>
+              <Badge
+                variant={fulfillmentStatusVariant(fulfillmentStatus)}
+                className="justify-center min-w-[120px] self-start text-xs font-medium px-2.5 py-1"
+              >
+                {tOC(`common:status.${fulfillmentStatus}`, { defaultValue: fulfillmentStatus })}
+              </Badge>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* ── Next action card ────────────────────────────────────── */}

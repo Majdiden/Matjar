@@ -141,7 +141,8 @@
       "cannot_be_undone": "لا يمكن التراجع عن هذا الإجراء.",
       "change_status": "تغيير الحالة",
       "no_permission": "تفتقر إلى صلاحية orders.write",
-      "fulfill_remaining": "تنفيذ المتبقي"
+      "fulfill_remaining": "تنفيذ المتبقي",
+      "mark_shipped": "تحديد كمشحون"
     },
     "item": {
       "sku": "رمز المنتج: {{sku}}",
