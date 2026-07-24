@@ -537,7 +537,7 @@ export const Register: React.FC = () => {
 
       toast.success(t('auth.toast.store_created'));
       const tenantId = response.responseObject?.tenantId;
-      navigate(`/setup?tenantId=${tenantId}`, { replace: true });
+      navigate(`/dashboard/setup?tenantId=${tenantId}`, { replace: true });
     } catch (err) {
       const e = err as { message?: string; error?: string };
       const msg = e?.message || e?.error || t('auth.toast.sign_in_failed');
