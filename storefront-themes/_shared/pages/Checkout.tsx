@@ -232,14 +232,16 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   }, [user, giftCardsEnabled]);
 
   // ── Live quote ───────────────────────────────────────────────────
+  // Guests quote too: the storefront /checkout/quote endpoint prices anonymous
+  // carts via the cart session cookie, so discount validation, shipping and tax
+  // all resolve without an account (no `user` requirement here).
   const canQuote = useMemo(
     () =>
-      !!user &&
       !!cart &&
       cart.items.length > 0 &&
       !!shipping.country &&
       !!shipping.city,
-    [user, cart, shipping.country, shipping.city]
+    [cart, shipping.country, shipping.city]
   );
 
   useEffect(() => {
@@ -1036,9 +1038,8 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
               ))}
             </div>
 
-            {/* Discount code */}
-            {user && (
-              <div className="pt-2 border-t">
+            {/* Discount code — available to guests and signed-in shoppers alike */}
+            <div className="pt-2 border-t">
                 {appliedDiscount && quote?.discountCode ? (
                   <div className="flex items-center justify-between text-sm">
                     <span>
@@ -1070,7 +1071,6 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 )}
                 {quoteError && <p className="text-xs text-red-600 mt-1">{quoteError}</p>}
               </div>
-            )}
 
             {/* Gift card */}
             {giftCardsEnabled && (
