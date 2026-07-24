@@ -92,12 +92,15 @@ const addATenantService = async (tenantData) => {
         language: tenantData.language || "en",
         activeTheme: themeSlug,
         // Order-email sender defaults (requirement): display name = store name,
-        // address = no-reply@<platform subdomain>. emailIdentity.storeFrom()
-        // honors the name always and the address only when the domain is
-        // actually sendable (verified) — see services/emailIdentity.js.
+        // address = no-reply@<platform root domain> (e.g. no-reply@matjar.to).
+        // Per-store subdomains (mystore.matjar.to) are NOT individually verified
+        // with the email provider, so sending from them fails — the platform
+        // root domain IS verified and sendable. emailIdentity.storeFrom() honors
+        // the name always and the address only when its domain is actually
+        // sendable — see services/emailIdentity.js.
         notifications: {
           fromName: storeName,
-          fromEmail: `no-reply@${fullSubdomain}`,
+          fromEmail: `no-reply@${config.domainSuffix}`,
         },
       },
     };
