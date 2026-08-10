@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
@@ -109,9 +109,21 @@ const NAV_CSS = `
   100% { transform: scale(1); }
 }
 .mbn-badge { animation: mbn-badge-pop 320ms cubic-bezier(0.3, 1.25, 0.5, 1) both; }
+/* Scroll-away shrink (Instagram-style): scale toward the bottom edge + fade. */
+.mbn-scroll {
+  transform-origin: bottom center;
+  transition: transform 320ms var(--ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)), opacity 320ms ease;
+  will-change: transform;
+}
+.mbn-shrunk {
+  transform: scale(0.72) translateY(6px);
+  opacity: 0.9;
+}
 @media (prefers-reduced-motion: reduce) {
   .mbn-hi { transition: none; }
   .mbn-badge { animation: none; }
+  .mbn-scroll { transition: none; }
+  .mbn-shrunk { transform: none; opacity: 1; }
 }
 `;
 
@@ -126,6 +138,35 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
   // rather than jumping straight to the results page — otherwise tapping
   // Search dumps the customer on an empty /search page with no input.
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // Instagram-style scroll behaviour: the pill smoothly shrinks while scrolling
+  // DOWN (get out of the way) and restores to full size on scroll UP or near the
+  // top. rAF-throttled, direction-based with a small jitter threshold so it
+  // never flickers; the actual scale/opacity is a CSS transition for smoothness.
+  const [shrunk, setShrunk] = useState(false);
+  const lastY = useRef(0);
+  useEffect(() => {
+    lastY.current = window.scrollY;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const dy = y - lastY.current;
+        if (y < 40) {
+          setShrunk(false);
+          lastY.current = y;
+        } else if (Math.abs(dy) > 6) {
+          setShrunk(dy > 0);
+          lastY.current = y;
+        }
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const defaultItems: NavItem[] = [
     {
@@ -170,7 +211,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       {/* Floating frosted pill (Instagram-style) — icon-only, detached from the
           screen edges so content scrolls beneath it. */}
       <nav
-        className={cn('mbn-pill pointer-events-auto flex items-center gap-1 rounded-full border p-1.5', className)}
+        className={cn('mbn-pill mbn-scroll pointer-events-auto flex items-center gap-1 rounded-full border p-1.5', shrunk && 'mbn-shrunk', className)}
         style={{ borderColor: 'color-mix(in srgb, var(--color-foreground, #000) 10%, transparent)' }}
       >
         {navItems.map(item => {
