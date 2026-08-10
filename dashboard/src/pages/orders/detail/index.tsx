@@ -299,9 +299,10 @@ export const OrderDetails: React.FC = () => {
               </p>
             </div>
           </div>
-          {/* Actions share one row on phones (each flex-1) so Call / WhatsApp /
-              Documents don't wrap onto a second line; natural widths from sm up. */}
-          <div className="flex w-full items-center gap-2 sm:w-auto sm:flex-wrap sm:shrink-0">
+          {/* Phones: Call + WhatsApp share row 1 (each flex-1); Documents (and
+              Print) drop to their own full-width row below. Natural widths, all
+              inline, from sm up. */}
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">
             {(() => {
               // Call / WhatsApp — the merchant's actual workflow in a
               // COD + WhatsApp market: confirm the order by phone first.
@@ -332,13 +333,13 @@ export const OrderDetails: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1 sm:flex-none"
+                className="w-full sm:w-auto"
                 onClick={() => window.open(orderDocUrl(order._id, 'packing-slip'), '_blank', 'noopener,noreferrer')}
               >
                 <Printer className="h-4 w-4 me-2" />{t('orders:detail.action.print')}
               </Button>
             )}
-            <DocumentsMenu order={order} payments={payments} className="flex-1 sm:flex-none" />
+            <DocumentsMenu order={order} payments={payments} className="w-full sm:w-auto" />
           </div>
         </div>
 

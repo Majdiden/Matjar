@@ -488,10 +488,20 @@ export const Products: React.FC = () => {
                       <span className="truncate text-xs text-muted-foreground">· {(product.category as Category).name}</span>
                     )}
                   </div>
+                  {/* Price inline on phones so a price column never squeezes the
+                      name; a dedicated column takes over from md up. */}
+                  <p className="mt-1 font-semibold md:hidden">
+                    {formatPrice(product.price)}
+                    {product.compareAtPrice && product.compareAtPrice > product.price && (
+                      <span className="ms-2 text-xs font-normal text-muted-foreground line-through">
+                        {formatPrice(product.compareAtPrice)}
+                      </span>
+                    )}
+                  </p>
                 </div>
 
-                {/* Price */}
-                <div className="text-end">
+                {/* Price — desktop column */}
+                <div className="hidden text-end md:block">
                   <p className="font-semibold">{formatPrice(product.price)}</p>
                   {product.compareAtPrice && product.compareAtPrice > product.price && (
                     <p className="text-xs text-muted-foreground line-through">
