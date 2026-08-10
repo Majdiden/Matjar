@@ -116,8 +116,8 @@ const NAV_CSS = `
   will-change: transform;
 }
 .mbn-shrunk {
-  transform: scale(0.72) translateY(6px);
-  opacity: 0.9;
+  transform: scale(0.9);
+  opacity: 0.95;
 }
 @media (prefers-reduced-motion: reduce) {
   .mbn-hi { transition: none; }
@@ -203,6 +203,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
   const navItems = items || defaultItems;
 
   return (
+    <>
     <div
       className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 md:hidden"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}
@@ -211,14 +212,21 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       {/* Floating frosted pill (Instagram-style) — icon-only, detached from the
           screen edges so content scrolls beneath it. */}
       <nav
-        className={cn('mbn-pill mbn-scroll pointer-events-auto flex items-center gap-1 rounded-full border p-1.5', shrunk && 'mbn-shrunk', className)}
+        className={cn('mbn-pill mbn-scroll pointer-events-auto flex items-center gap-1.5 rounded-full border p-2', shrunk && 'mbn-shrunk', className)}
         style={{ borderColor: 'color-mix(in srgb, var(--color-foreground, #000) 10%, transparent)' }}
       >
         {navItems.map(item => {
-          const isActive = location.pathname === item.href;
           // Use stable `id` if provided; otherwise fall back to href-based detection
           const isCart = item.id === 'cart' || item.href === '/cart';
           const isSearch = item.id === 'search' || item.href === '/search';
+          // Active state: search reflects the open overlay; the rest match the
+          // route (exact for Home, prefix for section tabs like /account) so
+          // more than just Home ever highlights.
+          const isActive = isSearch
+            ? searchOpen
+            : item.href === '/'
+            ? location.pathname === '/'
+            : location.pathname === item.href || location.pathname.startsWith(item.href + '/');
 
           const handleClick = (e: React.MouseEvent) => {
             if (isCart && onCartClick) {
@@ -243,7 +251,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
               aria-current={isActive ? 'page' : undefined}
               aria-label={item.label}
               title={item.label}
-              className="group relative grid h-12 w-12 select-none place-items-center rounded-full"
+              className="group relative grid h-12 w-16 select-none place-items-center rounded-full"
               style={{
                 color: isActive ? 'var(--color-primary, #111827)' : 'var(--color-muted, #9ca3af)',
                 WebkitTapHighlightColor: 'transparent',
@@ -297,7 +305,8 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
           );
         })}
       </nav>
-      {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </div>
+    {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
+    </>
   );
 }
