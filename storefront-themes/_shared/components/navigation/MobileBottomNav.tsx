@@ -14,6 +14,8 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  /** Optional filled variant shown when the tab is active (falls back to `icon`) */
+  iconActive?: React.ReactNode;
   badge?: number;
 }
 
@@ -23,6 +25,96 @@ interface MobileBottomNavProps {
   onCartClick?: () => void;
   onSearchClick?: () => void;
 }
+
+const ICON_CLASS = 'h-6 w-6';
+
+/** Outline (inactive) + filled (active) icon pairs — Heroicons, inline so no deps. */
+const ICONS = {
+  home: {
+    outline: (
+      <svg className={ICON_CLASS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+      </svg>
+    ),
+    filled: (
+      <svg className={ICON_CLASS} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M11.47 3.841a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.061l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 101.061 1.06l8.69-8.689z" />
+        <path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z" />
+      </svg>
+    ),
+  },
+  search: {
+    outline: (
+      <svg className={ICON_CLASS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+      </svg>
+    ),
+    filled: (
+      <svg className={ICON_CLASS} viewBox="0 0 24 24" fill="currentColor">
+        <path fillRule="evenodd" clipRule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z" />
+      </svg>
+    ),
+  },
+  cart: {
+    outline: (
+      <svg className={ICON_CLASS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+      </svg>
+    ),
+    filled: (
+      <svg className={ICON_CLASS} viewBox="0 0 24 24" fill="currentColor">
+        <path fillRule="evenodd" clipRule="evenodd" d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z" />
+      </svg>
+    ),
+  },
+  account: {
+    outline: (
+      <svg className={ICON_CLASS} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+      </svg>
+    ),
+    filled: (
+      <svg className={ICON_CLASS} viewBox="0 0 24 24" fill="currentColor">
+        <path fillRule="evenodd" clipRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" />
+      </svg>
+    ),
+  },
+};
+
+/**
+ * Scoped styles: springy sliding indicator, badge pop, frosted-glass bar
+ * (progressive enhancement), and iOS safe-area clearance. All motion is
+ * disabled under prefers-reduced-motion.
+ */
+const NAV_CSS = `
+.mbn-bar {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@supports (background: color-mix(in srgb, red 50%, transparent)) {
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .mbn-bar {
+      background: color-mix(in srgb, var(--color-background, #ffffff) 85%, transparent) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(1.6);
+      backdrop-filter: blur(16px) saturate(1.6);
+    }
+  }
+}
+.mbn-pill-track {
+  transition: inset-inline-start 380ms var(--ease-emphasized, cubic-bezier(0.3, 1.25, 0.5, 1));
+}
+@keyframes mbn-badge-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.mbn-badge {
+  animation: mbn-badge-pop 320ms cubic-bezier(0.3, 1.25, 0.5, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mbn-pill-track { transition: none; }
+  .mbn-badge { animation: none; }
+}
+`;
 
 export function MobileBottomNav(props: MobileBottomNavProps) {
   const Override = useThemeSlot<React.ComponentType<MobileBottomNavProps>>(SLOT_KEY);
@@ -41,54 +133,70 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       id: 'home',
       label: t('mobile_bottom.home'),
       href: '/',
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-        </svg>
-      ),
+      icon: ICONS.home.outline,
+      iconActive: ICONS.home.filled,
     },
     {
       id: 'search',
       label: t('mobile_bottom.search'),
       href: '/search',
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-        </svg>
-      ),
+      icon: ICONS.search.outline,
+      iconActive: ICONS.search.filled,
     },
     {
       id: 'cart',
       label: t('mobile_bottom.cart'),
       href: '/cart',
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-        </svg>
-      ),
+      icon: ICONS.cart.outline,
+      iconActive: ICONS.cart.filled,
       badge: cart?.itemCount || 0,
     },
     {
       id: 'account',
       label: t('mobile_bottom.account'),
       href: '/account',
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-        </svg>
-      ),
+      icon: ICONS.account.outline,
+      iconActive: ICONS.account.filled,
     },
   ];
 
   const navItems = items || defaultItems;
+  const activeIndex = navItems.findIndex(item => location.pathname === item.href);
+  const columnWidth = 100 / navItems.length;
 
   return (
-    <nav className={cn(
-      'fixed bottom-0 start-0 end-0 z-40 bg-white dark:bg-gray-900 border-t md:hidden',
-      'safe-area-bottom',
-      className
-    )}>
-      <div className="flex items-center justify-around py-2">
+    <nav
+      className={cn(
+        'mbn-bar fixed bottom-0 start-0 end-0 z-40 border-t md:hidden',
+        'safe-area-bottom',
+        className
+      )}
+      style={{
+        background: 'var(--color-background, #ffffff)',
+        borderColor: 'var(--color-border, #e5e7eb)',
+        boxShadow: '0 -6px 24px -12px rgba(0, 0, 0, 0.18)',
+      }}
+    >
+      <style>{NAV_CSS}</style>
+      <div className="relative flex items-stretch">
+        {/* Sliding capsule that glides behind the active tab's icon */}
+        <span
+          aria-hidden="true"
+          className="mbn-pill-track pointer-events-none absolute top-1.5 flex h-[30px] justify-center"
+          style={{
+            insetInlineStart: `${Math.max(activeIndex, 0) * columnWidth}%`,
+            width: `${columnWidth}%`,
+          }}
+        >
+          <span
+            className={cn(
+              'h-full w-14 rounded-full transition-all duration-300 motion-reduce:transition-none',
+              activeIndex >= 0 ? 'scale-100 opacity-[0.13]' : 'scale-75 opacity-0'
+            )}
+            style={{ background: 'var(--color-primary, #111827)' }}
+          />
+        </span>
+
         {navItems.map(item => {
           const isActive = location.pathname === item.href;
           // Use stable `id` if provided; otherwise fall back to href-based detection
@@ -115,20 +223,56 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
               key={item.href}
               to={item.href}
               onClick={handleClick}
-              className={cn(
-                'flex flex-col items-center gap-0.5 px-3 py-1 relative transition-colors',
-                isActive ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
-              )}
+              aria-current={isActive ? 'page' : undefined}
+              className="group relative z-10 flex min-w-0 flex-1 select-none flex-col items-center gap-1 pt-1.5 pb-2 transition-colors duration-300 motion-reduce:transition-none"
+              style={{
+                color: isActive ? 'var(--color-primary, #111827)' : 'var(--color-muted, #9ca3af)',
+                WebkitTapHighlightColor: 'transparent',
+              }}
             >
-              <div className="relative">
-                {item.icon}
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {item.badge > 99 ? '99+' : item.badge}
+              {/* Icon area — springs down slightly while pressed */}
+              <span className="flex h-[30px] w-14 items-center justify-center transition-transform duration-200 ease-out group-active:scale-90 motion-reduce:transition-none motion-reduce:transform-none">
+                <span className="relative h-6 w-6">
+                  {/* Outline icon (inactive) crossfades into the filled icon (active) */}
+                  <span
+                    className={cn(
+                      'absolute inset-0 transition-all duration-300 motion-reduce:transition-none',
+                      isActive ? 'scale-75 opacity-0' : 'scale-100 opacity-100'
+                    )}
+                  >
+                    {item.icon}
                   </span>
+                  <span
+                    className={cn(
+                      'absolute inset-0 transition-all duration-300 motion-reduce:transition-none',
+                      isActive ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
+                    )}
+                  >
+                    {item.iconActive ?? item.icon}
+                  </span>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span
+                      // Re-keying on the count replays the pop whenever it changes
+                      key={item.badge}
+                      className="mbn-badge absolute -top-1 -end-1 z-10 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none text-white"
+                      style={{
+                        background: 'var(--color-error, #ef4444)',
+                        boxShadow: '0 0 0 2px var(--color-background, #ffffff)',
+                      }}
+                    >
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </span>
+                  )}
+                </span>
+              </span>
+              <span
+                className={cn(
+                  'max-w-full truncate px-1 text-[10px] leading-none tracking-wide transition-all duration-300 motion-reduce:transition-none',
+                  isActive ? 'font-semibold' : 'font-medium'
                 )}
-              </div>
-              <span className="text-[10px] font-medium">{item.label}</span>
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}
