@@ -82,36 +82,35 @@ const ICONS = {
 };
 
 /**
- * Scoped styles: springy sliding indicator, badge pop, frosted-glass bar
- * (progressive enhancement), and iOS safe-area clearance. All motion is
- * disabled under prefers-reduced-motion.
+ * Scoped styles: a floating, frosted rounded-full pill (Instagram-style),
+ * per-item active highlight, and badge pop. All motion is disabled under
+ * prefers-reduced-motion.
  */
 const NAV_CSS = `
-.mbn-bar {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+.mbn-pill {
+  background: var(--color-background, #ffffff);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35), 0 2px 8px -4px rgba(0, 0, 0, 0.2);
 }
 @supports (background: color-mix(in srgb, red 50%, transparent)) {
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .mbn-bar {
-      background: color-mix(in srgb, var(--color-background, #ffffff) 85%, transparent) !important;
-      -webkit-backdrop-filter: blur(16px) saturate(1.6);
-      backdrop-filter: blur(16px) saturate(1.6);
+    .mbn-pill {
+      background: color-mix(in srgb, var(--color-background, #ffffff) 80%, transparent);
+      -webkit-backdrop-filter: blur(18px) saturate(1.7);
+      backdrop-filter: blur(18px) saturate(1.7);
     }
   }
 }
-.mbn-pill-track {
-  transition: inset-inline-start 380ms var(--ease-emphasized, cubic-bezier(0.3, 1.25, 0.5, 1));
+.mbn-hi {
+  transition: opacity 260ms ease, transform 320ms var(--ease-emphasized, cubic-bezier(0.3, 1.25, 0.5, 1));
 }
 @keyframes mbn-badge-pop {
   0% { transform: scale(0); }
   60% { transform: scale(1.18); }
   100% { transform: scale(1); }
 }
-.mbn-badge {
-  animation: mbn-badge-pop 320ms cubic-bezier(0.3, 1.25, 0.5, 1) both;
-}
+.mbn-badge { animation: mbn-badge-pop 320ms cubic-bezier(0.3, 1.25, 0.5, 1) both; }
 @media (prefers-reduced-motion: reduce) {
-  .mbn-pill-track { transition: none; }
+  .mbn-hi { transition: none; }
   .mbn-badge { animation: none; }
 }
 `;
@@ -161,42 +160,19 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
   ];
 
   const navItems = items || defaultItems;
-  const activeIndex = navItems.findIndex(item => location.pathname === item.href);
-  const columnWidth = 100 / navItems.length;
 
   return (
-    <nav
-      className={cn(
-        'mbn-bar fixed bottom-0 start-0 end-0 z-40 border-t md:hidden',
-        'safe-area-bottom',
-        className
-      )}
-      style={{
-        background: 'var(--color-background, #ffffff)',
-        borderColor: 'var(--color-border, #e5e7eb)',
-        boxShadow: '0 -6px 24px -12px rgba(0, 0, 0, 0.18)',
-      }}
+    <div
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 md:hidden"
+      style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}
     >
       <style>{NAV_CSS}</style>
-      <div className="relative flex items-stretch">
-        {/* Sliding capsule that glides behind the active tab's icon */}
-        <span
-          aria-hidden="true"
-          className="mbn-pill-track pointer-events-none absolute top-1.5 flex h-[30px] justify-center"
-          style={{
-            insetInlineStart: `${Math.max(activeIndex, 0) * columnWidth}%`,
-            width: `${columnWidth}%`,
-          }}
-        >
-          <span
-            className={cn(
-              'h-full w-14 rounded-full transition-all duration-300 motion-reduce:transition-none',
-              activeIndex >= 0 ? 'scale-100 opacity-[0.13]' : 'scale-75 opacity-0'
-            )}
-            style={{ background: 'var(--color-primary, #111827)' }}
-          />
-        </span>
-
+      {/* Floating frosted pill (Instagram-style) — icon-only, detached from the
+          screen edges so content scrolls beneath it. */}
+      <nav
+        className={cn('mbn-pill pointer-events-auto flex items-center gap-1 rounded-full border p-1.5', className)}
+        style={{ borderColor: 'color-mix(in srgb, var(--color-foreground, #000) 10%, transparent)' }}
+      >
         {navItems.map(item => {
           const isActive = location.pathname === item.href;
           // Use stable `id` if provided; otherwise fall back to href-based detection
@@ -224,16 +200,27 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
               to={item.href}
               onClick={handleClick}
               aria-current={isActive ? 'page' : undefined}
-              className="group relative z-10 flex min-w-0 flex-1 select-none flex-col items-center gap-1 pt-1.5 pb-2 transition-colors duration-300 motion-reduce:transition-none"
+              aria-label={item.label}
+              title={item.label}
+              className="group relative grid h-12 w-12 select-none place-items-center rounded-full"
               style={{
                 color: isActive ? 'var(--color-primary, #111827)' : 'var(--color-muted, #9ca3af)',
                 WebkitTapHighlightColor: 'transparent',
               }}
             >
-              {/* Icon area — springs down slightly while pressed */}
-              <span className="flex h-[30px] w-14 items-center justify-center transition-transform duration-200 ease-out group-active:scale-90 motion-reduce:transition-none motion-reduce:transform-none">
+              {/* Active highlight capsule behind the icon */}
+              <span
+                aria-hidden="true"
+                className={cn(
+                  'mbn-hi absolute inset-1 rounded-full',
+                  isActive ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
+                )}
+                style={{ background: 'color-mix(in srgb, var(--color-primary, #2563eb) 15%, transparent)' }}
+              />
+              {/* Icon — springs down slightly while pressed */}
+              <span className="relative grid place-items-center transition-transform duration-200 ease-out group-active:scale-90 motion-reduce:transition-none motion-reduce:transform-none">
                 <span className="relative h-6 w-6">
-                  {/* Outline icon (inactive) crossfades into the filled icon (active) */}
+                  {/* Outline (inactive) crossfades into filled (active) */}
                   <span
                     className={cn(
                       'absolute inset-0 transition-all duration-300 motion-reduce:transition-none',
@@ -254,7 +241,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
                     <span
                       // Re-keying on the count replays the pop whenever it changes
                       key={item.badge}
-                      className="mbn-badge absolute -top-1 -end-1 z-10 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none text-white"
+                      className="mbn-badge absolute -top-1.5 -end-1.5 z-10 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none text-white"
                       style={{
                         background: 'var(--color-error, #ef4444)',
                         boxShadow: '0 0 0 2px var(--color-background, #ffffff)',
@@ -265,19 +252,11 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
                   )}
                 </span>
               </span>
-              <span
-                className={cn(
-                  'max-w-full truncate px-1 text-[10px] leading-none tracking-wide transition-all duration-300 motion-reduce:transition-none',
-                  isActive ? 'font-semibold' : 'font-medium'
-                )}
-              >
-                {item.label}
-              </span>
             </Link>
           );
         })}
-      </div>
+      </nav>
       {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
-    </nav>
+    </div>
   );
 }
