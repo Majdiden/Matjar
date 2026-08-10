@@ -133,7 +133,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
   const { t } = useTranslation('nav');
   const { items, className, onCartClick, onSearchClick } = props;
   const location = useLocation();
-  const { cart } = useCart();
+  const { cart, isOpen: cartOpen } = useCart();
   // The search tab opens an in-place search OVERLAY (input + live results)
   // rather than jumping straight to the results page — otherwise tapping
   // Search dumps the customer on an empty /search page with no input.
@@ -204,6 +204,9 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
 
   return (
     <>
+    {/* Hidden while the cart drawer is open so the floating pill never covers
+        the drawer's checkout button. */}
+    {!cartOpen && (
     <div
       className="pointer-events-none fixed inset-x-0 bottom-0 z-[110] flex justify-center px-4 md:hidden"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}
@@ -309,6 +312,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
         })}
       </nav>
     </div>
+    )}
     {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </>
   );
