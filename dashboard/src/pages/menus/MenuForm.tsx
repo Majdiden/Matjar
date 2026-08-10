@@ -31,6 +31,8 @@ type Target = '_self' | '_blank';
 interface MenuItem {
   _id?: string;
   label: string;
+  /** Optional per-language label overrides shown on the storefront. */
+  translations?: { en?: { label?: string }; ar?: { label?: string } };
   url: string;
   type: ItemType;
   resourceId: string;
@@ -114,6 +116,7 @@ function unflatten(flat: FlatItem[]): MenuItem[] {
   for (const item of flat) {
     const node: MenuItem = {
       label: item.label,
+      translations: item.translations,
       url: item.url,
       type: item.type,
       resourceId: item.resourceId,
@@ -237,6 +240,14 @@ const ItemRow: React.FC<ItemRowProps> = ({
             placeholder={t('menus:form.item.label_placeholder')}
             value={item.label}
             onChange={e => onChange(index, { label: e.target.value })}
+          />
+          {/* Optional Arabic label — shown to shoppers browsing in Arabic. */}
+          <Input
+            className="h-9 w-full text-sm"
+            dir="rtl"
+            placeholder={t('menus:form.item.label_ar_placeholder', { defaultValue: 'التسمية بالعربية (اختياري)' })}
+            value={item.translations?.ar?.label || ''}
+            onChange={e => onChange(index, { translations: { ...item.translations, ar: { label: e.target.value } } })}
           />
         </div>
         <div className="w-40 shrink-0 space-y-1">

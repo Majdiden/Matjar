@@ -5,6 +5,13 @@ import { applyTenantScope } from "../../utils/tenantScope.js";
 const menuItemSchema = new Schema(
   {
     label: { type: String, required: true, trim: true },
+    // Optional per-language label overrides. `label` is the default/fallback;
+    // the storefront shows `translations[lang].label` when the merchant filled
+    // it in (Dashboard → Menus). Applies at every nesting level.
+    translations: {
+      en: { label: { type: String, trim: true, default: "" } },
+      ar: { label: { type: String, trim: true, default: "" } },
+    },
     url: { type: String, trim: true, default: "" },
     type: {
       type: String,

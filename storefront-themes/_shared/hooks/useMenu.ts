@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { storefrontApi } from '../api/client';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 export interface MenuItem {
   _id?: string;
   label: string;
+  /** Optional per-language label overrides (see the Menu schema). */
+  translations?: { en?: { label?: string }; ar?: { label?: string } };
   /** Author-supplied URL (set for `link`/`external` items). */
   url?: string;
   /** Backend-resolved URL — present after resolveMenu (falls back to `url`). */
@@ -27,23 +30,38 @@ export interface MenuItem {
  * — e.g. older stores created before menu seeding existed — so callers can
  * fall back to another navigation source (a category list, static links, …).
  */
+// Resolve each item's label for the active language (recursively for children).
+// `label` is the fallback; `translations[lang].label` wins when present.
+function localizeItems(items: MenuItem[], lang: 'en' | 'ar'): MenuItem[] {
+  return items.map((it) => {
+    const localized = it.translations?.[lang]?.label;
+    const children = it.children ? localizeItems(it.children, lang) : it.children;
+    if (!localized && children === it.children) return it;
+    return { ...it, label: localized || it.label, children };
+  });
+}
+
 export function useMenu(location: string = 'header') {
-  const [items, setItems] = useState<MenuItem[]>([]);
+  const [raw, setRaw] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { lang } = useLanguage();
 
   useEffect(() => {
     if (!location) {
-      setItems([]);
+      setRaw([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     storefrontApi
       .getMenu(location)
-      .then((res) => setItems(res.data?.items || []))
-      .catch(() => setItems([]))
+      .then((res) => setRaw(res.data?.items || []))
+      .catch(() => setRaw([]))
       .finally(() => setLoading(false));
   }, [location]);
+
+  // Re-localize on language change without refetching.
+  const items = useMemo(() => localizeItems(raw, lang), [raw, lang]);
 
   return { items, loading };
 }
