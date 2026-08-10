@@ -320,6 +320,7 @@
         "subtitle": "مجموعات منتجات منسّقة — يدوية أو قائمة على قواعد",
         "new_collection": "مجموعة جديدة",
         "search_placeholder": "البحث في المجموعات...",
+        "select_all": "تحديد الكل",
         "filter": {
           "all_types": "جميع الأنواع",
           "manual": "يدوي",

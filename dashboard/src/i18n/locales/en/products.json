@@ -316,6 +316,7 @@
         "subtitle": "Curated groups of products — manual or rule-based",
         "new_collection": "New Collection",
         "search_placeholder": "Search collections...",
+        "select_all": "Select all",
         "filter": {
           "all_types": "All types",
           "manual": "Manual",

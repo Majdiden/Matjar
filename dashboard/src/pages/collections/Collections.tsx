@@ -7,9 +7,6 @@ import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { Skeleton } from '../../components/ui/skeleton';
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '../../components/ui/table';
-import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '../../components/ui/select';
 import {
@@ -265,89 +262,91 @@ export const Collections: React.FC = () => {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40px]">
-                    <input
-                      type="checkbox"
-                      checked={selected.size === collections.length && collections.length > 0}
-                      onChange={toggleSelectAll}
-                      className="h-4 w-4 rounded border-gray-300"
-                    />
-                  </TableHead>
-                  <TableHead>{t('products.collections.list.column.title')}</TableHead>
-                  <TableHead>{t('products.collections.list.column.handle')}</TableHead>
-                  <TableHead>{t('products.collections.list.column.type')}</TableHead>
-                  <TableHead>{t('products.collections.list.column.products')}</TableHead>
-                  <TableHead>{t('products.collections.list.column.published')}</TableHead>
-                  <TableHead>{t('products.collections.list.column.updated')}</TableHead>
-                  <TableHead className="w-10" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {collections.map((col) => (
-                  <TableRow
-                    key={col._id}
-                    className={`cursor-pointer hover:bg-muted/50 ${selected.has(col._id) ? 'bg-primary/5' : ''}`}
-                    onClick={() => navigate(`/dashboard/collections/${col._id}/edit`)}
-                  >
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={selected.has(col._id)}
-                        onChange={() => toggleSelect(col._id)}
-                        className="h-4 w-4 rounded border-gray-300"
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{col.title}</TableCell>
-                    <TableCell>
-                      <code className="text-xs text-muted-foreground">{col.handle}</code>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={col.type === 'smart' ? 'default' : 'secondary'}>
-                        {col.type === 'smart' ? t('products.collections.list.type_badge.smart') : t('products.collections.list.type_badge.manual')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {col.type === 'manual' ? (col.productIds?.length ?? 0) : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={col.isPublished ? 'default' : 'outline'}>
-                        {col.isPublished ? t('products.collections.list.published_badge.published') : t('products.collections.list.published_badge.hidden')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {new Date(col.updatedAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => navigate(`/dashboard/collections/${col._id}/edit`)}>
-                            <Edit className="h-4 w-4 me-2" />{t('common:action.edit')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(col)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 me-2" />{t('common:action.delete')}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 px-1 text-xs uppercase tracking-wider font-medium text-muted-foreground cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selected.size === collections.length && collections.length > 0}
+              onChange={toggleSelectAll}
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            <span>{t('products.collections.list.select_all')}</span>
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {collections.map((col) => (
+            <Card
+              key={col._id}
+              className={`cursor-pointer hover:shadow-md transition-shadow overflow-hidden group ${selected.has(col._id) ? 'border-primary/50 ring-1 ring-primary/40' : ''}`}
+              onClick={() => navigate(`/dashboard/collections/${col._id}/edit`)}
+            >
+              {/* Icon header */}
+              <div className="relative h-32 bg-muted overflow-hidden">
+                <div className="absolute top-2 start-2 z-10" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selected.has(col._id)}
+                    onChange={() => toggleSelect(col._id)}
+                    className="h-4 w-4 rounded border-gray-300 shadow-sm"
+                  />
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Layers className="h-10 w-10 text-muted-foreground" />
+                </div>
+                {/* Action menu */}
+                <div className="absolute top-2 end-2" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="secondary" size="icon" className="h-8 w-8 shadow-sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => navigate(`/dashboard/collections/${col._id}/edit`)}>
+                        <Edit className="h-4 w-4 me-2" />{t('common:action.edit')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDelete(col)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 me-2" />{t('common:action.delete')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                {/* Product count badge (manual collections only) */}
+                {col.type === 'manual' && (
+                  <div className="absolute bottom-2 start-2">
+                    <Badge variant="secondary" className="shadow-sm">
+                      {col.productIds?.length ?? 0}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+
+              {/* Body */}
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-base truncate">{col.title}</h3>
+                  <Badge variant={col.isPublished ? 'default' : 'outline'} className="flex-shrink-0">
+                    {col.isPublished ? t('products.collections.list.published_badge.published') : t('products.collections.list.published_badge.hidden')}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground font-mono mt-0.5 truncate">
+                  /{col.handle}
+                </p>
+                <div className="flex items-center justify-between gap-2 mt-3">
+                  <Badge variant={col.type === 'smart' ? 'default' : 'secondary'}>
+                    {col.type === 'smart' ? t('products.collections.list.type_badge.smart') : t('products.collections.list.type_badge.manual')}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(col.updatedAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          </div>
+        </div>
       )}
 
       {/* Pagination */}
