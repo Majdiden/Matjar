@@ -74,8 +74,18 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
   }, [autoplay, interval, slides.length]);
   const spotlight = slides[active];
 
+  // Flash-deal card — editable from the dashboard:
+  //   flash_enabled : show/hide the whole flash deal (default on)
+  //   flash_source  : 'on_sale' | 'featured' | 'newest' — which product to feature
+  //   flash_deal_label : the strip label (already editable)
+  const flashEnabled = s.flash_enabled !== false;
+  const flashSource: 'on_sale' | 'featured' | 'newest' =
+    s.flash_source === 'featured' ? 'featured' : s.flash_source === 'newest' ? 'newest' : 'on_sale';
   const { products: deals } = useProducts({ onSale: 1, limit: 1 });
-  const deal = deals[0];
+  const deal =
+    flashSource === 'featured' ? featured[0]
+    : flashSource === 'newest' ? newest[0]
+    : deals[0];
 
   return (
     <section className="relative" style={{ backgroundColor: 'var(--color-background)' }}>
@@ -106,12 +116,14 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               {s.shipping_strip || t('theme.hero.showcase.shipping_strip')}
             </Link>
           </div>
-          <div className="flex items-center gap-2" style={{ color: 'var(--color-primary)' }}>
-            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
-            </svg>
-            {s.flash_deal_label || t('theme.hero.showcase.flash_deal_label')}
-          </div>
+          {flashEnabled && (
+            <div className="flex items-center gap-2" style={{ color: 'var(--color-primary)' }}>
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
+              </svg>
+              {s.flash_deal_label || t('theme.hero.showcase.flash_deal_label')}
+            </div>
+          )}
         </div>
       </div>
 
@@ -246,6 +258,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
         </div>
 
         {/* ── Right: flash-deal card ──────────────────────────────── */}
+        {flashEnabled && (
         <aside>
           {deal ? (
             <Link
@@ -283,6 +296,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
             />
           )}
         </aside>
+        )}
       </div>
       <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
     </section>

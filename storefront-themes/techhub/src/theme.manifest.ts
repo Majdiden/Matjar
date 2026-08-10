@@ -30,6 +30,12 @@ export const heroShowcaseSection: SectionDefinition = defineSection({
     { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
     { id: 'flash_deal_label', type: 'text', label: 'Flash Deal Label', default: '' },
+    { id: 'flash_enabled', type: 'checkbox', label: 'Show Flash Deal', default: true },
+    { id: 'flash_source', type: 'select', label: 'Flash Deal Source', default: 'on_sale', options: [
+      { value: 'on_sale', label: 'On sale' },
+      { value: 'featured', label: 'Featured' },
+      { value: 'newest', label: 'Newest arrivals' },
+    ] },
     { id: 'product_source', type: 'select', label: 'Spotlight Source', default: 'featured', options: [
       { value: 'featured', label: 'Featured products' },
       { value: 'newest', label: 'Newest arrivals' },
