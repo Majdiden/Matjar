@@ -25,12 +25,14 @@ export const PaymentsCard: React.FC = () => {
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        {/* Stack title + action on phones so the long title never wraps beside
+            the button; sit them inline from sm up. */}
+        <CardHeader className="flex flex-col items-start gap-2 space-y-0 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-base flex items-center gap-2">
-            <Receipt className="h-5 w-5" /> {t('orders:detail.section.payments.title')}
+            <Receipt className="h-5 w-5 shrink-0" /> {t('orders:detail.section.payments.title')}
           </CardTitle>
           {maxRefundable > 0 && (
-            <Button size="sm" variant="outline" onClick={() => setRefundOpen(true)}>
+            <Button size="sm" variant="outline" className="w-full sm:w-auto" onClick={() => setRefundOpen(true)}>
               <ArrowDownLeft className="h-4 w-4 me-2" />
               {isManualRefund ? t('orders:detail.action.record_manual_refund') : t('orders:detail.action.refund')}
             </Button>
