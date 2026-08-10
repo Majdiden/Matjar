@@ -438,7 +438,6 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     if (!shipping.lastName) return t('checkout.error.last_name_required');
     if (!shipping.addressLine1) return t('checkout.error.address_required');
     if (!shipping.city) return t('checkout.error.city_required');
-    if (!shipping.postalCode) return t('checkout.error.postal_required');
     if (!shipping.country) return t('checkout.error.country_required');
     if (!shipping.phone) return t('checkout.error.phone_required');
     return null;
@@ -758,7 +757,13 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 <input type="text" value={shipping.addressLine2} onChange={setShippingField('addressLine2')} className={inputClass} style={inputStyle} />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Country first so the city dropdown is scoped to it. */}
+              <div>
+                <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.country.label')}</label>
+                {renderCountrySelect(shipping.country, (v) => setShippingValue('country', v), true)}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.city.label')}</label>
                   {renderCityField(shipping.city, shipping.country, (v) => setShippingValue('city', v), true)}
@@ -767,15 +772,6 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.state.label')}</label>
                   <input type="text" value={shipping.state} onChange={setShippingField('state')} className={inputClass} style={inputStyle} />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.postal.label')}</label>
-                  <input type="text" required value={shipping.postalCode} onChange={setShippingField('postalCode')} className={inputClass} style={inputStyle} />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.country.label')}</label>
-                {renderCountrySelect(shipping.country, (v) => setShippingValue('country', v), true)}
               </div>
 
               {user && selectedAddressIdx === 'new' && (
@@ -845,12 +841,11 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       <input placeholder={t('checkout.field.shipping.last_name.label')} value={billing.lastName} onChange={setBillingField('lastName')} className={inputClass} style={inputStyle} />
                     </div>
                     <input placeholder={t('checkout.field.shipping.address.label')} value={billing.addressLine1} onChange={setBillingField('addressLine1')} className={inputClass} style={inputStyle} />
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {renderCountrySelect(billing.country, (v) => setBillingValue('country', v))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {renderCityField(billing.city, billing.country, (v) => setBillingValue('city', v))}
                       <input placeholder={t('checkout.field.shipping.state.label')} value={billing.state} onChange={setBillingField('state')} className={inputClass} style={inputStyle} />
-                      <input placeholder={t('checkout.field.shipping.postal.label')} value={billing.postalCode} onChange={setBillingField('postalCode')} className={inputClass} style={inputStyle} />
                     </div>
-                    {renderCountrySelect(billing.country, (v) => setBillingValue('country', v))}
                   </div>
                 )}
               </div>
