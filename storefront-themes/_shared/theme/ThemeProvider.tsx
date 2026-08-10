@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { ThemeManifest, MergedThemeSettings, SectionInstance, ThemeColors, ThemeTypography, ThemeDesignTokens } from '../types/theme';
 import { useStore } from '../contexts/StoreContext';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 /**
  * Premium platform defaults for the design-system tokens. A theme that
@@ -120,9 +121,34 @@ export function useTheme() {
 /**
  * Shortcut hook: get merged settings for a specific section by its instance ID.
  */
+/**
+ * Resolve per-language overrides in a settings object. A text setting `heading`
+ * can carry a sibling `heading__ar` (or `heading__en`); when browsing in that
+ * language the sibling wins, with the base value as the fallback. This is how
+ * section text (e.g. the newsletter heading) becomes bilingual without every
+ * theme changing — merchants fill the Arabic field in the editor.
+ */
+function resolveI18nSettings(s: Record<string, any>, lang: string): Record<string, any> {
+  if (!s) return s;
+  const suffix = `__${lang}`;
+  let changed = false;
+  const out: Record<string, any> = { ...s };
+  for (const key of Object.keys(s)) {
+    if (key.endsWith(suffix)) continue;
+    const localized = s[`${key}${suffix}`];
+    if (typeof localized === 'string' && localized.trim()) {
+      out[key] = localized;
+      changed = true;
+    }
+  }
+  return changed ? out : s;
+}
+
 export function useThemeSettings(sectionId: string): Record<string, any> {
   const { getSectionSettings } = useTheme();
-  return getSectionSettings(sectionId);
+  const { lang } = useLanguage();
+  const raw = getSectionSettings(sectionId);
+  return useMemo(() => resolveI18nSettings(raw, lang), [raw, lang]);
 }
 
 /**
