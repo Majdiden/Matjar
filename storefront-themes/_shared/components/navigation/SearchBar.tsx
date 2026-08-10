@@ -334,7 +334,7 @@ export function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayPro
                             <img src={img} alt={product.name} className="w-full h-full object-cover" />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-xs font-medium text-gray-900 truncate">{product.name}</p>
+                            <p className="text-xs font-medium text-gray-900 line-clamp-2 leading-snug">{product.name}</p>
                             <p className="text-xs text-gray-500">{formatPrice(product.price)}</p>
                           </div>
                         </button>
