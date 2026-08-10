@@ -18,7 +18,7 @@
  *   related / frequently bought together
  */
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useProduct } from '@matjar/theme-shared/hooks/useProducts';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
@@ -33,6 +33,7 @@ import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const {
     product,
     reviews,
@@ -126,6 +127,20 @@ const ProductDetail: React.FC = () => {
     } catch (err) {
       console.error(err);
     } finally {
+      setAdding(false);
+    }
+  };
+
+  // Buy it now — add the item, then go straight to checkout (the checkout reads
+  // the cart) instead of just dropping it in the cart and staying on the page.
+  const handleBuyNow = async () => {
+    if (requiresVariantSelection) return;
+    setAdding(true);
+    try {
+      await addItem(product._id, quantity, activeVariant?._id);
+      navigate('/checkout');
+    } catch (err) {
+      console.error(err);
       setAdding(false);
     }
   };
@@ -347,8 +362,8 @@ const ProductDetail: React.FC = () => {
                   </button>
                 </div>
                 <button
-                  onClick={handleAddToCart}
-                  disabled={adding}
+                  onClick={handleBuyNow}
+                  disabled={adding || !canAddToCart}
                   className="w-full py-3 rounded-full text-xs font-bold uppercase tracking-wider text-white transition hover:-translate-y-0.5 disabled:opacity-50"
                   style={{ backgroundColor: 'var(--color-foreground)' }}
                 >
