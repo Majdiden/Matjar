@@ -108,7 +108,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
               </svg>
             </span>
-            <span className="hidden sm:inline">{s.hotline_label || t('theme.hero.showcase.hotline_label')}</span>
+            <span>{s.hotline_label || t('theme.hero.showcase.hotline_label')}</span>
             <span style={{ color: 'var(--color-foreground)' }}>{s.hotline_phone || t('theme.contact.phone', { defaultValue: '+1 (555) 456-7890' })}</span>
           </div>
           <div className="hidden md:block text-center">
