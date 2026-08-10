@@ -9,6 +9,15 @@ import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import type { SectionComponentProps } from '@matjar/theme-shared/components/sections';
 
+// Desktop column count → literal Tailwind class (JIT needs the full string).
+const MD_COLS: Record<number, string> = {
+  4: 'md:grid-cols-4',
+  5: 'md:grid-cols-5',
+  6: 'md:grid-cols-6',
+  7: 'md:grid-cols-7',
+  8: 'md:grid-cols-8',
+};
+
 export const CategoryIconsSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   const { categories } = useCategories();
@@ -22,21 +31,23 @@ export const CategoryIconsSection: React.FC<SectionComponentProps> = ({ id }) =>
   return (
     <section className="py-14" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-7xl mx-auto px-4">
+        {/* Mobile: a horizontal snap-rail of fixed-width tiles so the circle
+            and label always fit (a fixed desktop column count crammed the
+            tiles on phones). From md up it becomes the merchant's grid. */}
         <div
-          className="grid gap-4"
-          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+          className={`flex gap-3 overflow-x-auto pb-2 snap-x md:grid md:gap-4 md:overflow-visible md:pb-0 ${MD_COLS[cols] || 'md:grid-cols-6'}`}
         >
           {list.map((cat) => (
             <Link
               key={cat._id}
               to={`/categories/${cat.slug}`}
-              className="group flex flex-col items-center gap-3 p-6 rounded-lg transition-all hover:-translate-y-1"
+              className="group flex w-[100px] shrink-0 snap-start flex-col items-center gap-3 p-4 rounded-lg transition-all hover:-translate-y-1 md:w-auto md:p-6"
               style={{
                 backgroundColor: 'color-mix(in srgb, var(--color-foreground) 4%, transparent)',
               }}
             >
               <div
-                className="h-16 w-16 rounded-full flex items-center justify-center overflow-hidden"
+                className="h-16 w-16 shrink-0 rounded-full flex items-center justify-center overflow-hidden"
                 style={{ backgroundColor: 'var(--color-background)' }}
               >
                 {cat.image ? (
@@ -59,7 +70,7 @@ export const CategoryIconsSection: React.FC<SectionComponentProps> = ({ id }) =>
                 )}
               </div>
               <span
-                className="text-xs font-semibold text-center line-clamp-1 transition-colors group-hover:text-[color:var(--color-primary)]"
+                className="max-w-full truncate text-xs font-semibold text-center transition-colors group-hover:text-[color:var(--color-primary)]"
                 style={{ color: 'var(--color-foreground)' }}
               >
                 {cat.name}
