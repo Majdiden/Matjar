@@ -37,6 +37,10 @@ const Layout: React.FC = () => {
   // Store-managed header nav. When present it drives the nav; while
   // loading/empty we fall back to the category list so nav never disappears.
   const { items: menuItems } = useMenu('header');
+  // Footer links are editable from the dashboard: create a menu with location
+  // "footer" whose TOP-LEVEL items are column headings and their children are
+  // the links. Falls back to the theme's default columns when none exists.
+  const { items: footerMenu } = useMenu('footer');
   const hasMenu = menuItems.length > 0;
   const itemHref = (item: MenuItem) => item.resolvedUrl || item.url || '/';
   const isExternal = (item: MenuItem) =>
@@ -54,6 +58,70 @@ const Layout: React.FC = () => {
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
 
   const brandName = (store?.name || 'TECHHUB').toUpperCase();
+
+  // Footer link columns — from a store-managed "footer" menu when present
+  // (top-level item = column heading, its children = the links), else the
+  // theme's default columns. Merchants edit these in Dashboard → Menus.
+  const defaultFooterColumns = [
+    {
+      heading: t('theme.footer.help_support_heading'),
+      links: [
+        { label: t('theme.footer.shipping_info'), href: '#' },
+        { label: t('theme.footer.returns'), href: '#' },
+        { label: t('theme.footer.how_to_order'), href: '#' },
+        { label: t('theme.footer.how_to_track'), href: '#' },
+        { label: t('theme.footer.size_guide'), href: '#' },
+      ],
+    },
+    {
+      heading: t('theme.footer.company_info_heading'),
+      links: [
+        { label: t('theme.footer.about_us'), href: '#' },
+        { label: t('theme.footer.our_blog'), href: '#' },
+        { label: t('theme.footer.careers'), href: '#' },
+        { label: t('theme.footer.store_locations'), href: '#' },
+        { label: t('theme.footer.testimonial'), href: '#' },
+      ],
+    },
+    {
+      heading: t('theme.footer.customer_care_heading'),
+      links: [
+        { label: t('theme.footer.faq'), href: '#' },
+        { label: t('theme.footer.terms_of_service'), href: '#' },
+        { label: t('theme.footer.privacy_policy'), href: '#' },
+        { label: t('theme.footer.contact_us'), href: '#' },
+        { label: t('theme.footer.gift_card'), href: '#' },
+      ],
+    },
+  ];
+
+  const footerColumns =
+    footerMenu.length > 0
+      ? footerMenu.slice(0, 3).map((col) => ({
+          heading: col.label,
+          links: (col.children || []).map((c) => ({
+            label: c.label,
+            href: itemHref(c),
+            external: isExternal(c),
+          })),
+        }))
+      : defaultFooterColumns;
+
+  const renderFooterLink = (link: { label: string; href: string; external?: boolean }) => {
+    const cls = 'block hover:text-white transition';
+    if (link.external || link.href === '#' || /^https?:\/\//.test(link.href)) {
+      return (
+        <a key={link.label} href={link.href} className={cls}>
+          {link.label}
+        </a>
+      );
+    }
+    return (
+      <Link key={link.label} to={link.href} className={cls}>
+        {link.label}
+      </Link>
+    );
+  };
 
   return (
     <div
@@ -256,39 +324,17 @@ const Layout: React.FC = () => {
               </div>
             </div>
 
-            <div>
-              <h4 className="font-bold text-sm mb-4 uppercase tracking-wide text-white">{t('theme.footer.help_support_heading')}</h4>
-              <div className="space-y-2.5 text-sm text-slate-400">
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.shipping_info')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.returns')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.how_to_order')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.how_to_track')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.size_guide')}</a>
+            {footerColumns.map((col, idx) => (
+              <div key={col.heading || idx}>
+                <h4 className="font-bold text-sm mb-4 uppercase tracking-wide text-white">{col.heading}</h4>
+                <div className="space-y-2.5 text-sm text-slate-400">
+                  {col.links.map(renderFooterLink)}
+                  {idx === footerColumns.length - 1 && (
+                    <PolicyLinks className="mt-2.5" heading={false} linkClassName="block hover:text-white transition" />
+                  )}
+                </div>
               </div>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-sm mb-4 uppercase tracking-wide text-white">{t('theme.footer.company_info_heading')}</h4>
-              <div className="space-y-2.5 text-sm text-slate-400">
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.about_us')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.our_blog')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.careers')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.store_locations')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.testimonial')}</a>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-sm mb-4 uppercase tracking-wide text-white">{t('theme.footer.customer_care_heading')}</h4>
-              <div className="space-y-2.5 text-sm text-slate-400">
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.faq')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.terms_of_service')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.privacy_policy')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.contact_us')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.gift_card')}</a>
-                <PolicyLinks className="mt-2.5" heading={false} linkClassName="block hover:text-white transition" />
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Contact strip */}
