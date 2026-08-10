@@ -158,10 +158,13 @@ export default function Notifications() {
                   <div
                     key={n._id}
                     className={cn(
-                      'flex gap-3 p-4 transition-colors',
+                      'flex flex-col gap-3 p-4 transition-colors sm:flex-row',
                       unread ? 'bg-accent/40' : 'bg-background',
                     )}
                   >
+                    {/* Content (dot + icon + text) takes the full row on phones
+                        so the title/body/meta aren't squeezed by the actions. */}
+                    <div className="flex min-w-0 flex-1 gap-3">
                     <span
                       className={cn('mt-2 h-2.5 w-2.5 shrink-0 rounded-full', severityClass(n.severity))}
                       aria-hidden
@@ -190,7 +193,8 @@ export default function Notifications() {
                         {link && <span>{t('notifications.action.click_to_open')}</span>}
                       </div>
                     </button>
-                    <div className="flex shrink-0 items-start gap-1">
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1 ps-5 sm:items-start sm:ps-0">
                       {unread && (
                         <Button
                           variant="ghost"
