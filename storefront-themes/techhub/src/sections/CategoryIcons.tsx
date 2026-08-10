@@ -70,7 +70,7 @@ export const CategoryIconsSection: React.FC<SectionComponentProps> = ({ id }) =>
                 )}
               </div>
               <span
-                className="max-w-full truncate text-xs font-semibold text-center transition-colors group-hover:text-[color:var(--color-primary)]"
+                className="max-w-full text-xs font-semibold text-center leading-tight break-words transition-colors group-hover:text-[color:var(--color-primary)]"
                 style={{ color: 'var(--color-foreground)' }}
               >
                 {cat.name}
