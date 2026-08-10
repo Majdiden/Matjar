@@ -54,6 +54,23 @@ function localizedMethodLabel(
   return method.label;
 }
 
+// Localize the description of a KNOWN method (COD, bank transfer, …) so it isn't
+// stuck in English on an Arabic storefront. Only replaces an existing merchant
+// description — never invents one for methods that had none.
+function localizedMethodDescription(
+  method: { code?: string; description?: string },
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): string | undefined {
+  if (!method.description) return method.description;
+  const norm = String(method.code || '').toLowerCase().replace(/[\s-]+/g, '_');
+  const key = KNOWN_METHOD_KEYS[norm];
+  if (key) {
+    const translated = t(`payment.method_desc.${key}`, { defaultValue: '' });
+    if (translated) return translated;
+  }
+  return method.description;
+}
+
 function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
@@ -210,7 +227,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
                 </p>
                 {method.description && (
                   <p className="text-xs" style={{ color: 'var(--color-muted, #6b7280)' }}>
-                    {method.description}
+                    {localizedMethodDescription(method, t)}
                   </p>
                 )}
               </div>

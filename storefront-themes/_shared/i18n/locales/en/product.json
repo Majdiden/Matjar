@@ -107,6 +107,13 @@
       "card": "Credit / Debit Card",
       "wallet": "Mobile Wallet",
       "cash": "Cash"
+    },
+    "method_desc": {
+      "cod": "Pay with cash when your order is delivered",
+      "bank_transfer": "Transfer to our bank account",
+      "card": "Pay securely by card",
+      "wallet": "Pay with your mobile wallet",
+      "cash": "Pay with cash"
     }
   },
   "description": {
