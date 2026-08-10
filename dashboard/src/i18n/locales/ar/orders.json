@@ -795,5 +795,13 @@
       "load_draft_failed": "فشل تحميل المسودة",
       "not_a_draft": "لم يعد هذا الطلب مسودة"
     }
+  },
+  "orders": {
+    "list": {
+      "customer_filter": {
+        "active": "عرض طلبات عميل واحد",
+        "clear": "إلغاء"
+      }
+    }
   }
 }

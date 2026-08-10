@@ -795,5 +795,13 @@
       "load_draft_failed": "Failed to load draft",
       "not_a_draft": "This order is no longer a draft"
     }
+  },
+  "orders": {
+    "list": {
+      "customer_filter": {
+        "active": "Showing orders for one customer",
+        "clear": "Clear"
+      }
+    }
   }
 }

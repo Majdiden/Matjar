@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatPrice, formatDate } from '../../lib/format';
 import { errMsg } from '../../lib/errors';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -29,7 +29,7 @@ import {
   ShoppingCart, MoreHorizontal, Eye, DollarSign, Clock, CheckCircle2,
   Truck, Package as PackageIcon, XCircle, Search, Filter, Download,
   RefreshCw, GitBranch, LayoutGrid, List, X, FileText, Plus,
-  Phone, MessageCircle, PackageCheck, Banknote,
+  Phone, MessageCircle, PackageCheck, Banknote, User,
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
@@ -59,6 +59,7 @@ type OrdersListParams = {
   tag?: string;
   from?: string;
   to?: string;
+  customer?: string;
   sort?: string;
 };
 
@@ -180,6 +181,11 @@ export const Orders: React.FC = () => {
   const { t } = useTranslation(['orders', 'common']);
   const { hasFeature } = useFeatures();
   const navigate = useNavigate();
+  // "View all orders" (from a customer / order page) scopes the list to one
+  // customer via ?customer=<id|email>. Server-side filter — clearable via the
+  // banner below.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const customerFilter = searchParams.get('customer') || '';
   // Phones always get the stacked card view (wide tables are unusable at
   // 360px); the table/card toggle only applies from md up.
   const isMobile = useIsMobile();
@@ -254,7 +260,7 @@ export const Orders: React.FC = () => {
   // loadOrders / loadStats close over current state — the effects
   // intentionally only re-fetch on the paging/filter/sort inputs.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { loadOrders(); }, [page, tab, search, filters, sort]);
+  useEffect(() => { loadOrders(); }, [page, tab, search, filters, sort, customerFilter]);
   // Stats are scoped to the popover filters (the "filter window") but not
   // to the tab/search — the cards summarise the filtered period as a whole.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -277,6 +283,7 @@ export const Orders: React.FC = () => {
       const params: OrdersListParams = { page, limit: 20, ...filtersToParams(filters) };
       if (tab) params.status = tab;
       if (search) params.search = search;
+      if (customerFilter) params.customer = customerFilter;
       params.sort = `${sort.dir === 'desc' ? '-' : ''}${sort.key}`;
       const response = await api.orders.getAll(params) as PaginatedResponse<Order>;
       setOrders((response.responseObject.orders as Order[] | undefined) || []);
@@ -502,6 +509,23 @@ export const Orders: React.FC = () => {
           <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} delta={s.delta} description={s.description} />
         ))}
       </StatCardRow>
+
+      {/* Customer-scoped banner — shown when arriving via "View all orders". */}
+      {customerFilter && (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm">
+          <span className="flex items-center gap-2 min-w-0">
+            <User className="h-4 w-4 shrink-0 text-primary" />
+            <span className="truncate">{t('orders:list.customer_filter.active')}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => { setSearchParams({}); setPage(1); }}
+            className="shrink-0 font-medium text-primary hover:underline"
+          >
+            {t('orders:list.customer_filter.clear')}
+          </button>
+        </div>
+      )}
 
       {/* Filter pills */}
       <FilterPills

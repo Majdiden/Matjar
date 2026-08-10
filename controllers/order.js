@@ -213,9 +213,27 @@ const ORDER_SORT_WHITELIST = new Set([
 // stats endpoint (audit 5.4) so both always agree on what "the current
 // filter window" means.
 const buildOrderListFilters = (query) => {
-  const { status, search, paymentStatus, fulfillmentStatus, tag, from, to } = query;
+  const { status, search, paymentStatus, fulfillmentStatus, tag, from, to, customer } = query;
   const filters = {};
   if (status) filters.status = status;
+  // Scope to one customer (the "View all orders" link on the order/customer
+  // page). `customer` is a registered user id, else an email (guest orders).
+  if (customer) {
+    const c = String(customer).trim();
+    if (/^[a-f\d]{24}$/i.test(c)) {
+      filters.user = c;
+    } else if (c) {
+      const emailRx = new RegExp(
+        "^" + c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$",
+        "i"
+      );
+      filters.$or = [
+        { customerEmail: emailRx },
+        { "guestCustomer.email": emailRx },
+        { "shippingAddress.email": emailRx },
+      ];
+    }
+  }
   if (paymentStatus) filters.paymentStatus = paymentStatus;
   if (fulfillmentStatus) filters.fulfillmentStatus = fulfillmentStatus;
   // `tags` is a string array — a plain equality match means "array contains".
@@ -229,13 +247,20 @@ const buildOrderListFilters = (query) => {
     const raw = String(search).trim();
     const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/^#+/, "");
     const rx = new RegExp(escaped, "i");
-    filters.$or = [
+    const searchOr = [
       { orderNumber: rx },
       { "shippingAddress.firstName": rx },
       { "shippingAddress.lastName": rx },
       { "shippingAddress.email": rx },
       { "shippingAddress.phone": rx },
     ];
+    // Preserve a customer-email $or (set above) by AND-combining the two.
+    if (filters.$or) {
+      filters.$and = [{ $or: filters.$or }, { $or: searchOr }];
+      delete filters.$or;
+    } else {
+      filters.$or = searchOr;
+    }
   }
   return filters;
 };
