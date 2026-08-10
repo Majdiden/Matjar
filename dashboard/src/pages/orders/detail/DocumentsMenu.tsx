@@ -25,7 +25,7 @@ const RESEND_TEMPLATES = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Canc
 // corresponding dashboard page in a new tab so the user can print from
 // there without losing the order detail view. Refund receipt entries are
 // generated per-refund so staff can reprint any past refund.
-export const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({ order, payments }) => {
+export const DocumentsMenu: React.FC<{ order: Order; payments: Payment[]; className?: string }> = ({ order, payments, className }) => {
   const { t: tDM } = useTranslation(['orders', 'common']);
   const { can } = useAuth();
   const { hasFeature } = useFeatures();
@@ -53,7 +53,7 @@ export const DocumentsMenu: React.FC<{ order: Order; payments: Payment[] }> = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className={className}>
           <FileText className="h-4 w-4 me-2" />
           {tDM('orders:detail.documents.label')}
           <ChevronDown className="h-3 w-3 ms-2" />
