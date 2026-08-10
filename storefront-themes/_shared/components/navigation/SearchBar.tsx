@@ -229,10 +229,13 @@ export function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayPro
       aria-modal="true"
       aria-label={t('search.button_aria')}
     >
-      {/* Backdrop */}
+      {/* Backdrop — click anywhere outside the panel closes the overlay. It
+          sits above the container, so the close handler lives here (not on the
+          container, whose clicks the backdrop would otherwise swallow). */}
       <div
         className="fixed inset-0 bg-black/40 backdrop-blur-md animate-[fadeIn_.15s_ease-out]"
         aria-hidden="true"
+        onMouseDown={onClose}
       />
 
       {/* Panel */}

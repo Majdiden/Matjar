@@ -205,7 +205,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
   return (
     <>
     <div
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 md:hidden"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-[110] flex justify-center px-4 md:hidden"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}
     >
       <style>{NAV_CSS}</style>
@@ -229,17 +229,20 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
             : location.pathname === item.href || location.pathname.startsWith(item.href + '/');
 
           const handleClick = (e: React.MouseEvent) => {
+            if (isSearch) {
+              // The search tab TOGGLES an in-place overlay (never navigates to
+              // an empty /search page). Prefer the theme's handler if it wires
+              // its own overlay; otherwise toggle the shared one.
+              e.preventDefault();
+              if (onSearchClick) onSearchClick();
+              else setSearchOpen((v) => !v);
+              return;
+            }
+            // Any other tab dismisses an open search first.
+            setSearchOpen(false);
             if (isCart && onCartClick) {
               e.preventDefault();
               onCartClick();
-            }
-            if (isSearch) {
-              // Always open a search input first (never navigate straight to
-              // the results page). Prefer the theme's handler if it wires its
-              // own overlay; otherwise open the shared one.
-              e.preventDefault();
-              if (onSearchClick) onSearchClick();
-              else setSearchOpen(true);
             }
           };
 
