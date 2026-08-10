@@ -441,7 +441,7 @@ export const Products: React.FC = () => {
               <div
                 key={product._id}
                 onClick={() => navigate(`/dashboard/products/${product._id}/edit`)}
-                className={`group relative flex items-center gap-4 p-3 rounded-xl border bg-card hover:border-primary/30 hover:shadow-sm transition cursor-pointer ${
+                className={`group relative flex items-center gap-3 p-3 rounded-xl border bg-card hover:border-primary/30 hover:shadow-sm transition cursor-pointer sm:gap-4 ${
                   isSelected ? 'border-primary/50 bg-primary/5' : ''
                 }`}
               >
@@ -462,15 +462,12 @@ export const Products: React.FC = () => {
                   )}
                 </div>
 
-                {/* Title + meta */}
+                {/* Title + meta — name gets its own line (clean truncate); the
+                    badges + SKU/category share a wrapping line below so nothing
+                    crushes the title on a phone. */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="font-semibold truncate">{product.name}</p>
-                    {product.featured && (
-                      <Badge variant="outline" className="text-[10px] h-5 px-1.5 gap-1">
-                        <Star className="h-2.5 w-2.5" />{t('common:state.featured')}
-                      </Badge>
-                    )}
+                  <p className="font-semibold truncate">{product.name}</p>
+                  <div className="flex items-center gap-x-2 gap-y-1 flex-wrap mt-1">
                     <Badge
                       variant={
                         product.status === 'active' ? 'success'
@@ -481,11 +478,14 @@ export const Products: React.FC = () => {
                     >
                       {t(`common:status.${product.status}`, { defaultValue: product.status })}
                     </Badge>
-                  </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                    {product.sku && <span className="font-mono">{product.sku}</span>}
+                    {product.featured && (
+                      <Badge variant="outline" className="text-[10px] h-5 px-1.5 gap-1">
+                        <Star className="h-2.5 w-2.5" />{t('common:state.featured')}
+                      </Badge>
+                    )}
+                    {product.sku && <span className="font-mono text-xs text-muted-foreground">{product.sku}</span>}
                     {product.category && typeof product.category === 'object' && (
-                      <span className="truncate">· {(product.category as Category).name}</span>
+                      <span className="truncate text-xs text-muted-foreground">· {(product.category as Category).name}</span>
                     )}
                   </div>
                 </div>
