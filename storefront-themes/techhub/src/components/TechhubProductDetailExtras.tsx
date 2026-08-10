@@ -225,7 +225,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
     <div className={`mt-16 ${className}`}>
       {/* ─── Tabs ─────────────────────────────────────────────── */}
       <div
-        className="flex items-center gap-8 border-b overflow-x-auto"
+        className="flex items-center gap-8 border-b overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         style={{ borderColor: 'var(--color-border)' }}
       >
         {tabs.map((t) => {
