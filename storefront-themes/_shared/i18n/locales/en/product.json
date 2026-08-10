@@ -100,7 +100,14 @@
     "account": "Account:",
     "phone": "Phone:",
     "required": "Required",
-    "please_choose_provider": "Please choose a provider."
+    "please_choose_provider": "Please choose a provider.",
+    "method": {
+      "cod": "Cash on Delivery",
+      "bank_transfer": "Bank Transfer",
+      "card": "Credit / Debit Card",
+      "wallet": "Mobile Wallet",
+      "cash": "Cash"
+    }
   },
   "description": {
     "no_description": "No description available."

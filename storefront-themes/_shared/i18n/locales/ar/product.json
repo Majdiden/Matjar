@@ -108,7 +108,14 @@
     "account": "الحساب:",
     "phone": "الهاتف:",
     "required": "مطلوب",
-    "please_choose_provider": "يرجى اختيار مزود."
+    "please_choose_provider": "يرجى اختيار مزود.",
+    "method": {
+      "cod": "الدفع عند الاستلام",
+      "bank_transfer": "تحويل بنكي",
+      "card": "بطاقة ائتمان / خصم",
+      "wallet": "محفظة إلكترونية",
+      "cash": "نقداً"
+    }
   },
   "description": {
     "no_description": "لا يوجد وصف متاح."
