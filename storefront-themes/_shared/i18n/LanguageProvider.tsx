@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import i18nInstance, { STORAGE_KEY_LANG } from './index'
 
@@ -39,11 +39,34 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>(resolveInitialLang)
 
   const dir: Dir = lang === 'ar' ? 'rtl' : 'ltr'
+  const firstLangRun = useRef(true)
 
   useEffect(() => {
     document.documentElement.lang = lang
     document.documentElement.dir = dir
     document.body.dir = dir
+
+    // Switching language flips direction (LTR↔RTL) and swaps every string at
+    // once — a hard, jarring cut. Soften it: hide the page for a frame (content
+    // + direction swap while invisible), then fade the new language in. Skip
+    // the initial mount so first paint isn't a fade-in. Respect reduced motion.
+    if (firstLangRun.current) {
+      firstLangRun.current = false
+      return
+    }
+    const reduce =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (reduce) return
+
+    const el = document.body
+    el.style.transition = 'none'
+    el.style.opacity = '0'
+    const raf = requestAnimationFrame(() => {
+      el.style.transition = 'opacity 260ms ease'
+      el.style.opacity = '1'
+    })
+    return () => cancelAnimationFrame(raf)
   }, [lang, dir])
 
   useEffect(() => {
