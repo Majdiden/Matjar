@@ -112,7 +112,7 @@ const NAV_CSS = `
 /* Scroll-away shrink (Instagram-style): scale toward the bottom edge + fade. */
 .mbn-scroll {
   transform-origin: bottom center;
-  transition: transform 320ms var(--ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)), opacity 320ms ease;
+  transition: transform 480ms var(--ease-emphasized, cubic-bezier(0.22, 1, 0.36, 1)), opacity 480ms ease;
   will-change: transform;
 }
 .mbn-shrunk {
@@ -157,7 +157,9 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
         if (y < 40) {
           setShrunk(false);
           lastY.current = y;
-        } else if (Math.abs(dy) > 6) {
+        } else if (Math.abs(dy) > 24) {
+          // Require a deliberate ~24px swipe before toggling so a nudge doesn't
+          // shrink it, and it doesn't flicker on small scrolls.
           setShrunk(dy > 0);
           lastY.current = y;
         }
