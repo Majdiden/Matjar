@@ -75,10 +75,11 @@ export const Categories: React.FC = () => {
     loadCategories();
   };
 
-  const [formData, setFormData] = useState<CategoryFormData>({
+  const [formData, setFormData] = useState<CategoryFormData & { nameAr: string }>({
     name: '',
     description: '',
     slug: '',
+    nameAr: '',
   });
 
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof CategoryFormData, string>>>({});
@@ -110,7 +111,7 @@ export const Categories: React.FC = () => {
 
   const openAddDialog = () => {
     setEditingCategory(null);
-    setFormData({ name: '', description: '', slug: '' });
+    setFormData({ name: '', description: '', slug: '', nameAr: '' });
     setFormErrors({});
     setDialogOpen(true);
   };
@@ -121,6 +122,7 @@ export const Categories: React.FC = () => {
       name: category.name,
       description: category.description || '',
       slug: category.slug,
+      nameAr: (category as any).translations?.ar?.name || '',
     });
     setFormErrors({});
     setDialogOpen(true);
@@ -129,7 +131,7 @@ export const Categories: React.FC = () => {
   const closeDialog = () => {
     setDialogOpen(false);
     setEditingCategory(null);
-    setFormData({ name: '', description: '', slug: '' });
+    setFormData({ name: '', description: '', slug: '', nameAr: '' });
     setFormErrors({});
   };
 
@@ -147,11 +149,15 @@ export const Categories: React.FC = () => {
     try {
       setSaving(true);
       setError('');
+      // Flat `nameAr` in the form → nested `translations.ar.name` the storefront
+      // reads for an Arabic-language store. Empty stays empty (falls back to name).
+      const { nameAr, ...base } = formData;
+      const payload = { ...base, translations: { ar: { name: (nameAr || '').trim() } } } as any;
       if (editingCategory) {
-        await api.categories.update(editingCategory._id, formData);
+        await api.categories.update(editingCategory._id, payload);
         toast.success(t('products.categories.toast.updated'));
       } else {
-        await api.categories.create(formData);
+        await api.categories.create(payload);
         toast.success(t('products.categories.toast.created'));
       }
       await loadCategories();
@@ -385,6 +391,15 @@ export const Categories: React.FC = () => {
                 onChange={(e) => handleChange('name', e.target.value)}
                 error={formErrors.name}
                 required
+              />
+              {/* Optional Arabic name — shown to shoppers browsing in Arabic.
+                  Leave blank to reuse the name above. */}
+              <Input
+                label={t('products.categories.form.field.name_ar.label', { defaultValue: 'Name (Arabic)' })}
+                placeholder={t('products.categories.form.field.name_ar.placeholder', { defaultValue: 'اسم التصنيف بالعربية (اختياري)' })}
+                value={formData.nameAr}
+                onChange={(e) => setFormData((prev) => ({ ...prev, nameAr: e.target.value }))}
+                dir="rtl"
               />
               <div>
                 <Input

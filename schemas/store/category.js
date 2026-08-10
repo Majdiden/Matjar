@@ -9,6 +9,14 @@ const categorySchema = new Schema({
     index: true,
   },
   name: { type: String, required: true, trim: true },
+  // Optional per-language display overrides. `name` is the default/fallback;
+  // the storefront shows `translations[lang].name` when the merchant has filled
+  // it in (Dashboard → Categories). Keeps a bilingual (en/ar) storefront without
+  // duplicating categories. Extend with more fields (e.g. description) as needed.
+  translations: {
+    en: { name: { type: String, trim: true, default: "" } },
+    ar: { name: { type: String, trim: true, default: "" } },
+  },
   slug: { type: String, required: true, lowercase: true, trim: true },
   description: String,
   parent: { type: Schema.Types.ObjectId, ref: "Category", default: null },

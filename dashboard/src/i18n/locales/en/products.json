@@ -279,6 +279,10 @@
           "description": {
             "label": "Description (Optional)",
             "placeholder": "Describe this category..."
+          },
+          "name_ar": {
+            "label": "Name (Arabic)",
+            "placeholder": "Arabic category name (optional)"
           }
         }
       },

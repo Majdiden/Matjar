@@ -319,7 +319,7 @@ router.get(
 
     const categories = await req.models.Category.find(categoryStatusFilter(req))
       .sort({ sortOrder: 1, name: 1 })
-      .select("name slug description image parent status");
+      .select("name translations slug description image parent status");
 
     res.json({ success: true, data: { categories } });
   })

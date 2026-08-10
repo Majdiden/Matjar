@@ -1,5 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { storefrontApi } from '../api/client';
+import { useLanguage } from '../i18n/LanguageProvider';
+
+/**
+ * Resolve a category's display name for the active language. The base `name` is
+ * the default/fallback; `translations[lang].name` wins when the merchant filled
+ * it in (see the Category schema). Keeps a bilingual storefront without theme
+ * changes — every consumer of `cat.name` gets the localized value for free.
+ */
+function localizeCategory(cat: any, lang: string): any {
+  const localized = cat?.translations?.[lang]?.name;
+  return localized ? { ...cat, name: localized } : cat;
+}
 
 export function useProducts(params?: Record<string, string | number>) {
   const [products, setProducts] = useState<any[]>([]);
@@ -73,15 +85,19 @@ export function useProduct(slug: string) {
 }
 
 export function useCategories() {
-  const [categories, setCategories] = useState<any[]>([]);
+  const [raw, setRaw] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { lang } = useLanguage();
 
   useEffect(() => {
     storefrontApi.getCategories()
-      .then(res => setCategories(res.data?.categories || []))
+      .then(res => setRaw(res.data?.categories || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  // Re-localize on language change without refetching.
+  const categories = useMemo(() => raw.map(c => localizeCategory(c, lang)), [raw, lang]);
 
   return { categories, loading };
 }
