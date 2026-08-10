@@ -82,7 +82,7 @@ export const LineItemsCard: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-semibold text-base leading-tight truncate">{name}</p>
+                      <p className="font-semibold text-base leading-tight break-words">{name}</p>
                       <p className="text-sm text-muted-foreground mt-1">
                         {t('orders:detail.item.sku', { sku: sku || '—' })}
                       </p>

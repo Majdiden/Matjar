@@ -330,59 +330,67 @@ export const OrderStepperSection: React.FC<{
             owed until the order is live) ─────────────────────────── */}
         {!isDraft && (
         <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/40 p-3">
-          {isCod
-            ? <Banknote className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
-            : <CreditCard className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />}
-          <div className="min-w-0 flex-1">
-            <p className={cn(
-              'flex items-center gap-1.5 text-sm font-medium',
-              paymentSettled && 'text-success-soft-foreground',
-              paymentStatus === 'Failed' && 'text-destructive',
-            )}
-            >
-              {paymentSettled && <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />}
-              {paymentLabel()}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {t('orders:detail.status_card.via_method', { method: order.paymentMethod })}
-            </p>
+          {/* Status (icon + label) — full row on phones so the label has room
+              to breathe; the action(s) drop to their own row below. */}
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            {isCod
+              ? <Banknote className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
+              : <CreditCard className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />}
+            <div className="min-w-0 flex-1">
+              <p className={cn(
+                'flex items-center gap-1.5 text-sm font-medium',
+                paymentSettled && 'text-success-soft-foreground',
+                paymentStatus === 'Failed' && 'text-destructive',
+              )}
+              >
+                {paymentSettled && <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />}
+                {paymentLabel()}
+              </p>
+              <p className="truncate text-xs text-muted-foreground">
+                {t('orders:detail.status_card.via_method', { method: order.paymentMethod })}
+              </p>
+            </div>
           </div>
-          {paymentAction && !paymentSettled && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-10"
-              disabled={busy}
-              onClick={paymentAction.onClick}
-            >
-              {paymentAction.label}
-            </Button>
-          )}
-          {advancedActions.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+          {((paymentAction && !paymentSettled) || advancedActions.length > 0) && (
+            <div className="flex w-full items-center gap-2 sm:w-auto">
+              {paymentAction && !paymentSettled && (
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10"
+                  size="sm"
+                  variant="outline"
+                  className="h-10 flex-1 sm:flex-none"
                   disabled={busy}
-                  aria-label={t('orders:detail.next_action.more_title')}
+                  onClick={paymentAction.onClick}
                 >
-                  <MoreHorizontal className="h-4 w-4" aria-hidden />
+                  {paymentAction.label}
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {advancedActions.map((a) => (
-                  <DropdownMenuItem
-                    key={a.label}
-                    onClick={a.onClick}
-                    className={a.dangerous ? 'text-destructive focus:text-destructive' : undefined}
-                  >
-                    {a.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              )}
+              {advancedActions.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 shrink-0"
+                      disabled={busy}
+                      aria-label={t('orders:detail.next_action.more_title')}
+                    >
+                      <MoreHorizontal className="h-4 w-4" aria-hidden />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {advancedActions.map((a) => (
+                      <DropdownMenuItem
+                        key={a.label}
+                        onClick={a.onClick}
+                        className={a.dangerous ? 'text-destructive focus:text-destructive' : undefined}
+                      >
+                        {a.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           )}
         </div>
         )}
