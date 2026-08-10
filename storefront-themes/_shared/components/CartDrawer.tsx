@@ -27,8 +27,14 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   React.useEffect(() => {
     if (isOpen) {
       setMounted(true);
-      const id = requestAnimationFrame(() => setShown(true));
-      return () => cancelAnimationFrame(id);
+      // Double rAF: the panel mounts off-screen (shown=false); a single rAF can
+      // coalesce with the mount paint so the enter transition is skipped. Two
+      // frames guarantee the closed state paints first, so opening animates too.
+      let raf2 = 0;
+      const raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => setShown(true));
+      });
+      return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); };
     }
     setShown(false);
     const id = setTimeout(() => setMounted(false), 320);
