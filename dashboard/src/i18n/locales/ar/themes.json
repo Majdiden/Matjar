@@ -301,6 +301,7 @@
         "info": "أدخل معرّف {{type}} أو الاسم المختصر",
         "placeholder": "اختر {{type}}…"
       },
+      "arabic_label": "العربية",
       "unsupported": "نوع غير مدعوم: {{type}}"
     },
     "preview": {

@@ -254,6 +254,8 @@ export default function ManifestSectionEditor({
               setting={setting}
               value={editedSettings[setting.id]}
               onChange={(v) => handleSettingChange(setting.id, v)}
+              arValue={editedSettings[`${setting.id}__ar`]}
+              onArChange={(v) => handleSettingChange(`${setting.id}__ar`, v)}
             />
           ))}
 
@@ -318,6 +320,8 @@ export default function ManifestSectionEditor({
                               setting={setting}
                               value={block.settings[setting.id]}
                               onChange={(v) => handleBlockSettingChange(block.id, setting.id, v)}
+                              arValue={block.settings[`${setting.id}__ar`]}
+                              onArChange={(v) => handleBlockSettingChange(block.id, `${setting.id}__ar`, v)}
                             />
                           ))}
                         </div>

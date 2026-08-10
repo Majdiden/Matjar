@@ -20,6 +20,15 @@ interface SettingControlProps {
   setting: AnySectionSetting;
   value: unknown;
   onChange: (value: unknown) => void;
+  /**
+   * Optional Arabic sibling value + writer. For text-type settings the
+   * editor renders a second input bound to the `<id>__ar` key in the SAME
+   * section settings object (the storefront reads that sibling when a
+   * shopper browses in Arabic, falling back to the base value when blank).
+   * Non-text setting types ignore these.
+   */
+  arValue?: unknown;
+  onArChange?: (value: unknown) => void;
 }
 
 /**
@@ -37,10 +46,13 @@ function toStringValue(raw: unknown): string {
   return '';
 }
 
-export default function SettingControl({ setting, value, onChange }: SettingControlProps) {
+export default function SettingControl({ setting, value, onChange, arValue, onArChange }: SettingControlProps) {
   const { t } = useTranslation('themes');
   const rawValue: unknown = value ?? setting.default ?? '';
   const currentValue = toStringValue(rawValue);
+  // Arabic sibling reads only from the section's stored value — it has no
+  // manifest default (the base value is the fallback), so blank means blank.
+  const arCurrentValue = toStringValue(arValue);
   const checkedValue = typeof rawValue === 'boolean' ? rawValue : Boolean(rawValue);
   // Manifest-declared label/info are English by default; a `settings.<id>.*`
   // key can override per-locale while falling back to the manifest string.
@@ -60,6 +72,9 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
             placeholder={setting.placeholder || ''}
             className="h-9 text-sm"
           />
+          {onArChange && (
+            <ArabicField type="text" value={arCurrentValue} onChange={onArChange} placeholder={setting.placeholder} />
+          )}
         </FieldWrapper>
       );
 
@@ -73,6 +88,9 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
             placeholder={setting.placeholder || ''}
             className="text-sm resize-y min-h-[72px]"
           />
+          {onArChange && (
+            <ArabicField type="textarea" value={arCurrentValue} onChange={onArChange} placeholder={setting.placeholder} />
+          )}
         </FieldWrapper>
       );
 
@@ -86,6 +104,12 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
             onChange={(html) => onChange(html)}
             placeholder={setting.placeholder || ''}
           />
+          {onArChange && (
+            // Simplification: the Arabic variant uses a plain Textarea rather
+            // than wiring a second TipTap instance. It still edits the same
+            // `<id>__ar` HTML string the storefront reads.
+            <ArabicField type="richtext" value={arCurrentValue} onChange={onArChange} placeholder={setting.placeholder} />
+          )}
         </FieldWrapper>
       );
 
@@ -227,6 +251,52 @@ export default function SettingControl({ setting, value, onChange }: SettingCont
 }
 
 // ─── Helper components ──────────────────────────────────────────────
+
+/**
+ * Optional Arabic companion input for text-type settings. Visually matches
+ * the base control (text→Input, textarea/richtext→Textarea) but forced to
+ * RTL, sitting directly beneath it with a small muted "Arabic" label.
+ * richtext deliberately uses a Textarea rather than a second TipTap editor.
+ */
+function ArabicField({
+  type,
+  value,
+  onChange,
+  placeholder,
+}: {
+  type: 'text' | 'textarea' | 'richtext';
+  value: string;
+  onChange: (value: unknown) => void;
+  placeholder?: string;
+}) {
+  const { t } = useTranslation('themes');
+  return (
+    <div className="space-y-1 pt-1">
+      <span className="block text-[10px] font-medium text-slate-400">
+        {t('themes:editor.control.arabic_label', { defaultValue: 'Arabic' })}
+      </span>
+      {type === 'text' ? (
+        <Input
+          dir="rtl"
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder || ''}
+          className="h-9 text-sm"
+        />
+      ) : (
+        <Textarea
+          dir="rtl"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          rows={3}
+          placeholder={placeholder || ''}
+          className="text-sm resize-y min-h-[72px]"
+        />
+      )}
+    </div>
+  );
+}
 
 function FieldWrapper({
   label,
