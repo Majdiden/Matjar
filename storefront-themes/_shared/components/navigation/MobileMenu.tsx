@@ -134,7 +134,7 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
       {/* Overlay */}
       <div
         className={cn(
-          'fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300',
+          'fixed inset-0 z-[120] bg-black/50 transition-opacity duration-300',
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         onClick={onClose}
@@ -147,7 +147,7 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
         aria-modal={isOpen}
         aria-label={heading}
         className={cn(
-          'fixed top-0 bottom-0 start-0 z-[61] w-full sm:max-w-md flex flex-col shadow-2xl',
+          'fixed top-0 bottom-0 start-0 z-[121] w-full sm:max-w-md flex flex-col shadow-2xl',
           'transition-transform duration-300 ease-out will-change-transform',
           isOpen
             ? 'translate-x-0'

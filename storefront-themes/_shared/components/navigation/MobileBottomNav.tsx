@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
@@ -17,6 +18,9 @@ interface NavItem {
   /** Optional filled variant shown when the tab is active (falls back to `icon`) */
   iconActive?: React.ReactNode;
   badge?: number;
+  /** Optional route matcher for active state (covers routes beyond `href`,
+   *  e.g. the Search tab lighting up on /products). Falls back to href match. */
+  match?: (pathname: string) => boolean;
 }
 
 interface MobileBottomNavProps {
@@ -177,6 +181,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       href: '/',
       icon: ICONS.home.outline,
       iconActive: ICONS.home.filled,
+      match: (p) => p === '/',
     },
     {
       id: 'search',
@@ -184,6 +189,12 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       href: '/search',
       icon: ICONS.search.outline,
       iconActive: ICONS.search.filled,
+      // Discovery/browse pages fall under Search.
+      match: (p) =>
+        p === '/search' ||
+        p.startsWith('/products') ||
+        p.startsWith('/categories') ||
+        p.startsWith('/collections'),
     },
     {
       id: 'cart',
@@ -192,6 +203,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       icon: ICONS.cart.outline,
       iconActive: ICONS.cart.filled,
       badge: cart?.itemCount || 0,
+      match: (p) => p === '/cart' || p.startsWith('/checkout') || p.startsWith('/order'),
     },
     {
       id: 'account',
@@ -199,12 +211,23 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
       href: '/account',
       icon: ICONS.account.outline,
       iconActive: ICONS.account.filled,
+      // The whole account area (profile, wishlist, auth) lights this tab.
+      match: (p) =>
+        p.startsWith('/account') ||
+        p.startsWith('/wishlist') ||
+        p.startsWith('/login') ||
+        p.startsWith('/register') ||
+        p.startsWith('/forgot-password') ||
+        p.startsWith('/reset-password'),
     },
   ];
 
   const navItems = items || defaultItems;
 
-  return (
+  // Portaled to <body> so its z-index isn't trapped inside the app's stacking
+  // context — otherwise the (body-level, portaled) SearchOverlay would cover it
+  // even though the nav's z-index is higher.
+  const nav = (
     <>
     {/* Hidden while the cart drawer is open so the floating pill never covers
         the drawer's checkout button. */}
@@ -224,14 +247,15 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
           // Use stable `id` if provided; otherwise fall back to href-based detection
           const isCart = item.id === 'cart' || item.href === '/cart';
           const isSearch = item.id === 'search' || item.href === '/search';
-          // Active state: search reflects the open overlay; the rest match the
-          // route (exact for Home, prefix for section tabs like /account) so
-          // more than just Home ever highlights.
-          const isActive = isSearch
-            ? searchOpen
+          // Active state: an open search overlay always lights the Search tab;
+          // otherwise use the tab's route matcher (covers browse/account/cart
+          // areas) or fall back to an href match for custom items.
+          const routeActive = item.match
+            ? item.match(location.pathname)
             : item.href === '/'
             ? location.pathname === '/'
             : location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+          const isActive = isSearch ? searchOpen || routeActive : routeActive;
 
           const handleClick = (e: React.MouseEvent) => {
             if (isSearch) {
@@ -318,4 +342,6 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
     {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </>
   );
+
+  return typeof document !== 'undefined' ? createPortal(nav, document.body) : nav;
 }
