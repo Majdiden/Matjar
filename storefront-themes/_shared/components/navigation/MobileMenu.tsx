@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../../contexts/StoreContext';
@@ -129,7 +130,11 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
     );
   };
 
-  return (
+  // Portaled to <body> so it shares the top-level stacking context with the
+  // (also-portaled) floating bottom nav — otherwise the nav, escaping the app
+  // tree, would render above this menu regardless of z-index and cover the
+  // language switcher at the panel's foot.
+  const menu = (
     <>
       {/* Overlay */}
       <div
@@ -252,6 +257,8 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
       </div>
     </>
   );
+
+  return typeof document !== 'undefined' ? createPortal(menu, document.body) : menu;
 }
 
 export default MobileMenu;
