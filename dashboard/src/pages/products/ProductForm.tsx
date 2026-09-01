@@ -103,6 +103,11 @@ export const ProductForm: React.FC = () => {
   });
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({});
   const [tagInput, setTagInput] = useState('');
+  // Optional Arabic translations, kept separate from the strictly-typed
+  // ProductFormData. Flat here → nested `translations.ar` on submit (the shape
+  // the storefront reads for an Arabic-language store). Empty stays empty; the
+  // storefront falls back to the base (English) field.
+  const [arData, setArData] = useState({ name: '', shortDescription: '', description: '' });
 
   useEffect(() => { loadInitialData();
     // loadInitialData closes over `id` and `isEditMode`; refetching on
@@ -131,6 +136,13 @@ export const ProductForm: React.FC = () => {
           options: product.options || [],
           variants: product.variants || [],
           preorder: product.preorder || { enabled: false },
+        });
+        // Product type doesn't model translations — read defensively.
+        const ar = (product as any).translations?.ar || {};
+        setArData({
+          name: ar.name || '',
+          shortDescription: ar.shortDescription || '',
+          description: ar.description || '',
         });
       }
     } catch (err: unknown) {
@@ -170,11 +182,23 @@ export const ProductForm: React.FC = () => {
     if (!validateForm()) return;
     try {
       setSaving(true);
+      // Base (English) fields save as before; only the `ar` side is attached.
+      // Cast to any because ProductFormData doesn't model translations.
+      const payload = {
+        ...formData,
+        translations: {
+          ar: {
+            name: arData.name.trim(),
+            shortDescription: arData.shortDescription.trim(),
+            description: arData.description.trim(),
+          },
+        },
+      } as any;
       if (isEditMode && id) {
-        await api.products.update(id, formData);
+        await api.products.update(id, payload);
         toast.success(t('products.toast.updated'));
       } else {
-        await api.products.create(formData);
+        await api.products.create(payload);
         toast.success(t('products.toast.created'));
       }
       navigate('/dashboard/products');
@@ -275,6 +299,30 @@ export const ProductForm: React.FC = () => {
                   {formErrors.name && <p className="text-xs text-destructive">{formErrors.name}</p>}
                 </div>
 
+                {/* Optional Arabic name — shown to shoppers browsing in Arabic.
+                    Leave blank to reuse the name above. */}
+                <div className="space-y-2">
+                  <Label>{t('products.form.field.name_ar.label', { defaultValue: 'Name (Arabic)' })}</Label>
+                  <Input
+                    dir="rtl"
+                    placeholder={t('products.form.field.name_ar.placeholder', { defaultValue: 'Arabic product name (optional)' })}
+                    value={arData.name}
+                    onChange={e => setArData(prev => ({ ...prev, name: e.target.value }))}
+                  />
+                </div>
+
+                {/* Optional Arabic short description. The base form has no English
+                    short-description field, so this Arabic variant stands alone. */}
+                <div className="space-y-2">
+                  <Label>{t('products.form.field.short_description_ar.label', { defaultValue: 'Short Description (Arabic)' })}</Label>
+                  <Input
+                    dir="rtl"
+                    placeholder={t('products.form.field.short_description_ar.placeholder', { defaultValue: 'Short Arabic summary (optional)' })}
+                    value={arData.shortDescription}
+                    onChange={e => setArData(prev => ({ ...prev, shortDescription: e.target.value }))}
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <Label>{t('products.form.field.description.label')}</Label>
                   <Textarea
@@ -284,6 +332,19 @@ export const ProductForm: React.FC = () => {
                     rows={5}
                   />
                   {formErrors.description && <p className="text-xs text-destructive">{formErrors.description}</p>}
+                </div>
+
+                {/* Optional Arabic description. Base description is a plain
+                    Textarea, so the Arabic variant mirrors it (no rich editor). */}
+                <div className="space-y-2">
+                  <Label>{t('products.form.field.description_ar.label', { defaultValue: 'Description (Arabic)' })}</Label>
+                  <Textarea
+                    dir="rtl"
+                    placeholder={t('products.form.field.description_ar.placeholder', { defaultValue: 'Arabic description (optional)' })}
+                    value={arData.description}
+                    onChange={e => setArData(prev => ({ ...prev, description: e.target.value }))}
+                    rows={5}
+                  />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">

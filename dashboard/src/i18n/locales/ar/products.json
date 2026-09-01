@@ -113,6 +113,18 @@
             "required": "مطلوب"
           }
         },
+        "name_ar": {
+          "label": "الاسم (بالعربية)",
+          "placeholder": "اسم المنتج بالعربية (اختياري)"
+        },
+        "short_description_ar": {
+          "label": "الوصف المختصر (بالعربية)",
+          "placeholder": "ملخّص عربي مختصر (اختياري)"
+        },
+        "description_ar": {
+          "label": "الوصف (بالعربية)",
+          "placeholder": "الوصف بالعربية (اختياري)"
+        },
         "description": {
           "label": "الوصف *",
           "placeholder": "صف منتجك...",

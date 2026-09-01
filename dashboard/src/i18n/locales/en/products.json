@@ -113,6 +113,18 @@
             "required": "Required"
           }
         },
+        "name_ar": {
+          "label": "Name (Arabic)",
+          "placeholder": "Arabic product name (optional)"
+        },
+        "short_description_ar": {
+          "label": "Short Description (Arabic)",
+          "placeholder": "Short Arabic summary (optional)"
+        },
+        "description_ar": {
+          "label": "Description (Arabic)",
+          "placeholder": "Arabic description (optional)"
+        },
         "description": {
           "label": "Description *",
           "placeholder": "Describe your product...",
