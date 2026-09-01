@@ -139,6 +139,41 @@ async function ensureOwner() {
   return anyOwned || null;
 }
 
+// English About/Contact pages (the demo seed creates the store-language ones —
+// Arabic here; we add the English counterparts so pages are bilingual whichever
+// locale the storefront requests).
+const EN_PAGES = [
+  {
+    slug: "about",
+    title: "About Us",
+    content:
+      "<p>Welcome to our store. We're a small team passionate about bringing you carefully chosen products, honest prices, and friendly service. This is a sample store built on Matjar — everything here, from the look to the catalog, is fully customizable for your own brand.</p><p>Have a question? We're always happy to help on WhatsApp.</p>",
+  },
+  {
+    slug: "contact",
+    title: "Contact",
+    content:
+      "<p>We'd love to hear from you. Reach us any time on WhatsApp for orders, delivery, or product questions — we usually reply within a few minutes during working hours.</p><p>You can also browse our shipping, returns, and privacy policies from the footer.</p>",
+  },
+];
+
+async function seedEnglishPages(tenant, models) {
+  const Page = models.Page;
+  for (const p of EN_PAGES) {
+    const exists = await Page.findOne({ slug: p.slug, locale: "en" });
+    if (!exists) {
+      await Page.create({
+        tenantId: tenant._id,
+        slug: p.slug,
+        title: p.title,
+        content: p.content,
+        locale: "en",
+        isPublished: true,
+      });
+    }
+  }
+}
+
 async function seedPoliciesAndMenu(tenant, models) {
   const Tenant = mongoose.model("Tenant");
   // Policies live on tenant.settings.policies.<key> = { title, body }.
@@ -215,8 +250,9 @@ async function setupStore(cfg, ownerUser) {
   // 3) Payment methods (COD + bank transfer defaults).
   await seedDefaultPaymentMethods(models, LANG);
 
-  // 4) Policies + footer menu.
+  // 4) Policies + header/footer menus + English About/Contact pages.
   await seedPoliciesAndMenu(tenant, models);
+  await seedEnglishPages(tenant, models);
 
   // 5) Publish the theme customization so the storefront serves it. Strict
   // publish validation can reject the demo media patch (it injects a hero
