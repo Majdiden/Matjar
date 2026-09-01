@@ -181,7 +181,10 @@ const addATenantService = async (tenantData) => {
       // job get picked up. Inline execution in dev keeps registration
       // self-contained; production always uses the queue so the web
       // dyno can be recycled without losing in-flight setups.
-      if (!config.isTest) {
+      // `skipAutoSetup` lets tooling (e.g. the sample-store seeder) create the
+      // tenant and then drive setup synchronously with full control (seed live,
+      // no DNS) instead of the fire-and-forget async path.
+      if (!config.isTest && !tenantData.skipAutoSetup) {
         logger.info(`Triggering store setup for: ${data.name}`, { tenantId: data._id.toString() });
         if (config.isProduction) {
           enqueueStoreSetup(data._id, { source: "register" })
@@ -262,6 +265,7 @@ const addStoreForExistingUserService = (existingUser, storeData = {}) =>
     currency: storeData.currency,
     language: storeData.language,
     subscriptionPlan: storeData.subscriptionPlan,
+    skipAutoSetup: storeData.skipAutoSetup,
   });
 
 export { addATenantService, addStoreForExistingUserService };
