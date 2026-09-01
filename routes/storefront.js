@@ -38,7 +38,7 @@ import { isFeatureEnabled } from "../services/featureFlags.js";
 
 const router = express.Router();
 const productCardSelect =
-  "name slug price compareAtPrice images category stock rating reviewCount description hasVariants options variants preorder";
+  "name translations slug price compareAtPrice images category stock rating reviewCount description hasVariants options variants preorder";
 
 // Optional auth for storefront — customer may be logged in or guest
 router.use(optionalAuth);

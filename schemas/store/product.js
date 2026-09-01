@@ -12,6 +12,22 @@ const productSchema = new Schema({
   slug: { type: String, required: true, lowercase: true, trim: true },
   description: { type: String, required: true },
   shortDescription: { type: String, trim: true },
+  // Optional per-language display overrides. `name`/`description`/
+  // `shortDescription` are the default/fallback; the storefront shows
+  // `translations[lang].*` when the merchant filled it in. Keeps a bilingual
+  // (en/ar) storefront without duplicating products. Mirrors the Category schema.
+  translations: {
+    en: {
+      name: { type: String, trim: true, default: "" },
+      description: { type: String, default: "" },
+      shortDescription: { type: String, trim: true, default: "" },
+    },
+    ar: {
+      name: { type: String, trim: true, default: "" },
+      description: { type: String, default: "" },
+      shortDescription: { type: String, trim: true, default: "" },
+    },
+  },
   /**
    * Key/value product specifications rendered on the PDP.
    * e.g. [{ key: "Material", value: "100% Cotton" }, { key: "Weight", value: "250g" }]
