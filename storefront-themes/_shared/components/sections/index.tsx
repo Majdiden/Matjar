@@ -21,6 +21,7 @@ import { Skeleton } from '../primitives/Skeleton';
 import type { SectionInstance } from '../../types/theme';
 import { CategoryShowcase } from './CategoryShowcase';
 import { ImageCarousel } from '../marketing/ImageCarousel';
+import { ProductDetailsSection, ProductPoliciesSection } from './product';
 
 /**
  * Per-section appearance overrides (from the shared APPEARANCE_SETTINGS).
@@ -593,4 +594,6 @@ export const DEFAULT_SECTION_REGISTRY: Record<string, SectionComponent> = {
   'promo-banners': PromoBannersSection,
   categories: CategoriesSection,
   'trust-badges': TrustBadgesSection,
+  'product-details': ProductDetailsSection,
+  'product-policies': ProductPoliciesSection,
 };

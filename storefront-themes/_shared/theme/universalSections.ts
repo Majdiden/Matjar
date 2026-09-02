@@ -324,4 +324,36 @@ export const universalSections: SectionDefinition[] = [
       // `badges` is a JSON list of {icon, title, description}
     ],
   }),
+
+  // ─── Product-page sections (render the CURRENT product / store data) ──
+  defineSection({
+    type: 'product-details',
+    name: 'Product Details',
+    icon: 'FileText',
+    category: 'product',
+    description: "This product's description + specifications",
+    target: 'product',
+    settings: [
+      { id: 'heading', type: 'text', label: 'Heading', default: 'Details' },
+      { id: 'show_description', type: 'checkbox', label: 'Show Description', default: true },
+      { id: 'show_specs', type: 'checkbox', label: 'Show Specifications', default: true },
+      { id: 'specs_heading', type: 'text', label: 'Specifications Heading', default: 'Specifications' },
+      { id: 'padding_top', type: 'range', label: 'Padding Top', min: 0, max: 160, step: 8, default: 40, unit: 'px' },
+      { id: 'padding_bottom', type: 'range', label: 'Padding Bottom', min: 0, max: 160, step: 8, default: 40, unit: 'px' },
+    ],
+  }),
+
+  defineSection({
+    type: 'product-policies',
+    name: 'Shipping & Returns',
+    icon: 'Truck',
+    category: 'product',
+    description: "The store's shipping / returns / COD policies as an accordion",
+    target: 'product',
+    settings: [
+      { id: 'heading', type: 'text', label: 'Heading', default: 'Shipping & Returns' },
+      { id: 'padding_top', type: 'range', label: 'Padding Top', min: 0, max: 160, step: 8, default: 40, unit: 'px' },
+      { id: 'padding_bottom', type: 'range', label: 'Padding Bottom', min: 0, max: 160, step: 8, default: 40, unit: 'px' },
+    ],
+  }),
 ];

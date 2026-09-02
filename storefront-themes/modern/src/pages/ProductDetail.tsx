@@ -20,6 +20,7 @@ import { VariantPicker, type Variant } from '@matjar/theme-shared/components/com
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
+import { ProductProvider } from '@matjar/theme-shared/contexts/ProductContext';
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -136,13 +137,15 @@ const ProductDetail: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
       {productSections.length > 0 && (
-        <div className="mb-8">
-          {productSections.map((s) => {
-            const Component = DEFAULT_SECTION_REGISTRY[s.type];
-            if (!Component) return null;
-            return <Component key={s.id} id={s.id} section={s} />;
-          })}
-        </div>
+        <ProductProvider product={product} activeVariant={activeVariant}>
+          <div className="mb-8">
+            {productSections.map((s) => {
+              const Component = DEFAULT_SECTION_REGISTRY[s.type];
+              if (!Component) return null;
+              return <Component key={s.id} id={s.id} section={s} />;
+            })}
+          </div>
+        </ProductProvider>
       )}
 
       {/* Breadcrumb */}
