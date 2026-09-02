@@ -69,6 +69,17 @@
         "new_arrivals_heading": "وصل حديثاً",
         "shop_products_heading": "تسوّق المنتجات",
         "view_all": "عرض الكل"
+      },
+      "category_icons": {
+        "eyebrow": "تسوّق حسب القسم",
+        "heading": "تصفّح الفئات",
+        "view_all": "عرض الكل",
+        "items_count_zero": "لا منتجات",
+        "items_count_one": "منتج واحد",
+        "items_count_two": "منتجان",
+        "items_count_few": "{{count}} منتجات",
+        "items_count_many": "{{count}} منتجاً",
+        "items_count_other": "{{count}} منتج"
       }
     },
     "product_card": {

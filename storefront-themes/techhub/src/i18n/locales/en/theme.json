@@ -69,6 +69,13 @@
         "new_arrivals_heading": "NEW ARRIVALS",
         "shop_products_heading": "SHOP PRODUCTS",
         "view_all": "View all"
+      },
+      "category_icons": {
+        "eyebrow": "Shop by department",
+        "heading": "Browse categories",
+        "view_all": "View all",
+        "items_count_one": "{{count}} item",
+        "items_count_other": "{{count}} items"
       }
     },
     "product_card": {

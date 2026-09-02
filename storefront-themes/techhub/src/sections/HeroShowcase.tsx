@@ -87,9 +87,16 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
     : flashSource === 'newest' ? newest[0]
     : deals[0];
 
+  // Top strip (hotline · shipping · flash-deal label) — hideable from the
+  // dashboard via `show_top_strip` (default on). Its text fields
+  // (`hotline_label`, `hotline_phone`, `shipping_strip`, `flash_deal_label`)
+  // are editable in the same section settings.
+  const showTopStrip = s.show_top_strip !== false;
+
   return (
     <section className="relative" style={{ backgroundColor: 'var(--color-background)' }}>
       {/* Top strip — hotline · shipping · flash deal label */}
+      {showTopStrip && (
       <div
         className="border-y text-[11px] font-semibold uppercase tracking-wider"
         style={{
@@ -126,6 +133,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
           )}
         </div>
       </div>
+      )}
 
       {/* Tripartite grid */}
       <div className="max-w-7xl mx-auto px-4 py-6 grid gap-4 lg:grid-cols-[240px_1fr_260px]">

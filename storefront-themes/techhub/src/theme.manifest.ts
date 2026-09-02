@@ -21,6 +21,9 @@ export const heroShowcaseSection: SectionDefinition = defineSection({
   settings: [
     { id: 'sidebar_heading', type: 'text', label: 'Sidebar Heading', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 10, min: 4, max: 14 },
+    // Top strip (hotline · shipping · flash-deal label). `show_top_strip`
+    // hides the whole row; the text fields override the i18n defaults.
+    { id: 'show_top_strip', type: 'checkbox', label: 'Show Top Strip', default: true },
     { id: 'hotline_label', type: 'text', label: 'Hotline Label', default: '' },
     { id: 'hotline_phone', type: 'text', label: 'Hotline Phone', default: '' },
     { id: 'shipping_strip', type: 'text', label: 'Shipping Strip', default: '' },
@@ -150,17 +153,23 @@ export const tabbedProductGridSection: SectionDefinition = defineSection({
 });
 
 /**
- * Category Icons — 6-column row of circular category tiles with icon
- * imagery and a label underneath. Acts as a secondary discovery block.
+ * Category Icons — photo-led category showcase. Each category is a tall
+ * image tile (real category photo, object-cover) with the name on a
+ * label row underneath. Header row carries an eyebrow, heading and a
+ * "View all" link. Acts as a secondary discovery block.
  */
 export const categoryIconsSection: SectionDefinition = defineSection({
   type: 'category-icons',
-  name: 'Category Icons',
+  name: 'Category Showcase',
   icon: 'FolderTree',
   category: 'commerce',
-  description: 'Row of circular category tiles with icon imagery',
+  description: 'Photo tiles for your categories with a heading and "View all" link',
   target: 'body',
   settings: [
+    { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'show_view_all', type: 'checkbox', label: 'Show "View All" Link', default: true },
+    { id: 'view_all_text', type: 'text', label: 'View All Text', default: '' },
     { id: 'columns', type: 'number', label: 'Columns', default: 6, min: 4, max: 8 },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 6, min: 4, max: 12 },
   ],
