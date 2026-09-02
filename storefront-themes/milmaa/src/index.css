@@ -38,6 +38,25 @@ html[lang='ar'], html[lang='ar'] * { letter-spacing: 0 !important; }
 html[dir='rtl'], html[dir='rtl'] body { direction: rtl; }
 html[dir='ltr'], html[dir='ltr'] body { direction: ltr; }
 
+/* --- Arabic type scale --- */
+/* Tajawal sits visually ~1 step smaller than DM Sans at the same px, so in
+   Arabic every body/label size steps up one notch (xs→14, sm→16, base→18,
+   lg→20). The named sizes go through the tailwind.config fontSize vars;
+   the hand-set micro labels (text-[10px] …) are bumped explicitly. Latin
+   sizes are untouched. */
+html[lang='ar'] {
+  --fs-xs: 0.875rem;  --lh-xs: 1.25rem;
+  --fs-sm: 1rem;      --lh-sm: 1.5rem;
+  --fs-base: 1.125rem; --lh-base: 1.75rem;
+  --fs-lg: 1.25rem;   --lh-lg: 1.85rem;
+}
+html[lang='ar'] body { font-size: 1.0625rem; }
+html[lang='ar'] .text-\[9px\]  { font-size: 11px; }
+html[lang='ar'] .text-\[10px\] { font-size: 12px; }
+html[lang='ar'] .text-\[11px\] { font-size: 13px; }
+html[lang='ar'] .text-\[12px\] { font-size: 14px; }
+html[lang='ar'] .text-\[13px\] { font-size: 15px; }
+
 /* --- iOS input-zoom guard (matjar) --- */
 /* iOS Safari auto-zooms the page when a focused input has font-size < 16px.
    Force >=16px on touch devices so focusing any field never triggers a zoom.

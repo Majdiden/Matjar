@@ -5,7 +5,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@matjar/theme-shared/components/sections';
 import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
-import { useFeaturedProducts, useProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { useFeaturedProducts, useProducts, useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import BeauxeProductCard from '../components/BeauxeProductCard';
@@ -15,6 +15,15 @@ const NAVY = 'var(--color-primary)';
 const PINK = 'var(--color-secondary)';
 const CREAM = 'var(--color-accent)';
 const BLUSH = 'var(--color-muted)';
+
+// Niche default hero image (beauty model) — the same photo the demo seeder
+// uses for this theme's hero, so the hero is never an empty cream panel even
+// before the merchant uploads a model shot or when the demo media wasn't applied.
+const HERO_DEFAULT_IMAGE =
+  'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1600&q=80&auto=format&fit=crop';
+
+// Category-tile pastel rotation (matches the manifest's default tile backgrounds).
+const TILE_TINTS = ['#f8e4e4', '#faf3ec', '#f3ddd1'];
 
 // ─── Top bar ──────────────────────────────────────────────────────
 
@@ -38,7 +47,15 @@ const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const [imgOk, setImgOk] = React.useState(true);
+  // Image precedence: merchant/demo `image` setting → featured product shot →
+  // baked-in niche default. A failing URL steps to the next candidate.
+  const { products: featured } = useFeaturedProducts(1);
+  const candidates = React.useMemo(
+    () => [s.image as string, featured?.[0]?.images?.[0], HERO_DEFAULT_IMAGE].filter(Boolean) as string[],
+    [s.image, featured]
+  );
+  const [failed, setFailed] = React.useState<Set<string>>(() => new Set());
+  const heroImage = candidates.find((src) => !failed.has(src));
   return (
     <section className="relative overflow-hidden" style={{ backgroundColor: BLUSH }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
@@ -92,8 +109,14 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             className="aspect-[3/4] rounded-[60px] overflow-hidden"
             style={{ backgroundColor: CREAM }}
           >
-            {s.image && imgOk ? (
-              <img src={s.image as string} alt="" onError={() => setImgOk(false)} className="w-full h-full object-cover" />
+            {heroImage ? (
+              <img
+                src={heroImage}
+                alt=""
+                loading="eager"
+                onError={() => setFailed((prev) => new Set(prev).add(heroImage))}
+                className="w-full h-full object-cover"
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center" style={{ color: PINK }}>
                 <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
@@ -153,15 +176,63 @@ const FeatureStripSection: React.FC<SectionComponentProps> = ({ section }) => {
 
 // ─── Category tiles ───────────────────────────────────────────────
 
+interface CategoryTileData {
+  id: string;
+  title: string;
+  href: string;
+  tint: string;
+  image?: string;
+}
+
+/**
+ * Shop-by-category tiles.
+ *
+ * Tile source, in order of preference:
+ *   1. merchant blocks that carry an image (curated in the editor);
+ *   2. the store's real categories (name + `category.image` cover photo);
+ *   3. the manifest's default blocks / built-in labels as pastel panels.
+ * A tile only shows the plain pastel panel when it has no image at all.
+ */
 const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
+  const { categories } = useCategories();
   const blocks: any[] = (section as any)?.blocks || [];
-  const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { title: t('theme.section.category_tiles.default_skincare', { defaultValue: 'Skincare' }), background: '#f8e4e4' } },
-    { id: 'b', settings: { title: t('theme.section.category_tiles.default_makeup', { defaultValue: 'Makeup' }), background: '#faf3ec' } },
-    { id: 'c', settings: { title: t('theme.section.category_tiles.default_fragrance', { defaultValue: 'Fragrance' }), background: '#f3ddd1' } },
+
+  const blockTiles: CategoryTileData[] = blocks.map((b, i) => {
+    const bs = b.settings || {};
+    return {
+      id: b.id,
+      title: bs.title,
+      href: bs.cta_url || '/products',
+      tint: bs.background || TILE_TINTS[i % TILE_TINTS.length],
+      image: bs.image || undefined,
+    };
+  });
+  const blocksHaveImages = blockTiles.some((b) => !!b.image);
+
+  const categoryTiles: CategoryTileData[] = (categories || []).slice(0, 3).map((c, i) => ({
+    id: c._id,
+    title: c.name,
+    href: `/categories/${c.slug}`,
+    tint: TILE_TINTS[i % TILE_TINTS.length],
+    image: c.image || undefined,
+  }));
+
+  const defaultTiles: CategoryTileData[] = [
+    { id: 'a', title: t('theme.section.category_tiles.default_skincare', { defaultValue: 'Skincare' }), href: '/products', tint: TILE_TINTS[0] },
+    { id: 'b', title: t('theme.section.category_tiles.default_makeup', { defaultValue: 'Makeup' }), href: '/products', tint: TILE_TINTS[1] },
+    { id: 'c', title: t('theme.section.category_tiles.default_fragrance', { defaultValue: 'Fragrance' }), href: '/products', tint: TILE_TINTS[2] },
   ];
+
+  const items: CategoryTileData[] = blocksHaveImages
+    ? blockTiles
+    : categoryTiles.length > 0
+      ? categoryTiles
+      : blockTiles.length > 0
+        ? blockTiles
+        : defaultTiles;
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
       <div className="text-center mb-12">
@@ -171,21 +242,34 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
         {s.subheading && <p className="text-sm opacity-75" style={{ color: NAVY }}>{s.subheading}</p>}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {items.slice(0, 3).map((b) => {
-          const bs = b.settings || {};
+        {items.slice(0, 3).map((tile) => {
+          const hasImage = !!tile.image;
           return (
             <Link
-              key={b.id}
-              to={bs.cta_url || '/products'}
+              key={tile.id}
+              to={tile.href}
               className="group relative block rounded-[40px] overflow-hidden aspect-[4/5]"
-              style={{ backgroundColor: bs.background || '#f8e4e4' }}
+              style={{ backgroundColor: tile.tint }}
             >
-              {bs.image && (
-                <img src={bs.image} alt="" className="absolute inset-0 w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition duration-700" />
+              {hasImage && (
+                <>
+                  <img
+                    src={tile.image}
+                    alt=""
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
+                  />
+                  {/* Blush scrim rising from the bottom keeps the navy label legible over the photo. */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: `linear-gradient(to top, ${tile.tint} 0%, ${tile.tint} 18%, transparent 58%)` }}
+                  />
+                </>
               )}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+              <div className={`absolute inset-0 flex flex-col items-center text-center p-8 ${hasImage ? 'justify-end' : 'justify-center'}`}>
                 <h3 className="font-serif text-4xl md:text-5xl mb-4" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
-                  {bs.title}
+                  {tile.title}
                 </h3>
                 <span className="inline-block px-6 py-2 rounded-full text-[11px] tracking-[0.22em] uppercase font-semibold text-white group-hover:bg-[color:var(--color-secondary)] transition" style={{ backgroundColor: NAVY }}>
                   {t('theme.section.category_tiles.shop_now')} <span className="inline-block rtl:rotate-180">→</span>
