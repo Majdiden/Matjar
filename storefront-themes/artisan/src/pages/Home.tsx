@@ -108,7 +108,7 @@ const Home: React.FC = () => {
                     <ProductCard.Title />
                     {feat.show_rating !== false && <ProductCard.Rating />}
                     <ProductCard.Price showCompareAt showDiscount className="mt-2" />
-                    {feat.show_add_to_cart !== false && <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('common.action.add')} />}
+                    {feat.show_add_to_cart !== false && <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('common:action.add')} />}
                   </ProductCard.Body>
                 </ProductCard>
               ))}
@@ -217,7 +217,7 @@ const Home: React.FC = () => {
                   <ProductCard.Body>
                     <ProductCard.Title />
                     <ProductCard.Price />
-                    {arrivals.show_add_to_cart !== false && <ProductCard.Actions addToCartText={arrivals.add_to_cart_text || t('common.action.add_to_cart')} />}
+                    {arrivals.show_add_to_cart !== false && <ProductCard.Actions addToCartText={arrivals.add_to_cart_text || t('common:action.add')} />}
                   </ProductCard.Body>
                 </ProductCard>
               ))}
