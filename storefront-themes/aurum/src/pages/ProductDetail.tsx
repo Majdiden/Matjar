@@ -9,6 +9,9 @@ import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/Guarant
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import ProductReviews from '@matjar/theme-shared/components/commerce/ProductReviews';
 import ProductDescription from '@matjar/theme-shared/components/commerce/ProductDescription';
+import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
+import { ProductProvider } from '@matjar/theme-shared/contexts/ProductContext';
 import AurumProductCard from '../components/AurumProductCard';
 
 /**
@@ -54,6 +57,8 @@ const ProductDetail: React.FC = () => {
     const idx = product.images.findIndex((s: string) => s === activeVariant.image);
     if (idx >= 0) setImgIdx(idx);
   }, [activeVariant?.image, product?.images]);
+
+  const productSections = useTemplateSections('product');
 
   if (loading) {
     return (
@@ -116,6 +121,18 @@ const ProductDetail: React.FC = () => {
 
   return (
     <div>
+      {productSections.length > 0 && (
+        <ProductProvider product={product} activeVariant={activeVariant}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 pt-8">
+            {productSections.map((s) => {
+              const Component = DEFAULT_SECTION_REGISTRY[s.type];
+              if (!Component) return null;
+              return <Component key={s.id} id={s.id} section={s} />;
+            })}
+          </div>
+        </ProductProvider>
+      )}
+
       {/* Breadcrumb */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 pt-10 pb-4">
         <div className="text-[11px] tracking-[0.2em] uppercase text-mute">

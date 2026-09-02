@@ -8,6 +8,9 @@ import ProductDetailExtras from '@matjar/theme-shared/components/commerce/Produc
 import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
+import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
+import { ProductProvider } from '@matjar/theme-shared/contexts/ProductContext';
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -35,6 +38,8 @@ const ProductDetail: React.FC = () => {
     const idx = product.images.findIndex((src: string) => src === activeVariant.image);
     if (idx >= 0) setSelectedImage(idx);
   }, [activeVariant?.image, product?.images]);
+
+  const productSections = useTemplateSections('product');
 
   if (loading) {
     return (
@@ -109,6 +114,18 @@ const ProductDetail: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      {productSections.length > 0 && (
+        <ProductProvider product={product} activeVariant={activeVariant}>
+          <div className="mb-8">
+            {productSections.map((s) => {
+              const Component = DEFAULT_SECTION_REGISTRY[s.type];
+              if (!Component) return null;
+              return <Component key={s.id} id={s.id} section={s} />;
+            })}
+          </div>
+        </ProductProvider>
+      )}
+
       {/* Breadcrumb */}
       <nav className="text-sm text-gray-500 mb-6">
         <Link to="/" className="hover:text-gray-700">{t('theme.breadcrumb.home')}</Link>
