@@ -331,40 +331,9 @@ export const TestimonialsSection: React.FC<SectionComponentProps> = ({ id }) => 
 };
 
 // ─── Newsletter ──────────────────────────────────────────────────
-
-export const NewsletterSection: React.FC<SectionComponentProps> = ({ id }) => {
-  const { t } = useTranslation('common');
-  const s = useThemeSettings(id);
-  return (
-    <section
-      className="py-20"
-      style={{
-        background: s.use_gradient !== false
-          ? `linear-gradient(135deg, var(--color-primary, #2563eb) 0%, var(--color-secondary, #1e40af) 100%)`
-          : s.background_color || 'var(--color-primary, #2563eb)',
-      }}
-    >
-      <div className="max-w-2xl mx-auto px-4 text-center text-white">
-        <h2 className="text-3xl font-bold mb-2">{s.heading || t('section.newsletter.heading')}</h2>
-        {s.subheading && <p className="opacity-90 mb-8">{s.subheading}</p>}
-        <form className="flex gap-2 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
-          <input
-            type="email"
-            placeholder={s.placeholder || t('storefront.enter_your_email')}
-            className="flex-1 px-4 py-3.5 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50"
-          />
-          <button
-            type="submit"
-            className="px-6 py-3.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium transition border border-white/30"
-          >
-            {s.button_text || t('section.newsletter.subscribe')}
-          </button>
-        </form>
-        {s.disclaimer && <p className="text-xs opacity-60 mt-3">{s.disclaimer}</p>}
-      </div>
-    </section>
-  );
-};
+// Newsletter capture has been removed platform-wide (product decision); the
+// section renders nothing so any store/theme that still references it is a no-op.
+export const NewsletterSection: React.FC<SectionComponentProps> = () => null;
 
 // ─── Brands (logo strip) ─────────────────────────────────────────
 

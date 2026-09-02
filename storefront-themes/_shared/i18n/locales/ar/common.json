@@ -128,7 +128,7 @@
     "hero": "الرئيسي",
     "featured_products": "المنتجات المميّزة",
     "best_sellers": "الأكثر مبيعاً",
-    "new_arrivals": "الوصول حديثاً",
+    "new_arrivals": "وصل حديثاً",
     "trending": "الرائج",
     "recommended_for_you": "مقترح لك",
     "you_may_also_like": "قد يعجبك أيضاً",
@@ -215,7 +215,7 @@
       "view_all": "عرض الكل"
     },
     "new_arrivals": {
-      "heading": "الوصول حديثاً",
+      "heading": "وصل حديثاً",
       "see_more": "عرض المزيد",
       "add_to_cart": "أضف إلى السلة"
     },

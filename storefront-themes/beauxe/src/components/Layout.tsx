@@ -107,8 +107,6 @@ const Layout: React.FC = () => {
 
             {/* Right: icons (desktop only — search/cart/account live in the bottom nav on mobile) */}
             <div className="hidden md:flex items-center gap-4 md:gap-5 justify-end" style={{ color: NAVY }}>
-              <Link to="/about" className="hidden md:block hover:text-[var(--color-secondary)] text-[12px] tracking-[0.15em] uppercase">{t('theme.layout.nav.about')}</Link>
-              <Link to="/contact" className="hidden md:block hover:text-[var(--color-secondary)] text-[12px] tracking-[0.15em] uppercase">{t('theme.layout.nav.contact')}</Link>
               <div className="hidden md:flex items-center">
                 <LanguageSwitcher />
               </div>

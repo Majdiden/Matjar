@@ -19,7 +19,13 @@ interface NewsletterPopupProps {
   onSubmit?: (email: string) => Promise<void>;
 }
 
-export function NewsletterPopup(props: NewsletterPopupProps) {
+export function NewsletterPopup(_props: NewsletterPopupProps) {
+  // Newsletter capture removed platform-wide (product decision) — never render.
+  return null;
+}
+
+// Legacy implementation retained for reference; not used.
+function NewsletterPopupLegacy(props: NewsletterPopupProps) {
   const Override = useThemeSlot<React.ComponentType<NewsletterPopupProps>>(SLOT_KEY);
   if (Override) return <Override {...props} />;
   const { t } = useTranslation('marketing');

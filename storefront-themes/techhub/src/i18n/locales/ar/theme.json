@@ -51,7 +51,7 @@
       "tabbed_products": {
         "title": "المنتجات المميّزة",
         "tab_all": "جميع المنتجات",
-        "tab_new": "الوصول حديثاً",
+        "tab_new": "وصل حديثاً",
         "tab_best_sellers": "الأكثر مبيعاً",
         "tab_on_sale": "عروض التخفيضات",
         "empty": "لا توجد منتجات في هذا التغذية حتى الآن — تحقق لاحقاً."
@@ -66,7 +66,7 @@
       },
       "tonmart_feeds": {
         "featured_heading": "المنتجات المميّزة",
-        "new_arrivals_heading": "الوصول حديثاً",
+        "new_arrivals_heading": "وصل حديثاً",
         "shop_products_heading": "تسوّق المنتجات",
         "view_all": "عرض الكل"
       }
