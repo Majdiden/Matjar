@@ -66,9 +66,9 @@ interface UploadResponse {
   url?: string;
 }
 
-function getError(e: unknown): string {
+function getError(e: unknown, t: (key: string) => string): string {
   const err = e as ApiErrorLike | undefined;
-  return err?.response?.data?.message || err?.message || 'Something went wrong';
+  return err?.response?.data?.message || err?.message || t('common:toast.generic_error');
 }
 
 const slugify = (s: string) =>
@@ -131,7 +131,7 @@ export const PaymentMethods: React.FC = () => {
       setProviderDraft(d => ({ ...d, logo: url }));
       toast.success(t('payments:method.toast.logo_uploaded'));
     } catch (err) {
-      toast.error(getError(err));
+      toast.error(getError(err, t));
     } finally {
       setLogoUploading(false);
       if (logoInputRef.current) logoInputRef.current.value = '';
@@ -151,7 +151,7 @@ export const PaymentMethods: React.FC = () => {
       arr.forEach(m => { ins[m._id] = m.instructions || ''; });
       setInstructionDrafts(ins);
     } catch (e) {
-      toast.error(getError(e));
+      toast.error(getError(e, t));
     } finally {
       setLoading(false);
     }
@@ -168,7 +168,7 @@ export const PaymentMethods: React.FC = () => {
       );
       setMethods(ms => ms.map(x => x._id === m._id ? { ...x, enabled: !m.enabled } : x));
     } catch (e) {
-      toast.error(getError(e));
+      toast.error(getError(e, t));
     } finally {
       setSavingMap(s => ({ ...s, [m._id]: false }));
     }
@@ -188,7 +188,7 @@ export const PaymentMethods: React.FC = () => {
       await api.patch(`/payment-methods/${m._id}`, { providers });
       setMethods(ms => ms.map(x => x._id === m._id ? { ...x, providers } : x));
     } catch (e) {
-      toast.error(getError(e));
+      toast.error(getError(e, t));
     } finally {
       setSavingMap(s => ({ ...s, [m._id]: false }));
     }
@@ -203,7 +203,7 @@ export const PaymentMethods: React.FC = () => {
       toast.success(t('payments:method.toast.saved'));
       setMethods(ms => ms.map(x => x._id === m._id ? { ...x, instructions: instructionDrafts[m._id] ?? '' } : x));
     } catch (e) {
-      toast.error(getError(e));
+      toast.error(getError(e, t));
     } finally {
       setSavingMap(s => ({ ...s, [m._id]: false }));
     }
@@ -253,7 +253,7 @@ export const PaymentMethods: React.FC = () => {
       closeProvider();
       await load();
     } catch (e) {
-      toast.error(getError(e));
+      toast.error(getError(e, t));
     } finally {
       setProviderSaving(false);
     }
@@ -275,7 +275,7 @@ export const PaymentMethods: React.FC = () => {
       closeProvider();
       await load();
     } catch (e) {
-      toast.error(getError(e));
+      toast.error(getError(e, t));
     } finally {
       setProviderSaving(false);
     }

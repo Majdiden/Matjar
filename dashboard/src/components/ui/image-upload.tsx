@@ -58,13 +58,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     // Check file size
     const maxBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxBytes) {
-      return `File ${file.name} is too large. Maximum size is ${maxSizeMB}MB`;
+      return t('common:image_upload.file_too_large_named', { name: file.name, size: maxSizeMB });
     }
 
     // Check file type
     const acceptedTypes = accept.split(',').map((t) => t.trim());
     if (!acceptedTypes.includes(file.type)) {
-      return `File ${file.name} has invalid type. Accepted types: ${accept}`;
+      return t('common:image_upload.invalid_type', { name: file.name, types: accept });
     }
 
     return null;
@@ -94,7 +94,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       // Check max files limit
       if (multiple && images.length + filesToUpload.length > maxFiles) {
-        setError(`Maximum ${maxFiles} files allowed`);
+        setError(t('common:image_upload.max_files_allowed', { count: maxFiles }));
         setUploading(false);
         return;
       }
@@ -104,7 +104,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         const uploadedUrls: string[] = [];
         for (const file of filesToUpload) {
           const r = await uploadFn(file);
-          if (r?.success === false) throw new Error(r.message || 'Upload failed');
+          if (r?.success === false) throw new Error(r.message || t('common:image_upload.upload_failed'));
           const url = r?.data?.url || r?.data?.urls?.[0] || '';
           if (url) uploadedUrls.push(url);
         }
@@ -133,7 +133,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       };
 
       if (!response.success) {
-        throw new Error(response.message || 'Upload failed');
+        throw new Error(response.message || t('common:image_upload.upload_failed'));
       }
 
       const data = response.data || {};
@@ -153,8 +153,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           ? err.message
           : typeof err === 'object' && err !== null && 'message' in err
           ? String((err as { message?: unknown }).message)
-          : 'Failed to upload image';
-      setError(message || 'Failed to upload image');
+          : t('common:image_upload.failed');
+      setError(message || t('common:image_upload.failed'));
     } finally {
       setUploading(false);
     }

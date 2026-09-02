@@ -10,6 +10,8 @@
   },
   "setup": {
     "loading": "جاري تحميل حالة الإعداد...",
+    "failed_fallback": "فشل الإعداد",
+    "status_fetch_failed": "تعذّر جلب حالة الإعداد",
     "failed_title": "فشل الإعداد",
     "setting_up_title": "جاري إعداد متجرك",
     "store_ready": "متجرك جاهز!",

@@ -653,6 +653,10 @@
     }
   },
   "document": {
+    "shared": {
+      "no_order_id": "No order id",
+      "load_failed": "Failed to load order"
+    },
     "invoice": {
       "title": "Invoice",
       "bill_to": "Bill to",
@@ -707,6 +711,7 @@
       "event_id": "Event: {{id}}",
       "not_found": "Refund not found.",
       "refund_not_found_for_order": "Refund not found for this order",
+      "load_refund_failed": "Failed to load refund",
       "column": {
         "item": "Item",
         "sku": "SKU",

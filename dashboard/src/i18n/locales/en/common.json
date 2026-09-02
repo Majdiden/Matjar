@@ -209,7 +209,24 @@
     "click_or_drop": "Click to upload or drag and drop",
     "drop_files": "Drop files here",
     "max_size": "(max {{size}}MB)",
-    "maximum_files": "Maximum {{count}} files"
+    "maximum_files": "Maximum {{count}} files",
+    "file_too_large_named": "File {{name}} is too large. Maximum size is {{size}}MB",
+    "invalid_type": "File {{name}} has invalid type. Accepted types: {{types}}",
+    "max_files_allowed": "Maximum {{count}} files allowed",
+    "upload_failed": "Upload failed",
+    "failed": "Failed to upload image"
+  },
+  "toast": {
+    "copied": "{{label}} copied",
+    "generic_error": "Something went wrong",
+    "file_too_large": "File exceeds {{size}}MB",
+    "action_irreversible": "This action cannot be undone."
+  },
+  "error": {
+    "generic": "Something went wrong"
+  },
+  "errors": {
+    "generic": "Something went wrong"
   },
   "aria": {
     "close": "Close",

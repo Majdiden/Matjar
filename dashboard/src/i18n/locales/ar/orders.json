@@ -653,6 +653,10 @@
     }
   },
   "document": {
+    "shared": {
+      "no_order_id": "لا يوجد معرّف للطلب",
+      "load_failed": "تعذّر تحميل الطلب"
+    },
     "invoice": {
       "title": "فاتورة",
       "bill_to": "فاتورة إلى",
@@ -707,6 +711,7 @@
       "event_id": "معرّف الحدث: {{id}}",
       "not_found": "الاسترداد غير موجود.",
       "refund_not_found_for_order": "الاسترداد غير موجود لهذا الطلب",
+      "load_refund_failed": "تعذّر تحميل الاسترداد",
       "column": {
         "item": "العنصر",
         "sku": "رمز المنتج",

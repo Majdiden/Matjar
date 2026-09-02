@@ -208,7 +208,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
 
   const copy = (value: string, label: string) => {
     navigator.clipboard.writeText(value);
-    toast.success(`${label} copied`);
+    toast.success(t('common:toast.copied', { label }));
   };
 
   return (

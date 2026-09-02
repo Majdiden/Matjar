@@ -89,7 +89,7 @@ export function SetupProgress({ tenantId, setupToken, onComplete, onError }: Set
           // Check if setup failed
           if (setupStatus.status === 'failed') {
             clearInterval(pollRef.current);
-            const errorMsg = setupStatus.error || 'Setup failed';
+            const errorMsg = setupStatus.error || t('errors:setup.failed_fallback');
             setError(errorMsg);
             onError?.(errorMsg);
           }
@@ -107,10 +107,10 @@ export function SetupProgress({ tenantId, setupToken, onComplete, onError }: Set
           clearInterval(pollRef.current);
           onComplete?.();
         } else {
-          setError(apiErr.message || 'Failed to fetch setup status');
+          setError(apiErr.message || t('errors:setup.status_fetch_failed'));
           setLoading(false);
           clearInterval(pollRef.current);
-          onError?.(apiErr.message || 'Failed to fetch setup status');
+          onError?.(apiErr.message || t('errors:setup.status_fetch_failed'));
         }
       }
     };

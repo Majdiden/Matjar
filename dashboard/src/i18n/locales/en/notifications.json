@@ -11,6 +11,10 @@
       "unread": "Unread",
       "unread_count": "{{count}} unread"
     },
+    "test": {
+      "title": "Test notification",
+      "description": "In-app, sound, and OS channels firing."
+    },
     "action": {
       "mark_read": "Mark read",
       "mark_all_read": "Mark all read",

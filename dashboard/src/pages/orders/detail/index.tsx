@@ -160,7 +160,7 @@ export const OrderDetails: React.FC = () => {
     if (opts.dangerous) {
       const ok = await confirm({
         title: `${label}?`,
-        description: 'This action cannot be undone.',
+        description: t('common:toast.action_irreversible'),
         variant: 'destructive',
         confirmText: label,
       });

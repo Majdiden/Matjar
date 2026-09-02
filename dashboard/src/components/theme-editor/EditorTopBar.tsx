@@ -132,7 +132,7 @@ export default function EditorTopBar({
         const list = res?.data?.versions || res?.responseObject?.versions || [];
         if (alive) setVersions(list);
       } catch (err: unknown) {
-        if (alive) toast.error(errorMessage(err, 'Failed to load versions'));
+        if (alive) toast.error(errorMessage(err, t('themes:editor.version_history.toast_error_load')));
       } finally {
         if (alive) setVersionsLoading(false);
       }

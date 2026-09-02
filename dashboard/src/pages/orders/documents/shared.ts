@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../../lib/api-client';
 import type { Address, Order } from '../../../types';
 
@@ -71,6 +72,7 @@ interface OrderResponseEnvelope {
  * of truth for the merchant's legal info block.
  */
 export function useOrderAndStore(orderId: string | undefined) {
+  const { t } = useTranslation(['orders']);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<Order | null>(null);
@@ -80,7 +82,7 @@ export function useOrderAndStore(orderId: string | undefined) {
     let cancelled = false;
     (async () => {
       if (!orderId) {
-        setError('No order id');
+        setError(t('orders:document.shared.no_order_id'));
         setLoading(false);
         return;
       }
@@ -121,7 +123,7 @@ export function useOrderAndStore(orderId: string | undefined) {
       } catch (err: unknown) {
         if (cancelled) return;
         const msg = err instanceof Error ? err.message : null;
-        setError(msg || 'Failed to load order');
+        setError(msg || t('orders:document.shared.load_failed'));
       } finally {
         if (!cancelled) setLoading(false);
       }

@@ -209,7 +209,24 @@
     "click_or_drop": "انقر للرفع أو اسحب وأفلِت",
     "drop_files": "أفلِت الملفات هنا",
     "max_size": "(الحد الأقصى {{size}} ميغابايت)",
-    "maximum_files": "الحد الأقصى {{count}} ملفات"
+    "maximum_files": "الحد الأقصى {{count}} ملفات",
+    "file_too_large_named": "الملف {{name}} كبير جدًا. الحجم الأقصى هو {{size}} ميغابايت",
+    "invalid_type": "الملف {{name}} من نوع غير مدعوم. الأنواع المقبولة: {{types}}",
+    "max_files_allowed": "الحد الأقصى {{count}} ملفات مسموح بها",
+    "upload_failed": "فشل الرفع",
+    "failed": "فشل رفع الصورة"
+  },
+  "toast": {
+    "copied": "تم نسخ {{label}}",
+    "generic_error": "حدث خطأ ما",
+    "file_too_large": "يتجاوز الملف {{size}} ميغابايت",
+    "action_irreversible": "لا يمكن التراجع عن هذا الإجراء."
+  },
+  "error": {
+    "generic": "حدث خطأ ما"
+  },
+  "errors": {
+    "generic": "حدث خطأ ما"
   },
   "aria": {
     "close": "إغلاق",

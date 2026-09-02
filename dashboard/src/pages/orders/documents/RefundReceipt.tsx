@@ -51,7 +51,7 @@ const RefundReceipt: React.FC = () => {
         }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : null;
-        if (!cancelled) setRefundErr(msg || 'Failed to load refund');
+        if (!cancelled) setRefundErr(msg || rr('load_refund_failed'));
       } finally {
         if (!cancelled) setRefundLoading(false);
       }

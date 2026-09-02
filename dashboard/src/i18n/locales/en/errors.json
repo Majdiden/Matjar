@@ -10,6 +10,8 @@
   },
   "setup": {
     "loading": "Loading setup status...",
+    "failed_fallback": "Setup failed",
+    "status_fetch_failed": "Failed to fetch setup status",
     "failed_title": "Setup Failed",
     "setting_up_title": "Setting Up Your Store",
     "store_ready": "Your store is ready!",

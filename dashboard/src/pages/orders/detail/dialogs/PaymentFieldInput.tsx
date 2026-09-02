@@ -3,6 +3,7 @@ import { Input } from '../../../../components/ui/input';
 import { Label } from '../../../../components/ui/label';
 import { Textarea } from '../../../../components/ui/textarea';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import type { PaymentMethodField, PaymentFieldValue } from '../../../../types';
 
 // ─── Payment field input ──────────────────────────────────────────────
@@ -15,6 +16,7 @@ export const PaymentFieldInput: React.FC<{
   value: PaymentFieldValue | undefined;
   onChange: (v: PaymentFieldValue) => void;
 }> = ({ field, value, onChange }) => {
+  const { t } = useTranslation();
   // Narrow the polymorphic field value once per render. The field schema
   // already constrains the type, but the stored value can be any of the
   // unioned shapes depending on `field.type`.
@@ -76,7 +78,7 @@ export const PaymentFieldInput: React.FC<{
             if (!file) return onChange(null);
             const max = Number(field.maxSize) || 5 * 1024 * 1024;
             if (file.size > max) {
-              toast.error(`File exceeds ${(max / 1024 / 1024).toFixed(1)}MB`);
+              toast.error(t('common:toast.file_too_large', { size: (max / 1024 / 1024).toFixed(1) }));
               return;
             }
             const reader = new FileReader();

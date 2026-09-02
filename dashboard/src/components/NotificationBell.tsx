@@ -206,13 +206,13 @@ export const NotificationBell: React.FC = () => {
                   e.preventDefault();
                   e.stopPropagation();
                   playNotificationChime();
-                  toast.success('Test notification', {
-                    description: 'In-app, sound, and OS channels firing.',
+                  toast.success(t('notifications:notifications.test.title'), {
+                    description: t('notifications:notifications.test.description'),
                     id: 'test-notification',
                   });
                   fireNativeNotification(
-                    'Test notification',
-                    'In-app, sound, and OS channels firing.',
+                    t('notifications:notifications.test.title'),
+                    t('notifications:notifications.test.description'),
                   );
                 }}
               >
