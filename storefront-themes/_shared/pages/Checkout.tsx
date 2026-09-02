@@ -4,7 +4,6 @@ import { useCart } from '../contexts/CartContext';
 import { useStore } from '../contexts/StoreContext';
 import { ordersApi, authApi, checkoutApi, giftCardApi, paymentMethodsApi, PaymentMethodPublic, isPreviewMode, notifyPreviewDisabled } from '../api/client';
 import PaymentMethodPicker from '../components/commerce/PaymentMethodPicker';
-import { PolicyLinks } from '../components/PolicyLinks';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { COUNTRIES, getCitiesForCountry, optionsWithCurrent, locationLabel } from '../data/locations';
@@ -103,6 +102,10 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   const [availablePaymentMethods, setAvailablePaymentMethods] = useState<PaymentMethodPublic[]>([]);
   const [notes, setNotes] = useState('');
   const [acceptsTerms, setAcceptsTerms] = useState(false);
+  // Policies open in a MODAL (not a route) so reading them never navigates away
+  // and resets the in-progress checkout. `policyModalKey` = which policy to show
+  // first (null = show all), the modal lists every published policy.
+  const [policyModalOpen, setPolicyModalOpen] = useState(false);
   const [idempotencyKey] = useState<string>(() =>
     (typeof crypto !== 'undefined' && crypto.randomUUID
       ? crypto.randomUUID()
@@ -926,7 +929,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       i < arr.length - 1 ? (
                         <React.Fragment key={i}>
                           {part}
-                          <Link to="/terms" className="underline">{t('checkout.field.review.terms_and_conditions')}</Link>
+                          <button type="button" onClick={() => setPolicyModalOpen(true)} className="underline" style={{ color: accent }}>{t('checkout.field.review.terms_and_conditions')}</button>
                         </React.Fragment>
                       ) : (
                         part
@@ -935,7 +938,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                             j < arr2.length - 1 ? (
                               <React.Fragment key={j}>
                                 {p2}
-                                <Link to="/privacy" className="underline">{t('checkout.field.review.privacy_policy')}</Link>
+                                <button type="button" onClick={() => setPolicyModalOpen(true)} className="underline" style={{ color: accent }}>{t('checkout.field.review.privacy_policy')}</button>
                               </React.Fragment>
                             ) : (
                               p2
@@ -961,13 +964,19 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 </button>
               </div>
 
-              {/* Store policy links (delivery / returns / cash-on-delivery /
-                  privacy) — only shown for policies the merchant published. */}
-              <PolicyLinks
-                inline
-                className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs opacity-70"
-                linkClassName="hover:underline"
-              />
+              {/* Store policy links — open the modal (no navigation) so reading
+                  a policy never discards the in-progress checkout. */}
+              {Object.values(store?.policies || {}).some((p) => p && p.body) && (
+                <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs opacity-70">
+                  {Object.entries(store?.policies || {})
+                    .filter(([, p]) => p && p.body)
+                    .map(([key, p]) => (
+                      <button key={key} type="button" onClick={() => setPolicyModalOpen(true)} className="hover:underline">
+                        {p.title || key}
+                      </button>
+                    ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1176,6 +1185,41 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
           </div>
         </aside>
       </div>
+
+      {/* Policy modal — read policies without leaving checkout. */}
+      {policyModalOpen && (
+        <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setPolicyModalOpen(false)} aria-hidden="true" />
+          <div className="relative w-full sm:max-w-2xl max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl bg-white text-gray-900 shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b bg-white px-5 py-4">
+              <h2 className="text-lg font-bold">{t('checkout.policies.title', { defaultValue: 'Store policies' })}</h2>
+              <button
+                type="button"
+                onClick={() => setPolicyModalOpen(false)}
+                aria-label={t('common:action.close', { defaultValue: 'Close' })}
+                className="grid place-items-center w-9 h-9 -me-2 rounded-full text-gray-500 hover:bg-black/[0.06]"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="px-5 py-4 space-y-6">
+              {Object.entries(store?.policies || {})
+                .filter(([, p]) => p && p.body)
+                .map(([key, p]) => (
+                  <section key={key}>
+                    <h3 className="font-semibold mb-2">{p.title || key}</h3>
+                    <div className="text-sm leading-relaxed [&_p]:mb-2" dangerouslySetInnerHTML={{ __html: p.body }} />
+                  </section>
+                ))}
+              {!Object.values(store?.policies || {}).some((p) => p && p.body) && (
+                <p className="text-sm text-gray-500">{t('checkout.policies.empty', { defaultValue: 'No policies published yet.' })}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
