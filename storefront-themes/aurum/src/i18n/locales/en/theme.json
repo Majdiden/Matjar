@@ -20,6 +20,7 @@
     "section": {
       "marquee": {
         "default_items": "ELLE, VOGUE, BAZAAR, FORBES, GRAZIA",
+        "label": "As featured in",
         "aria_label": "As featured in"
       },
       "spotlight": {
@@ -140,15 +141,11 @@
       "col_about": "About",
       "col_collections": "Collections",
       "col_information": "Information",
-      "col_newsletter": "Sign up and save",
       "all_products": "All Jewelry",
       "search": "Search",
       "faqs": "FAQs",
       "order_tracking": "Order Tracking",
       "contact": "Contact",
-      "newsletter_subtitle": "Join our list for early access to new collections and private offers.",
-      "email_placeholder": "Your email",
-      "subscribe": "Subscribe",
       "copyright": "© {{year}} {{name}}. All rights reserved."
     }
   }

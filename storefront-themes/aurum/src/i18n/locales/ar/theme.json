@@ -20,6 +20,7 @@
     "section": {
       "marquee": {
         "default_items": "ELLE, VOGUE, BAZAAR, FORBES, GRAZIA",
+        "label": "كما ظهرنا في",
         "aria_label": "كما ظهرنا في"
       },
       "spotlight": {
@@ -140,15 +141,11 @@
       "col_about": "من نحن",
       "col_collections": "التشكيلات",
       "col_information": "معلومات",
-      "col_newsletter": "اشتركي ووفري",
       "all_products": "جميع المجوهرات",
       "search": "بحث",
       "faqs": "الأسئلة الشائعة",
       "order_tracking": "تتبع الطلب",
       "contact": "تواصل معنا",
-      "newsletter_subtitle": "انضمي إلى قائمتنا للوصول المبكر إلى التشكيلات الجديدة والعروض الخاصة.",
-      "email_placeholder": "بريدك الإلكتروني",
-      "subscribe": "اشتراك",
       "copyright": "© {{year}} {{name}}. جميع الحقوق محفوظة."
     }
   }

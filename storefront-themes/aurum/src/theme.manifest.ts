@@ -43,7 +43,10 @@ export const marqueeSection: SectionDefinition = defineSection({
   description: 'Infinite scrolling strip of serif press wordmarks',
   target: 'body',
   settings: [
-    { id: 'items', type: 'text', label: 'Items (comma separated)', default: 'ELLE, VOGUE, BAZAAR, FORBES, GRAZIA' },
+    { id: 'show', type: 'checkbox', label: 'Show press strip', default: true },
+    { id: 'show_label', type: 'checkbox', label: 'Show label above logos', default: true },
+    { id: 'label', type: 'text', label: 'Label text', default: '' },
+    { id: 'items', type: 'text', label: 'Press names (comma separated)', default: 'ELLE, VOGUE, BAZAAR, FORBES, GRAZIA' },
     { id: 'speed', type: 'range', label: 'Scroll duration', default: 30, min: 10, max: 60, step: 5, unit: 's' },
   ],
 });

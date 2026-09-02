@@ -87,15 +87,23 @@ const MarqueeSection: React.FC<SectionComponentProps> = ({ id }) => {
   const raw = (s.items as string) || t('theme.section.marquee.default_items');
   const items = raw.split(',').map((x: string) => x.trim()).filter(Boolean);
   const speed = Number(s.speed) || 30;
+  const label = (s.label as string) || t('theme.section.marquee.label');
+  const showLabel = s.show_label !== false && Boolean(label);
   // Duplicate the sequence so translateX(-50%) loops seamlessly.
   const doubled = [...items, ...items];
+
+  // Merchant can hide the strip entirely from the theme editor.
+  if (s.show === false || items.length === 0) return null;
 
   return (
     <section
       className="aurum-marquee overflow-hidden bg-night border-y border-line py-8"
       style={{ '--aurum-marquee-duration': `${speed}s` } as React.CSSProperties}
-      aria-label={t('theme.section.marquee.aria_label')}
+      aria-label={label || t('theme.section.marquee.aria_label')}
     >
+      {showLabel && (
+        <p className="text-[10px] tracking-[0.3em] uppercase text-mute text-center px-4 mb-6">{label}</p>
+      )}
       <div className="aurum-marquee-track flex items-center w-max" dir="ltr">
         {doubled.map((item, i) => (
           <React.Fragment key={i}>

@@ -18,7 +18,7 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
  *
  *   ─ Optional thin gold-on-black announcement bar
  *   ─ Header (sticky, near-black): nav links / serif wordmark / utility links
- *   ─ Footer: giant full-width serif wordmark, 4-col info grid, copyright
+ *   ─ Footer: giant full-width serif wordmark, 3-col info grid, copyright
  */
 
 const SOCIAL_ICONS: Record<string, React.ReactNode> = {
@@ -104,9 +104,9 @@ const Layout: React.FC = () => {
       {/* ═══ HEADER ══════════════════════════════════════════════ */}
       <header className="sticky top-0 z-40 bg-night border-b border-line">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center py-5 gap-4">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center py-5 gap-3 sm:gap-4">
             {/* Start: nav (desktop) / hamburger (mobile) */}
-            <div className="flex items-center">
+            <div className="flex items-center min-w-0">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-label={t('common:aria.menu')}
@@ -132,13 +132,16 @@ const Layout: React.FC = () => {
             </div>
 
             {/* Center: serif wordmark / logo */}
-            <Link to="/" className="justify-self-center flex items-center" aria-label={brand}>
+            <Link to="/" className="justify-self-center flex items-center min-w-0 max-w-full" aria-label={brand}>
               {store?.logo ? (
                 <img src={store.logo} alt={brand} className="h-12 md:h-14 w-auto max-w-[200px] object-contain" />
               ) : (
                 <span
-                  className="font-display text-2xl md:text-[28px] tracking-[0.18em] uppercase leading-none text-ink"
-                  style={{ fontFamily: 'var(--font-family-heading)' }}
+                  className="aurum-wordmark font-display tracking-[0.1em] sm:tracking-[0.18em] uppercase leading-none text-ink"
+                  style={{
+                    fontFamily: 'var(--font-family-heading)',
+                    '--aurum-brand-chars': Math.max(brand.length, 4),
+                  } as React.CSSProperties}
                 >
                   {brand}
                 </span>
@@ -146,7 +149,7 @@ const Layout: React.FC = () => {
             </Link>
 
             {/* End: utility text links */}
-            <div className="flex items-center justify-end gap-6 text-[11px] tracking-[0.15em] uppercase">
+            <div className="flex items-center justify-end min-w-0 gap-4 sm:gap-6 text-[11px] tracking-[0.15em] uppercase">
               <div className="hidden md:block">
                 <LanguageSwitcher />
               </div>
@@ -201,10 +204,10 @@ const Layout: React.FC = () => {
         </div>
 
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 py-14 border-t border-line">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-10 py-14 border-t border-line">
             {/* About */}
             <div className="col-span-2 md:col-span-1">
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_about')}</h4>
+              <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_about')}</h4>
               <p className="text-sm text-mute leading-relaxed mb-5">
                 {store?.description || t('theme.footer.tagline')}
               </p>
@@ -228,7 +231,7 @@ const Layout: React.FC = () => {
 
             {/* Collections */}
             <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_collections')}</h4>
+              <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_collections')}</h4>
               <div className="space-y-3 text-sm text-mute">
                 <Link to="/products" className="block hover:text-ink transition-colors">{t('theme.footer.all_products')}</Link>
                 {categories.slice(0, 5).map((cat) => (
@@ -241,7 +244,7 @@ const Layout: React.FC = () => {
 
             {/* Information */}
             <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_information')}</h4>
+              <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_information')}</h4>
               <div className="space-y-3 text-sm text-mute">
                 <Link to="/search" className="block hover:text-ink transition-colors">{t('theme.footer.search')}</Link>
                 <Link to="/about" className="block hover:text-ink transition-colors">{t('theme.footer.faqs')}</Link>
@@ -249,25 +252,6 @@ const Layout: React.FC = () => {
                 <Link to="/contact" className="block hover:text-ink transition-colors">{t('theme.footer.contact')}</Link>
                 <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:text-ink transition-colors" />
               </div>
-            </div>
-
-            {/* Newsletter */}
-            <div className="col-span-2 md:col-span-1">
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_newsletter')}</h4>
-              <p className="text-sm text-mute mb-5">{t('theme.footer.newsletter_subtitle')}</p>
-              <form className="flex border border-line focus-within:border-ink transition-colors" onSubmit={(e) => e.preventDefault()}>
-                <input
-                  type="email"
-                  placeholder={t('theme.footer.email_placeholder')}
-                  className="flex-1 min-w-0 px-4 py-3 text-sm bg-transparent text-ink placeholder:text-mute focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="px-5 text-[10px] tracking-[0.22em] uppercase text-ink hover:bg-ink hover:text-night transition-colors"
-                >
-                  {t('theme.footer.subscribe')}
-                </button>
-              </form>
             </div>
           </div>
 

@@ -36,6 +36,37 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Prata', 'Amiri', Georgia, serif;
 }
 
+/* ── Primary-button contrast ───────────────────────────────────────
+   Aurum's primary colour is the cream foreground (#f4f1ea), inverted
+   against the near-black canvas. Shared pages (Checkout, Login, Account,
+   CartDrawer, variant/step indicators…) paint their CTAs with an inline
+   `background-color: var(--color-primary)` and a hardcoded `text-white`
+   label, which is invisible on cream. Any element that carries the
+   primary background gets dark ink instead. Hover (opacity/brightness)
+   and disabled (opacity) states inherit this colour, so they stay
+   readable too. */
+[style*="--color-primary"].text-white,
+[style*="--color-primary"].text-white:hover,
+[style*="--color-primary"].text-white:disabled {
+  color: var(--color-background, #141414);
+}
+
+/* ── Header wordmark ───────────────────────────────────────────────
+   The serif store name sits in the header's centre column and must
+   always fit on one line. Its size scales with the viewport divided by
+   the name length (--aurum-brand-chars, set inline), so long names
+   shrink instead of overflowing/clipping. ~0.9em per tracked capital. */
+.aurum-wordmark {
+  --aurum-brand-chars: 6;
+  font-size: clamp(11px, calc(58vw / var(--aurum-brand-chars) / 0.9), 24px);
+  white-space: nowrap;
+}
+@media (min-width: 768px) {
+  .aurum-wordmark {
+    font-size: clamp(11px, calc(40vw / var(--aurum-brand-chars) / 0.9), 28px);
+  }
+}
+
 /* ── Aurum marquee ─────────────────────────────────────────────────
    The strip duplicates its content once and slides the track by half
    its own width, so the loop is seamless. In RTL the animation runs
