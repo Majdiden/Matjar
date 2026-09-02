@@ -167,28 +167,28 @@ const Layout: React.FC = () => {
             <div>
               <h4 className="text-sm font-bold mb-5">{t('theme.footer.col_shop')}</h4>
               <div className="space-y-3 text-sm opacity-80">
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_all_milks')}</a>
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_banana')}</a>
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_badam')}</a>
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_cashewnut')}</a>
+                <Link to="/products" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_all_milks')}</Link>
+                <Link to="/products" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_banana')}</Link>
+                <Link to="/products" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_badam')}</Link>
+                <Link to="/products" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_cashewnut')}</Link>
               </div>
             </div>
             <div>
               <h4 className="text-sm font-bold mb-5">{t('theme.footer.col_company')}</h4>
               <div className="space-y-3 text-sm opacity-80">
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_about_us')}</a>
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_our_farmers')}</a>
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_sustainability')}</a>
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_blog')}</a>
+                <Link to="/about" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_about_us')}</Link>
+                <Link to="/about" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_our_farmers')}</Link>
+                <Link to="/about" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_sustainability')}</Link>
+                <Link to="/about" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_blog')}</Link>
               </div>
             </div>
             <div>
               <h4 className="text-sm font-bold mb-5">{t('theme.footer.col_help')}</h4>
               <div className="space-y-3 text-sm opacity-80">
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_shipping')}</a>
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_returns')}</a>
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_faqs')}</a>
-                <a href="#" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_contact')}</a>
+                <Link to="/policies/delivery" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_shipping')}</Link>
+                <Link to="/policies/returns" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_returns')}</Link>
+                <Link to="/contact" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_faqs')}</Link>
+                <Link to="/contact" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_contact')}</Link>
                 <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:opacity-100 hover:underline" />
               </div>
             </div>

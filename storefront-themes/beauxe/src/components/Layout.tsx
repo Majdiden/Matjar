@@ -177,9 +177,24 @@ const Layout: React.FC = () => {
               <PolicyLinks className="mt-6" heading={false} linkClassName="block text-[var(--color-primary)]/80 hover:opacity-100 hover:underline transition" />
             </div>
             {[
-              { h: t('theme.footer.shop_heading'), items: [t('theme.footer.shop_all'), t('theme.footer.best_sellers'), t('theme.footer.new_arrivals'), t('theme.footer.gift_sets')] },
-              { h: t('theme.footer.help_heading'), items: [t('theme.footer.shipping'), t('theme.footer.returns'), t('theme.footer.faqs'), t('theme.footer.contact')] },
-              { h: t('theme.footer.about_heading'), items: [t('theme.footer.our_story'), t('theme.footer.ingredients'), t('theme.footer.sustainability'), t('theme.footer.careers')] },
+              { h: t('theme.footer.shop_heading'), items: [
+                { label: t('theme.footer.shop_all'), to: '/products' },
+                { label: t('theme.footer.best_sellers'), to: '/products' },
+                { label: t('theme.footer.new_arrivals'), to: '/products' },
+                { label: t('theme.footer.gift_sets'), to: '/products' },
+              ] },
+              { h: t('theme.footer.help_heading'), items: [
+                { label: t('theme.footer.shipping'), to: '/policies/delivery' },
+                { label: t('theme.footer.returns'), to: '/policies/returns' },
+                { label: t('theme.footer.faqs'), to: '/contact' },
+                { label: t('theme.footer.contact'), to: '/contact' },
+              ] },
+              { h: t('theme.footer.about_heading'), items: [
+                { label: t('theme.footer.our_story'), to: '/about' },
+                { label: t('theme.footer.ingredients'), to: '/about' },
+                { label: t('theme.footer.sustainability'), to: '/about' },
+                { label: t('theme.footer.careers'), to: '/about' },
+              ] },
             ].map((col) => (
               <div key={col.h}>
                 <h4 className="text-[11px] tracking-[0.22em] uppercase font-bold mb-5" style={{ color: NAVY }}>
@@ -187,7 +202,7 @@ const Layout: React.FC = () => {
                 </h4>
                 <div className="space-y-3 text-sm" style={{ color: NAVY, opacity: 0.8 }}>
                   {col.items.map((item) => (
-                    <a key={item} href="#" className="block hover:opacity-100 hover:underline transition">{item}</a>
+                    <Link key={item.label} to={item.to} className="block hover:opacity-100 hover:underline transition">{item.label}</Link>
                   ))}
                 </div>
               </div>

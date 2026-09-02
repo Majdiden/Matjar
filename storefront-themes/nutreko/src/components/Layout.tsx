@@ -176,29 +176,29 @@ const Layout: React.FC = () => {
             <div>
               <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{t('theme.footer.col_shop')}</h4>
               <div className="space-y-3 text-sm text-white/70">
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_all_products')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_protein')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_pre_workout')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_recovery')}</a>
+                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.item_all_products')}</Link>
+                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.item_protein')}</Link>
+                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.item_pre_workout')}</Link>
+                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.item_recovery')}</Link>
               </div>
             </div>
             <div>
               <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{t('theme.footer.col_support')}</h4>
               <div className="space-y-3 text-sm text-white/70">
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_shipping')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_returns')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_faqs')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_contact')}</a>
+                <Link to="/policies/delivery" className="block hover:text-white transition">{t('theme.footer.item_shipping')}</Link>
+                <Link to="/policies/returns" className="block hover:text-white transition">{t('theme.footer.item_returns')}</Link>
+                <Link to="/contact" className="block hover:text-white transition">{t('theme.footer.item_faqs')}</Link>
+                <Link to="/contact" className="block hover:text-white transition">{t('theme.footer.item_contact')}</Link>
                 <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:text-white transition" />
               </div>
             </div>
             <div>
               <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{t('theme.footer.col_company')}</h4>
               <div className="space-y-3 text-sm text-white/70">
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_about')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_blog')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_ambassadors')}</a>
-                <a href="#" className="block hover:text-white transition">{t('theme.footer.item_careers')}</a>
+                <Link to="/about" className="block hover:text-white transition">{t('theme.footer.item_about')}</Link>
+                <Link to="/about" className="block hover:text-white transition">{t('theme.footer.item_blog')}</Link>
+                <Link to="/about" className="block hover:text-white transition">{t('theme.footer.item_ambassadors')}</Link>
+                <Link to="/about" className="block hover:text-white transition">{t('theme.footer.item_careers')}</Link>
               </div>
             </div>
           </div>

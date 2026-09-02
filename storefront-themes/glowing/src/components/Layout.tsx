@@ -175,9 +175,9 @@ const Layout: React.FC = () => {
             <div>
               <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_help')}</h4>
               <div className="space-y-3 text-sm text-neutral-600">
-                <a href="#" className="block hover:text-black">{t('theme.footer.shipping')}</a>
-                <a href="#" className="block hover:text-black">{t('theme.footer.returns')}</a>
-                <a href="#" className="block hover:text-black">{t('theme.footer.faq')}</a>
+                <Link to="/policies/delivery" className="block hover:text-black">{t('theme.footer.shipping')}</Link>
+                <Link to="/policies/returns" className="block hover:text-black">{t('theme.footer.returns')}</Link>
+                <Link to="/contact" className="block hover:text-black">{t('theme.footer.faq')}</Link>
                 <Link to="/contact" className="block hover:text-black">{t('theme.footer.contact')}</Link>
                 <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:text-black" />
               </div>
@@ -186,9 +186,9 @@ const Layout: React.FC = () => {
               <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_company')}</h4>
               <div className="space-y-3 text-sm text-neutral-600">
                 <Link to="/about" className="block hover:text-black">{t('theme.footer.about_us')}</Link>
-                <a href="#" className="block hover:text-black">{t('theme.footer.ingredients')}</a>
-                <a href="#" className="block hover:text-black">{t('theme.footer.sustainability')}</a>
-                <a href="#" className="block hover:text-black">{t('theme.footer.journal')}</a>
+                <Link to="/about" className="block hover:text-black">{t('theme.footer.ingredients')}</Link>
+                <Link to="/about" className="block hover:text-black">{t('theme.footer.sustainability')}</Link>
+                <Link to="/about" className="block hover:text-black">{t('theme.footer.journal')}</Link>
               </div>
             </div>
           </div>
