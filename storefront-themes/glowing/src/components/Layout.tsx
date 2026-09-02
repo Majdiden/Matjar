@@ -7,6 +7,7 @@ import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
+import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
@@ -195,11 +196,7 @@ const Layout: React.FC = () => {
 
           <div className="border-t border-neutral-100 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] tracking-wide text-neutral-500">
             <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), name: brand })}</span>
-            <div className="flex items-center gap-3">
-              {['VISA', 'MC', 'AMEX', 'PP'].map((p) => (
-                <span key={p} className="h-6 px-2.5 border border-neutral-300 text-[10px] font-bold flex items-center">{p}</span>
-              ))}
-            </div>
+            <FooterPaymentBadges size="sm" />
           </div>
         </div>
       </footer>
