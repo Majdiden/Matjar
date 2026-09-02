@@ -207,7 +207,7 @@ export const THEME_DEMO_DATA = {
       { title: "Best Sellers", handle: "best-sellers", description: "The pieces everyone keeps.", image: IMG("1601121141461-9d6647bca1ed"), productSlugs: ["split-hoop-earrings", "sphere-pendant-necklace", "curb-chain-necklace"] },
       { title: "On Sale", handle: "on-sale", description: "Timeless pieces, for less.", image: IMG("1602173574767-37ac01994b2a"), productSlugs: ["sphere-pendant-necklace", "classic-signet-ring"] },
     ],
-    media: { heroImage: WIDE("1531995811006-35cb42e1a022"), bannerImages: [WIDE("1600721391689-2564bb8055de"), WIDE("1588444650733-d0767b753fc8")] },
+    media: { heroImage: WIDE("1601121141461-9d6647bca1ed"), bannerImages: [WIDE("1611085583191-a3b181a88401"), WIDE("1603561591411-07134e71a2a9")] },
   },
 
   // ── bookshelf → books ──

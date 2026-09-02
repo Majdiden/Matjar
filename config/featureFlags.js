@@ -33,6 +33,7 @@ export const FEATURE_REGISTRY = Object.freeze([
   { key: "domains.custom",        type: "boolean", default: false, group: "Storefront", label: "Custom domains",             description: "Domains page + custom-domain add/verify/SSL APIs. Platform subdomain always works." },
   { key: "redirects",             type: "boolean", default: false, group: "Storefront", label: "URL redirects",              description: "Redirects page + API." },
   { key: "billing.subscription",  type: "boolean", default: false, group: "Billing",    label: "Subscription page",          description: "Merchant-facing subscription/upgrade page." },
+  { key: "billing.geoPricing",    type: "boolean", default: false, group: "Billing",    label: "Geo-localized plan pricing", description: "Public plan catalog shows an approximate price in the visitor's local currency (geo-detected), converted from the base SDG price. OFF = base currency only." },
 ]);
 
 export const DEFAULT_FLAGS = Object.freeze(

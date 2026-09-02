@@ -37,6 +37,7 @@ import pageRoutes from "../routes/page.js";
 import assetRoutes from "../routes/asset.js";
 import redirectRoutes from "../routes/redirect.js";
 import impersonationRoutes from "../routes/impersonation.js";
+import plansRoutes from "../routes/plans.js";
 
 const router = Router();
 
@@ -79,5 +80,6 @@ router.use("/assets", assetRoutes); // Media library (browse/reuse uploaded asse
 router.use("/redirects", redirectRoutes); // URL redirects (301/302 mapping)
 router.use("/features", featureRoutes); // Effective platform feature flags (dashboard read)
 router.use("/impersonation", impersonationRoutes); // Owner-side support-impersonation consent
+router.use("/plans", plansRoutes); // Public subscription-plan catalog (geo-localized pricing)
 
 export default router;
