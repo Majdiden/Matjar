@@ -260,23 +260,6 @@ const Layout: React.FC = () => {
       </ul>
     ) : null;
 
-  const renderNewsletterForm = (formCls: string) => (
-    <form onSubmit={e => e.preventDefault()} className={formCls}>
-      <input
-        type="email"
-        placeholder={t('theme.footer.newsletter_email_placeholder')}
-        className="flex-1 min-w-0 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-500"
-      />
-      <button
-        type="submit"
-        className="px-4 py-2 rounded-lg text-sm font-medium text-white transition hover:opacity-90"
-        style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
-      >
-        {t('theme.footer.newsletter_join')}
-      </button>
-    </form>
-  );
-
   const copyright = (
     <span>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), brand: store?.name || 'Store' })}</span>
   );
@@ -289,7 +272,7 @@ const Layout: React.FC = () => {
   const standardFooter = (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-white font-bold text-lg mb-4">{store?.name || 'Store'}</h3>
             <p className="text-sm text-gray-400 leading-relaxed">{store?.description || t('theme.footer.tagline')}</p>
@@ -320,11 +303,6 @@ const Layout: React.FC = () => {
                 policy is published) replace the old dead placeholder spans. */}
             <PolicyLinks className="mt-2 space-y-2 text-sm" heading={false} linkClassName="hover:text-white transition" />
           </div>
-          <div>
-            <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_newsletter')}</h4>
-            <p className="text-sm text-gray-400 mb-3">{t('theme.footer.newsletter_desc')}</p>
-            {renderNewsletterForm('flex gap-2')}
-          </div>
         </div>
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
           {copyright}
@@ -346,7 +324,6 @@ const Layout: React.FC = () => {
             <Link to="/contact" className="hover:text-white transition">{t('theme.footer.item_contact_us')}</Link>
             <PolicyLinks inline className="flex flex-wrap gap-x-4 gap-y-2" heading={false} linkClassName="hover:text-white transition" />
           </div>
-          {renderNewsletterForm('flex gap-2 w-full md:w-auto md:max-w-xs')}
         </div>
         <div className="border-t border-gray-800 mt-5 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-gray-500">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -364,22 +341,6 @@ const Layout: React.FC = () => {
   // spacing. All columns and content preserved.
   const expandedFooter = (
     <footer className="bg-gray-900 text-gray-300">
-      {/* Newsletter band with divider */}
-      <div className="border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <h4
-              className="text-white font-semibold text-xl mb-1"
-              style={{ fontFamily: 'var(--font-family-heading, inherit)' }}
-            >
-              {t('theme.footer.col_newsletter')}
-            </h4>
-            <p className="text-sm text-gray-400">{t('theme.footer.newsletter_desc')}</p>
-          </div>
-          {renderNewsletterForm('flex gap-2 w-full md:w-auto md:min-w-[24rem]')}
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Bigger brand block spanning two columns on large screens */}

@@ -110,8 +110,8 @@ const Layout: React.FC = () => {
             </nav>
 
             {/* Icons (desktop only — mobile uses the drawer + bottom nav) */}
-            <div className="hidden md:flex items-center gap-4 md:gap-5">
-              <LanguageSwitcher />
+            <div className="hidden md:flex items-center gap-4 md:gap-5 text-white">
+              <LanguageSwitcher className="text-white hover:text-[var(--color-primary)]" />
               <SearchBar variant="compact" className="text-white hover:text-[var(--color-primary)] hover:bg-white/10" />
               <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="relative hover:text-[var(--color-primary)] hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>

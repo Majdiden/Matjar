@@ -125,7 +125,7 @@ const Layout: React.FC = () => {
 
       <footer className="bg-gray-950 text-gray-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             <div>
               <h3 className="text-white text-lg tracking-[0.15em] uppercase font-light mb-4">{store?.name || 'Elegance'}</h3>
               <p className="text-sm leading-relaxed">{store?.description || t('theme.footer.tagline')}</p>
@@ -147,14 +147,6 @@ const Layout: React.FC = () => {
                 <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.contact')}</Link></li>
               </ul>
               <PolicyLinks className="mt-4" heading={false} linkClassName="hover:text-white transition" />
-            </div>
-            <div>
-              <h4 className="text-white text-xs tracking-[0.15em] uppercase mb-4">{t('theme.footer.newsletter_heading')}</h4>
-              <p className="text-sm mb-3">{t('theme.footer.newsletter_subtext')}</p>
-              <form onSubmit={e => e.preventDefault()} className="flex">
-                <input type="email" placeholder={t('theme.footer.email_placeholder')} className="flex-1 px-3 py-2 bg-transparent border border-gray-700 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400" />
-                <button type="submit" className="px-4 py-2 bg-white text-gray-900 text-xs tracking-wider uppercase">{t('theme.footer.join_button')}</button>
-              </form>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-xs text-gray-500 tracking-wider">

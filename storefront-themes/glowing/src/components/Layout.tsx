@@ -162,7 +162,7 @@ const Layout: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-10 mb-12">
             <div>
               <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_shop')}</h4>
               <div className="space-y-3 text-sm text-neutral-600">
@@ -190,18 +190,6 @@ const Layout: React.FC = () => {
                 <a href="#" className="block hover:text-black">{t('theme.footer.sustainability')}</a>
                 <a href="#" className="block hover:text-black">{t('theme.footer.journal')}</a>
               </div>
-            </div>
-            <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_newsletter')}</h4>
-              <p className="text-sm text-neutral-600 mb-4">{t('theme.footer.newsletter_subtitle')}</p>
-              <form className="flex border-b border-neutral-300 focus-within:border-black transition">
-                <input
-                  type="email"
-                  placeholder={t('theme.footer.email_placeholder')}
-                  className="flex-1 py-2 text-sm bg-transparent focus:outline-none"
-                />
-                <button type="submit" aria-label={t('theme.footer.subscribe', { defaultValue: 'Subscribe' })} className="text-xs uppercase tracking-wider font-semibold px-2"><span className="inline-block rtl:rotate-180">→</span></button>
-              </form>
             </div>
           </div>
 

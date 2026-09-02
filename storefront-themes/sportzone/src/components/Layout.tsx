@@ -78,7 +78,7 @@ const Layout: React.FC = () => {
 
               {/* Language switcher — desktop only; on mobile it lives inside
                   the hamburger side menu (below). */}
-              <div className="hidden md:flex items-center">
+              <div className="hidden md:flex items-center text-white">
                 <LanguageSwitcher />
               </div>
 
@@ -111,7 +111,7 @@ const Layout: React.FC = () => {
       {/* Footer */}
       <footer className="bg-[#111827] text-gray-400 py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
               <h3 className="text-white font-black text-lg uppercase mb-2">
                 <span className="text-[#dc2626]">///</span> {store?.name || 'SportZone'}
@@ -135,14 +135,6 @@ const Layout: React.FC = () => {
                 <span className="block">{t('theme.footer.shipping_policy')}</span>
                 <PolicyLinks className="mt-2" heading={false} linkClassName="block hover:text-[#dc2626] transition" />
               </div>
-            </div>
-            <div>
-              <h4 className="text-white font-bold text-sm uppercase mb-3">{t('theme.footer.stay_connected_heading')}</h4>
-              <p className="text-sm mb-3">{t('theme.footer.newsletter_teaser')}</p>
-              <form className="flex" onSubmit={e => e.preventDefault()}>
-                <input type="email" placeholder={t('common:section.newsletter.email_placeholder')} className="flex-1 bg-white/5 border border-white/10 rounded-s px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#dc2626]" />
-                <button className="bg-[#dc2626] text-white px-4 py-2 rounded-e text-sm font-black uppercase hover:bg-[#b91c1c] transition">{t('theme.footer.newsletter_submit')}</button>
-              </form>
             </div>
           </div>
           <div className="border-t border-gray-800 pt-6 text-center text-xs">
