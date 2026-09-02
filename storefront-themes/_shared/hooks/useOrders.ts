@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ordersApi } from '../api/client';
 
 /**
@@ -12,6 +13,7 @@ import { ordersApi } from '../api/client';
  * state by checking the auth context separately.
  */
 export function useMyOrders() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,12 +38,12 @@ export function useMyOrders() {
       if (err?.message?.includes('401') || err?.message?.toLowerCase().includes('unauth')) {
         setOrders([]);
       } else {
-        setError(err?.message || 'Failed to load orders');
+        setError(err?.message || t('errors:feedback.orders_load_failed'));
       }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -53,6 +55,7 @@ export function useMyOrders() {
  * customer account area.
  */
 export function useOrder(orderId: string | undefined) {
+  const { t } = useTranslation();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,11 +72,11 @@ export function useOrder(orderId: string | undefined) {
       const res: any = await ordersApi.get(orderId);
       setOrder(res?.responseObject?.order || res?.responseObject || res?.data || null);
     } catch (err: any) {
-      setError(err?.message || 'Failed to load order');
+      setError(err?.message || t('errors:feedback.order_load_failed'));
     } finally {
       setLoading(false);
     }
-  }, [orderId]);
+  }, [orderId, t]);
 
   useEffect(() => { refresh(); }, [refresh]);
 

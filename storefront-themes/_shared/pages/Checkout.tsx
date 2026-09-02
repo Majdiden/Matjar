@@ -262,12 +262,12 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
         const q = res?.data?.quote;
         setQuote(q || null);
         if (appliedDiscount && q && !q.discountCode) {
-          setQuoteError(q.discountError || `Code "${appliedDiscount}" is not valid`);
+          setQuoteError(q.discountError || t('errors:feedback.discount_code_invalid', { code: appliedDiscount }));
         }
       })
       .catch((err) => {
         if (cancelled) return;
-        setQuoteError(err?.message || 'Failed to calculate totals');
+        setQuoteError(err?.message || t('errors:feedback.totals_calc_failed'));
       })
       .finally(() => {
         if (!cancelled) setQuoteLoading(false);
@@ -395,7 +395,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     try {
       const res = await giftCardApi.lookup(code);
       const card = res?.data || res;
-      if (!card) throw new Error('Gift card not found');
+      if (!card) throw new Error(t('errors:feedback.gift_card_not_found'));
       setAppliedGiftCard({
         code,
         balance: Number(card.balance) || 0,
@@ -406,7 +406,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
       });
     } catch (err: any) {
       setAppliedGiftCard(null);
-      setGiftCardError(err?.message || 'Invalid gift card');
+      setGiftCardError(err?.message || t('errors:feedback.gift_card_invalid'));
     } finally {
       setGiftCardLoading(false);
     }

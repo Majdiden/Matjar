@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
+import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
@@ -28,6 +29,7 @@ const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { categories } = useCategories();
+  const { count: wishlistCount } = useWishlist();
   // Store-managed header nav. When present it drives the nav; while
   // loading/empty we fall back to the category list so nav never disappears.
   const { items: menuItems } = useMenu('header');
@@ -83,10 +85,15 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 1115 0v.75H4.5v-.75z" />
                 </svg>
               </Link>
-              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="hover:text-black hidden md:block">
+              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="relative hover:text-black hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
+                {(wishlistCount || 0) > 0 && (
+                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 bg-black text-white text-[10px] rounded-full flex items-center justify-center font-semibold">
+                    {wishlistCount}
+                  </span>
+                )}
               </Link>
               <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hover:text-black hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>

@@ -162,7 +162,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
     e.preventDefault();
     setReviewError(null);
     if (reviewComment.trim().length < 5) {
-      setReviewError('Please write at least a few words about the product.');
+      setReviewError(t('errors:feedback.review_min_length'));
       return;
     }
     try {
@@ -183,7 +183,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
       setReviewComment('');
       setReviewRating(5);
     } catch (err: any) {
-      setReviewError(err?.message || 'Failed to submit review');
+      setReviewError(err?.message || t('errors:feedback.review_submit_failed'));
     } finally {
       setSubmittingReview(false);
     }

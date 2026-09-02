@@ -113,7 +113,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
       })
       .catch((err) => {
         if (cancelled) return;
-        setError(err?.message || 'Failed to load payment methods.');
+        setError(err?.message || t('errors:feedback.payment_methods_load_failed'));
         setLoading(false);
       });
     return () => {
@@ -138,7 +138,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
     }
     const max = field.maxSize || DEFAULT_MAX;
     if (file.size > max) {
-      setFileErrors((p) => ({ ...p, [field.name]: `File too large. Max ${formatBytes(max)}.` }));
+      setFileErrors((p) => ({ ...p, [field.name]: t('errors:feedback.file_too_large', { max: formatBytes(max) }) }));
       return;
     }
     const reader = new FileReader();
@@ -151,7 +151,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
       });
     };
     reader.onerror = () => {
-      setFileErrors((p) => ({ ...p, [field.name]: 'Could not read file.' }));
+      setFileErrors((p) => ({ ...p, [field.name]: t('errors:feedback.file_read_failed') }));
     };
     reader.readAsDataURL(file);
   };

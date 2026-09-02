@@ -8,5 +8,22 @@
         "browse": "Browse Products"
       }
     }
+  },
+  "feedback": {
+    "review_min_length": "Please write at least a few words about the product.",
+    "review_submit_failed": "Failed to submit review",
+    "payment_methods_load_failed": "Failed to load payment methods.",
+    "file_read_failed": "Could not read file.",
+    "file_too_large": "File too large. Max {{max}}.",
+    "orders_load_failed": "Failed to load orders",
+    "order_load_failed": "Failed to load order",
+    "markets_load_failed": "Failed to load markets",
+    "discount_enter_code": "Enter a discount code",
+    "discount_invalid": "Invalid discount code",
+    "discount_code_invalid": "Code \"{{code}}\" is not valid",
+    "totals_calc_failed": "Failed to calculate totals",
+    "gift_card_not_found": "Gift card not found",
+    "gift_card_invalid": "Invalid gift card",
+    "generic": "Something went wrong. Please try again."
   }
 }

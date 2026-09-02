@@ -107,7 +107,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
     e.preventDefault();
     setError(null);
     if (comment.trim().length < 5) {
-      setError('Please write at least a few words about the product.');
+      setError(t('errors:feedback.review_min_length'));
       return;
     }
     try {
@@ -126,7 +126,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
       setComment('');
       setRating(5);
     } catch (err: any) {
-      setError(err?.message || 'Failed to submit review');
+      setError(err?.message || t('errors:feedback.review_submit_failed'));
     } finally {
       setSubmitting(false);
     }

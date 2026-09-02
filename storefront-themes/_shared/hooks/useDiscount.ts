@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { discountApi } from '../api/client';
 
 /**
@@ -11,13 +12,14 @@ import { discountApi } from '../api/client';
  * purely for UX feedback.
  */
 export function useDiscount() {
+  const { t } = useTranslation();
   const [validating, setValidating] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   const validate = useCallback(async (code: string) => {
     if (!code || !code.trim()) {
-      setError('Enter a discount code');
+      setError(t('errors:feedback.discount_enter_code'));
       setResult(null);
       return null;
     }
@@ -29,13 +31,13 @@ export function useDiscount() {
       setResult(data);
       return data;
     } catch (err: any) {
-      setError(err?.message || 'Invalid discount code');
+      setError(err?.message || t('errors:feedback.discount_invalid'));
       setResult(null);
       return null;
     } finally {
       setValidating(false);
     }
-  }, []);
+  }, [t]);
 
   const clear = useCallback(() => {
     setResult(null);

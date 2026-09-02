@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { reviewsApi } from '../api/client';
 
 /**
@@ -11,6 +12,7 @@ import { reviewsApi } from '../api/client';
  * message bubbles up unchanged.
  */
 export function useSubmitReview(onSuccess?: () => void) {
+  const { t } = useTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,13 +25,13 @@ export function useSubmitReview(onSuccess?: () => void) {
         if (onSuccess) onSuccess();
         return true;
       } catch (err: any) {
-        setError(err?.message || 'Failed to submit review');
+        setError(err?.message || t('errors:feedback.review_submit_failed'));
         return false;
       } finally {
         setSubmitting(false);
       }
     },
-    [onSuccess]
+    [onSuccess, t]
   );
 
   return { submit, submitting, error };

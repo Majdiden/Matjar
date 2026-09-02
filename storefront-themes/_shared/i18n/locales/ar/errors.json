@@ -8,5 +8,22 @@
         "browse": "تصفح المنتجات"
       }
     }
+  },
+  "feedback": {
+    "review_min_length": "يرجى كتابة بضع كلمات على الأقل عن المنتج.",
+    "review_submit_failed": "تعذّر إرسال التقييم.",
+    "payment_methods_load_failed": "تعذّر تحميل طرق الدفع.",
+    "file_read_failed": "تعذّرت قراءة الملف.",
+    "file_too_large": "حجم الملف كبير جدًا. الحد الأقصى {{max}}.",
+    "orders_load_failed": "تعذّر تحميل الطلبات.",
+    "order_load_failed": "تعذّر تحميل الطلب.",
+    "markets_load_failed": "تعذّر تحميل الأسواق.",
+    "discount_enter_code": "أدخل رمز الخصم.",
+    "discount_invalid": "رمز الخصم غير صالح.",
+    "discount_code_invalid": "الرمز \"{{code}}\" غير صالح.",
+    "totals_calc_failed": "تعذّر حساب الإجمالي.",
+    "gift_card_not_found": "لم يتم العثور على بطاقة الهدية.",
+    "gift_card_invalid": "بطاقة الهدية غير صالحة.",
+    "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
   }
 }

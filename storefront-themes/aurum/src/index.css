@@ -104,3 +104,17 @@ html[dir='ltr'], html[dir='ltr'] body { direction: ltr; }
     font-size: 16px !important;
   }
 }
+
+/* Form fields sit on light surfaces (checkout, account, contact, search)
+   but the dark theme's body text is cream — force dark, legible text +
+   placeholder so field contents are never invisible on aurum. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select {
+  color: #141414;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #6b6b6b;
+  opacity: 1;
+}

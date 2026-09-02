@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { marketsApi } from '../api/client';
 
 /**
@@ -12,6 +13,7 @@ import { marketsApi } from '../api/client';
  * list) so the switcher can populate its options.
  */
 export function useMarket() {
+  const { t } = useTranslation();
   const [activeMarket, setActiveMarket] = useState<any>(null);
   const [markets, setMarkets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,11 +42,11 @@ export function useMarket() {
       setActiveMarket(active);
       setMarkets(Array.isArray(list) ? list : []);
     } catch (err: any) {
-      setError(err?.message || 'Failed to load markets');
+      setError(err?.message || t('errors:feedback.markets_load_failed'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => { refresh(); }, [refresh]);
 

@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react';
 import { storefrontApi } from '../api/client';
 
+/**
+ * The API returns a collection's `image` as an object ({ url, alt }), but
+ * every render site expects a plain URL string (`<img src={collection.image}>`).
+ * Flatten it here — once — so all consumers get a string and never render a
+ * broken `[object Object]` src. Accepts a string too (forward-compatible).
+ */
+function normalizeCollection(c: any): any {
+  if (!c || typeof c !== 'object') return c;
+  const img = c.image;
+  const url = img && typeof img === 'object' ? (img.url || img.src || '') : img;
+  return { ...c, image: url || '', imageUrl: c.imageUrl || url || '' };
+}
+
 export function useCollections() {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +22,7 @@ export function useCollections() {
   useEffect(() => {
     setLoading(true);
     storefrontApi.getCollections()
-      .then(res => setCollections(res.data?.collections || []))
+      .then(res => setCollections((res.data?.collections || []).map(normalizeCollection)))
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
@@ -29,7 +42,7 @@ export function useCollection(handle: string, params?: Record<string, string | n
     setLoading(true);
     storefrontApi.getCollection(handle, params)
       .then(res => {
-        setCollection(res.data?.collection || null);
+        setCollection(res.data?.collection ? normalizeCollection(res.data.collection) : null);
         setProducts(res.data?.products || []);
         setPagination(res.data?.pagination || null);
       })
