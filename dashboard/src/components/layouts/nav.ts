@@ -25,6 +25,7 @@ import {
   FolderTree,
   Gift,
   Globe,
+  Heart,
   Image,
   Key,
   LayoutDashboard,
@@ -83,6 +84,7 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
     items: [
       { name: t('nav:sidebar.home.dashboard'), href: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.read' },
       { name: t('nav:sidebar.home.analytics'), href: '/dashboard/analytics', icon: BarChart3, permission: 'analytics.read' },
+      { name: t('nav:sidebar.home.wishlists'), href: '/dashboard/wishlists', icon: Heart, permission: 'analytics.read' },
       { name: t('nav:sidebar.home.notifications'), href: '/dashboard/notifications', icon: Bell },
     ],
   },

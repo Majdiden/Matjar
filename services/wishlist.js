@@ -3,6 +3,7 @@ import {
   addToWishlistRepo,
   removeFromWishlistRepo,
   clearWishlistRepo,
+  getTopWishlistedRepo,
 } from "../repositories/wishlist.js";
 import { APIError } from "../middlewares/errorHandler.js";
 
@@ -44,4 +45,11 @@ export const toggleWishlistService = async (models, userId, productId) => {
 export const clearWishlistService = async (models, userId) => {
   const wishlist = await clearWishlistRepo(models, userId);
   return wishlist || { user: userId, products: [] };
+};
+
+/**
+ * Most-wishlisted products for the tenant (merchant analytics).
+ */
+export const getTopWishlistedService = async (models, tenantId, limit = 10) => {
+  return await getTopWishlistedRepo(models, tenantId, limit);
 };

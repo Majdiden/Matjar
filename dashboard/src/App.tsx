@@ -73,6 +73,7 @@ const CustomerSegments = lazyWithRetry(() => import('./pages/customers/CustomerS
 const CustomerSegmentForm = lazyWithRetry(() => import('./pages/customers/CustomerSegmentForm'));
 const Analytics = lazyWithRetry(() => import('./pages/analytics/Analytics'));
 const Reviews = lazyWithRetry(() => import('./pages/reviews/Reviews'));
+const Wishlists = lazyWithRetry(() => import('./pages/wishlists/Wishlists'));
 const Inventory = lazyWithRetry(() => import('./pages/inventory/Inventory'));
 const Fulfillments = lazyWithRetry(() => import('./pages/fulfillments/Fulfillments').then(m => ({ default: m.Fulfillments })));
 const CustomFields = lazyWithRetry(() => import('./pages/custom-fields/CustomFields').then(m => ({ default: m.CustomFields })));
@@ -168,6 +169,7 @@ function App() {
             <Route path="customers/segments/new" element={<RequirePermission permission="customers.write"><CustomerSegmentForm /></RequirePermission>} />
             <Route path="customers/segments/:id/edit" element={<RequirePermission permission="customers.write"><CustomerSegmentForm /></RequirePermission>} />
             <Route path="analytics" element={<RequirePermission permission="analytics.read"><Analytics /></RequirePermission>} />
+            <Route path="wishlists" element={<RequirePermission permission="analytics.read"><Wishlists /></RequirePermission>} />
             <Route path="reviews" element={<RequirePermission permission={['reviews.read', 'reviews.moderate']}><Reviews /></RequirePermission>} />
             <Route path="inventory" element={<RequirePermission permission={['inventory.read', 'inventory.write']}><Inventory /></RequirePermission>} />
             <Route path="fulfillments" element={<RequireFeature feature="orders.fulfillment"><RequirePermission permission={['fulfillments.read', 'fulfillments.write']}><Fulfillments /></RequirePermission></RequireFeature>} />

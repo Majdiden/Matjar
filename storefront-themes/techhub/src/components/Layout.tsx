@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
+import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -33,6 +34,7 @@ const NAVY = '#0f172a';
 const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
   // Store-managed header nav. When present it drives the nav; while
   // loading/empty we fall back to the category list so nav never disappears.
@@ -244,7 +246,9 @@ const Layout: React.FC = () => {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
                 </svg>
-                <span className="absolute -top-0.5 -end-0.5 w-5 h-5 text-white text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--color-primary)' }}>0</span>
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-0.5 -end-0.5 w-5 h-5 text-white text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--color-primary)' }}>{wishlistCount}</span>
+                )}
               </Link>
 
               <button

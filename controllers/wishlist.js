@@ -9,6 +9,7 @@ import {
   removeFromWishlistService,
   toggleWishlistService,
   clearWishlistService,
+  getTopWishlistedService,
 } from "../services/wishlist.js";
 
 /**
@@ -114,5 +115,19 @@ export const clearWishlist = async (req, res) => {
     success: true,
     message: "Wishlist cleared",
     data: { wishlist },
+  });
+};
+
+/**
+ * Most-wishlisted products for the tenant (merchant analytics).
+ * GET /api/wishlist/analytics/top
+ */
+export const getTopWishlisted = async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 10, 50);
+  const items = await getTopWishlistedService(req.models, req.tenantId, limit);
+
+  res.json({
+    success: true,
+    data: { items },
   });
 };

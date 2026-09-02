@@ -57,6 +57,8 @@ import enSecurity from './locales/en/security.json'
 import arSecurity from './locales/ar/security.json'
 import enImpersonation from './locales/en/impersonation.json'
 import arImpersonation from './locales/ar/impersonation.json'
+import enWishlists from './locales/en/wishlists.json'
+import arWishlists from './locales/ar/wishlists.json'
 
 export const resources = {
   en: {
@@ -88,6 +90,7 @@ export const resources = {
     errors: enErrors,
     security: enSecurity,
     impersonation: enImpersonation,
+    wishlists: enWishlists,
   },
   ar: {
     common: arCommon,
@@ -118,5 +121,6 @@ export const resources = {
     errors: arErrors,
     security: arSecurity,
     impersonation: arImpersonation,
+    wishlists: arWishlists,
   },
 } as const

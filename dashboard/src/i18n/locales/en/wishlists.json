@@ -1,0 +1,11 @@
+{
+  "title": "Wishlists",
+  "subtitle": "See which products your customers are saving for later.",
+  "most_wishlisted": "Most wishlisted products",
+  "most_wishlisted_desc": "Ranked by how many customers have added each product to their wishlist.",
+  "rank": "#",
+  "product": "Product",
+  "price": "Price",
+  "wishlist_count": "Wishlists",
+  "empty": "No products have been wishlisted yet."
+}

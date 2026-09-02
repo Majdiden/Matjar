@@ -851,6 +851,10 @@ export const api = {
 
     getTopProducts: (limit: number = 5) =>
       api.get('/analytics/top-products', { params: { limit } }),
+
+    // Most-wishlisted products for the tenant.
+    getTopWishlisted: (limit: number = 20) =>
+      api.get('/wishlist/analytics/top', { params: { limit } }),
   },
 
   // Customer endpoints

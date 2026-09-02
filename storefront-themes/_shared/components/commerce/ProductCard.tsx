@@ -7,6 +7,7 @@ import { useCart } from '../../contexts/CartContext';
 import { calculateDiscount } from '../../utils/formatCurrency';
 import { getPreorderState } from '../../utils/preorder';
 import { PRODUCT_PLACEHOLDER } from '../../utils/placeholder';
+import { WishlistButton } from './WishlistButton';
 import type { Product } from '../../types/commerce';
 
 /**
@@ -116,6 +117,7 @@ function ProductImage({
   aspectRatio = 'aspect-[4/5]',
   showBadge = true,
   showQuickView = false,
+  showWishlist = true,
   hoverSwap = false,
   fit = 'cover',
 }: ImageProps) {
@@ -197,29 +199,50 @@ function ProductImage({
         );
       })()}
 
-      {/* Quick View — mobile-first: a tappable icon is always visible on
-          touch; on pointer/desktop it fades in on hover. */}
-      {showQuickView && onQuickView && (
-        <button
-          onClick={handleQuickView}
-          aria-label={t('common:aria.quick_view', 'Quick view')}
-          className={cn(
-            'absolute top-2.5 end-2.5 z-10 grid place-items-center w-9 h-9 rounded-[var(--radius-pill,9999px)]',
-            'shadow-[var(--shadow-md)] backdrop-blur ring-1 ring-black/[0.06]',
-            'transition-all duration-[var(--duration-base,250ms)] motion-safe:hover:scale-110 motion-safe:active:scale-95',
-            'opacity-100 md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#2563eb)] md:focus-visible:opacity-100'
+      {/* Top-end action stack — wishlist heart + optional quick view.
+          Stacked in a logical (RTL-safe) column so they never overlap. The
+          heart is always tappable; quick view fades in on hover (desktop) and
+          stays visible on touch. */}
+      {(showWishlist || (showQuickView && onQuickView)) && (
+        <div className="absolute top-2.5 end-2.5 z-10 flex flex-col items-center gap-1.5">
+          {showWishlist && (
+            <WishlistButton
+              productId={product._id}
+              product={product}
+              size="md"
+              className={cn(
+                'grid place-items-center w-9 h-9 rounded-[var(--radius-pill,9999px)] p-0',
+                'shadow-[var(--shadow-md)] backdrop-blur ring-1 ring-black/[0.06]',
+                'transition-all duration-[var(--duration-base,250ms)] motion-safe:hover:scale-110 motion-safe:active:scale-95',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#2563eb)]',
+                'bg-[color-mix(in_srgb,var(--color-background,#fff)_94%,transparent)]'
+              )}
+            />
           )}
-          style={{
-            backgroundColor: 'color-mix(in srgb, var(--color-background, #fff) 94%, transparent)',
-            color: 'var(--color-foreground, #111)',
-          }}
-        >
-          <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </button>
+          {showQuickView && onQuickView && (
+            <button
+              type="button"
+              onClick={handleQuickView}
+              aria-label={t('common:aria.quick_view', 'Quick view')}
+              className={cn(
+                'grid place-items-center w-9 h-9 rounded-[var(--radius-pill,9999px)]',
+                'shadow-[var(--shadow-md)] backdrop-blur ring-1 ring-black/[0.06]',
+                'transition-all duration-[var(--duration-base,250ms)] motion-safe:hover:scale-110 motion-safe:active:scale-95',
+                'opacity-100 md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#2563eb)] md:focus-visible:opacity-100'
+              )}
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--color-background, #fff) 94%, transparent)',
+                color: 'var(--color-foreground, #111)',
+              }}
+            >
+              <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          )}
+        </div>
       )}
 
       {/* Out of stock overlay (only when badges are off, to avoid doubling up) */}

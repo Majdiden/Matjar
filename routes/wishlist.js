@@ -4,6 +4,7 @@
 
 import express from "express";
 import { authenticate } from "../middlewares/auth.js";
+import { requirePermission } from "../middlewares/authorize.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import {
   getWishlist,
@@ -11,9 +12,25 @@ import {
   removeFromWishlist,
   toggleWishlist,
   clearWishlist,
+  getTopWishlisted,
 } from "../controllers/wishlist.js";
 
 const router = express.Router();
+
+/**
+ * @route   GET /api/wishlist/analytics/top
+ * @desc    Most-wishlisted products for the tenant (merchant analytics)
+ * @access  Private (Admin — analytics.read)
+ *
+ * Declared before the customer "/" route; the paths don't collide but this
+ * keeps the admin surface grouped and unambiguous.
+ */
+router.get(
+  "/analytics/top",
+  authenticate,
+  requirePermission("analytics.read"),
+  asyncHandler(getTopWishlisted)
+);
 
 /**
  * @route   GET /api/wishlist

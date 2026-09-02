@@ -443,6 +443,14 @@ export const wishlistApi = {
       method: 'POST',
       body: JSON.stringify({ productId }),
     }),
+
+  // Idempotent add ($addToSet server-side) — used when merging a guest's
+  // localStorage wishlist into the server on login.
+  add: (productId: string) =>
+    request<any>(`${API_BASE}/wishlist/add`, {
+      method: 'POST',
+      body: JSON.stringify({ productId }),
+    }),
 };
 
 // ─── Discounts ───────────────────────────────────────────────────
