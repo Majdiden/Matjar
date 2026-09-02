@@ -26,6 +26,7 @@ import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCompare } from '@matjar/theme-shared/components/commerce/ProductCompare';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
+import { WishlistButton } from '@matjar/theme-shared/components/commerce/WishlistButton';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -162,6 +163,20 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             loading="lazy"
           />
         )}
+
+        {/* Wishlist heart — techhub's rounded, foreground-tinted treatment */}
+        <div className="absolute bottom-3 end-3 z-10">
+          <WishlistButton
+            productId={product._id}
+            product={product}
+            className="h-9 w-9 rounded-full flex items-center justify-center bg-white/85 backdrop-blur shadow-sm hover:bg-white transition"
+            renderIcon={(active) => (
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} style={{ color: 'var(--color-foreground)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            )}
+          />
+        </div>
 
         {/* Compare toggle — top-right, subtle */}
         <button
@@ -393,22 +408,16 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             >
               {requiresOptions ? t('theme.product_card.choose_options') : adding ? t('theme.product_card.adding') : t('theme.product_card.add_to_cart')}
             </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              aria-label={t('theme.product_card.add_to_wishlist')}
-              className="h-9 w-9 flex-none rounded-full flex items-center justify-center transition hover:opacity-80"
-              style={{
-                backgroundColor: 'color-mix(in srgb, var(--color-foreground) 6%, transparent)',
-                color: 'var(--color-foreground)',
-              }}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </button>
+            <WishlistButton
+              productId={product._id}
+              product={product}
+              className="h-9 w-9 flex-none rounded-full flex items-center justify-center transition hover:opacity-80 bg-[color-mix(in_srgb,var(--color-foreground)_6%,transparent)]"
+              renderIcon={(active) => (
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} style={{ color: 'var(--color-foreground)' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              )}
+            />
             <button
               onClick={handleQuickView}
               aria-label={t('theme.product_card.quick_view')}

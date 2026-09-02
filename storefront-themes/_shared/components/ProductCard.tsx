@@ -5,6 +5,7 @@ import { useStore } from '../contexts/StoreContext';
 import { useCart } from '../contexts/CartContext';
 import { getPreorderState } from '../utils/preorder';
 import type { PreorderConfig } from '../types/commerce';
+import { WishlistButton } from './commerce/WishlistButton';
 
 interface Product {
   _id: string;
@@ -139,6 +140,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
               {t('card.preorder')}
             </span>
           )}
+        </div>
+        {/* Wishlist heart — opposite corner from the badges. */}
+        <div className="absolute top-2 end-2 z-10">
+          <WishlistButton
+            productId={product._id}
+            product={product}
+            className="bg-white/85 backdrop-blur shadow-sm hover:bg-white"
+          />
         </div>
         {soldOut && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">

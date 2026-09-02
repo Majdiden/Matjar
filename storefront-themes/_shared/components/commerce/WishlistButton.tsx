@@ -20,6 +20,13 @@ interface WishlistButtonProps {
   size?: 'sm' | 'md' | 'lg';
   variant?: 'icon' | 'button';
   onToggle?: (wishlisted: boolean) => void;
+  /**
+   * Escape hatch for themes with a bespoke heart. When provided, the button
+   * renders ONLY `className` + this icon (no default red styling), so a theme
+   * keeps its own heart SVG/treatment while reusing the working toggle logic.
+   * The boolean is the current wishlisted state (use it to fill the heart).
+   */
+  renderIcon?: (wishlisted: boolean) => React.ReactNode;
 }
 
 const sizeClasses = {
@@ -50,6 +57,7 @@ export function WishlistButton(props: WishlistButtonProps) {
     size = 'md',
     variant = 'icon',
     onToggle,
+    renderIcon,
   } = props;
   const { t } = useTranslation('product');
   const { includes, toggle } = useWishlist();
@@ -72,6 +80,22 @@ export function WishlistButton(props: WishlistButtonProps) {
       setLoading(false);
     }
   };
+
+  // Theme-supplied heart — button carries only the theme's own className.
+  if (renderIcon) {
+    return (
+      <button
+        type="button"
+        onClick={handleToggle}
+        disabled={loading}
+        className={className}
+        aria-label={wishlisted ? t('wishlist.aria_remove') : t('wishlist.aria_add')}
+        aria-pressed={wishlisted}
+      >
+        {renderIcon(wishlisted)}
+      </button>
+    );
+  }
 
   if (variant === 'button') {
     return (

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
+import { WishlistButton } from '@matjar/theme-shared/components/commerce/WishlistButton';
 
 /**
  * GlowingProductCard — clean editorial card.
@@ -65,18 +66,22 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             </div>
           )}
 
-          {/* Wishlist / Quick view icons */}
-          <div className="absolute top-3 end-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button
-              type="button"
-              aria-label={t('common:aria.wishlist')}
-              onClick={(e) => { e.preventDefault(); }}
+          {/* Wishlist heart — glowing's rounded white/black treatment */}
+          <div className="absolute top-3 end-3 z-10">
+            <WishlistButton
+              productId={product._id || product.id}
+              product={product}
               className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center hover:bg-black hover:text-white transition"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-              </svg>
-            </button>
+              renderIcon={(active) => (
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+              )}
+            />
+          </div>
+
+          {/* Quick view icon (below the always-visible wishlist heart) */}
+          <div className="absolute top-14 end-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             {onQuickView && (
               <button
                 type="button"

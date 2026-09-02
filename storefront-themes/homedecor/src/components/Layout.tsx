@@ -3,6 +3,7 @@ import { Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
+import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { Drawer } from '@matjar/theme-shared/components/primitives/Drawer';
@@ -17,6 +18,7 @@ const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
   // Store-managed header nav. When present (new stores ship a seeded
   // "header" menu) it drives the nav; while loading/empty (older stores)
@@ -77,6 +79,18 @@ const Layout: React.FC = () => {
               <div className="hidden md:flex items-center">
                 <LanguageSwitcher />
               </div>
+
+              {/* Wishlist — desktop only */}
+              <Link to="/wishlist" className="relative text-gray-500 hover:text-gray-900 hidden md:block" aria-label={t('common:aria.wishlist')}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -end-2 w-4 h-4 bg-[#d4a76a] text-[#2d2d2d] text-[10px] rounded-full flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
 
               {/* Cart — desktop only */}
               <button onClick={openCart} className="relative text-gray-500 hover:text-gray-900 hidden md:block" aria-label={t('common:aria.cart')}>

@@ -652,7 +652,23 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
       // (it includes the scrollbar width and can itself cause overflow).
       `html {\n  overflow-x: clip;\n}\n` +
       `body {\n  font-family: var(--font-family, system-ui, sans-serif);\n  font-size: var(--font-size-base, 16px);\n  line-height: var(--line-height, 1.5);\n  color: var(--color-foreground, #111);\n  background-color: var(--color-background, #fff);\n  overflow-x: clip;\n  max-width: 100%;\n}\n` +
-      `h1, h2, h3, h4, h5, h6 {\n  font-family: var(--font-family-heading, var(--font-family, system-ui, sans-serif));\n}`;
+      `h1, h2, h3, h4, h5, h6 {\n  font-family: var(--font-family-heading, var(--font-family, system-ui, sans-serif));\n}\n` +
+      // Arabic reads noticeably smaller than Latin at the same px (smaller
+      // x-height, no ascenders/descenders to fill the line), so every theme
+      // gets a uniform Arabic step-up: a slightly larger base plus a floor
+      // under the tiny px utility labels that would otherwise be unreadable
+      // in Arabic. Scoped to `html[lang='ar']` so LTR is untouched, and only
+      // font-size is affected (spacing/layout stay put). One source of truth
+      // for all 15 themes.
+      `html[lang='ar'] body {\n  font-size: calc(var(--font-size-base, 16px) * 1.075);\n}\n` +
+      `html[lang='ar'] .text-\\[9px\\]{font-size:11px}\n` +
+      `html[lang='ar'] .text-\\[10px\\]{font-size:12px}\n` +
+      `html[lang='ar'] .text-\\[11px\\]{font-size:13px}\n` +
+      `html[lang='ar'] .text-\\[12px\\]{font-size:14px}\n` +
+      `html[lang='ar'] .text-\\[13px\\]{font-size:15px}\n` +
+      `html[lang='ar'] .text-\\[14px\\]{font-size:15px}\n` +
+      `html[lang='ar'] .text-xs{font-size:0.82rem}\n` +
+      `html[lang='ar'] .text-sm{font-size:0.95rem}`;
 
     const id = 'theme-css-variables';
     let style = document.getElementById(id) as HTMLStyleElement | null;

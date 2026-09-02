@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
+import { WishlistButton } from '@matjar/theme-shared/components/commerce/WishlistButton';
 
 /**
  * NutrekoProductCard — bold black/lime supplements tile.
@@ -50,6 +51,20 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
             />
+
+            {/* Wishlist heart — nutreko's bold rounded treatment */}
+            <div className="absolute bottom-3 end-3 z-10">
+              <WishlistButton
+                productId={product._id || product.id}
+                product={product}
+                className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center transition hover:scale-110"
+                renderIcon={(active) => (
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
+                )}
+              />
+            </div>
 
             {/* Sale badge */}
             {onSale && (
