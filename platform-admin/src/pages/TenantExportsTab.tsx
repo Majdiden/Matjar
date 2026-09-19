@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../lib/api';
 import { Button } from '../components/ui/Button';
-import { Table, THead, TBody, TR, TH, TD } from '../components/ui/Table';
+import { DataList, type DataListColumn } from '../components/ui/DataList';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState, ErrorState } from '../components/ui/Spinner';
 import { useToast } from '../components/ui/toast-context';
@@ -123,11 +123,64 @@ export default function TenantExportsTab({
     }
   };
 
+  type ExportListRow = { id: string; row?: ExportRow | { error: string } };
+  const exportRows: ExportListRow[] = exportIds
+    .slice()
+    .reverse()
+    .map((id) => ({ id, row: rows[id] }));
+
+  const isReady = (r?: ExportRow | { error: string }): r is ExportRow => !!r && !('error' in r);
+
+  const columns: DataListColumn<ExportListRow>[] = [
+    { id: 'export', header: 'Export', primary: true, cell: (r) => <span className="text-xs">{shortId(r.id)}</span> },
+    {
+      id: 'status',
+      header: 'Status',
+      fullWidthOnMobile: true,
+      cell: (r) => {
+        if (!r.row) return <span className="text-xs text-muted-foreground">loading…</span>;
+        if ('error' in r.row) return <span className="text-xs text-destructive">{r.row.error}</span>;
+        return (
+          <>
+            <ExportStatusBadge status={r.row.status} />
+            {r.row.error && <div className="mt-1 break-words text-xs text-destructive">{r.row.error}</div>}
+          </>
+        );
+      },
+    },
+    { id: 'size', header: 'Size', cell: (r) => <span className="text-xs">{isReady(r.row) ? formatBytes(r.row.bytes) : '—'}</span> },
+    { id: 'started', header: 'Started', cell: (r) => <span className="text-xs text-muted-foreground">{isReady(r.row) ? formatDate(r.row.startedAt) : '—'}</span> },
+    { id: 'completed', header: 'Completed', cell: (r) => <span className="text-xs text-muted-foreground">{isReady(r.row) ? formatDate(r.row.completedAt) : '—'}</span> },
+    { id: 'expires', header: 'Expires', cell: (r) => <span className="text-xs text-muted-foreground">{isReady(r.row) ? formatDate(r.row.expiresAt) : '—'}</span> },
+    {
+      id: 'actions',
+      align: 'end',
+      cell: (r) =>
+        isReady(r.row) && r.row.status === 'ready' ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              try {
+                await api.tenants.downloadExport(tenantId, r.id);
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : 'Download failed');
+              }
+            }}
+          >
+            <Download className="h-3.5 w-3.5" /> Download
+          </Button>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="rounded-md border bg-card p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
             <h3 className="text-sm font-medium">Async tenant export</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Spins up a worker job that dumps the tenant's data and uploads it to object storage.
@@ -135,7 +188,7 @@ export default function TenantExportsTab({
               are ones created from this browser — server-side they persist regardless.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={refreshAll} disabled={exportIds.length === 0}>
               <RefreshCw className="h-3.5 w-3.5" /> Refresh
             </Button>
@@ -154,91 +207,7 @@ export default function TenantExportsTab({
           description={`Click "New export" to enqueue a dump of ${tenantSlug || 'this tenant'}'s data.`}
         />
       ) : (
-        <div className="rounded-lg border bg-card">
-          <Table>
-            <THead>
-              <TR>
-                <TH>Export</TH>
-                <TH>Status</TH>
-                <TH>Size</TH>
-                <TH>Started</TH>
-                <TH>Completed</TH>
-                <TH>Expires</TH>
-                <TH></TH>
-              </TR>
-            </THead>
-            <TBody>
-              {exportIds
-                .slice()
-                .reverse()
-                .map((id) => {
-                  const row = rows[id];
-                  if (!row) {
-                    return (
-                      <TR key={id}>
-                        <TD className="text-xs">{shortId(id)}</TD>
-                        <TD colSpan={6} className="text-xs text-muted-foreground">
-                          loading…
-                        </TD>
-                      </TR>
-                    );
-                  }
-                  if ('error' in row) {
-                    return (
-                      <TR key={id}>
-                        <TD className="text-xs">{shortId(id)}</TD>
-                        <TD colSpan={6} className="text-xs text-destructive">
-                          {row.error}
-                        </TD>
-                      </TR>
-                    );
-                  }
-                  return (
-                    <TR key={id}>
-                      <TD className="text-xs">{shortId(row._id)}</TD>
-                      <TD>
-                        <ExportStatusBadge status={row.status} />
-                        {row.error && (
-                          <div className="mt-1 text-xs text-destructive">{row.error}</div>
-                        )}
-                      </TD>
-                      <TD className="text-xs">{formatBytes(row.bytes)}</TD>
-                      <TD className="text-xs text-muted-foreground">
-                        {formatDate(row.startedAt)}
-                      </TD>
-                      <TD className="text-xs text-muted-foreground">
-                        {formatDate(row.completedAt)}
-                      </TD>
-                      <TD className="text-xs text-muted-foreground">
-                        {formatDate(row.expiresAt)}
-                      </TD>
-                      <TD>
-                        {row.status === 'ready' ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={async () => {
-                              try {
-                                await api.tenants.downloadExport(tenantId, row._id);
-                              } catch (err) {
-                                toast.error(
-                                  err instanceof Error ? err.message : 'Download failed'
-                                );
-                              }
-                            }}
-                          >
-                            <Download className="h-3.5 w-3.5" /> Download
-                          </Button>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
-                      </TD>
-                    </TR>
-                  );
-                })}
-            </TBody>
-          </Table>
-        </div>
+        <DataList columns={columns} rows={exportRows} rowKey={(r) => r.id} />
       )}
     </div>
   );

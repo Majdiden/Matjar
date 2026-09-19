@@ -113,6 +113,9 @@ export interface TenantListRow {
   name: string;
   slug: string;
   email: string;
+  // Merchant contact phone (E.164) + the ISO-3166 alpha-2 it was entered for.
+  phone?: string | null;
+  phoneCountry?: string | null;
   domains?: { subdomain?: string; customDomain?: string; primary?: string };
   subscriptionPlan?: string;
   subscriptionStatus?: SubscriptionStatus;
@@ -174,6 +177,38 @@ export interface FeaturesResponse {
   themeSlugs: string[];
 }
 
+// Dial codes offered on merchant signup / profile forms. `catalog` is the
+// server's pickable list of well-known countries; `countries` is the
+// operator's effective list (catalog picks + custom entries).
+export interface PhoneCountryCatalogEntry {
+  iso2: string;
+  name: string;
+  nameAr?: string;
+  dialCode: string;
+  minDigits: number;
+  maxDigits: number;
+}
+export interface PhoneCountry extends PhoneCountryCatalogEntry {
+  enabled: boolean;
+}
+export interface PhoneCountriesResponse {
+  countries: PhoneCountry[];
+  defaultCountry: string;
+  catalog: PhoneCountryCatalogEntry[];
+}
+
+export interface SeedStarterResult {
+  success: boolean;
+  seeded: boolean;
+  draft: boolean;
+  source: 'theme' | 'sample' | null;
+  categories: number;
+  products: number;
+  collections: number;
+  pages: number;
+  error?: string;
+}
+
 export const api = {
   login: async (email: string, password: string) => {
     const res = await http.post('/login', { email, password });
@@ -222,6 +257,13 @@ export const api = {
     retrySetup: async (tenantId: string) => {
       const res = await http.post(`/tenants/${tenantId}/retry-setup`);
       return res.data.data;
+    },
+    // On-demand DRAFT starter content (auto-seeding at signup is behind the
+    // `onboarding.starterContent` flag). No-op when the store already has
+    // real products (`seeded: false`).
+    seedStarterContent: async (tenantId: string) => {
+      const res = await http.post(`/tenants/${tenantId}/seed-starter-content`);
+      return res.data.data as SeedStarterResult;
     },
     suspend: async (tenantId: string, reason?: string) => {
       const res = await http.post(`/tenants/${tenantId}/suspend`, { reason });
@@ -391,6 +433,16 @@ export const api = {
       // "payments.methods".
       const res = await http.put('/features', { updates });
       return res.data.data as { flags: Record<string, boolean | string[]> };
+    },
+  },
+  phoneCountries: {
+    get: async () => {
+      const res = await http.get('/phone-countries');
+      return res.data.data as PhoneCountriesResponse;
+    },
+    update: async (payload: { countries: PhoneCountry[]; defaultCountry: string }) => {
+      const res = await http.put('/phone-countries', payload);
+      return res.data.data as PhoneCountriesResponse;
     },
   },
   queues: {

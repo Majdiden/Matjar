@@ -40,3 +40,14 @@
     min-height: 100vh;
   }
 }
+
+@layer utilities {
+  /* Horizontal strips (tabs, filter pills) scroll without a visible bar. */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { api, QUEUES, hasScope, PLATFORM_SCOPES, type QueueName } from '../lib/api';
 import { useAuth } from '../contexts/auth-context';
 import { Button } from '../components/ui/Button';
-import { Table, THead, TBody, TR, TH, TD } from '../components/ui/Table';
+import { DataList, type DataListColumn } from '../components/ui/DataList';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { PageSpinner, EmptyState, ErrorState } from '../components/ui/Spinner';
@@ -88,17 +88,82 @@ export default function Queues() {
     }
   };
 
+  const columns: DataListColumn<FailedJob>[] = [
+    {
+      id: 'job',
+      header: 'Job',
+      primary: true,
+      cell: (j) => (
+        <div className="min-w-0">
+          <span className="break-all font-mono text-xs">{String(j.id)}</span>
+          <div className="mt-1 md:hidden">
+            <Badge variant="outline">{j.name}</Badge>
+          </div>
+        </div>
+      ),
+    },
+    { id: 'name', header: 'Name', hideOnMobile: true, cell: (j) => <Badge variant="outline">{j.name}</Badge> },
+    { id: 'attempts', header: 'Attempts', className: 'text-xs', cell: (j) => <span className="text-xs">{j.attemptsMade}</span> },
+    {
+      id: 'reason',
+      header: 'Reason',
+      fullWidthOnMobile: true,
+      className: 'max-w-[320px] truncate text-xs text-destructive/90',
+      cell: (j) => (
+        <span className="line-clamp-3 break-words text-xs text-destructive/90 md:line-clamp-none" title={j.failedReason || ''}>
+          {j.failedReason || '—'}
+        </span>
+      ),
+    },
+    {
+      id: 'enqueued',
+      header: 'Enqueued',
+      cell: (j) => (
+        <span className="text-xs text-muted-foreground">{j.timestamp ? formatDate(new Date(j.timestamp)) : '—'}</span>
+      ),
+    },
+    {
+      id: 'failed',
+      header: 'Failed',
+      cell: (j) => (
+        <span className="text-xs text-muted-foreground">{j.finishedOn ? formatDate(new Date(j.finishedOn)) : '—'}</span>
+      ),
+    },
+    {
+      id: 'actions',
+      align: 'end',
+      cell: (j) => (
+        <div className="flex justify-end gap-1">
+          <Button variant="ghost" size="sm" onClick={() => setSelected(j)} aria-label="View job">
+            <Eye className="h-3.5 w-3.5" />
+          </Button>
+          {canRetry && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmJob(j)}
+              loading={!!retrying[String(j.id)]}
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Retry
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight">Queues</h1>
           <p className="text-sm text-muted-foreground">
             Inspect failed BullMQ jobs and retry them. Retries re-enter the queue and go through
             the worker's normal attempt + backoff pipeline.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={load} disabled={loading}>
+        <Button variant="outline" size="sm" onClick={load} disabled={loading} className="self-start">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
@@ -119,8 +184,8 @@ export default function Queues() {
                 active ? 'ring-2 ring-primary' : ''
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="truncate text-xs font-medium">{q}</span>
+              <div className="flex items-center justify-between gap-1">
+                <span className="min-w-0 truncate text-xs font-medium">{q}</span>
                 {failed > 0 && (
                   <Badge variant="destructive" className="text-[10px]">
                     {failed} failed
@@ -154,60 +219,7 @@ export default function Queues() {
       ) : jobs.length === 0 ? (
         <EmptyState title="No failed jobs" description={`Queue "${queue}" has no failures.`} />
       ) : (
-        <div className="rounded-lg border bg-card">
-          <Table>
-            <THead>
-              <TR>
-                <TH>Job</TH>
-                <TH>Name</TH>
-                <TH>Attempts</TH>
-                <TH>Reason</TH>
-                <TH>Enqueued</TH>
-                <TH>Failed</TH>
-                <TH></TH>
-              </TR>
-            </THead>
-            <TBody>
-              {jobs.map((j) => (
-                <TR key={String(j.id)}>
-                  <TD className="font-mono text-xs">{String(j.id)}</TD>
-                  <TD>
-                    <Badge variant="outline">{j.name}</Badge>
-                  </TD>
-                  <TD className="text-xs">{j.attemptsMade}</TD>
-                  <TD
-                    className="max-w-[320px] truncate text-xs text-destructive/90"
-                    title={j.failedReason || ''}
-                  >
-                    {j.failedReason || '—'}
-                  </TD>
-                  <TD className="text-xs text-muted-foreground">
-                    {j.timestamp ? formatDate(new Date(j.timestamp)) : '—'}
-                  </TD>
-                  <TD className="text-xs text-muted-foreground">
-                    {j.finishedOn ? formatDate(new Date(j.finishedOn)) : '—'}
-                  </TD>
-                  <TD className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => setSelected(j)}>
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
-                    {canRetry && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setConfirmJob(j)}
-                        loading={!!retrying[String(j.id)]}
-                      >
-                        <RotateCcw className="h-3.5 w-3.5" />
-                        Retry
-                      </Button>
-                    )}
-                  </TD>
-                </TR>
-              ))}
-            </TBody>
-          </Table>
-        </div>
+        <DataList columns={columns} rows={jobs} rowKey={(j) => String(j.id)} />
       )}
 
       <Modal
@@ -218,7 +230,7 @@ export default function Queues() {
         className="max-w-3xl"
       >
         {selected && (
-          <pre className="max-h-[60vh] overflow-auto rounded-md bg-muted p-3 text-xs">
+          <pre className="max-h-[60vh] max-w-full overflow-auto rounded-md bg-muted p-3 text-[11px] sm:text-xs">
             {JSON.stringify(selected, null, 2)}
           </pre>
         )}
@@ -241,11 +253,11 @@ export default function Queues() {
             </div>
             <div>
               <div className="mb-1 text-xs font-medium text-muted-foreground">Payload</div>
-              <pre className="max-h-[40vh] overflow-auto rounded-md bg-muted p-3 text-xs">
+              <pre className="max-h-[40vh] max-w-full overflow-auto rounded-md bg-muted p-3 text-[11px] sm:text-xs">
                 {JSON.stringify(confirmJob.data ?? null, null, 2)}
               </pre>
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button variant="outline" size="sm" onClick={() => setConfirmJob(null)}>
                 Cancel
               </Button>

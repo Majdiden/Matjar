@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { api, hasScope, PLATFORM_SCOPES, type SubscriptionPlan } from '../lib/api';
+import { api, hasScope, PLATFORM_SCOPES, type SubscriptionPlan, type SeedStarterResult } from '../lib/api';
 import { useAuth } from '../contexts/auth-context';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
@@ -30,6 +30,8 @@ import {
   Package,
   ExternalLink,
   CreditCard,
+  Sprout,
+  Phone,
 } from 'lucide-react';
 import TenantOrdersTab from './TenantOrdersTab';
 import TenantPaymentsTab from './TenantPaymentsTab';
@@ -51,6 +53,8 @@ interface TenantDetail {
   name: string;
   slug: string;
   email: string;
+  phone?: string | null;
+  phoneCountry?: string | null;
   domains?: {
     subdomain?: { name?: string; fullDomain?: string };
     customDomain?: { name?: string; isVerified?: boolean };
@@ -64,7 +68,20 @@ interface TenantDetail {
   deletedAt?: string | null;
   setupStatus?: {
     status?: string;
-    steps?: Record<string, { status?: string; error?: string | null; completedAt?: string | null }>;
+    steps?: Record<
+      string,
+      {
+        status?: string;
+        error?: string | null;
+        reason?: string | null;
+        completedAt?: string | null;
+        products?: number;
+        categories?: number;
+        collections?: number;
+        pages?: number;
+        draft?: boolean;
+      }
+    >;
     startedAt?: string | null;
     completedAt?: string | null;
     failedAt?: string | null;
@@ -117,6 +134,7 @@ export default function TenantDetailPage() {
     | 'cancel-deletion'
     | 'retry-setup'
     | 'unsuspend'
+    | 'seed-starter'
   >(null);
 
   // Plan-change modal state. Plans are loaded lazily when the modal opens.
@@ -187,6 +205,32 @@ export default function TenantDetailPage() {
   const handleRetrySetup = () =>
     wrap('retry-setup', () => api.tenants.retrySetup(tenantId), 'Setup retry enqueued');
 
+  const describeSeed = (r: SeedStarterResult) => {
+    if (!r.seeded) return 'Nothing seeded — store already has products';
+    const parts = [
+      `${r.products} products`,
+      `${r.categories} categories`,
+      `${r.collections} collections`,
+      `${r.pages} pages`,
+    ];
+    return `Seeded ${parts.join(', ')}${r.draft ? ' (draft)' : ''}`;
+  };
+
+  const handleSeedStarter = async () => {
+    setActionLoading('seed-starter');
+    try {
+      const result = await api.tenants.seedStarterContent(tenantId);
+      if (result.success) toast.success(describeSeed(result));
+      else toast.error(result.error || 'Seeding did not run');
+      await load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Seeding failed');
+      throw err;
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const openPlanModal = async () => {
     setPlanModalOpen(true);
     setSelectedPlan(tenant?.subscriptionPlan || '');
@@ -229,15 +273,15 @@ export default function TenantDetailPage() {
         >
           <ArrowLeft className="h-3.5 w-3.5" /> All tenants
         </Link>
-        <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">{tenant.name}</h1>
+        <div className="mt-2 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="break-words text-2xl font-bold tracking-tight">{tenant.name}</h1>
               <StatusBadge status={tenant.subscriptionStatus} />
               {isDeleted && <Badge variant="destructive">Deleted</Badge>}
               {isScheduledForDeletion && <Badge variant="warning">Deletion scheduled</Badge>}
             </div>
-            <div className="mt-1 text-sm text-muted-foreground">
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
               {primaryHost && (() => {
                 const isLocal =
                   primaryHost.endsWith('.localhost') || primaryHost === 'localhost';
@@ -249,16 +293,29 @@ export default function TenantDetailPage() {
                     href={href}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 hover:text-foreground hover:underline"
+                    className="inline-flex max-w-full items-center gap-1 break-all hover:text-foreground hover:underline"
                   >
                     {primaryHost}
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="h-3 w-3 shrink-0" />
                   </a>
                 );
               })()}
-              {primaryHost && <span className="mx-2">·</span>}
-              <span>{tenant.email}</span>
-              <span className="mx-2">·</span>
+              {primaryHost && <span aria-hidden>·</span>}
+              <span className="break-all">{tenant.email}</span>
+              {tenant.phone && (
+                <>
+                  <span aria-hidden>·</span>
+                  <a
+                    href={`tel:${tenant.phone}`}
+                    dir="ltr"
+                    className="inline-flex items-center gap-1 hover:text-foreground hover:underline"
+                  >
+                    <Phone className="h-3 w-3 shrink-0" />
+                    {tenant.phone}
+                  </a>
+                </>
+              )}
+              <span aria-hidden>·</span>
               <span>{shortId(tenant._id)}</span>
             </div>
           </div>
@@ -280,6 +337,17 @@ export default function TenantDetailPage() {
                 disabled={isDeleted}
               >
                 <UserCog className="h-3.5 w-3.5" /> Impersonate
+              </Button>
+            )}
+            {canLifecycle && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setModal('seed-starter')}
+                loading={actionLoading === 'seed-starter'}
+                disabled={isDeleted}
+              >
+                <Sprout className="h-3.5 w-3.5" /> Seed starter content
               </Button>
             )}
             {canLifecycle && (isSuspended ? (
@@ -337,11 +405,11 @@ export default function TenantDetailPage() {
 
       {setupInterrupted && (
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <div className="flex-1">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+          <div className="min-w-0 flex-1">
             <div className="font-medium">Setup {String(setupState).replace(/_/g, ' ')}</div>
             {tenant.setupStatus?.lastError && (
-              <div className="mt-0.5 text-xs text-muted-foreground">
+              <div className="mt-0.5 break-words text-xs text-muted-foreground">
                 {tenant.setupStatus.lastError}
               </div>
             )}
@@ -399,8 +467,8 @@ export default function TenantDetailPage() {
         </div>
       )}
 
-      <div className="border-b">
-        <div className="flex gap-1 -mb-px">
+      <div className="-mx-4 border-b md:mx-0">
+        <div className="-mb-px flex gap-1 overflow-x-auto whitespace-nowrap px-4 scrollbar-hide md:px-0">
           {TABS.filter((t) => {
             // Hide tabs the operator has no scope to read. Server
             // enforces; this just avoids dead UI.
@@ -411,7 +479,7 @@ export default function TenantDetailPage() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`border-b-2 px-3 py-2 text-sm transition-colors ${
+              className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition-colors ${
                 tab === t.id
                   ? 'border-primary text-foreground font-medium'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -424,9 +492,9 @@ export default function TenantDetailPage() {
       </div>
 
       {tab === 'overview' && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 [&>*]:min-w-0">
           <Card>
-            <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0">
               <CardTitle>Subscription</CardTitle>
               {canLifecycle && (
                 <Button
@@ -511,13 +579,26 @@ export default function TenantDetailPage() {
                   <div className="mb-1 text-xs font-medium text-muted-foreground">Steps</div>
                   <ul className="space-y-1 text-xs">
                     {Object.entries(tenant.setupStatus.steps).map(([key, val]) => (
-                      <li key={key} className="flex items-center justify-between">
-                        <span className="capitalize text-muted-foreground">
-                          {key.replace(/_/g, ' ')}
-                        </span>
-                        <span className="capitalize">
-                          {val?.status ? val.status.replace(/_/g, ' ') : '—'}
-                        </span>
+                      <li key={key}>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="capitalize text-muted-foreground">
+                            {key.replace(/_/g, ' ')}
+                          </span>
+                          <span className="capitalize">
+                            {val?.status ? val.status.replace(/_/g, ' ') : '—'}
+                          </span>
+                        </div>
+                        {val?.reason && (
+                          <div className="mt-0.5 break-words text-[11px] text-muted-foreground">
+                            {val.reason}
+                          </div>
+                        )}
+                        {key === 'data_seeding' && val?.status === 'completed' && typeof val.products === 'number' && (
+                          <div className="mt-0.5 text-[11px] text-muted-foreground">
+                            {val.products} products · {val.categories ?? 0} categories · {val.collections ?? 0} collections · {val.pages ?? 0} pages
+                            {val.draft ? ' (draft)' : ''}
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -666,6 +747,17 @@ export default function TenantDetailPage() {
       />
 
       <ConfirmModal
+        open={modal === 'seed-starter'}
+        onClose={() => setModal(null)}
+        title="Seed starter content"
+        description="Seeds niche-matched DRAFT sample products, categories, collections and About/Contact pages that match the store's theme. It is a no-op if the store already has real products. The merchant previews and publishes the content from their dashboard."
+        confirmLabel="Seed content"
+        onConfirm={async () => {
+          await handleSeedStarter();
+        }}
+      />
+
+      <ConfirmModal
         open={modal === 'retry-setup'}
         onClose={() => setModal(null)}
         title="Retry tenant setup"
@@ -736,9 +828,9 @@ export default function TenantDetailPage() {
 }
 
 const Row: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
-  <div className="flex items-center justify-between gap-4">
-    <span className="text-muted-foreground">{label}</span>
-    <span className="text-right">{value}</span>
+  <div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+    <span className="shrink-0 text-muted-foreground">{label}</span>
+    <span className="min-w-0 [overflow-wrap:anywhere] sm:text-right">{value}</span>
   </div>
 );
 

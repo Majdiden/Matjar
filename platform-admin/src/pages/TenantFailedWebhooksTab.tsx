@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { Button } from '../components/ui/Button';
-import { Table, THead, TBody, TR, TH, TD } from '../components/ui/Table';
+import { DataList, type DataListColumn } from '../components/ui/DataList';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { PageSpinner, EmptyState, ErrorState } from '../components/ui/Spinner';
@@ -47,14 +47,44 @@ export default function TenantFailedWebhooksTab({ tenantId }: { tenantId: string
     load();
   }, [load]);
 
+  const columns: DataListColumn<WebhookDeliveryRow>[] = [
+    { id: 'event', header: 'Event', primary: true, cell: (r) => <Badge variant="outline">{r.event || '—'}</Badge> },
+    {
+      id: 'url',
+      header: 'URL',
+      fullWidthOnMobile: true,
+      className: 'max-w-[320px] truncate font-mono text-xs',
+      cell: (r) => <span className="break-all font-mono text-xs" title={r.url}>{r.url || '—'}</span>,
+    },
+    { id: 'http', header: 'HTTP', cell: (r) => <span className="text-xs">{r.responseStatusCode ?? '—'}</span> },
+    { id: 'attempts', header: 'Attempts', cell: (r) => <span className="text-xs">{r.attempts ?? '—'}</span> },
+    {
+      id: 'error',
+      header: 'Last error',
+      fullWidthOnMobile: true,
+      className: 'max-w-[280px] truncate text-xs text-destructive/90',
+      cell: (r) => <span className="line-clamp-3 break-words text-xs text-destructive/90 md:line-clamp-none" title={r.error || ''}>{r.error || '—'}</span>,
+    },
+    { id: 'tried', header: 'Last tried', cell: (r) => <span className="text-xs text-muted-foreground">{formatDate(r.updatedAt || r.createdAt)}</span> },
+    {
+      id: 'actions',
+      align: 'end',
+      cell: (r) => (
+        <Button variant="ghost" size="sm" onClick={() => setSelected(r)} aria-label="View delivery">
+          <Eye className="h-3.5 w-3.5" />
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <p className="min-w-0 text-sm text-muted-foreground">
           Webhook deliveries that exhausted their retry budget. Tenants fix these by editing the
           webhook target URL or secret in their dashboard; this page is read-only and cross-tenant.
         </p>
-        <Button variant="outline" size="sm" onClick={load} disabled={loading}>
+        <Button variant="outline" size="sm" onClick={load} disabled={loading} className="shrink-0 self-start">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
@@ -67,44 +97,7 @@ export default function TenantFailedWebhooksTab({ tenantId }: { tenantId: string
       ) : rows.length === 0 ? (
         <EmptyState title="No failed deliveries" description="All webhook deliveries for this tenant have succeeded." />
       ) : (
-        <div className="rounded-lg border bg-card">
-          <Table>
-            <THead>
-              <TR>
-                <TH>Event</TH>
-                <TH>URL</TH>
-                <TH>HTTP</TH>
-                <TH>Attempts</TH>
-                <TH>Last error</TH>
-                <TH>Last tried</TH>
-                <TH></TH>
-              </TR>
-            </THead>
-            <TBody>
-              {rows.map((r) => (
-                <TR key={r._id}>
-                  <TD>
-                    <Badge variant="outline">{r.event || '—'}</Badge>
-                  </TD>
-                  <TD className="max-w-[320px] truncate font-mono text-xs" title={r.url}>
-                    {r.url || '—'}
-                  </TD>
-                  <TD className="text-xs">{r.responseStatusCode ?? '—'}</TD>
-                  <TD className="text-xs">{r.attempts ?? '—'}</TD>
-                  <TD className="max-w-[280px] truncate text-xs text-destructive/90" title={r.error || ''}>
-                    {r.error || '—'}
-                  </TD>
-                  <TD className="text-xs text-muted-foreground">{formatDate(r.updatedAt || r.createdAt)}</TD>
-                  <TD>
-                    <Button variant="ghost" size="sm" onClick={() => setSelected(r)}>
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
-                  </TD>
-                </TR>
-              ))}
-            </TBody>
-          </Table>
-        </div>
+        <DataList columns={columns} rows={rows} rowKey={(r) => r._id} />
       )}
 
       <Modal
@@ -115,7 +108,7 @@ export default function TenantFailedWebhooksTab({ tenantId }: { tenantId: string
         className="max-w-3xl"
       >
         {selected && (
-          <pre className="max-h-[60vh] overflow-auto rounded-md bg-muted p-3 text-xs">
+          <pre className="max-h-[60vh] max-w-full overflow-auto rounded-md bg-muted p-3 text-[11px] sm:text-xs">
             {JSON.stringify(selected, null, 2)}
           </pre>
         )}

@@ -220,6 +220,7 @@ export function ImpersonationRequestModal({
           <div>
             <Label htmlFor="imp-ticket">Support ticket number</Label>
             <Input
+              className="mt-1.5"
               id="imp-ticket"
               value={ticket}
               onChange={(e) => setTicket(e.target.value)}
@@ -251,7 +252,7 @@ export function ImpersonationRequestModal({
               Ask them to read you the 6-character consent code shown in their dashboard,
               then enter it here.
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Input
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -259,7 +260,7 @@ export function ImpersonationRequestModal({
                 maxLength={6}
                 className="font-mono tracking-widest"
               />
-              <Button onClick={submitCode} disabled={code.trim().length < 6}>
+              <Button onClick={submitCode} disabled={code.trim().length < 6} className="sm:shrink-0">
                 Approve
               </Button>
             </div>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api, type Pagination } from '../lib/api';
-import { Table, THead, TBody, TR, TH, TD } from '../components/ui/Table';
+import { DataList, type DataListColumn } from '../components/ui/DataList';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { PageSpinner, EmptyState, ErrorState } from '../components/ui/Spinner';
@@ -78,16 +78,35 @@ export default function TenantOrdersTab({ tenantId }: { tenantId: string }) {
     }
   };
 
+  const columns: DataListColumn<OrderRow>[] = [
+    { id: 'order', header: 'Order', primary: true, cell: (r) => <span className="font-medium">{r.orderNumber || shortId(r._id)}</span> },
+    { id: 'customer', header: 'Customer', fullWidthOnMobile: true, cell: (r) => <span className="break-all text-sm">{r.customerEmail || '—'}</span> },
+    { id: 'status', header: 'Status', cell: (r) => <Badge variant="outline" className="capitalize">{r.status || 'unknown'}</Badge> },
+    { id: 'payment', header: 'Payment', cell: (r) => <Badge variant="outline" className="capitalize">{r.paymentStatus || '—'}</Badge> },
+    { id: 'total', header: 'Total', cell: (r) => formatMoney(r.total, r.currency || 'USD') },
+    { id: 'placed', header: 'Placed', cell: (r) => <span className="text-xs text-muted-foreground">{formatDate(r.createdAt)}</span> },
+    {
+      id: 'actions',
+      align: 'end',
+      cell: (r) => (
+        <Button variant="ghost" size="sm" onClick={() => openOrder(r._id)} aria-label="View order">
+          <Eye className="h-3.5 w-3.5" />
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-1 rounded-md border bg-card p-1 w-fit">
+      <div className="-mx-4 overflow-x-auto px-4 scrollbar-hide md:mx-0 md:overflow-visible md:px-0">
+        <div className="flex w-max items-center gap-1 rounded-md border bg-card p-1">
         {STATUS_OPTIONS.map((s) => {
           const active = (s || '') === status;
           return (
             <button
               key={s || 'all'}
               onClick={() => setParam('ordersStatus', s || null)}
-              className={`rounded px-2.5 py-1 text-xs capitalize transition-colors ${
+              className={`whitespace-nowrap rounded px-2.5 py-1.5 text-xs capitalize transition-colors ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-accent'
@@ -97,6 +116,7 @@ export default function TenantOrdersTab({ tenantId }: { tenantId: string }) {
             </button>
           );
         })}
+        </div>
       </div>
 
       {error ? (
@@ -107,51 +127,10 @@ export default function TenantOrdersTab({ tenantId }: { tenantId: string }) {
         <EmptyState title="No orders" description="This tenant has no orders matching the filter." />
       ) : (
         <>
-          <div className="rounded-lg border bg-card">
-            <Table>
-              <THead>
-                <TR>
-                  <TH>Order</TH>
-                  <TH>Customer</TH>
-                  <TH>Status</TH>
-                  <TH>Payment</TH>
-                  <TH>Total</TH>
-                  <TH>Placed</TH>
-                  <TH></TH>
-                </TR>
-              </THead>
-              <TBody>
-                {rows.map((r) => (
-                  <TR key={r._id}>
-                    <TD className="font-medium">
-                      {r.orderNumber || shortId(r._id)}
-                    </TD>
-                    <TD className="text-sm">{r.customerEmail || '—'}</TD>
-                    <TD>
-                      <Badge variant="outline" className="capitalize">
-                        {r.status || 'unknown'}
-                      </Badge>
-                    </TD>
-                    <TD>
-                      <Badge variant="outline" className="capitalize">
-                        {r.paymentStatus || '—'}
-                      </Badge>
-                    </TD>
-                    <TD>{formatMoney(r.total, r.currency || 'USD')}</TD>
-                    <TD className="text-xs text-muted-foreground">{formatDate(r.createdAt)}</TD>
-                    <TD>
-                      <Button variant="ghost" size="sm" onClick={() => openOrder(r._id)}>
-                        <Eye className="h-3.5 w-3.5" />
-                      </Button>
-                    </TD>
-                  </TR>
-                ))}
-              </TBody>
-            </Table>
-          </div>
+          <DataList columns={columns} rows={rows} rowKey={(r) => r._id} />
 
           {pagination && pagination.pages > 1 && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
               <div className="text-muted-foreground">
                 Page {pagination.page} of {pagination.pages} · {pagination.total} total
               </div>
@@ -187,7 +166,7 @@ export default function TenantOrdersTab({ tenantId }: { tenantId: string }) {
         {detailLoading ? (
           <PageSpinner />
         ) : (
-          <pre className="max-h-[60vh] overflow-auto rounded-md bg-muted p-3 text-xs">
+          <pre className="max-h-[60vh] max-w-full overflow-auto rounded-md bg-muted p-3 text-[11px] sm:text-xs">
             {JSON.stringify(selected, null, 2)}
           </pre>
         )}

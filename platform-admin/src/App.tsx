@@ -9,6 +9,7 @@ import TenantDetail from './pages/TenantDetail';
 import Plans from './pages/Plans';
 import Queues from './pages/Queues';
 import Features from './pages/Features';
+import PhoneCountries from './pages/PhoneCountries';
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/tenants/:tenantId" element={<TenantDetail />} />
             <Route path="/plans" element={<Plans />} />
             <Route path="/features" element={<Features />} />
+            <Route path="/phone-countries" element={<PhoneCountries />} />
             <Route path="/queues" element={<Queues />} />
           </Route>
           <Route path="*" element={<Navigate to="/tenants" replace />} />

@@ -4,7 +4,7 @@ import { api, type Pagination, type TenantListRow } from '../lib/api';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { Table, THead, TBody, TR, TH, TD } from '../components/ui/Table';
+import { DataList, type DataListColumn } from '../components/ui/DataList';
 import { PageSpinner, ErrorState, EmptyState } from '../components/ui/Spinner';
 import { formatDate, shortId } from '../lib/utils';
 import {
@@ -182,16 +182,117 @@ export default function Tenants() {
       ]
     : [];
 
+  const columns: DataListColumn<TenantListRow>[] = [
+    {
+      id: 'name',
+      header: 'Name',
+      primary: true,
+      cell: (row) => (
+        <div className="min-w-0">
+          <Link to={`/tenants/${row._id}`} className="font-medium hover:underline">
+            {row.name}
+          </Link>
+          <div className="break-words text-xs text-muted-foreground">
+            {row.email} · {shortId(row._id)}
+            {row.phone && (
+              <>
+                {' · '}
+                <span dir="ltr" className="inline-block">{row.phone}</span>
+              </>
+            )}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'domain',
+      header: 'Primary domain',
+      fullWidthOnMobile: true,
+      cell: (row) => {
+        const host = primaryDomain(row);
+        return (
+          <a
+            href={domainUrl(host)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex max-w-full items-center gap-1 break-all text-sm text-muted-foreground hover:text-foreground hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {host}
+            <ExternalLink className="h-3 w-3 shrink-0" />
+          </a>
+        );
+      },
+    },
+    {
+      id: 'plan',
+      header: 'Plan',
+      cell: (row) => (
+        <Badge variant="outline" className="capitalize">
+          {row.subscriptionPlan || 'free'}
+        </Badge>
+      ),
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      cell: (row) => <StatusBadge status={row.subscriptionStatus} />,
+    },
+    {
+      id: 'setup',
+      header: 'Setup',
+      className: 'text-xs',
+      cell: (row) => {
+        const setupState = row.setupStatus?.status;
+        const setupFailed = setupState && String(setupState).includes('fail');
+        return setupState ? (
+          <span className={`text-xs capitalize ${setupFailed ? 'text-red-600 font-medium' : ''}`}>
+            {String(setupState).replace(/_/g, ' ')}
+          </span>
+        ) : (
+          '—'
+        );
+      },
+    },
+    {
+      id: 'flags',
+      header: 'Flags',
+      cell: (row) => (
+        <div className="flex flex-wrap gap-1">
+          {row.deletionScheduledAt && (
+            <Badge variant="destructive" className="text-[10px]">
+              deletion {formatDate(row.deletionScheduledAt)}
+            </Badge>
+          )}
+          {row.suspendedAt && !row.deletionScheduledAt && (
+            <Badge variant="outline" className="text-[10px]">
+              suspended
+            </Badge>
+          )}
+          {!row.deletionScheduledAt && !row.suspendedAt && (
+            <span className="text-xs text-muted-foreground">—</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: 'created',
+      header: 'Created',
+      className: 'text-xs text-muted-foreground',
+      cell: (row) => <span className="text-xs text-muted-foreground">{formatDate(row.createdAt)}</span>,
+    },
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight">Tenants</h1>
           <p className="text-sm text-muted-foreground">
             Every store on the platform. Click a row to inspect or take action.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={load} disabled={loading}>
+        <Button variant="outline" size="sm" onClick={load} disabled={loading} className="self-start">
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
@@ -224,8 +325,8 @@ export default function Tenants() {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-2">
-        <form onSubmit={onSearch} className="relative flex-1 min-w-[260px] max-w-md">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+        <form onSubmit={onSearch} className="relative w-full lg:max-w-md lg:flex-1">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={qLocal}
@@ -235,14 +336,15 @@ export default function Tenants() {
           />
         </form>
 
-        <div className="flex items-center gap-1 rounded-md border bg-card p-1">
+        <div className="-mx-4 overflow-x-auto px-4 scrollbar-hide lg:mx-0 lg:overflow-visible lg:px-0">
+          <div className="flex w-max items-center gap-1 rounded-md border bg-card p-1">
           {STATUS_OPTIONS.map((s) => {
             const active = (s || '') === status;
             return (
               <button
                 key={s || 'all'}
                 onClick={() => updateParam('status', s || null)}
-                className={`rounded px-2.5 py-1 text-xs capitalize transition-colors ${
+                className={`whitespace-nowrap rounded px-2.5 py-1.5 text-xs capitalize transition-colors ${
                   active
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-accent'
@@ -252,6 +354,7 @@ export default function Tenants() {
               </button>
             );
           })}
+          </div>
         </div>
       </div>
 
@@ -263,94 +366,10 @@ export default function Tenants() {
         <EmptyState title="No tenants match" description="Try broadening the filters or search terms." />
       ) : (
         <>
-          <div className="rounded-lg border bg-card">
-            <Table>
-              <THead>
-                <TR>
-                  <TH>Name</TH>
-                  <TH>Primary domain</TH>
-                  <TH>Plan</TH>
-                  <TH>Status</TH>
-                  <TH>Setup</TH>
-                  <TH>Flags</TH>
-                  <TH>Created</TH>
-                </TR>
-              </THead>
-              <TBody>
-                {rows.map((row) => {
-                  const host = primaryDomain(row);
-                  const setupState = row.setupStatus?.status;
-                  const setupFailed = setupState && String(setupState).includes('fail');
-                  return (
-                    <TR key={row._id}>
-                      <TD>
-                        <Link
-                          to={`/tenants/${row._id}`}
-                          className="font-medium hover:underline"
-                        >
-                          {row.name}
-                        </Link>
-                        <div className="text-xs text-muted-foreground">
-                          {row.email} · {shortId(row._id)}
-                        </div>
-                      </TD>
-                      <TD>
-                        <a
-                          href={domainUrl(host)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {host}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </TD>
-                      <TD>
-                        <Badge variant="outline" className="capitalize">
-                          {row.subscriptionPlan || 'free'}
-                        </Badge>
-                      </TD>
-                      <TD>
-                        <StatusBadge status={row.subscriptionStatus} />
-                      </TD>
-                      <TD className="text-xs">
-                        {setupState ? (
-                          <span
-                            className={`capitalize ${
-                              setupFailed ? 'text-red-600 font-medium' : ''
-                            }`}
-                          >
-                            {String(setupState).replace(/_/g, ' ')}
-                          </span>
-                        ) : (
-                          '—'
-                        )}
-                      </TD>
-                      <TD>
-                        <div className="flex flex-wrap gap-1">
-                          {row.deletionScheduledAt && (
-                            <Badge variant="destructive" className="text-[10px]">
-                              deletion {formatDate(row.deletionScheduledAt)}
-                            </Badge>
-                          )}
-                          {row.suspendedAt && !row.deletionScheduledAt && (
-                            <Badge variant="outline" className="text-[10px]">
-                              suspended
-                            </Badge>
-                          )}
-                        </div>
-                      </TD>
-                      <TD className="text-xs text-muted-foreground">{formatDate(row.createdAt)}</TD>
-                    </TR>
-                  );
-                })}
-              </TBody>
-            </Table>
-          </div>
+          <DataList columns={columns} rows={rows} rowKey={(r) => r._id} />
 
           {pagination && pagination.pages > 1 && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
               <div className="text-muted-foreground">
                 Page {pagination.page} of {pagination.pages} · {pagination.total} total
               </div>

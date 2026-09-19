@@ -7,40 +7,11 @@ import {
   type FeaturesResponse,
 } from '../lib/api';
 import { useAuth } from '../contexts/auth-context';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { PageSpinner, ErrorState } from '../components/ui/Spinner';
 import { useToast } from '../components/ui/toast-context';
 import { ToggleLeft } from 'lucide-react';
-
-/** A small controlled on/off switch (no shared Switch component exists). */
-function Toggle({
-  checked,
-  disabled,
-  onChange,
-}: {
-  checked: boolean;
-  disabled?: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${
-        checked ? 'bg-indigo-600' : 'bg-gray-300'
-      }`}
-    >
-      <span
-        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-          checked ? 'translate-x-5' : 'translate-x-0.5'
-        }`}
-      />
-    </button>
-  );
-}
+import { Toggle } from '../components/ui/Toggle';
 
 export default function Features() {
   const toast = useToast();
@@ -117,9 +88,9 @@ export default function Features() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <ToggleLeft className="h-6 w-6 text-indigo-600" />
-        <div>
+      <div className="flex items-start gap-3">
+        <ToggleLeft className="mt-0.5 h-6 w-6 shrink-0 text-indigo-600" />
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight">Features</h1>
           <p className="text-sm text-gray-500">
             Platform-wide feature flags. Toggles apply to every store. Off by default —

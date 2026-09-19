@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../lib/api';
-import { Table, THead, TBody, TR, TH, TD } from '../components/ui/Table';
+import { DataList, type DataListColumn } from '../components/ui/DataList';
 import { Badge } from '../components/ui/Badge';
 import { PageSpinner, EmptyState, ErrorState } from '../components/ui/Spinner';
 import { formatDate, formatMoney, shortId } from '../lib/utils';
@@ -44,36 +44,14 @@ export default function TenantPaymentsTab({ tenantId }: { tenantId: string }) {
     return <EmptyState title="No payments" description="This tenant has no recorded payments." />;
   }
 
-  return (
-    <div className="rounded-lg border bg-card">
-      <Table>
-        <THead>
-          <TR>
-            <TH>Provider</TH>
-            <TH>Provider ID</TH>
-            <TH>Order</TH>
-            <TH>Status</TH>
-            <TH>Amount</TH>
-            <TH>Created</TH>
-          </TR>
-        </THead>
-        <TBody>
-          {rows.map((r) => (
-            <TR key={r._id}>
-              <TD className="capitalize">{r.provider || '—'}</TD>
-              <TD className="text-xs text-muted-foreground">{r.providerPaymentId || shortId(r._id)}</TD>
-              <TD className="text-xs">{r.orderId ? shortId(r.orderId) : '—'}</TD>
-              <TD>
-                <Badge variant="outline" className="capitalize">
-                  {r.status || 'unknown'}
-                </Badge>
-              </TD>
-              <TD>{formatMoney(r.amount, r.currency || 'USD')}</TD>
-              <TD className="text-xs text-muted-foreground">{formatDate(r.createdAt)}</TD>
-            </TR>
-          ))}
-        </TBody>
-      </Table>
-    </div>
-  );
+  const columns: DataListColumn<PaymentRow>[] = [
+    { id: 'provider', header: 'Provider', primary: true, cell: (r) => <span className="capitalize">{r.provider || '—'}</span> },
+    { id: 'pid', header: 'Provider ID', fullWidthOnMobile: true, cell: (r) => <span className="break-all text-xs text-muted-foreground">{r.providerPaymentId || shortId(r._id)}</span> },
+    { id: 'order', header: 'Order', cell: (r) => <span className="text-xs">{r.orderId ? shortId(r.orderId) : '—'}</span> },
+    { id: 'status', header: 'Status', cell: (r) => <Badge variant="outline" className="capitalize">{r.status || 'unknown'}</Badge> },
+    { id: 'amount', header: 'Amount', cell: (r) => formatMoney(r.amount, r.currency || 'USD') },
+    { id: 'created', header: 'Created', cell: (r) => <span className="text-xs text-muted-foreground">{formatDate(r.createdAt)}</span> },
+  ];
+
+  return <DataList columns={columns} rows={rows} rowKey={(r) => r._id} />;
 }

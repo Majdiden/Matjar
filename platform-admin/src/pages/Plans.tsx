@@ -11,7 +11,7 @@ import { Button } from '../components/ui/Button';
 import { Input, Label, Textarea, Select } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { Badge } from '../components/ui/Badge';
-import { Table, THead, TBody, TR, TH, TD } from '../components/ui/Table';
+import { DataList, type DataListColumn } from '../components/ui/DataList';
 import { PageSpinner, ErrorState, EmptyState } from '../components/ui/Spinner';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { useToast } from '../components/ui/toast-context';
@@ -53,16 +53,82 @@ export default function Plans() {
 
   const fmtLimit = (v?: number | null) => (v == null ? '∞' : v.toLocaleString());
 
+  const columns: DataListColumn<SubscriptionPlan>[] = [
+    {
+      id: 'plan',
+      header: 'Plan',
+      primary: true,
+      cell: (p) => (
+        <div className="min-w-0">
+          <div className="font-medium">{p.name}</div>
+          {p.description && (
+            <div className="max-w-xs truncate text-xs font-normal text-muted-foreground">{p.description}</div>
+          )}
+        </div>
+      ),
+    },
+    { id: 'key', header: 'Key', cell: (p) => <code className="text-xs">{p.key}</code> },
+    { id: 'price', header: 'Price', className: 'whitespace-nowrap text-sm', cell: (p) => fmtPrice(p) },
+    {
+      id: 'limits',
+      header: 'Limits',
+      className: 'whitespace-nowrap text-xs text-muted-foreground',
+      cell: (p) => (
+        <span className="text-xs text-muted-foreground">
+          {fmtLimit(p.limits?.maxProducts)} products · {fmtLimit(p.limits?.maxStaff)} staff
+        </span>
+      ),
+    },
+    {
+      id: 'features',
+      header: 'Features',
+      cell: (p) => (
+        <span className="text-xs text-muted-foreground">
+          {p.features?.length ? `${p.features.length} feature(s)` : '—'}
+        </span>
+      ),
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      cell: (p) =>
+        p.isActive ? <Badge variant="success">Active</Badge> : <Badge variant="outline">Inactive</Badge>,
+    },
+    ...(canWrite
+      ? [
+          {
+            id: 'actions',
+            align: 'end' as const,
+            cell: (p: SubscriptionPlan) => (
+              <div className="flex justify-end gap-1">
+                <Button variant="ghost" size="sm" onClick={() => setEditing(p)}>
+                  <Pencil className="h-3.5 w-3.5" /> Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => setDeleting(p)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Delete
+                </Button>
+              </div>
+            ),
+          } satisfies DataListColumn<SubscriptionPlan>,
+        ]
+      : []),
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight">Plans</h1>
           <p className="text-sm text-muted-foreground">
             Subscription plan catalog. Tenants are assigned to a plan by its key.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -92,69 +158,7 @@ export default function Plans() {
           }
         />
       ) : (
-        <div className="rounded-lg border bg-card">
-          <Table>
-            <THead>
-              <TR>
-                <TH>Plan</TH>
-                <TH>Key</TH>
-                <TH>Price</TH>
-                <TH>Limits</TH>
-                <TH>Features</TH>
-                <TH>Status</TH>
-                {canWrite && <TH className="text-right">Actions</TH>}
-              </TR>
-            </THead>
-            <TBody>
-              {plans.map((p) => (
-                <TR key={p._id}>
-                  <TD>
-                    <div className="font-medium">{p.name}</div>
-                    {p.description && (
-                      <div className="max-w-xs truncate text-xs text-muted-foreground">
-                        {p.description}
-                      </div>
-                    )}
-                  </TD>
-                  <TD>
-                    <code className="text-xs">{p.key}</code>
-                  </TD>
-                  <TD className="whitespace-nowrap text-sm">{fmtPrice(p)}</TD>
-                  <TD className="whitespace-nowrap text-xs text-muted-foreground">
-                    {fmtLimit(p.limits?.maxProducts)} products · {fmtLimit(p.limits?.maxStaff)} staff
-                  </TD>
-                  <TD className="text-xs text-muted-foreground">
-                    {p.features?.length ? `${p.features.length} feature(s)` : '—'}
-                  </TD>
-                  <TD>
-                    {p.isActive ? (
-                      <Badge variant="success">Active</Badge>
-                    ) : (
-                      <Badge variant="outline">Inactive</Badge>
-                    )}
-                  </TD>
-                  {canWrite && (
-                    <TD className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => setEditing(p)}>
-                          <Pencil className="h-3.5 w-3.5" /> Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => setDeleting(p)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" /> Delete
-                        </Button>
-                      </div>
-                    </TD>
-                  )}
-                </TR>
-              ))}
-            </TBody>
-          </Table>
-        </div>
+        <DataList columns={columns} rows={plans} rowKey={(p) => p._id} />
       )}
 
       <PlanFormModal
@@ -296,14 +300,14 @@ const PlanFormModal: React.FC<{
         </>
       }
     >
-      <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-1">
+      <div className="space-y-3">
         {error && (
           <div className="rounded-md border border-destructive/40 bg-destructive/5 p-2 text-sm text-destructive">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="plan-key">
               Key <span className="text-destructive">*</span>
@@ -339,7 +343,7 @@ const PlanFormModal: React.FC<{
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="space-y-1.5">
             <Label htmlFor="plan-price">Price</Label>
             <Input
@@ -372,7 +376,7 @@ const PlanFormModal: React.FC<{
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="space-y-1.5">
             <Label htmlFor="plan-maxproducts">Max products</Label>
             <Input
