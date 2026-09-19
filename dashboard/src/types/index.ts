@@ -6,6 +6,10 @@ export interface User {
   tenantId: string;
   roles: string[];
   avatar?: string;
+  // Contact phone in E.164 (+249…) and the ISO2 of the dial code it was
+  // entered with. Hydrated from /auth/me; null when the merchant has none.
+  phone?: string | null;
+  phoneCountry?: string | null;
 }
 
 export interface AuthResponse {
@@ -69,6 +73,8 @@ export interface RegisterData {
   password: string;
   subdomain?: string;
   subscriptionPlan?: string;
+  phone?: string;
+  phoneCountry?: string;
 }
 
 // Domain types

@@ -675,7 +675,7 @@ const OrderLifecycle: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate(`/dashboard/orders/${id}`)}>
             <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
@@ -696,8 +696,12 @@ const OrderLifecycle: React.FC = () => {
         </div>
       </div>
 
+      {/* The canvas is inherently wide (order node + 3-column state grid).
+          On phones it scrolls horizontally INSIDE this card instead of
+          pushing the page wider: the inner track sizes to its content
+          (`w-max`) but never narrower than the card (`min-w-full`). */}
       <div
-        className="w-full rounded-lg border bg-muted/20"
+        className="w-full overflow-x-auto rounded-lg border bg-muted/20"
         style={{
           backgroundImage:
             'radial-gradient(circle, rgb(100 116 139 / 0.45) 1.25px, transparent 1.25px)',
@@ -706,7 +710,7 @@ const OrderLifecycle: React.FC = () => {
       >
         <div
           ref={containerRef}
-          className="relative w-full px-8 pt-6 pb-8"
+          className="relative w-max min-w-full px-4 pt-6 pb-8 sm:px-8"
         >
           {connectors.paths.length > 0 && (
             <svg

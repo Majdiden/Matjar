@@ -10,6 +10,7 @@
 // `themes.allowedSlugs` is intentionally NOT in this type — the dashboard
 // never reads it; theme-catalog filtering is enforced server-side.
 export type FeatureKey =
+  | 'onboarding.starterContent'
   | 'payments.methods' | 'payments.transactions'
   | 'orders.fulfillment' | 'orders.returns' | 'orders.timeline' | 'orders.notes' | 'orders.lifecycle'
   | 'themes.catalogAll'
@@ -21,6 +22,9 @@ export type FeatureFlags = Record<string, boolean | string[]>;
 
 // Restrictive soft-launch posture: every boolean flag defaults OFF.
 export const DEFAULT_FEATURES: FeatureFlags = {
+  // Server-side only (gates starter-content seeding during store setup);
+  // mirrored here to keep the key list in sync with the backend registry.
+  'onboarding.starterContent': false,
   'payments.methods': false,
   'payments.transactions': false,
   'orders.fulfillment': false,

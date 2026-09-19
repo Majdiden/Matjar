@@ -415,7 +415,7 @@ export const CollectionForm: React.FC = () => {
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
             {isEdit ? t('products.collections.form.title.edit') : t('products.collections.form.title.create')}

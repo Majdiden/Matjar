@@ -32,6 +32,9 @@ import {
 import { api } from '../lib/api-client';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { OtpInput } from '../components/OtpInput';
+import { PhoneInput } from '../components/PhoneInput';
+import { validatePhoneValue, type PhoneValue } from '../lib/phone';
+import { usePhoneCountries } from '../hooks/usePhoneCountries';
 import { toast } from 'sonner';
 
 // Signup email-OTP length. Must match the backend (services/otp.js).
@@ -128,6 +131,16 @@ export const Register: React.FC = () => {
     niche: '',
     themeSlug: '',
   });
+
+  // Merchant contact phone — country (ISO2) + national digits. The enabled
+  // dial codes come from the platform (Sudan by default); the country is
+  // pinned to the platform default until the merchant changes it.
+  const { countries: phoneCountries, defaultCountry: defaultPhoneCountry } = usePhoneCountries();
+  const [phone, setPhone] = useState<PhoneValue>({ country: '', national: '' });
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  useEffect(() => {
+    setPhone(p => (p.country ? p : { ...p, country: defaultPhoneCountry }));
+  }, [defaultPhoneCountry]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [subdomainTouched, setSubdomainTouched] = useState(false);
@@ -344,8 +357,9 @@ export const Register: React.FC = () => {
   // Per-field validation — errors are rendered inline and must all clear
   // before the user can advance. Each rule mirrors a backend constraint so
   // the client catches obvious mistakes without a round-trip.
-  const validateStep = (s: Step): Partial<Record<keyof typeof form, string>> => {
-    const errs: Partial<Record<keyof typeof form, string>> = {};
+  type FieldKey = keyof typeof form | 'phone';
+  const validateStep = (s: Step): Partial<Record<FieldKey, string>> => {
+    const errs: Partial<Record<FieldKey, string>> = {};
     if (s === 'account') {
       const name = form.name.trim();
       if (!name) errs.name = t('auth.field.name.error.required');
@@ -365,6 +379,12 @@ export const Register: React.FC = () => {
       else if (pw.length < 8) errs.password = t('auth.field.password.error.too_short');
       else if (!/[a-z]/.test(pw) || !/[A-Z]/.test(pw) || !/\d/.test(pw))
         errs.password = t('auth.field.password.error.weak');
+
+      // Phone is required for a NEW account (add-mode copies it server-side).
+      if (!addMode) {
+        const phoneErr = validatePhoneValue(phone, phoneCountries, t);
+        if (phoneErr) errs.phone = phoneErr;
+      }
     }
     if (s === 'store') {
       const name = form.storeName.trim();
@@ -388,11 +408,11 @@ export const Register: React.FC = () => {
   // Per-field "touched" — a field's error is only shown after the user has
   // interacted with it (changed it, or hit Continue). Keeps the first
   // render of each step clean but updates live afterwards.
-  const [touched, setTouched] = useState<Partial<Record<keyof typeof form, boolean>>>({});
+  const [touched, setTouched] = useState<Partial<Record<FieldKey, boolean>>>({});
 
   // Fields relevant to each step, used for bulk-touch when Continue is hit.
-  const STEP_FIELDS: Partial<Record<Step, (keyof typeof form)[]>> = {
-    account: ['name', 'email', 'password'],
+  const STEP_FIELDS: Partial<Record<Step, FieldKey[]>> = {
+    account: ['name', 'email', 'phone', 'password'],
     store: ['storeName', 'subdomain'],
     niche: ['niche'],
     theme: ['themeSlug'],
@@ -402,11 +422,11 @@ export const Register: React.FC = () => {
   // decides which messages are *visible* — so the rule and the display
   // are never out of sync.
   const liveErrors = validateStep(step);
-  const fieldErrors: Partial<Record<keyof typeof form, string>> = {};
+  const fieldErrors: Partial<Record<FieldKey, string>> = {};
   for (const [k, v] of Object.entries(liveErrors)) {
-    if (touched[k as keyof typeof form] && v) {
-      fieldErrors[k as keyof typeof form] = v;
-    }
+    const key = k as FieldKey;
+    const isTouched = key === 'phone' ? phoneTouched : touched[key];
+    if (isTouched && v) fieldErrors[key] = v;
   }
 
   const tryAdvance = (onOk: () => void) => {
@@ -414,6 +434,7 @@ export const Register: React.FC = () => {
     // Mark every field on this step touched so any outstanding errors
     // reveal themselves now.
     const fields = STEP_FIELDS[step] || [];
+    if (fields.includes('phone')) setPhoneTouched(true);
     setTouched(prev => {
       const next = { ...prev };
       for (const f of fields) next[f] = true;
@@ -521,6 +542,8 @@ export const Register: React.FC = () => {
         niche: form.niche,
         subscriptionPlan: 'trial',
         emailVerificationToken,
+        phone: phone.national.trim(),
+        phoneCountry: phone.country || defaultPhoneCountry,
       })) as {
         responseObject?: {
           subdomain?: string;
@@ -695,6 +718,16 @@ export const Register: React.FC = () => {
                   <p className="text-xs text-destructive">{fieldErrors.email}</p>
                 ) : null}
               </div>
+
+              <PhoneInput
+                id="phone"
+                label={t('auth.field.phone.label')}
+                value={phone}
+                countries={phoneCountries}
+                onChange={(v) => { setPhoneTouched(true); setPhone(v); }}
+                error={fieldErrors.phone}
+                help={t('auth.field.phone.help')}
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="password">{t('auth.field.password.label')}</Label>

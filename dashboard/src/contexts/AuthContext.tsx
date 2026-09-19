@@ -13,6 +13,9 @@ interface AuthMeResponse {
   responseObject?: {
     settings?: { currency?: string; language?: string };
     permissions?: string[];
+    name?: string | null;
+    phone?: string | null;
+    phoneCountry?: string | null;
   };
 }
 
@@ -63,6 +66,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       /* storage full / disabled — non-fatal */
     }
   }, []);
+
+  // Merge a partial profile patch into state + the persisted copy. Used after
+  // /auth/me resolves (name/phone hydration) and after a profile save.
+  const updateUser = useCallback((patch: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...patch };
+      try {
+        localStorage.setItem('user', JSON.stringify(next));
+      } catch {
+        /* storage disabled — non-fatal */
+      }
+      return next;
+    });
+  }, []);
+
+  // Copy the profile fields /auth/me returns onto the session user.
+  const applyProfileFromMe = useCallback((meRes: AuthMeResponse) => {
+    const ro = meRes?.responseObject;
+    if (!ro) return;
+    const patch: Partial<User> = {};
+    if (typeof ro.name === 'string' && ro.name) patch.name = ro.name;
+    if (ro.phone !== undefined) patch.phone = ro.phone ?? null;
+    if (ro.phoneCountry !== undefined) patch.phoneCountry = ro.phoneCountry ?? null;
+    if (Object.keys(patch).length) updateUser(patch);
+  }, [updateUser]);
 
   const clearAuth = useCallback(() => {
     localStorage.removeItem('token');
@@ -155,6 +184,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (s?.language) setTenantLocale(s.language === 'ar' ? 'ar-SD' : 'en-US');
             const perms = meRes?.responseObject?.permissions;
             if (Array.isArray(perms)) applyPermissions(perms);
+            applyProfileFromMe(meRes);
           }).catch(() => { /* ignore — cached permissions from localStorage stay in effect offline */ });
         }
       } catch {
@@ -163,7 +193,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     setIsLoading(false);
-  }, [clearAuth, refreshAccessToken, applyPermissions]);
+  }, [clearAuth, refreshAccessToken, applyPermissions, applyProfileFromMe]);
 
   // Establish a client session from a login-shaped responseObject (access +
   // refresh token, user identity, tenant host). Shared by the password login
@@ -196,6 +226,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (s?.language) setTenantLocale(s.language === 'ar' ? 'ar-SD' : 'en-US');
       const perms = meRes?.responseObject?.permissions;
       if (Array.isArray(perms)) applyPermissions(perms);
+      applyProfileFromMe(meRes);
     } catch {
       /* ignore — permissions will fill on refresh */
     }
@@ -326,6 +357,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       register,
       logout,
       switchStore,
+      updateUser,
       permissions,
       can,
     }}>

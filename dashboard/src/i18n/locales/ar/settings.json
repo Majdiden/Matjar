@@ -32,6 +32,9 @@
       },
       "policies": {
         "label": "السياسات"
+      },
+      "account": {
+        "label": "الحساب"
       }
     },
     "section": {
@@ -86,6 +89,10 @@
       "contact": {
         "title": "معلومات التواصل",
         "description": "تظهر في تذييل متجرك وصفحات السياسات."
+      },
+      "account": {
+        "title": "الملف الشخصي",
+        "description": "اسمك وبيانات التواصل الخاصة بك كصاحب المتجر."
       }
     },
     "field": {
@@ -222,6 +229,21 @@
           "label": "عنوان الشركة",
           "placeholder": "الشارع، المدينة، الدولة"
         }
+      },
+      "account": {
+        "name": {
+          "label": "اسمك",
+          "placeholder": "الاسم الكامل"
+        },
+        "email": {
+          "label": "البريد الإلكتروني"
+        },
+        "phone": {
+          "label": "رقم الهاتف"
+        },
+        "email_verified": "مُوثّق",
+        "email_unverified": "غير مُوثّق",
+        "verify_hint": "تغيير البريد الإلكتروني وتوثيقه يتم من تبويب الأمان."
       }
     },
     "shipping_mode": {
@@ -348,7 +370,10 @@
       "market_delete_failed": "فشل حذف السوق",
       "notifications_load_failed": "فشل تحميل الإشعارات",
       "email_templates_saved": "تم حفظ قوالب البريد الإلكتروني",
-      "notifications_save_failed": "فشل حفظ الإشعارات"
+      "notifications_save_failed": "فشل حفظ الإشعارات",
+      "profile_saved": "تم حفظ الملف الشخصي",
+      "profile_save_failed": "تعذّر حفظ الملف الشخصي",
+      "profile_load_failed": "تعذّر تحميل الملف الشخصي"
     },
     "confirm": {
       "delete_shipping_zone": {

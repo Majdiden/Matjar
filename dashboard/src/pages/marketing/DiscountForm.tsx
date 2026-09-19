@@ -366,25 +366,30 @@ export default function DiscountForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/dashboard/marketing/discounts")}
-        >
-          <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
-        </Button>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <Icon className="h-5 w-5 text-muted-foreground" />
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {isEditMode ? t('marketing.discount.form.edit_title', { code: existingCode }) : methodLabel}
-            </h1>
+      {/* Header stacks on phones: back + title row, then the submit button
+          full-width underneath so the title never gets squeezed. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            onClick={() => navigate("/dashboard/marketing/discounts")}
+          >
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+          </Button>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <h1 className="text-2xl font-semibold tracking-tight">
+                {isEditMode ? t('marketing.discount.form.edit_title', { code: existingCode }) : methodLabel}
+              </h1>
+            </div>
+            <p className="text-sm text-muted-foreground">{methodDesc}</p>
           </div>
-          <p className="text-sm text-muted-foreground">{methodDesc}</p>
         </div>
-        <Button type="submit" disabled={saving}>
+        <Button type="submit" disabled={saving} className="w-full sm:w-auto">
           {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : <Save className="h-4 w-4 me-2" />}
           {isEditMode ? t('marketing.discount.form.save_button') : t('marketing.discount.form.create_button')}
         </Button>

@@ -182,7 +182,26 @@ export const api = {
       themeSelected?: boolean;
       // Proof-of-email-verification token from verifyOtp().
       emailVerificationToken?: string;
+      // Merchant contact phone (national digits) + ISO2 of its dial code.
+      // The server normalises to E.164 against the enabled phone countries.
+      phone?: string;
+      phoneCountry?: string;
     }) => api.post('/auth/register', data),
+
+    // Enabled phone dial codes (+ default) for the signup / profile phone
+    // field. Public — cached client-side by hooks/usePhoneCountries.
+    phoneCountries: () =>
+      api.get<{ responseObject?: {
+        countries: Array<{ iso2: string; name: string; nameAr?: string; dialCode: string; minDigits: number; maxDigits: number }>;
+        defaultCountry: string;
+      } }>('/auth/phone-countries'),
+
+    // Own-profile edit (name + phone). `phone: ""` clears the number.
+    updateMe: (data: { name?: string; phone?: string; phoneCountry?: string }) =>
+      api.put<{ responseObject?: { name: string; email: string; phone: string | null; phoneCountry: string | null } }>(
+        '/auth/me',
+        data,
+      ),
 
     // ─── Signup email-OTP verification ───────────────────────────────
     // Request a 4-digit code to the given email. Always resolves 200 with a

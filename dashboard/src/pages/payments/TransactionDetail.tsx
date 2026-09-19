@@ -197,7 +197,7 @@ export const TransactionDetail: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/payments')}>
             <ArrowLeft className="h-4 w-4 me-2 rtl:rotate-180" /> {t('payments:transaction.list.back')}

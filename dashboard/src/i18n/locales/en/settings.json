@@ -32,6 +32,9 @@
       },
       "policies": {
         "label": "Policies"
+      },
+      "account": {
+        "label": "Account"
       }
     },
     "section": {
@@ -86,6 +89,10 @@
       "contact": {
         "title": "Contact information",
         "description": "Shown in your storefront footer and on your policy pages."
+      },
+      "account": {
+        "title": "Profile",
+        "description": "Your name and contact details as the store owner."
       }
     },
     "field": {
@@ -222,6 +229,21 @@
           "label": "Company address",
           "placeholder": "Street, city, country"
         }
+      },
+      "account": {
+        "name": {
+          "label": "Your name",
+          "placeholder": "Full name"
+        },
+        "email": {
+          "label": "Email"
+        },
+        "phone": {
+          "label": "Phone number"
+        },
+        "email_verified": "Verified",
+        "email_unverified": "Not verified",
+        "verify_hint": "Email changes and verification are handled in the Security tab."
       }
     },
     "shipping_mode": {
@@ -348,7 +370,10 @@
       "market_delete_failed": "Failed to delete market",
       "notifications_load_failed": "Failed to load notifications",
       "email_templates_saved": "Email templates saved",
-      "notifications_save_failed": "Failed to save notifications"
+      "notifications_save_failed": "Failed to save notifications",
+      "profile_saved": "Profile saved",
+      "profile_save_failed": "Failed to save profile",
+      "profile_load_failed": "Failed to load profile"
     },
     "confirm": {
       "delete_shipping_zone": {

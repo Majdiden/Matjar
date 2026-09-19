@@ -32,10 +32,11 @@ import { useFeatures } from '../../contexts/features-context';
 import type { FeatureKey } from '../../lib/features';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { Store, Globe2, Truck, Receipt, Coins, Mail, ShieldCheck, ScrollText } from 'lucide-react';
+import { Store, Globe2, Truck, Receipt, Coins, Mail, ShieldCheck, ScrollText, UserRound } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { errorMessage, type GeneralSettingsState, type ShippingType } from './shared';
+import { AccountSettings } from './AccountSettings';
 import { GeneralSettings } from './GeneralSettings';
 import { RegionalSettings } from './RegionalSettings';
 import { ShippingZones } from './ShippingZones';
@@ -47,9 +48,9 @@ import { EmailTemplates } from './EmailTemplates';
 import { PoliciesSettings } from './PoliciesSettings';
 import { SecurityPanel } from '../security/Security';
 
-type SettingsTab = 'general' | 'regional' | 'shipping' | 'tax' | 'currencies' | 'markets' | 'notifications' | 'email-templates' | 'policies' | 'security';
+type SettingsTab = 'account' | 'general' | 'regional' | 'shipping' | 'tax' | 'currencies' | 'markets' | 'notifications' | 'email-templates' | 'policies' | 'security';
 
-const VALID_TABS: SettingsTab[] = ['general', 'regional', 'shipping', 'tax', 'currencies', 'markets', 'notifications', 'email-templates', 'policies', 'security'];
+const VALID_TABS: SettingsTab[] = ['account', 'general', 'regional', 'shipping', 'tax', 'currencies', 'markets', 'notifications', 'email-templates', 'policies', 'security'];
 
 // Tabs gated behind a platform feature flag. Ungated tabs are always shown.
 const TAB_FEATURES: Partial<Record<SettingsTab, FeatureKey>> = {
@@ -178,6 +179,7 @@ export const Settings: React.FC = () => {
       <Tabs value={tab} onValueChange={(v) => setTab(v as SettingsTab)}>
         <TabsList className="h-auto w-full justify-start overflow-x-auto scrollbar-hide">
           {([
+            { id: 'account', label: t('settings.tab.account.label'), icon: UserRound },
             { id: 'general', label: t('settings.tab.general.label'), icon: Store },
             { id: 'regional', label: t('settings.tab.regional.label'), icon: Globe2, feature: 'settings.regional' },
             { id: 'shipping', label: t('settings.tab.shipping.label'), icon: Truck },
@@ -200,6 +202,13 @@ export const Settings: React.FC = () => {
       </Tabs>
 
       <div className="mt-6">
+        {/* Account — the merchant's own profile (name + phone) */}
+        {tab === 'account' && (
+        <div className="space-y-6">
+          <AccountSettings />
+        </div>
+        )}
+
         {/* General */}
         {tab === 'general' && (
           <GeneralSettings

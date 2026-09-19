@@ -19,6 +19,9 @@ export interface AuthContextType {
   // Switch the active store in place (no host hop): re-issues a token for the
   // chosen tenant, swaps it in, and hard-reloads the dashboard.
   switchStore: (tenantId: string) => Promise<void>;
+  // Merge a partial profile update (e.g. after Settings → Account saves the
+  // name/phone) into the in-memory user + the localStorage copy.
+  updateUser: (patch: Partial<User>) => void;
   permissions: string[];
   can: (...keys: string[]) => boolean;
 }
