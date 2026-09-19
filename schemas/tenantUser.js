@@ -9,6 +9,11 @@ import { Schema, Types } from "mongoose";
 const tenantUserSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, lowercase: true, trim: true, index: true },
+  // Merchant contact phone (E.164) + the ISO-3166 alpha-2 country it was
+  // entered for. Mirrors the tenant-scoped User row so support tooling can
+  // reach the owner without opening the tenant's collection.
+  phone: { type: String, default: null, trim: true },
+  phoneCountry: { type: String, default: null, uppercase: true, trim: true },
   tenantId: {
     type: Types.ObjectId,
     ref: "Tenant",

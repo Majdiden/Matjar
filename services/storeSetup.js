@@ -4,6 +4,7 @@ import { registerDomain } from "./domainRegistration.js";
 import { installDefaultTheme } from "./theme.js";
 import { seedSampleData } from "./dataSeed.js";
 import { seedThemeDemoData } from "./themeDemoData.js";
+import { isFeatureEnabled } from "./featureFlags.js";
 import logger from "../utils/logger.js";
 
 const SETUP_STEPS = {
@@ -12,6 +13,111 @@ const SETUP_STEPS = {
   DATA_SEEDING: "data_seeding",
   FINALIZATION: "finalization",
 };
+
+/**
+ * Platform feature flag that controls whether a NEW store is auto-seeded
+ * with starter (demo) content during setup. Off by default — the operator
+ * opens it from the platform-admin Features page, or seeds a single store on
+ * demand from its tenant page (see seedStarterContent below).
+ */
+export const STARTER_CONTENT_FLAG = "onboarding.starterContent";
+
+/** Reason recorded on the data_seeding step when the flag is off. */
+export const STARTER_CONTENT_DISABLED_REASON = "Disabled by platform feature flag";
+
+/**
+ * Seed the niche-matched DRAFT starter content (products/categories/
+ * collections + About/Contact CMS pages) for a tenant, so the merchant lands
+ * on a populated store they can edit and PUBLISH. Everything is isDemo +
+ * draft until they go live — nothing is visible on the storefront until
+ * they publish.
+ *
+ * Falls back to the generic sample dataset only when the active theme ships
+ * no demo dataset (otherwise we'd double-seed the catalog). Both seeders are
+ * idempotent / defensive: the theme seeder refuses to touch a store that has
+ * real merchant products, and the generic seeder no-ops when products exist.
+ *
+ * Shared by the signup setup pipeline (when the platform flag is on) and the
+ * platform-admin "seed starter content" action (on demand, flag-independent).
+ *
+ * @param {object} tenant  Tenant doc (needs _id, settings.activeTheme, settings.language)
+ * @param {object} models  scoped models for the tenant
+ * @param {object} [options]
+ * @param {string} [options.themeSlug] override for the theme dataset
+ * @returns {Promise<{success:boolean, seeded:boolean, draft:boolean, source:string|null,
+ *   categories:number, products:number, collections:number, pages:number, error?:string}>}
+ */
+export async function seedStarterContent(tenant, models, options = {}) {
+  const tenantId = tenant._id.toString();
+  const themeSlug = options.themeSlug || tenant?.settings?.activeTheme || null;
+
+  let demoResult = { seeded: false };
+  try {
+    demoResult = await seedThemeDemoData(tenant._id, themeSlug, {
+      draft: true,
+      language: tenant?.settings?.language,
+    });
+  } catch (err) {
+    logger.warn(`Draft starter content seeding failed: ${err.message}`, { tenantId });
+  }
+
+  if (demoResult.seeded) {
+    return {
+      success: true,
+      seeded: true,
+      draft: true,
+      source: "theme",
+      categories: demoResult.categories || 0,
+      products: demoResult.products || 0,
+      collections: demoResult.collections || 0,
+      pages: demoResult.pages || 0,
+    };
+  }
+
+  const seedResult = await seedSampleData(models, tenant);
+  return {
+    success: !!seedResult.success,
+    seeded: !!seedResult.success && (seedResult.productsCreated || 0) > 0,
+    draft: false,
+    source: seedResult.success ? "sample" : null,
+    categories: seedResult.categoriesCreated || 0,
+    products: seedResult.productsCreated || 0,
+    collections: 0,
+    pages: 0,
+    ...(seedResult.error ? { error: seedResult.error } : {}),
+  };
+}
+
+/**
+ * Platform-admin hook: seed starter content for an existing tenant on
+ * demand, regardless of the auto-seed flag. Records the outcome on the
+ * tenant's setupStatus.steps.data_seeding so the tenant page reflects it.
+ */
+export async function seedStarterContentForTenant(tenantId) {
+  const Tenant = mongoose.model("Tenant");
+  const tenant = await Tenant.findById(tenantId);
+  if (!tenant) throw new Error(`Tenant ${tenantId} not found`);
+  const { createScopedModels } = await import("../utils/scopedModel.js");
+  const models = createScopedModels(mongoose.connection, tenant._id);
+  const result = await seedStarterContent(tenant, models);
+  await updateSetupStep(
+    tenant._id.toString(),
+    SETUP_STEPS.DATA_SEEDING,
+    result.success ? "completed" : "skipped",
+    result.success
+      ? {
+          draft: result.draft,
+          source: result.source,
+          categories: result.categories,
+          products: result.products,
+          collections: result.collections,
+          pages: result.pages,
+          manual: true,
+        }
+      : { reason: result.error || "Seeding did not run", manual: true }
+  );
+  return result;
+}
 
 /**
  * Initialize store setup
@@ -74,45 +180,40 @@ export async function initializeStoreSetup(tenant, models, options = {}) {
       await updateSetupStep(tenantId, SETUP_STEPS.THEME_INSTALLATION, "completed", { theme: themeResult.theme });
     }
 
-    // Step 3: Starter Content Seeding
+    // Step 3: Starter Content Seeding — gated by the platform feature flag
+    // (`options.seedStarterContent` lets tooling force it either way, e.g.
+    // the sample-store seeder). When off, the step is recorded as skipped so
+    // the platform-admin tenant page shows WHY the store is empty, and the
+    // operator can seed on demand later. Never throws — a seed failure must
+    // not break signup.
     await updateSetupStep(tenantId, SETUP_STEPS.DATA_SEEDING, "in_progress");
+    const seedEnabled =
+      typeof options.seedStarterContent === "boolean"
+        ? options.seedStarterContent
+        : await isFeatureEnabled(STARTER_CONTENT_FLAG);
 
-    // Seed niche-matched DRAFT starter content (products/categories/collections
-    // + About/Contact CMS pages) so the merchant lands on a populated store
-    // they can edit and PUBLISH. Everything is isDemo + draft until they go
-    // live — nothing is visible on the storefront until they publish. Never
-    // throws (seedThemeDemoData is defensive) — a seed failure must not break
-    // signup.
-    let demoResult = { seeded: false };
-    try {
+    if (!seedEnabled) {
+      logger.info("Starter content seeding skipped (feature flag off)", { tenantId });
+      await updateSetupStep(tenantId, SETUP_STEPS.DATA_SEEDING, "skipped", {
+        reason: STARTER_CONTENT_DISABLED_REASON,
+        flag: STARTER_CONTENT_FLAG,
+      });
+    } else {
       const starterTheme =
         themeResult?.theme?.slug || tenant?.settings?.activeTheme || null;
-      demoResult = await seedThemeDemoData(tenant._id, starterTheme, {
-        draft: true,
-        language: tenant?.settings?.language,
-      });
-    } catch (err) {
-      logger.warn(`Draft starter content seeding failed: ${err.message}`, { tenantId });
-    }
-
-    // Only fall back to the generic sample data when there was no theme demo
-    // dataset to seed — otherwise we'd double-seed the catalog. (seedSampleData
-    // also no-ops when products already exist, but seeding the demo first and
-    // gating on it keeps the flow explicit.)
-    let seedResult = { success: true, categoriesCreated: 0, productsCreated: 0 };
-    if (!demoResult.seeded) {
-      seedResult = await seedSampleData(models, tenant);
-    }
-    if (!seedResult.success) {
-      await updateSetupStep(tenantId, SETUP_STEPS.DATA_SEEDING, "skipped", { reason: seedResult.error });
-    } else {
-      await updateSetupStep(tenantId, SETUP_STEPS.DATA_SEEDING, "completed", {
-        draft: !!demoResult.seeded,
-        categories: demoResult.seeded ? demoResult.categories : seedResult.categoriesCreated,
-        products: demoResult.seeded ? demoResult.products : seedResult.productsCreated,
-        collections: demoResult.seeded ? demoResult.collections : 0,
-        pages: demoResult.seeded ? demoResult.pages : 0,
-      });
+      const seedResult = await seedStarterContent(tenant, models, { themeSlug: starterTheme });
+      if (!seedResult.success) {
+        await updateSetupStep(tenantId, SETUP_STEPS.DATA_SEEDING, "skipped", { reason: seedResult.error });
+      } else {
+        await updateSetupStep(tenantId, SETUP_STEPS.DATA_SEEDING, "completed", {
+          draft: seedResult.draft,
+          source: seedResult.source,
+          categories: seedResult.categories,
+          products: seedResult.products,
+          collections: seedResult.collections,
+          pages: seedResult.pages,
+        });
+      }
     }
 
     // Seed default payment methods. Idempotent — skipped if any method

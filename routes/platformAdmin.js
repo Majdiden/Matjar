@@ -49,6 +49,9 @@ import {
   updatePlan,
   deletePlan,
   changeTenantPlan,
+  seedTenantStarterContent,
+  getPhoneCountries,
+  updatePhoneCountries,
 } from "../controllers/platformAdmin.js";
 import {
   requestController as impersonationRequest,
@@ -76,6 +79,10 @@ router.get("/me", platformMe);
 // --- Platform feature flags ---
 router.get("/features", requireScope(PLATFORM_SCOPES.SUPPORT_READ), getPlatformFeatures);
 router.put("/features", requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE), updatePlatformFeatures);
+
+// --- Phone countries offered on merchant signup / profile forms ---
+router.get("/phone-countries", requireScope(PLATFORM_SCOPES.SUPPORT_READ), getPhoneCountries);
+router.put("/phone-countries", requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE), updatePhoneCountries);
 
 // --- Tenant inspection (support.read) ---
 router.get("/tenants", requireScope(PLATFORM_SCOPES.SUPPORT_READ), listTenants);
@@ -151,6 +158,13 @@ router.post(
   validateObjectId("tenantId"),
   requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
   retryTenantSetup
+);
+// On-demand starter (demo) content seed for one store — see controller.
+router.post(
+  "/tenants/:tenantId/seed-starter-content",
+  validateObjectId("tenantId"),
+  requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
+  seedTenantStarterContent
 );
 router.post(
   "/tenants/:tenantId/suspend",

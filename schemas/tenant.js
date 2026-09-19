@@ -5,6 +5,12 @@ const tenantSchema = new Schema({
   name: { type: String, required: true },
   slug: { type: String, required: true, unique: true, lowercase: true }, // Unique slug for subdomain
   email: { type: String, required: true },
+  // Owner/account contact phone captured at signup, stored in E.164
+  // (e.g. "+249912345678") with the ISO-3166 alpha-2 country it was entered
+  // for. Distinct from `settings.contact.phone`, which is the STORE's public
+  // contact number shown on the storefront.
+  phone: { type: String, default: null, trim: true },
+  phoneCountry: { type: String, default: null, uppercase: true, trim: true },
 
   // Domain Configuration
   domains: {

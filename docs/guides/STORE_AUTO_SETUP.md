@@ -176,9 +176,26 @@ Authorization: Bearer <token>
 - Increments theme installation count
 - **Skips if no themes available** (non-blocking)
 
-### 3. Sample Data Seeding
+### 3. Starter Content Seeding (operator-controlled)
 
-Creates sample data for immediate testing:
+**Off by default.** Seeding is gated by the platform feature flag
+`onboarding.starterContent` (platform admin → Features → Onboarding). When the
+flag is off, the `data_seeding` step is recorded as `skipped` with the reason
+`Disabled by platform feature flag`, and the store starts with an empty catalog.
+Default payment methods (COD + manual transfer) and the header navigation menu
+are always created — they are system defaults, not sample content.
+
+An operator can seed a single store later from the platform-admin tenant page
+("Seed starter content"), which calls
+`POST /api/platform/tenants/:tenantId/seed-starter-content`. Seeding is a no-op
+on a store that already has real merchant products. Tooling can force either
+behaviour with `initializeStoreSetup(tenant, models, { seedStarterContent: true|false })`.
+
+When enabled, the niche-matched DRAFT dataset for the active theme
+(`services/themeDemoData.js`) is preferred; the generic sample data below is the
+fallback for themes without a dataset.
+
+Generic sample data:
 
 **Categories Created:**
 - Electronics

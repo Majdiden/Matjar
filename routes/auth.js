@@ -16,6 +16,8 @@ import {
   verifyOtpController,
   requestEmailVerificationController,
   confirmEmailVerificationController,
+  updateCurrentUserController,
+  phoneCountriesController,
 } from "../controllers/auth.js";
 import {
   registrationOptionsController,
@@ -40,6 +42,7 @@ import {
   confirmPasswordResetSchema,
   requestOtpSchema,
   verifyOtpSchema,
+  updateMeSchema,
 } from "../validators/auth.validator.js";
 
 const authRoutes = Router();
@@ -72,6 +75,9 @@ const webauthnAuthLimiter = createRateLimiter({
 // Public routes
 authRoutes.post("/register", validate(registerTenantSchema), registerTenantController);
 authRoutes.get("/check-email", checkEmailController);
+// Enabled phone dial codes (+ default) for the signup / profile phone field.
+// Public: the signup form needs it before any account exists.
+authRoutes.get("/phone-countries", phoneCountriesController);
 authRoutes.post("/login", validate(loginSchema), loginController);
 authRoutes.post("/refresh", validate(refreshTokenSchema), refreshTokenController);
 
@@ -144,6 +150,8 @@ authRoutes.post(
 );
 
 authRoutes.get("/me", authenticate, getCurrentUserController);
+// Own-profile edit (name + phone). Email/password have dedicated flows.
+authRoutes.put("/me", authenticate, validate(updateMeSchema), updateCurrentUserController);
 authRoutes.post("/logout", authenticate, logoutController);
 authRoutes.post("/change-password", passwordResetLimiter, authenticate, changePasswordController);
 

@@ -108,6 +108,61 @@ describe("E2E signup → store provision", () => {
     assert.match(JSON.stringify(res.body).toLowerCase(), /already taken|already exists|subdomain/);
   });
 
+  it("normalises the merchant phone to E.164 (Sudan default) and mirrors it everywhere", async () => {
+    const payload = {
+      name: "Acme Coffee",
+      email: "owner@acme.test",
+      password: "Sup3rSecret!",
+      subdomain: "acme",
+      // Trunk-0, spaces and dashes as a Sudanese merchant would type it;
+      // no phoneCountry → platform default (SD, +249).
+      phone: "091 234-5678",
+    };
+
+    const res = await request(app).post("/api/auth/register").send(payload).expect(201);
+    const tenantId = res.body.responseObject.tenantId;
+
+    const Tenant = mongoose.model("Tenant");
+    const tenant = await Tenant.findById(tenantId).lean();
+    assert.equal(tenant.phone, "+249912345678");
+    assert.equal(tenant.phoneCountry, "SD");
+
+    const models = createScopedModels(mongoose.connection, tenant._id);
+    const admin = await models.User.findOne({ email: payload.email }).lean();
+    assert.equal(admin.phone, "+249912345678");
+    assert.equal(admin.phoneCountry, "SD");
+
+    const TenantUser = mongoose.model("TenantUser");
+    const directory = await TenantUser.findOne({ tenantId: tenant._id, email: payload.email }).lean();
+    assert.equal(directory.phone, "+249912345678");
+  });
+
+  it("rejects a phone that does not fit the selected country", async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Acme Coffee",
+      email: "owner@acme.test",
+      password: "Sup3rSecret!",
+      subdomain: "acme",
+      phone: "12345", // far too short for +249
+      phoneCountry: "SD",
+    });
+    assert.equal(res.status, 400);
+    assert.equal(res.body.success, false);
+    assert.match(JSON.stringify(res.body).toLowerCase(), /phone/);
+
+    // Nothing was written — validation happens before the transaction.
+    const Tenant = mongoose.model("Tenant");
+    assert.equal(await Tenant.countDocuments({ slug: "acme" }), 0);
+  });
+
+  it("serves the enabled phone countries publicly (Sudan by default)", async () => {
+    const res = await request(app).get("/api/auth/phone-countries").expect(200);
+    const ro = res.body.responseObject;
+    assert.equal(ro.defaultCountry, "SD");
+    assert.ok(Array.isArray(ro.countries) && ro.countries.length >= 1);
+    assert.equal(ro.countries[0].dialCode, "+249");
+  });
+
   it("rejects a malformed payload via the validator", async () => {
     // Missing subdomain + weak password should not even reach the service.
     const res = await request(app)

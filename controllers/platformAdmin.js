@@ -16,7 +16,9 @@ import {
   cancelScheduledDeletion,
   purgeTenant,
 } from "../services/tenantLifecycle.js";
-import { retrySetup } from "../services/storeSetup.js";
+import { retrySetup, seedStarterContentForTenant } from "../services/storeSetup.js";
+import { getPhoneCountryConfig, setPhoneCountryConfig } from "../services/phoneCountries.js";
+import { PHONE_COUNTRY_CATALOG } from "../config/phoneCountries.js";
 import { mintImpersonationToken } from "../services/impersonation.js";
 import { exportTenantData } from "../services/dataExport.js";
 import { enqueueTenantExport } from "../services/jobs/index.js";
@@ -109,7 +111,7 @@ export const listTenants = asyncHandler(async (req, res) => {
   const Tenant = mongoose.model("Tenant");
   const [rows, total] = await Promise.all([
     Tenant.find(filter)
-      .select("name slug email domains subscriptionPlan subscriptionStatus suspendedAt deletionScheduledAt deletedAt setupStatus.status createdAt")
+      .select("name slug email phone phoneCountry domains subscriptionPlan subscriptionStatus suspendedAt deletionScheduledAt deletedAt setupStatus.status createdAt")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit))
@@ -137,6 +139,51 @@ export const retryTenantSetup = asyncHandler(async (req, res) => {
   const result = await retrySetup(req.params.tenantId);
   logger.warn("Platform: setup retry", { tenantId: req.params.tenantId, by: req.platformUser.email });
   res.json({ success: true, data: result });
+});
+
+// --- On-demand starter content -----------------------------------------
+//
+// Auto-seeding at signup is off by default (feature flag
+// `onboarding.starterContent`); this lets an operator populate a single
+// store with the niche-matched DRAFT starter catalog after the fact. The
+// seeder refuses to touch a store that already has real merchant products,
+// so it is safe to call on a live store (it becomes a no-op).
+
+export const seedTenantStarterContent = asyncHandler(async (req, res) => {
+  const result = await seedStarterContentForTenant(req.params.tenantId);
+  logger.warn("Platform: starter content seed", {
+    tenantId: req.params.tenantId,
+    by: req.platformUser.email,
+    seeded: result.seeded,
+    source: result.source,
+  });
+  res.json({ success: true, data: result });
+});
+
+// --- Phone countries (signup / profile dial codes) ---------------------
+
+/** GET /platform/phone-countries — effective config + the pickable catalog. */
+export const getPhoneCountries = asyncHandler(async (_req, res) => {
+  const config = await getPhoneCountryConfig();
+  res.json({ success: true, data: { ...config, catalog: PHONE_COUNTRY_CATALOG } });
+});
+
+/**
+ * PUT /platform/phone-countries
+ * body: { countries: [{ iso2, name, nameAr, dialCode, minDigits, maxDigits, enabled }], defaultCountry }
+ * Replaces the operator's full list. Validation lives in the service.
+ */
+export const updatePhoneCountries = asyncHandler(async (req, res) => {
+  const config = await setPhoneCountryConfig(
+    { countries: req.body?.countries, defaultCountry: req.body?.defaultCountry },
+    req.platformUser?.id
+  );
+  logger.warn("Platform: phone countries updated", {
+    by: req.platformUser.email,
+    enabled: config.countries.filter((c) => c.enabled).map((c) => c.iso2),
+    defaultCountry: config.defaultCountry,
+  });
+  res.json({ success: true, data: { ...config, catalog: PHONE_COUNTRY_CATALOG } });
 });
 
 // --- Lifecycle -------------------------------------------------------

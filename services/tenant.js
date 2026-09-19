@@ -11,6 +11,7 @@ import { initializeStoreSetup } from "./storeSetup.js";
 import { getAllowedThemeSlugs } from "./featureFlags.js";
 import { enqueueStoreSetup } from "./jobs/index.js";
 import { upsertPlatformSubdomainDomain } from "./domainRegistry.js";
+import { resolveMerchantPhone } from "./phoneCountries.js";
 import { APIError } from "../middlewares/errorHandler.js";
 
 const addATenantService = async (tenantData) => {
@@ -40,6 +41,18 @@ const addATenantService = async (tenantData) => {
 
     const fullSubdomain = `${slug}.${config.domainSuffix}`;
 
+    // Merchant contact phone → E.164 against the platform's enabled phone
+    // countries. Validation happens up front (before any writes) so a bad
+    // number fails the request cleanly with a 400 instead of aborting a
+    // half-built transaction. Optional at the API layer; the dashboard always
+    // sends it. `phoneHash`-style pass-through isn't needed: an existing user
+    // adding a store hands us their already-normalised E.164 + country.
+    let phone = null;
+    let phoneCountry = null;
+    if (tenantData.phone && String(tenantData.phone).trim()) {
+      ({ phone, phoneCountry } = await resolveMerchantPhone(tenantData.phone, tenantData.phoneCountry));
+    }
+
     // Restrict the chosen theme to the platform allowlist (feature-flagged).
     // A disallowed/unknown slug falls back to the default theme rather than
     // failing registration. `getAllowedThemeSlugs()` returns null when the full
@@ -63,6 +76,8 @@ const addATenantService = async (tenantData) => {
       slug,
       domain: fullSubdomain,
       email: tenantData.email,
+      phone,
+      phoneCountry,
       subscriptionPlan: tenantData.subscriptionPlan || "trial",
       // Whether the merchant actively picked a theme during onboarding. The
       // dashboard sends `themeSelected: false` when the user skips the theme
@@ -145,6 +160,8 @@ const addATenantService = async (tenantData) => {
           id: data._id,
           email: tenantData.email,
           name: tenantData.name,
+          phone,
+          phoneCountry,
           tenantId: data._id,
         },
         session
@@ -156,6 +173,7 @@ const addATenantService = async (tenantData) => {
         name: tenantData.name,
         email: tenantData.email,
         password: hashedPassword,
+        ...(phone ? { phone, phoneCountry } : {}),
         roles: ["admin"],
       });
 
@@ -250,13 +268,17 @@ const addATenantService = async (tenantData) => {
  * tenant-creation pipeline but, instead of a fresh password, copies the
  * existing user's bcrypt hash so they sign into the new store with the same
  * credentials and it shows up in their store picker. `existingUser` is the
- * authenticated user's tenant-scoped User doc ({ name, email, password }).
+ * authenticated user's tenant-scoped User doc
+ * ({ name, email, password, phone?, phoneCountry? }) — the phone carries over
+ * so every store the user owns shares the same contact number.
  */
 const addStoreForExistingUserService = (existingUser, storeData = {}) =>
   addATenantService({
     name: existingUser.name,
     email: existingUser.email,
     passwordHash: existingUser.password,
+    phone: existingUser.phone || undefined,
+    phoneCountry: existingUser.phoneCountry || undefined,
     storeName: storeData.storeName,
     subdomain: storeData.subdomain,
     themeSlug: storeData.themeSlug,

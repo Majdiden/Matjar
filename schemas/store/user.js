@@ -13,6 +13,11 @@ const userSchema = new Schema({
   firstName: { type: String, trim: true },
   lastName: { type: String, trim: true },
   phone: { type: String, trim: true },
+  // ISO-3166 alpha-2 of the dial code `phone` was entered with (merchant
+  // accounts; E.164 in `phone`). Lets the profile form re-select the right
+  // country when editing. Customers created from storefront checkout leave
+  // this unset.
+  phoneCountry: { type: String, trim: true, uppercase: true, default: null },
   email: {
     type: String,
     required: true,

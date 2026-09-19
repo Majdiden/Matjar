@@ -13,7 +13,8 @@
  *   group/label/description power the admin UI.
  */
 export const FEATURE_REGISTRY = Object.freeze([
-  { key: "payments.methods",      type: "boolean", default: false, group: "Payments",   label: "Payment methods management", description: "Merchant payment-method config UI + non-COD methods at checkout. OFF = Cash on Delivery is the only method." },
+  { key: "onboarding.starterContent", type: "boolean", default: false, group: "Onboarding", label: "Seed starter content on signup", description: "Auto-seed niche-matched DRAFT sample products, categories, collections and About/Contact pages when a store is created. OFF = new stores start empty (default payment methods and the header menu are always created). Operators can still seed a store on demand from its tenant page." },
+  { key: "payments.methods",     type: "boolean", default: false, group: "Payments",   label: "Payment methods management", description: "Merchant payment-method config UI + non-COD methods at checkout. OFF = Cash on Delivery is the only method." },
   { key: "payments.transactions", type: "boolean", default: false, group: "Payments",   label: "Payments & transactions",    description: "Transactions list/detail pages and the order-detail payments ledger (refunds, manual verification)." },
   { key: "orders.fulfillment",    type: "boolean", default: false, group: "Orders",     label: "Fulfillments",               description: "Fulfillments page, fulfillment creation, fulfillment card on order detail, packing slips." },
   { key: "orders.returns",        type: "boolean", default: false, group: "Orders",     label: "Returns & replacements",     description: "Returns card + return/replacement dialogs on order detail." },

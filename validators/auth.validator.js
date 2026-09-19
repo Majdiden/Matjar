@@ -64,7 +64,29 @@ export const registerTenantSchema = z.object({
     // Proof-of-email-verification token minted by POST /auth/otp/verify. The
     // register controller validates it against `email` when present.
     emailVerificationToken: z.string().optional(),
+    // Merchant contact phone. The dashboard always sends it; optional at the
+    // API layer for backward compatibility with older callers/tests. When
+    // present it is normalised to E.164 against the platform's enabled
+    // phone countries (services/phoneCountries.js) and rejected if invalid.
+    phone: z.string().max(30).optional(),
+    // ISO-3166 alpha-2 of the dial code the number was entered for. Defaults
+    // to the platform default country (Sudan) when omitted.
+    phoneCountry: z.string().length(2).optional(),
   }),
+});
+
+// PUT /auth/me — the signed-in merchant edits their own profile. Email and
+// password have dedicated, verified flows and are NOT editable here.
+export const updateMeSchema = z.object({
+  body: z
+    .object({
+      name: z.string().trim().min(2, "Name must be at least 2 characters").max(200).optional(),
+      phone: z.string().max(30).nullable().optional(),
+      phoneCountry: z.string().length(2).optional(),
+    })
+    .refine((b) => b.name !== undefined || b.phone !== undefined, {
+      message: "Nothing to update",
+    }),
 });
 
 // ─── Email-OTP validators ──────────────────────────────────────────

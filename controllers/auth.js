@@ -19,6 +19,8 @@ import { signJWT } from "../utils/misc.js";
 import { asyncHandler, APIError } from "../middlewares/errorHandler.js";
 import { createScopedModels } from "../utils/scopedModel.js";
 import { logAudit } from "../utils/audit.js";
+import logger from "../utils/logger.js";
+import { getEnabledPhoneCountries, resolveMerchantPhone } from "../services/phoneCountries.js";
 
 export const registerTenantController = asyncHandler(async (req, res) => {
   // Email-OTP gate. When the client supplies an `emailVerificationToken`
@@ -139,7 +141,7 @@ export const addStoreController = asyncHandler(async (req, res) => {
   // Load the authenticated user's tenant-scoped doc (name + bcrypt hash) so
   // the new store's admin user is created with the same credentials.
   const me = await req.models.User.findById(req.user.userId)
-    .select("name email password")
+    .select("name email password phone phoneCountry")
     .lean();
   if (!me) {
     return res.status(401).json({ success: false, message: "Not authenticated" });
@@ -424,15 +426,22 @@ export const getCurrentUserController = asyncHandler(async (req, res) => {
   }
   // Pull the durable email-verification flag + email so the dashboard
   // Security surface can show the verified badge / CTA without a second call.
+  // Name + phone feed the Settings → Account profile form.
   let email = null;
   let emailVerified = false;
+  let name = null;
+  let phone = null;
+  let phoneCountry = null;
   try {
     const me = await req.models.User.findById(req.user.userId)
-      .select("email emailVerified")
+      .select("name email emailVerified phone phoneCountry")
       .lean();
     if (me) {
       email = me.email || null;
       emailVerified = !!me.emailVerified;
+      name = me.name || null;
+      phone = me.phone || null;
+      phoneCountry = me.phoneCountry || null;
     }
   } catch {
     // Non-fatal — the dashboard treats missing status as "not verified".
@@ -446,10 +455,93 @@ export const getCurrentUserController = asyncHandler(async (req, res) => {
       roles: req.user.roles,
       permissions,
       settings,
+      name,
       email,
       emailVerified,
+      phone,
+      phoneCountry,
     },
   });
+});
+
+/**
+ * PUT /auth/me — update the signed-in merchant's own profile (name + phone).
+ *
+ * The phone is normalised to E.164 against the platform's enabled phone
+ * countries; an empty string / null clears it. The change is mirrored to the
+ * cross-tenant TenantUser directory row (matched by tenant + email) and, when
+ * the caller is the store admin, to the Tenant's owner phone — so support
+ * tooling and the tenant record never drift from what the merchant sees.
+ */
+export const updateCurrentUserController = asyncHandler(async (req, res) => {
+  const me = await req.models.User.findById(req.user.userId)
+    .select("name email phone phoneCountry roles")
+    .lean();
+  if (!me) {
+    return res.status(401).json({ success: false, message: "Not authenticated" });
+  }
+
+  const $set = {};
+  if (req.body.name !== undefined) $set.name = String(req.body.name).trim();
+  if (req.body.phone !== undefined) {
+    const raw = req.body.phone == null ? "" : String(req.body.phone).trim();
+    if (!raw) {
+      $set.phone = null;
+      $set.phoneCountry = null;
+    } else {
+      const resolved = await resolveMerchantPhone(raw, req.body.phoneCountry || me.phoneCountry);
+      $set.phone = resolved.phone;
+      $set.phoneCountry = resolved.phoneCountry;
+    }
+  }
+
+  // Scoped updateOne (not doc.save) so tenantId is injected by the tenant
+  // scope plugin — see confirmEmailVerificationController.
+  await req.models.User.updateOne({ _id: req.user.userId }, { $set });
+
+  // Best-effort mirrors — a failure here must not fail the profile save.
+  try {
+    const TenantUser = mongoose.model("TenantUser");
+    await TenantUser.updateOne({ tenantId: req.user.tenantId, email: me.email }, { $set });
+    const isAdmin = Array.isArray(me.roles) && me.roles.includes("admin");
+    if (isAdmin && ($set.phone !== undefined || $set.phoneCountry !== undefined)) {
+      const tenantSet = {};
+      if ($set.phone !== undefined) tenantSet.phone = $set.phone;
+      if ($set.phoneCountry !== undefined) tenantSet.phoneCountry = $set.phoneCountry;
+      await mongoose.model("Tenant").updateOne({ _id: req.user.tenantId }, { $set: tenantSet });
+    }
+  } catch (err) {
+    logger.warn("Profile mirror update failed", { userId: req.user.userId, error: err.message });
+  }
+
+  logAudit(req.models, {
+    action: "user.profile_updated",
+    resource: "User",
+    resourceId: req.user.userId,
+    req,
+    metadata: { fields: Object.keys($set) },
+  });
+
+  res.json({
+    success: true,
+    message: "Profile updated",
+    responseObject: {
+      name: $set.name !== undefined ? $set.name : me.name,
+      email: me.email,
+      phone: $set.phone !== undefined ? $set.phone : me.phone || null,
+      phoneCountry: $set.phoneCountry !== undefined ? $set.phoneCountry : me.phoneCountry || null,
+    },
+  });
+});
+
+/**
+ * GET /auth/phone-countries — public. The enabled dial codes (+ the default)
+ * the signup and profile phone fields offer. Cache-friendly and tiny.
+ */
+export const phoneCountriesController = asyncHandler(async (_req, res) => {
+  const data = await getEnabledPhoneCountries();
+  res.set("Cache-Control", "public, max-age=60");
+  res.json({ success: true, responseObject: data });
 });
 
 export const changePasswordController = asyncHandler(async (req, res) => {
