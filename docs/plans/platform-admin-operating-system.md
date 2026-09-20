@@ -171,7 +171,7 @@ Policy "standard": basis gmv, scope delivered, recognition delivered, period cal
 5. **Billing** (§2).
 6. **Overview page** with the four tile groups from the doc plus an alert list computed from failed jobs, failed webhooks, SSL errors, overdue statements, stuck setups.
 
-### Phase B — Operations (P1)
+### Phase B — Operations (P1) — DONE (commit d790c19, 2026-09-20)
 
 7. **Access programs** + **feature override layers** (plan entitlements → program → store), with the **Configuration inspector** on tenant detail showing default/plan/program/store/effective for every flag and limit.
 8. **Usage & limits**: nightly usage roll-up per tenant (products, staff, orders this month, storage, API calls from the request logger) shown against effective limits; soft enforcement switches.
