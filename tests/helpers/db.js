@@ -42,6 +42,16 @@ export async function startTestDb() {
     socketTimeoutMS: 30000,
   });
   registerAllModels(mongoose.connection);
+  // Let every model finish its background index builds before any test
+  // writes. mongoose 8.24+ builds indexes at registration; a transaction
+  // that inserts into a collection whose index is still being created fails
+  // with "Unable to write to collection ... due to catalog changes; please
+  // retry" (the first checkout test hit this reliably).
+  await Promise.all(
+    mongoose.connection.modelNames().map((name) =>
+      mongoose.connection.model(name).init().catch(() => {})
+    )
+  );
   // Warm-up: open a session and run a real read+write inside a
   // transaction. The in-memory replset advertises "running" before
   // it has actually elected a stable primary, so the FIRST test
