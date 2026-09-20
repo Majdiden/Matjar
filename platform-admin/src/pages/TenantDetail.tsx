@@ -8,6 +8,7 @@ import { Modal } from '../components/ui/Modal';
 import { Select } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { StatusBadge } from '../components/StatusBadge';
+import { LifecycleBadge } from '../components/LifecycleBadge';
 import { PageSpinner, ErrorState } from '../components/ui/Spinner';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { useToast } from '../components/ui/toast-context';
@@ -38,12 +39,18 @@ import TenantPaymentsTab from './TenantPaymentsTab';
 import TenantExportsTab from './TenantExportsTab';
 import TenantFailedWebhooksTab from './TenantFailedWebhooksTab';
 import { ImpersonationRequestModal } from './ImpersonationRequestModal';
+import TenantBillingTab from './TenantBillingTab';
+import TenantStaffTab from './TenantStaffTab';
+import TenantActivityTab from './TenantActivityTab';
 
-type Tab = 'overview' | 'orders' | 'payments' | 'exports' | 'webhooks';
+type Tab = 'overview' | 'orders' | 'payments' | 'billing' | 'staff' | 'activity' | 'exports' | 'webhooks';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'orders', label: 'Orders' },
   { id: 'payments', label: 'Payments' },
+  { id: 'billing', label: 'Billing' },
+  { id: 'staff', label: 'Staff' },
+  { id: 'activity', label: 'Activity' },
   { id: 'exports', label: 'Exports' },
   { id: 'webhooks', label: 'Failed webhooks' },
 ];
@@ -87,7 +94,14 @@ interface TenantDetail {
     failedAt?: string | null;
     lastError?: string | null;
   };
-  settings?: { activeTheme?: string; niche?: string };
+  settings?: { activeTheme?: string; niche?: string; currency?: string };
+  lifecycle?: {
+    state?: string;
+    reason?: string | null;
+    changedAt?: string | null;
+    changedBy?: string | null;
+    history?: Array<{ state: string; reason?: string | null; changedAt?: string; changedBy?: string | null }>;
+  };
   createdAt: string;
   updatedAt?: string;
 }
@@ -104,6 +118,8 @@ export default function TenantDetailPage() {
   const canImpersonate = hasScope(user, PLATFORM_SCOPES.SUPPORT_IMPERSONATE);
   const canExport = hasScope(user, PLATFORM_SCOPES.TENANT_EXPORT);
   const canReadBilling = hasScope(user, PLATFORM_SCOPES.BILLING_READ);
+  // Purge is owner-only server-side (requireRole("owner")); hide it otherwise.
+  const canPurge = canLifecycle && user?.role === 'owner';
 
   const [tenant, setTenant] = useState<TenantDetail | null>(null);
   const [stats, setStats] = useState<{
@@ -258,9 +274,10 @@ export default function TenantDetailPage() {
   if (error) return <ErrorState error={error} onRetry={load} />;
   if (!tenant) return null;
 
-  const isSuspended = tenant.subscriptionStatus === 'suspended' || !!tenant.suspendedAt;
-  const isScheduledForDeletion = !!tenant.deletionScheduledAt && !tenant.deletedAt;
-  const isDeleted = !!tenant.deletedAt;
+  const lifecycleState = tenant.lifecycle?.state || null;
+  const isSuspended = lifecycleState === 'suspended' || tenant.subscriptionStatus === 'suspended' || !!tenant.suspendedAt;
+  const isScheduledForDeletion = (lifecycleState === 'closed' || !!tenant.deletionScheduledAt) && !tenant.deletedAt;
+  const isDeleted = lifecycleState === 'archived' || !!tenant.deletedAt;
   const setupState = tenant.setupStatus?.status || null;
   const setupInterrupted = setupState && !['completed', 'skipped'].includes(setupState);
 
@@ -277,6 +294,7 @@ export default function TenantDetailPage() {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <h1 className="break-words text-2xl font-bold tracking-tight">{tenant.name}</h1>
+              <LifecycleBadge state={lifecycleState} />
               <StatusBadge status={tenant.subscriptionStatus} />
               {isDeleted && <Badge variant="destructive">Deleted</Badge>}
               {isScheduledForDeletion && <Badge variant="warning">Deletion scheduled</Badge>}
@@ -318,6 +336,13 @@ export default function TenantDetailPage() {
               <span aria-hidden>·</span>
               <span>{shortId(tenant._id)}</span>
             </div>
+            {tenant.lifecycle?.reason && lifecycleState !== 'active' && (
+              <div className="mt-1 text-xs text-muted-foreground">
+                <span className="capitalize">{lifecycleState}</span>: {tenant.lifecycle.reason}
+                {tenant.lifecycle.changedBy && <> · by {tenant.lifecycle.changedBy}</>}
+                {tenant.lifecycle.changedAt && <> · {formatDate(tenant.lifecycle.changedAt)}</>}
+              </div>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -389,7 +414,7 @@ export default function TenantDetailPage() {
                 <Trash2 className="h-3.5 w-3.5" /> Schedule deletion
               </Button>
             ))}
-            {canLifecycle && (
+            {canPurge && (
               <Button
                 variant="destructive"
                 size="sm"
@@ -472,7 +497,9 @@ export default function TenantDetailPage() {
           {TABS.filter((t) => {
             // Hide tabs the operator has no scope to read. Server
             // enforces; this just avoids dead UI.
-            if (t.id === 'payments') return canReadBilling;
+            if (t.id === 'payments' || t.id === 'billing') return canReadBilling;
+            if (t.id === 'staff') return hasScope(user, PLATFORM_SCOPES.TENANT_USERS);
+            if (t.id === 'activity') return hasScope(user, PLATFORM_SCOPES.AUDIT_READ);
             if (t.id === 'exports') return canExport;
             return true;
           }).map((t) => (
@@ -537,6 +564,24 @@ export default function TenantDetailPage() {
                 label="Deleted at"
                 value={tenant.deletedAt ? formatDate(tenant.deletedAt) : '—'}
               />
+              {tenant.lifecycle?.history && tenant.lifecycle.history.length > 0 && (
+                <div className="pt-2">
+                  <div className="mb-1 text-xs font-medium text-muted-foreground">Lifecycle history</div>
+                  <ul className="space-y-1 text-xs">
+                    {[...tenant.lifecycle.history].reverse().slice(0, 8).map((h, i) => (
+                      <li key={i} className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                        <span className="min-w-0 [overflow-wrap:anywhere]">
+                          <span className="capitalize">{h.state}</span>
+                          {h.reason ? <span className="text-muted-foreground"> — {h.reason}</span> : null}
+                        </span>
+                        <span className="shrink-0 text-muted-foreground">
+                          {h.changedAt ? formatDate(h.changedAt) : ''}{h.changedBy ? ` · ${h.changedBy}` : ''}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -664,6 +709,9 @@ export default function TenantDetailPage() {
       {tab === 'payments' && <TenantPaymentsTab tenantId={tenantId} />}
       {tab === 'exports' && <TenantExportsTab tenantId={tenantId} tenantSlug={tenant.slug} />}
       {tab === 'webhooks' && <TenantFailedWebhooksTab tenantId={tenantId} />}
+      {tab === 'billing' && <TenantBillingTab tenantId={tenantId} storeCurrency={tenant.settings?.currency ?? null} />}
+      {tab === 'staff' && <TenantStaffTab tenantId={tenantId} />}
+      {tab === 'activity' && <TenantActivityTab tenantId={tenantId} />}
 
       {/* --- Modals --- */}
       <ConfirmModal
@@ -696,6 +744,15 @@ export default function TenantDetailPage() {
         description="After the grace period passes, the tenant is purged (all data wiped). Use 'Cancel deletion' before that to abort. Default grace is 30 days."
         fields={[
           {
+            name: 'reason',
+            label: 'Reason',
+            type: 'textarea',
+            required: true,
+            minLength: 4,
+            placeholder: 'Merchant requested closure, abandoned trial, etc.',
+            help: "Recorded in the audit log and on the store's lifecycle history.",
+          },
+          {
             name: 'graceDays',
             label: 'Grace period (days)',
             type: 'number',
@@ -709,7 +766,7 @@ export default function TenantDetailPage() {
           const days = v.graceDays ? Number(v.graceDays) : undefined;
           await wrap(
             'schedule-deletion',
-            () => api.tenants.scheduleDeletion(tenantId, days),
+            () => api.tenants.scheduleDeletion(tenantId, days, v.reason),
             'Deletion scheduled'
           );
         }}

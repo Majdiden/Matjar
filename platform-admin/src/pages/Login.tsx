@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/auth-context';
 import { Button } from '../components/ui/Button';
 import { Input, Label } from '../components/ui/Input';
@@ -19,7 +19,13 @@ export default function Login() {
   const from =
     (location.state as { from?: string } | null)?.from ||
     (new URLSearchParams(location.search).get('expired') ? '/tenants' : '/tenants');
-  const expired = new URLSearchParams(location.search).get('expired') === '1';
+  const qs = new URLSearchParams(location.search);
+  const expired = qs.get('expired') === '1';
+  const notice = qs.get('invited') === '1'
+    ? 'Invitation accepted. Sign in with your new password.'
+    : qs.get('reset') === '1'
+      ? 'Password updated. Sign in with your new password.'
+      : null;
 
   useEffect(() => {
     if (isAuthenticated) navigate(from, { replace: true });
@@ -34,8 +40,9 @@ export default function Login() {
     }
     setSubmitting(true);
     try {
-      await login(email.trim(), password);
-      navigate(from, { replace: true });
+      const u = await login(email.trim(), password);
+      // A forced reset takes precedence over any deep link.
+      navigate(u.mustResetPassword ? '/reset-password?forced=1' : from, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed.');
     } finally {
@@ -62,6 +69,9 @@ export default function Login() {
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <div>Your session expired. Sign in again to continue.</div>
             </div>
+          )}
+          {notice && !error && (
+            <div className="rounded-md border border-emerald-500/40 bg-emerald-50 p-3 text-sm text-emerald-900">{notice}</div>
           )}
           {error && (
             <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
@@ -108,6 +118,9 @@ export default function Login() {
           <Button type="submit" className="w-full" loading={submitting}>
             Sign in
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            <Link to="/reset-password" className="underline hover:text-foreground">Forgot password?</Link>
+          </p>
         </form>
       </div>
     </div>

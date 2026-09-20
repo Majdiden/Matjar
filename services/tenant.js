@@ -12,6 +12,7 @@ import { getAllowedThemeSlugs } from "./featureFlags.js";
 import { enqueueStoreSetup } from "./jobs/index.js";
 import { upsertPlatformSubdomainDomain } from "./domainRegistry.js";
 import { resolveMerchantPhone } from "./phoneCountries.js";
+import { resolveSignupPlan } from "./platform/billing/signupPlan.js";
 import { APIError } from "../middlewares/errorHandler.js";
 
 const addATenantService = async (tenantData) => {
@@ -53,6 +54,8 @@ const addATenantService = async (tenantData) => {
       ({ phone, phoneCountry } = await resolveMerchantPhone(tenantData.phone, tenantData.phoneCountry));
     }
 
+    const signupPlan = await resolveSignupPlan(tenantData.subscriptionPlan);
+
     // Restrict the chosen theme to the platform allowlist (feature-flagged).
     // A disallowed/unknown slug falls back to the default theme rather than
     // failing registration. `getAllowedThemeSlugs()` returns null when the full
@@ -78,7 +81,11 @@ const addATenantService = async (tenantData) => {
       email: tenantData.email,
       phone,
       phoneCountry,
-      subscriptionPlan: tenantData.subscriptionPlan || "trial",
+      // Only an ACTIVE, self-service plan may be chosen at signup; anything
+      // else (inactive, operator-only, unknown, omitted) falls back to the
+      // platform default plan. Trials are stamped once, ever (N5).
+      subscriptionPlan: signupPlan.plan.key,
+      ...(signupPlan.trial ? { billing: signupPlan.trial } : {}),
       // Whether the merchant actively picked a theme during onboarding. The
       // dashboard sends `themeSelected: false` when the user skips the theme
       // step (the default theme is still applied by installDefaultTheme during
@@ -87,6 +94,15 @@ const addATenantService = async (tenantData) => {
       setupStatus: {
         status: "pending",
         setupToken,
+      },
+      // Explicit lifecycle: a brand-new store is onboarding until setup
+      // completes (services/storeSetup.js flips it to active).
+      lifecycle: {
+        state: "onboarding",
+        reason: "Store created",
+        changedAt: new Date(),
+        changedBy: "system",
+        history: [{ state: "onboarding", reason: "Store created", changedAt: new Date(), changedBy: "system" }],
       },
       domains: {
         subdomain: {

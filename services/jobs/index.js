@@ -13,7 +13,7 @@
  *     a 2-hour-old snapshot would apply stale data on re-execution.
  */
 
-import { QUEUE_NAMES, enqueue } from "./queues.js";
+import { QUEUE_NAMES, enqueue, getQueue } from "./queues.js";
 
 export async function enqueueStoreSetup(tenantId, { force = false, source = "unknown" } = {}) {
   return enqueue(
@@ -163,6 +163,33 @@ export async function enqueueDailyBackupCron({ cron = "0 3 * * *", source = "boo
       repeat: { pattern: cron },
       _source: source,
     }
+  );
+}
+
+/**
+ * Monthly billing period close — 02:00 UTC on the 1st. Generates + issues
+ * statements for the previous period, applies due plan changes, flips
+ * overdue statements. Idempotent per period (statements are unique per
+ * tenant+period), so a re-run is safe.
+ */
+export async function scheduleBillingPeriodCron({ day = 1, cron, source = "boot" } = {}) {
+  const safeDay = Math.min(28, Math.max(1, Number(day) || 1));
+  const pattern = cron || `0 2 ${safeDay} * *`;
+  const queue = getQueue(QUEUE_NAMES.BILLING);
+  // (N9) One schedule at a time: drop any previous repeat pattern for this
+  // job id before registering the new one, so changing statementDay never
+  // leaves two crons ticking.
+  // BullMQ 5 does not echo the jobId on repeatable entries, so match on the
+  // job name — this queue hosts exactly one repeatable job.
+  const existing = await queue.getRepeatableJobs();
+  for (const r of existing) {
+    if (r.name === "close-period" && r.pattern !== pattern) await queue.removeRepeatableByKey(r.key);
+  }
+  return enqueue(
+    QUEUE_NAMES.BILLING,
+    "close-period",
+    {},
+    { jobId: "billing-period-close", repeat: { pattern }, _source: source }
   );
 }
 

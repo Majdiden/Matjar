@@ -130,7 +130,19 @@ const verifyOrderAccessToken = ({ tenantId, orderId, email, token }) => {
   }
 };
 
+/** Escape a user-supplied string for safe use inside a RegExp. */
+const escapeRegExp = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Parse an integer query param with a default and inclusive bounds. */
+const clampInt = (v, def, min, max) => {
+  const n = parseInt(v, 10);
+  if (!Number.isFinite(n)) return def;
+  return Math.min(Math.max(n, min), max);
+};
+
 export {
+  escapeRegExp,
+  clampInt,
   signJWT,
   signRefreshJWT,
   verifyJWT,

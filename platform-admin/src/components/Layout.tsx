@@ -12,20 +12,28 @@ import {
   Phone,
   Menu,
   X,
+  LayoutDashboard,
+  Receipt,
+  Users,
+  ScrollText,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navItems = [
-  { to: '/tenants', label: 'Tenants', icon: Building2, end: false },
+  { to: '/', label: 'Overview', icon: LayoutDashboard, end: true, tab: true },
+  { to: '/tenants', label: 'Tenants', icon: Building2, end: false, tab: true },
+  { to: '/billing', label: 'Billing', icon: Receipt, end: false, tab: true },
   { to: '/plans', label: 'Plans', icon: CreditCard, end: false },
+  { to: '/users', label: 'Platform users', shortLabel: 'Users', icon: Users, end: false, tab: true },
   { to: '/features', label: 'Features', icon: ToggleLeft, end: false },
   { to: '/phone-countries', label: 'Phone countries', shortLabel: 'Phones', icon: Phone, end: false },
+  { to: '/audit', label: 'Audit log', icon: ScrollText, end: false },
   { to: '/queues', label: 'Queues', icon: Layers, end: false },
 ];
 
 // Bottom tab bar shows the four most-used destinations; the rest live in
 // the drawer.
-const bottomTabs = navItems.filter((i) => i.to !== '/phone-countries');
+const bottomTabs = navItems.filter((i) => i.tab);
 
 const NavList: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) => (
   <ul className="space-y-1">

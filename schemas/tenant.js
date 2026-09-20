@@ -65,6 +65,15 @@ const tenantSchema = new Schema({
   },
   subscriptionStartDate: { type: Date, default: Date.now },
   subscriptionEndDate: Date,
+  // Platform billing summary (services/platform/billing). `trialUsedAt` is
+  // stamped the first time a trial is granted and never cleared, so a
+  // tenant can never restart a free trial by switching plans (M3).
+  billing: {
+    trialUsedAt: { type: Date, default: null },
+    // trialUsedAt + the plan's trialDays at the time it was granted. The
+    // resolver reads ONLY this stored value to decide inTrial (N5).
+    trialEndsAt: { type: Date, default: null },
+  },
 
   // Limits
   limits: {
@@ -393,6 +402,36 @@ const tenantSchema = new Schema({
   suspensionReason: { type: String, default: null },
   deletionScheduledAt: { type: Date, default: null },
   deletedAt: { type: Date, default: null },
+
+  // Explicit store lifecycle (PBI platform-admin OS, Phase A). The legacy
+  // flags above are kept in sync by services/tenantLifecycle.js so every
+  // existing check (subscriptionGate, resolvers) keeps working; this block
+  // is the source of truth for the operator-facing state + its history.
+  //   pending → onboarding → active ⇄ suspended → closed → archived
+  lifecycle: {
+    state: {
+      type: String,
+      enum: ["pending", "onboarding", "active", "suspended", "closed", "archived"],
+      // No default: legacy rows have no state and are derived from their
+      // flags (deriveLifecycleState) until the first transition / migration 008.
+      index: true,
+    },
+    reason: { type: String, default: null },
+    changedAt: { type: Date, default: null },
+    changedBy: { type: String, default: null }, // operator email or "system"
+    history: {
+      type: [
+        {
+          _id: false,
+          state: { type: String },
+          reason: { type: String, default: null },
+          changedAt: { type: Date },
+          changedBy: { type: String, default: null },
+        },
+      ],
+      default: [],
+    },
+  },
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

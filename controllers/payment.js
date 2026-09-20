@@ -10,6 +10,7 @@ import { guardTransition } from "../utils/orderStateMachine.js";
 import { logStateChange } from "../utils/auditLog.js";
 import logger from "../utils/logger.js";
 import { emit as emitNotification } from "../services/notification.js";
+import { eventBus, EVENTS } from "../services/events.js";
 
 /**
  * @route   POST /api/payments/create-intent
@@ -735,6 +736,22 @@ export const refundController = asyncHandler(async (req, res) => {
       actor: req.user?.userId || null,
       reason: "Full refund issued",
     });
+  }
+
+  // Billing: reverse the platform commission proportionally to the money
+  // refunded (services/platform/billing/ledger.js). Best-effort emit; the
+  // listener no-ops when the order never had a recognised commission.
+  try {
+    eventBus.emit(EVENTS.ORDER_REFUNDED, {
+      tenantId: String(req.tenantId),
+      orderId: String(orderId),
+      orderNumber: order.orderNumber || null,
+      refundAmount,
+      totalAmount: Number(order.totalAmount) || 0,
+      refundedAt: now.toISOString(),
+    });
+  } catch (err) {
+    logger.warn("ORDER_REFUNDED emit failed", { error: err?.message });
   }
 
   // Create payment record for refund

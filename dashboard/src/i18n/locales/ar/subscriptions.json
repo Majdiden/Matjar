@@ -1,56 +1,119 @@
 {
   "subscriptions": {
     "list": {
-      "title": "الاشتراك والخطط",
-      "subtitle": "إدارة اشتراكك ومراقبة حدود الاستخدام",
-      "current_plan_title": "الخطة الحالية: {{name}}",
-      "renews": "يتجدد في {{date}}",
-      "trial": "تجريبي",
-      "trial_ends": "تنتهي الفترة التجريبية في {{date}}",
-      "active_subscription": "اشتراك نشط",
-      "available_plans": "الخطط المتاحة",
-      "column": {
-        "products": "المنتجات",
-        "orders": "الطلبات",
-        "storage": "التخزين",
-        "team": "الفريق"
+      "title": "الخطة والفوترة",
+      "subtitle": "اختر طريقة الدفع لمنصة متجر: نسبة من مبيعاتك، أو اشتراك شهري ثابت.",
+      "current_plan_title": "خطتك الحالية: {{name}}",
+      "no_plan": "لم يتم تعيين خطة بعد",
+      "trial_ends": "فترة تجريبية مجانية حتى {{date}}",
+      "fee_holiday": "بدون عمولة حتى {{date}}",
+      "next_statement": "كشف الحساب القادم في {{date}}",
+      "available_plans": "اختر خطتك",
+      "statements": "كشوف الحساب",
+      "no_statements": "لا توجد كشوف حساب بعد. يصدر أول كشف في بداية الشهر القادم."
+    },
+    "family": {
+      "commission": {
+        "label": "ادفع حسب مبيعاتك",
+        "tagline": "بدون رسوم شهرية. تدفع نسبة صغيرة من الطلبات المُسلَّمة فقط.",
+        "empty": "لا توجد خطة عمولة متاحة حالياً."
+      },
+      "subscription": {
+        "label": "اشتراك شهري ثابت",
+        "tagline": "مبلغ ثابت كل شهر، بدون أي نسبة من مبيعاتك.",
+        "empty": "لا توجد خطة اشتراك ثابت متاحة حالياً."
+      },
+      "hybrid": {
+        "label": "رسوم + نسبة"
       }
     },
-    "plan": {
-      "free": { "label": "مجاني" },
-      "starter": { "label": "مبتدئ" },
-      "pro": { "label": "احترافي" },
-      "enterprise": { "label": "مؤسسي" }
+    "pricing": {
+      "no_fee": "بدون رسوم شهرية",
+      "per_month": "{{amount}} / شهرياً",
+      "per_year": "{{amount}} / سنوياً",
+      "percent_of_sales": "{{tiers}} من المبيعات المُسلَّمة",
+      "tier_range_first": "حتى {{upTo}}",
+      "tier_range_middle": "{{from}} – {{upTo}}",
+      "tier_range_last": "أكثر من {{from}}",
+      "tier_open": "كل المبيعات",
+      "min_fee": "حد أدنى {{amount}} لكل طلب",
+      "trial_days": "تجربة مجانية {{count}} يوم",
+      "plus_per_order": "+ {{amount}} لكل طلب",
+      "tier_mode_marginal": "تُطبَّق كل شريحة على المبيعات الواقعة ضمن نطاقها.",
+      "tier_mode_bracket": "يُحتسب شهرك بالكامل بنسبة الشريحة التي تصل إليها."
+    },
+    "period": {
+      "title": "هذه الفترة ({{period}})",
+      "gmv": "المبيعات المُسلَّمة",
+      "commission": "العمولة حتى الآن",
+      "credits": "أرصدة دائنة",
+      "next_statement": "كشف الحساب القادم",
+      "orders_zero": "لا طلبات",
+      "orders_one": "طلب واحد",
+      "orders_two": "طلبان",
+      "orders_few": "{{count}} طلبات",
+      "orders_many": "{{count}} طلباً",
+      "orders_other": "{{count}} طلب",
+      "recent_30d_zero": "آخر 30 يوماً: لا طلبات مُسلَّمة",
+      "recent_30d_one": "آخر 30 يوماً: {{amount}} من طلب واحد مُسلَّم",
+      "recent_30d_two": "آخر 30 يوماً: {{amount}} من طلبين مُسلَّمين",
+      "recent_30d_few": "آخر 30 يوماً: {{amount}} من {{count}} طلبات مُسلَّمة",
+      "recent_30d_many": "آخر 30 يوماً: {{amount}} من {{count}} طلباً مُسلَّماً",
+      "recent_30d_other": "آخر 30 يوماً: {{amount}} من {{count}} طلب مُسلَّم",
+      "base_fee_month": "الرسوم الشهرية",
+      "base_fee_year": "الرسوم السنوية"
+    },
+    "estimate": {
+      "title": "بناءً على آخر 30 يوماً، ستدفع تقريباً",
+      "approx": "≈ {{amount}} / شهرياً",
+      "breakdown": "{{base}} رسوم + {{commission}} عمولة",
+      "no_sales": "لا توجد مبيعات مُسلَّمة في آخر 30 يوماً بعد",
+      "fx_missing": "التقدير تقريبي — أضف سعر صرف من الإعدادات ← العملات",
+      "approx_parts": "≈ {{base}} + {{commission}} / شهرياً"
     },
     "status": {
-      "active": "نشط",
-      "trial": "تجريبي",
-      "past_due": "متأخر السداد",
-      "cancelled": "ملغى",
-      "expired": "منتهي"
+      "draft": "مسودة",
+      "issued": "صادر",
+      "paid": "مدفوع",
+      "partially_paid": "مدفوع جزئياً",
+      "overdue": "متأخر",
+      "waived": "مُعفى",
+      "void": "ملغى"
     },
-    "badge": {
-      "recommended": "موصى به"
+    "statement": {
+      "period": "الفترة",
+      "amount_due": "المبلغ المستحق",
+      "paid": "المدفوع",
+      "balance": "المتبقي",
+      "due": "يستحق في {{date}}",
+      "how_to_pay": "طريقة الدفع: سيزوّدك فريق متجر بتفاصيل الدفع. يتم تسجيل المبالغ المدفوعة من قِبل فريق متجر."
     },
-    "limit": {
-      "unlimited": "غير محدود"
+    "scheduled": {
+      "title": "تم جدولة تغيير الخطة",
+      "body": "ستنتقل إلى {{name}} في {{date}}. حتى ذلك الحين تبقى خطتك الحالية سارية.",
+      "cancel": "إلغاء التغيير"
     },
     "action": {
-      "upgrade": "ترقية",
-      "switch": "تغيير",
-      "current": "الخطة الحالية",
-      "confirm_change": "تأكيد التغيير"
+      "current": "خطتك الحالية",
+      "switch": "الانتقال إلى هذه الخطة",
+      "not_self_service": "تواصل مع فريق متجر للانتقال إلى هذه الخطة",
+      "min_term": "متاحة بعد {{date}}",
+      "confirm_change": "تأكيد الانتقال",
+      "no_permission": "يمكن لمديري المتجر فقط تغيير الباقة."
     },
-    "upgrade_dialog": {
-      "title_upgrade": "الترقية إلى {{name}}",
-      "title_switch": "التحويل إلى {{name}}",
-      "description": "ستتغير خطتك فوراً. سيتم احتساب الفوترة بالتناسب.",
-      "new_price": "السعر الشهري الجديد",
-      "access_notice": "ستحصل على وصول فوري لجميع مزايا خطة {{name}}."
+    "switch_dialog": {
+      "title": "الانتقال إلى {{name}}؟",
+      "description": "يسري التغيير من بداية فترة الفوترة القادمة، فيبقى هذا الشهر على خطتك الحالية. يمكنك التغيير مجدداً لاحقاً.",
+      "effective": "يسري من",
+      "next_period": "بداية الفترة القادمة",
+      "you_pay": "ستدفع"
     },
     "toast": {
-      "upgraded": "تمت الترقية إلى خطة {{name}}!",
-      "upgrade_failed": "فشل ترقية الخطة"
+      "switched": "تمت جدولة تغيير الخطة — ستنتقل إلى {{name}} في الفترة القادمة.",
+      "switch_failed": "تعذّر جدولة تغيير الخطة",
+      "load_failed": "تعذّر تحميل تفاصيل الفوترة",
+      "cancelled": "تم إلغاء تغيير الخطة المجدول.",
+      "cancel_failed": "تعذّر إلغاء تغيير الخطة"
     }
   }
 }

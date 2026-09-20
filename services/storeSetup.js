@@ -5,6 +5,7 @@ import { installDefaultTheme } from "./theme.js";
 import { seedSampleData } from "./dataSeed.js";
 import { seedThemeDemoData } from "./themeDemoData.js";
 import { isFeatureEnabled } from "./featureFlags.js";
+import { setLifecycleState, currentLifecycleState, LIFECYCLE_STATES } from "./tenantLifecycle.js";
 import logger from "../utils/logger.js";
 
 const SETUP_STEPS = {
@@ -249,6 +250,25 @@ export async function initializeStoreSetup(tenant, models, options = {}) {
     });
 
     logger.info(`Setup completed for tenant: ${tenant.name}`, { tenantId });
+
+    // Lifecycle: onboarding → active once setup completes. Only from
+    // pending/onboarding — a store suspended or closed mid-setup keeps
+    // its operator-set state (the transition table rejects it, so we
+    // guard first rather than throwing inside a successful setup).
+    try {
+      // Derive from the legacy flags too, so a retry-setup on a legacy
+      // suspended/closed store (no lifecycle block yet) never reopens it.
+      const fresh = await Tenant.findById(tenantId)
+        .select("lifecycle.state subscriptionStatus isActive suspendedAt deletionScheduledAt deletedAt setupStatus.status")
+        .lean();
+      const st = currentLifecycleState(fresh);
+      if (st === LIFECYCLE_STATES.PENDING || st === LIFECYCLE_STATES.ONBOARDING) {
+        await setLifecycleState(tenantId, LIFECYCLE_STATES.ACTIVE, { reason: "Store setup completed", changedBy: "system" });
+      }
+    } catch (err) {
+      logger.warn("Lifecycle activation after setup failed", { tenantId, error: err.message });
+    }
+
     const updated = await Tenant.findById(tenantId);
     return { success: true, tenantId, status: updated?.setupStatus || null };
   } catch (error) {

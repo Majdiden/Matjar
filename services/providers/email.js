@@ -30,6 +30,12 @@ import config from "../../config/index.js";
 
 let resendClient = null;
 
+// Production with email disabled means invites, password resets and order
+// notifications silently go nowhere — say so loudly at boot.
+if (config.isProduction && !config.emailEnabled) {
+  logger.warn("EMAIL_ENABLED is false in production — invite, reset and notification emails will NOT be sent");
+}
+
 async function getResendClient() {
   if (resendClient) return resendClient;
   const { Resend } = await import("resend");
@@ -128,11 +134,9 @@ export async function sendEmail({ to, subject, html, text, from, replyTo, tags }
   // is reachable but we still don't want to spam inboxes from every
   // developer's laptop. Log + return the stub envelope.
   if (!config.emailEnabled) {
-    logger.info("Email (stub)", {
-      to,
-      subject,
-      preview: (text || html || "").slice(0, 120),
-    });
+    // Only recipient + subject: bodies can carry invite/reset tokens and
+    // must never land in logs.
+    logger.info("Email (stub)", { to, subject });
     return { id: "stub", provider: "log", accepted: true, success: true };
   }
 

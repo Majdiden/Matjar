@@ -10,11 +10,20 @@ export const validate = (schema) => {
   return (req, res, next) => {
     try {
       // Validate request data against schema
-      schema.parse({
+      const parsed = schema.parse({
         body: req.body,
         query: req.query,
         params: req.params,
       });
+      // Write the parsed sections BACK so zod transforms (.trim(),
+      // .toLowerCase(), .default()) are effective for controllers, not
+      // cosmetic. Merged over the raw object so keys a schema doesn't
+      // declare are preserved (zod strips unknown keys by default).
+      for (const key of ["body", "query", "params"]) {
+        if (parsed && parsed[key] && typeof parsed[key] === "object" && req[key] && typeof req[key] === "object") {
+          Object.assign(req[key], parsed[key]);
+        }
+      }
       next();
     } catch (error) {
       // ZodError exposes the per-field problems on `.issues` in v4 and on

@@ -1,56 +1,111 @@
 {
   "subscriptions": {
     "list": {
-      "title": "Subscription & Plans",
-      "subtitle": "Manage your subscription and monitor usage limits",
-      "current_plan_title": "Current Plan: {{name}}",
-      "renews": "Renews {{date}}",
-      "trial": "Trial",
-      "trial_ends": "Trial ends {{date}}",
-      "active_subscription": "Active subscription",
-      "available_plans": "Available Plans",
-      "column": {
-        "products": "Products",
-        "orders": "Orders",
-        "storage": "Storage",
-        "team": "Team"
+      "title": "Plan & billing",
+      "subtitle": "Choose how you pay Matjar: a percentage of what you sell, or a fixed monthly fee.",
+      "current_plan_title": "Current plan: {{name}}",
+      "no_plan": "No plan assigned yet",
+      "trial_ends": "Free trial until {{date}}",
+      "fee_holiday": "No commission until {{date}}",
+      "next_statement": "Next statement on {{date}}",
+      "available_plans": "Choose your plan",
+      "statements": "Statements",
+      "no_statements": "No statements yet. Your first statement is issued at the start of next month."
+    },
+    "family": {
+      "commission": {
+        "label": "Pay as you sell",
+        "tagline": "No monthly fee. You pay a small percentage of delivered orders only.",
+        "empty": "No pay-as-you-sell plan is offered right now."
+      },
+      "subscription": {
+        "label": "Fixed monthly",
+        "tagline": "One fixed amount per month, no percentage on your sales.",
+        "empty": "No fixed-fee plan is offered right now."
+      },
+      "hybrid": {
+        "label": "Fee + percentage"
       }
     },
-    "plan": {
-      "free": { "label": "Free" },
-      "starter": { "label": "Starter" },
-      "pro": { "label": "Professional" },
-      "enterprise": { "label": "Enterprise" }
+    "pricing": {
+      "no_fee": "No monthly fee",
+      "per_month": "{{amount}} / month",
+      "per_year": "{{amount}} / year",
+      "percent_of_sales": "{{tiers}} of delivered sales",
+      "tier_range_first": "Up to {{upTo}}",
+      "tier_range_middle": "{{from}} – {{upTo}}",
+      "tier_range_last": "Above {{from}}",
+      "tier_open": "All sales",
+      "min_fee": "Minimum {{amount}} per order",
+      "trial_days": "{{count}}-day free trial",
+      "plus_per_order": "+ {{amount}} per order",
+      "tier_mode_marginal": "Each tier applies to sales within that range.",
+      "tier_mode_bracket": "Your whole month is charged at the tier you reach."
+    },
+    "period": {
+      "title": "This period ({{period}})",
+      "gmv": "Delivered sales",
+      "commission": "Commission so far",
+      "credits": "Credits",
+      "next_statement": "Next statement",
+      "orders_one": "{{count}} order",
+      "orders_other": "{{count}} orders",
+      "recent_30d_one": "Last 30 days: {{amount}} from {{count}} delivered order",
+      "recent_30d_other": "Last 30 days: {{amount}} across {{count}} delivered orders",
+      "base_fee_month": "Monthly fee",
+      "base_fee_year": "Yearly fee"
+    },
+    "estimate": {
+      "title": "Based on your last 30 days you would pay",
+      "approx": "≈ {{amount}} / month",
+      "breakdown": "{{base}} fee + {{commission}} commission",
+      "no_sales": "No delivered sales in the last 30 days yet",
+      "fx_missing": "Estimate approximate — set an exchange rate under Settings → Currencies",
+      "approx_parts": "≈ {{base}} + {{commission}} / month"
     },
     "status": {
-      "active": "Active",
-      "trial": "Trial",
-      "past_due": "Past Due",
-      "cancelled": "Cancelled",
-      "expired": "Expired"
+      "draft": "Draft",
+      "issued": "Issued",
+      "paid": "Paid",
+      "partially_paid": "Partially paid",
+      "overdue": "Overdue",
+      "waived": "Waived",
+      "void": "Void"
     },
-    "badge": {
-      "recommended": "Recommended"
+    "statement": {
+      "period": "Period",
+      "amount_due": "Amount due",
+      "paid": "Paid",
+      "balance": "Balance",
+      "due": "Due {{date}}",
+      "how_to_pay": "How to pay: your Matjar contact will share the payment details. Paid amounts are recorded by the Matjar team."
     },
-    "limit": {
-      "unlimited": "Unlimited"
+    "scheduled": {
+      "title": "Plan change scheduled",
+      "body": "You move to {{name}} on {{date}}. Until then your current plan applies.",
+      "cancel": "Cancel change"
     },
     "action": {
-      "upgrade": "Upgrade",
-      "switch": "Switch",
-      "current": "Current Plan",
-      "confirm_change": "Confirm Change"
+      "current": "Your current plan",
+      "switch": "Switch to this plan",
+      "not_self_service": "Contact Matjar to move to this plan",
+      "min_term": "Available after {{date}}",
+      "confirm_change": "Confirm switch",
+      "no_permission": "Only store admins can change the plan."
     },
-    "upgrade_dialog": {
-      "title_upgrade": "Upgrade to {{name}}",
-      "title_switch": "Switch to {{name}}",
-      "description": "Your plan will change immediately. Billing will be prorated.",
-      "new_price": "New monthly price",
-      "access_notice": "You'll get access to all {{name}} features immediately."
+    "switch_dialog": {
+      "title": "Switch to {{name}}?",
+      "description": "The switch takes effect at the start of your next billing period, so this month stays on your current plan. You can switch again later.",
+      "effective": "Takes effect",
+      "next_period": "start of next period",
+      "you_pay": "You will pay"
     },
     "toast": {
-      "upgraded": "Upgraded to {{name}} plan!",
-      "upgrade_failed": "Failed to upgrade plan"
+      "switched": "Plan change scheduled — you move to {{name}} next period.",
+      "switch_failed": "Could not schedule the plan change",
+      "load_failed": "Could not load your billing details",
+      "cancelled": "Scheduled plan change cancelled.",
+      "cancel_failed": "Could not cancel the plan change"
     }
   }
 }

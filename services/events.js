@@ -24,6 +24,11 @@ export const EVENTS = {
   ORDER_CREATED: "order.created",
   ORDER_CANCELLED: "order.cancelled",
   ORDER_FULFILLED: "order.fulfilled",
+  // Billing recognition events (services/platform/billing/ledger.js):
+  // commission is recognised when an order is DELIVERED and reversed
+  // (proportionally) when money is refunded afterwards.
+  ORDER_DELIVERED: "order.delivered",
+  ORDER_REFUNDED: "order.refunded",
   PAYMENT_COMPLETED: "payment.completed",
   PAYMENT_REFUNDED: "payment.refunded",
   PRODUCT_CREATED: "product.created",

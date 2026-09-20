@@ -23,6 +23,7 @@ import {
 } from "../services/impersonation.js";
 import { createScopedModels } from "../utils/scopedModel.js";
 import logger from "../utils/logger.js";
+import { recordPlatformAudit } from "../services/platform/audit.js";
 
 // Map service-thrown validation errors to 400 (vs a 500). The service
 // throws plain Error with a human message for every expected rejection.
@@ -151,6 +152,13 @@ export const requestController = asyncHandler(async (req, res) => {
       by: req.platformUser.email,
       ticket: grant.ticket,
     });
+    await recordPlatformAudit(req, {
+      action: "impersonation.request",
+      resourceType: "ImpersonationGrant",
+      resourceId: grant.grantId || grant._id,
+      tenantId: req.params.tenantId,
+      reason: grant.ticket ? `ticket #${grant.ticket}` : null,
+    });
     res.status(201).json({ success: true, data: grant });
   } catch (err) {
     return sendServiceError(res, err);
@@ -210,6 +218,12 @@ export const approveByCodeController = asyncHandler(async (req, res) => {
       by: req.platformUser.email,
       grantId: req.params.grantId,
     });
+    await recordPlatformAudit(req, {
+      action: "impersonation.approve_by_code",
+      resourceType: "ImpersonationGrant",
+      resourceId: req.params.grantId,
+      tenantId: req.params.tenantId,
+    });
     res.json({ success: true, data: grant });
   } catch (err) {
     return sendServiceError(res, err);
@@ -232,6 +246,14 @@ export const enterController = asyncHandler(async (req, res) => {
       by: req.platformUser.email,
       grantId: req.params.grantId,
     });
+    await recordPlatformAudit(req, {
+      action: "impersonation.enter",
+      resourceType: "ImpersonationGrant",
+      resourceId: req.params.grantId,
+      tenantId: req.params.tenantId,
+      reason: result?.ticket ? `ticket #${result.ticket}` : null,
+      metadata: { userId: result?.userId || null, expiresIn: result?.expiresIn || null },
+    });
     res.json({ success: true, data: result });
   } catch (err) {
     return sendServiceError(res, err);
@@ -249,6 +271,12 @@ export const exitController = asyncHandler(async (req, res) => {
       grantId: req.params.grantId,
       by: "support",
       actorId: req.platformUser.id,
+    });
+    await recordPlatformAudit(req, {
+      action: "impersonation.exit",
+      resourceType: "ImpersonationGrant",
+      resourceId: req.params.grantId,
+      tenantId: req.params.tenantId,
     });
     res.json({ success: true, data: grant });
   } catch (err) {

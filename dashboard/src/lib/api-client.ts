@@ -1136,6 +1136,19 @@ export const api = {
     get: () => api.get('/features'),
   },
 
+  // Merchant billing: the store's own plan, effective pricing, current-period
+  // accruals, statements and a self-service plan change (always next period).
+  // Contract: docs/plans/billing-api.md (merchant endpoints).
+  billing: {
+    summary: () => api.get<{ responseObject?: BillingSummary }>('/billing/summary'),
+    requestPlanChange: (toPlan: string) =>
+      api.post<{ responseObject?: BillingPlanChange }>('/billing/plan-change', { toPlan }),
+    // Cancels the tenant's own merchant-requested scheduled change (403 when an
+    // operator scheduled it — the server decides; the UI only shows the button
+    // when the summary says `cancellable`).
+    cancelPlanChange: () => api.post<{ responseObject?: { cancelled: number } }>('/billing/plan-change/cancel', {}),
+  },
+
   // URL redirects (audit 6.7). 301/302 mapping of old storefront paths.
   redirects: {
     list: (params?: { page?: number; limit?: number; search?: string }) =>
@@ -1148,5 +1161,81 @@ export const api = {
     delete: (id: string) => api.delete(`/redirects/${id}`),
   },
 };
+
+// ─── Merchant billing types (mirror docs/plans/billing-api.md) ─────────────
+export type BillingPlanFamily = 'commission' | 'subscription' | 'hybrid';
+export interface BillingTier { upTo: number | null; percent: number; fixedPerOrder?: number }
+export interface BillingCommission {
+  currency: string;
+  tierMode: 'marginal' | 'bracket';
+  period: string;
+  tiers: BillingTier[];
+  percentDelta?: number;
+  minFee?: number | null;
+  maxFee?: number | null;
+}
+export interface BillingAvailablePlan {
+  key: string;
+  name: string;
+  description?: string;
+  family: BillingPlanFamily;
+  interval: 'month' | 'year';
+  features?: string[];
+  trialDays: number;
+  basePrice: number;
+  baseCurrency: string;
+  commission: BillingCommission | null;
+  selfService: boolean;
+  current: boolean;
+  minimumTermDays: number;
+  /** When the switch to this plan takes effect (server-computed, ISO). */
+  nextPeriodStartsAt: string;
+  /** Non-null while the current plan's minimum term blocks switching to this plan. */
+  availableAfter: string | null;
+  estimate: { monthlyBase: number; estimatedCommission: number; fxMissing: boolean; currencyNote?: string };
+}
+export interface BillingStatementSummary {
+  id: string;
+  periodKey: string;
+  currency: string;
+  status: 'draft' | 'issued' | 'paid' | 'partially_paid' | 'overdue' | 'waived' | 'void';
+  amountDue: number;
+  amountPaid: number;
+  balance: number;
+  issuedAt?: string | null;
+  dueAt?: string | null;
+  lines: { type: string; description: string; amount: number }[];
+}
+export interface BillingPlanChange {
+  _id?: string;
+  fromPlan?: string | null;
+  toPlan: string;
+  effectiveAt: string;
+  status: 'scheduled' | 'applied' | 'cancelled';
+  requestedBy: 'merchant' | 'operator';
+  /** True only for merchant-requested changes (operator changes are not cancellable here). */
+  cancellable?: boolean;
+}
+export interface BillingSummary {
+  plan: { key: string | null; name: string | null; family: BillingPlanFamily };
+  pricing: {
+    baseFee: { amount: number; currency: string; interval: 'month' | 'year' };
+    chargesBaseFee: boolean;
+    chargesCommission: boolean;
+    commission: BillingCommission | null;
+    trialEndsAt: string | null;
+    feeHolidayUntil: string | null;
+  };
+  currentPeriod: { periodKey: string; gmv: number; commission: number; adjustments: number; credits: number; currency: string; count: number };
+  recent30d: { gmv: number; orders: number };
+  statements: BillingStatementSummary[];
+  scheduledChange: BillingPlanChange | null;
+  /** Start of the next billing period (server-computed, ISO). */
+  nextPeriodStartsAt: string;
+  /** End of the current plan's minimum term, or null when none applies. */
+  minimumTermEndsAt: string | null;
+  availablePlans: BillingAvailablePlan[];
+  dueDays: number;
+}
 
 export default apiClient;

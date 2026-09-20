@@ -21,6 +21,8 @@ export interface PlatformUser {
   name: string;
   email: string;
   platformAdmin?: boolean;
+  // Named platform role (owner | admin | operations | support | finance | developer); null for legacy admins.
+  role?: string | null;
   scopes?: string[];
   availableScopes?: string[];
 }
@@ -35,6 +37,11 @@ export const PLATFORM_SCOPES = {
   TENANT_EXPORT: 'tenant.export',
   QUEUE_RETRY: 'queue.retry',
   BILLING_READ: 'billing.read',
+  BILLING_WRITE: 'billing.write',
+  AUDIT_READ: 'audit.read',
+  PLATFORM_USERS: 'platform.users',
+  TENANT_USERS: 'tenant.users',
+  FLAGS_WRITE: 'flags.write',
 } as const;
 export type PlatformScope = (typeof PLATFORM_SCOPES)[keyof typeof PLATFORM_SCOPES];
 
@@ -123,8 +130,12 @@ export interface TenantListRow {
   deletionScheduledAt?: string | null;
   deletedAt?: string | null;
   setupStatus?: { status?: string };
+  lifecycle?: { state?: LifecycleState; reason?: string | null; changedAt?: string | null };
   createdAt: string;
 }
+
+export type LifecycleState = 'pending' | 'onboarding' | 'active' | 'suspended' | 'closed' | 'archived';
+export const LIFECYCLE_STATES: LifecycleState[] = ['pending', 'onboarding', 'active', 'suspended', 'closed', 'archived'];
 
 export interface Pagination {
   total: number;
@@ -219,7 +230,7 @@ export const api = {
     return res.data.data as PlatformUser;
   },
   tenants: {
-    list: async (params: { page?: number; limit?: number; status?: string; q?: string } = {}) => {
+    list: async (params: { page?: number; limit?: number; status?: string; q?: string; lifecycle?: string } = {}) => {
       const res = await http.get('/tenants', { params });
       return res.data.data as { tenants: TenantListRow[]; pagination: Pagination };
     },
@@ -228,6 +239,7 @@ export const api = {
       return res.data.data as {
         total: number;
         byStatus: Record<string, number>;
+        byLifecycle: Record<string, number>;
         setupFailed: number;
         scheduledForDeletion: number;
       };
@@ -269,12 +281,12 @@ export const api = {
       const res = await http.post(`/tenants/${tenantId}/suspend`, { reason });
       return res.data.data;
     },
-    unsuspend: async (tenantId: string) => {
-      const res = await http.post(`/tenants/${tenantId}/unsuspend`);
+    unsuspend: async (tenantId: string, reason?: string) => {
+      const res = await http.post(`/tenants/${tenantId}/unsuspend`, { reason });
       return res.data.data;
     },
-    scheduleDeletion: async (tenantId: string, graceDays?: number) => {
-      const res = await http.post(`/tenants/${tenantId}/schedule-deletion`, { graceDays });
+    scheduleDeletion: async (tenantId: string, graceDays?: number, reason?: string) => {
+      const res = await http.post(`/tenants/${tenantId}/schedule-deletion`, { graceDays, reason });
       return res.data.data;
     },
     cancelDeletion: async (tenantId: string) => {

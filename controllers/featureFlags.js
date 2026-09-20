@@ -9,6 +9,7 @@ import {
   setFeatureOverrides,
 } from "../services/featureFlags.js";
 import { getBuiltInThemeSlugs } from "../services/themeManifestRegistry.js";
+import { recordPlatformAudit } from "../services/platform/audit.js";
 
 /** GET /api/platform/features */
 export const getPlatformFeatures = asyncHandler(async (req, res) => {
@@ -34,6 +35,20 @@ export const getPlatformFeatures = asyncHandler(async (req, res) => {
  */
 export const updatePlatformFeatures = asyncHandler(async (req, res) => {
   const updates = req.body?.updates ?? req.body?.overrides ?? [];
+  const before = await getEffectiveFlags();
   const flags = await setFeatureOverrides(updates, req.platformUser?.id);
+  // Audit only the keys that actually changed (before/after per key).
+  const changed = {};
+  for (const k of Object.keys(flags)) {
+    if (JSON.stringify(before[k]) !== JSON.stringify(flags[k])) changed[k] = { from: before[k], to: flags[k] };
+  }
+  await recordPlatformAudit(req, {
+    action: "flags.update",
+    resourceType: "PlatformConfig",
+    resourceId: "features",
+    before: Object.fromEntries(Object.entries(changed).map(([k, v]) => [k, v.from])),
+    after: Object.fromEntries(Object.entries(changed).map(([k, v]) => [k, v.to])),
+    metadata: { keys: Object.keys(changed) },
+  });
   res.json({ success: true, data: { flags } });
 });

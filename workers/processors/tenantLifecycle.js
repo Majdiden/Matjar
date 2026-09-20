@@ -28,13 +28,27 @@ export async function processTenantLifecycle() {
   const now = new Date();
 
   // --- 1. Purge past-grace tenants --------------------------------
+  // Only tenants whose lifecycle is `closed` (or legacy rows with no
+  // lifecycle block) are purgeable; an inconsistent row (scheduled but e.g.
+  // re-activated without clearing the schedule) would otherwise 409 every
+  // tick and starve the batch. Log those once per tick instead.
   const due = await Tenant.find({
     deletionScheduledAt: { $lte: now },
     deletedAt: null,
+    $or: [{ "lifecycle.state": "closed" }, { "lifecycle.state": null }],
   })
     .limit(MAX_PURGES_PER_TICK)
     .select("_id name")
     .lean();
+
+  const inconsistent = await Tenant.countDocuments({
+    deletionScheduledAt: { $lte: now },
+    deletedAt: null,
+    "lifecycle.state": { $nin: ["closed", null] },
+  });
+  if (inconsistent > 0) {
+    logger.warn("Lifecycle sweep: skipping tenants scheduled for deletion but not closed", { count: inconsistent });
+  }
 
   for (const t of due) {
     try {

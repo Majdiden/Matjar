@@ -1,12 +1,14 @@
 import { createContext, useContext } from 'react';
-import type { PlatformUser } from '../lib/api';
+import type { PlatformSessionUser } from '../lib/api-users';
 
 export interface AuthContextShape {
-  user: PlatformUser | null;
+  user: PlatformSessionUser | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<PlatformSessionUser>;
   logout: () => void;
+  /** Re-fetch /me (e.g. after a forced password change cleared the flag). */
+  refresh: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextShape | null>(null);

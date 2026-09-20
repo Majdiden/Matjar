@@ -76,6 +76,10 @@ const userSchema = new Schema({
     },
   ],
   isActive: { type: Boolean, default: true },
+  // Who deactivated a staff account: the merchant (dashboard remove) or the
+  // platform console. The console refuses to reactivate a merchant-removed
+  // account — that decision belongs to the store owner.
+  deactivatedBy: { type: String, enum: ["merchant", "platform", null], default: null },
   lastLoginAt: { type: Date },
 
   // Email-verification state. Set true once the user completes the 4-digit
@@ -110,6 +114,8 @@ userSchema.index({ tenantId: 1, roles: 1 });
 userSchema.index({ tenantId: 1, isActive: 1 });
 userSchema.index({ tenantId: 1, customerType: 1 });
 userSchema.index({ tenantId: 1, tags: 1 });
+// Cross-tenant staff counts (platform overview).
+userSchema.index({ roles: 1, isActive: 1 });
 
 // Pre-save: hash password if modified + update timestamps
 userSchema.pre("save", async function (next) {

@@ -44,7 +44,7 @@ public/uploads/
 scripts/test-*.js
 
 # NOTE: `archive/` is intentionally NOT ignored — it holds historical
-# scratch files, design references, and test outputs that the user
+# scr5tatch files, design references, and test outputs that the user
 # wants to keep. Uncomment the next line if you decide to exclude it.
 archive/
 

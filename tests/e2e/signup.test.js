@@ -163,6 +163,28 @@ describe("E2E signup → store provision", () => {
     assert.equal(ro.countries[0].dialCode, "+249");
   });
 
+  it("ignores an inactive plan key at signup and lands the tenant on the default plan", async () => {
+    const SubscriptionPlan = mongoose.model("SubscriptionPlan");
+    await SubscriptionPlan.create([
+      { key: "trial", name: "Trial", family: "subscription", pricing: { baseFee: { amount: 0, currency: "SDG", interval: "month" }, trialDays: 14 }, isActive: true },
+      { key: "retired-vip", name: "Retired", family: "subscription", pricing: { baseFee: { amount: 1, currency: "SDG", interval: "month" } }, isActive: false },
+    ]);
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Acme Coffee",
+      email: "owner@acme.test",
+      password: "Sup3rSecret!",
+      subdomain: "acme",
+      subscriptionPlan: "retired-vip",
+    }).expect(201);
+    const Tenant = mongoose.model("Tenant");
+    const tenant = await Tenant.findById(res.body.responseObject.tenantId).lean();
+    assert.equal(tenant.subscriptionPlan, "trial");
+    // The default plan carries a 14-day trial → stamped once at creation (N5).
+    assert.ok(tenant.billing?.trialUsedAt, "trialUsedAt stamped");
+    const days = Math.round((new Date(tenant.billing.trialEndsAt) - new Date(tenant.billing.trialUsedAt)) / 86400000);
+    assert.equal(days, 14);
+  });
+
   it("rejects a malformed payload via the validator", async () => {
     // Missing subdomain + weak password should not even reach the service.
     const res = await request(app)

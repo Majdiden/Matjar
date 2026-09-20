@@ -40,9 +40,36 @@ const tenantUserSchema = new Schema({
   // code, but a migration fallback keeps legacy admins working.
   platformScopes: { type: [String], default: [] },
 
+  // Named platform role (config/platformRoles.js). Effective scopes are
+  // the role's scopes ∪ `platformScopes`. `null` for legacy admins that
+  // were bootstrapped with explicit scopes only.
+  platformRole: { type: String, default: null, lowercase: true, trim: true },
+  platformStatus: { type: String, enum: ["active", "suspended"], default: "active" },
+  // Bumped to revoke every issued platform token (logout everywhere,
+  // suspension, forced password reset). Baked into the JWT at login and
+  // re-checked on every request.
+  platformTokenVersion: { type: Number, default: 0 },
+  platformLastLoginAt: { type: Date, default: null },
+  // Set by "force password reset"; the console blocks everything until the
+  // operator sets a new password.
+  platformMustResetPassword: { type: Boolean, default: false },
+  platformSuspendedAt: { type: Date, default: null },
+  platformSuspensionReason: { type: String, default: null },
+  // Password-reset token (SHA-256 of the raw token, which lives only in the
+  // email). `select: false` so it never rides along on a bulk find.
+  platformResetTokenHash: { type: String, default: null, select: false },
+  platformResetTokenExpiresAt: { type: Date, default: null, select: false },
+
   notificationPreferences: { type: Schema.Types.Mixed, default: {} },
 
   createdAt: { type: Date, default: Date.now },
 });
+
+// One platform account per email (merchant directory rows for the same email
+// may still exist per tenant, hence the partial filter).
+tenantUserSchema.index(
+  { email: 1 },
+  { unique: true, partialFilterExpression: { platformAdmin: true }, name: "uniq_platform_user_email" }
+);
 
 export default tenantUserSchema;

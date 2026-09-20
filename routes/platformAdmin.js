@@ -17,11 +17,10 @@ import {
   platformAuthenticate,
   requireScope,
   validateObjectId,
+  requireRole,
   PLATFORM_SCOPES,
 } from "../middlewares/platformAdmin.js";
 import {
-  platformLogin,
-  platformMe,
   listTenants,
   getTenant,
   retryTenantSetup,
@@ -44,15 +43,25 @@ import {
   getTenantStats,
   getTenantsStats,
   getQueuesStats,
+  seedTenantStarterContent,
+  getPhoneCountries,
+  updatePhoneCountries,
+} from "../controllers/platformAdmin.js";
+import { platformLogin, platformMe } from "../controllers/platform/auth.js";
+import {
   listPlans,
   createPlan,
   updatePlan,
   deletePlan,
   changeTenantPlan,
-  seedTenantStarterContent,
-  getPhoneCountries,
-  updatePhoneCountries,
-} from "../controllers/platformAdmin.js";
+} from "../controllers/platform/plans.js";
+// Phase A sub-routers — each owned by one workstream (see docs/plans/platform-admin-operating-system.md)
+import platformAuthRoutes from "./platform/auth.js";
+import auditRoutes from "./platform/audit.js";
+import platformUserRoutes from "./platform/users.js";
+import tenantUserRoutes from "./platform/tenantUsers.js";
+import billingRoutes from "./platform/billing.js";
+import overviewRoutes from "./platform/overview.js";
 import {
   requestController as impersonationRequest,
   pollController as impersonationPoll,
@@ -69,6 +78,8 @@ const router = Router();
 
 // Public: platform admin login
 router.post("/login", platformLogin);
+// Public platform auth extras (invite accept, password reset) — routes/platform/auth.js
+router.use("/auth", platformAuthRoutes);
 
 // Everything below requires a platform-admin token.
 router.use(platformAuthenticate);
@@ -76,13 +87,21 @@ router.use(platformAuthenticate);
 // Session info (no scope required beyond being authenticated).
 router.get("/me", platformMe);
 
+// --- Phase A domain routers (all behind platformAuthenticate; each route
+// declares its own requireScope) ---
+router.use("/audit", auditRoutes);
+router.use("/users", platformUserRoutes);
+router.use("/tenants/:tenantId/users", tenantUserRoutes);
+router.use("/billing", billingRoutes);
+router.use("/overview", overviewRoutes);
+
 // --- Platform feature flags ---
 router.get("/features", requireScope(PLATFORM_SCOPES.SUPPORT_READ), getPlatformFeatures);
-router.put("/features", requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE), updatePlatformFeatures);
+router.put("/features", requireScope(PLATFORM_SCOPES.FLAGS_WRITE), updatePlatformFeatures);
 
 // --- Phone countries offered on merchant signup / profile forms ---
 router.get("/phone-countries", requireScope(PLATFORM_SCOPES.SUPPORT_READ), getPhoneCountries);
-router.put("/phone-countries", requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE), updatePhoneCountries);
+router.put("/phone-countries", requireScope(PLATFORM_SCOPES.FLAGS_WRITE), updatePhoneCountries);
 
 // --- Tenant inspection (support.read) ---
 router.get("/tenants", requireScope(PLATFORM_SCOPES.SUPPORT_READ), listTenants);
@@ -190,10 +209,13 @@ router.post(
   requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
   cancelDeletion
 );
+// Purge is owner-only on top of the lifecycle scope: it is the one
+// irreversible tenant action and ADMIN otherwise holds every scope.
 router.post(
   "/tenants/:tenantId/purge",
   validateObjectId("tenantId"),
   requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
+  requireRole("owner"),
   purge
 );
 

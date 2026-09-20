@@ -95,6 +95,7 @@ export const QUEUE_NAMES = {
   TENANT_EXPORT: "tenant-export",
   TENANT_LIFECYCLE: "tenant-lifecycle",
   BACKUPS: "backups",
+  BILLING: "billing",
 };
 
 const queueInstances = new Map();

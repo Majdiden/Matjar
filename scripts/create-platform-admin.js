@@ -6,6 +6,8 @@
  *     --email ops@matjar.to --name "Ops" --password "..." \
  *     --scopes all
  *
+ *   --role owner|admin|operations|support|finance|developer
+ *                 (default: owner when --scopes is "all"/omitted, else none)
  *   --scopes all  → grants every scope (full access)
  *   --scopes support.read,support.impersonate,queue.retry  → explicit CSV
  *   --scopes ""   → empty array (can log in, but every gated route 403s)
@@ -24,6 +26,7 @@ import mongoose from "mongoose";
 import { connectDb } from "../utils/connectionManager.js";
 import { generateHash } from "../utils/misc.js";
 import { ALL_PLATFORM_SCOPES } from "../middlewares/platformAdmin.js";
+import { PLATFORM_ROLES, isValidRole } from "../config/platformRoles.js";
 
 function parseArgs(argv) {
   const out = {};
@@ -76,24 +79,53 @@ async function main() {
     scopes = requested;
   }
 
+  // Named role → effective scopes are role ∪ explicit scopes (see
+  // config/platformRoles.js). Defaults to OWNER for a full-access bootstrap.
+  const fullAccess = raw === undefined || raw.trim().toLowerCase() === "all";
+  const roleGiven = args.role !== undefined;
+  const scopesGiven = raw !== undefined;
+  let role = roleGiven ? String(args.role).toLowerCase().trim() : fullAccess ? PLATFORM_ROLES.OWNER : null;
+  if (role && !isValidRole(role)) {
+    console.error(`Unknown role: ${role}. Valid roles: ${Object.values(PLATFORM_ROLES).join(", ")}`);
+    process.exit(1);
+  }
+
   await connectDb();
   const TenantUser = mongoose.model("TenantUser");
   const hash = await generateHash(password);
+  const existing = await TenantUser.findOne({ email, platformAdmin: true }).select("platformRole platformScopes");
+  // Existing account: rotating the password must NOT silently promote it.
+  // Role/scopes only change when passed explicitly on the command line.
+  const $set = {
+    name,
+    email,
+    platformAdmin: true,
+    platformPasswordHash: hash,
+    platformStatus: "active",
+    platformMustResetPassword: false,
+  };
+  if (!existing || roleGiven) $set.platformRole = role;
+  if (!existing || scopesGiven) $set.platformScopes = scopes;
+  // Never promote a merchant's directory row: an existing platform row is
+  // updated in place; otherwise a DEDICATED tenantId:null row is upserted
+  // (matching a free tenant-less row if one exists, else inserting one).
+  const filter = existing
+    ? { email, platformAdmin: true }
+    : { email, tenantId: null, platformAdmin: { $ne: true } };
   const result = await TenantUser.findOneAndUpdate(
-    { email },
+    filter,
     {
-      $set: {
-        name,
-        email,
-        platformAdmin: true,
-        platformPasswordHash: hash,
-        platformScopes: scopes,
-      },
+      $set,
+      ...(existing ? {} : { $setOnInsert: { tenantId: null, createdAt: new Date() } }),
+      // Revoke any existing sessions when credentials are reset from the CLI.
+      $inc: { platformTokenVersion: 1 },
     },
-    { upsert: true, new: true }
+    { upsert: !existing, new: true }
   );
-  console.log(`Platform admin ready: ${result.email} (${result._id})`);
-  console.log(`Scopes: ${scopes.length ? scopes.join(", ") : "(none)"}`);
+  console.log(`Platform admin ${existing ? "updated" : "created"}: ${result.email} (${result._id})`);
+  console.log(`Role: ${result.platformRole || "(none)"}${existing && !roleGiven ? " (unchanged — pass --role to change)" : ""}`);
+  const finalScopes = result.platformScopes || [];
+  console.log(`Scopes: ${finalScopes.length ? finalScopes.join(", ") : "(none)"}${existing && !scopesGiven ? " (unchanged — pass --scopes to change)" : ""}`);
   await mongoose.disconnect();
 }
 

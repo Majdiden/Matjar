@@ -7,7 +7,7 @@
  */
 
 import mongoose from "mongoose";
-import { signJWT, comparePassword } from "../utils/misc.js";
+import { escapeRegExp, clampInt } from "../utils/misc.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import {
   suspendTenant,
@@ -28,97 +28,63 @@ import { PLATFORM_SCOPES } from "../middlewares/platformAdmin.js";
 import config from "../config/index.js";
 import { streamFile } from "../services/providers/storage.js";
 import logger from "../utils/logger.js";
+import { recordPlatformAudit, redactForAudit } from "../services/platform/audit.js";
+import { LIFECYCLE_STATES } from "../services/tenantLifecycle.js";
 
-// Keys whose values might be secrets. Matches case-insensitively so
-// variants like "apiKey", "API_KEY", "authToken" are all caught. Used
-// to redact BullMQ job payloads before they leave the controller.
-const SENSITIVE_KEY_RE = /password|secret|token|authorization|api[_-]?key|hash|cookie|bearer/i;
-function redactPayload(value, depth = 0) {
-  if (depth > 6) return "[depth-limit]";
-  if (value == null) return value;
-  if (Array.isArray(value)) return value.map((v) => redactPayload(v, depth + 1));
-  if (typeof value === "object") {
-    const out = {};
-    for (const [k, v] of Object.entries(value)) {
-      if (SENSITIVE_KEY_RE.test(k)) {
-        out[k] = typeof v === "string" ? "[redacted]" : "[redacted]";
-      } else {
-        out[k] = redactPayload(v, depth + 1);
+
+/** The lifecycle-relevant fields of a tenant, for audit before/after snapshots. */
+const lifecycleSnapshot = (t) =>
+  t
+    ? {
+        lifecycle: t.lifecycle?.state || null,
+        subscriptionStatus: t.subscriptionStatus || null,
+        isActive: t.isActive,
+        suspendedAt: t.suspendedAt || null,
+        deletionScheduledAt: t.deletionScheduledAt || null,
+        deletedAt: t.deletedAt || null,
       }
-    }
-    return out;
-  }
-  return value;
+    : null;
+
+async function tenantSnapshot(tenantId) {
+  const t = await mongoose.model("Tenant").findById(tenantId).select("lifecycle.state subscriptionStatus isActive suspendedAt deletionScheduledAt deletedAt").lean();
+  return lifecycleSnapshot(t);
 }
 
-// --- Auth ------------------------------------------------------------
-
-export const platformLogin = asyncHandler(async (req, res) => {
-  const { email, password } = req.body || {};
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: "Email and password required." });
-  }
-  const TenantUser = mongoose.model("TenantUser");
-  const user = await TenantUser.findOne({ email: String(email).toLowerCase().trim(), platformAdmin: true })
-    .select("+platformPasswordHash name email platformAdmin");
-  if (!user || !user.platformPasswordHash) {
-    return res.status(401).json({ success: false, message: "Invalid credentials." });
-  }
-  const ok = await comparePassword(password, user.platformPasswordHash);
-  if (!ok) return res.status(401).json({ success: false, message: "Invalid credentials." });
-
-  // Short TTL on platform tokens because blast radius is cross-tenant.
-  // Frontend also enforces an idle timeout; this is the hard ceiling.
-  const token = signJWT({ platformUserId: String(user._id), platformAdmin: true }, "30m");
-  logger.info("Platform admin login", { platformUserId: String(user._id) });
-  res.json({
-    success: true,
-    data: { token, user: { id: String(user._id), name: user.name, email: user.email } },
-  });
-});
-
-/**
- * Returns the authenticated platform user plus their scopes, so the
- * frontend can gate UI affordances client-side (server still enforces).
- */
-export const platformMe = asyncHandler(async (req, res) => {
-  res.json({
-    success: true,
-    data: {
-      id: req.platformUser.id,
-      name: req.platformUser.name,
-      email: req.platformUser.email,
-      platformAdmin: req.platformUser.platformAdmin,
-      scopes: req.platformUser.scopes,
-      // Include the canonical list so the frontend doesn't have to
-      // hardcode scope names or 404 when new scopes ship.
-      availableScopes: Object.values(PLATFORM_SCOPES),
-    },
-  });
-});
 
 // --- Tenant listing / inspection -------------------------------------
 
 export const listTenants = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 25, status, q } = req.query;
+  const { status, q, lifecycle } = req.query;
+  const page = clampInt(req.query.page, 1, 1, 100000);
+  const limit = clampInt(req.query.limit, 25, 1, 100);
   const filter = {};
-  if (status) filter.subscriptionStatus = status;
-  if (q) {
-    const rx = new RegExp(String(q).trim(), "i");
-    filter.$or = [{ name: rx }, { email: rx }, { slug: rx }, { domain: rx }];
+  if (status) filter.subscriptionStatus = String(status);
+  if (lifecycle) {
+    const wanted = String(lifecycle).toLowerCase();
+    if (!Object.values(LIFECYCLE_STATES).includes(wanted)) {
+      return res.status(400).json({ success: false, message: "Unknown lifecycle state." });
+    }
+    filter["lifecycle.state"] = wanted;
   }
-  const skip = (parseInt(page) - 1) * parseInt(limit);
+  if (q) {
+    const term = String(q).trim().slice(0, 100);
+    if (term) {
+      const rx = new RegExp(escapeRegExp(term), "i");
+      filter.$or = [{ name: rx }, { email: rx }, { slug: rx }, { domain: rx }, { phone: rx }];
+    }
+  }
+  const skip = (page - 1) * limit;
   const Tenant = mongoose.model("Tenant");
   const [rows, total] = await Promise.all([
     Tenant.find(filter)
-      .select("name slug email phone phoneCountry domains subscriptionPlan subscriptionStatus suspendedAt deletionScheduledAt deletedAt setupStatus.status createdAt")
+      .select("name slug email phone phoneCountry domains subscriptionPlan subscriptionStatus suspendedAt deletionScheduledAt deletedAt setupStatus.status lifecycle.state lifecycle.reason lifecycle.changedAt createdAt")
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit))
+      .limit(limit)
       .lean(),
     Tenant.countDocuments(filter),
   ]);
-  res.json({ success: true, data: { tenants: rows, pagination: { total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) } } });
+  res.json({ success: true, data: { tenants: rows, pagination: { total, page, pages: Math.ceil(total / limit) } } });
 });
 
 export const getTenant = asyncHandler(async (req, res) => {
@@ -138,6 +104,14 @@ export const getTenant = asyncHandler(async (req, res) => {
 export const retryTenantSetup = asyncHandler(async (req, res) => {
   const result = await retrySetup(req.params.tenantId);
   logger.warn("Platform: setup retry", { tenantId: req.params.tenantId, by: req.platformUser.email });
+  await recordPlatformAudit(req, {
+    action: "tenant.setup.retry",
+    resourceType: "Tenant",
+    resourceId: req.params.tenantId,
+    tenantId: req.params.tenantId,
+    after: { success: result?.success, status: result?.status?.status || null },
+    outcome: result?.success ? "success" : "failure",
+  });
   res.json({ success: true, data: result });
 });
 
@@ -157,6 +131,14 @@ export const seedTenantStarterContent = asyncHandler(async (req, res) => {
     seeded: result.seeded,
     source: result.source,
   });
+  await recordPlatformAudit(req, {
+    action: "tenant.seed_starter_content",
+    resourceType: "Tenant",
+    resourceId: req.params.tenantId,
+    tenantId: req.params.tenantId,
+    after: { seeded: result.seeded, source: result.source, products: result.products, categories: result.categories, collections: result.collections, pages: result.pages },
+    outcome: result.success ? "success" : "failure",
+  });
   res.json({ success: true, data: result });
 });
 
@@ -174,6 +156,7 @@ export const getPhoneCountries = asyncHandler(async (_req, res) => {
  * Replaces the operator's full list. Validation lives in the service.
  */
 export const updatePhoneCountries = asyncHandler(async (req, res) => {
+  const before = await getPhoneCountryConfig();
   const config = await setPhoneCountryConfig(
     { countries: req.body?.countries, defaultCountry: req.body?.defaultCountry },
     req.platformUser?.id
@@ -183,46 +166,156 @@ export const updatePhoneCountries = asyncHandler(async (req, res) => {
     enabled: config.countries.filter((c) => c.enabled).map((c) => c.iso2),
     defaultCountry: config.defaultCountry,
   });
+  const summarize = (cfg) => ({
+    enabled: cfg.countries.filter((c) => c.enabled).map((c) => `${c.iso2} ${c.dialCode}`),
+    disabled: cfg.countries.filter((c) => !c.enabled).map((c) => c.iso2),
+    defaultCountry: cfg.defaultCountry,
+  });
+  await recordPlatformAudit(req, {
+    action: "phone_countries.update",
+    resourceType: "PlatformConfig",
+    resourceId: "phoneCountries",
+    before: summarize(before),
+    after: summarize(config),
+  });
   res.json({ success: true, data: { ...config, catalog: PHONE_COUNTRY_CATALOG } });
 });
 
 // --- Lifecycle -------------------------------------------------------
 
+// Lifecycle transitions throw with statusCode 409 when the transition table
+// forbids the move (e.g. suspending an archived tenant); surface that as a
+// 409 rather than a masked 500.
+const lifecycleError = (res, err) => {
+  const status = err?.statusCode === 409 ? 409 : err?.message === "Tenant not found" ? 404 : 500;
+  if (status === 500) logger.error("Lifecycle operation failed", { error: err?.message });
+  return res.status(status).json({ success: false, message: status === 500 ? "Operation failed." : err.message });
+};
+
+const reasonFromBody = (req, max = 500) => {
+  const r = req.body?.reason;
+  return r == null ? null : String(r).trim().slice(0, max) || null;
+};
+
 export const suspend = asyncHandler(async (req, res) => {
-  const t = await suspendTenant({
-    tenantId: req.params.tenantId,
-    reason: req.body?.reason,
-    platformUserEmail: req.platformUser.email,
+  const reason = reasonFromBody(req);
+  if (!reason || reason.length < 4) {
+    return res.status(400).json({ success: false, message: "A reason (min 4 characters) is required." });
+  }
+  const before = await tenantSnapshot(req.params.tenantId);
+  let t;
+  try {
+    t = await suspendTenant({ tenantId: req.params.tenantId, reason, platformUserEmail: req.platformUser.email });
+  } catch (err) {
+    return lifecycleError(res, err);
+  }
+  await recordPlatformAudit(req, {
+    action: "tenant.suspend",
+    resourceType: "Tenant",
+    resourceId: t._id,
+    tenantId: t._id,
+    reason,
+    before,
+    after: lifecycleSnapshot(t),
   });
-  res.json({ success: true, data: { tenantId: String(t._id), status: t.subscriptionStatus } });
+  res.json({ success: true, data: { tenantId: String(t._id), status: t.subscriptionStatus, lifecycle: t.lifecycle?.state } });
 });
 
 export const unsuspend = asyncHandler(async (req, res) => {
-  const t = await unsuspendTenant({
-    tenantId: req.params.tenantId,
-    platformUserEmail: req.platformUser.email,
+  const reason = reasonFromBody(req);
+  const before = await tenantSnapshot(req.params.tenantId);
+  let t;
+  try {
+    t = await unsuspendTenant({ tenantId: req.params.tenantId, platformUserEmail: req.platformUser.email, reason });
+  } catch (err) {
+    return lifecycleError(res, err);
+  }
+  await recordPlatformAudit(req, {
+    action: "tenant.unsuspend",
+    resourceType: "Tenant",
+    resourceId: t._id,
+    tenantId: t._id,
+    reason,
+    before,
+    after: lifecycleSnapshot(t),
   });
-  res.json({ success: true, data: { tenantId: String(t._id), status: t.subscriptionStatus } });
+  res.json({ success: true, data: { tenantId: String(t._id), status: t.subscriptionStatus, lifecycle: t.lifecycle?.state } });
 });
 
 export const scheduleDeletion = asyncHandler(async (req, res) => {
   const graceDays = req.body?.graceDays ? Number(req.body.graceDays) : undefined;
-  const t = await scheduleTenantDeletion({
-    tenantId: req.params.tenantId,
-    platformUserEmail: req.platformUser.email,
-    graceDays,
+  const reason = reasonFromBody(req);
+  if (!reason || reason.length < 4) {
+    return res.status(400).json({ success: false, message: "A reason (min 4 characters) is required." });
+  }
+  const before = await tenantSnapshot(req.params.tenantId);
+  let t;
+  try {
+    t = await scheduleTenantDeletion({ tenantId: req.params.tenantId, platformUserEmail: req.platformUser.email, graceDays, reason });
+  } catch (err) {
+    if (/graceDays/.test(err.message)) return res.status(400).json({ success: false, message: err.message });
+    return lifecycleError(res, err);
+  }
+  await recordPlatformAudit(req, {
+    action: "tenant.schedule_deletion",
+    resourceType: "Tenant",
+    resourceId: t._id,
+    tenantId: t._id,
+    reason,
+    before,
+    after: lifecycleSnapshot(t),
+    metadata: { graceDays: graceDays ?? null },
   });
-  res.json({ success: true, data: { tenantId: String(t._id), deletionScheduledAt: t.deletionScheduledAt } });
+  res.json({ success: true, data: { tenantId: String(t._id), deletionScheduledAt: t.deletionScheduledAt, lifecycle: t.lifecycle?.state } });
 });
 
 export const cancelDeletion = asyncHandler(async (req, res) => {
-  const t = await cancelScheduledDeletion({ tenantId: req.params.tenantId });
-  res.json({ success: true, data: { tenantId: String(t._id) } });
+  const before = await tenantSnapshot(req.params.tenantId);
+  let t;
+  try {
+    t = await cancelScheduledDeletion({ tenantId: req.params.tenantId, platformUserEmail: req.platformUser.email });
+  } catch (err) {
+    return lifecycleError(res, err);
+  }
+  await recordPlatformAudit(req, {
+    action: "tenant.cancel_deletion",
+    resourceType: "Tenant",
+    resourceId: t._id,
+    tenantId: t._id,
+    before,
+    after: lifecycleSnapshot(t),
+  });
+  res.json({ success: true, data: { tenantId: String(t._id), lifecycle: t.lifecycle?.state } });
 });
 
 export const purge = asyncHandler(async (req, res) => {
   const force = req.body?.force === true;
-  const result = await purgeTenant({ tenantId: req.params.tenantId, force });
+  const before = await tenantSnapshot(req.params.tenantId);
+  let result;
+  try {
+    result = await purgeTenant({ tenantId: req.params.tenantId, force, platformUserEmail: req.platformUser.email, via: "console" });
+  } catch (err) {
+    await recordPlatformAudit(req, {
+      action: "tenant.purge",
+      resourceType: "Tenant",
+      resourceId: req.params.tenantId,
+      tenantId: req.params.tenantId,
+      before,
+      metadata: { force, error: err.message },
+      outcome: "failure",
+    });
+    const status = err?.message === "Tenant not found" ? 404 : err?.statusCode === 409 ? 409 : 500;
+    return res.status(status).json({ success: false, message: status === 500 ? "Purge failed." : err.message });
+  }
+  await recordPlatformAudit(req, {
+    action: "tenant.purge",
+    resourceType: "Tenant",
+    resourceId: req.params.tenantId,
+    tenantId: req.params.tenantId,
+    before,
+    after: await tenantSnapshot(req.params.tenantId),
+    metadata: { force, counts: result.counts },
+  });
   logger.warn("Platform: tenant purged", { tenantId: req.params.tenantId, by: req.platformUser.email, force });
   res.json({ success: true, data: result });
 });
@@ -243,6 +336,12 @@ export const exportData = asyncHandler(async (req, res) => {
     });
   }
   const data = await exportTenantData(req.params.tenantId);
+  await recordPlatformAudit(req, {
+    action: "export.sync_download",
+    resourceType: "Tenant",
+    resourceId: req.params.tenantId,
+    tenantId: req.params.tenantId,
+  });
   res.json({ success: true, data });
 });
 
@@ -265,6 +364,12 @@ export const requestAsyncExport = asyncHandler(async (req, res) => {
     tenantId: String(tenant._id),
     exportId: String(row._id),
     by: req.platformUser.email,
+  });
+  await recordPlatformAudit(req, {
+    action: "export.request",
+    resourceType: "TenantExport",
+    resourceId: row._id,
+    tenantId: tenant._id,
   });
   res.status(202).json({ success: true, data: { exportId: String(row._id), status: row.status } });
 });
@@ -313,6 +418,13 @@ export const downloadExport = asyncHandler(async (req, res) => {
     tenantId: String(row.tenantId),
     exportId: String(row._id),
     by: req.platformUser.email,
+  });
+  await recordPlatformAudit(req, {
+    action: "export.download",
+    resourceType: "TenantExport",
+    resourceId: row._id,
+    tenantId: row.tenantId,
+    metadata: { bytes: row.bytes ?? null },
   });
 
   const filename = `tenant-${row.tenantId}-${row._id}.json`;
@@ -393,6 +505,14 @@ export const impersonate = asyncHandler(async (req, res) => {
     by: req.platformUser.email,
     reason: String(reason).slice(0, 120),
   });
+  await recordPlatformAudit(req, {
+    action: "impersonation.mint_legacy",
+    resourceType: "Tenant",
+    resourceId: req.params.tenantId,
+    tenantId: req.params.tenantId,
+    reason: reason ? String(reason).slice(0, 500) : null,
+    metadata: { userId: result?.userId || null, expiresIn: result?.expiresIn || null },
+  });
   res.json({ success: true, data: result });
 });
 
@@ -414,7 +534,7 @@ export const listFailedJobs = asyncHandler(async (req, res) => {
     failedReason: j.failedReason,
     // Redact before returning — job payloads can contain passwords
     // (registration), webhook secrets, API keys, session tokens, etc.
-    data: redactPayload(j.data),
+    data: redactForAudit(j.data),
     timestamp: j.timestamp,
     finishedOn: j.finishedOn,
   }));
@@ -450,6 +570,13 @@ export const retryFailedJob = asyncHandler(async (req, res) => {
   if (!job) return res.status(404).json({ success: false, message: "Job not found." });
   await job.retry();
   logger.warn("Platform: job retried", { queue: queueName, jobId: req.params.jobId, by: req.platformUser.email });
+  await recordPlatformAudit(req, {
+    action: "queue.job.retry",
+    resourceType: "Job",
+    resourceId: `${queueName}:${job.id}`,
+    tenantId: mongoose.Types.ObjectId.isValid(job.data?.tenantId) ? job.data.tenantId : null,
+    metadata: { queue: queueName, jobName: job.name, attemptsMade: job.attemptsMade },
+  });
   res.json({ success: true, data: { jobId: job.id } });
 });
 
@@ -533,11 +660,14 @@ export const getTenantStats = asyncHandler(async (req, res) => {
  */
 export const getTenantsStats = asyncHandler(async (_req, res) => {
   const Tenant = mongoose.model("Tenant");
-  const agg = await Tenant.aggregate([
-    { $group: { _id: "$subscriptionStatus", count: { $sum: 1 } } },
+  const [agg, lifecycleAgg] = await Promise.all([
+    Tenant.aggregate([{ $group: { _id: "$subscriptionStatus", count: { $sum: 1 } } }]),
+    Tenant.aggregate([{ $group: { _id: "$lifecycle.state", count: { $sum: 1 } } }]),
   ]);
   const byStatus = {};
   for (const row of agg) byStatus[row._id || "unknown"] = row.count;
+  const byLifecycle = {};
+  for (const row of lifecycleAgg) byLifecycle[row._id || "unknown"] = row.count;
   const total = Object.values(byStatus).reduce((a, b) => a + b, 0);
   const setupFailed = await Tenant.countDocuments({ "setupStatus.status": "failed" });
   const scheduledForDeletion = await Tenant.countDocuments({
@@ -545,7 +675,7 @@ export const getTenantsStats = asyncHandler(async (_req, res) => {
   });
   res.json({
     success: true,
-    data: { total, byStatus, setupFailed, scheduledForDeletion },
+    data: { total, byStatus, byLifecycle, setupFailed, scheduledForDeletion },
   });
 });
 
@@ -575,158 +705,6 @@ export const getQueuesStats = asyncHandler(async (_req, res) => {
     })
   );
   res.json({ success: true, data: results });
-});
-
-// --- Subscription plan catalog --------------------------------------
-
-// Plan keys are stable slugs referenced by tenant.subscriptionPlan.
-// Lowercase, start alphanumeric, then alphanumerics / dash / underscore.
-const PLAN_KEY_RE = /^[a-z0-9][a-z0-9-_]*$/;
-
-/**
- * Whitelist + coerce a plan payload into the catalog shape. `key` is
- * never taken from here (immutable on update, validated separately on
- * create) — pass it via `overrides`.
- */
-function sanitizePlanInput(body = {}, overrides = {}) {
-  const out = {};
-  if (body.name != null) out.name = String(body.name).trim();
-  if (body.description != null) out.description = String(body.description);
-  if (body.price != null && body.price !== "") out.price = Number(body.price);
-  if (body.currency != null) out.currency = String(body.currency).toUpperCase().trim();
-  if (body.interval != null) out.interval = body.interval;
-  if (Array.isArray(body.features)) {
-    out.features = body.features.map((f) => String(f).trim()).filter(Boolean);
-  }
-  if (body.limits && typeof body.limits === "object") {
-    const num = (v) => (v == null || v === "" ? null : Number(v));
-    out.limits = {
-      maxProducts: num(body.limits.maxProducts),
-      maxStaff: num(body.limits.maxStaff),
-    };
-  }
-  if (body.isActive != null) out.isActive = !!body.isActive;
-  if (body.sortOrder != null && body.sortOrder !== "") out.sortOrder = Number(body.sortOrder);
-  return { ...out, ...overrides };
-}
-
-export const listPlans = asyncHandler(async (_req, res) => {
-  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
-  const plans = await SubscriptionPlan.find({}).sort({ sortOrder: 1, key: 1 }).lean();
-  res.json({ success: true, data: plans });
-});
-
-export const createPlan = asyncHandler(async (req, res) => {
-  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
-  const body = req.body || {};
-  const key = String(body.key || "").toLowerCase().trim();
-  if (!key || !PLAN_KEY_RE.test(key)) {
-    return res.status(400).json({
-      success: false,
-      message: "A valid plan key is required (lowercase slug, e.g. \"starter\").",
-    });
-  }
-  if (!body.name || !String(body.name).trim()) {
-    return res.status(400).json({ success: false, message: "Plan name is required." });
-  }
-  const existing = await SubscriptionPlan.findOne({ key });
-  if (existing) {
-    return res.status(409).json({ success: false, message: `A plan with key "${key}" already exists.` });
-  }
-  const plan = await SubscriptionPlan.create(sanitizePlanInput(body, { key }));
-  logger.info("Platform: plan created", { key, by: req.platformUser.email });
-  res.status(201).json({ success: true, data: plan });
-});
-
-export const updatePlan = asyncHandler(async (req, res) => {
-  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
-  // `key` is the immutable identifier tenants reference — ignore any
-  // attempt to change it so existing tenant assignments don't orphan.
-  const update = sanitizePlanInput(req.body || {});
-  if (Object.keys(update).length === 0) {
-    return res.status(400).json({ success: false, message: "No updatable fields provided." });
-  }
-  update.updatedAt = new Date();
-  const plan = await SubscriptionPlan.findByIdAndUpdate(
-    req.params.id,
-    { $set: update },
-    { new: true, runValidators: true }
-  );
-  if (!plan) return res.status(404).json({ success: false, message: "Plan not found." });
-  logger.info("Platform: plan updated", { id: req.params.id, by: req.platformUser.email });
-  res.json({ success: true, data: plan });
-});
-
-export const deletePlan = asyncHandler(async (req, res) => {
-  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
-  const plan = await SubscriptionPlan.findById(req.params.id);
-  if (!plan) return res.status(404).json({ success: false, message: "Plan not found." });
-
-  // Block delete if any tenant is currently on this plan — otherwise
-  // their subscriptionPlan would dangle against a non-existent catalog row.
-  const Tenant = mongoose.model("Tenant");
-  const inUse = await Tenant.countDocuments({ subscriptionPlan: plan.key });
-  if (inUse > 0) {
-    return res.status(409).json({
-      success: false,
-      message: `Cannot delete plan "${plan.key}" — ${inUse} tenant(s) are on it. Move them to another plan first.`,
-    });
-  }
-  await plan.deleteOne();
-  logger.warn("Platform: plan deleted", { key: plan.key, by: req.platformUser.email });
-  res.json({ success: true, data: { id: req.params.id } });
-});
-
-/**
- * Change a tenant's current plan. Validates the plan key against the
- * catalog, then sets tenant.subscriptionPlan, refreshes the subscription
- * window (start = now, end = now + interval), and applies the plan's
- * entitlement limits to the tenant.
- */
-export const changeTenantPlan = asyncHandler(async (req, res) => {
-  const planKey = String(req.body?.plan ?? req.body?.planKey ?? "").toLowerCase().trim();
-  if (!planKey) {
-    return res.status(400).json({ success: false, message: "A plan key is required." });
-  }
-  const SubscriptionPlan = mongoose.model("SubscriptionPlan");
-  const plan = await SubscriptionPlan.findOne({ key: planKey });
-  if (!plan) {
-    return res.status(404).json({ success: false, message: `Unknown plan "${planKey}".` });
-  }
-
-  const now = new Date();
-  const endDate = new Date(now);
-  if (plan.interval === "year") endDate.setFullYear(endDate.getFullYear() + 1);
-  else endDate.setMonth(endDate.getMonth() + 1);
-
-  const set = {
-    subscriptionPlan: plan.key,
-    subscriptionStartDate: now,
-    subscriptionEndDate: endDate,
-  };
-  // Track entitlements off the plan when it declares them. maxStaff maps
-  // to the tenant's maxUsers limit.
-  if (plan.limits?.maxProducts != null) set["limits.maxProducts"] = plan.limits.maxProducts;
-  if (plan.limits?.maxStaff != null) set["limits.maxUsers"] = plan.limits.maxStaff;
-
-  const Tenant = mongoose.model("Tenant");
-  const t = await Tenant.findByIdAndUpdate(req.params.tenantId, { $set: set }, { new: true });
-  if (!t) return res.status(404).json({ success: false, message: "Tenant not found." });
-
-  logger.warn("Platform: tenant plan changed", {
-    tenantId: String(t._id),
-    plan: plan.key,
-    by: req.platformUser.email,
-  });
-  res.json({
-    success: true,
-    data: {
-      tenantId: String(t._id),
-      subscriptionPlan: t.subscriptionPlan,
-      subscriptionStartDate: t.subscriptionStartDate,
-      subscriptionEndDate: t.subscriptionEndDate,
-    },
-  });
 });
 
 // --- Failed webhook deliveries (tenant-scoped) ----------------------

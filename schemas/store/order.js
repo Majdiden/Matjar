@@ -404,6 +404,9 @@ orderSchema.index({ tenantId: 1, paymentStatus: 1 });
 orderSchema.index({ tenantId: 1, fulfillmentStatus: 1 });
 orderSchema.index({ tenantId: 1, user: 1, discountCode: 1 });
 orderSchema.index({ tenantId: 1, tags: 1 });
+// Cross-tenant commerce aggregates (platform overview).
+orderSchema.index({ createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
 
 orderSchema.pre("save", function (next) {
   this.updatedAt = Date.now();

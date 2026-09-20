@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { api, type Pagination, type TenantListRow } from '../lib/api';
+import { api, LIFECYCLE_STATES, type Pagination, type TenantListRow } from '../lib/api';
+import { LifecycleBadge } from '../components/LifecycleBadge';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -22,20 +23,13 @@ import {
 } from 'lucide-react';
 import { StatusBadge } from '../components/StatusBadge';
 
-const STATUS_OPTIONS = [
-  '',
-  'pending',
-  'trial',
-  'active',
-  'past_due',
-  'suspended',
-  'cancelled',
-  'deleted',
-];
+// Filter pills are the explicit lifecycle states (tenant.lifecycle.state).
+const STATUS_OPTIONS = ['', ...LIFECYCLE_STATES];
 
 type StatsPayload = {
   total: number;
   byStatus: Record<string, number>;
+  byLifecycle: Record<string, number>;
   setupFailed: number;
   scheduledForDeletion: number;
 };
@@ -43,7 +37,7 @@ type StatsPayload = {
 export default function Tenants() {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get('page') || '1', 10);
-  const status = searchParams.get('status') || '';
+  const status = searchParams.get('lifecycle') || '';
   const q = searchParams.get('q') || '';
 
   const [qLocal, setQLocal] = useState(q);
@@ -65,7 +59,7 @@ export default function Tenants() {
         api.tenants.list({
           page,
           limit: 25,
-          status: status || undefined,
+          lifecycle: status || undefined,
           q: q || undefined,
         }),
         api.tenants.stats().catch(() => null),
@@ -142,23 +136,23 @@ export default function Tenants() {
         {
           key: 'active',
           label: 'Active',
-          value: (stats.byStatus.active || 0) + (stats.byStatus.trial || 0),
+          value: stats.byLifecycle?.active || 0,
           filter: 'active',
           tone: 'text-emerald-600',
           icon: <CheckCircle2 className="h-4 w-4" />,
         },
         {
-          key: 'past_due',
-          label: 'Past due',
-          value: stats.byStatus.past_due || 0,
-          filter: 'past_due',
+          key: 'onboarding',
+          label: 'Onboarding',
+          value: stats.byLifecycle?.onboarding || 0,
+          filter: 'onboarding',
           tone: 'text-amber-600',
           icon: <Clock className="h-4 w-4" />,
         },
         {
           key: 'suspended',
           label: 'Suspended',
-          value: stats.byStatus.suspended || 0,
+          value: stats.byLifecycle?.suspended || 0,
           filter: 'suspended',
           tone: 'text-orange-600',
           icon: <PauseCircle className="h-4 w-4" />,
@@ -172,10 +166,10 @@ export default function Tenants() {
           icon: <AlertTriangle className="h-4 w-4" />,
         },
         {
-          key: 'deletion',
-          label: 'Pending deletion',
-          value: stats.scheduledForDeletion,
-          filter: null,
+          key: 'closed',
+          label: 'Closed',
+          value: stats.byLifecycle?.closed || 0,
+          filter: 'closed',
           tone: 'text-red-600',
           icon: <Trash2 className="h-4 w-4" />,
         },
@@ -234,8 +228,22 @@ export default function Tenants() {
       ),
     },
     {
+      id: 'lifecycle',
+      header: 'State',
+      cell: (row) => (
+        <div className="min-w-0">
+          <LifecycleBadge state={row.lifecycle?.state} />
+          {row.lifecycle?.reason && row.lifecycle.state !== 'active' && (
+            <div className="mt-0.5 truncate text-[11px] text-muted-foreground" title={row.lifecycle.reason}>
+              {row.lifecycle.reason}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
       id: 'status',
-      header: 'Status',
+      header: 'Billing',
       cell: (row) => <StatusBadge status={row.subscriptionStatus} />,
     },
     {
@@ -308,7 +316,7 @@ export default function Tenants() {
             return (
               <button
                 key={t.key}
-                onClick={() => clickable && updateParam('status', t.filter)}
+                onClick={() => clickable && updateParam('lifecycle', t.filter)}
                 disabled={!clickable}
                 className={`rounded-lg border bg-card p-3 text-left transition-colors ${
                   clickable ? 'hover:bg-accent' : 'cursor-default opacity-80'
@@ -343,7 +351,7 @@ export default function Tenants() {
             return (
               <button
                 key={s || 'all'}
-                onClick={() => updateParam('status', s || null)}
+                onClick={() => updateParam('lifecycle', s || null)}
                 className={`whitespace-nowrap rounded px-2.5 py-1.5 text-xs capitalize transition-colors ${
                   active
                     ? 'bg-primary text-primary-foreground'

@@ -30,7 +30,7 @@ import { Worker } from "bullmq";
 import config from "../config/index.js";
 import { connectDb } from "../utils/connectionManager.js";
 import { QUEUE_NAMES, getQueueConnection, closeAllQueues, observeQueue } from "../services/jobs/queues.js";
-import { scheduleTenantLifecycleSweep, enqueueDailyBackupCron } from "../services/jobs/index.js";
+import { scheduleTenantLifecycleSweep, enqueueDailyBackupCron, scheduleBillingPeriodCron } from "../services/jobs/index.js";
 import logger from "../utils/logger.js";
 
 import { processStoreSetup } from "./processors/storeSetup.js";
@@ -41,6 +41,7 @@ import { processThemeBuild } from "./processors/themeBuild.js";
 import { processTenantExport } from "./processors/dataExport.js";
 import { processTenantLifecycle } from "./processors/tenantLifecycle.js";
 import { processBackup } from "./processors/backup.js";
+import { processBilling } from "./processors/billing.js";
 import { createScopedModels } from "../utils/scopedModel.js";
 import { emit as emitNotification } from "../services/notification.js";
 
@@ -56,6 +57,8 @@ const PROCESSORS = [
   // IO/network-heavy and overlapping runs would double-upload the same
   // archive into R2.
   { queue: QUEUE_NAMES.BACKUPS, fn: processBackup, concurrency: 1 },
+  // Period close touches every tenant sequentially; never run two at once.
+  { queue: QUEUE_NAMES.BILLING, fn: processBilling, concurrency: 1 },
 ];
 
 const workers = [];
@@ -180,6 +183,11 @@ async function main() {
     await enqueueDailyBackupCron().catch((err) =>
       logger.warn("Failed to schedule daily backup cron", { error: err.message })
     );
+    // Period-close cron follows billing settings.statementDay (N9).
+    await import("../services/platform/billing/settings.js")
+      .then(({ getBillingSettings }) => getBillingSettings())
+      .then((s) => scheduleBillingPeriodCron({ day: s.statementDay }))
+      .catch((err) => logger.warn("Failed to schedule billing period cron", { error: err.message }));
   }
 
   logger.info("Workers started", {

@@ -32,7 +32,7 @@ export const updateStaffRolesRepo = async (models, id, { roles, customRoleIds })
 export const softDeleteStaffRepo = async (models, id) =>
   models.User.findByIdAndUpdate(
     id,
-    { $set: { isActive: false, updatedAt: Date.now() } },
+    { $set: { isActive: false, deactivatedBy: "merchant", updatedAt: Date.now() } },
     { new: true }
   )
     .select("-password")

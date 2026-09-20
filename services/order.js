@@ -26,6 +26,7 @@ import {
 } from "../repositories/product.js";
 import { APIError } from "../middlewares/errorHandler.js";
 import { tenantPopulate } from "../utils/scopedModel.js";
+import { eventBus, EVENTS } from "./events.js";
 import { priceCheckout } from "./checkout.js";
 import { applyDiscount } from "./discount.js";
 import { lookupByCode as lookupGiftCardByCode, redeemGiftCard, redeemGiftCardById, refundGiftCard } from "./giftCard.js";
@@ -1294,6 +1295,27 @@ export const updateOrderStatusService = async (models, orderId, status, userId, 
     to: status,
     actor: userId || null,
   });
+
+  // Billing recognition: platform commission is recognised on delivery
+  // (docs/plans/platform-admin-operating-system.md, decision 1). The
+  // listener is idempotent, so a replayed transition cannot double-charge.
+  if (status === "Delivered") {
+    try {
+      eventBus.emit(EVENTS.ORDER_DELIVERED, {
+        tenantId: String(order.tenantId),
+        orderId: String(order._id),
+        orderNumber: order.orderNumber || null,
+        totalAmount: Number(order.totalAmount) || 0,
+        refundedAmount: Number(order.refundedAmount) || 0,
+        currency: order.baseCurrency || null,
+        paymentMethod: order.paymentMethod || null,
+        paymentMethodCode: order.paymentMethodCode || null,
+        deliveredAt: now.toISOString(),
+      });
+    } catch (err) {
+      console.error("[order] ORDER_DELIVERED emit failed:", err?.message || err);
+    }
+  }
 
   if (shouldSettleCod) {
     logStateChange(models, {
