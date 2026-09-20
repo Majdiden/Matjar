@@ -40,6 +40,12 @@ class Config {
     return process.env.JWT_SECRET;
   }
 
+  // 32-byte key (hex or base64) for encrypting platform-staff MFA secrets at
+  // rest (utils/secretBox.js). Required in production; dev derives a fallback.
+  get platformMfaKey() {
+    return process.env.PLATFORM_MFA_KEY || null;
+  }
+
   get jwtRefreshSecret() {
     return process.env.JWT_REFRESH_SECRET;
   }

@@ -86,11 +86,49 @@ export function signPayload(body, secret) {
  * No retry here — the dispatcher handles retries via failureCount tracking
  * and the caller (BullMQ processor in production) can re-enqueue on failure.
  */
-export async function deliverWebhook(models, webhook, event, data) {
+/**
+ * Size-bounded copy of the event data kept in the delivery history (≤ 8 KB).
+ * Oversized payloads are NOT previewed (a sliced JSON string could expose a
+ * secret-named key mid-redaction); the row is marked truncated and the
+ * inspector refuses to retry it.
+ */
+function boundedPayload(data) {
+  try {
+    const s = JSON.stringify(data ?? null);
+    if (s.length <= 8192) return data ?? null;
+    return { truncated: true, bytes: s.length };
+  } catch {
+    return null;
+  }
+}
+
+export async function deliverWebhook(models, webhook, event, data, { retryOf = null, attempt = 1 } = {}) {
   const body = JSON.stringify({ event, tenantId: String(webhook.tenantId), data, timestamp: new Date().toISOString() });
   const { signature, timestamp } = signPayload(body, webhook.secret);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
+  const startedAt = Date.now();
+  // Best-effort delivery history row (platform inspector + merchant history).
+  // Never throws — a history write failure must not affect delivery.
+  const record = async (status, responseStatus, error) => {
+    if (!models.WebhookDelivery) return;
+    try {
+      await models.WebhookDelivery.create({
+        webhookId: webhook._id,
+        event,
+        url: webhook.url,
+        status,
+        responseStatus,
+        error: error ? String(error).slice(0, 500) : null,
+        durationMs: Date.now() - startedAt,
+        payload: boundedPayload(data),
+        retryOf,
+        attempt,
+      });
+    } catch (e) {
+      logger.warn("Webhook delivery history write failed", { error: e.message });
+    }
+  };
   try {
     const res = await fetch(webhook.url, {
       method: "POST",
@@ -104,9 +142,11 @@ export async function deliverWebhook(models, webhook, event, data) {
       signal: controller.signal,
     });
     await recordDeliveryRepo(models, webhook._id, { success: res.ok, status: res.status });
+    await record(res.ok ? "success" : "failed", res.status, res.ok ? null : `HTTP ${res.status}`);
     return { success: res.ok, status: res.status };
   } catch (err) {
     await recordDeliveryRepo(models, webhook._id, { success: false, status: 0, error: err.message });
+    await record("failed", null, err.message);
     logger.warn("Webhook delivery failed", { url: webhook.url, event, error: err.message });
     return { success: false, status: 0, error: err.message };
   } finally {

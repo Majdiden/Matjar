@@ -11,12 +11,13 @@
 import mongoose from "mongoose";
 import { asyncHandler, APIError } from "../../middlewares/errorHandler.js";
 import { recordPlatformAudit } from "../../services/platform/audit.js";
+import { invalidateTenantFeatureCache } from "../../services/featureFlags.js";
 import { validatePlanFamily, planBaseFee, planFamilyOf } from "../../services/platform/billing/resolver.js";
 import { schedulePlanChange } from "../../services/platform/billing/planChanges.js";
 
 // Plan keys are stable slugs referenced by tenant.subscriptionPlan.
 const PLAN_KEY_RE = /^[a-z0-9][a-z0-9-_]{0,63}$/;
-const LIMIT_KEYS = ["maxProducts", "maxStaff", "maxOrdersPerMonth", "maxStorageMB", "maxApiRequestsPerDay"];
+import { PLAN_LIMIT_KEYS as LIMIT_KEYS } from "../../config/limits.js";
 
 const num = (v) => (v == null || v === "" ? null : Number(v));
 const nonNegInt = (v, field) => {
@@ -148,6 +149,7 @@ export const createPlan = asyncHandler(async (req, res) => {
   await assertPlanConsistent(doc);
 
   const plan = await SubscriptionPlan.create(doc);
+  invalidateTenantFeatureCache(); // entitlements are a feature-resolution layer
   await recordPlatformAudit(req, { action: "plan.create", resourceType: "SubscriptionPlan", resourceId: plan._id, after: plan.toObject() });
   res.status(201).json({ success: true, data: plan });
 });
@@ -166,6 +168,7 @@ export const updatePlan = asyncHandler(async (req, res) => {
   const after = plan.toObject();
   const changed = Object.keys(update).map((k) => k.split(".")[0]);
   const pick = (o) => Object.fromEntries([...new Set(changed)].map((k) => [k, o[k]]));
+  invalidateTenantFeatureCache(); // entitlements are a feature-resolution layer
   await recordPlatformAudit(req, { action: "plan.update", resourceType: "SubscriptionPlan", resourceId: plan._id, before: pick(before), after: pick(after) });
   res.json({ success: true, data: plan });
 });

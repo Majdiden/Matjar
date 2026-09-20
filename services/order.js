@@ -34,7 +34,7 @@ import { notifyOrderStatusChange, recordOrderNotified, notifyMerchantNewOrder, O
 import { emit as emitNotification } from "./notification.js";
 import { guardTransition } from "../utils/orderStateMachine.js";
 import { logStateChange } from "../utils/auditLog.js";
-import { isFeatureEnabled } from "./featureFlags.js";
+import { isFeatureEnabledForTenantId } from "./featureFlags.js";
 
 /**
  * Retry-on-VersionError helper.
@@ -323,7 +323,7 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
     discountCodes,
     shippingMethod: clientShippingMethod,
     notes,
-    customerEmail,
+    customerEmail: rawCustomerEmail,
     customerPhone,
     acceptsMarketing,
     saveAddress,
@@ -332,6 +332,10 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
     giftCardCode,
     giftCardId,
   } = orderData;
+  // Guest emails are matched/indexed lowercase everywhere (User.email is
+  // lowercased by its schema; the order snapshot now is too) — normalise the
+  // raw checkout input once here so every downstream use agrees.
+  const customerEmail = typeof rawCustomerEmail === "string" ? rawCustomerEmail.trim().toLowerCase() : rawCustomerEmail;
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -554,7 +558,7 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
       // Reject a crafted checkout POST that names any other method.
       if (
         paymentMethodCode !== "cod" &&
-        !(await isFeatureEnabled("payments.methods"))
+        !(await isFeatureEnabledForTenantId(tenantId, "payments.methods"))
       ) {
         throw new APIError(`Payment method not available: ${paymentMethodCode}`, 400);
       }

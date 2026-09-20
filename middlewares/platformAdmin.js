@@ -13,24 +13,15 @@
 import mongoose from "mongoose";
 import { verifyJWT } from "../utils/misc.js";
 import logger from "../utils/logger.js";
+import { isSessionActive, touchSession } from "../services/platform/sessions.js";
+import { getSecuritySettings } from "../services/platform/security.js";
 
 // The six platform-admin permission scopes. Keep in sync with the
 // bootstrap script and the frontend's scope → UI mapping.
-export const PLATFORM_SCOPES = Object.freeze({
-  SUPPORT_READ: "support.read",
-  SUPPORT_IMPERSONATE: "support.impersonate",
-  TENANT_LIFECYCLE: "tenant.lifecycle",
-  TENANT_EXPORT: "tenant.export",
-  QUEUE_RETRY: "queue.retry",
-  BILLING_READ: "billing.read",
-  // Phase A (platform operating system) additions — see docs/plans/platform-admin-operating-system.md
-  BILLING_WRITE: "billing.write", // plans, commission policies, overrides, statements, record payments
-  AUDIT_READ: "audit.read", // platform audit ledger + tenant activity
-  PLATFORM_USERS: "platform.users", // invite/suspend/role-change platform staff, revoke sessions
-  TENANT_USERS: "tenant.users", // view/revoke merchant staff access from the console
-  FLAGS_WRITE: "flags.write", // feature flags, access programs, overrides (was tenant.lifecycle)
-});
-export const ALL_PLATFORM_SCOPES = Object.freeze(Object.values(PLATFORM_SCOPES));
+// Scope constants live in the leaf module config/platformScopes.js (no imports)
+// so config/platformRoles.js and the platform services can import them without
+// a circular-evaluation crash. Re-exported here for existing callers.
+export { PLATFORM_SCOPES, ALL_PLATFORM_SCOPES } from "../config/platformScopes.js";
 
 export const platformAuthenticate = async (req, res, next) => {
   try {
@@ -43,10 +34,21 @@ export const platformAuthenticate = async (req, res, next) => {
     if (!decoded || !decoded.platformUserId || !decoded.platformAdmin) {
       return res.status(401).json({ success: false, message: "Not a platform token." });
     }
+    // Purpose-scoped tokens (MFA step, re-auth) grant NOTHING here.
+    if (decoded.purpose) {
+      return res.status(401).json({ success: false, message: "Not a platform session token." });
+    }
+    // Per-session revocation: every session token carries a jti with a
+    // PlatformSession row; a revoked or missing row fails closed. Legacy
+    // tokens without a jti (issued before this change) are rejected too —
+    // the 30 m TTL makes that a non-event.
+    if (!decoded.jti || !(await isSessionActive(decoded.jti))) {
+      return res.status(401).json({ success: false, message: "Session revoked. Sign in again." });
+    }
 
     const TenantUser = mongoose.model("TenantUser");
     const user = await TenantUser.findById(decoded.platformUserId).select(
-      "platformAdmin platformScopes platformRole platformStatus platformTokenVersion platformMustResetPassword name email"
+      "platformAdmin platformScopes platformRole platformStatus platformTokenVersion platformMustResetPassword platformMfa.enabled name email"
     );
     if (!user || !user.platformAdmin) {
       return res.status(403).json({ success: false, message: "Platform admin revoked." });
@@ -73,8 +75,11 @@ export const platformAuthenticate = async (req, res, next) => {
       platformAdmin: user.platformAdmin,
       role: user.platformRole || null,
       mustResetPassword: !!user.platformMustResetPassword,
+      mfaEnabled: !!user.platformMfa?.enabled,
       scopes: resolveEffectiveScopes(user.platformRole, user.platformScopes),
+      jti: decoded.jti,
     };
+    touchSession(decoded.jti);
 
     // Forced password reset is enforced HERE, not only in the UI: until the
     // operator sets a new password they may only read their session and
@@ -85,6 +90,18 @@ export const platformAuthenticate = async (req, res, next) => {
         code: "PASSWORD_RESET_REQUIRED",
         message: "You must set a new password before continuing.",
       });
+    }
+    // MFA enrolment policy: roles listed in security settings must enrol
+    // before using anything but the enrolment routes themselves.
+    if (!req.platformUser.mfaEnabled && req.platformUser.role) {
+      const { requireMfaForRoles } = await getSecuritySettings();
+      if (requireMfaForRoles.includes(req.platformUser.role) && !isMfaEnrollmentAllowedRoute(req)) {
+        return res.status(403).json({
+          success: false,
+          code: "MFA_ENROLLMENT_REQUIRED",
+          message: "Your role requires two-factor authentication. Enrol before continuing.",
+        });
+      }
     }
     next();
   } catch (err) {
@@ -102,6 +119,41 @@ function isPasswordResetAllowedRoute(req) {
   const path = String(req.path || "").replace(/\/+$/, "");
   return RESET_ALLOWED.some((r) => r.method === req.method && r.path === path);
 }
+
+const MFA_ENROLL_ALLOWED_PREFIXES = ["/auth/mfa/", "/users/me/sessions"];
+function isMfaEnrollmentAllowedRoute(req) {
+  const path = String(req.path || "").replace(/\/+$/, "");
+  if (isPasswordResetAllowedRoute(req)) return true;
+  if (req.method === "GET" && path === "/me") return true;
+  return MFA_ENROLL_ALLOWED_PREFIXES.some((p) => path.startsWith(p));
+}
+
+/**
+ * requireRecentReauth — the request must carry an `X-Reauth` header holding
+ * a short-lived (5 min) JWT minted by POST /auth/reauth after the operator
+ * re-entered their password (or a TOTP code when MFA is enabled). Bound to
+ * the same user AND the same session jti so a stolen reauth token is useless
+ * with another session token. Use on destructive / privilege-changing routes.
+ */
+export const requireRecentReauth = (req, res, next) => {
+  const user = req.platformUser;
+  if (!user) return res.status(401).json({ success: false, message: "Platform auth required." });
+  const raw = req.headers["x-reauth"];
+  const decoded = raw ? verifyJWT(String(raw)) : null;
+  if (
+    !decoded ||
+    decoded.purpose !== "reauth" ||
+    String(decoded.platformUserId) !== String(user.id) ||
+    decoded.sessionJti !== user.jti
+  ) {
+    return res.status(403).json({
+      success: false,
+      code: "REAUTH_REQUIRED",
+      message: "Please confirm your identity to perform this action.",
+    });
+  }
+  next();
+};
 
 /**
  * requireRole(...roles) — the authenticated platform user must hold one of

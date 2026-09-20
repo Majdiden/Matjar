@@ -25,6 +25,39 @@ export interface PlatformUser {
   role?: string | null;
   scopes?: string[];
   availableScopes?: string[];
+  mfaEnabled?: boolean;
+}
+
+// --- Re-authentication -------------------------------------------------
+// Destructive / privilege-changing calls need a fresh identity check. The
+// server hands back a 5-minute token bound to the current session; we keep
+// it IN MEMORY ONLY (never localStorage) and attach it as `X-Reauth` on the
+// next protected request(s). `ReauthModal` obtains it.
+let reauthToken: string | null = null;
+let reauthExpiresAt = 0;
+export function setReauthToken(token: string, expiresInSeconds: number) {
+  reauthToken = token;
+  // Keep a 20 s safety margin under the server's TTL.
+  reauthExpiresAt = Date.now() + Math.max(0, expiresInSeconds - 20) * 1000;
+}
+export function hasFreshReauth(): boolean {
+  return !!reauthToken && Date.now() < reauthExpiresAt;
+}
+export function clearReauth() {
+  reauthToken = null;
+  reauthExpiresAt = 0;
+}
+/** Thrown by the interceptor when the server asks for re-authentication. */
+export const REAUTH_REQUIRED = 'REAUTH_REQUIRED';
+/** Server code when the operator's role requires MFA and they have not enrolled. */
+export const MFA_ENROLLMENT_REQUIRED = 'MFA_ENROLLMENT_REQUIRED';
+// The AuthProvider's MfaEnrollmentGate subscribes to redirect the operator.
+const mfaGateListeners = new Set<() => void>();
+export function onMfaGate(fn: () => void): () => void {
+  mfaGateListeners.add(fn);
+  return () => {
+    mfaGateListeners.delete(fn);
+  };
 }
 
 // Mirrors backend PLATFORM_SCOPES. Used by the frontend to gate UI
@@ -71,9 +104,14 @@ export const http = axios.create({
 
 http.interceptors.request.use((config) => {
   const token = getToken();
+  config.headers = config.headers || {};
   if (token) {
-    config.headers = config.headers || {};
     (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+  }
+  // Re-auth proof only rides on mutating requests; never on reads.
+  const method = String(config.method || 'get').toLowerCase();
+  if (method !== 'get' && method !== 'head' && hasFreshReauth() && reauthToken) {
+    (config.headers as Record<string, string>)['X-Reauth'] = reauthToken;
   }
   return config;
 });
@@ -96,13 +134,24 @@ http.interceptors.response.use(
         window.location.href = `${loginPath}?expired=1`;
       }
     }
-    const msg =
-      (err.response?.data as { message?: string } | undefined)?.message ||
-      err.message ||
-      'Request failed';
-    return Promise.reject(new Error(msg));
+    const body = err.response?.data as { message?: string; code?: string } | undefined;
+    const msg = body?.message || err.message || 'Request failed';
+    const e = new Error(msg) as Error & { code?: string; status?: number };
+    e.code = body?.code;
+    e.status = err.response?.status;
+    if (body?.code === REAUTH_REQUIRED) clearReauth();
+    if (body?.code === MFA_ENROLLMENT_REQUIRED) mfaGateListeners.forEach((fn) => fn());
+    return Promise.reject(e);
   }
 );
+
+/** Drop undefined / null / empty-string params before sending a query. */
+export function cleanParams<T extends object>(o: T): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== '' && v !== null));
+}
+
+/** Badge variants (mirror of components/ui/Badge.tsx) for tone maps kept in non-component modules. */
+export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning';
 
 // --- Typed API surface ------------------------------------------------
 
@@ -186,6 +235,8 @@ export interface FeaturesResponse {
   registry: FeatureFlagDef[];
   flags: Record<string, boolean | string[]>;
   themeSlugs: string[];
+  // Phase B: where each flag is switched on/off below the global layer.
+  overrides?: Record<string, { programsOn: string[]; programsOff: string[]; tenantsOn: number; tenantsOff: number }>;
 }
 
 // Dial codes offered on merchant signup / profile forms. `catalog` is the
@@ -220,10 +271,24 @@ export interface SeedStarterResult {
   error?: string;
 }
 
+export type LoginResult =
+  | { mfaRequired: true; mfaToken: string }
+  | { mfaRequired?: false; token: string; user: PlatformUser };
+
 export const api = {
   login: async (email: string, password: string) => {
     const res = await http.post('/login', { email, password });
-    return res.data.data as { token: string; user: PlatformUser };
+    return res.data.data as LoginResult;
+  },
+  // Login step 2 (MFA). Public: no session exists yet.
+  mfaVerify: async (mfaToken: string, code: string) => {
+    const res = await http.post('/auth/mfa/verify', { mfaToken, code });
+    return res.data.data as { token: string; user: PlatformUser; mfaMethod: 'totp' | 'recovery'; recoveryCodesRemaining?: number };
+  },
+  // Re-confirm identity (password when MFA is off, authenticator code when on).
+  reauth: async (input: { password?: string; code?: string }) => {
+    const res = await http.post('/auth/reauth', input);
+    return res.data.data as { reauthToken: string; expiresInSeconds: number; method: string };
   },
   me: async () => {
     const res = await http.get('/me');

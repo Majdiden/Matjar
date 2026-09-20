@@ -14,6 +14,27 @@
 import mongoose from "mongoose";
 import { createScopedModels } from "../../utils/scopedModel.js";
 import { redactForAudit } from "./audit.js";
+import { tenantNameMap } from "./tenantNames.js";
+
+const MAX_WINDOW = 500;
+// The platform-wide feed reads merchant audit rows across tenants on purpose
+// (gated by audit.read); tell the tenant-scope plugin so its leak warning
+// stays meaningful elsewhere.
+const CROSS_TENANT = { _skipTenantCheck: true };
+
+/**
+ * Merge two newest-first row sets (already normalised to activity items) and
+ * slice the requested page. Both sources were fetched with the same window
+ * (page*limit, capped at MAX_WINDOW), so `hasMore` is exact within the cap.
+ */
+export function mergeTimeline(platformItems, merchantItems, { page, limit, window }) {
+  const merged = [...platformItems, ...merchantItems].sort((a, b) => new Date(b.at) - new Date(a.at));
+  const start = (page - 1) * limit;
+  const items = merged.slice(start, start + limit);
+  const exhausted = platformItems.length < window && merchantItems.length < window;
+  const hasMore = !exhausted || merged.length > start + limit;
+  return { items, page, limit, hasMore: hasMore && start + limit < MAX_WINDOW };
+}
 
 const ACTION_TEMPLATES = {
   // Platform ledger
@@ -40,6 +61,22 @@ const ACTION_TEMPLATES = {
   "billing.statement.record_payment": ({ actor }) => `${actor} recorded a statement payment`,
   "billing.override.create": ({ actor, reason }) => `${actor} added a pricing override${reason ? ` — ${reason}` : ""}`,
   "tenant_users.revoke": ({ actor, resourceId }) => `${actor} revoked merchant staff access (${resourceId})`,
+  // Phase B — system / webhooks / feedback
+  "webhook.delivery.retry": ({ actor, after, outcome }) =>
+    outcome === "failure" ? `${actor} tried to re-send a webhook delivery (failed)` : `${actor} re-sent a webhook delivery${after?.success === false ? " (endpoint rejected it)" : ""}`,
+  "feedback.status.update": ({ actor, after, reason }) => `${actor} moved feedback to ${String(after?.status || "").replace(/_/g, " ")}${reason ? ` — ${reason}` : ""}`,
+  "feedback.note.add": ({ actor }) => `${actor} added an internal note to feedback`,
+  "billing.period.run": ({ actor, metadata }) => `${actor} ran the billing period close${metadata?.periodKey ? ` for ${metadata.periodKey}` : ""}`,
+  "plan.change.apply": ({ actor, before, after }) => `${actor} applied a scheduled plan change${before?.plan ? ` from ${before.plan}` : ""}${after?.plan ? ` to ${after.plan}` : ""}`,
+  "tenant.lifecycle.active": ({ actor }) => `${actor === "System" ? "Store setup completed and the store became active" : `${actor} activated the store`}`,
+  // Merchant-side additions
+  "feedback.submitted": ({ actor, metadata }) => `${actor} sent ${metadata?.type ? String(metadata.type).replace(/_/g, " ") : "feedback"} to the platform`,
+  "staff.invited": ({ actor }) => `${actor} invited a staff member`,
+  "staff.removed": ({ actor }) => `${actor} removed a staff member`,
+  "order.created": ({ actor }) => `${actor} created an order`,
+  "theme.installed": ({ actor }) => `${actor} installed a theme`,
+  "theme.published": ({ actor }) => `${actor} published theme changes`,
+  "domain.added": ({ actor }) => `${actor} connected a custom domain`,
   // Merchant-side AuditLog actions (tenant DB)
   "user.email_verified": ({ actor }) => `${actor} verified their email`,
   "user.profile_updated": ({ actor }) => `${actor} updated their profile`,
@@ -95,11 +132,11 @@ function fromPlatformRow(r) {
   return { ...base, label: buildActivityLabel(base) };
 }
 
-function fromMerchantRow(r) {
+function fromMerchantRow(r, tenant = null) {
   const base = {
     at: r.createdAt,
     source: "merchant",
-    actor: r.actorName || null,
+    actor: r.actorName || r.actorEmail || null,
     action: r.action,
     resourceType: r.resource || null,
     resourceId: r.resourceId ? String(r.resourceId) : null,
@@ -109,8 +146,42 @@ function fromMerchantRow(r) {
     metadata: redactForAudit(r.metadata ?? null),
     outcome: "success",
     details: redactForAudit(r.changes ?? null),
+    tenantId: r.tenantId ? String(r.tenantId) : null,
+    tenant,
   };
   return { ...base, label: buildActivityLabel(base) };
+}
+
+/**
+ * Platform-wide feed (all tenants): operator ledger rows plus merchant-side
+ * audit rows from the last RECENT_DAYS, merged newest-first. Bounded by
+ * MAX_WINDOW like the per-tenant timeline. Merchant rows are read from the
+ * shared collection with an explicit time window (no tenant filter — this
+ * is a platform-level view, gated by audit.read).
+ */
+export async function getPlatformActivity({ page = 1, limit = 25, tenantId = null, source = null } = {}) {
+  const RECENT_DAYS = 7;
+  const window = Math.min(page * limit, MAX_WINDOW);
+  const PlatformAuditLog = mongoose.model("PlatformAuditLog");
+  const AuditLog = mongoose.model("AuditLog");
+  const since = new Date(Date.now() - RECENT_DAYS * 24 * 3600 * 1000);
+
+  const platformFilter = tenantId ? { tenantId } : {};
+  const merchantFilter = { createdAt: { $gte: since }, ...(tenantId ? { tenantId } : {}) };
+
+  const [platformRows, merchantRows] = await Promise.all([
+    source === "merchant" ? [] : PlatformAuditLog.find(platformFilter).sort({ createdAt: -1 }).limit(window).lean(),
+    source === "platform" ? [] : AuditLog.find(merchantFilter).setOptions(CROSS_TENANT).sort({ createdAt: -1 }).limit(window).lean(),
+  ]);
+
+  const names = await tenantNameMap([...platformRows, ...merchantRows].map((r) => r.tenantId));
+  const withTenant = (row, tid) => ({ ...row, tenantId: tid ? String(tid) : null, tenant: tid ? names[String(tid)] || null : null });
+
+  return mergeTimeline(
+    platformRows.map((r) => withTenant(fromPlatformRow(r), r.tenantId)),
+    merchantRows.map((r) => fromMerchantRow(r, names[String(r.tenantId)] || null)),
+    { page, limit, window }
+  );
 }
 
 /**
@@ -120,7 +191,6 @@ function fromMerchantRow(r) {
  * reads (bounded by MAX_WINDOW).
  */
 export async function getTenantActivity(tenantId, { page = 1, limit = 25 } = {}) {
-  const MAX_WINDOW = 500;
   const window = Math.min(page * limit, MAX_WINDOW);
   const PlatformAuditLog = mongoose.model("PlatformAuditLog");
   const models = createScopedModels(mongoose.connection, tenantId);
@@ -129,13 +199,5 @@ export async function getTenantActivity(tenantId, { page = 1, limit = 25 } = {})
     PlatformAuditLog.find({ tenantId }).sort({ createdAt: -1 }).limit(window).lean(),
     models.AuditLog ? models.AuditLog.find({}).sort({ createdAt: -1 }).limit(window).lean() : [],
   ]);
-
-  const merged = [...platformRows.map(fromPlatformRow), ...merchantRows.map(fromMerchantRow)].sort(
-    (a, b) => new Date(b.at) - new Date(a.at)
-  );
-  const start = (page - 1) * limit;
-  const items = merged.slice(start, start + limit);
-  const exhausted = platformRows.length < window && merchantRows.length < window;
-  const hasMore = !exhausted || merged.length > start + limit;
-  return { items, page, limit, hasMore: hasMore && start + limit < MAX_WINDOW };
+  return mergeTimeline(platformRows.map(fromPlatformRow), merchantRows.map((r) => fromMerchantRow(r)), { page, limit, window });
 }

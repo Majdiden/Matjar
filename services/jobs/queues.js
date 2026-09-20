@@ -58,6 +58,10 @@ const DEFAULT_JOB_OPTIONS = {
  * when REDIS_URL points at an unreachable host.
  */
 let sharedConnection = null;
+/** True once a shared Redis connection has been created (never creates one). */
+export function hasQueueConnection() {
+  return sharedConnection !== null;
+}
 export function getQueueConnection() {
   if (sharedConnection) return sharedConnection;
   const url = config.redisUrl;
@@ -96,6 +100,8 @@ export const QUEUE_NAMES = {
   TENANT_LIFECYCLE: "tenant-lifecycle",
   BACKUPS: "backups",
   BILLING: "billing",
+  STOREFRONT_HEALTH: "storefront-health",
+  USAGE: "usage",
 };
 
 const queueInstances = new Map();

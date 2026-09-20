@@ -158,4 +158,215 @@ export async function setFeatureOverrides(updates, updatedBy) {
 
 export function invalidateFeatureFlagCache() {
   cache = { flags: null, at: 0 };
+  tenantCache.clear();
+}
+
+// ---------------------------------------------------------------------------
+// Per-tenant layered resolution (Phase B)
+//
+// Ladder, lowest to highest precedence:
+//   1. registry default
+//   2. global operator override            (platformconfigs "features")
+//   3. plan entitlement                     (plan.entitlements ∋ key → true)
+//   4. ACTIVE access-program overrides      (membership order; later wins)
+//   5. tenant override                      (FeatureOverride, live + unexpired)
+//
+// Only BOOLEAN flags participate in layers 3–5 — a stringList flag
+// (themes.allowedSlugs) is global only. `resolveTenantLayers` is pure so the
+// ladder is unit-testable without a DB; `resolveTenantFeatures` loads the
+// inputs and caches the result per tenant for 30s (invalidated on writes).
+// ---------------------------------------------------------------------------
+
+const TENANT_CACHE_TTL_MS = 30_000;
+const TENANT_CACHE_MAX = 5000;
+const tenantCache = new Map(); // tenantId → { at, result }
+
+/** True when a program applies right now (active + inside its window).
+ *  Boundaries: startsAt === now → active; endsAt === now → inactive. */
+export function isProgramActive(program, at = new Date()) {
+  if (!program || program.status !== "active") return false;
+  if (program.startsAt && new Date(program.startsAt) > at) return false;
+  if (program.endsAt && new Date(program.endsAt) <= at) return false;
+  return true;
+}
+
+/** Pure: keep only ACTIVE programs, preserving the tenant's membership order. */
+export function selectActivePrograms(membershipKeys = [], programs = [], at = new Date()) {
+  const byKey = new Map((programs || []).map((p) => [p.key, p]));
+  return (membershipKeys || []).map((k) => byKey.get(k)).filter((p) => isProgramActive(p, at));
+}
+
+/** Pure: keep only live (unrevoked, unexpired) overrides. */
+export function selectLiveOverrides(overrides = [], at = new Date()) {
+  return (overrides || []).filter((o) => o && !o.revokedAt && (!o.endsAt || new Date(o.endsAt) > at));
+}
+
+/**
+ * Pure ladder.
+ * @param {object} args
+ * @param {object} args.globalFlags   effective global flags (getEffectiveFlags)
+ * @param {string[]} [args.entitlements]   plan.entitlements
+ * @param {Array<{key:string, featureOverrides:Array<{k,v}>}>} [args.programs]  ACTIVE programs, in membership order
+ * @param {Array<{key:string, value:boolean}>} [args.tenantOverrides]  live tenant overrides
+ * @returns {{ flags: object, layers: object }}
+ */
+export function resolveTenantLayers({ globalFlags, entitlements = [], programs = [], tenantOverrides = [] }) {
+  const flags = {};
+  const layers = {};
+  const ent = new Set((entitlements || []).map((k) => String(k)));
+
+  for (const def of FEATURE_REGISTRY) {
+    const key = def.key;
+    const def0 = DEFAULT_FLAGS[key];
+    const globalVal = globalFlags && globalFlags[key] !== undefined ? globalFlags[key] : def0;
+    // Non-boolean flags: global only.
+    if (def.type !== "boolean") {
+      flags[key] = globalVal;
+      layers[key] = { default: def0, global: globalVal, plan: null, program: null, tenant: null, effective: globalVal, source: "global" };
+      continue;
+    }
+    let effective = globalVal === true;
+    let source = globalFlags && globalFlags[key] !== undefined && globalFlags[key] !== def0 ? "global" : "default";
+    let planVal = null;
+    if (ent.has(key)) {
+      planVal = true;
+      effective = true;
+      source = "plan";
+    }
+    let programVal = null;
+    let programKey = null;
+    for (const p of programs || []) {
+      const hit = (p?.featureOverrides || []).find((o) => o && o.k === key && typeof o.v === "boolean");
+      if (hit) {
+        programVal = hit.v;
+        programKey = p.key;
+      }
+    }
+    if (programVal !== null) {
+      effective = programVal;
+      source = "program";
+    }
+    let tenantVal = null;
+    const t = (tenantOverrides || []).find((o) => o && o.key === key && typeof o.value === "boolean");
+    if (t) {
+      tenantVal = t.value;
+      effective = tenantVal;
+      source = "tenant";
+    }
+    flags[key] = effective;
+    layers[key] = {
+      default: def0,
+      global: globalVal === true,
+      plan: planVal,
+      program: programVal,
+      programKey,
+      tenant: tenantVal,
+      effective,
+      source,
+    };
+  }
+  return { flags, layers };
+}
+
+/** Live (unrevoked, unexpired) tenant overrides, NEWEST first — the ladder
+ *  picks the first match per key, so the most recent override wins. */
+export async function findLiveTenantOverrides(tenantId, at = new Date()) {
+  const FeatureOverride = mongoose.model("FeatureOverride");
+  return FeatureOverride.find({
+    scope: "tenant",
+    scopeId: tenantId,
+    revokedAt: null,
+    $or: [{ endsAt: null }, { endsAt: { $gt: at } }],
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+}
+
+/** ACTIVE programs the tenant belongs to, in the tenant's membership order. */
+export async function findActiveProgramsFor(tenant, at = new Date()) {
+  const keys = Array.isArray(tenant?.accessPrograms) ? tenant.accessPrograms : [];
+  if (!keys.length) return [];
+  const AccessProgram = mongoose.model("AccessProgram");
+  const rows = await AccessProgram.find({ key: { $in: keys } }).lean();
+  return selectActivePrograms(keys, rows, at);
+}
+
+/**
+ * Effective flags + per-flag layers for one tenant.
+ *
+ * Failure mode (deliberate, bounded): if loading any lower layer fails (DB
+ * blip), the result collapses to the GLOBAL layer for this call only — it is
+ * not cached, so the next call retries. Consequence: a tenant-level OFF
+ * override (or a program forcing OFF) is NOT enforced during the blip; the
+ * global value is. This is fail-closed relative to the global posture, but not
+ * relative to a store-specific restriction. Acceptable for feature flags; do
+ * not use this resolver for security decisions.
+ *
+ * @param {object} tenant  lean Tenant (needs _id, subscriptionPlan, accessPrograms)
+ * @param {object} [opts]  { at?: Date, fresh?: boolean }
+ */
+export async function resolveTenantFeatures(tenant, opts = {}) {
+  const id = tenant?._id ? String(tenant._id) : null;
+  const at = opts.at || new Date();
+  if (id && !opts.fresh) {
+    const hit = tenantCache.get(id);
+    if (hit && Date.now() - hit.at < TENANT_CACHE_TTL_MS) return hit.result;
+  }
+  const globalFlags = await getEffectiveFlags();
+  let entitlements = [];
+  let programs = [];
+  let tenantOverrides = [];
+  try {
+    if (tenant?.subscriptionPlan) {
+      const SubscriptionPlan = mongoose.model("SubscriptionPlan");
+      const plan = await SubscriptionPlan.findOne({ key: String(tenant.subscriptionPlan).toLowerCase() })
+        .select("entitlements")
+        .lean();
+      entitlements = plan?.entitlements || [];
+    }
+    programs = await findActiveProgramsFor(tenant, at);
+    if (id) tenantOverrides = await findLiveTenantOverrides(tenant._id, at);
+  } catch (err) {
+    // Fail closed to the global layer (the restrictive posture): a partial
+    // load must never turn a flag ON, and must never be cached.
+    logger.error("featureFlags: tenant layer load failed; using global flags", { tenantId: id, error: err?.message });
+    return resolveTenantLayers({ globalFlags, entitlements: [], programs: [], tenantOverrides: [] });
+  }
+  const result = resolveTenantLayers({ globalFlags, entitlements, programs, tenantOverrides });
+  if (id) {
+    if (tenantCache.size >= TENANT_CACHE_MAX) tenantCache.clear();
+    tenantCache.set(id, { at: Date.now(), result });
+  }
+  return result;
+}
+
+/**
+ * Tenant-aware boolean check for gates. Uses the layered resolution when a
+ * tenant is in scope, else the global flag. Callers pass the lean tenant doc
+ * (needs _id, subscriptionPlan, accessPrograms).
+ */
+export async function isFeatureEnabledFor(tenant, key) {
+  if (!tenant?._id) return isFeatureEnabled(key);
+  const { flags } = await resolveTenantFeatures(tenant);
+  return flags[key] === true;
+}
+
+/** Same as isFeatureEnabledFor but from a bare tenant id (loads the lean doc). */
+export async function isFeatureEnabledForTenantId(tenantId, key) {
+  if (!tenantId) return isFeatureEnabled(key);
+  const hit = tenantCache.get(String(tenantId));
+  if (hit && Date.now() - hit.at < TENANT_CACHE_TTL_MS) return hit.result.flags[key] === true;
+  const tenant = await mongoose.model("Tenant").findById(tenantId).select("subscriptionPlan accessPrograms").lean();
+  return isFeatureEnabledFor(tenant, key);
+}
+
+/**
+ * Drop the cached resolution for one tenant (or all when omitted). Call after
+ * any write that changes a layer input (plan entitlements, program state or
+ * membership, tenant overrides, tenant.subscriptionPlan). The cache is
+ * per-process; across dynos the 30s TTL is the convergence bound.
+ */
+export function invalidateTenantFeatureCache(tenantId) {
+  if (tenantId == null) tenantCache.clear();
+  else tenantCache.delete(String(tenantId));
 }

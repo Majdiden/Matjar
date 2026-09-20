@@ -5,7 +5,7 @@
 import mongoose from "mongoose";
 import { asyncHandler } from "../../middlewares/errorHandler.js";
 import { escapeRegExp, clampInt } from "../../utils/misc.js";
-import { getTenantActivity } from "../../services/platform/activity.js";
+import { getTenantActivity, getPlatformActivity } from "../../services/platform/activity.js";
 
 const MAX_LIMIT = 100;
 
@@ -107,5 +107,21 @@ export const tenantActivity = asyncHandler(async (req, res) => {
   const exists = await Tenant.exists({ _id: req.params.tenantId });
   if (!exists) return res.status(404).json({ success: false, message: "Tenant not found." });
   const data = await getTenantActivity(req.params.tenantId, { page, limit });
+  res.json({ success: true, data });
+});
+
+/** GET /api/platform/audit/activity?page=&limit=&tenantId=&source= — platform-wide feed. */
+export const platformActivity = asyncHandler(async (req, res) => {
+  const page = clampInt(req.query.page, 1, 1, 20);
+  const limit = clampInt(req.query.limit, 25, 1, MAX_LIMIT);
+  let tenantId = null;
+  if (req.query.tenantId) {
+    if (!mongoose.Types.ObjectId.isValid(String(req.query.tenantId))) {
+      return res.status(400).json({ success: false, message: "Invalid tenantId." });
+    }
+    tenantId = new mongoose.Types.ObjectId(String(req.query.tenantId));
+  }
+  const source = ["platform", "merchant"].includes(String(req.query.source)) ? String(req.query.source) : null;
+  const data = await getPlatformActivity({ page, limit, tenantId, source });
   res.json({ success: true, data });
 });

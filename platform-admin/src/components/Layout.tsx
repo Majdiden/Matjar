@@ -1,64 +1,97 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/auth-context';
-import {
-  Shield,
-  Building2,
-  Layers,
-  CreditCard,
-  LogOut,
-  ShieldAlert,
-  ToggleLeft,
-  Phone,
-  Menu,
-  X,
-  LayoutDashboard,
-  Receipt,
-  Users,
-  ScrollText,
-} from 'lucide-react';
+import { useToast } from './ui/toast-context';
+import { Shield, LogOut, ShieldAlert, Menu, X, ChevronDown } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { visibleGroups, bottomTabs, type NavGroup } from './nav';
+import type { PlatformUser } from '../lib/api';
 
-const navItems = [
-  { to: '/', label: 'Overview', icon: LayoutDashboard, end: true, tab: true },
-  { to: '/tenants', label: 'Tenants', icon: Building2, end: false, tab: true },
-  { to: '/billing', label: 'Billing', icon: Receipt, end: false, tab: true },
-  { to: '/plans', label: 'Plans', icon: CreditCard, end: false },
-  { to: '/users', label: 'Platform users', shortLabel: 'Users', icon: Users, end: false, tab: true },
-  { to: '/features', label: 'Features', icon: ToggleLeft, end: false },
-  { to: '/phone-countries', label: 'Phone countries', shortLabel: 'Phones', icon: Phone, end: false },
-  { to: '/audit', label: 'Audit log', icon: ScrollText, end: false },
-  { to: '/queues', label: 'Queues', icon: Layers, end: false },
-];
+const COLLAPSE_KEY = 'platform_admin_nav_collapsed';
+function readCollapsed(): Record<string, boolean> {
+  try {
+    return JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
 
-// Bottom tab bar shows the four most-used destinations; the rest live in
-// the drawer.
-const bottomTabs = navItems.filter((i) => i.tab);
+/**
+ * Grouped navigation (drawer + desktop sidebar). Groups collapse (state is a
+ * per-device convenience in localStorage); the group containing the current
+ * route is always expanded. Planned pages (`ready: false`) render as muted
+ * hints so the operator can see the console's shape without dead links.
+ */
+const NavList: React.FC<{ user: PlatformUser | null; onNavigate?: () => void }> = ({ user, onNavigate }) => {
+  const location = useLocation();
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(readCollapsed);
+  const groups = visibleGroups(user);
+  const toggle = (key: string) =>
+    setCollapsed((c) => {
+      const next = { ...c, [key]: !c[key] };
+      try {
+        localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  const containsCurrent = (g: NavGroup) =>
+    g.items.some((i) => (i.end ? location.pathname === i.to : location.pathname.startsWith(i.to)));
 
-const NavList: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) => (
-  <ul className="space-y-1">
-    {navItems.map((item) => (
-      <li key={item.to}>
-        <NavLink
-          to={item.to}
-          end={item.end}
-          onClick={onNavigate}
-          className={({ isActive }) =>
-            cn(
-              'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors md:py-2',
-              isActive
-                ? 'bg-accent text-accent-foreground font-medium'
-                : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-            )
-          }
-        >
-          <item.icon className="h-4 w-4" />
-          {item.label}
-        </NavLink>
-      </li>
-    ))}
-  </ul>
-);
+  return (
+    <div className="space-y-3">
+      {groups.map((g) => {
+        const open = !collapsed[g.key] || containsCurrent(g);
+        return (
+          <div key={g.key}>
+            {g.label && (
+              <button
+                type="button"
+                onClick={() => toggle(g.key)}
+                className="flex w-full items-center justify-between px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80 hover:text-foreground"
+                aria-expanded={open}
+              >
+                {g.label}
+                <ChevronDown className={cn('h-3 w-3 transition-transform', !open && '-rotate-90')} />
+              </button>
+            )}
+            {open && (
+              <ul className="space-y-0.5">
+                {g.items.map((item) =>
+                  item.ready ? (
+                    <li key={item.to}>
+                      <NavLink
+                        to={item.to}
+                        end={item.end}
+                        onClick={onNavigate}
+                        className={({ isActive }) =>
+                          cn(
+                            'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors md:py-2',
+                            isActive ? 'bg-accent text-accent-foreground font-medium' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                          )
+                        }
+                      >
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        {item.label}
+                      </NavLink>
+                    </li>
+                  ) : (
+                    <li key={item.to} className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground/50" title="Coming soon">
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      <span>{item.label}</span>
+                      <span className="ms-auto text-[10px] uppercase tracking-wide">soon</span>
+                    </li>
+                  )
+                )}
+              </ul>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 const Brand: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
   <Link to="/" className="flex items-center gap-2 font-semibold" onClick={onClick}>
@@ -71,6 +104,17 @@ const Brand: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
 
 export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
+  const toast = useToast();
+
+  // One-shot notice written by Login.tsx after a recovery-code sign-in.
+  useEffect(() => {
+    let notice: string | null = null;
+    try {
+      notice = sessionStorage.getItem('platform_admin_notice');
+      if (notice) sessionStorage.removeItem('platform_admin_notice');
+    } catch { /* storage unavailable */ }
+    if (notice) toast.info(notice);
+  }, [toast]);
   const navigate = useNavigate();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -107,6 +151,10 @@ export const Layout: React.FC = () => {
           <span className="truncate">{user?.email}</span>
         </div>
       </div>
+      <div className="mb-1 flex items-center gap-1 px-1 text-[11px] text-muted-foreground">
+        {user?.role && <span className="rounded bg-accent px-1.5 py-0.5 capitalize">{user.role}</span>}
+        {user?.mfaEnabled ? <span className="text-emerald-700">2FA on</span> : <Link to="/security/me" className="underline hover:text-foreground">enable 2FA</Link>}
+      </div>
       <button
         onClick={handleLogout}
         className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -125,7 +173,7 @@ export const Layout: React.FC = () => {
           <Brand />
         </div>
         <nav className="flex-1 overflow-y-auto px-2 py-3">
-          <NavList />
+          <NavList user={user} />
         </nav>
         {userBlock}
       </aside>
@@ -150,7 +198,7 @@ export const Layout: React.FC = () => {
               </button>
             </div>
             <nav className="flex-1 overflow-y-auto px-2 py-3">
-              <NavList onNavigate={() => setDrawerOpen(false)} />
+              <NavList user={user} onNavigate={() => setDrawerOpen(false)} />
             </nav>
             <div className="pb-[env(safe-area-inset-bottom)]">{userBlock}</div>
           </aside>
@@ -182,7 +230,7 @@ export const Layout: React.FC = () => {
           aria-label="Primary"
         >
           <div className="mx-auto flex max-w-lg items-stretch">
-            {bottomTabs.map((item) => (
+            {bottomTabs(user).map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}

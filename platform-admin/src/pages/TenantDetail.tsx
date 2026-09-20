@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { api, hasScope, PLATFORM_SCOPES, type SubscriptionPlan, type SeedStarterResult } from '../lib/api';
 import { useAuth } from '../contexts/auth-context';
 import { Button } from '../components/ui/Button';
@@ -9,6 +9,7 @@ import { Select } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { StatusBadge } from '../components/StatusBadge';
 import { LifecycleBadge } from '../components/LifecycleBadge';
+import { useReauth } from '../components/useReauth';
 import { PageSpinner, ErrorState } from '../components/ui/Spinner';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { useToast } from '../components/ui/toast-context';
@@ -42,14 +43,21 @@ import { ImpersonationRequestModal } from './ImpersonationRequestModal';
 import TenantBillingTab from './TenantBillingTab';
 import TenantStaffTab from './TenantStaffTab';
 import TenantActivityTab from './TenantActivityTab';
+import TenantStorefrontTab from './TenantStorefrontTab';
+import { storefrontUrl } from '../lib/api-storefront';
+import TenantConfigTab from './TenantConfigTab';
+import TenantUsageTab from './TenantUsageTab';
 
-type Tab = 'overview' | 'orders' | 'payments' | 'billing' | 'staff' | 'activity' | 'exports' | 'webhooks';
+type Tab = 'overview' | 'orders' | 'payments' | 'billing' | 'config' | 'usage' | 'staff' | 'activity' | 'exports' | 'webhooks' | 'storefront';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'orders', label: 'Orders' },
   { id: 'payments', label: 'Payments' },
   { id: 'billing', label: 'Billing' },
+  { id: 'config', label: 'Configuration' },
+  { id: 'usage', label: 'Usage' },
   { id: 'staff', label: 'Staff' },
+  { id: 'storefront', label: 'Storefront' },
   { id: 'activity', label: 'Activity' },
   { id: 'exports', label: 'Exports' },
   { id: 'webhooks', label: 'Failed webhooks' },
@@ -108,10 +116,14 @@ interface TenantDetail {
 
 export default function TenantDetailPage() {
   const { tenantId = '' } = useParams();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = (searchParams.get('tab') as Tab) || 'overview';
   const toast = useToast();
   const { user } = useAuth();
+  // Purge is irreversible: the server requires a fresh re-authentication
+  // (X-Reauth) on top of the owner role, so prompt before calling it.
+  const reauth = useReauth();
   // Scope flags — used to hide buttons and tabs the operator can't use
   // so they don't get a 403 surprise. The server still enforces.
   const canLifecycle = hasScope(user, PLATFORM_SCOPES.TENANT_LIFECYCLE);
@@ -301,11 +313,7 @@ export default function TenantDetailPage() {
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
               {primaryHost && (() => {
-                const isLocal =
-                  primaryHost.endsWith('.localhost') || primaryHost === 'localhost';
-                const href = isLocal
-                  ? `http://${primaryHost}:3000`
-                  : `https://${primaryHost}`;
+                const href = storefrontUrl(primaryHost) || '#';
                 return (
                   <a
                     href={href}
@@ -483,6 +491,7 @@ export default function TenantDetailPage() {
             label="Users"
             value={stats.usersTotal.toLocaleString()}
             icon={<UsersIcon className="h-4 w-4" />}
+            onClick={() => navigate(`/commerce/customers?tenantId=${tenantId}`)}
           />
           <KpiTile
             label="Products"
@@ -712,6 +721,9 @@ export default function TenantDetailPage() {
       {tab === 'billing' && <TenantBillingTab tenantId={tenantId} storeCurrency={tenant.settings?.currency ?? null} />}
       {tab === 'staff' && <TenantStaffTab tenantId={tenantId} />}
       {tab === 'activity' && <TenantActivityTab tenantId={tenantId} />}
+      {tab === 'storefront' && <TenantStorefrontTab tenantId={tenantId} activeTheme={tenant.settings?.activeTheme ?? null} />}
+      {tab === 'config' && <TenantConfigTab tenantId={tenantId} />}
+      {tab === 'usage' && <TenantUsageTab tenantId={tenantId} />}
 
       {/* --- Modals --- */}
       <ConfirmModal
@@ -790,9 +802,13 @@ export default function TenantDetailPage() {
         confirmVariant="destructive"
         onConfirm={async (v) => {
           const force = v.force?.trim().toLowerCase() === 'force';
+          // A cancelled re-auth is not an error: keep the confirm open quietly.
+          try { await reauth.ensure(); } catch { throw new Error('Confirm your identity to continue.'); }
           await wrap('purge', () => api.tenants.purge(tenantId, force), 'Tenant purged');
         }}
       />
+
+      {reauth.modal}
 
       {/* Consent-based impersonation: request → owner approves → enter. No
           token is minted until the store owner explicitly consents. */}

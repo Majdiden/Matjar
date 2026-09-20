@@ -13,6 +13,7 @@ import {
   ChevronsUpDown,
   Fingerprint,
   Loader2,
+  MessageSquare,
 } from 'lucide-react';
 import {
   startRegistration,
@@ -676,6 +677,10 @@ const DashboardLayoutInner: React.FC = () => {
                   <SettingsIcon className="me-2 h-4 w-4" />
                   {t('nav:user_menu.settings')}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/dashboard/feedback')}>
+                  <MessageSquare className="me-2 h-4 w-4" />
+                  {t('nav:user_menu.feedback')}
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                   <LogOut className="me-2 h-4 w-4" />
@@ -808,6 +813,9 @@ const DashboardLayoutInner: React.FC = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
                       {t('nav:user_menu.settings')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/dashboard/feedback')}>
+                      {t('nav:user_menu.feedback')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                       {t('nav:user_menu.log_out')}

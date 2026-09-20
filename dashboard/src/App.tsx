@@ -98,6 +98,7 @@ const Redirects = lazyWithRetry(() => import('./pages/redirects/Redirects'));
 const Staff = lazyWithRetry(() => import('./pages/staff/Staff'));
 const AcceptInvite = lazyWithRetry(() => import('./pages/staff/AcceptInvite'));
 const Notifications = lazyWithRetry(() => import('./pages/notifications/Notifications'));
+const Feedback = lazyWithRetry(() => import('./pages/Feedback'));
 const NotFound = lazyWithRetry(() => import('./pages/NotFound'));
 
 // Router basename is always "/" — routes carry their real /dashboard-prefixed
@@ -142,6 +143,7 @@ function App() {
           >
             <Route index element={<RequirePermission permission="dashboard.read"><Dashboard /></RequirePermission>} />
             <Route path="notifications" element={<Notifications />} />
+            <Route path="feedback" element={<Feedback />} />
             <Route path="domains" element={<RequireFeature feature="domains.custom"><RequirePermission permission={['domains.read', 'domains.write']}><Domains /></RequirePermission></RequireFeature>} />
             <Route path="products" element={<RequirePermission permission="products.read"><Products /></RequirePermission>} />
             <Route path="products/new" element={<RequirePermission permission="products.write"><ProductForm /></RequirePermission>} />

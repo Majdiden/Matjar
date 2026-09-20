@@ -27,6 +27,7 @@
 
 import logger from "../../utils/logger.js";
 import config from "../../config/index.js";
+import { noteEmailOutcome } from "../platform/health.js";
 
 let resendClient = null;
 
@@ -161,6 +162,7 @@ export async function sendEmail({ to, subject, html, text, from, replyTo, tags }
     if (resp?.error) {
       throw new Error(`Resend error: ${resp.error.message || resp.error}`);
     }
+    noteEmailOutcome(true);
     return {
       id: resp?.data?.id,
       provider: "resend",
@@ -173,6 +175,7 @@ export async function sendEmail({ to, subject, html, text, from, replyTo, tags }
       to,
       subject,
     });
+    noteEmailOutcome(false, error.message);
     // Return the failure envelope rather than throwing — order-status
     // notifications and the staff invite flow both treat a delivery
     // failure as a soft failure and must not roll back the caller.

@@ -34,7 +34,7 @@ import {
 } from "../services/themeDemoPreview.js";
 import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
 import { isStoreDraft } from "../services/storeSetup.js";
-import { isFeatureEnabled } from "../services/featureFlags.js";
+import { isFeatureEnabledFor } from "../services/featureFlags.js";
 
 const router = express.Router();
 const productCardSelect =
@@ -1570,7 +1570,7 @@ router.get(
     // When payment-methods management is disabled at the platform level,
     // COD is the only method the storefront may ever offer — suppress any
     // manual-transfer or gateway rows regardless of tenant DB state.
-    const methodsAllowed = await isFeatureEnabled("payments.methods");
+    const methodsAllowed = await isFeatureEnabledFor(req.tenant, "payments.methods");
     const visible = methodsAllowed
       ? sanitized
       : sanitized.filter((m) => m.code === "cod");

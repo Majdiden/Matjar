@@ -172,7 +172,7 @@ export function createRateLimiter({
 // build composite keys.
 
 /** Per-IP key — safe for anonymous endpoints. */
-function ipKey(req) {
+export function ipKey(req) {
   return ipKeyGenerator(req.ip);
 }
 

@@ -21,7 +21,7 @@ const orderSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: "User", required: false },
 
   guestCustomer: {
-    email: { type: String },
+    email: { type: String, lowercase: true, trim: true },
     firstName: { type: String },
     lastName: { type: String },
     phone: { type: String },
@@ -39,7 +39,9 @@ const orderSchema = new Schema({
   // always render the identity the customer actually checked out with,
   // even if the underlying User profile is later edited or deleted.
   customerSnapshot: {
-    email: { type: String },
+    // Lowercased + trimmed so the platform console's prefix search can use
+    // the {customerSnapshot.email:1} index without a case-insensitive regex.
+    email: { type: String, lowercase: true, trim: true },
     firstName: { type: String },
     lastName: { type: String },
     phone: { type: String },
@@ -400,6 +402,11 @@ orderSchema.index(
 orderSchema.index({ tenantId: 1, user: 1, createdAt: -1 });
 orderSchema.index({ tenantId: 1, status: 1 });
 orderSchema.index({ tenantId: 1, createdAt: -1 });
+// Cross-store platform search (console): prefix lookups on order number,
+// customer email and phone without a tenant prefix.
+orderSchema.index({ orderNumber: 1 });
+orderSchema.index({ "customerSnapshot.email": 1 });
+orderSchema.index({ "customerSnapshot.phone": 1 });
 orderSchema.index({ tenantId: 1, paymentStatus: 1 });
 orderSchema.index({ tenantId: 1, fulfillmentStatus: 1 });
 orderSchema.index({ tenantId: 1, user: 1, discountCode: 1 });

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { ipKeyGenerator } from "express-rate-limit";
-import { createRateLimiter } from "../../middlewares/rateLimiters.js";
+import { createRateLimiter, ipKey } from "../../middlewares/rateLimiters.js";
 import { validate } from "../../middlewares/validate.js";
 import {
   acceptInviteSchema,
@@ -11,6 +11,7 @@ import {
   acceptInviteController,
   requestResetController,
   confirmResetController,
+  mfaVerify,
 } from "../../controllers/platform/auth.js";
 
 /**
@@ -21,7 +22,6 @@ import {
 const router = Router({ mergeParams: true });
 
 const MINUTE = 60 * 1000;
-const ipKey = (req) => ipKeyGenerator(req.ip);
 const emailKey = (req) => {
   const email = String(req.body?.email || "").trim().toLowerCase();
   return email ? `e:${email}` : `ip:${ipKeyGenerator(req.ip)}`;
@@ -65,5 +65,9 @@ router.post(
   requestResetController
 );
 router.post("/password-reset/confirm", resetConfirmLimiter, validate(confirmResetSchema), confirmResetController);
+
+// Login step 2: exchange the purpose-scoped mfaToken + code for a session.
+// Limiters (per IP + per user) live in the controller chain.
+router.post("/mfa/verify", mfaVerify);
 
 export default router;

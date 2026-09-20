@@ -52,3 +52,29 @@ export const changeOwnPasswordSchema = z.object({
     password: platformPassword,
   }),
 });
+
+// ── MFA / sessions / re-auth ─────────────────────────────────────────────
+// A TOTP is 6 digits; a recovery code is XXXXX-XXXXX (dash optional).
+const mfaCode = z
+  .string({ required_error: "Code is required" })
+  .trim()
+  .min(6)
+  .max(11)
+  .regex(/^(\d{6}|[A-Za-z0-9]{5}-?[A-Za-z0-9]{5})$/, "Enter a 6-digit code or a recovery code");
+const currentPassword = z.string({ required_error: "Current password is required" }).min(1).max(200);
+
+export const mfaVerifySchema = z.object({
+  body: z.object({ mfaToken: z.string({ required_error: "Sign in again" }).min(20).max(2000), code: mfaCode }),
+});
+export const mfaEnrollSchema = z.object({ body: z.object({ currentPassword }) });
+export const mfaConfirmSchema = z.object({ body: z.object({ code: mfaCode }) });
+export const mfaDisableSchema = z.object({ body: z.object({ currentPassword, code: mfaCode }) });
+export const mfaCodeSchema = z.object({ body: z.object({ code: mfaCode }) });
+export const reauthSchema = z.object({
+  body: z.object({ password: z.string().min(1).max(200).optional(), code: mfaCode.optional() }),
+});
+export const securitySettingsSchema = z.object({
+  body: z.object({
+    requireMfaForRoles: z.array(z.string().trim().toLowerCase().min(2).max(32)).max(20),
+  }),
+});

@@ -6,7 +6,7 @@ import { Input, Label, Textarea } from './ui/Input';
 export interface ConfirmField {
   name: string;
   label: string;
-  type?: 'text' | 'textarea' | 'number';
+  type?: 'text' | 'textarea' | 'number' | 'password';
   placeholder?: string;
   required?: boolean;
   defaultValue?: string;
@@ -127,6 +127,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               <Input
                 id={f.name}
                 type={f.type || 'text'}
+                autoComplete={f.type === 'password' ? 'current-password' : undefined}
                 value={values[f.name] ?? ''}
                 onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
                 placeholder={f.placeholder}

@@ -75,6 +75,22 @@ const tenantSchema = new Schema({
     trialEndsAt: { type: Date, default: null },
   },
 
+  // Access-program memberships (program keys). Programs carry feature and
+  // limit overrides that apply between the plan and tenant layers — see
+  // services/featureFlags.js resolveTenantFeatures / services/platform/usage.js.
+  accessPrograms: { type: [String], default: [] },
+
+  // Operator-set explicit limit overrides (last rung of the limits ladder:
+  // plan → program → tenant). `null` = not overridden. `limits` below is the
+  // legacy field kept for older readers; never mutate it for overrides.
+  limitOverrides: {
+    maxProducts: { type: Number, default: null },
+    maxStaff: { type: Number, default: null },
+    maxOrdersPerMonth: { type: Number, default: null },
+    maxStorageMB: { type: Number, default: null },
+  },
+  limitOverridesReason: { type: String, default: null },
+
   // Limits
   limits: {
     maxProducts: { type: Number, default: 100 },
@@ -442,6 +458,7 @@ tenantSchema.index({ domain: 1 }); // Legacy
 tenantSchema.index({ email: 1 });
 tenantSchema.index({ slug: 1 });
 tenantSchema.index({ "domains.subdomain.name": 1 });
+tenantSchema.index({ accessPrograms: 1 }); // program membership lookups (Phase B)
 tenantSchema.index({ "domains.subdomain.fullDomain": 1 });
 tenantSchema.index(
   { "domains.customDomain.name": 1 },

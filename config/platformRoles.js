@@ -11,7 +11,7 @@
  * OWNER is the only role that can manage platform users' roles up to OWNER
  * and hold every scope; it must never be assignable by a non-owner.
  */
-import { PLATFORM_SCOPES } from "../middlewares/platformAdmin.js";
+import { PLATFORM_SCOPES } from "./platformScopes.js";
 
 const S = PLATFORM_SCOPES;
 

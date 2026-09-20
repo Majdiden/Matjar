@@ -49,6 +49,8 @@ import enCompanies from './locales/en/companies.json'
 import arCompanies from './locales/ar/companies.json'
 import enSubscriptions from './locales/en/subscriptions.json'
 import arSubscriptions from './locales/ar/subscriptions.json'
+import enFeedback from './locales/en/feedback.json'
+import arFeedback from './locales/ar/feedback.json'
 import enAudit from './locales/en/audit.json'
 import arAudit from './locales/ar/audit.json'
 import enErrors from './locales/en/errors.json'
@@ -86,6 +88,7 @@ export const resources = {
     notifications: enNotifications,
     companies: enCompanies,
     subscriptions: enSubscriptions,
+    feedback: enFeedback,
     audit: enAudit,
     errors: enErrors,
     security: enSecurity,
@@ -117,6 +120,7 @@ export const resources = {
     notifications: arNotifications,
     companies: arCompanies,
     subscriptions: arSubscriptions,
+    feedback: arFeedback,
     audit: arAudit,
     errors: arErrors,
     security: arSecurity,

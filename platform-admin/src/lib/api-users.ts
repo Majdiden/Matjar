@@ -4,8 +4,31 @@ import { http, type PlatformUser } from './api';
 export type PlatformSessionUser = PlatformUser & {
   role?: string | null;
   mustResetPassword?: boolean;
+  mfaEnabled?: boolean;
   roles?: PlatformRoleDef[];
 };
+
+export interface PlatformSession {
+  id: string;
+  ip: string | null;
+  userAgent: string | null;
+  mfaVerified: boolean;
+  createdAt: string;
+  lastSeenAt: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  current: boolean;
+}
+
+export interface MfaStatus {
+  enabled: boolean;
+  enrolledAt: string | null;
+  recoveryCodesRemaining: number;
+}
+
+export interface SecuritySettings {
+  requireMfaForRoles: string[];
+}
 
 export interface PlatformRoleDef {
   key: string;
@@ -23,6 +46,8 @@ export interface PlatformStaffUser {
   scopes: string[];
   explicitScopes: string[];
   mustResetPassword: boolean;
+  mfaEnabled: boolean;
+  mfaEnrolledAt: string | null;
   lastLoginAt: string | null;
   suspendedAt: string | null;
   suspensionReason: string | null;
@@ -87,6 +112,33 @@ export const usersApi = {
   changeOwnPassword: async (currentPassword: string, password: string) => {
     const res = await http.post('/users/me/password', { currentPassword, password });
     return res.data as { success: boolean; message: string };
+  },
+  resetMfa: async (id: string, reason?: string) => {
+    const res = await http.post(`/users/${id}/reset-mfa`, { reason });
+    return res.data.data as MfaStatus;
+  },
+  sessions: {
+    mine: async () => (await http.get('/users/me/sessions')).data.data as PlatformSession[],
+    revokeMine: async (sessionId: string) => (await http.delete(`/users/me/sessions/${sessionId}`)).data.data as PlatformSession,
+    revokeMyOthers: async () => (await http.delete('/users/me/sessions')).data.data as { revoked: number },
+    ofUser: async (id: string) => (await http.get(`/users/${id}/sessions`)).data.data as PlatformSession[],
+    revokeOfUser: async (id: string, sessionId: string, reason?: string) =>
+      (await http.delete(`/users/${id}/sessions/${sessionId}`, { data: { reason } })).data.data as PlatformSession,
+  },
+  mfa: {
+    status: async () => (await http.get('/auth/mfa/status')).data.data as MfaStatus,
+    beginEnroll: async (currentPassword: string) =>
+      (await http.post('/auth/mfa/enroll', { currentPassword })).data.data as { secret: string; otpauth: string; issuer: string; account: string },
+    confirmEnroll: async (code: string) =>
+      (await http.post('/auth/mfa/enroll/confirm', { code })).data.data as { recoveryCodes: string[]; status: MfaStatus },
+    disable: async (currentPassword: string, code: string) =>
+      (await http.post('/auth/mfa/disable', { currentPassword, code })).data.data as MfaStatus,
+    regenerateRecovery: async (code: string) =>
+      (await http.post('/auth/mfa/recovery-codes', { code })).data.data as { recoveryCodes: string[]; status: MfaStatus },
+  },
+  security: {
+    get: async () => (await http.get('/security/settings')).data.data as { settings: SecuritySettings; roles: PlatformRoleDef[] },
+    update: async (settings: SecuritySettings) => (await http.put('/security/settings', settings)).data.data as { settings: SecuritySettings },
   },
   invites: {
     list: async () => {

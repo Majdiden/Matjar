@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import { localizePrice, detectCountry } from "../services/geoPricing.js";
-import { isFeatureEnabled } from "../services/featureFlags.js";
+import { isFeatureEnabledFor } from "../services/featureFlags.js";
 import { planBaseFee, planFamilyOf } from "../services/platform/billing/resolver.js";
 
 /**
@@ -54,7 +54,8 @@ export const listPublicPlans = asyncHandler(async (req, res) => {
   const SubscriptionPlan = mongoose.model("SubscriptionPlan");
   const plans = await SubscriptionPlan.find({ isActive: true }).sort({ sortOrder: 1, key: 1 }).lean();
   const policies = await loadActivePolicies(plans.map((p) => p.pricing?.commissionPolicyKey));
-  const geoEnabled = await isFeatureEnabled("billing.geoPricing");
+  // Public catalog: a tenant is in scope only on a store host; otherwise global.
+  const geoEnabled = await isFeatureEnabledFor(req.tenant, "billing.geoPricing");
 
   const data = [];
   for (const p of plans) {

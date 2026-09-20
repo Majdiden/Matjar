@@ -7,11 +7,13 @@
  * dashboard maps the code to a clean "not available" state. Storefront-facing
  * surfaces never use this — they filter data instead.
  */
-import { isFeatureEnabled } from "../services/featureFlags.js";
+import { isFeatureEnabledFor } from "../services/featureFlags.js";
 
 export const requireFeature = (flagKey) => async (req, res, next) => {
   try {
-    if (await isFeatureEnabled(flagKey)) return next();
+    // Tenant-aware (plan entitlement / program / store override) when the
+    // tenant resolver ran; global flag otherwise.
+    if (await isFeatureEnabledFor(req.tenant, flagKey)) return next();
     return res.status(403).json({
       success: false,
       code: "FEATURE_DISABLED",

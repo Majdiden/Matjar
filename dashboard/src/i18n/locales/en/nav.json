@@ -77,7 +77,8 @@
   },
   "user_menu": {
     "settings": "Settings",
-    "log_out": "Log out"
+    "log_out": "Log out",
+    "feedback": "Send feedback"
   },
   "store_switcher": {
     "switch": "Switch store",

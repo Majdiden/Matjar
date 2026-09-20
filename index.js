@@ -11,6 +11,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import morgan from "morgan";
+import { assertMfaKeyAtBoot } from "./utils/secretBox.js";
 import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
@@ -31,6 +32,8 @@ import {
 import logger from "./utils/logger.js";
 
 // Initialize Express app
+// Fail fast in production when the platform MFA key is missing/invalid.
+assertMfaKeyAtBoot();
 const app = express();
 
 // The theme editor embeds a tenant storefront (a platform subdomain, e.g.
@@ -126,7 +129,7 @@ const corsOptions = {
   origin: corsOrigins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key"],
+  allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key", "X-Reauth"],
 };
 app.use(cors(corsOptions));
 

@@ -143,6 +143,22 @@ export interface DraftOrderPayload {
 // pick a concrete type (`api.get<MyResponse>(...)`) when they need it, or
 // narrow with a type guard at the use site. We don't default to `any`
 // because that silently erases type checking at every call site.
+export type FeedbackType = 'bug' | 'feature_request' | 'question' | 'ux' | 'other';
+export type FeedbackStatus = 'open' | 'investigating' | 'planned' | 'in_progress' | 'resolved' | 'wont_fix';
+export interface FeedbackItem {
+  _id: string;
+  type: FeedbackType;
+  status: FeedbackStatus;
+  subject: string;
+  message: string;
+  page?: string | null;
+  attachments: string[];
+  resolution?: string | null;
+  resolvedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const api = {
   // Generic methods
   get: <T = unknown>(url: string, config?: AxiosRequestConfig) =>
@@ -1147,6 +1163,15 @@ export const api = {
     // operator scheduled it — the server decides; the UI only shows the button
     // when the summary says `cancellable`).
     cancelPlanChange: () => api.post<{ responseObject?: { cancelled: number } }>('/billing/plan-change/cancel', {}),
+  },
+
+  // Merchant → platform feedback (tenant-scoped; the merchant only ever sees
+  // their own submissions, never the platform's internal notes).
+  feedback: {
+    submit: (data: { type: FeedbackType; subject: string; message: string; attachments?: string[] }) =>
+      api.post<{ responseObject?: FeedbackItem }>('/feedback', data),
+    list: (params?: { page?: number; limit?: number }) =>
+      api.get<{ responseObject?: { items: FeedbackItem[]; pagination: { total: number; page: number; pages: number; limit: number } } }>('/feedback', { params }),
   },
 
   // URL redirects (audit 6.7). 301/302 mapping of old storefront paths.

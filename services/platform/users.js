@@ -27,6 +27,7 @@ import {
   canActOnRole,
   resolveEffectiveScopes,
 } from "../../config/platformRoles.js";
+import { revokeAllSessions } from "./sessions.js";
 
 const INVITE_TTL_MS = 72 * 60 * 60 * 1000;
 const RESET_TTL_MS = 60 * 60 * 1000;
@@ -52,6 +53,8 @@ export function publicUser(u) {
     scopes: resolveEffectiveScopes(u.platformRole, u.platformScopes),
     explicitScopes: Array.isArray(u.platformScopes) ? u.platformScopes : [],
     mustResetPassword: !!u.platformMustResetPassword,
+    mfaEnabled: !!u.platformMfa?.enabled,
+    mfaEnrolledAt: u.platformMfa?.enrolledAt || null,
     lastLoginAt: u.platformLastLoginAt || null,
     suspendedAt: u.platformSuspendedAt || null,
     suspensionReason: u.platformSuspensionReason || null,
@@ -111,10 +114,17 @@ async function countActiveOwners(excludeId = null) {
 export async function listPlatformUsers() {
   const rows = await TenantUser()
     .find({ platformAdmin: true })
-    .select("name email platformRole platformStatus platformScopes platformMustResetPassword platformLastLoginAt platformSuspendedAt platformSuspensionReason createdAt")
+    .select("name email platformRole platformStatus platformScopes platformMustResetPassword platformLastLoginAt platformSuspendedAt platformSuspensionReason platformMfa.enabled platformMfa.enrolledAt createdAt")
     .sort({ createdAt: 1 })
     .lean();
   return rows.map(publicUser);
+}
+
+/** Minimal role/email lookup for guards (no scopes, no hashes). 404 when absent. */
+export async function findPlatformUserBrief(id) {
+  const u = await TenantUser().findOne({ _id: id, platformAdmin: true }).select("platformRole email").lean();
+  if (!u) throw new APIError("Platform user not found", 404);
+  return { id: String(u._id), role: u.platformRole || null, email: u.email };
 }
 
 async function loadTarget(id) {
@@ -148,6 +158,7 @@ export async function changeRole(actor, id, rawRole) {
   // A role change invalidates existing sessions so stale scope sets cannot linger.
   target.platformTokenVersion = (target.platformTokenVersion || 0) + 1;
   await target.save();
+  await revokeAllSessions(target._id, "role changed");
   return { user: publicUser(target), before, after: { role } };
 }
 
@@ -168,6 +179,7 @@ export async function suspendUser(actor, id, reason) {
   target.platformResetTokenHash = null;
   target.platformResetTokenExpiresAt = null;
   await target.save();
+  await revokeAllSessions(target._id, "account suspended");
   return { user: publicUser(target), before, after: { status: "suspended", reason } };
 }
 
@@ -183,11 +195,12 @@ export async function reactivateUser(actor, id) {
   return { user: publicUser(target), before, after: { status: "active" } };
 }
 
-export async function revokeSessions(actor, id) {
+export async function revokeSessions(actor, id, { reason = null } = {}) {
   const target = await loadTarget(id);
   if (String(actor.id) !== String(target._id)) assertCanActOn(actor, target);
   target.platformTokenVersion = (target.platformTokenVersion || 0) + 1;
   await target.save();
+  await revokeAllSessions(target._id, reason || "revoked by operator");
   return { user: publicUser(target) };
 }
 
@@ -198,6 +211,7 @@ export async function forcePasswordReset(actor, req, id) {
   target.platformMustResetPassword = true;
   target.platformTokenVersion = (target.platformTokenVersion || 0) + 1;
   await target.save();
+  await revokeAllSessions(target._id, "password reset forced");
   // Best-effort reset email so the operator can set a new password directly.
   await issueResetToken(req, target.email).catch((err) =>
     logger.warn("forcePasswordReset: reset email failed", { error: err.message })
@@ -239,6 +253,7 @@ export async function changeOwnPassword(actor, currentPassword, newPassword) {
   user.platformResetTokenExpiresAt = null;
   user.platformTokenVersion = (user.platformTokenVersion || 0) + 1;
   await user.save();
+  await revokeAllSessions(user._id, "password changed");
   await sendPasswordChangedEmail(user.email);
   return { tokenVersion: user.platformTokenVersion };
 }
@@ -414,6 +429,7 @@ export async function confirmReset({ token, password }) {
   user.platformMustResetPassword = false;
   user.platformTokenVersion = (user.platformTokenVersion || 0) + 1;
   await user.save();
+  await revokeAllSessions(user._id, "password reset");
   await sendPasswordChangedEmail(user.email);
   return { user: publicUser(user) };
 }

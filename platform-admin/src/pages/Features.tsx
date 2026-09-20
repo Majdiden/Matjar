@@ -10,13 +10,15 @@ import { useAuth } from '../contexts/auth-context';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { PageSpinner, ErrorState } from '../components/ui/Spinner';
 import { useToast } from '../components/ui/toast-context';
-import { ToggleLeft } from 'lucide-react';
+import { ToggleLeft, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Toggle } from '../components/ui/Toggle';
 
 export default function Features() {
   const toast = useToast();
   const { user } = useAuth();
-  const canWrite = hasScope(user, PLATFORM_SCOPES.TENANT_LIFECYCLE);
+  const canWrite = hasScope(user, PLATFORM_SCOPES.FLAGS_WRITE);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const [data, setData] = useState<FeaturesResponse | null>(null);
   const [flags, setFlags] = useState<Record<string, boolean | string[]>>({});
@@ -95,7 +97,7 @@ export default function Features() {
           <p className="text-sm text-gray-500">
             Platform-wide feature flags. Toggles apply to every store. Off by default —
             open features gradually.
-            {!canWrite && ' (read-only — you lack the tenant.lifecycle scope)'}
+            {!canWrite && ' (read-only — you lack the flags.write scope)'}
           </p>
         </div>
       </div>
@@ -149,19 +151,48 @@ export default function Features() {
                 );
               }
               const on = flags[def.key] === true;
+              const ov = data?.overrides?.[def.key];
+              const hasLower = !!ov && (ov.programsOn.length + ov.programsOff.length + ov.tenantsOn + ov.tenantsOff > 0);
+              const isOpen = expanded === def.key;
               return (
-                <div key={def.key} className="flex items-start justify-between gap-4 py-4">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">{def.label}</p>
-                    {def.description && (
-                      <p className="text-xs text-gray-500">{def.description}</p>
-                    )}
+                <div key={def.key} className="py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">{def.label}</p>
+                      {def.description && (
+                        <p className="text-xs text-gray-500">{def.description}</p>
+                      )}
+                      {/* "Where is this on?" — plans/programs/stores can differ from the global value. */}
+                      <button
+                        type="button"
+                        onClick={() => setExpanded(isOpen ? null : def.key)}
+                        className="mt-1 inline-flex items-center gap-1 text-xs text-indigo-600 hover:underline"
+                      >
+                        <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                        {hasLower
+                          ? `${ov!.programsOn.length + ov!.programsOff.length} program(s) · ${ov!.tenantsOn + ov!.tenantsOff} store override(s)`
+                          : 'No program or store overrides'}
+                      </button>
+                    </div>
+                    <Toggle
+                      checked={on}
+                      disabled={!canWrite || saving === def.key}
+                      onChange={(v) => persist(def.key, v)}
+                    />
                   </div>
-                  <Toggle
-                    checked={on}
-                    disabled={!canWrite || saving === def.key}
-                    onChange={(v) => persist(def.key, v)}
-                  />
+                  {isOpen && (
+                    <div className="mt-2 rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
+                      <p>Global value is the floor. A plan entitlement, an active <Link to="/programs" className="underline">program</Link>, or a store override (tenant → Configuration tab) can differ.</p>
+                      {ov && (
+                        <ul className="mt-1 space-y-0.5">
+                          {ov.programsOn.length > 0 && <li>Forced ON by programs: {ov.programsOn.join(', ')}</li>}
+                          {ov.programsOff.length > 0 && <li>Forced OFF by programs: {ov.programsOff.join(', ')}</li>}
+                          {ov.tenantsOn > 0 && <li>{ov.tenantsOn} store(s) forced ON</li>}
+                          {ov.tenantsOff > 0 && <li>{ov.tenantsOff} store(s) forced OFF</li>}
+                        </ul>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}

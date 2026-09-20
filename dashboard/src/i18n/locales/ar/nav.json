@@ -77,7 +77,8 @@
   },
   "user_menu": {
     "settings": "الإعدادات",
-    "log_out": "تسجيل الخروج"
+    "log_out": "تسجيل الخروج",
+    "feedback": "أرسل ملاحظاتك"
   },
   "store_switcher": {
     "switch": "تبديل المتجر",

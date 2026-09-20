@@ -9,7 +9,8 @@ import {
   setToken,
 } from '../lib/api';
 import type { PlatformSessionUser } from '../lib/api-users';
-import { AuthContext } from './auth-context';
+import { AuthContext, type LoginOutcome } from './auth-context';
+import { clearReauth, onMfaGate } from '../lib/api';
 
 // Idle timeout. Platform-admin sessions are high-blast-radius, so we
 // log out after 20 minutes of no user activity even if the JWT itself
@@ -35,6 +36,25 @@ const MustResetGate: React.FC<{ user: PlatformSessionUser | null; children: Reac
   return <>{children}</>;
 };
 
+/**
+ * When the server answers 403 MFA_ENROLLMENT_REQUIRED (the operator's role
+ * must have two-factor and they have not enrolled), send them to their
+ * security page with an explanation. Mirrors MustResetGate: the server is
+ * the authority; this only makes the console usable instead of erroring.
+ */
+const MfaEnrollmentGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const [gated, setGated] = useState(false);
+  useEffect(() => onMfaGate(() => setGated(true)), []);
+  useEffect(() => {
+    if (location.pathname.startsWith('/security/me')) setGated(false);
+  }, [location.pathname]);
+  if (gated && !location.pathname.startsWith('/security/me')) {
+    return <Navigate to="/security/me?required=1" replace />;
+  }
+  return <>{children}</>;
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<PlatformSessionUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,6 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const doLogout = useCallback(() => {
     clearSession();
+    clearReauth();
     setUser(null);
     if (idleTimer.current) clearTimeout(idleTimer.current);
     // Full-page redirect honoring Vite's configured BASE_URL so this
@@ -93,11 +114,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [user, resetIdleTimer]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const { token, user: u } = await api.login(email, password);
+  const establish = useCallback(async (token: string, u: PlatformSessionUser) => {
     setToken(token);
     // Fetch scopes via /me so the initial render has them immediately.
-    let full: PlatformSessionUser = u as PlatformSessionUser;
+    let full: PlatformSessionUser = u;
     try {
       full = (await api.me()) as PlatformSessionUser;
     } catch {
@@ -108,9 +128,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return full;
   }, []);
 
+  const login = useCallback(
+    async (email: string, password: string): Promise<LoginOutcome> => {
+      const result = await api.login(email, password);
+      if ('mfaRequired' in result && result.mfaRequired) {
+        return { mfaRequired: true, mfaToken: result.mfaToken };
+      }
+      const full = await establish(result.token, result.user as PlatformSessionUser);
+      return { mfaRequired: false, user: full };
+    },
+    [establish],
+  );
+
+  const completeMfa = useCallback(
+    async (mfaToken: string, code: string) => {
+      const result = await api.mfaVerify(mfaToken, code);
+      const full = await establish(result.token, result.user as PlatformSessionUser);
+      return { ...full, mfaMethod: result.mfaMethod, recoveryCodesRemaining: result.recoveryCodesRemaining };
+    },
+    [establish],
+  );
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, loading, login, logout: doLogout, refresh }}>
-      <MustResetGate user={user}>{children}</MustResetGate>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, loading, login, completeMfa, logout: doLogout, refresh }}>
+      <MustResetGate user={user}>
+        <MfaEnrollmentGate>{children}</MfaEnrollmentGate>
+      </MustResetGate>
     </AuthContext.Provider>
   );
 };

@@ -7,7 +7,9 @@ import {
   type PlatformStaffUser,
   type PlatformInvite,
   type PlatformRoleDef,
+  type PlatformSession,
 } from '../../lib/api-users';
+import { useReauth } from '../../components/useReauth';
 import { useAuth } from '../../contexts/auth-context';
 import { Button } from '../../components/ui/Button';
 import { Input, Label, Select } from '../../components/ui/Input';
@@ -18,9 +20,9 @@ import { DataList, type DataListColumn } from '../../components/ui/DataList';
 import { PageSpinner, ErrorState, EmptyState } from '../../components/ui/Spinner';
 import { useToast } from '../../components/ui/toast-context';
 import { formatDate, formatRelative } from '../../lib/utils';
-import { Users, UserPlus, RefreshCw, Mail, Ban, Play, KeyRound, LogOut, ShieldCheck, X } from 'lucide-react';
+import { Users, UserPlus, RefreshCw, Mail, Ban, Play, KeyRound, LogOut, ShieldCheck, ShieldOff, X, MonitorSmartphone } from 'lucide-react';
 
-type Action = 'role' | 'suspend' | 'reactivate' | 'revoke' | 'force-reset';
+type Action = 'role' | 'suspend' | 'reactivate' | 'revoke' | 'force-reset' | 'reset-mfa';
 
 const ROLE_TONE: Record<string, React.ComponentProps<typeof Badge>['variant']> = {
   owner: 'default',
@@ -46,6 +48,20 @@ export default function PlatformUsers() {
   const [pending, setPending] = useState<{ action: Action; user: PlatformStaffUser } | null>(null);
   const [roleChoice, setRoleChoice] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
+  const reauth = useReauth();
+  const [sessionsFor, setSessionsFor] = useState<PlatformStaffUser | null>(null);
+  const [userSessions, setUserSessions] = useState<PlatformSession[] | null>(null);
+
+  const openSessions = async (u: PlatformStaffUser) => {
+    setSessionsFor(u);
+    setUserSessions(null);
+    try {
+      setUserSessions(await usersApi.sessions.ofUser(u.id));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to load sessions');
+      setSessionsFor(null);
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -147,6 +163,16 @@ export default function PlatformUsers() {
         ),
     },
     {
+      id: 'mfa',
+      header: '2FA',
+      cell: (u) =>
+        u.mfaEnabled ? (
+          <Badge variant="success" className="text-[10px]">On</Badge>
+        ) : (
+          <Badge variant="outline" className="text-[10px]">Off</Badge>
+        ),
+    },
+    {
       id: 'lastLogin',
       header: 'Last login',
       cell: (u) => <span className="text-xs text-muted-foreground">{u.lastLoginAt ? formatRelative(u.lastLoginAt) : 'never'}</span>,
@@ -181,6 +207,14 @@ export default function PlatformUsers() {
             <Button variant="ghost" size="sm" title="Force password reset" onClick={() => setPending({ action: 'force-reset', user: u })}>
               <KeyRound className="h-3.5 w-3.5" />
             </Button>
+            <Button variant="ghost" size="sm" title="Sessions" onClick={() => openSessions(u)}>
+              <MonitorSmartphone className="h-3.5 w-3.5" />
+            </Button>
+            {u.mfaEnabled && (
+              <Button variant="ghost" size="sm" title="Reset two-factor (lost device)" onClick={() => setPending({ action: 'reset-mfa', user: u })}>
+                <ShieldOff className="h-3.5 w-3.5" />
+              </Button>
+            )}
           </div>
         ) : null,
     },
@@ -306,8 +340,12 @@ export default function PlatformUsers() {
             <Button
               loading={busy === 'role'}
               disabled={!roleChoice || roleChoice === pending?.user.role}
-              onClick={() => {
+              onClick={async () => {
                 const u = pending!.user;
+                // Granting or removing OWNER requires a fresh identity check (server enforces).
+                if (roleChoice === 'owner' || u.role === 'owner') {
+                  try { await reauth.ensure(); } catch { return; }
+                }
                 run('role', () => usersApi.changeRole(u.id, roleChoice), 'Role updated').then(() => setPending(null)).catch(() => {});
               }}
             >
@@ -362,6 +400,61 @@ export default function PlatformUsers() {
         confirmVariant="destructive"
         onConfirm={async (v) => { await run('force-reset', () => usersApi.forcePasswordReset(pending!.user.id, v.reason || undefined), 'Reset required — email sent'); }}
       />
+      <ConfirmModal
+        open={pending?.action === 'reset-mfa'}
+        onClose={() => setPending(null)}
+        title={`Reset two-factor — ${pending?.user.name ?? ''}`}
+        description="Use this when an operator lost their authenticator and recovery codes. Their 2FA is removed and every session is signed out; they should re-enrol at next sign-in. You will be asked to confirm your identity."
+        fields={[{ name: 'reason', label: 'Reason', type: 'text', required: true, minLength: 4 }]}
+        confirmLabel="Reset two-factor"
+        confirmVariant="destructive"
+        onConfirm={async (v) => {
+          // A cancelled re-auth is not an error: keep the confirm open quietly.
+          try { await reauth.ensure(); } catch { throw new Error('Confirm your identity to continue.'); }
+          await run('reset-mfa', () => usersApi.resetMfa(pending!.user.id, v.reason), 'Two-factor reset');
+        }}
+      />
+
+      <Modal
+        open={!!sessionsFor}
+        onClose={() => { setSessionsFor(null); setUserSessions(null); }}
+        title={`Sessions — ${sessionsFor?.name ?? ''}`}
+        description="Signed-in devices for this operator (last 24 h incl. revoked). Revoking signs that device out within 30 seconds."
+        className="max-w-2xl"
+      >
+        {userSessions === null ? (
+          <PageSpinner />
+        ) : userSessions.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No sessions recorded.</p>
+        ) : (
+          <ul className="divide-y text-sm">
+            {userSessions.map((s) => (
+              <li key={s.id} className="flex items-start justify-between gap-3 py-2">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="truncate font-medium">{s.userAgent?.slice(0, 60) || 'Unknown device'}</span>
+                    {s.mfaVerified && <Badge variant="outline" className="text-[10px]">2FA</Badge>}
+                    {s.revokedAt && <Badge variant="destructive" className="text-[10px]">revoked</Badge>}
+                  </div>
+                  <div className="text-xs text-muted-foreground" dir="ltr">{s.ip || '—'} · active {formatRelative(s.lastSeenAt)}</div>
+                </div>
+                {!s.revokedAt && new Date(s.expiresAt) > new Date() && (
+                  <Button variant="ghost" size="sm" title="Revoke" onClick={async () => {
+                    try {
+                      await usersApi.sessions.revokeOfUser(sessionsFor!.id, s.id, 'revoked by operator');
+                      toast.success('Session revoked');
+                      setUserSessions(await usersApi.sessions.ofUser(sessionsFor!.id));
+                    } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed'); }
+                  }}>
+                    <LogOut className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Modal>
+      {reauth.modal}
     </div>
   );
 }

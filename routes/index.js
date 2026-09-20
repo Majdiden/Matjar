@@ -39,6 +39,7 @@ import redirectRoutes from "../routes/redirect.js";
 import impersonationRoutes from "../routes/impersonation.js";
 import plansRoutes from "../routes/plans.js";
 import billingRoutes from "../routes/billing.js";
+import feedbackRoutes from "../routes/feedback.js";
 
 const router = Router();
 
@@ -83,5 +84,6 @@ router.use("/features", featureRoutes); // Effective platform feature flags (das
 router.use("/impersonation", impersonationRoutes); // Owner-side support-impersonation consent
 router.use("/plans", plansRoutes); // Public subscription-plan catalog (geo-localized pricing)
 router.use("/billing", billingRoutes); // Merchant billing summary + self-service plan change (tenant-scoped)
+router.use("/feedback", feedbackRoutes); // Merchant → platform feedback (tenant-scoped, rate-limited)
 
 export default router;

@@ -7,11 +7,20 @@ import tenantExportSchema from "../schemas/tenantExport.js";
 // Phase A platform operating-system models (admin DB)
 import platformAuditLogSchema from "../schemas/platformAuditLog.js";
 import platformInviteSchema from "../schemas/platformInvite.js";
+import platformSessionSchema from "../schemas/platformSession.js";
+import { ensureConsumedMfaTokenIndex } from "../services/platform/mfa.js";
 import commissionPolicySchema from "../schemas/commissionPolicy.js";
 import pricingOverrideSchema from "../schemas/pricingOverride.js";
 import platformFeeEventSchema from "../schemas/platformFeeEvent.js";
 import billingStatementSchema from "../schemas/billingStatement.js";
 import planChangeSchema from "../schemas/planChange.js";
+import storefrontHealthSchema from "../schemas/storefrontHealth.js";
+import platformFeedbackSchema from "../schemas/platformFeedback.js";
+import webhookDeliverySchema from "../schemas/store/webhookDelivery.js";
+// Phase B (access programs, feature overrides, usage snapshots)
+import accessProgramSchema from "../schemas/accessProgram.js";
+import featureOverrideSchema from "../schemas/featureOverride.js";
+import tenantUsageSnapshotSchema from "../schemas/tenantUsageSnapshot.js";
 import themeSchema from "../schemas/store/theme.js";
 import userSchema from "../schemas/store/user.js";
 import productSchema from "../schemas/store/product.js";
@@ -67,11 +76,19 @@ export function registerAllModels(connection) {
   connection.model("TenantExport", tenantExportSchema);
   connection.model("PlatformAuditLog", platformAuditLogSchema);
   connection.model("PlatformInvite", platformInviteSchema);
+  connection.model("PlatformSession", platformSessionSchema);
+  // TTL index for single-use MFA step tokens (idempotent, best-effort).
+  if (connection.db) ensureConsumedMfaTokenIndex().catch((err) => console.warn("consumed-mfa-token index:", err?.message));
   connection.model("CommissionPolicy", commissionPolicySchema);
   connection.model("PricingOverride", pricingOverrideSchema);
   connection.model("PlatformFeeEvent", platformFeeEventSchema);
   connection.model("BillingStatement", billingStatementSchema);
   connection.model("PlanChange", planChangeSchema);
+  connection.model("StorefrontHealth", storefrontHealthSchema);
+  connection.model("PlatformFeedback", platformFeedbackSchema);
+  connection.model("AccessProgram", accessProgramSchema);
+  connection.model("FeatureOverride", featureOverrideSchema);
+  connection.model("TenantUsageSnapshot", tenantUsageSnapshotSchema);
 
   // Tenant-scoped models
   connection.model("User", userSchema);
@@ -91,6 +108,7 @@ export function registerAllModels(connection) {
   connection.model("ProductI18n", productI18nSchema);
   connection.model("Analytics", analyticsSchema);
   connection.model("Webhook", webhookSchema);
+  connection.model("WebhookDelivery", webhookDeliverySchema);
   connection.model("RefreshToken", refreshTokenSchema);
   connection.model("AuditLog", auditLogSchema);
   connection.model("Market", marketSchema);

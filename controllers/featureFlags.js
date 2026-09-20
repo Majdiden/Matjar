@@ -10,16 +10,24 @@ import {
 } from "../services/featureFlags.js";
 import { getBuiltInThemeSlugs } from "../services/themeManifestRegistry.js";
 import { recordPlatformAudit } from "../services/platform/audit.js";
+import { flagOverrideCounts } from "../services/platform/programs.js";
 
-/** GET /api/platform/features */
+/**
+ * GET /api/platform/features
+ * `overrides` (Phase B): per flag, which non-closed programs switch it on/off
+ * and how many tenants carry a live tenant override — the "where is this on?"
+ * view. Fails soft to {} so the global panel still renders.
+ */
 export const getPlatformFeatures = asyncHandler(async (req, res) => {
   const flags = await getEffectiveFlags();
+  const overrides = await flagOverrideCounts().catch(() => ({}));
   res.json({
     success: true,
     data: {
       registry: FEATURE_REGISTRY,
       flags,
       themeSlugs: getBuiltInThemeSlugs(),
+      overrides,
     },
   });
 });

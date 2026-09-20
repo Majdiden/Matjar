@@ -60,6 +60,23 @@ const tenantUserSchema = new Schema({
   platformResetTokenHash: { type: String, default: null, select: false },
   platformResetTokenExpiresAt: { type: Date, default: null, select: false },
 
+  // ── Platform-staff MFA (TOTP) ──────────────────────────────────────────
+  // The TOTP seed is AES-256-GCM sealed (utils/secretBox.js) and never
+  // returned by any endpoint. Enrollment is two-phase: a pending seed is
+  // stored until the operator proves possession with a valid code.
+  platformMfa: {
+    enabled: { type: Boolean, default: false },
+    secretSealed: { type: String, default: null, select: false },
+    pendingSecretSealed: { type: String, default: null, select: false },
+    pendingCreatedAt: { type: Date, default: null, select: false },
+    enrolledAt: { type: Date, default: null },
+    // Last accepted TOTP step — a code is single-use within its step.
+    lastUsedStep: { type: Number, default: null, select: false },
+    // SHA-256 hashes of single-use recovery codes; consumed entries are removed.
+    recoveryCodeHashes: { type: [String], default: [], select: false },
+    recoveryCodesRemaining: { type: Number, default: 0 },
+  },
+
   notificationPreferences: { type: Schema.Types.Mixed, default: {} },
 
   createdAt: { type: Date, default: Date.now },

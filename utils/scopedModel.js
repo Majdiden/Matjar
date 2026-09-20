@@ -228,6 +228,7 @@ const TENANT_SCOPED_MODELS = [
   "ProductI18n",
   "Analytics",
   "Webhook",
+  "WebhookDelivery",
   "RefreshToken",
   "AuditLog",
   "Market",

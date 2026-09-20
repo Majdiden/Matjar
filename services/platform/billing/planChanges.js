@@ -4,6 +4,7 @@
  * models; operators may force "immediately".
  */
 import mongoose from "mongoose";
+import { invalidateTenantFeatureCache } from "../../featureFlags.js";
 import { APIError } from "../../../middlewares/errorHandler.js";
 import { periodKeyFor, periodBounds } from "./money.js";
 import { recordPlatformAudit } from "../audit.js";
@@ -34,6 +35,7 @@ export async function applyPlanToTenant(tenantId, plan) {
   if (plan.limits?.maxOrdersPerMonth != null) set["limits.maxOrders"] = plan.limits.maxOrdersPerMonth;
   const Tenant = mongoose.model("Tenant");
   const t = await Tenant.findByIdAndUpdate(tenantId, { $set: set }, { new: true }).select("subscriptionPlan subscriptionStartDate subscriptionEndDate").lean();
+  invalidateTenantFeatureCache(tenantId); // plan entitlements changed for this tenant
   if (!t) throw new APIError("Tenant not found", 404);
   return t;
 }

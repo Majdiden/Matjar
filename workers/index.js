@@ -30,7 +30,7 @@ import { Worker } from "bullmq";
 import config from "../config/index.js";
 import { connectDb } from "../utils/connectionManager.js";
 import { QUEUE_NAMES, getQueueConnection, closeAllQueues, observeQueue } from "../services/jobs/queues.js";
-import { scheduleTenantLifecycleSweep, enqueueDailyBackupCron, scheduleBillingPeriodCron } from "../services/jobs/index.js";
+import { scheduleTenantLifecycleSweep, enqueueDailyBackupCron, scheduleBillingPeriodCron, scheduleStorefrontHealthCron, scheduleUsageSnapshotCron } from "../services/jobs/index.js";
 import logger from "../utils/logger.js";
 
 import { processStoreSetup } from "./processors/storeSetup.js";
@@ -42,6 +42,8 @@ import { processTenantExport } from "./processors/dataExport.js";
 import { processTenantLifecycle } from "./processors/tenantLifecycle.js";
 import { processBackup } from "./processors/backup.js";
 import { processBilling } from "./processors/billing.js";
+import { processUsage } from "./processors/usage.js";
+import { processStorefrontHealth } from "./processors/storefrontHealth.js";
 import { createScopedModels } from "../utils/scopedModel.js";
 import { emit as emitNotification } from "../services/notification.js";
 
@@ -59,6 +61,10 @@ const PROCESSORS = [
   { queue: QUEUE_NAMES.BACKUPS, fn: processBackup, concurrency: 1 },
   // Period close touches every tenant sequentially; never run two at once.
   { queue: QUEUE_NAMES.BILLING, fn: processBilling, concurrency: 1 },
+  // Network probes: the service bounds its own fan-out (3 hosts at a time).
+  { queue: QUEUE_NAMES.STOREFRONT_HEALTH, fn: processStorefrontHealth, concurrency: 1 },
+  // Usage snapshots walk every tenant; one at a time.
+  { queue: QUEUE_NAMES.USAGE, fn: processUsage, concurrency: 1 },
 ];
 
 const workers = [];
@@ -188,6 +194,13 @@ async function main() {
       .then(({ getBillingSettings }) => getBillingSettings())
       .then((s) => scheduleBillingPeriodCron({ day: s.statementDay }))
       .catch((err) => logger.warn("Failed to schedule billing period cron", { error: err.message }));
+    await scheduleStorefrontHealthCron().catch((err) =>
+      logger.warn("Failed to schedule storefront health cron", { error: err.message })
+    );
+    // Nightly usage snapshots @ 03:30 UTC (services/platform/usage.js).
+    await scheduleUsageSnapshotCron().catch((err) =>
+      logger.warn("Failed to schedule usage snapshot cron", { error: err.message })
+    );
   }
 
   logger.info("Workers started", {

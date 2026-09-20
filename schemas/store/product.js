@@ -205,6 +205,10 @@ productSchema.index({ tenantId: 1, featured: 1, status: 1 });
 productSchema.index({ tenantId: 1, status: 1, createdAt: -1 });
 productSchema.index({ tenantId: 1, tags: 1 });
 productSchema.index({ tenantId: 1, price: 1 });
+// Cross-store platform search (console).
+productSchema.index({ sku: 1 }, { sparse: true });
+productSchema.index({ "variants.sku": 1 }, { sparse: true });
+productSchema.index({ status: 1, updatedAt: -1 });
 productSchema.index(
   { name: "text", description: "text", tags: "text" },
   { name: "product_text_search" }

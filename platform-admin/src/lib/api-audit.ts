@@ -38,6 +38,8 @@ export interface AuditQuery {
 export interface ActivityItem {
   at: string;
   source: 'platform' | 'merchant';
+  tenantId?: string | null;
+  tenant?: { name: string; slug: string } | null;
   actor?: string | null;
   action: string;
   label: string;
@@ -52,6 +54,11 @@ export interface ActivityItem {
 }
 
 export const auditApi = {
+  // Platform-wide feed (all tenants). Owner: B3.
+  platformActivity: async (params: { page?: number; limit?: number; tenantId?: string; source?: 'platform' | 'merchant' } = {}) => {
+    const res = await http.get('/audit/activity', { params });
+    return res.data.data as { items: ActivityItem[]; page: number; limit: number; hasMore: boolean };
+  },
   list: async (params: AuditQuery = {}) => {
     const res = await http.get('/audit', { params });
     return res.data.data as {

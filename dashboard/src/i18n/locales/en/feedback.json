@@ -1,0 +1,43 @@
+{
+  "feedback": {
+    "title": "Send feedback",
+    "subtitle": "Tell the Matjar team about a problem, an idea, or a question. We read everything.",
+    "form": {
+      "type": "What is this about?",
+      "subject": "Subject",
+      "subject_placeholder": "Short summary",
+      "message": "Details",
+      "message_placeholder": "What happened, what you expected, and any steps to reproduce.",
+      "page_hint": "We attach the page you were on to help us find the issue.",
+      "submit": "Send feedback",
+      "sending": "Sending…",
+      "error_subject": "Subject must be at least 3 characters.",
+      "error_message": "Please describe it in at least 5 characters."
+    },
+    "type": {
+      "bug": "Something is broken",
+      "feature_request": "I have an idea",
+      "question": "I have a question",
+      "ux": "Something is confusing",
+      "other": "Other"
+    },
+    "status": {
+      "open": "Received",
+      "investigating": "Being looked at",
+      "planned": "Planned",
+      "in_progress": "In progress",
+      "resolved": "Resolved",
+      "wont_fix": "Not planned"
+    },
+    "list": {
+      "title": "Your feedback",
+      "empty": "You haven't sent any feedback yet.",
+      "resolution": "Reply from Matjar",
+      "sent": "Sent {{date}}"
+    },
+    "toast": {
+      "sent": "Thanks — your feedback was sent.",
+      "failed": "Could not send feedback. Please try again."
+    }
+  }
+}

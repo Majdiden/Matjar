@@ -18,6 +18,7 @@ import {
   requireScope,
   validateObjectId,
   requireRole,
+  requireRecentReauth,
   PLATFORM_SCOPES,
 } from "../middlewares/platformAdmin.js";
 import {
@@ -57,11 +58,24 @@ import {
 } from "../controllers/platform/plans.js";
 // Phase A sub-routers — each owned by one workstream (see docs/plans/platform-admin-operating-system.md)
 import platformAuthRoutes from "./platform/auth.js";
+import platformAuthPrivateRoutes from "./platform/authPrivate.js";
+import securityRoutes from "./platform/security.js";
 import auditRoutes from "./platform/audit.js";
 import platformUserRoutes from "./platform/users.js";
 import tenantUserRoutes from "./platform/tenantUsers.js";
 import billingRoutes from "./platform/billing.js";
 import overviewRoutes from "./platform/overview.js";
+// Phase B sub-routers
+import systemRoutes from "./platform/health.js";
+import webhookInspectorRoutes from "./platform/webhooks.js";
+import feedbackRoutes from "./platform/feedback.js";
+// Phase B (B1): access programs, per-tenant config/feature-overrides/usage, usage refresh
+import programRoutes from "./platform/programs.js";
+import tenantConfigRoutes from "./platform/config.js";
+import usageRoutes from "./platform/usage.js";
+// Phase B (B2): cross-store commerce search + storefront domains/themes/health
+import commerceRoutes from "./platform/commerce.js";
+import storefrontRoutes from "./platform/storefront.js";
 import {
   requestController as impersonationRequest,
   pollController as impersonationPoll,
@@ -89,11 +103,28 @@ router.get("/me", platformMe);
 
 // --- Phase A domain routers (all behind platformAuthenticate; each route
 // declares its own requireScope) ---
+router.use("/auth", platformAuthPrivateRoutes); // authenticated: MFA enrolment, re-auth
+router.use("/security", securityRoutes);
 router.use("/audit", auditRoutes);
 router.use("/users", platformUserRoutes);
 router.use("/tenants/:tenantId/users", tenantUserRoutes);
 router.use("/billing", billingRoutes);
 router.use("/overview", overviewRoutes);
+router.use("/system", systemRoutes);
+router.use("/webhooks", webhookInspectorRoutes);
+router.use("/feedback", feedbackRoutes);
+router.use("/programs", programRoutes);
+// NOTE: this parametric mount sits BEFORE the literal "/tenants-stats" and
+// "/tenants/:tenantId/..." routes below. Express matches "/tenants/:tenantId"
+// against any single segment, so every path under it must be declared in
+// routes/platform/config.js (config, feature-overrides, usage, limit-overrides)
+// — a new literal sub-path added elsewhere would be shadowed by this router
+// only if it collides with one of those names; the router 404s nothing else
+// (unmatched requests fall through to the routes below).
+router.use("/tenants/:tenantId", tenantConfigRoutes);
+router.use("/usage", usageRoutes);
+router.use("/commerce", commerceRoutes);
+router.use("/storefront", storefrontRoutes);
 
 // --- Platform feature flags ---
 router.get("/features", requireScope(PLATFORM_SCOPES.SUPPORT_READ), getPlatformFeatures);
@@ -216,6 +247,8 @@ router.post(
   validateObjectId("tenantId"),
   requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
   requireRole("owner"),
+  // Irreversible: the owner must have re-authenticated within the last 5 min.
+  requireRecentReauth,
   purge
 );
 

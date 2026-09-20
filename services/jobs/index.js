@@ -167,6 +167,24 @@ export async function enqueueDailyBackupCron({ cron = "0 3 * * *", source = "boo
 }
 
 /**
+ * Storefront health sweep — every 6 hours. Probes each live tenant's primary
+ * host (home / product / cart + TLS expiry). Deterministic jobId so redeploys
+ * never fan out duplicate crons.
+ */
+export async function scheduleStorefrontHealthCron({ cron = "0 */6 * * *", source = "boot" } = {}) {
+  return enqueue(
+    QUEUE_NAMES.STOREFRONT_HEALTH,
+    "sweep",
+    {},
+    {
+      jobId: "storefront-health-sweep",
+      repeat: { pattern: cron },
+      _source: source,
+    }
+  );
+}
+
+/**
  * Monthly billing period close — 02:00 UTC on the 1st. Generates + issues
  * statements for the previous period, applies due plan changes, flips
  * overdue statements. Idempotent per period (statements are unique per
@@ -191,6 +209,15 @@ export async function scheduleBillingPeriodCron({ day = 1, cron, source = "boot"
     {},
     { jobId: "billing-period-close", repeat: { pattern }, _source: source }
   );
+}
+
+/**
+ * Nightly usage snapshots — 03:30 UTC. One row per tenant in
+ * TenantUsageSnapshot (services/platform/usage.js). Idempotent enough:
+ * a re-run just adds another snapshot for the day.
+ */
+export async function scheduleUsageSnapshotCron({ cron = "30 3 * * *", source = "boot" } = {}) {
+  return enqueue(QUEUE_NAMES.USAGE, "snapshot-all", {}, { jobId: "usage-snapshot-nightly", repeat: { pattern: cron }, _source: source });
 }
 
 export { QUEUE_NAMES, closeAllQueues } from "./queues.js";

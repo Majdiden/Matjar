@@ -162,7 +162,7 @@ Policy "standard": basis gmv, scope delivered, recognition delivered, period cal
 
 ## 3. Everything else, in phases
 
-### Phase A — Foundation (P0)
+### Phase A — Foundation (P0) — DONE (commit 22f13e9, 2026-09-20)
 
 1. **Platform audit ledger** (`platform_audit_logs`, admin DB, append-only): every platform route mutation writes `{actorId, actorEmail, action, resourceType, resourceId, tenantId, reason, before, after, ip, userAgent, requestId}`. Retrofit suspend/unsuspend/delete/purge/plan change/flags/phone countries/seed/impersonation. Admin page **Security → Audit log** with filters and a per-tenant Activity tab.
 2. **Platform users & roles**: named roles (Owner, Admin, Operations, Support, Finance, Developer) mapping to scope sets; invite by email (platform-staff invitation type), suspend/reactivate, force password reset, list sessions/revoke (platform tokens get a `tokenVersion` like merchant users). Page **Users → Platform users**.
