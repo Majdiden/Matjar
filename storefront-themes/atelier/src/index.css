@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Atelier tokens ───────────────────────────────────────────────
+   Merchant-editable colours arrive as --color-* from ThemeProvider.
+   The theme adds a few derived tokens of its own. Bronze (#b6713e) is a
+   3.5:1 colour on white, so it is used for surfaces, rules and large
+   type only; text and hover surfaces with white type use the deeper
+   bronze ink (≥ 6:1). */
+:root {
+  --atelier-bronze: var(--color-secondary, #b6713e);
+  --atelier-bronze-ink: color-mix(in srgb, var(--color-secondary, #b6713e) 76%, #000);
+  --atelier-bronze-light: color-mix(in srgb, var(--color-secondary, #b6713e) 70%, #fff);
+  --atelier-sale: #c81e1e;
+  --atelier-success: var(--color-success, #2e8b57);
+  --atelier-grey-100: #f2f2f2;
+  --atelier-grey-200: #e5e5e5;
+  --atelier-grey-500: #6b6b6b;
+  --atelier-radius-card: 10px;
+  --atelier-radius-thumb: 4px;
+  --atelier-header-h: 72px;
+  --font-en: 'DM Sans', system-ui, sans-serif;
+  --font-ar: 'Tajawal', 'DM Sans', system-ui, sans-serif;
+  --font-heading-en: 'Fraunces', Georgia, serif;
+  --font-heading-ar: 'Amiri', 'Tajawal', serif;
+}
+@supports not (color: color-mix(in srgb, #000 50%, #fff)) {
+  :root { --atelier-bronze-ink: #8a4f24; --atelier-bronze-light: #d9a575; }
+}
+
+html[lang='ar'] {
+  --font-family: var(--font-ar);
+  --font-family-heading: var(--font-heading-ar);
+  --fs-xs: 0.8125rem; --fs-sm: 0.9375rem; --fs-base: 1.0625rem; --fs-lg: 1.1875rem;
+}
+body { font-family: var(--font-family, var(--font-en)); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-family-heading, var(--font-heading-en)); }
+
+/* Arabic shaping breaks under letter-spacing — reset it in Arabic mode. */
+html[lang='ar'], html[lang='ar'] * { letter-spacing: 0 !important; }
+html[dir='rtl'], html[dir='rtl'] body { direction: rtl; }
+html[dir='ltr'], html[dir='ltr'] body { direction: ltr; }
+
+/* ─── Shared utilities ───────────────────────────────────────────── */
+.at-eyebrow {
+  font-weight: 800; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--atelier-bronze-ink);
+}
+.at-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  border-radius: 100px; padding: 0.875rem 1.75rem; font-weight: 700; font-size: 14px;
+  transition: background-color .3s linear, color .3s linear, border-color .3s linear, transform .3s linear;
+}
+.at-btn-dark { background: var(--color-foreground); color: #fff; }
+.at-btn-dark:hover { background: var(--atelier-bronze-ink); color: #fff; }
+.at-btn-light { background: #fff; color: var(--color-foreground); }
+.at-btn-light:hover { background: var(--atelier-bronze-ink); color: #fff; }
+.at-btn-outline { background: transparent; color: var(--color-foreground); border: 1.5px solid var(--color-foreground); }
+.at-btn-outline:hover { background: var(--color-foreground); color: #fff; }
+.at-btn-outline-light { background: transparent; color: #fff; border: 1.5px solid #fff; }
+.at-btn-outline-light:hover { background: #fff; color: var(--color-foreground); }
+.at-btn:disabled { background: var(--atelier-grey-200); color: #4a4a4a; border-color: transparent; cursor: not-allowed; }
+.at-card { border-radius: var(--atelier-radius-card); }
+.at-input {
+  width: 100%; border: 1px solid var(--atelier-grey-200); border-radius: 100px; padding: 0.75rem 1.25rem;
+  background: #fff; color: var(--color-foreground); font-size: 14px;
+}
+.at-input::placeholder { color: #767676; }
+.at-input:focus { outline: none; border-color: var(--color-foreground); box-shadow: 0 0 0 1px var(--color-foreground); }
+.at-select {
+  appearance: none; border: 1px solid var(--atelier-grey-200); border-radius: 100px; padding: 0.6rem 2.25rem 0.6rem 1rem;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231c1c1c' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.9rem center;
+  font-weight: 600; font-size: 12px; text-transform: uppercase; color: var(--color-foreground);
+}
+html[dir='rtl'] .at-select { padding: 0.6rem 1rem 0.6rem 2.25rem; background-position: left 0.9rem center; }
+.at-link-hover { transition: color .3s linear; }
+.at-link-hover:hover { color: var(--atelier-bronze-ink); }
+/* Same affordance on dark surfaces: a lighter bronze keeps ≥ 7:1 on near-black. */
+.at-link-hover-light { transition: color .3s linear; }
+.at-link-hover-light:hover, .at-link-hover-light:focus-visible { color: var(--atelier-bronze-light); }
+.at-underline-anim { position: relative; }
+.at-underline-anim::after {
+  content: ''; position: absolute; inset-inline-start: 0; bottom: -4px; height: 1.5px; width: 0; background: currentColor;
+  transition: width .3s linear;
+}
+.at-underline-anim:hover::after, .at-underline-anim[aria-current='page']::after { width: 100%; }
+.at-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.at-scrollbar::-webkit-scrollbar-track { background: var(--atelier-grey-200); }
+.at-scrollbar::-webkit-scrollbar-thumb { background: #b4b4b4; border-radius: 6px; }
+.at-hide-scrollbar { scrollbar-width: none; }
+.at-hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ─── Motion ─────────────────────────────────────────────────────── */
+@keyframes at-fade-in-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes at-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes at-spin { to { transform: rotate(360deg); } }
+@keyframes at-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+html[dir='rtl'] .at-marquee-track { animation-direction: reverse; }
+@keyframes at-progress { from { width: 0; } to { width: 100%; } }
+@keyframes at-kenburns { from { transform: scale(1); } to { transform: scale(1.08); } }
+@keyframes at-caption { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+/* Glyph flip-through: exit one edge, re-enter from the other, then land. */
+@keyframes at-flip-y { 0% { transform: translateY(0); } 25% { opacity: 0; transform: translateY(100%); } 50% { opacity: 0; transform: translateY(-100%); } 75% { opacity: 1; transform: translateY(0); } }
+@keyframes at-flip-x { 0% { transform: translateX(0); } 25% { opacity: 0; transform: translateX(100%); } 50% { opacity: 0; transform: translateX(-100%); } 75% { opacity: 1; transform: translateX(0); } }
+@keyframes at-flip-x-rev { 0% { transform: translateX(0); } 25% { opacity: 0; transform: translateX(-70%); } 50% { opacity: 0; transform: translateX(70%); } 75% { opacity: 1; transform: translateX(0); } }
+.at-flip-close:hover svg { animation: at-flip-y .5s ease-in-out forwards; }
+.at-flip-next:hover svg { animation: at-flip-x .5s ease-in-out forwards; }
+.at-flip-prev:hover svg { animation: at-flip-x-rev .5s ease-in-out forwards; }
+
+.at-reveal { opacity: 0; }
+.at-reveal.is-in { animation: at-fade-in-up .5s ease-out forwards; }
+.at-marquee-track { animation: at-marquee var(--at-marquee-duration, 10s) linear infinite; animation-play-state: paused; }
+.at-marquee-track.is-running { animation-play-state: running; }
+.at-marquee:hover .at-marquee-track { animation-play-state: paused; }
+.at-spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: at-spin .6s linear infinite; }
+
+/* Drawer / panel placements (one class contract, pure CSS motion) */
+.at-panel { position: fixed; z-index: 90; background: #fff; visibility: hidden; opacity: 0; }
+.at-panel-start { top: 0; inset-inline-start: 0; height: 100dvh; width: min(350px, 88vw); transform: translateX(-100%); transition: transform .35s linear, opacity .35s linear, visibility 0s linear .35s; }
+html[dir='rtl'] .at-panel-start { transform: translateX(100%); }
+.at-panel-end { top: 0; inset-inline-end: 0; height: 100dvh; width: min(420px, 92vw); transform: translateX(100%); transition: transform .35s linear, opacity .35s linear, visibility 0s linear .35s; }
+html[dir='rtl'] .at-panel-end { transform: translateX(-100%); }
+.at-panel-top { top: 0; left: 0; width: 100%; max-height: 90dvh; transform: translateY(-100%); transition: transform .5s, opacity .5s, visibility 0s linear .5s; }
+.at-panel-bottom { bottom: 0; left: 0; width: 100%; max-height: 90dvh; transform: translateY(100%); transition: transform .5s, opacity .5s, visibility 0s linear .5s; }
+.at-panel.is-open { visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
+.at-backdrop { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.45); opacity: 0; visibility: hidden; transition: opacity .3s linear, visibility 0s linear .3s; }
+.at-backdrop.is-open { opacity: 1; visibility: visible; transition-delay: 0s; }
+.at-rotate-hover svg { transition: transform .3s linear; }
+.at-rotate-hover:hover svg { transform: rotate(180deg); }
+
+/* Sticky header: transform-based reveal-on-scroll-up */
+.at-sticky { position: fixed; top: 0; left: 0; width: 100%; z-index: 60; transform: translateY(-110%); transition: transform .3s linear; }
+.at-sticky.is-shown { transform: translateY(0); }
+
+/* Product grid stacking so the hover rail escapes neighbours */
+.at-grid-item { position: initial; transition: all .4s ease-in-out; }
+.at-grid-item:hover { position: relative; z-index: 3; }
+
+@media (prefers-reduced-motion: reduce) {
+  .at-reveal { opacity: 1; animation: none !important; }
+  .at-marquee-track { animation: none !important; }
+  .at-flip-close:hover svg, .at-flip-next:hover svg, .at-flip-prev:hover svg { animation: none !important; }
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}

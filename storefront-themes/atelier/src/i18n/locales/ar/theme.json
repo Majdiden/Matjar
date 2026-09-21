@@ -1,0 +1,228 @@
+{
+  "theme": {
+    "layout": {
+      "nav": {
+        "home": "الرئيسية",
+        "shop": "المتجر",
+        "main": "التنقل الرئيسي",
+        "wishlist": "المفضلة",
+        "account": "حسابي"
+      },
+      "search": "بحث",
+      "search_placeholder": "عمّ تبحثين؟",
+      "search_popular": "الأكثر بحثاً",
+      "search_see_all": "عرض كل النتائج ({{count}})",
+      "search_none": "لا توجد منتجات مطابقة بعد.",
+      "close": "إغلاق",
+      "back": "رجوع",
+      "account": "حسابي",
+      "wishlist": "المفضلة",
+      "cart": "السلة",
+      "mega": {
+        "featured": "مختارات"
+      },
+      "utility": {
+        "call": "اتصل بنا:",
+        "email": "البريد:",
+        "login": "تسجيل الدخول",
+        "register": "إنشاء حساب",
+        "wishlist": "المفضلة ({{count}})",
+        "checkout": "إتمام الشراء"
+      }
+    },
+    "card": {
+      "add_to_cart": "أضف إلى السلة",
+      "add_to_wishlist": "أضف إلى المفضلة",
+      "quick_view": "عرض سريع",
+      "select_options": "اختر الخيارات",
+      "in_stock": "متوفر",
+      "sold_out": "نفد المخزون",
+      "preorder": "طلب مسبق"
+    },
+    "cart": {
+      "title": "السلة",
+      "page_title": "سلة التسوق",
+      "items_zero": "لا عناصر",
+      "items_one": "عنصر واحد",
+      "items_two": "عنصران",
+      "items_few": "{{count}} عناصر",
+      "items_many": "{{count}} عنصراً",
+      "items_other": "{{count}} عنصر",
+      "total": "الإجمالي:",
+      "subtotal": "المجموع الفرعي",
+      "summary": "ملخص الطلب",
+      "shipping": "الشحن",
+      "shipping_hint": "تُحسب الضرائب والشحن عند إتمام الشراء.",
+      "savings": "وفّرت {{amount}}",
+      "view_cart": "عرض السلة",
+      "checkout": "إتمام الشراء",
+      "continue": "متابعة التسوق",
+      "empty_title": "سلتك فارغة حالياً.",
+      "empty_body": "أضيفي بعض المنتجات قبل إتمام الشراء. المتجر مكان جيد للبدء.",
+      "unavailable": "منتج غير متاح",
+      "remove": "إزالة",
+      "decrease": "تقليل الكمية",
+      "increase": "زيادة الكمية",
+      "col_product": "المنتج",
+      "col_total": "الإجمالي",
+      "free_shipping_remaining": "أضيفي {{amount}} للحصول على شحن مجاني",
+      "free_shipping_unlocked": "حصلتِ على شحن مجاني",
+      "terms_prefix": "أوافق على",
+      "terms_link": "الشروط والأحكام",
+      "note_title": "ملاحظة للبائع",
+      "note_placeholder": "اكتبي ملاحظاتك على هذا الطلب هنا",
+      "save": "حفظ",
+      "saved": "تم الحفظ",
+      "shipping_title": "تقدير تكلفة الشحن",
+      "country": "الدولة (رمز ISO)",
+      "state": "الولاية / المنطقة",
+      "zip": "الرمز البريدي",
+      "calculate": "احسب الشحن",
+      "no_rates": "لا توجد أسعار لهذا العنوان.",
+      "free": "مجاني",
+      "discount_title": "إضافة كود خصم",
+      "discount_help": "يُحسب الخصم ويُطبّق عند إتمام الشراء.",
+      "discount_placeholder": "كود الخصم",
+      "discount_applied": "تم حفظ الكود وسيُطبّق عند إتمام الشراء."
+    },
+    "added": {
+      "title": "طلبك",
+      "count_zero": "سلتك فارغة",
+      "count_one": "يوجد عنصر واحد في سلتك",
+      "count_two": "يوجد عنصران في سلتك",
+      "count_few": "يوجد {{count}} عناصر في سلتك",
+      "count_many": "يوجد {{count}} عنصراً في سلتك",
+      "count_other": "يوجد {{count}} عنصر في سلتك",
+      "success": "تمت إضافة {{name}} إلى سلتك.",
+      "continue": "متابعة التسوق",
+      "checkout": "إتمام الشراء",
+      "related": "قد يعجبك أيضاً"
+    },
+    "collection": {
+      "all_products": "المنتجات",
+      "filter": "تصفية",
+      "view": "طريقة العرض",
+      "view_grid_4": "شبكة بأربعة أعمدة",
+      "view_grid_3": "شبكة بثلاثة أعمدة",
+      "view_grid_2": "شبكة بعمودين",
+      "view_list": "عرض قائمة",
+      "sort_by": "ترتيب حسب",
+      "sort": {
+        "featured": "المميزة",
+        "popular": "الأكثر مبيعاً",
+        "newest": "الأحدث أولاً",
+        "price_asc": "السعر: من الأقل للأعلى",
+        "price_desc": "السعر: من الأعلى للأقل"
+      },
+      "categories": "الفئات",
+      "availability": "التوفر",
+      "in_stock": "متوفر",
+      "out_of_stock": "غير متوفر",
+      "price": "السعر",
+      "reset": "إعادة ضبط",
+      "clear_all": "مسح الكل",
+      "showing": "عرض {{count}} من {{total}} منتج",
+      "showing_range": "عرض {{start}} - {{end}} من {{total}} منتج",
+      "load_more": "عرض المزيد",
+      "prev": "السابق",
+      "next": "التالي",
+      "empty_title": "لا شيء هنا بعد",
+      "empty_body": "جرّبي إزالة أحد الفلاتر أو تصفّح فئة أخرى."
+    },
+    "product_detail": {
+      "add_to_bag": "أضف إلى الحقيبة",
+      "preorder": "طلب مسبق",
+      "buy_now": "اشترِ الآن",
+      "select_options": "اختر الخيارات",
+      "quantity": "الكمية:",
+      "available": "التوفر:",
+      "sku": "رمز المنتج:",
+      "tags": "الوسوم:",
+      "category": "الفئة:",
+      "view_reviews": "عرض كل التقييمات",
+      "share": "مشاركة",
+      "share_title": "شارك هذا المنتج",
+      "ask": "اطرح سؤالاً",
+      "ask_title": "اطرح سؤالاً",
+      "ask_help": "أخبرنا بما تودّين معرفته وسنرد في أقرب وقت.",
+      "ask_name": "اسمك",
+      "ask_email": "بريدك الإلكتروني",
+      "ask_message": "سؤالك",
+      "ask_submit": "إرسال",
+      "ask_sent": "شكراً، وصلنا سؤالك.",
+      "ask_error": "تعذّر الإرسال. حاولي مرة أخرى.",
+      "faq": "الأسئلة الشائعة",
+      "benefits_title": "لماذا تشترين منا",
+      "flash_sale": "عرض خاطف",
+      "ends_in": "ينتهي خلال:",
+      "days": "يوم",
+      "hours": "ساعة",
+      "minutes": "دقيقة",
+      "seconds": "ثانية",
+      "sold_pct": "بيع {{pct}}% - تبقّى {{count}} فقط",
+      "choose": "اختر {{name}}",
+      "tab_description": "الوصف",
+      "tab_delivery": "سياسة التوصيل",
+      "tab_returns": "الشحن والإرجاع",
+      "related": "قد يعجبك أيضاً",
+      "recently_viewed": "شوهدت مؤخراً",
+      "gallery": "معرض المنتج",
+      "not_found_heading": "المنتج غير موجود",
+      "not_found_body": "ربما أُزيل أو أن الرابط قديم.",
+      "back_to_shop": "العودة إلى المتجر"
+    },
+    "footer": {
+      "shop": "تسوّق",
+      "policies": "سياساتنا",
+      "help": "خدمة العملاء",
+      "contact": "اتصل بنا",
+      "track": "تتبّع طلبك",
+      "account": "حسابي",
+      "copyright": "© {{year}} {{name}}. جميع الحقوق محفوظة."
+    },
+    "section": {
+      "hero": {
+        "eyebrow": "البشرة أولاً",
+        "heading": "روتين يترك بشرتك تتنفس",
+        "cta": "تسوّقي الآن",
+        "prev": "الشريحة السابقة",
+        "next": "الشريحة التالية"
+      },
+      "category_tiles": {
+        "eyebrow": "تصفّح",
+        "heading": "تسوّقي حسب الفئة",
+        "count_zero": "لا منتجات",
+        "count_one": "منتج واحد",
+        "count_two": "منتجان",
+        "count_few": "{{count}} منتجات",
+        "count_many": "{{count}} منتجاً",
+        "count_other": "{{count}} منتج"
+      },
+      "product_grid": {
+        "view_all": "عرض الكل"
+      },
+      "split_banner": {
+        "cta": "تسوّقي الآن"
+      },
+      "video": {
+        "eyebrow": "خلف الملصق",
+        "heading": "شاهدي كيف يُصنع السيروم",
+        "play": "تشغيل الفيديو"
+      },
+      "deals": {
+        "cta": "تسوّقي الآن"
+      },
+      "lookbook": {
+        "add_all": "أضف الكل إلى السلة",
+        "empty": "أضيفي نقاطاً في المخصِّص واختاري منتجاً لكل نقطة."
+      },
+      "before_after": {
+        "before": "قبل",
+        "after": "بعد"
+      },
+      "stories": {
+        "read_more": "اقرأ المزيد"
+      }
+    }
+  }
+}

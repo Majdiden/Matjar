@@ -1,0 +1,216 @@
+{
+  "theme": {
+    "layout": {
+      "nav": {
+        "home": "Home",
+        "shop": "Shop",
+        "main": "Main navigation",
+        "wishlist": "Wishlist",
+        "account": "Account"
+      },
+      "search": "Search",
+      "search_placeholder": "What are you looking for?",
+      "search_popular": "Popular searches",
+      "search_see_all": "See all {{count}} results",
+      "search_none": "No products match that yet.",
+      "close": "Close",
+      "back": "Back",
+      "account": "Account",
+      "wishlist": "Wishlist",
+      "cart": "Cart",
+      "mega": {
+        "featured": "Featured"
+      },
+      "utility": {
+        "call": "Call us:",
+        "email": "Email:",
+        "login": "Login",
+        "register": "Register",
+        "wishlist": "Wishlist ({{count}})",
+        "checkout": "Checkout"
+      }
+    },
+    "card": {
+      "add_to_cart": "Add to cart",
+      "add_to_wishlist": "Add to wishlist",
+      "quick_view": "Quick view",
+      "select_options": "Select options",
+      "in_stock": "In stock",
+      "sold_out": "Sold out",
+      "preorder": "Pre-order"
+    },
+    "cart": {
+      "title": "Cart",
+      "page_title": "Your shopping cart",
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} items",
+      "total": "Total:",
+      "subtotal": "Subtotal",
+      "summary": "Order summary",
+      "shipping": "Shipping",
+      "shipping_hint": "Taxes and shipping are calculated at checkout.",
+      "savings": "You are saving {{amount}}",
+      "view_cart": "View cart",
+      "checkout": "Proceed to checkout",
+      "continue": "Continue shopping",
+      "empty_title": "Your cart is currently empty.",
+      "empty_body": "Add a few products before heading to checkout. The shop is a good place to start.",
+      "unavailable": "Unavailable product",
+      "remove": "Remove",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity",
+      "col_product": "Product",
+      "col_total": "Total",
+      "free_shipping_remaining": "Spend {{amount}} more for free shipping",
+      "free_shipping_unlocked": "You have unlocked free shipping",
+      "terms_prefix": "I agree with the",
+      "terms_link": "terms & conditions",
+      "note_title": "Add a note for the seller",
+      "note_placeholder": "Write your notes for this order here",
+      "save": "Save",
+      "saved": "Saved",
+      "shipping_title": "Estimate shipping rates",
+      "country": "Country / region (ISO code)",
+      "state": "State / province",
+      "zip": "Zip / postal code",
+      "calculate": "Calculate shipping",
+      "no_rates": "No rates found for that address.",
+      "free": "Free",
+      "discount_title": "Add a discount code",
+      "discount_help": "Discounts are calculated and applied at checkout.",
+      "discount_placeholder": "Discount code",
+      "discount_applied": "Code saved. It will be applied at checkout."
+    },
+    "added": {
+      "title": "Your order",
+      "count_one": "There is {{count}} item in your cart",
+      "count_other": "There are {{count}} items in your cart",
+      "success": "{{name}} has been added to your cart.",
+      "continue": "Continue shopping",
+      "checkout": "Proceed to checkout",
+      "related": "You may also like"
+    },
+    "collection": {
+      "all_products": "Products",
+      "filter": "Filter",
+      "view": "View",
+      "view_grid_4": "Grid, four columns",
+      "view_grid_3": "Grid, three columns",
+      "view_grid_2": "Grid, two columns",
+      "view_list": "List view",
+      "sort_by": "Sort by",
+      "sort": {
+        "featured": "Featured",
+        "popular": "Best selling",
+        "newest": "Date, new to old",
+        "price_asc": "Price, low to high",
+        "price_desc": "Price, high to low"
+      },
+      "categories": "Categories",
+      "availability": "Availability",
+      "in_stock": "In stock",
+      "out_of_stock": "Out of stock",
+      "price": "Price",
+      "reset": "Reset",
+      "clear_all": "Clear all",
+      "showing": "Showing {{count}} of {{total}} products",
+      "showing_range": "Showing {{start}} - {{end}} of {{total}} products",
+      "load_more": "Load more items",
+      "prev": "Prev",
+      "next": "Next",
+      "empty_title": "Nothing here yet",
+      "empty_body": "Try clearing a filter or browsing another category."
+    },
+    "product_detail": {
+      "add_to_bag": "Add to bag",
+      "preorder": "Pre-order",
+      "buy_now": "Buy it now",
+      "select_options": "Select options",
+      "quantity": "Quantity:",
+      "available": "Available:",
+      "sku": "SKU:",
+      "tags": "Tags:",
+      "category": "Category:",
+      "view_reviews": "View all reviews",
+      "share": "Share",
+      "share_title": "Share this product",
+      "ask": "Ask a question",
+      "ask_title": "Ask a question",
+      "ask_help": "Tell us what you would like to know and we will reply as soon as we can.",
+      "ask_name": "Your name",
+      "ask_email": "Your email",
+      "ask_message": "Your question",
+      "ask_submit": "Send",
+      "ask_sent": "Thanks, your question is on its way.",
+      "ask_error": "We could not send that. Please try again.",
+      "faq": "FAQ",
+      "benefits_title": "Why buy from us",
+      "flash_sale": "Flash sale",
+      "ends_in": "Ends in:",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Min",
+      "seconds": "Sec",
+      "sold_pct": "{{pct}}% sold - only {{count}} left in stock",
+      "choose": "Choose {{name}}",
+      "tab_description": "Description",
+      "tab_delivery": "Delivery policy",
+      "tab_returns": "Shipping & returns",
+      "related": "You may also like",
+      "recently_viewed": "Recently viewed",
+      "gallery": "Product gallery",
+      "not_found_heading": "Product not found",
+      "not_found_body": "It may have been removed or the link is out of date.",
+      "back_to_shop": "Back to shop"
+    },
+    "footer": {
+      "shop": "Shop",
+      "policies": "Our policies",
+      "help": "Customer care",
+      "contact": "Contact us",
+      "track": "Track an order",
+      "account": "My account",
+      "copyright": "© {{year}} {{name}}. All rights reserved."
+    },
+    "section": {
+      "hero": {
+        "eyebrow": "Skin first",
+        "heading": "Rituals that let your skin breathe",
+        "cta": "Shop now",
+        "prev": "Previous slide",
+        "next": "Next slide"
+      },
+      "category_tiles": {
+        "eyebrow": "Browse",
+        "heading": "Shop by category",
+        "count_one": "{{count}} product",
+        "count_other": "{{count}} products"
+      },
+      "product_grid": {
+        "view_all": "View all"
+      },
+      "split_banner": {
+        "cta": "Shop now"
+      },
+      "video": {
+        "eyebrow": "Behind the label",
+        "heading": "See how a serum is made",
+        "play": "Play video"
+      },
+      "deals": {
+        "cta": "Shop now"
+      },
+      "lookbook": {
+        "add_all": "Add all to cart",
+        "empty": "Add hotspots in the customizer and pick a product for each."
+      },
+      "before_after": {
+        "before": "Before",
+        "after": "After"
+      },
+      "stories": {
+        "read_more": "Read more"
+      }
+    }
+  }
+}
