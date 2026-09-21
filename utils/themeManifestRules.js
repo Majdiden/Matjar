@@ -419,6 +419,29 @@ export function validateSettingValue(def, value, prefix) {
  * Rejects unknown keys (Shopify-style strict contract) and runs
  * per-type validation on known keys.
  */
+/**
+ * Per-language twins: the editor stores an Arabic (or English) variant of a
+ * text setting under `<id>__<lang>` in the same bag; the storefront picks
+ * the twin when browsing in that language (ThemeProvider.resolveI18nSettings).
+ * Only translatable text types get a twin, and the twin is always a string.
+ */
+export const I18N_SETTING_TYPES = new Set(["text", "textarea", "richtext"]);
+export const I18N_SETTING_LANGS = new Set(["en", "ar"]);
+const I18N_TWIN_RE = /^(.+)__([a-z]{2})$/;
+
+/** Base definition for an `<id>__<lang>` key, or null when it is not a valid twin. */
+export function resolveI18nTwin(key, defsById) {
+  const m = I18N_TWIN_RE.exec(key);
+  if (!m || !I18N_SETTING_LANGS.has(m[2])) return null;
+  const base = defsById.get(m[1]);
+  return base && I18N_SETTING_TYPES.has(base.type) ? base : null;
+}
+
+/**
+ * Validate a settings object against a list of setting definitions.
+ * Rejects unknown keys (Shopify-style strict contract) and runs
+ * per-type validation on known keys.
+ */
 export function validateSettingsBag(settings, defs, prefix) {
   const errors = [];
   const defsById = new Map((defs || []).map((d) => [d.id, d]));
@@ -432,6 +455,11 @@ export function validateSettingsBag(settings, defs, prefix) {
   for (const [key, value] of Object.entries(settings)) {
     const def = defsById.get(key);
     if (!def) {
+      const base = resolveI18nTwin(key, defsById);
+      if (base) {
+        if (value != null && typeof value !== "string") errors.push(`${prefix}: setting "${key}" must be a string`);
+        continue;
+      }
       errors.push(`${prefix}: unknown setting "${key}"`);
       continue;
     }

@@ -46,6 +46,9 @@ function toStringValue(raw: unknown): string {
   return '';
 }
 
+/** Manifest option labels are English; the locale dictionary keys them by slug. */
+const optionKey = (label: string) => String(label).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+
 export default function SettingControl({ setting, value, onChange, arValue, onArChange }: SettingControlProps) {
   const { t } = useTranslation('themes');
   const rawValue: unknown = value ?? setting.default ?? '';
@@ -173,7 +176,7 @@ export default function SettingControl({ setting, value, onChange, arValue, onAr
             >
               {(setting.options || []).map((opt) => (
                 <option key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {t(`themes:options.${optionKey(opt.label)}`, { defaultValue: opt.label })}
                 </option>
               ))}
             </select>

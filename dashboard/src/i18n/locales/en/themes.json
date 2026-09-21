@@ -420,25 +420,294 @@
   },
   "sections": {
     "hero": {
-      "name": "Hero Banner"
+      "name": "Hero Banner",
+      "description": "Large hero with heading, subheading, and CTAs"
     },
     "featured-products": {
-      "name": "Featured Products"
+      "name": "Featured Products",
+      "description": "Grid of featured products"
     },
     "new-arrivals": {
-      "name": "New Arrivals"
+      "name": "New Arrivals",
+      "description": "Carousel of recently added products"
     },
     "categories": {
-      "name": "Categories"
+      "name": "Categories",
+      "description": "Category showcase"
     },
     "newsletter": {
-      "name": "Newsletter"
+      "name": "Newsletter",
+      "description": "Email subscription form"
     },
     "trust-badges": {
-      "name": "Trust Badges"
+      "name": "Trust Badges",
+      "description": "Shipping/security/returns highlights"
     },
     "product-recommendations": {
       "name": "You May Also Like"
+    },
+    "philosophy": {
+      "name": "Philosophy",
+      "description": "Brand values section with warm background and three pillar cards"
+    },
+    "artisan-spotlight": {
+      "name": "Maker Spotlight",
+      "description": "Feature individual makers with name, craft, and a personal quote"
+    },
+    "banner": {
+      "name": "Promo Banner",
+      "description": "Slim promotional strip"
+    },
+    "rich-text": {
+      "name": "Rich Text",
+      "description": "Heading + paragraph with optional CTA"
+    },
+    "image-with-text": {
+      "name": "Image with Text",
+      "description": "Split layout: image on one side, content on the other"
+    },
+    "gallery": {
+      "name": "Gallery",
+      "description": "Grid of images"
+    },
+    "features": {
+      "name": "Features",
+      "description": "Icon + title + description grid"
+    },
+    "video": {
+      "name": "Video",
+      "description": "Embedded YouTube/Vimeo video"
+    },
+    "testimonials": {
+      "name": "Testimonials",
+      "description": "Customer quotes grid"
+    },
+    "brands": {
+      "name": "Brand Logos",
+      "description": "Strip of partner / brand logos"
+    },
+    "spacer": {
+      "name": "Spacer",
+      "description": "Vertical breathing room"
+    },
+    "product-details": {
+      "name": "Product Details",
+      "description": "This product's description + specifications"
+    },
+    "product-policies": {
+      "name": "Shipping & Returns",
+      "description": "The store's shipping / returns / COD policies as an accordion"
+    },
+    "aurum-split-hero": {
+      "name": "Split Hero",
+      "description": "Full-bleed two-panel editorial hero with headline and CTA"
+    },
+    "aurum-marquee": {
+      "name": "Press Marquee",
+      "description": "Infinite scrolling strip of serif press wordmarks"
+    },
+    "aurum-spotlight": {
+      "name": "Editorial Spotlight",
+      "description": "Large editorial image beside a single featured product"
+    },
+    "aurum-collection-tabs": {
+      "name": "Shop by Collection",
+      "description": "Underline category tabs over a filtered product grid"
+    },
+    "aurum-editorial": {
+      "name": "Editorial Story",
+      "description": "Centered serif headline with two staggered portrait images"
+    },
+    "aurum-product-rail": {
+      "name": "Product Rail",
+      "description": "Newest products with a view-all link"
+    },
+    "aurum-trust": {
+      "name": "Trust Columns",
+      "description": "Statement heading with three service reassurance columns"
+    },
+    "aurum-collections-showcase": {
+      "name": "Collections Showcase",
+      "description": "Tall category cards with overlaid labels and shop buttons"
+    },
+    "aurum-statement": {
+      "name": "Scroll Statement",
+      "description": "Huge serif statement whose lines brighten as they enter view"
+    },
+    "aurum-gallery": {
+      "name": "Social Gallery",
+      "description": "Square image grid with a social handle button"
+    },
+    "beauxe-top-bar": {
+      "name": "Top Announcement Bar"
+    },
+    "beauxe-hero": {
+      "name": "Model Hero",
+      "description": "Large model photo with serif headline pulled over pink/cream backdrop"
+    },
+    "beauxe-feature-strip": {
+      "name": "Feature Strip",
+      "description": "4-icon strip (free shipping, cruelty-free, vegan, secure payment)"
+    },
+    "beauxe-category-tiles": {
+      "name": "Category Tiles",
+      "description": "Shop by category: 3 pink/cream tiles with product imagery"
+    },
+    "beauxe-product-grid": {
+      "name": "Product Grid"
+    },
+    "beauxe-banner": {
+      "name": "CTA Banner",
+      "description": "Full-width pink banner with serif heading and CTA"
+    },
+    "beauxe-testimonials": {
+      "name": "Testimonials"
+    },
+    "genres": {
+      "name": "Browse by Genre",
+      "description": "Grid of genre category cards with emoji icons and hover effects"
+    },
+    "staff-picks": {
+      "name": "Staff Picks",
+      "description": "Grid of hand-picked products curated by the store team"
+    },
+    "reading-quote": {
+      "name": "Reading Quote",
+      "description": "Inspirational reading quote with subtle violet background"
+    },
+    "bestsellers": {
+      "name": "Bestsellers",
+      "description": "Scrollable carousel of bestselling products"
+    },
+    "collections": {
+      "name": "Collections Grid",
+      "description": "Asymmetric category grid — first item spans two rows for an editorial editorial feel"
+    },
+    "editorial-banner": {
+      "name": "Editorial Banner",
+      "description": "Mid-page full-width visual break with background image, eyebrow, headline, and CTA"
+    },
+    "trust-bar": {
+      "name": "Trust Bar",
+      "description": "Horizontal strip of trust signals — shipping, payment, returns, packaging"
+    },
+    "weekly-deals": {
+      "name": "Weekly Deals Bar",
+      "description": "Urgency strip with heading, subheading, a countdown to Sunday, and a CTA button"
+    },
+    "glowing-top-strip": {
+      "name": "Top Announcement Strip"
+    },
+    "glowing-hero": {
+      "name": "Editorial Hero",
+      "description": "Large serif headline with soft pastel/leaf backdrop and CTA"
+    },
+    "glowing-promo-cards": {
+      "name": "Three Promo Cards",
+      "description": "Row of 3 promo cards (collection / new / offer)"
+    },
+    "glowing-product-grid": {
+      "name": "Product Grid",
+      "description": "Clean grid of products with SALE badges"
+    },
+    "glowing-quote": {
+      "name": "Centered Quote"
+    },
+    "glowing-instagram": {
+      "name": "Instagram Row"
+    },
+    "trending-carousel": {
+      "name": "Trending Now",
+      "description": "Inspiration carousel of trending products"
+    },
+    "shop-by-age": {
+      "name": "Shop by Age",
+      "description": "Age-band picker that links into the catalog with a matching `age` query param"
+    },
+    "milmaa-top-strip": {
+      "name": "Top Strip"
+    },
+    "milmaa-hero": {
+      "name": "Embrace Hero",
+      "description": "Pastel cream hero with serif headline and milk carton imagery"
+    },
+    "milmaa-flavors": {
+      "name": "Flavor Panels",
+      "description": "3 colorful flavor panels (Banana, Badam, Cashewnut)"
+    },
+    "milmaa-product-grid": {
+      "name": "Product Grid"
+    },
+    "milmaa-benefits": {
+      "name": "Health Benefits",
+      "description": "Split image + bullet benefits list"
+    },
+    "milmaa-blog": {
+      "name": "Blog Row"
+    },
+    "milmaa-testimonials": {
+      "name": "Customers Talk"
+    },
+    "milmaa-instagram": {
+      "name": "Instagram Strip"
+    },
+    "promo-banners": {
+      "name": "Promo Banners",
+      "description": "Clickable image banner slideshow for promotions, campaigns and lookbooks"
+    },
+    "nutreko-top-strip": {
+      "name": "Top Info Strip"
+    },
+    "nutreko-hero": {
+      "name": "Power Hero",
+      "description": "Bold black hero with chunky headline and lime CTA"
+    },
+    "nutreko-guarantee": {
+      "name": "Guarantee Panels",
+      "description": "100% AUTHENTIC / MAXIMUM POTENCY / LAB TESTED panels"
+    },
+    "nutreko-category-strip": {
+      "name": "Explore The Range",
+      "description": "Horizontal category pills"
+    },
+    "nutreko-product-grid": {
+      "name": "Product Grid"
+    },
+    "nutreko-banner": {
+      "name": "Promo Banner",
+      "description": "Full-width dark banner with lime accent and CTA"
+    },
+    "cta-banner": {
+      "name": "CTA Banner",
+      "description": "Full-width red call-to-action banner with headline, body copy, and button"
+    },
+    "performance-gear": {
+      "name": "Performance Gear Carousel",
+      "description": "Horizontal carousel showcasing performance-focused products"
+    },
+    "hero-showcase": {
+      "name": "Hero Showcase",
+      "description": "Tripartite hero: category rail + dark product spotlight + flash-deal card"
+    },
+    "features-strip": {
+      "name": "Features Strip",
+      "description": "Three-column service-promise bar (shipping / payment / warranty)"
+    },
+    "promo-banner-grid": {
+      "name": "Promo Banner Grid",
+      "description": "Three equal promo cards with product imagery and CTAs"
+    },
+    "tabbed-product-grid": {
+      "name": "Tabbed Product Grid",
+      "description": "Featured products grid with pill-tab filters"
+    },
+    "category-icons": {
+      "name": "Category Showcase",
+      "description": "Photo tiles for your categories with a heading and \"View all\" link"
+    },
+    "category-sidebar": {
+      "name": "Category Sidebar",
+      "description": "Vertical category nav with live product preview panel"
     }
   },
   "settings": {
@@ -462,6 +731,613 @@
     },
     "image": {
       "label": "Image"
+    },
+    "eyebrow_text": {
+      "label": "Eyebrow Text"
+    },
+    "heading_line1": {
+      "label": "Heading Line 1"
+    },
+    "heading_line2": {
+      "label": "Heading Line 2"
+    },
+    "primary_button_text": {
+      "label": "Primary Button Text"
+    },
+    "primary_button_url": {
+      "label": "Primary Button URL"
+    },
+    "secondary_button_text": {
+      "label": "Secondary Button Text"
+    },
+    "secondary_button_url": {
+      "label": "Secondary Button URL"
+    },
+    "body_text": {
+      "label": "Body Text"
+    },
+    "show_dividers": {
+      "label": "Show Decorative Dividers"
+    },
+    "product_limit": {
+      "label": "Number of Products"
+    },
+    "show_rating": {
+      "label": "Show Rating"
+    },
+    "show_quick_view": {
+      "label": "Show Quick View"
+    },
+    "show_add_to_cart": {
+      "label": "Show Add to Cart"
+    },
+    "add_to_cart_text": {
+      "label": "Add to Cart Button Text"
+    },
+    "view_all_text": {
+      "label": "View All Button Text"
+    },
+    "view_all_url": {
+      "label": "View All URL"
+    },
+    "name": {
+      "label": "Name"
+    },
+    "craft": {
+      "label": "Craft"
+    },
+    "quote": {
+      "label": "Quote"
+    },
+    "max_categories": {
+      "label": "Max Categories"
+    },
+    "show_product_count": {
+      "label": "Show Product Count"
+    },
+    "product_count_label": {
+      "label": "Product Count Label"
+    },
+    "autoplay": {
+      "label": "Auto-play Carousel"
+    },
+    "placeholder": {
+      "label": "Input Placeholder"
+    },
+    "disclaimer": {
+      "label": "Disclaimer Text"
+    },
+    "message": {
+      "label": "Message"
+    },
+    "link_text": {
+      "label": "Link Text"
+    },
+    "link_url": {
+      "label": "Link URL"
+    },
+    "background_color": {
+      "label": "Background"
+    },
+    "text_color": {
+      "label": "Text Color"
+    },
+    "body": {
+      "label": "Body"
+    },
+    "button_url": {
+      "label": "Button URL"
+    },
+    "padding_top": {
+      "label": "Padding Top"
+    },
+    "padding_bottom": {
+      "label": "Padding Bottom"
+    },
+    "eyebrow": {
+      "label": "Eyebrow"
+    },
+    "layout": {
+      "label": "Layout"
+    },
+    "columns": {
+      "label": "Columns"
+    },
+    "alt": {
+      "label": "Alt Text"
+    },
+    "link": {
+      "label": "Link (optional)"
+    },
+    "icon": {
+      "label": "Icon (emoji or letter)"
+    },
+    "video_url": {
+      "label": "Video URL"
+    },
+    "author": {
+      "label": "Author"
+    },
+    "role": {
+      "label": "Role / Location"
+    },
+    "avatar": {
+      "label": "Avatar (optional)"
+    },
+    "height": {
+      "label": "Height (px)"
+    },
+    "show_description": {
+      "label": "Show Description"
+    },
+    "show_specs": {
+      "label": "Show Specifications"
+    },
+    "specs_heading": {
+      "label": "Specifications Heading"
+    },
+    "show_announcement_bar": {
+      "label": "Show Announcement Bar"
+    },
+    "announcement_text": {
+      "label": "Announcement Text"
+    },
+    "announcement_bg": {
+      "label": "Announcement Background"
+    },
+    "enable_quick_view": {
+      "label": "Enable Quick View"
+    },
+    "border_radius": {
+      "label": "Border Radius"
+    },
+    "cta_text": {
+      "label": "CTA Text"
+    },
+    "cta_url": {
+      "label": "CTA URL"
+    },
+    "image_left": {
+      "label": "Left Image"
+    },
+    "image_right": {
+      "label": "Right Image"
+    },
+    "show": {
+      "label": "Show press strip"
+    },
+    "show_label": {
+      "label": "Show label above logos"
+    },
+    "label": {
+      "label": "Label text"
+    },
+    "items": {
+      "label": "Press names (comma separated)"
+    },
+    "speed": {
+      "label": "Scroll duration"
+    },
+    "image_1": {
+      "label": "First Image"
+    },
+    "image_2": {
+      "label": "Second Image"
+    },
+    "source": {
+      "label": "Source"
+    },
+    "text": {
+      "label": "Text"
+    },
+    "image_3": {
+      "label": "Fallback Image 3"
+    },
+    "image_4": {
+      "label": "Fallback Image 4"
+    },
+    "handle": {
+      "label": "Handle button text"
+    },
+    "handle_url": {
+      "label": "Handle URL"
+    },
+    "badge_text": {
+      "label": "Badge Text"
+    },
+    "background_image": {
+      "label": "Background Image"
+    },
+    "overlay_opacity": {
+      "label": "Overlay Opacity"
+    },
+    "use_gradient": {
+      "label": "Use Theme Gradient"
+    },
+    "subtitle": {
+      "label": "Subtitle"
+    },
+    "background": {
+      "label": "Background"
+    },
+    "product_tile_bg_1": {
+      "label": "Product tile background 1"
+    },
+    "product_tile_bg_2": {
+      "label": "Product tile background 2"
+    },
+    "product_tile_bg_3": {
+      "label": "Product tile background 3"
+    },
+    "product_tile_bg_4": {
+      "label": "Product tile background 4"
+    },
+    "product_tile_bg_5": {
+      "label": "Product tile background 5"
+    },
+    "gradient_from": {
+      "label": "Gradient From"
+    },
+    "gradient_via": {
+      "label": "Gradient Via"
+    },
+    "gradient_to": {
+      "label": "Gradient To"
+    },
+    "quote_text": {
+      "label": "Quote Text"
+    },
+    "quote_author": {
+      "label": "Quote Author"
+    },
+    "show_arrows": {
+      "label": "Show Arrows"
+    },
+    "show_dots": {
+      "label": "Show Dots"
+    },
+    "image_brightness": {
+      "label": "Image Brightness"
+    },
+    "section_height": {
+      "label": "Section Height"
+    },
+    "min_height": {
+      "label": "Minimum Height (px)"
+    },
+    "hover_label": {
+      "label": "Hover Label"
+    },
+    "show_category_names": {
+      "label": "Show Category Names"
+    },
+    "show_badge": {
+      "label": "Show Sale / New Badge"
+    },
+    "enable_hover_swap": {
+      "label": "Enable Hover Image Swap"
+    },
+    "animate_on_scroll": {
+      "label": "Fade In on Scroll"
+    },
+    "image_opacity": {
+      "label": "Image Opacity"
+    },
+    "slides_per_view": {
+      "label": "Slides Visible at Once"
+    },
+    "loop": {
+      "label": "Loop Carousel"
+    },
+    "show_section": {
+      "label": "Show Section"
+    },
+    "border_top": {
+      "label": "Show Top Border"
+    },
+    "border_bottom": {
+      "label": "Show Bottom Border"
+    },
+    "announcement_text_color": {
+      "label": "Announcement Text Color"
+    },
+    "gold_accent_color": {
+      "label": "Gold Accent Color"
+    },
+    "card_border_radius": {
+      "label": "Card Border Radius"
+    },
+    "hero_emoji": {
+      "label": "Hero Icon"
+    },
+    "badge_label": {
+      "label": "Badge Label"
+    },
+    "cta_label": {
+      "label": "CTA Label"
+    },
+    "tile_background_color": {
+      "label": "Tile Background Color"
+    },
+    "tile_hover_color": {
+      "label": "Tile Hover Color"
+    },
+    "min_products_to_show": {
+      "label": "Minimum Products Required to Show"
+    },
+    "warm_tile_color": {
+      "label": "Warm Tile Color"
+    },
+    "button_color": {
+      "label": "Button Color"
+    },
+    "heading_highlight": {
+      "label": "Heading Highlight Word"
+    },
+    "letter": {
+      "label": "Letter"
+    },
+    "highlight_color": {
+      "label": "Card Hover Border Color"
+    },
+    "button_text_color": {
+      "label": "Button Text Color"
+    },
+    "excerpt": {
+      "label": "Excerpt"
+    },
+    "date": {
+      "label": "Date"
+    },
+    "product_tile_fg_1": {
+      "label": "Product Tile Foreground 1"
+    },
+    "product_tile_fg_2": {
+      "label": "Product Tile Foreground 2"
+    },
+    "product_tile_fg_3": {
+      "label": "Product Tile Foreground 3"
+    },
+    "product_tile_fg_4": {
+      "label": "Product Tile Foreground 4"
+    },
+    "product_tile_fg_5": {
+      "label": "Product Tile Foreground 5"
+    },
+    "show_sale_slide": {
+      "label": "Show Sale Slide"
+    },
+    "sale_heading": {
+      "label": "Sale Heading"
+    },
+    "sale_subheading": {
+      "label": "Sale Subheading"
+    },
+    "sale_button_text": {
+      "label": "Sale Button Text"
+    },
+    "sale_button_url": {
+      "label": "Sale Button URL"
+    },
+    "show_countdown": {
+      "label": "Show Countdown Timer"
+    },
+    "countdown_days": {
+      "label": "Countdown Days"
+    },
+    "card_aspect": {
+      "label": "Tile Shape"
+    },
+    "card_overlay": {
+      "label": "Text Over Image"
+    },
+    "heading_alignment": {
+      "label": "Heading Alignment"
+    },
+    "accent_color": {
+      "label": "Icon Accent Color"
+    },
+    "autoplay_interval": {
+      "label": "Auto-play Interval"
+    },
+    "aspect_ratio": {
+      "label": "Banner Shape"
+    },
+    "rounded": {
+      "label": "Rounded Corners"
+    },
+    "align": {
+      "label": "Text Alignment"
+    },
+    "enable_compare": {
+      "label": "Enable Product Compare"
+    },
+    "secondary_cta_text": {
+      "label": "Secondary CTA"
+    },
+    "show_diagonal_accent": {
+      "label": "Show Diagonal Accent"
+    },
+    "show_bottom_bar": {
+      "label": "Show Bottom Red Bar"
+    },
+    "card_height": {
+      "label": "Card Height (px)"
+    },
+    "show_shop_now_label": {
+      "label": "Show \"Shop Now\" on Hover"
+    },
+    "shop_now_text": {
+      "label": "\"Shop Now\" Label Text"
+    },
+    "button_bg_color": {
+      "label": "Button Background Color"
+    },
+    "pause_on_hover": {
+      "label": "Pause on Hover"
+    },
+    "uppercase_headings": {
+      "label": "Uppercase Headings"
+    },
+    "sidebar_heading": {
+      "label": "Sidebar Heading"
+    },
+    "show_top_strip": {
+      "label": "Show Top Strip"
+    },
+    "hotline_label": {
+      "label": "Hotline Label"
+    },
+    "hotline_phone": {
+      "label": "Hotline Phone"
+    },
+    "shipping_strip": {
+      "label": "Shipping Strip"
+    },
+    "flash_deal_label": {
+      "label": "Flash Deal Label"
+    },
+    "flash_enabled": {
+      "label": "Show Flash Deal"
+    },
+    "flash_source": {
+      "label": "Flash Deal Source"
+    },
+    "product_source": {
+      "label": "Spotlight Source"
+    },
+    "slide_count": {
+      "label": "Spotlight Slides"
+    },
+    "show_view_all": {
+      "label": "Show \"View All\" Link"
+    },
+    "color_mode": {
+      "label": "Color Mode"
+    },
+    "home_variant": {
+      "label": "Home Layout"
     }
+  },
+  "blocks": {
+    "maker": {
+      "name": "Maker"
+    },
+    "image": {
+      "name": "Image"
+    },
+    "feature": {
+      "name": "Feature"
+    },
+    "testimonial": {
+      "name": "Testimonial"
+    },
+    "column": {
+      "name": "Trust Column"
+    },
+    "tile": {
+      "name": "Custom Tile"
+    },
+    "quote": {
+      "name": "Quote"
+    },
+    "genre": {
+      "name": "Genre"
+    },
+    "trust-item": {
+      "name": "Trust Item"
+    },
+    "badge": {
+      "name": "Badge"
+    },
+    "card": {
+      "name": "Promo Card"
+    },
+    "pillar": {
+      "name": "Pillar"
+    },
+    "category-bubble": {
+      "name": "Category Bubble"
+    },
+    "age-group": {
+      "name": "Age Group"
+    },
+    "flavor": {
+      "name": "Flavor"
+    },
+    "benefit": {
+      "name": "Benefit"
+    },
+    "post": {
+      "name": "Post"
+    },
+    "slide": {
+      "name": "Banner Slide"
+    },
+    "panel": {
+      "name": "Guarantee"
+    },
+    "category": {
+      "name": "Category"
+    },
+    "promo": {
+      "name": "Promo Tile"
+    }
+  },
+  "options": {
+    "3": "3",
+    "4": "4",
+    "image_left": "Image Left",
+    "image_right": "Image Right",
+    "newest": "Newest",
+    "featured": "Featured",
+    "popular": "Popular",
+    "returns": "Returns",
+    "shipping": "Shipping",
+    "support": "Support",
+    "2_columns": "2 Columns",
+    "3_columns": "3 Columns",
+    "4_columns": "4 Columns",
+    "truck": "Truck",
+    "leaf": "Leaf",
+    "heart": "Heart",
+    "shield": "Shield",
+    "short_50vh": "Short (50vh)",
+    "medium_70vh": "Medium (70vh)",
+    "tall_90vh": "Tall (90vh)",
+    "full_screen": "Full Screen",
+    "short_40vh": "Short (40vh)",
+    "medium_50vh": "Medium (50vh)",
+    "tall_65vh": "Tall (65vh)",
+    "editorial_feature_tile": "Editorial (feature tile)",
+    "uniform_grid": "Uniform grid",
+    "carousel_rail": "Carousel rail",
+    "5_columns": "5 Columns",
+    "6_columns": "6 Columns",
+    "portrait_4_5": "Portrait (4:5)",
+    "square_1_1": "Square (1:1)",
+    "tall_3_4": "Tall (3:4)",
+    "wide_16_9": "Wide (16:9)",
+    "center": "Center",
+    "start": "Start",
+    "lock": "Lock",
+    "return": "Return",
+    "tall_16_9": "Tall (16:9)",
+    "standard_21_9": "Standard (21:9)",
+    "slim_3_1": "Slim (3:1)",
+    "end": "End",
+    "lightning_fast_delivery": "Lightning / Fast Delivery",
+    "pro_badge_certified": "Pro Badge / Certified",
+    "on_sale": "On sale",
+    "newest_arrivals": "Newest arrivals",
+    "featured_products": "Featured products",
+    "headset": "Headset",
+    "refresh": "Refresh",
+    "card": "Card",
+    "light": "Light",
+    "dark": "Dark",
+    "showcase_flagship_tripartite_hero": "Showcase — flagship tripartite hero",
+    "mega_catalog_first_with_sidebar_nav": "Mega — catalog-first with sidebar nav",
+    "editorial_promo_led_magazine_layout": "Editorial — promo-led magazine layout"
   }
 }

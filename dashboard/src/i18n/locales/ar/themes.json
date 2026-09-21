@@ -423,25 +423,294 @@
   },
   "sections": {
     "hero": {
-      "name": "بانر الرئيسي"
+      "name": "لافتة الواجهة",
+      "description": "واجهة كبيرة بعنوان وعنوان فرعي وأزرار إجراء"
     },
     "featured-products": {
-      "name": "المنتجات المميزة"
+      "name": "منتجات مميزة",
+      "description": "شبكة المنتجات المميزة"
     },
     "new-arrivals": {
-      "name": "وصل حديثًا"
+      "name": "وصل حديثاً",
+      "description": "عرض دوّار لأحدث المنتجات"
     },
     "categories": {
-      "name": "الفئات"
+      "name": "شبكة الفئات",
+      "description": "عرض الفئات"
     },
     "newsletter": {
-      "name": "النشرة البريدية"
+      "name": "الاشتراك في النشرة",
+      "description": "نموذج اشتراك بالبريد"
     },
     "trust-badges": {
-      "name": "شارات الثقة"
+      "name": "شارات الثقة",
+      "description": "مزايا الشحن والأمان والإرجاع"
     },
     "product-recommendations": {
       "name": "قد يعجبك أيضًا"
+    },
+    "philosophy": {
+      "name": "الفلسفة",
+      "description": "قسم قيم العلامة بخلفية دافئة وثلاث بطاقات ركائز"
+    },
+    "artisan-spotlight": {
+      "name": "تسليط الضوء على الحرفيين",
+      "description": "عرض حرفيين بالاسم والحرفة واقتباس شخصي"
+    },
+    "banner": {
+      "name": "لافتة ترويجية",
+      "description": "شريط ترويجي نحيف"
+    },
+    "rich-text": {
+      "name": "نص منسّق",
+      "description": "عنوان وفقرة مع زر إجراء اختياري"
+    },
+    "image-with-text": {
+      "name": "صورة مع نص",
+      "description": "تخطيط مقسوم: صورة في جهة ومحتوى في الأخرى"
+    },
+    "gallery": {
+      "name": "معرض الصور",
+      "description": "شبكة صور"
+    },
+    "features": {
+      "name": "المزايا",
+      "description": "شبكة أيقونة وعنوان ووصف"
+    },
+    "video": {
+      "name": "فيديو",
+      "description": "فيديو مضمّن من يوتيوب أو فيميو"
+    },
+    "testimonials": {
+      "name": "آراء العملاء",
+      "description": "شبكة اقتباسات العملاء"
+    },
+    "brands": {
+      "name": "شعارات العلامات",
+      "description": "شريط شعارات الشركاء والعلامات"
+    },
+    "spacer": {
+      "name": "فاصل",
+      "description": "مسافة رأسية للتنفس"
+    },
+    "product-details": {
+      "name": "تفاصيل المنتج",
+      "description": "وصف هذا المنتج ومواصفاته"
+    },
+    "product-policies": {
+      "name": "الشحن والإرجاع",
+      "description": "سياسات الشحن والإرجاع والدفع عند الاستلام كقائمة قابلة للطي"
+    },
+    "aurum-split-hero": {
+      "name": "واجهة مقسومة",
+      "description": "واجهة تحريرية بلوحتين مع عنوان وزر إجراء"
+    },
+    "aurum-marquee": {
+      "name": "شريط الصحافة",
+      "description": "شريط متحرك بلا نهاية لأسماء الصحف"
+    },
+    "aurum-spotlight": {
+      "name": "إبراز تحريري",
+      "description": "صورة تحريرية كبيرة بجانب منتج مميز واحد"
+    },
+    "aurum-collection-tabs": {
+      "name": "تسوق حسب المجموعة",
+      "description": "تبويبات فئات فوق شبكة منتجات مصفّاة"
+    },
+    "aurum-editorial": {
+      "name": "قصة تحريرية",
+      "description": "عنوان مركزي مع صورتين عموديتين متدرجتين"
+    },
+    "aurum-product-rail": {
+      "name": "شريط المنتجات",
+      "description": "أحدث المنتجات مع رابط عرض الكل"
+    },
+    "aurum-trust": {
+      "name": "أعمدة الثقة",
+      "description": "عنوان تصريحي مع ثلاثة أعمدة طمأنة"
+    },
+    "aurum-collections-showcase": {
+      "name": "عرض المجموعات",
+      "description": "بطاقات فئات طويلة بتسميات وأزرار تسوق"
+    },
+    "aurum-statement": {
+      "name": "تصريح متدرج",
+      "description": "عبارة ضخمة تضيء سطورها أثناء التمرير"
+    },
+    "aurum-gallery": {
+      "name": "معرض اجتماعي",
+      "description": "شبكة صور مربعة مع زر الحساب الاجتماعي"
+    },
+    "beauxe-top-bar": {
+      "name": "شريط الإعلان العلوي"
+    },
+    "beauxe-hero": {
+      "name": "واجهة العارضة",
+      "description": "صورة عارضة كبيرة مع عنوان فوق خلفية وردية/كريمية"
+    },
+    "beauxe-feature-strip": {
+      "name": "شريط المزايا",
+      "description": "شريط بأربع أيقونات (شحن مجاني، بلا قسوة، نباتي، دفع آمن)"
+    },
+    "beauxe-category-tiles": {
+      "name": "بطاقات الفئات",
+      "description": "تسوق حسب الفئة: 3 بطاقات وردية/كريمية بصور المنتجات"
+    },
+    "beauxe-product-grid": {
+      "name": "شبكة المنتجات"
+    },
+    "beauxe-banner": {
+      "name": "لافتة إجراء",
+      "description": "لافتة وردية بعرض كامل مع عنوان وزر إجراء"
+    },
+    "beauxe-testimonials": {
+      "name": "آراء العملاء"
+    },
+    "genres": {
+      "name": "تصفح حسب النوع",
+      "description": "شبكة بطاقات أنواع بأيقونات تعبيرية وتأثيرات تمرير"
+    },
+    "staff-picks": {
+      "name": "اختيارات الفريق",
+      "description": "شبكة منتجات مختارة يدوياً من فريق المتجر"
+    },
+    "reading-quote": {
+      "name": "اقتباس القراءة",
+      "description": "اقتباس ملهم عن القراءة بخلفية بنفسجية خفيفة"
+    },
+    "bestsellers": {
+      "name": "الأكثر مبيعاً",
+      "description": "عرض دوّار للمنتجات الأكثر مبيعاً"
+    },
+    "collections": {
+      "name": "شبكة المجموعات",
+      "description": "شبكة فئات غير متماثلة – العنصر الأول يمتد على صفين"
+    },
+    "editorial-banner": {
+      "name": "لافتة تحريرية",
+      "description": "فاصل بصري بعرض كامل مع صورة خلفية وعنوان تمهيدي وعنوان وزر"
+    },
+    "trust-bar": {
+      "name": "شريط الثقة",
+      "description": "شريط أفقي لإشارات الثقة – الشحن والدفع والإرجاع والتغليف"
+    },
+    "weekly-deals": {
+      "name": "شريط عروض الأسبوع",
+      "description": "شريط استعجال بعنوان وعنوان فرعي وعد تنازلي وزر"
+    },
+    "glowing-top-strip": {
+      "name": "الشريط العلوي للإعلان"
+    },
+    "glowing-hero": {
+      "name": "واجهة تحريرية",
+      "description": "عنوان كبير مع خلفية باستيل ناعمة وزر إجراء"
+    },
+    "glowing-promo-cards": {
+      "name": "ثلاث بطاقات ترويجية",
+      "description": "صف من 3 بطاقات (مجموعة / جديد / عرض)"
+    },
+    "glowing-product-grid": {
+      "name": "شبكة المنتجات",
+      "description": "شبكة نظيفة للمنتجات مع شارات التخفيض"
+    },
+    "glowing-quote": {
+      "name": "اقتباس مركزي"
+    },
+    "glowing-instagram": {
+      "name": "صف إنستغرام"
+    },
+    "trending-carousel": {
+      "name": "الرائج الآن",
+      "description": "عرض دوّار للمنتجات الرائجة"
+    },
+    "shop-by-age": {
+      "name": "تسوق حسب العمر",
+      "description": "اختيار فئة عمرية يوجّه إلى الكتالوج"
+    },
+    "milmaa-top-strip": {
+      "name": "الشريط العلوي"
+    },
+    "milmaa-hero": {
+      "name": "واجهة ترحيبية",
+      "description": "واجهة كريمية بعنوان وصور عبوات الحليب"
+    },
+    "milmaa-flavors": {
+      "name": "لوحات النكهات",
+      "description": "3 لوحات نكهات ملونة"
+    },
+    "milmaa-product-grid": {
+      "name": "شبكة المنتجات"
+    },
+    "milmaa-benefits": {
+      "name": "الفوائد الصحية",
+      "description": "صورة مع قائمة فوائد"
+    },
+    "milmaa-blog": {
+      "name": "صف المدونة"
+    },
+    "milmaa-testimonials": {
+      "name": "آراء العملاء"
+    },
+    "milmaa-instagram": {
+      "name": "شريط إنستغرام"
+    },
+    "promo-banners": {
+      "name": "لافتات ترويجية",
+      "description": "عرض شرائح لافتات قابلة للنقر للحملات والعروض"
+    },
+    "nutreko-top-strip": {
+      "name": "شريط المعلومات العلوي"
+    },
+    "nutreko-hero": {
+      "name": "واجهة القوة",
+      "description": "واجهة سوداء جريئة بعنوان ضخم وزر ليموني"
+    },
+    "nutreko-guarantee": {
+      "name": "لوحات الضمان",
+      "description": "لوحات أصلي 100% / أقصى فعالية / مختبر معملياً"
+    },
+    "nutreko-category-strip": {
+      "name": "استكشف التشكيلة",
+      "description": "أزرار فئات أفقية"
+    },
+    "nutreko-product-grid": {
+      "name": "شبكة المنتجات"
+    },
+    "nutreko-banner": {
+      "name": "لافتة ترويجية",
+      "description": "لافتة داكنة بعرض كامل مع لمسة ليمونية وزر إجراء"
+    },
+    "cta-banner": {
+      "name": "لافتة إجراء",
+      "description": "لافتة حمراء بعرض كامل مع عنوان ونص وزر"
+    },
+    "performance-gear": {
+      "name": "عرض معدات الأداء",
+      "description": "عرض دوّار أفقي لمنتجات الأداء"
+    },
+    "hero-showcase": {
+      "name": "واجهة العرض",
+      "description": "واجهة ثلاثية: شريط فئات + منتج مميز + بطاقة عرض خاطف"
+    },
+    "features-strip": {
+      "name": "شريط المزايا",
+      "description": "شريط وعود الخدمة بثلاثة أعمدة (الشحن / الدفع / الضمان)"
+    },
+    "promo-banner-grid": {
+      "name": "شبكة اللافتات الترويجية",
+      "description": "ثلاث بطاقات ترويجية متساوية بصور منتجات وأزرار"
+    },
+    "tabbed-product-grid": {
+      "name": "شبكة منتجات بتبويبات",
+      "description": "شبكة منتجات مميزة مع تبويبات تصفية"
+    },
+    "category-icons": {
+      "name": "عرض الفئات",
+      "description": "بطاقات مصورة لفئاتك مع عنوان ورابط عرض الكل"
+    },
+    "category-sidebar": {
+      "name": "الشريط الجانبي للفئات",
+      "description": "تصفح فئات عمودي مع لوحة معاينة منتجات"
     }
   },
   "settings": {
@@ -464,7 +733,614 @@
       "label": "رابط الزر"
     },
     "image": {
-      "label": "صورة"
+      "label": "الصورة"
+    },
+    "eyebrow_text": {
+      "label": "نص العنوان التمهيدي"
+    },
+    "heading_line1": {
+      "label": "العنوان – السطر الأول"
+    },
+    "heading_line2": {
+      "label": "العنوان – السطر الثاني"
+    },
+    "primary_button_text": {
+      "label": "نص الزر الرئيسي"
+    },
+    "primary_button_url": {
+      "label": "رابط الزر الرئيسي"
+    },
+    "secondary_button_text": {
+      "label": "نص الزر الثانوي"
+    },
+    "secondary_button_url": {
+      "label": "رابط الزر الثانوي"
+    },
+    "body_text": {
+      "label": "نص المحتوى"
+    },
+    "show_dividers": {
+      "label": "إظهار الفواصل الزخرفية"
+    },
+    "product_limit": {
+      "label": "عدد المنتجات"
+    },
+    "show_rating": {
+      "label": "إظهار التقييم"
+    },
+    "show_quick_view": {
+      "label": "إظهار المعاينة السريعة"
+    },
+    "show_add_to_cart": {
+      "label": "إظهار زر الإضافة للسلة"
+    },
+    "add_to_cart_text": {
+      "label": "نص زر الإضافة للسلة"
+    },
+    "view_all_text": {
+      "label": "نص زر «عرض الكل»"
+    },
+    "view_all_url": {
+      "label": "رابط «عرض الكل»"
+    },
+    "name": {
+      "label": "الاسم"
+    },
+    "craft": {
+      "label": "الحرفة"
+    },
+    "quote": {
+      "label": "الاقتباس"
+    },
+    "max_categories": {
+      "label": "الحد الأقصى للفئات"
+    },
+    "show_product_count": {
+      "label": "إظهار عدد المنتجات"
+    },
+    "product_count_label": {
+      "label": "تسمية عدد المنتجات"
+    },
+    "autoplay": {
+      "label": "تشغيل تلقائي للعرض"
+    },
+    "placeholder": {
+      "label": "نص الحقل الإرشادي"
+    },
+    "disclaimer": {
+      "label": "نص إخلاء المسؤولية"
+    },
+    "message": {
+      "label": "الرسالة"
+    },
+    "link_text": {
+      "label": "نص الرابط"
+    },
+    "link_url": {
+      "label": "عنوان الرابط"
+    },
+    "background_color": {
+      "label": "لون الخلفية"
+    },
+    "text_color": {
+      "label": "لون النص"
+    },
+    "body": {
+      "label": "المحتوى"
+    },
+    "button_url": {
+      "label": "رابط الزر"
+    },
+    "padding_top": {
+      "label": "الهامش العلوي"
+    },
+    "padding_bottom": {
+      "label": "الهامش السفلي"
+    },
+    "eyebrow": {
+      "label": "العنوان التمهيدي"
+    },
+    "layout": {
+      "label": "التخطيط"
+    },
+    "columns": {
+      "label": "الأعمدة"
+    },
+    "alt": {
+      "label": "النص البديل"
+    },
+    "link": {
+      "label": "الرابط (اختياري)"
+    },
+    "icon": {
+      "label": "الأيقونة (رمز تعبيري أو حرف)"
+    },
+    "video_url": {
+      "label": "رابط الفيديو"
+    },
+    "author": {
+      "label": "الكاتب"
+    },
+    "role": {
+      "label": "الدور / الموقع"
+    },
+    "avatar": {
+      "label": "الصورة الشخصية (اختياري)"
+    },
+    "height": {
+      "label": "الارتفاع (بكسل)"
+    },
+    "show_description": {
+      "label": "إظهار الوصف"
+    },
+    "show_specs": {
+      "label": "إظهار المواصفات"
+    },
+    "specs_heading": {
+      "label": "عنوان المواصفات"
+    },
+    "show_announcement_bar": {
+      "label": "إظهار شريط الإعلان"
+    },
+    "announcement_text": {
+      "label": "نص الإعلان"
+    },
+    "announcement_bg": {
+      "label": "خلفية الإعلان"
+    },
+    "enable_quick_view": {
+      "label": "تفعيل المعاينة السريعة"
+    },
+    "border_radius": {
+      "label": "استدارة الحواف"
+    },
+    "cta_text": {
+      "label": "نص زر الإجراء"
+    },
+    "cta_url": {
+      "label": "رابط زر الإجراء"
+    },
+    "image_left": {
+      "label": "الصورة اليسرى"
+    },
+    "image_right": {
+      "label": "الصورة اليمنى"
+    },
+    "show": {
+      "label": "إظهار شريط الصحافة"
+    },
+    "show_label": {
+      "label": "إظهار تسمية فوق الشعارات"
+    },
+    "label": {
+      "label": "نص التسمية"
+    },
+    "items": {
+      "label": "أسماء الصحف (مفصولة بفواصل)"
+    },
+    "speed": {
+      "label": "مدة التمرير"
+    },
+    "image_1": {
+      "label": "الصورة الأولى"
+    },
+    "image_2": {
+      "label": "الصورة الثانية"
+    },
+    "source": {
+      "label": "المصدر"
+    },
+    "text": {
+      "label": "النص"
+    },
+    "image_3": {
+      "label": "الصورة الاحتياطية 3"
+    },
+    "image_4": {
+      "label": "الصورة الاحتياطية 4"
+    },
+    "handle": {
+      "label": "نص زر الحساب"
+    },
+    "handle_url": {
+      "label": "رابط الحساب"
+    },
+    "badge_text": {
+      "label": "نص الشارة"
+    },
+    "background_image": {
+      "label": "صورة الخلفية"
+    },
+    "overlay_opacity": {
+      "label": "شفافية الطبقة"
+    },
+    "use_gradient": {
+      "label": "استخدام تدرج القالب"
+    },
+    "subtitle": {
+      "label": "العنوان الفرعي"
+    },
+    "background": {
+      "label": "الخلفية"
+    },
+    "product_tile_bg_1": {
+      "label": "خلفية بطاقة المنتج 1"
+    },
+    "product_tile_bg_2": {
+      "label": "خلفية بطاقة المنتج 2"
+    },
+    "product_tile_bg_3": {
+      "label": "خلفية بطاقة المنتج 3"
+    },
+    "product_tile_bg_4": {
+      "label": "خلفية بطاقة المنتج 4"
+    },
+    "product_tile_bg_5": {
+      "label": "خلفية بطاقة المنتج 5"
+    },
+    "gradient_from": {
+      "label": "بداية التدرج"
+    },
+    "gradient_via": {
+      "label": "وسط التدرج"
+    },
+    "gradient_to": {
+      "label": "نهاية التدرج"
+    },
+    "quote_text": {
+      "label": "نص الاقتباس"
+    },
+    "quote_author": {
+      "label": "صاحب الاقتباس"
+    },
+    "show_arrows": {
+      "label": "إظهار الأسهم"
+    },
+    "show_dots": {
+      "label": "إظهار النقاط"
+    },
+    "image_brightness": {
+      "label": "سطوع الصورة"
+    },
+    "section_height": {
+      "label": "ارتفاع القسم"
+    },
+    "min_height": {
+      "label": "الحد الأدنى للارتفاع (بكسل)"
+    },
+    "hover_label": {
+      "label": "تسمية عند التمرير"
+    },
+    "show_category_names": {
+      "label": "إظهار أسماء الفئات"
+    },
+    "show_badge": {
+      "label": "إظهار شارة التخفيض / الجديد"
+    },
+    "enable_hover_swap": {
+      "label": "تبديل الصورة عند التمرير"
+    },
+    "animate_on_scroll": {
+      "label": "ظهور تدريجي عند التمرير"
+    },
+    "image_opacity": {
+      "label": "شفافية الصورة"
+    },
+    "slides_per_view": {
+      "label": "عدد الشرائح الظاهرة"
+    },
+    "loop": {
+      "label": "تكرار العرض"
+    },
+    "show_section": {
+      "label": "إظهار القسم"
+    },
+    "border_top": {
+      "label": "إظهار حد علوي"
+    },
+    "border_bottom": {
+      "label": "إظهار حد سفلي"
+    },
+    "announcement_text_color": {
+      "label": "لون نص الإعلان"
+    },
+    "gold_accent_color": {
+      "label": "لون اللمسة الذهبية"
+    },
+    "card_border_radius": {
+      "label": "استدارة حواف البطاقة"
+    },
+    "hero_emoji": {
+      "label": "أيقونة الواجهة"
+    },
+    "badge_label": {
+      "label": "تسمية الشارة"
+    },
+    "cta_label": {
+      "label": "تسمية زر الإجراء"
+    },
+    "tile_background_color": {
+      "label": "لون خلفية البطاقة"
+    },
+    "tile_hover_color": {
+      "label": "لون البطاقة عند التمرير"
+    },
+    "min_products_to_show": {
+      "label": "الحد الأدنى من المنتجات للعرض"
+    },
+    "warm_tile_color": {
+      "label": "لون البطاقة الدافئ"
+    },
+    "button_color": {
+      "label": "لون الزر"
+    },
+    "heading_highlight": {
+      "label": "الكلمة المميزة في العنوان"
+    },
+    "letter": {
+      "label": "الحرف"
+    },
+    "highlight_color": {
+      "label": "لون حد البطاقة عند التمرير"
+    },
+    "button_text_color": {
+      "label": "لون نص الزر"
+    },
+    "excerpt": {
+      "label": "المقتطف"
+    },
+    "date": {
+      "label": "التاريخ"
+    },
+    "product_tile_fg_1": {
+      "label": "لون مقدمة بطاقة المنتج 1"
+    },
+    "product_tile_fg_2": {
+      "label": "لون مقدمة بطاقة المنتج 2"
+    },
+    "product_tile_fg_3": {
+      "label": "لون مقدمة بطاقة المنتج 3"
+    },
+    "product_tile_fg_4": {
+      "label": "لون مقدمة بطاقة المنتج 4"
+    },
+    "product_tile_fg_5": {
+      "label": "لون مقدمة بطاقة المنتج 5"
+    },
+    "show_sale_slide": {
+      "label": "إظهار شريحة التخفيضات"
+    },
+    "sale_heading": {
+      "label": "عنوان التخفيضات"
+    },
+    "sale_subheading": {
+      "label": "العنوان الفرعي للتخفيضات"
+    },
+    "sale_button_text": {
+      "label": "نص زر التخفيضات"
+    },
+    "sale_button_url": {
+      "label": "رابط زر التخفيضات"
+    },
+    "show_countdown": {
+      "label": "إظهار العد التنازلي"
+    },
+    "countdown_days": {
+      "label": "أيام العد التنازلي"
+    },
+    "card_aspect": {
+      "label": "شكل البطاقة"
+    },
+    "card_overlay": {
+      "label": "النص فوق الصورة"
+    },
+    "heading_alignment": {
+      "label": "محاذاة العنوان"
+    },
+    "accent_color": {
+      "label": "لون أيقونة التمييز"
+    },
+    "autoplay_interval": {
+      "label": "فاصل التشغيل التلقائي"
+    },
+    "aspect_ratio": {
+      "label": "شكل اللافتة"
+    },
+    "rounded": {
+      "label": "حواف مستديرة"
+    },
+    "align": {
+      "label": "محاذاة النص"
+    },
+    "enable_compare": {
+      "label": "تفعيل مقارنة المنتجات"
+    },
+    "secondary_cta_text": {
+      "label": "زر إجراء ثانوي"
+    },
+    "show_diagonal_accent": {
+      "label": "إظهار لمسة مائلة"
+    },
+    "show_bottom_bar": {
+      "label": "إظهار الشريط الأحمر السفلي"
+    },
+    "card_height": {
+      "label": "ارتفاع البطاقة (بكسل)"
+    },
+    "show_shop_now_label": {
+      "label": "إظهار «تسوق الآن» عند التمرير"
+    },
+    "shop_now_text": {
+      "label": "نص «تسوق الآن»"
+    },
+    "button_bg_color": {
+      "label": "لون خلفية الزر"
+    },
+    "pause_on_hover": {
+      "label": "إيقاف مؤقت عند التمرير"
+    },
+    "uppercase_headings": {
+      "label": "عناوين بأحرف كبيرة"
+    },
+    "sidebar_heading": {
+      "label": "عنوان الشريط الجانبي"
+    },
+    "show_top_strip": {
+      "label": "إظهار الشريط العلوي"
+    },
+    "hotline_label": {
+      "label": "تسمية الخط الساخن"
+    },
+    "hotline_phone": {
+      "label": "هاتف الخط الساخن"
+    },
+    "shipping_strip": {
+      "label": "شريط الشحن"
+    },
+    "flash_deal_label": {
+      "label": "تسمية العرض الخاطف"
+    },
+    "flash_enabled": {
+      "label": "إظهار العرض الخاطف"
+    },
+    "flash_source": {
+      "label": "مصدر العرض الخاطف"
+    },
+    "product_source": {
+      "label": "مصدر المنتجات المميزة"
+    },
+    "slide_count": {
+      "label": "عدد شرائح العرض"
+    },
+    "show_view_all": {
+      "label": "إظهار رابط «عرض الكل»"
+    },
+    "color_mode": {
+      "label": "نمط الألوان"
+    },
+    "home_variant": {
+      "label": "تخطيط الصفحة الرئيسية"
     }
+  },
+  "blocks": {
+    "maker": {
+      "name": "حرفي"
+    },
+    "image": {
+      "name": "صورة"
+    },
+    "feature": {
+      "name": "ميزة"
+    },
+    "testimonial": {
+      "name": "رأي عميل"
+    },
+    "column": {
+      "name": "عمود ثقة"
+    },
+    "tile": {
+      "name": "بطاقة مخصصة"
+    },
+    "quote": {
+      "name": "اقتباس"
+    },
+    "genre": {
+      "name": "نوع"
+    },
+    "trust-item": {
+      "name": "عنصر ثقة"
+    },
+    "badge": {
+      "name": "شارة"
+    },
+    "card": {
+      "name": "بطاقة ترويجية"
+    },
+    "pillar": {
+      "name": "ركيزة"
+    },
+    "category-bubble": {
+      "name": "فقاعة فئة"
+    },
+    "age-group": {
+      "name": "فئة عمرية"
+    },
+    "flavor": {
+      "name": "نكهة"
+    },
+    "benefit": {
+      "name": "فائدة"
+    },
+    "post": {
+      "name": "مقال"
+    },
+    "slide": {
+      "name": "شريحة لافتة"
+    },
+    "panel": {
+      "name": "ضمان"
+    },
+    "category": {
+      "name": "فئة"
+    },
+    "promo": {
+      "name": "بطاقة ترويجية"
+    }
+  },
+  "options": {
+    "3": "3",
+    "4": "4",
+    "image_left": "الصورة يساراً",
+    "image_right": "الصورة يميناً",
+    "newest": "الأحدث",
+    "featured": "المميزة",
+    "popular": "الأكثر شعبية",
+    "returns": "الإرجاع",
+    "shipping": "الشحن",
+    "support": "الدعم",
+    "2_columns": "عمودان",
+    "3_columns": "3 أعمدة",
+    "4_columns": "4 أعمدة",
+    "truck": "شاحنة",
+    "leaf": "ورقة",
+    "heart": "قلب",
+    "shield": "درع",
+    "short_50vh": "قصير (50%)",
+    "medium_70vh": "متوسط (70%)",
+    "tall_90vh": "طويل (90%)",
+    "full_screen": "ملء الشاشة",
+    "short_40vh": "قصير (40%)",
+    "medium_50vh": "متوسط (50%)",
+    "tall_65vh": "طويل (65%)",
+    "editorial_feature_tile": "تحريري (بطاقة مميزة)",
+    "uniform_grid": "شبكة موحدة",
+    "carousel_rail": "شريط دوّار",
+    "5_columns": "5 أعمدة",
+    "6_columns": "6 أعمدة",
+    "portrait_4_5": "عمودي (4:5)",
+    "square_1_1": "مربع (1:1)",
+    "tall_3_4": "طويل (3:4)",
+    "wide_16_9": "عريض (16:9)",
+    "center": "وسط",
+    "start": "البداية",
+    "lock": "قفل",
+    "return": "إرجاع",
+    "tall_16_9": "طويل (16:9)",
+    "standard_21_9": "قياسي (21:9)",
+    "slim_3_1": "نحيف (3:1)",
+    "end": "النهاية",
+    "lightning_fast_delivery": "برق / توصيل سريع",
+    "pro_badge_certified": "شارة احترافية / معتمد",
+    "on_sale": "مخفّض",
+    "newest_arrivals": "أحدث الوصول",
+    "featured_products": "المنتجات المميزة",
+    "headset": "سماعة",
+    "refresh": "تحديث",
+    "card": "بطاقة",
+    "light": "فاتح",
+    "dark": "داكن",
+    "showcase_flagship_tripartite_hero": "عرض – واجهة ثلاثية رئيسية",
+    "mega_catalog_first_with_sidebar_nav": "ميغا – الكتالوج أولاً مع تصفح جانبي",
+    "editorial_promo_led_magazine_layout": "تحريري – تخطيط مجلة ترويجي"
   }
 }

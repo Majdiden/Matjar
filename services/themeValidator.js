@@ -57,6 +57,7 @@ import {
   validateLayoutValue,
   validateSettingValue,
   validateSettingsBag,
+  resolveI18nTwin,
 } from "../utils/themeManifestRules.js";
 
 // ─── Template allow-list (re-exported) ───────────────────────────
@@ -286,6 +287,11 @@ function validateThemeBucket(themeSettings, manifestSettings, errors) {
     if (!validateSettingsKey(key, errors, "settings.theme")) continue;
     const def = defsById.get(key);
     if (!def) {
+      const base = resolveI18nTwin(key, defsById);
+      if (base) {
+        if (value != null && typeof value !== "string") errors.push(`settings.theme: setting "${key}" must be a string`);
+        continue;
+      }
       errors.push(`settings.theme: unknown setting "${key}" (not declared by manifest)`);
       continue;
     }

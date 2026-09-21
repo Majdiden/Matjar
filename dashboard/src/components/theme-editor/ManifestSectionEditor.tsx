@@ -167,7 +167,7 @@ export default function ManifestSectionEditor({
   // Manifest definition wins for icon/name (1.4); static map is fallback.
   const meta = resolveSectionMeta(section.type, sectionDefinition);
   const Icon = meta.icon;
-  const sectionName = t(`themes:sections.${section.type}.name`, { defaultValue: meta.name });
+  const sectionName = t(`themes:sections.${section.type}.name`, { defaultValue: sectionDefinition?.name || meta.name });
   const isVisible = section.disabled !== true;
 
   return (
@@ -180,11 +180,11 @@ export default function ManifestSectionEditor({
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-slate-900 truncate">
-              {sectionDefinition?.name || sectionName}
+              {sectionName}
             </h3>
             {sectionDefinition?.description && (
               <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2 leading-snug">
-                {sectionDefinition.description}
+                {t(`themes:sections.${section.type}.description`, { defaultValue: sectionDefinition.description })}
               </p>
             )}
           </div>
@@ -263,7 +263,7 @@ export default function ManifestSectionEditor({
             <div className="pt-4 border-t border-slate-200">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  {sectionDefinition.blocks[0]?.name || t('themes:editor.section_editor.items_label')}
+                  {sectionDefinition.blocks[0] ? t(`themes:blocks.${sectionDefinition.blocks[0].type}.name`, { defaultValue: sectionDefinition.blocks[0].name }) : t('themes:editor.section_editor.items_label')}
                 </h4>
                 <button
                   onClick={() => handleAddBlock(sectionDefinition.blocks![0].type)}
@@ -282,7 +282,7 @@ export default function ManifestSectionEditor({
                     block.settings?.title ||
                     block.settings?.heading ||
                     block.settings?.label ||
-                    `${blockDef?.name || block.type} ${idx + 1}`;
+                    `${t(`themes:blocks.${block.type}.name`, { defaultValue: blockDef?.name || block.type })} ${idx + 1}`;
 
                   return (
                     <div

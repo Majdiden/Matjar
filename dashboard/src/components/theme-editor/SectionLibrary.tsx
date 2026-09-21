@@ -137,7 +137,7 @@ export default function SectionLibrary({ isOpen, onClose, onAddSection }: Sectio
                       <p className="text-xs font-semibold text-slate-900 truncate">{t(`themes:sections.${s.type}.name`, { defaultValue: meta.name })}</p>
                       {s.description && (
                         <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-2 leading-tight">
-                          {s.description}
+                          {t(`themes:sections.${s.type}.description`, { defaultValue: s.description })}
                         </p>
                       )}
                       <span className="absolute top-2 end-2 opacity-0 group-hover:opacity-100 transition">

@@ -57,12 +57,10 @@ const Layout: React.FC = () => {
       {showBar && (
         <div className="text-white text-[11px] tracking-[0.2em] font-medium py-2.5" style={{ backgroundColor: NAVY }}>
           <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-            <div className="hidden md:flex items-center gap-4 text-[10px]">
-              <span>USD ▾</span>
-              <span>EN ▾</span>
-            </div>
+            {/* Left slot kept empty (mirrors the right links) so the text stays centred. */}
+            <div className="hidden md:block flex-1" aria-hidden />
             <div className="flex-1 text-center">{barText}</div>
-            <div className="hidden md:flex items-center gap-4 text-[10px]">
+            <div className="hidden md:flex flex-1 items-center justify-end gap-4 text-[10px]">
               <Link to="/account" className="hover:text-[var(--color-secondary)]">{t('theme.layout.nav.account')}</Link>
               <Link to="/orders" className="hover:text-[var(--color-secondary)]">{t('theme.layout.nav.track_order')}</Link>
             </div>
