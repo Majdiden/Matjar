@@ -182,7 +182,7 @@ Policy "standard": basis gmv, scope delivered, recognition delivered, period cal
 13. **Activity feed** rendered from the audit ledger + tenant AuditLog with human-readable templates.
 14. **MFA + session management** for platform staff.
 
-### Phase C — Scale (P2) — DONE (commit PENDING, 2026-09-21)
+### Phase C — Scale (P2) — DONE (commit 1dd4f10, 2026-09-21)
 
 15. Platform analytics (growth, activation, churn, plan distribution, GMV/revenue series), usage analytics, cohort views. Shipped as `/analytics/{platform,commerce,revenue,usage}` on shared `services/platform/metrics.js` helpers (one currency source with Overview).
 16. Incidents model, read-only impersonation, re-auth for destructive actions, customer privacy operations, bulk tenant operations, global configuration registry for currencies/countries/order states. Notes: the legacy no-consent impersonation mint was removed (grant flow is the only entry point); bulk actions carry per-action scopes; erasure redacts order snapshots/addresses/notes/payment details and the platform ledger stores only an email hash; `GET /api/config/public` exposes the operator-managed currency/country lists to the dashboard.
