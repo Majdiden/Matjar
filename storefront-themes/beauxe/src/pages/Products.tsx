@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 
 const NAVY = 'var(--color-primary)';
 const PINK = 'var(--color-secondary)';
-const BLUSH = 'var(--color-muted)';
+const BLUSH = 'var(--color-accent)'; // blush surface, not the muted text colour
 
 const FilterCard: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="bg-white rounded-3xl p-6 mb-6 border border-pink-100">
@@ -218,7 +218,7 @@ const Products: React.FC = () => {
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="text-center py-24 opacity-60" style={{ color: NAVY }}>
+              <div className="text-center py-24 opacity-70" style={{ color: NAVY }}>
                 {t('theme.products.no_results')}
               </div>
             ) : (

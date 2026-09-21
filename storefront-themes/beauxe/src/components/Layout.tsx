@@ -61,8 +61,8 @@ const Layout: React.FC = () => {
             <div className="hidden md:block flex-1" aria-hidden />
             <div className="flex-1 text-center">{barText}</div>
             <div className="hidden md:flex flex-1 items-center justify-end gap-4 text-[10px]">
-              <Link to="/account" className="hover:text-[var(--color-secondary)]">{t('theme.layout.nav.account')}</Link>
-              <Link to="/orders" className="hover:text-[var(--color-secondary)]">{t('theme.layout.nav.track_order')}</Link>
+              <Link to="/account" className="hover:text-[color:var(--color-secondary)]">{t('theme.layout.nav.account')}</Link>
+              <Link to="/orders" className="hover:text-[color:var(--color-secondary)]">{t('theme.layout.nav.track_order')}</Link>
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@ const Layout: React.FC = () => {
             <nav className="hidden md:flex items-center gap-7 text-[12px] tracking-[0.15em] uppercase" style={{ color: NAVY }}>
               {hasMenu ? (
                 menuItems.map((item) => {
-                  const cls = "hover:text-[var(--color-secondary)]";
+                  const cls = "hover:text-[color:var(--beauxe-rose-ink)]";
                   const href = itemHref(item);
                   return isExternal(item) ? (
                     <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" className={cls}>{item.label}</a>
@@ -86,10 +86,10 @@ const Layout: React.FC = () => {
                 })
               ) : (
                 <>
-                  <Link to="/" className={isActive('/') && location.pathname === '/' ? 'font-bold' : 'hover:text-[var(--color-secondary)]'}>{t('theme.layout.nav.home')}</Link>
-                  <Link to="/products" className={isActive('/products') ? 'font-bold' : 'hover:text-[var(--color-secondary)]'}>{t('theme.layout.nav.shop')}</Link>
+                  <Link to="/" className={isActive('/') && location.pathname === '/' ? 'font-bold' : 'hover:text-[color:var(--beauxe-rose-ink)]'}>{t('theme.layout.nav.home')}</Link>
+                  <Link to="/products" className={isActive('/products') ? 'font-bold' : 'hover:text-[color:var(--beauxe-rose-ink)]'}>{t('theme.layout.nav.shop')}</Link>
                   {categories.slice(0, 3).map((cat) => (
-                    <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[var(--color-secondary)]">
+                    <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[color:var(--beauxe-rose-ink)]">
                       {cat.name}
                     </Link>
                   ))}
@@ -112,9 +112,9 @@ const Layout: React.FC = () => {
                 <LanguageSwitcher />
               </div>
               <div className="hidden md:flex items-center">
-                <SearchBar variant="compact" className="hover:text-[var(--color-secondary)] hover:bg-pink-50" />
+                <SearchBar variant="compact" className="hover:text-[color:var(--beauxe-rose-ink)] hover:bg-[color:var(--color-accent)]" />
               </div>
-              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="relative hidden md:inline-flex hover:text-[var(--color-secondary)]">
+              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="relative hidden md:inline-flex hover:text-[color:var(--beauxe-rose-ink)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
@@ -124,7 +124,7 @@ const Layout: React.FC = () => {
                   </span>
                 )}
               </Link>
-              <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hidden md:inline-flex hover:text-[var(--color-secondary)]">
+              <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hidden md:inline-flex hover:text-[color:var(--beauxe-rose-ink)]">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.6}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>

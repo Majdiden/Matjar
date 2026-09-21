@@ -130,7 +130,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
               type="button"
               onClick={(e) => { if (requiresOptions) return; e.preventDefault(); if (!pre.ctaDisabled) addItem(product._id || product.id, 1); }}
               disabled={!requiresOptions && pre.ctaDisabled}
-              className="px-7 py-3 rounded-full bg-[color:var(--color-primary)] text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--color-secondary)] transition disabled:opacity-60"
+              className="px-7 py-3 rounded-full bg-[color:var(--color-primary)] text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--beauxe-rose-ink)] transition disabled:opacity-60"
               title={requiresOptions ? t('theme.product_card.select_options_tooltip') : pre.mode === 'preorder' ? [pre.shipByLabel, pre.depositLabel].filter(Boolean).join(' · ') || undefined : undefined}
             >
               {requiresOptions ? t('theme.product_card.choose_options') : pre.mode === 'preorder' ? `+ ${t('theme.product_card.preorder')}` : pre.mode === 'soldOut' ? t('theme.product_card.sold_out') : t('theme.product_card.add_to_cart')}
@@ -145,7 +145,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
       <div className="pt-4 text-center">
         <Link
           to={`/products/${slug}`}
-          className="block font-serif text-[17px] text-[color:var(--color-primary)] hover:text-[color:var(--color-secondary)] line-clamp-1"
+          className="block font-serif text-[17px] text-[color:var(--color-primary)] hover:text-[color:var(--beauxe-rose-ink)] line-clamp-1"
           style={{ fontFamily: 'var(--font-family-heading)' }}
         >
           {product.name}

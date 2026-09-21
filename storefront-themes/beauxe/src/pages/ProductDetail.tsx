@@ -34,7 +34,8 @@ import BeauxeProductCard from '../components/BeauxeProductCard';
 
 const NAVY = 'var(--color-primary)';
 const PINK = 'var(--color-secondary)';
-const BLUSH = 'var(--color-muted)';
+const BLUSH = 'var(--color-accent)'; // blush surface, not the muted text colour
+const ROSE_INK = 'var(--beauxe-rose-ink)';
 const CREAM = 'var(--color-accent)';
 
 // 'description' | 'reviews' | any merchant content-section key.
@@ -81,7 +82,7 @@ const ProductDetail: React.FC = () => {
     return (
       <div className="max-w-3xl mx-auto px-6 py-32 text-center" style={{ color: NAVY }}>
         <h1 className="font-serif text-5xl mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>{t('theme.product_detail.not_found_heading')}</h1>
-        <p className="opacity-60 mb-6">{t('theme.product_detail.not_found_body')}</p>
+        <p className="opacity-70 mb-6">{t('theme.product_detail.not_found_body')}</p>
         <Link to="/products" className="inline-block px-8 py-3 rounded-full text-white text-[11px] tracking-[0.22em] uppercase" style={{ backgroundColor: NAVY }}>
           {t('theme.product_detail.back_to_shop')}
         </Link>
@@ -182,7 +183,7 @@ const ProductDetail: React.FC = () => {
           {/* Info */}
           <div>
             {product.categories?.[0] && (
-              <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-3" style={{ color: PINK }}>
+              <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-3" style={{ color: ROSE_INK }}>
                 {product.categories[0].name}
               </div>
             )}
@@ -214,7 +215,7 @@ const ProductDetail: React.FC = () => {
               </span>
               {(onSale || preState.savingsPct > 0) && (
                 <>
-                  <span className="text-lg line-through opacity-40" style={{ color: NAVY }}>
+                  <span className="text-lg line-through opacity-55" style={{ color: NAVY }}>
                     {formatPrice(preState.savingsPct > 0 ? price : compareAt)}
                   </span>
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-error)' }}>
@@ -296,8 +297,7 @@ const ProductDetail: React.FC = () => {
                 <button
                   onClick={handleAdd}
                   disabled={!canAddToCart}
-                  className="flex-1 h-12 rounded-full text-white text-[11px] tracking-[0.22em] uppercase font-semibold disabled:bg-neutral-300 transition"
-                  style={{ backgroundColor: NAVY }}
+                  className="flex-1 h-12 rounded-full bg-[color:var(--color-primary)] text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--beauxe-rose-ink)] disabled:bg-neutral-200 disabled:text-neutral-600 disabled:cursor-not-allowed transition"
                 >
                   {needsSelection
                   ? t('product:card.options')
@@ -352,7 +352,7 @@ const ProductDetail: React.FC = () => {
               <button
                 key={k}
                 onClick={() => setTab(k)}
-                className={`pb-4 text-[11px] tracking-[0.22em] uppercase transition border-b-2 ${tab === k ? 'font-bold' : 'opacity-60 hover:opacity-100'}`}
+                className={`pb-4 text-[11px] tracking-[0.22em] uppercase transition border-b-2 ${tab === k ? 'font-bold' : 'opacity-80 hover:opacity-100'}`}
                 style={{
                   color: NAVY,
                   borderColor: tab === k ? PINK : 'transparent',

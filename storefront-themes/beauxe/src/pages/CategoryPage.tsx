@@ -7,7 +7,7 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { useTranslation } from 'react-i18next';
 
 const NAVY = 'var(--color-primary)';
-const BLUSH = 'var(--color-muted)';
+const BLUSH = 'var(--color-accent)'; // blush surface, not the muted text colour
 
 const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -103,7 +103,7 @@ const CategoryPage: React.FC = () => {
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="text-center py-24 opacity-60" style={{ color: NAVY }}>
+              <div className="text-center py-24 opacity-70" style={{ color: NAVY }}>
                 {t('theme.category.no_products')}
               </div>
             ) : (

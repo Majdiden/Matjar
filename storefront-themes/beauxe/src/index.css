@@ -11,6 +11,15 @@ body { font-family: var(--font-app); }
   --color-accent: #f8e4e4;
   --color-cream: #faf3ec;
   --color-pink: #f8e4e4;
+  /* The soft pink accent (--color-secondary) is decorative: as TEXT on cream
+     or white it lands near 2:1. Everything that needs a readable rose —
+     hover links, eyebrow labels, hover backgrounds under white text — uses
+     this ink instead: the accent deepened towards the primary so it follows
+     the merchant's palette and stays ≥ 4.5:1 on light surfaces. */
+  --beauxe-rose-ink: #8f6473;
+}
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  :root { --beauxe-rose-ink: color-mix(in srgb, var(--color-secondary) 55%, var(--color-primary)); }
 }
 
 body {

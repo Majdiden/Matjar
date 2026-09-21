@@ -200,7 +200,7 @@ const manifest = defineTheme({
     accent: '#f8e4e4',
     background: '#fffdfb',
     foreground: '#1d1d3b',
-    muted: '#8a8299',
+    muted: '#6b6480',
     border: '#f0e4e7',
     error: '#e05070',
     success: '#7ca082',

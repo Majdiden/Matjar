@@ -14,7 +14,10 @@ import { useTranslation } from 'react-i18next';
 const NAVY = 'var(--color-primary)';
 const PINK = 'var(--color-secondary)';
 const CREAM = 'var(--color-accent)';
-const BLUSH = 'var(--color-muted)';
+// Soft blush SURFACE (the manifest's "pink/cream backdrop"). Not --color-muted:
+// that is the muted TEXT colour and made the hero/banners grey-mauve.
+const BLUSH = 'var(--color-accent)';
+const ROSE_INK = 'var(--beauxe-rose-ink)';
 
 // Niche default hero image (beauty model) — the same photo the demo seeder
 // uses for this theme's hero, so the hero is never an empty cream panel even
@@ -34,7 +37,7 @@ const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
     <div className="text-white text-[11px] tracking-[0.2em] py-2.5 text-center" style={{ backgroundColor: NAVY }}>
       {s.text || t('theme.section.top_bar.text')}
       {s.link_text && (
-        <Link to={s.link_url || '/products'} className="ms-3 underline hover:text-[var(--color-secondary)]">
+        <Link to={s.link_url || '/products'} className="ms-3 underline hover:text-[color:var(--color-secondary)]">
           {s.link_text}
         </Link>
       )}
@@ -62,7 +65,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
         {/* Text */}
         <div className="relative z-10 text-center md:text-start">
           {s.eyebrow && (
-            <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-5" style={{ color: PINK }}>
+            <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-5" style={{ color: ROSE_INK }}>
               {s.eyebrow}
             </div>
           )}
@@ -271,7 +274,7 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
                 <h3 className="font-serif text-4xl md:text-5xl mb-4" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
                   {tile.title}
                 </h3>
-                <span className="inline-block px-6 py-2 rounded-full text-[11px] tracking-[0.22em] uppercase font-semibold text-white group-hover:bg-[color:var(--color-secondary)] transition" style={{ backgroundColor: NAVY }}>
+                <span className="inline-block px-6 py-2 rounded-full text-[11px] tracking-[0.22em] uppercase font-semibold text-white bg-[color:var(--color-primary)] group-hover:bg-[color:var(--beauxe-rose-ink)] transition">
                   {t('theme.section.category_tiles.shop_now')} <span className="inline-block rtl:rotate-180">→</span>
                 </span>
               </div>
@@ -297,7 +300,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
       <div className="text-center mb-12">
-        <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-3" style={{ color: PINK }}>
+        <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-3" style={{ color: ROSE_INK }}>
           {s.subheading || t('theme.section.feature_strip.favourites')}
         </div>
         <h2 className="font-serif text-4xl md:text-5xl" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
@@ -321,8 +324,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
       <div className="text-center mt-12">
         <Link
           to="/products"
-          className="inline-block px-10 py-4 rounded-full border-2 text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--color-primary)] hover:text-white transition"
-          style={{ borderColor: NAVY, color: NAVY }}
+          className="inline-block px-10 py-4 rounded-full border-2 border-[color:var(--color-primary)] text-[color:var(--color-primary)] text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--color-primary)] hover:text-white transition"
         >
           {t('theme.section.product_grid.view_all')} <span className="inline-block rtl:rotate-180">→</span>
         </Link>
@@ -403,7 +405,7 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
                   "{bs.quote}"
                 </p>
                 <div className="text-sm font-bold" style={{ color: NAVY }}>— {bs.author}</div>
-                {bs.role && <div className="text-[11px] opacity-60 uppercase tracking-wider mt-1">{bs.role || t('theme.section.testimonials.verified_buyer')}</div>}
+                {bs.role && <div className="text-[11px] opacity-70 uppercase tracking-wider mt-1">{bs.role || t('theme.section.testimonials.verified_buyer')}</div>}
               </div>
             );
           })}
