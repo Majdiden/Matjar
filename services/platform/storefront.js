@@ -16,6 +16,7 @@ import net from "net";
 import { escapeRegExp } from "../../utils/misc.js";
 import config from "../../config/index.js";
 import logger from "../../utils/logger.js";
+import { applyThemeOverrides, THEME_OVERRIDABLE_FIELDS } from "../themeCatalogSync.js";
 import { APIError } from "../../middlewares/errorHandler.js";
 import { provisionVerifiedDomain, setPrimaryDomainRow } from "../domainRegistry.js";
 import { DOMAIN_STATUSES } from "../../schemas/domain.js";
@@ -122,7 +123,7 @@ export async function listThemes() {
   const Theme = mongoose.model("Theme");
   const Tenant = mongoose.model("Tenant");
   const [themes, usage] = await Promise.all([
-    Theme.find({}).select("name slug version description status isDefault previewImage categories statistics catalogSync createdAt updatedAt").sort({ name: 1 }).lean(),
+    Theme.find({}).select("name slug version description status isDefault previewImage categories tags overrides statistics catalogSync createdAt updatedAt").sort({ name: 1 }).lean(),
     Tenant.aggregate([
       { $match: { deletedAt: null } },
       { $group: { _id: "$settings.activeTheme", n: { $sum: 1 } } },
@@ -164,6 +165,39 @@ export async function setThemeStatus(themeId, status) {
   }
   const after = await updateThemeStatusService(themeId, status);
   return { before, after: { slug: after.slug, name: after.name, status: after.status } };
+}
+
+/**
+ * Operator edit of a theme's presentation. Stored as `overrides` (so the
+ * manifest sync cannot undo it) and mirrored onto the live fields. A null
+ * value clears that override and restores the manifest value.
+ */
+export async function updateThemeDetails(themeId, patch, actor) {
+  const Theme = mongoose.model("Theme");
+  const row = await Theme.findById(themeId).select("slug name description previewImage categories tags overrides").lean();
+  if (!row) throw new APIError("Theme not found", 404);
+  const before = Object.fromEntries(THEME_OVERRIDABLE_FIELDS.map((k) => [k, row[k] ?? null]));
+  const set = { "overrides.updatedBy": actor?.email || null, "overrides.updatedAt": new Date() };
+  for (const k of THEME_OVERRIDABLE_FIELDS) {
+    if (patch[k] === undefined) continue;
+    set[`overrides.${k}`] = patch[k]; // null clears
+  }
+  await Theme.updateOne({ _id: themeId }, { $set: set });
+  // Rebuild the live fields: manifest values first, then overrides on top.
+  const manifest = getThemeManifest(row.slug);
+  if (manifest) {
+    const fromManifest = {
+      name: manifest.name || row.slug,
+      description: manifest.description || "",
+      categories: Array.isArray(manifest.categories) ? manifest.categories : [],
+      tags: Array.isArray(manifest.tags) ? manifest.tags : [],
+    };
+    const declared = typeof manifest.previewImage === "string" && /^https?:\/\//i.test(manifest.previewImage) ? manifest.previewImage : `/api/themes/${row.slug}/preview`;
+    await Theme.updateOne({ _id: themeId }, { $set: { ...fromManifest, previewImage: declared } });
+  }
+  await applyThemeOverrides(row.slug);
+  const after = await Theme.findById(themeId).select("slug name description previewImage categories tags overrides").lean();
+  return { before, after: Object.fromEntries(THEME_OVERRIDABLE_FIELDS.map((k) => [k, after[k] ?? null])), row: after };
 }
 
 // --- Health probe ------------------------------------------------------

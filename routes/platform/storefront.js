@@ -2,12 +2,14 @@ import { Router } from "express";
 import { requireScope, validateObjectId, PLATFORM_SCOPES } from "../../middlewares/platformAdmin.js";
 import { validate } from "../../middlewares/validate.js";
 import { createRateLimiter } from "../../middlewares/rateLimiters.js";
+import { uploadSingleImage, handleUploadError, validateUploadedFiles } from "../../middlewares/upload.js";
 import { ipKeyGenerator } from "express-rate-limit";
 import {
   listDomainsSchema,
   domainActionSchema,
   domainRemoveSchema,
   themeStatusSchema,
+  themeDetailsSchema,
   themeStoresSchema,
   listHealthSchema,
 } from "../../validators/commerce.validator.js";
@@ -19,6 +21,8 @@ import {
   themes,
   themeStores,
   themeStatus,
+  themeDetails,
+  themeCover,
   health,
   tenantHealth,
   runTenantCheck,
@@ -50,6 +54,8 @@ router.delete("/domains/:id", validateObjectId("id"), requireScope(PLATFORM_SCOP
 router.get("/themes", read, themes);
 router.get("/themes/:slug/stores", read, validate(themeStoresSchema), themeStores);
 router.patch("/themes/:id/status", validateObjectId("id"), requireScope(PLATFORM_SCOPES.FLAGS_WRITE), validate(themeStatusSchema), themeStatus);
+router.patch("/themes/:id", validateObjectId("id"), requireScope(PLATFORM_SCOPES.FLAGS_WRITE), validate(themeDetailsSchema), themeDetails);
+router.post("/themes/:id/cover", validateObjectId("id"), requireScope(PLATFORM_SCOPES.FLAGS_WRITE), uploadSingleImage, handleUploadError, validateUploadedFiles, themeCover);
 
 // Health: on-demand probe is a read-only network check; support.read suffices.
 router.get("/health", read, validate(listHealthSchema), health);

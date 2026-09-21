@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { hasScope, PLATFORM_SCOPES, type Pagination } from '../../lib/api';
-import { storefrontApi, type ThemeRow, type ThemeStoreRow } from '../../lib/api-storefront';
+import { storefrontApi, type ThemeRow, type ThemeStoreRow, type ThemeCategoryOption } from '../../lib/api-storefront';
+import { ThemeDetailsModal } from './ThemeDetailsModal';
 import { useAuth } from '../../contexts/auth-context';
 import { DataList, type DataListColumn } from '../../components/ui/DataList';
 import { Badge } from '../../components/ui/Badge';
@@ -12,7 +13,7 @@ import { LifecycleBadge } from '../../components/LifecycleBadge';
 import { PageSpinner, EmptyState, ErrorState } from '../../components/ui/Spinner';
 import { useToast } from '../../components/ui/toast-context';
 import { formatDate } from '../../lib/utils';
-import { RefreshCw, Palette, Store, Eye, EyeOff, Hammer } from 'lucide-react';
+import { RefreshCw, Palette, Store, Eye, EyeOff, Hammer, Pencil } from 'lucide-react';
 import { Pager } from '../commerce/shared';
 
 /** Catalog statuses map onto the doc's vocabulary: active = available, inactive = deprecated, development = draft. */
@@ -28,6 +29,8 @@ export default function StorefrontThemes() {
   const canRead = hasScope(user, PLATFORM_SCOPES.SUPPORT_READ);
   const canWrite = hasScope(user, PLATFORM_SCOPES.FLAGS_WRITE);
   const [rows, setRows] = useState<ThemeRow[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<ThemeCategoryOption[]>([]);
+  const [editing, setEditing] = useState<ThemeRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ row: ThemeRow; status: ThemeRow['status'] } | null>(null);
@@ -35,7 +38,7 @@ export default function StorefrontThemes() {
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
-    try { setRows(await storefrontApi.themes.list()); }
+    try { const d = await storefrontApi.themes.list(); setRows(d.rows); setCategoryOptions(d.categoryOptions); }
     catch (err) { setError(err instanceof Error ? err.message : 'Failed to load themes'); }
     finally { setLoading(false); }
   }, []);
@@ -58,7 +61,7 @@ export default function StorefrontThemes() {
     { id: 'theme', header: 'Theme', primary: true, cell: (r) => (
       <div className="flex min-w-0 items-center gap-2">
         {r.previewImage ? <img src={r.previewImage} alt="" className="h-9 w-14 shrink-0 rounded object-cover object-top" /> : <div className="h-9 w-14 shrink-0 rounded bg-muted" />}
-        <div className="min-w-0"><div className="truncate font-medium">{r.name}{r.isDefault && <Badge variant="secondary" className="ms-2 text-[10px]">default</Badge>}</div><div className="font-mono text-xs text-muted-foreground">{r.slug}</div></div>
+        <div className="min-w-0"><div className="truncate font-medium">{r.name}{r.isDefault && <Badge variant="secondary" className="ms-2 text-[10px]">default</Badge>}{r.overrides?.updatedAt && <Badge variant="outline" className="ms-2 text-[10px]" title={`Edited in the console${r.overrides.updatedBy ? ` by ${r.overrides.updatedBy}` : ''}`}>edited</Badge>}</div><div className="font-mono text-xs text-muted-foreground">{r.slug}</div></div>
       </div>
     ) },
     { id: 'version', header: 'Version', cell: (r) => <span className="font-mono text-xs">v{r.version}{r.manifestVersion && r.manifestVersion !== r.version ? <span className="ms-1 text-amber-600" title="Built manifest version differs from the catalog row">(manifest v{r.manifestVersion})</span> : ''}</span> },
@@ -69,6 +72,7 @@ export default function StorefrontThemes() {
     { id: 'cats', header: 'Categories', fullWidthOnMobile: true, cell: (r) => <div className="flex flex-wrap gap-1">{(r.categories || []).slice(0, 4).map((c) => <Badge key={c} variant="outline" className="text-[10px]">{c}</Badge>)}</div> },
     { id: 'actions', align: 'end', cell: (r) => canWrite ? (
       <div className="flex justify-end gap-1">
+        <Button variant="ghost" size="sm" title="Edit name, cover, description, categories" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
         {r.status !== 'active' && <Button variant="ghost" size="sm" title="Make available" onClick={() => setConfirm({ row: r, status: 'active' })}><Eye className="h-3.5 w-3.5" /></Button>}
         {r.status !== 'inactive' && <Button variant="ghost" size="sm" title="Deprecate (hide from catalog; existing stores keep it)" disabled={r.isDefault} onClick={() => setConfirm({ row: r, status: 'inactive' })}><EyeOff className="h-3.5 w-3.5" /></Button>}
         {r.status !== 'development' && <Button variant="ghost" size="sm" title="Mark as in development" disabled={r.isDefault} onClick={() => setConfirm({ row: r, status: 'development' })}><Hammer className="h-3.5 w-3.5" /></Button>}
@@ -110,6 +114,13 @@ export default function StorefrontThemes() {
           try { await storefrontApi.themes.setStatus(confirm.row._id, confirm.status, v.reason?.trim() || undefined); toast.success('Theme status updated'); setConfirm(null); await load(); }
           catch (err) { toast.error(err instanceof Error ? err.message : 'Failed'); throw err; }
         }}
+      />
+
+      <ThemeDetailsModal
+        theme={editing}
+        categoryOptions={categoryOptions}
+        onClose={() => setEditing(null)}
+        onSaved={async () => { setEditing(null); await load(); }}
       />
 
       <Modal open={!!stores} onClose={() => setStores(null)} title={stores ? `Stores on ${stores.theme.name}` : ''} description={stores ? `${stores.theme.storesUsing} store(s)` : undefined} className="max-w-2xl">

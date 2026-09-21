@@ -119,6 +119,21 @@ const themeSchema = new Schema(
     tags: [String],
     categories: [String],
 
+    // Operator edits made in the platform console (name, description,
+    // cover, categories, tags). The manifest sync rewrites the live
+    // fields from disk on every run, then re-applies whatever is set here
+    // (services/themeCatalogSync.js → applyThemeOverrides), so an edit
+    // survives rebuilds. null/absent = use the manifest value.
+    overrides: {
+      name: { type: String, default: null },
+      description: { type: String, default: null },
+      previewImage: { type: String, default: null },
+      categories: { type: [String], default: null },
+      tags: { type: [String], default: null },
+      updatedBy: { type: String, default: null },
+      updatedAt: { type: Date, default: null },
+    },
+
     // Catalog-sync bookkeeping (services/themeCatalogSync.js). When a
     // sync finds a row whose manifest disappeared from disk it flips
     // status to "inactive" and stamps `missingSince`; if the manifest

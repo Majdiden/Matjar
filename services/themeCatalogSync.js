@@ -36,6 +36,7 @@
  * dashboard gets real screenshots either way.
  */
 
+import mongoose from "mongoose";
 import logger from "../utils/logger.js";
 import { getTenantsRepo } from "../repositories/tenant.js";
 import {
@@ -113,6 +114,27 @@ function buildManifestFields(slug, manifest, now) {
   }
 
   return set;
+}
+
+/** Live presentation fields the console may override (Theme.overrides). */
+export const THEME_OVERRIDABLE_FIELDS = ["name", "description", "previewImage", "categories", "tags"];
+
+/**
+ * Copy any set `overrides.*` onto the live fields of one theme row.
+ * Called after every manifest sync and after every console edit.
+ */
+export async function applyThemeOverrides(slug) {
+  const Theme = mongoose.model("Theme");
+  const row = await Theme.findOne({ slug }).select("overrides").lean();
+  if (!row?.overrides) return;
+  const set = {};
+  for (const k of THEME_OVERRIDABLE_FIELDS) {
+    const v = row.overrides[k];
+    if (v === null || v === undefined) continue;
+    if (Array.isArray(v) && v.length === 0) continue;
+    set[k] = v;
+  }
+  if (Object.keys(set).length) await Theme.updateOne({ slug }, { $set: set });
 }
 
 /**
@@ -217,6 +239,8 @@ export async function syncThemeCatalog() {
         set: buildManifestFields(slug, manifest, now),
         setOnInsert: buildInsertDefaults(),
       });
+      // Operator edits win over the manifest for presentation fields.
+      await applyThemeOverrides(slug);
       // Un-hide rows this sync previously deactivated because their
       // manifest had gone missing (e.g. a theme deleted then rebuilt).
       await reactivateSyncedThemeRepo(slug);

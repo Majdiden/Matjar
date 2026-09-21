@@ -107,6 +107,20 @@ export const themeStatusSchema = z.object({
   }),
 });
 
+const themeCategoryKey = z.string().trim().toLowerCase().regex(/^[a-z0-9-]{1,32}$/);
+export const themeDetailsSchema = z.object({
+  params: z.object({ id: z.string().regex(/^[a-f\d]{24}$/i) }),
+  body: z.object({
+    // null = drop the override and fall back to the manifest value.
+    name: z.string().trim().min(1).max(80).nullable().optional(),
+    description: z.string().trim().max(1000).nullable().optional(),
+    previewImage: z.string().trim().max(2048).refine((v) => /^https?:\/\//.test(v) || v.startsWith("/api/themes/"), "Must be an http(s) URL").nullable().optional(),
+    categories: z.array(themeCategoryKey).max(8).nullable().optional(),
+    tags: z.array(z.string().trim().min(1).max(32)).max(20).nullable().optional(),
+    reason: reason.optional(),
+  }).refine((b) => Object.keys(b).some((k) => k !== "reason"), { message: "Nothing to update" }),
+});
+
 export const themeStoresSchema = z.object({
   params: z.object({ slug: z.string().trim().toLowerCase().min(1).max(64).regex(/^[a-z0-9-]+$/, "Invalid theme slug") }),
   query: z.object({ page, limit }),

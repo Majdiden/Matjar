@@ -28,6 +28,16 @@ export interface DomainRow {
   updatedAt?: string;
 }
 
+export interface ThemeCategoryOption { key: string; label: string; labelAr: string }
+export interface ThemeDetailsPatch {
+  name?: string | null;
+  description?: string | null;
+  previewImage?: string | null;
+  categories?: string[] | null;
+  tags?: string[] | null;
+  reason?: string;
+}
+
 export interface ThemeRow {
   _id: string;
   name: string;
@@ -39,6 +49,8 @@ export interface ThemeRow {
   isDefault?: boolean;
   previewImage?: string;
   categories?: string[];
+  tags?: string[];
+  overrides?: { name?: string | null; description?: string | null; previewImage?: string | null; categories?: string[] | null; tags?: string[] | null; updatedBy?: string | null; updatedAt?: string | null };
   statistics?: { installCount?: number; activeInstalls?: number };
   catalogSync?: { missingSince?: string | null; lastSyncedAt?: string | null };
   storesUsing: number;
@@ -94,7 +106,18 @@ export const storefrontApi = {
   themes: {
     list: async () => {
       const res = await http.get('/storefront/themes');
-      return res.data.data as ThemeRow[];
+      return { rows: res.data.data as ThemeRow[], categoryOptions: (res.data.meta?.categoryOptions ?? []) as ThemeCategoryOption[] };
+    },
+    /** null on a field clears the override (back to the manifest value). */
+    updateDetails: async (id: string, patch: ThemeDetailsPatch) => {
+      const res = await http.patch(`/storefront/themes/${id}`, patch);
+      return res.data.data as ThemeRow;
+    },
+    uploadCover: async (id: string, file: File) => {
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await http.post(`/storefront/themes/${id}/cover`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      return res.data.data as ThemeRow;
     },
     stores: async (slug: string, params: { page?: number; limit?: number } = {}) => {
       const res = await http.get(`/storefront/themes/${encodeURIComponent(slug)}/stores`, { params: clean(params) });

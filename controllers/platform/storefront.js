@@ -5,6 +5,8 @@
  */
 import { asyncHandler } from "../../middlewares/errorHandler.js";
 import { recordPlatformAudit } from "../../services/platform/audit.js";
+import { uploadImage } from "../../services/upload.js";
+import { THEME_CATEGORIES } from "../../config/themeCategories.js";
 import {
   listDomains,
   domainStatusCounts,
@@ -14,6 +16,7 @@ import {
   listThemes,
   listThemeStores,
   setThemeStatus,
+  updateThemeDetails,
   checkTenantStorefront,
   listHealth,
   getTenantHealth,
@@ -67,7 +70,10 @@ export const domainRemove = asyncHandler(async (req, res) => {
 });
 
 export const themes = asyncHandler(async (_req, res) => {
-  res.json({ success: true, data: await listThemes() });
+  const rows = await listThemes();
+  const categoryOptions = THEME_CATEGORIES.map(({ key, label, labelAr }) => ({ key, label, labelAr }));
+  // Array kept for the existing client; options ride along as a property.
+  res.json({ success: true, data: rows, meta: { categoryOptions } });
 });
 
 export const themeStores = asyncHandler(async (req, res) => {
@@ -86,6 +92,37 @@ export const themeStatus = asyncHandler(async (req, res) => {
     after: { slug: after.slug, status: after.status },
   });
   res.json({ success: true, data: after });
+});
+
+export const themeDetails = asyncHandler(async (req, res) => {
+  const { reason, ...patch } = req.body;
+  const { before, after, row } = await updateThemeDetails(req.params.id, patch, req.platformUser);
+  await recordPlatformAudit(req, {
+    action: "theme.details.update",
+    resourceType: "Theme",
+    resourceId: req.params.id,
+    reason,
+    before,
+    after,
+    metadata: { slug: row.slug, fields: Object.keys(patch) },
+  });
+  res.json({ success: true, data: row });
+});
+
+/** POST /themes/:id/cover — multipart "image"; becomes the previewImage override. */
+export const themeCover = asyncHandler(async (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, message: "No image provided" });
+  const uploaded = await uploadImage(req.file.buffer, "platform", "theme");
+  const { before, after, row } = await updateThemeDetails(req.params.id, { previewImage: uploaded.url }, req.platformUser);
+  await recordPlatformAudit(req, {
+    action: "theme.details.update",
+    resourceType: "Theme",
+    resourceId: req.params.id,
+    before: { previewImage: before.previewImage },
+    after: { previewImage: after.previewImage },
+    metadata: { slug: row.slug, fields: ["previewImage"] },
+  });
+  res.json({ success: true, data: row });
 });
 
 export const health = asyncHandler(async (req, res) => {
