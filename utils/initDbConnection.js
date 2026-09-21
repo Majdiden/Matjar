@@ -15,6 +15,7 @@ import platformFeeEventSchema from "../schemas/platformFeeEvent.js";
 import billingStatementSchema from "../schemas/billingStatement.js";
 import planChangeSchema from "../schemas/planChange.js";
 import incidentSchema from "../schemas/incident.js";
+import platformPaymentMethodSchema from "../schemas/platformPaymentMethod.js";
 import storefrontHealthSchema from "../schemas/storefrontHealth.js";
 import platformFeedbackSchema from "../schemas/platformFeedback.js";
 import webhookDeliverySchema from "../schemas/store/webhookDelivery.js";
@@ -86,6 +87,7 @@ export function registerAllModels(connection) {
   connection.model("BillingStatement", billingStatementSchema);
   connection.model("PlanChange", planChangeSchema);
   connection.model("Incident", incidentSchema);
+  connection.model("PlatformPaymentMethod", platformPaymentMethodSchema);
   connection.model("StorefrontHealth", storefrontHealthSchema);
   connection.model("PlatformFeedback", platformFeedbackSchema);
   connection.model("AccessProgram", accessProgramSchema);

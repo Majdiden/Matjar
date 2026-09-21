@@ -17,5 +17,6 @@ export const PLATFORM_SCOPES = Object.freeze({
   PLATFORM_USERS: "platform.users", // invite/suspend/role-change platform staff, revoke sessions
   TENANT_USERS: "tenant.users", // view/revoke merchant staff access from the console
   FLAGS_WRITE: "flags.write", // feature flags, access programs, overrides
+  PAYMENTS_WRITE: "payments.write", // platform payment-method catalog (what merchants may enable)
 });
 export const ALL_PLATFORM_SCOPES = Object.freeze(Object.values(PLATFORM_SCOPES));

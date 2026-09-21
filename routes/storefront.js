@@ -1517,7 +1517,7 @@ router.post(
 router.get(
   "/payment-methods",
   asyncHandler(async (req, res) => {
-    const methods = await req.models.PaymentMethod.find({ enabled: true })
+    const methods = await req.models.PaymentMethod.find({ enabled: true, platformEnabled: { $ne: false } })
       .sort({ order: 1, createdAt: 1 })
       .lean();
     // Defense-in-depth: even if a legacy tenant has a `type: "gateway"`
@@ -1557,6 +1557,7 @@ router.get(
           label: m.label,
           description: m.description || "",
           providerLogos: m.providerLogos || [],
+          logo: m.logo || "",
           icon: m.icon || (m.providerLogos && m.providerLogos[0]) || "",
           instructions: m.instructions || "",
           customerFields: m.customerFields || [],

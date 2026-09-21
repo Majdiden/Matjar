@@ -17,6 +17,7 @@ import Overview from './pages/overview/Overview';
 import AuditLog from './pages/audit/AuditLog';
 import PlatformUsers from './pages/users/PlatformUsers';
 import Billing from './pages/billing/Billing';
+import Payments from './pages/payments/Payments';
 import AcceptInvite from './pages/AcceptInvite';
 import ResetPlatformPassword from './pages/ResetPlatformPassword';
 import MySecurity from './pages/security/MySecurity';
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/tenants" element={<Tenants />} />
             <Route path="/tenants/:tenantId" element={<TenantDetail />} />
             <Route path="/plans" element={<Plans />} />
+            <Route path="/payments" element={<Payments />} />
             <Route path="/billing" element={<Billing />} />
             <Route path="/users" element={<PlatformUsers />} />
             <Route path="/audit" element={<AuditLog />} />

@@ -83,11 +83,11 @@ export function __setTestSendEmailHook(fn) {
   __testSendEmailHook = typeof fn === "function" ? fn : null;
 }
 
-function captureForTest({ to, subject, html, text, from }) {
+function captureForTest({ to, subject, html, text, from, attachments }) {
   if (__testSendEmailHook) {
     // Hook may throw to simulate a send failure — let the error
     // propagate so the caller's try/catch path is exercised.
-    __testSendEmailHook({ to, subject, html, text, from });
+    __testSendEmailHook({ to, subject, html, text, from, attachments });
   }
   __testInbox.push({
     to,
@@ -95,6 +95,11 @@ function captureForTest({ to, subject, html, text, from }) {
     html,
     text,
     from: from || null,
+    // Attachment metadata only (never the bytes) so tests can assert a
+    // receipt was attached without bloating the inbox.
+    attachments: Array.isArray(attachments)
+      ? attachments.map((a) => ({ filename: a.filename, size: a.content?.length ?? 0 }))
+      : [],
     at: new Date(),
   });
   return {
@@ -124,11 +129,16 @@ function captureForTest({ to, subject, html, text, from }) {
  * @param {string}         [opts.replyTo] Reply-To header.
  * @param {object}         [opts.tags]    Provider-specific tags.
  */
-export async function sendEmail({ to, subject, html, text, from, replyTo, tags }) {
+/**
+ * @param {object} p
+ * @param {Array<{filename: string, content: Buffer}>} [p.attachments]
+ *   Optional file attachments (e.g. an order receipt PDF).
+ */
+export async function sendEmail({ to, subject, html, text, from, replyTo, tags, attachments }) {
   // Test environment always captures into the in-memory inbox — we never
   // want a test run to hit the network, regardless of env-var state.
   if (config.isTest) {
-    return captureForTest({ to, subject, html, text, from });
+    return captureForTest({ to, subject, html, text, from, attachments });
   }
 
   // Platform gate. EMAIL_ENABLED=false (the default) means dev / staging
@@ -137,7 +147,7 @@ export async function sendEmail({ to, subject, html, text, from, replyTo, tags }
   if (!config.emailEnabled) {
     // Only recipient + subject: bodies can carry invite/reset tokens and
     // must never land in logs.
-    logger.info("Email (stub)", { to, subject });
+    logger.info("Email (stub)", { to, subject, attachments: (attachments || []).map((a) => a.filename) });
     return { id: "stub", provider: "log", accepted: true, success: true };
   }
 
@@ -158,6 +168,7 @@ export async function sendEmail({ to, subject, html, text, from, replyTo, tags }
       text,
       reply_to: replyTo,
       tags,
+      ...(attachments?.length ? { attachments: attachments.map((a) => ({ filename: a.filename, content: a.content })) } : {}),
     });
     if (resp?.error) {
       throw new Error(`Resend error: ${resp.error.message || resp.error}`);

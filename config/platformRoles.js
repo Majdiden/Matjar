@@ -62,7 +62,7 @@ export const PLATFORM_ROLE_DEFS = Object.freeze([
     key: PLATFORM_ROLES.FINANCE,
     label: "Finance",
     description: "Plans, commission policies, statements and payments.",
-    scopes: [S.SUPPORT_READ, S.BILLING_READ, S.BILLING_WRITE, S.AUDIT_READ],
+    scopes: [S.SUPPORT_READ, S.BILLING_READ, S.BILLING_WRITE, S.PAYMENTS_WRITE, S.AUDIT_READ],
   },
   {
     key: PLATFORM_ROLES.DEVELOPER,

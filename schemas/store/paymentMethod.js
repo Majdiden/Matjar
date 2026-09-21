@@ -63,7 +63,12 @@ const paymentMethodSchema = new Schema({
   description: { type: String, default: "" },
   providerLogos: { type: [String], default: [] },
   icon: { type: String, default: "" },
+  logo: { type: String, default: "" },
   enabled: { type: Boolean, default: false },
+  // Mirrors the platform catalog entry's `enabled`. false = the platform
+  // withdrew the method: hidden from the storefront even if the merchant
+  // left it on. Synced by services/platform/paymentCatalog.js.
+  platformEnabled: { type: Boolean, default: true },
   order: { type: Number, default: 0 },
   instructions: { type: String, default: "" },
   customerFields: { type: [customerFieldSchema], default: [] },

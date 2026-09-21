@@ -3,11 +3,10 @@ import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
 import { requireFeature } from "../middlewares/featureGate.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
-import { seedDefaultPaymentMethods } from "../services/storeSetup.js";
+import { syncStorePaymentMethods, listCatalog } from "../services/platform/paymentCatalog.js";
 
 const router = Router();
 
-const ALLOWED_TYPES = ["gateway", "manual", "cod"];
 const PROTECTED_CODES = new Set(["cod", "manual-transfer"]);
 // System-defined manual-transfer providers — merchants can edit the
 // account info on these but cannot remove them. Custom providers they
@@ -45,7 +44,6 @@ const redactConfig = (method) => {
 // "Add payment method" UI. Each entry is a system-defined template —
 // merchants pick one and fill its config, they don't invent methods.
 // Stripe is parked; no gateway integrations available yet.
-const GATEWAY_CATALOG = [];
 
 router.use(authenticate, requirePermission("settings.write"), requireFeature("payments.methods"));
 
@@ -64,86 +62,31 @@ router.get(
     // is missing (or still under the old "manual_transfer" code, or has
     // no providers seeded), run the idempotent seed once. Cheap precheck
     // first so steady-state requests stay a single find().
-    const canonical = await PaymentMethod.findOne({ code: "manual-transfer" })
-      .select("providers label")
-      .lean();
-    const needsHeal =
-      !canonical ||
-      !(canonical.providers && canonical.providers.length > 0) ||
-      canonical.label !== "Manual Transfer";
-    if (needsHeal) {
-      await seedDefaultPaymentMethods(req.models);
-    }
+    // Methods are platform-owned: bring this store in line with the catalog
+    // (new methods appear disabled, withdrawn ones are flagged) on every read.
+    await syncStorePaymentMethods(req.models, req.tenant?.settings?.language);
     const methods = await PaymentMethod.find({})
       .select("+config")
       .sort({ order: 1, createdAt: 1 })
       .lean();
-    res.json({ success: true, data: { methods: methods.map(redactConfig) } });
+    // What the merchant must fill in per method (API keys etc.) comes from
+    // the integration behind the catalog entry.
+    const catalog = await listCatalog();
+    const merchantFields = Object.fromEntries(catalog.map((e) => [e.code, e.integration?.merchantFields || []]));
+    res.json({ success: true, data: { methods: methods.map((m) => ({ ...redactConfig(m), merchantFields: merchantFields[m.code] || [] })) } });
   })
 );
 
 /**
- * GET /catalog — list gateway integration templates available for install.
- * Currently empty (Stripe parked). The dashboard "Add method" UI
- * uses this to show what can be added.
+ * Methods are defined by the platform (platform admin → Payments). Merchants
+ * enable what the platform offers and fill in their own details; they never
+ * author methods. Kept as explicit 410s so an old dashboard build gets a
+ * clear message instead of a 404.
  */
-router.get(
-  "/catalog",
-  asyncHandler(async (_req, res) => {
-    res.json({ success: true, data: { gateways: GATEWAY_CATALOG } });
-  })
-);
-
-/**
- * POST / — install a gateway integration from the catalog. Merchants
- * never author arbitrary methods; they pick a catalog entry by code.
- */
-router.post(
-  "/",
-  asyncHandler(async (req, res) => {
-    const PaymentMethod = req.models?.PaymentMethod;
-    const { code, enabled, config } = req.body || {};
-
-    if (!code) {
-      return res.status(400).json({ success: false, message: "`code` is required" });
-    }
-    const codeSlug = String(code).trim().toLowerCase();
-    const template = GATEWAY_CATALOG.find((g) => g.code === codeSlug);
-    if (!template) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Only gateway integrations from the catalog can be installed. No catalog entries are currently available.",
-      });
-    }
-
-    const existing = await PaymentMethod.findOne({ code: codeSlug });
-    if (existing) {
-      return res.status(409).json({
-        success: false,
-        message: `"${template.label}" is already installed.`,
-      });
-    }
-
-    const last = await PaymentMethod.findOne({}).sort({ order: -1 }).select("order").lean();
-    const doc = await PaymentMethod.create({
-      tenantId: req.tenantId,
-      code: codeSlug,
-      type: "gateway",
-      label: template.label,
-      description: template.description || "",
-      providerLogos: template.providerLogos || [],
-      icon: template.icon || "",
-      enabled: !!enabled,
-      order: last ? (last.order || 0) + 1 : 0,
-      customerFields: [],
-      providers: [],
-      config: config && typeof config === "object" ? config : undefined,
-    });
-    const created = await PaymentMethod.findById(doc._id).select("+config").lean();
-    res.status(201).json({ success: true, data: { method: redactConfig(created) } });
-  })
-);
+const platformOwned = (_req, res) =>
+  res.status(410).json({ success: false, code: "PLATFORM_OWNED", message: "Payment methods are managed by the platform. Enable one from the list and add your details." });
+router.get("/catalog", platformOwned);
+router.post("/", platformOwned);
 
 /**
  * PATCH /reorder — body: { order: [id1, id2, ...] }.
@@ -198,12 +141,6 @@ router.patch(
       return res.status(404).json({ success: false, message: "Payment method not found" });
     }
 
-    if (payload.type && !ALLOWED_TYPES.includes(payload.type)) {
-      return res.status(400).json({
-        success: false,
-        message: `\`type\` must be one of: ${ALLOWED_TYPES.join(", ")}`,
-      });
-    }
 
     // Merge config carefully. Strip sentinel values from redacted reads —
     // if the client echoes back `{ secretKey: "__set__" }` we preserve the
@@ -224,42 +161,34 @@ router.patch(
       delete payload.config;
     }
 
-    const isProtected = PROTECTED_CODES.has(doc.code);
-    // For system-defined methods (cod, manual-transfer) merchants can
-    // only flip `enabled`, reorder, update instructions/description, and
-    // — for manual-transfer — edit the provider account details. Code,
-    // type, customerFields, and the provider list itself are locked.
-    const assignable = isProtected
-      ? ["enabled", "order", "description", "instructions", "providers"]
-      : [
-          "type",
-          "label",
-          "description",
-          "providerLogos",
-          "icon",
-          "enabled",
-          "order",
-          "instructions",
-          "customerFields",
-          "providers",
-        ];
-
-    for (const k of assignable) {
-      if (payload[k] !== undefined) doc[k] = payload[k];
+    if (payload.enabled === true && doc.platformEnabled === false) {
+      return res.status(400).json({ success: false, code: "PLATFORM_DISABLED", message: "This payment method is currently not offered by the platform." });
     }
 
-    // On protected methods, merchants can edit/add/remove providers
-    // freely — but system-defined providers (Bankak, Fawry, …) must
-    // remain in the list. If the incoming payload drops a system code,
-    // we reinsert the existing record (preserving account info).
-    if (isProtected && payload.providers !== undefined) {
-      const existingProviders = (doc.providers || []).map((p) => p.toObject?.() || p);
+    // Merchant-owned state only. Presentation (label, description,
+    // instructions, logo, customer fields, provider list) comes from the
+    // platform catalog and is re-synced on every read.
+    for (const k of ["enabled", "order"]) {
+      if (payload[k] !== undefined) doc[k] = payload[k];
+    }
+    if (payload.providers !== undefined) {
+      // Merchants edit account details + enabled per provider; the set of
+      // providers itself is the catalog's. Unknown codes are ignored.
       const incoming = Array.isArray(payload.providers) ? payload.providers : [];
-      const incomingCodes = new Set(incoming.map((x) => x.code));
-      const preservedSystem = existingProviders.filter(
-        (p) => SYSTEM_PROVIDER_CODES.has(p.code) && !incomingCodes.has(p.code)
-      );
-      doc.providers = [...incoming, ...preservedSystem];
+      const byCode = new Map(incoming.map((p) => [String(p?.code || "").toLowerCase(), p]));
+      doc.providers = (doc.providers || []).map((p) => {
+        const cur = p.toObject?.() || p;
+        const mine = byCode.get(cur.code);
+        if (!mine) return cur;
+        return {
+          ...cur,
+          enabled: mine.enabled !== undefined ? !!mine.enabled : cur.enabled,
+          accountNumber: mine.accountNumber !== undefined ? String(mine.accountNumber).slice(0, 120) : cur.accountNumber,
+          beneficiaryName: mine.beneficiaryName !== undefined ? String(mine.beneficiaryName).slice(0, 120) : cur.beneficiaryName,
+          phone: mine.phone !== undefined ? String(mine.phone).slice(0, 40) : cur.phone,
+          instructions: mine.instructions !== undefined ? String(mine.instructions).slice(0, 2000) : cur.instructions,
+        };
+      });
       doc.markModified("providers");
     }
 
@@ -272,24 +201,6 @@ router.patch(
 /**
  * DELETE /:id — delete a payment method, unless it is a protected default.
  */
-router.delete(
-  "/:id",
-  asyncHandler(async (req, res) => {
-    const PaymentMethod = req.models?.PaymentMethod;
-    const { id } = req.params;
-    const doc = await PaymentMethod.findById(id).lean();
-    if (!doc) {
-      return res.status(404).json({ success: false, message: "Payment method not found" });
-    }
-    if (PROTECTED_CODES.has(doc.code)) {
-      return res.status(400).json({
-        success: false,
-        message: "Default methods cannot be deleted — disable instead.",
-      });
-    }
-    await PaymentMethod.deleteOne({ _id: id });
-    res.json({ success: true, data: { deleted: true } });
-  })
-);
+router.delete("/:id", platformOwned);
 
 export default router;

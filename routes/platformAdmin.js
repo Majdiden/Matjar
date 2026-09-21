@@ -81,6 +81,7 @@ import commerceRoutes from "./platform/commerce.js";
 import storefrontRoutes from "./platform/storefront.js";
 import analyticsRoutes from "./platform/analytics.js";
 import settingsRoutes from "./platform/settings.js";
+import paymentCatalogRoutes from "./platform/paymentCatalog.js";
 import {
   requestController as impersonationRequest,
   pollController as impersonationPoll,
@@ -121,6 +122,7 @@ router.use("/bulk", bulkRoutes);
 router.use("/system", systemRoutes);
 // Global configuration registry (Phase C) — see config/platformSettingsRegistry.js
 router.use("/settings", settingsRoutes);
+router.use("/payment-methods", paymentCatalogRoutes);
 router.use("/webhooks", webhookInspectorRoutes);
 router.use("/feedback", feedbackRoutes);
 router.use("/programs", programRoutes);

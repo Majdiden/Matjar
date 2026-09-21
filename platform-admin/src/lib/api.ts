@@ -73,6 +73,7 @@ export const PLATFORM_SCOPES = {
   BILLING_WRITE: 'billing.write',
   AUDIT_READ: 'audit.read',
   PLATFORM_USERS: 'platform.users',
+  PAYMENTS_WRITE: 'payments.write',
   TENANT_USERS: 'tenant.users',
   FLAGS_WRITE: 'flags.write',
 } as const;

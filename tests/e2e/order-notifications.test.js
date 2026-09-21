@@ -308,6 +308,29 @@ describe("E2E order status notifications", () => {
     assert.equal(cancelled.to, "jane@buyer.test");
   });
 
+  it("order-received email carries the itemised receipt inline and as a PDF attachment", async () => {
+    const tenantId = await provisionTenant(app);
+    const { product } = await seedProduct(tenantId);
+    const { token: customerToken } = await registerCustomer(app);
+    clearTestInbox();
+    const order = await placeOrder(app, customerToken, product._id);
+    // Placement emails are fire-and-forget; give the PDF build a moment.
+    const deadline = Date.now() + 5000;
+    let sent;
+    while (Date.now() < deadline) {
+      sent = getTestInbox().find((m) => m.to === "jane@buyer.test" && /received/i.test(m.subject));
+      if (sent?.attachments?.length) break;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    assert.ok(sent, "order-received email sent");
+    assert.match(sent.html, /House Blend/);
+    assert.match(sent.html, /18\.50/);
+    assert.match(sent.html, /Receipt/);
+    assert.equal(sent.attachments.length, 1);
+    assert.equal(sent.attachments[0].filename, `receipt-${String(order.orderNumber).replace(/[^A-Za-z0-9_-]+/g, "")}.pdf`); // "#1001" → receipt-1001.pdf
+    assert.ok(sent.attachments[0].size > 5000, "PDF has embedded font + content");
+  });
+
   it("default template fires for un-customised statuses (no merchant overrides)", async () => {
     const tenantId = await provisionTenant(app);
     const adminToken = await loginAdmin(app);

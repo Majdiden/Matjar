@@ -32,9 +32,13 @@
   "method": {
     "list": {
       "title": "Payment Methods",
-      "description": "Enable how customers pay at checkout.",
-      "empty": "No payment methods configured.",
-      "add": "Add payment method"
+      "description": "Choose how customers pay at checkout.",
+      "empty": "No payment methods are offered by the platform yet."
+    },
+    "platform": {
+      "intro": "Payment methods are set up by the platform. You activate the ones you want and add your own details so payments reach you.",
+      "not_offered": "This payment method is not offered by the platform right now.",
+      "not_offered_badge": "Not offered"
     },
     "status": {
       "enabled": "Enabled",
@@ -46,36 +50,24 @@
     },
     "provider": {
       "label": "Providers",
+      "none": "The platform has not added any providers to this method yet.",
       "configured_badge": "Configured",
-      "missing_badge": "Missing info",
-      "off_badge": "Off",
-      "custom_badge": "Custom",
-      "add": "Add provider"
+      "missing_badge": "Missing info"
     },
     "instructions": {
-      "label": "Instructions for customer",
-      "placeholder": "Shown under the provider details on checkout."
+      "label": "Instructions shown to customers"
     },
-    "chooser": {
-      "title": "Add payment method",
-      "description": "Choose how your customer will pay.",
-      "manual_transfer_title": "Manual transfer provider",
-      "manual_transfer_desc": "Add a bank or mobile-money option — customers see your account details at checkout and upload a receipt."
+    "details": {
+      "title": "Your details",
+      "help": "Provided by you so this method works for your store. Secrets are stored securely and never shown again.",
+      "secret_saved": "Saved",
+      "required_error": "{{label}} is required."
     },
     "form": {
-      "title_new": "Add provider",
-      "title_edit": "Edit {{name}}",
-      "desc_new": "Add a manual-transfer option customers can pay through.",
-      "desc_edit": "Update your receiving account details for this provider.",
+      "title_edit": "{{name}}",
+      "desc_edit": "Your receiving account details for this provider. Customers see them at checkout.",
+      "platform_provider": "Provider set up by the platform",
       "field": {
-        "provider_name": {
-          "label": "Provider name *",
-          "placeholder": "e.g. Bank of Khartoum"
-        },
-        "icon": {
-          "label": "Icon",
-          "help": "Shown to customers at checkout and in product trust badges. PNG/SVG with transparent background recommended."
-        },
         "beneficiary_name": {
           "label": "Beneficiary name",
           "placeholder": "Account holder"
@@ -95,32 +87,16 @@
         "enabled": {
           "label": "Enabled — show to customers at checkout"
         }
-      },
-      "upload": "Upload",
-      "uploading": "Uploading…",
-      "replace_logo": "Replace",
-      "remove_logo": "Remove"
+      }
     },
     "toast": {
       "load_failed": "Failed to load payment methods",
       "enabled": "{{label}} enabled",
       "disabled": "{{label}} disabled",
       "saved": "Saved",
-      "provider_added": "Provider added",
       "provider_updated": "Provider updated",
-      "provider_removed": "Provider removed",
-      "logo_uploaded": "Logo uploaded",
-      "upload_no_url": "Upload did not return a URL",
-      "something_went_wrong": "Something went wrong",
-      "system_provider_remove_error": "System providers cannot be removed — disable instead.",
-      "manual_not_installed": "Manual Transfer is not installed.",
       "missing_account_error": "{{label}}: add account number or phone before enabling.",
       "enable_before_save": "Add account number or phone before enabling."
-    },
-    "validation": {
-      "label_required": "Label is required",
-      "invalid_name": "Invalid name",
-      "duplicate_provider": "A provider with that name already exists."
     }
   },
   "transaction": {

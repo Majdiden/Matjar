@@ -32,6 +32,8 @@ import mongoose from "mongoose";
 import { sendEmail } from "./providers/email.js";
 import logger from "../utils/logger.js";
 import { storeFrom, storeReplyTo, wrapStoreEmail, platformFrom } from "./emailIdentity.js";
+import { buildReceiptHtml, buildReceiptPdf, resolvePaymentLabel } from "./orderReceipt.js";
+import { createScopedModels } from "../utils/scopedModel.js";
 
 const STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled", "Refunded"];
 
@@ -186,7 +188,7 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
 
     const Tenant = mongoose.model("Tenant");
     const tenant = await Tenant.findById(tenantId)
-      .select("name slug domains settings.notifications settings.storeName settings.currency settings.language settings.logo settings.supportEmail settings.phone settings.address email")
+      .select("name slug domains settings.notifications settings.storeName settings.currency settings.currencies.base settings.language settings.logo settings.supportEmail settings.phone settings.address email")
       .lean();
     if (!tenant) return { success: false, reason: "tenant-not-found" };
 
@@ -227,10 +229,35 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
     // Branded envelope: store logo (if uploaded) + store details footer,
     // RTL-aware by the order's language. The body is the rendered template
     // text; preserve its line breaks.
-    const contentHtml = `<div style="white-space:pre-wrap">${escapeHtml(body)}</div>`;
+    let contentHtml = `<div style="white-space:pre-wrap">${escapeHtml(body)}</div>`;
+
+    // The order-received email carries the itemised receipt inline and as a
+    // PDF attachment. Neither may block the email: a receipt failure is
+    // logged and the plain confirmation still goes out.
+    let attachments;
+    if (newStatus === "Pending") {
+      let paymentLabel = null;
+      try {
+        paymentLabel = await resolvePaymentLabel(createScopedModels(mongoose.connection, tenantId), order);
+      } catch {
+        paymentLabel = null;
+      }
+      try {
+        contentHtml += buildReceiptHtml({ order, tenant, language: emailLanguage, paymentLabel });
+      } catch (err) {
+        logger.warn("Order receipt HTML failed; sending without it", { orderId: order?._id?.toString?.(), error: err?.message });
+      }
+      try {
+        const pdf = await buildReceiptPdf({ order, tenant, language: emailLanguage, paymentLabel });
+        const safeNumber = String(order.orderNumber || order._id || "order").replace(/[^A-Za-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "order";
+        attachments = [{ filename: `receipt-${safeNumber}.pdf`, content: pdf }];
+      } catch (err) {
+        logger.warn("Order receipt PDF failed; sending without attachment", { orderId: order?._id?.toString?.(), error: err?.message });
+      }
+    }
     const html = wrapStoreEmail({ tenant, contentHtml, language: emailLanguage });
 
-    const result = await sendEmail({ to: customerEmail, subject, html, from, replyTo });
+    const result = await sendEmail({ to: customerEmail, subject, html, from, replyTo, attachments });
     // Diagnostic: surface what was attempted so a non-delivery can be traced
     // in prod logs (from/to + provider outcome) without a debugger.
     logger.info("Customer order email", {

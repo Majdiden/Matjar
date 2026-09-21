@@ -8,6 +8,7 @@ import {
   Boxes,
   Receipt,
   CreditCard,
+  Wallet,
   Globe,
   Palette,
   HeartPulse,
@@ -83,6 +84,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: '/billing', label: 'Billing', icon: Receipt, scope: S.BILLING_READ, tab: true, ready: true },
       { to: '/plans', label: 'Plans', icon: CreditCard, scope: S.BILLING_READ, ready: true },
+      { to: '/payments', label: 'Payment methods', shortLabel: 'Payments', icon: Wallet, scope: S.SUPPORT_READ, ready: true },
     ],
   },
   {

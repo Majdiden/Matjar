@@ -563,7 +563,7 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
         throw new APIError(`Payment method not available: ${paymentMethodCode}`, 400);
       }
       const configured = models.PaymentMethod
-        ? await models.PaymentMethod.findOne({ code: paymentMethodCode, enabled: true }).session(session)
+        ? await models.PaymentMethod.findOne({ code: paymentMethodCode, enabled: true, platformEnabled: { $ne: false } }).session(session)
         : null;
       if (!configured) {
         throw new APIError(`Payment method not available: ${paymentMethodCode}`, 400);

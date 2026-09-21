@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { syncStorePaymentMethods } from "./platform/paymentCatalog.js";
 import crypto from "crypto";
 import { registerDomain } from "./domainRegistration.js";
 import { installDefaultTheme } from "./theme.js";
@@ -417,115 +418,10 @@ export const MANUAL_CUSTOMER_FIELDS = [
 export const SYSTEM_METHOD_CODES = new Set(["cod", "manual-transfer"]);
 
 export async function seedDefaultPaymentMethods(models, language) {
-  if (!models?.PaymentMethod) return { created: 0 };
-
-  // Seed the default method copy in the store's chosen language so a new
-  // Arabic store doesn't start with English payment labels. The merchant can
-  // still rename them. Falls back to English for any other language.
-  const isAr = String(language || "").toLowerCase().startsWith("ar");
-  const copy = isAr
-    ? {
-        codLabel: "الدفع عند الاستلام",
-        codDesc: "ادفع عند وصول طلبك.",
-        manualLabel: "تحويل يدوي",
-        manualDesc: "ادفع عبر تحويل بنكي أو محفظة إلكترونية. ستظهر لك تفاصيل حساب التاجر عند إتمام الطلب.",
-        manualInstr: "حوّل إجمالي الطلب بالضبط إلى الحساب الظاهر، ثم ارفع الإيصال وأدخل رقم العملية.",
-        fTxnLabel: "رقم العملية",
-        fTxnPlaceholder: "مثال: TXN-8827463",
-        fReceiptLabel: "إيصال الدفع",
-      }
-    : {
-        codLabel: "Cash on Delivery",
-        codDesc: "Pay when your order arrives.",
-        manualLabel: "Manual Transfer",
-        manualDesc: "Pay by bank or mobile-money transfer. You'll get the merchant's account details at checkout.",
-        manualInstr: "Transfer the exact order total to the account shown, then upload the receipt and enter your transaction number.",
-        fTxnLabel: "Transaction number",
-        fTxnPlaceholder: "e.g. TXN-8827463",
-        fReceiptLabel: "Payment receipt",
-      };
-  const manualFields = MANUAL_CUSTOMER_FIELDS.map((f) =>
-    f.name === "transactionNumber"
-      ? { ...f, label: copy.fTxnLabel, placeholder: copy.fTxnPlaceholder }
-      : f.name === "receipt"
-      ? { ...f, label: copy.fReceiptLabel }
-      : f
-  );
-
-  const wanted = [
-    {
-      code: "cod",
-      type: "cod",
-      label: copy.codLabel,
-      description: copy.codDesc,
-      providerLogos: ["cod"],
-      icon: "cod",
-      enabled: true,
-      order: 1,
-      customerFields: [],
-      providers: [],
-    },
-    {
-      code: "manual-transfer",
-      type: "manual",
-      label: copy.manualLabel,
-      description: copy.manualDesc,
-      providerLogos: DEFAULT_MANUAL_PROVIDERS.map((p) => p.logo),
-      icon: "bank",
-      enabled: false,
-      order: 2,
-      instructions: copy.manualInstr,
-      customerFields: manualFields,
-      providers: DEFAULT_MANUAL_PROVIDERS.map((p) => ({
-        ...p,
-        enabled: false,
-        accountNumber: "",
-        beneficiaryName: "",
-        phone: "",
-      })),
-    },
-  ];
-
-  // Idempotent: insert any missing system method, and top-up missing
-  // provider templates for existing manual-transfer docs (so upgrading
-  // tenants get the new Bankak/Fawry/… list without clobbering their
-  // already-filled account info).
-  let created = 0;
-  for (const method of wanted) {
-    // Legacy tenants may have the method under an older code variant
-    // (e.g. "manual_transfer" with an underscore). Match any of them
-    // so the top-up migrates in place instead of creating a duplicate.
-    const codeVariants = method.code === "manual-transfer"
-      ? ["manual-transfer", "manual_transfer"]
-      : [method.code];
-    const existing = await models.PaymentMethod.findOne({ code: { $in: codeVariants } });
-    if (!existing) {
-      await models.PaymentMethod.create(method);
-      created++;
-      continue;
-    }
-    // Normalize the canonical code + label so legacy tenants converge
-    // on the system-owned name.
-    if (existing.code !== method.code) {
-      existing.code = method.code;
-    }
-    if (existing.label !== method.label) {
-      existing.label = method.label;
-    }
-    if (method.code === "manual-transfer") {
-      const have = new Set((existing.providers || []).map((p) => p.code));
-      const missing = method.providers.filter((p) => !have.has(p.code));
-      if (missing.length > 0) {
-        existing.providers = [...(existing.providers || []), ...missing];
-        existing.markModified("providers");
-      }
-      if (!existing.customerFields || existing.customerFields.length === 0) {
-        existing.customerFields = MANUAL_CUSTOMER_FIELDS;
-      }
-    }
-    if (existing.isModified()) await existing.save();
-  }
-  return { created };
+  // Payment methods are platform-owned: stores sync from the catalog
+  // (services/platform/paymentCatalog.js). Kept under the old name for
+  // callers/scripts; the built-in defaults live in config/paymentIntegrations.js.
+  return syncStorePaymentMethods(models, language);
 }
 
 /**
