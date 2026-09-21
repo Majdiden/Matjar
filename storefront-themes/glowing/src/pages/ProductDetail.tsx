@@ -7,6 +7,7 @@ import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
 import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
+import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import ProductReviews from '@matjar/theme-shared/components/commerce/ProductReviews';
 import ProductDescription from '@matjar/theme-shared/components/commerce/ProductDescription';
 import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -41,6 +42,7 @@ const ProductDetail: React.FC = () => {
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
+  const wishlist = useWishlist();
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
@@ -110,6 +112,9 @@ const ProductDetail: React.FC = () => {
     adding,
   });
   const isPreorder = preState.mode === 'preorder';
+  const wishlisted = wishlist.includes(product._id);
+  const toggleWishlist = () => { void wishlist.toggle(product._id, { _id: product._id, name: product.name, slug: product.slug, price: product.price, images: product.images }); };
+
   const effectivePrice = preState.effectivePrice;
   const canAddToCart =
     (inStock || !!preState.config) && !adding && !needsSelection && !preState.ctaDisabled;
@@ -347,9 +352,9 @@ const ProductDetail: React.FC = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
                 {t('theme.product_detail.compare')}
               </button>
-              <button className="flex items-center gap-2 hover:text-black transition">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
-                {t('theme.product_detail.wishlist')}
+              <button type="button" onClick={toggleWishlist} aria-pressed={wishlisted} className={`flex items-center gap-2 hover:text-black transition ${wishlisted ? 'text-black' : ''}`}>
+                <svg className="w-4 h-4" fill={wishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+                {wishlisted ? t('product:wishlist.remove') : t('theme.product_detail.wishlist')}
               </button>
               <button className="flex items-center gap-2 hover:text-black transition">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" /></svg>

@@ -7,6 +7,7 @@ import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
 import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
+import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import ProductReviews from '@matjar/theme-shared/components/commerce/ProductReviews';
 import ProductDescription from '@matjar/theme-shared/components/commerce/ProductDescription';
 import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -31,6 +32,7 @@ const ProductDetail: React.FC = () => {
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
+  const wishlist = useWishlist();
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
@@ -94,6 +96,9 @@ const ProductDetail: React.FC = () => {
     adding,
   });
   const isPreorder = preState.mode === 'preorder';
+  const wishlisted = wishlist.includes(product._id);
+  const toggleWishlist = () => { void wishlist.toggle(product._id, { _id: product._id, name: product.name, slug: product.slug, price: product.price, images: product.images }); };
+
   const effectivePrice = preState.effectivePrice;
   const canAddToCart =
     (inStock || !!preState.config) && !adding && !needsSelection && !preState.ctaDisabled;
@@ -302,10 +307,12 @@ const ProductDetail: React.FC = () => {
               </div>
               <button
                 type="button"
+                onClick={toggleWishlist}
+                aria-pressed={wishlisted}
                 className="w-full h-12 rounded-full text-sm font-bold transition hover:scale-[1.02]"
-                style={{ backgroundColor: PINK, color: DARK_TEAL }}
+                style={wishlisted ? { backgroundColor: DARK_TEAL, color: '#fff' } : { backgroundColor: PINK, color: DARK_TEAL }}
               >
-                {t('theme.product_detail.save_to_wishlist')}
+                {wishlisted ? t('product:wishlist.remove') : t('theme.product_detail.save_to_wishlist')}
               </button>
             </div>
 

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
 import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
+import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import ProductReviews from '@matjar/theme-shared/components/commerce/ProductReviews';
 import ProductDescription from '@matjar/theme-shared/components/commerce/ProductDescription';
 import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -44,6 +45,7 @@ const ProductDetail: React.FC = () => {
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
+  const wishlist = useWishlist();
   const { t, i18n } = useTranslation(['theme']);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
@@ -104,6 +106,9 @@ const ProductDetail: React.FC = () => {
     adding,
   });
   const isPreorder = preState.mode === 'preorder';
+  const wishlisted = wishlist.includes(product._id);
+  const toggleWishlist = () => { void wishlist.toggle(product._id, { _id: product._id, name: product.name, slug: product.slug, price: product.price, images: product.images }); };
+
   const effectivePrice = preState.effectivePrice;
   const canAddToCart =
     (inStock || !!preState.config) && !adding && !needsSelection && !preState.ctaDisabled;
@@ -305,10 +310,15 @@ const ProductDetail: React.FC = () => {
               </div>
               <button
                 type="button"
-                className="w-full h-12 rounded-full border-2 text-[11px] tracking-[0.22em] uppercase font-semibold transition hover:bg-[color:var(--color-primary)] hover:text-white"
-                style={{ borderColor: NAVY, color: NAVY }}
+                onClick={toggleWishlist}
+                aria-pressed={wishlisted}
+                className={`w-full h-12 rounded-full border-2 border-[color:var(--color-primary)] text-[11px] tracking-[0.22em] uppercase font-semibold transition ${
+                  wishlisted
+                    ? 'bg-[color:var(--color-primary)] text-white hover:bg-white hover:text-[color:var(--color-primary)]'
+                    : 'bg-transparent text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-white'
+                }`}
               >
-                {t('theme.product_detail.add_to_wishlist')}
+                {wishlisted ? t('product:wishlist.remove') : t('theme.product_detail.add_to_wishlist')}
               </button>
             </div>
 
