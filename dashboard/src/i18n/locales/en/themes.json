@@ -50,6 +50,9 @@
       "error_load": "Failed to load themes",
       "error_install": "Failed to install theme",
       "error_uninstall": "Failed to uninstall theme"
+    },
+    "category": {
+      "all": "All categories"
     }
   },
   "editor": {

@@ -25,6 +25,16 @@ import { useConfirm } from '../../components/ui/use-confirm';
 
 type Filter = 'all' | 'free' | 'popular';
 
+/** Curated theme category from the API (config/themeCategories.js). */
+interface ThemeCategory {
+  key: string;
+  label: string;
+  labelAr: string;
+  icon: string;
+  count: number;
+}
+type ThemeWithCategories = Theme & { categoryKeys?: string[] };
+
 /**
  * Build the tenant's storefront origin from its domain host, mirroring how the
  * Domains page opens the live store (`https://<host>`). In local dev the
@@ -41,7 +51,8 @@ function storefrontOriginFromHost(host: string | null | undefined): string {
 
 interface ThemesListResponse {
   data?: {
-    themes?: Theme[];
+    themes?: ThemeWithCategories[];
+    categories?: ThemeCategory[];
     currentTheme?: Theme | null;
   };
 }
@@ -92,8 +103,15 @@ const ThemeScreenshot: React.FC<{
 
 export const Themes: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation(['themes', 'common']);
-  const [themes, setThemes] = useState<Theme[]>([]);
+  const { t, i18n } = useTranslation(['themes', 'common']);
+  const isAr = i18n.language?.startsWith('ar');
+  const [themes, setThemes] = useState<ThemeWithCategories[]>([]);
+  const [categories, setCategories] = useState<ThemeCategory[]>([]);
+  const [category, setCategory] = useState<string>('all');
+  const categoryLabel = (key: string) => {
+    const c = categories.find((x) => x.key === key);
+    return c ? (isAr && c.labelAr ? c.labelAr : c.label) : key;
+  };
   const [activeTheme, setActiveTheme] = useState<Theme | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState('');
@@ -136,6 +154,7 @@ export const Themes: React.FC = () => {
       setLoading(true);
       const response = (await api.themes.getActive()) as ThemesListResponse;
       setThemes(response.data?.themes || []);
+      setCategories(response.data?.categories || []);
       setActiveTheme(response.data?.currentTheme || null);
     } catch (err: unknown) {
       toast.error(errorMessage(err, t('themes:list.toast.error_load')));
@@ -183,6 +202,9 @@ export const Themes: React.FC = () => {
 
   const filteredThemes = useMemo(() => {
     let list = themes;
+    if (category !== 'all') {
+      list = list.filter((t) => (t.categoryKeys || []).includes(category));
+    }
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -198,7 +220,7 @@ export const Themes: React.FC = () => {
       );
     }
     return list;
-  }, [themes, search, filter]);
+  }, [themes, search, filter, category]);
 
   if (loading) {
     return (
@@ -327,6 +349,36 @@ export const Themes: React.FC = () => {
           </div>
         </div>
 
+        {/* Category chips — horizontally scrollable on phones */}
+        {categories.length > 0 && (
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto">
+            <div className="flex items-center gap-2 w-max pb-1">
+              {[{ key: 'all', count: themes.length }, ...categories].map((c) => {
+                const selected = category === c.key;
+                return (
+                  <button
+                    key={c.key}
+                    type="button"
+                    onClick={(e) => {
+                      setCategory(c.key);
+                      e.currentTarget.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+                    }}
+                    aria-pressed={selected}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border whitespace-nowrap transition-colors ${
+                      selected
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-background hover:bg-muted border-border text-foreground'
+                    }`}
+                  >
+                    {c.key === 'all' ? t('themes:list.category.all') : categoryLabel(c.key)}
+                    <span className={`text-xs ${selected ? 'opacity-80' : 'text-muted-foreground'}`}>{c.count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Filter pills */}
         <div className="flex items-center gap-2 flex-wrap">
           {(['all', 'popular', 'free'] as const).map((f) => (
@@ -352,7 +404,7 @@ export const Themes: React.FC = () => {
             <Palette className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-1">{t('themes:list.empty.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              {search ? t('themes:list.empty.hint_search') : t('themes:list.empty.hint_empty')}
+              {search || category !== 'all' ? t('themes:list.empty.hint_search') : t('themes:list.empty.hint_empty')}
             </p>
           </CardContent>
         </Card>
@@ -425,6 +477,21 @@ export const Themes: React.FC = () => {
                       v{theme.version} • {theme.author.name}
                     </p>
                   </div>
+
+                  {theme.categoryKeys && theme.categoryKeys.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {theme.categoryKeys.map((k) => (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => setCategory(k)}
+                          className="rounded-full border bg-muted/60 px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-muted"
+                        >
+                          {categoryLabel(k)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
                     {theme.description}

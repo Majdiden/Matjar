@@ -1,3 +1,4 @@
+import { normaliseThemeCategories, summariseThemeCategories } from "../config/themeCategories.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import logger from "../utils/logger.js";
 import { reloadAllManifests } from "../services/themeManifestRegistry.js";
@@ -145,10 +146,14 @@ export const getActiveThemes = asyncHandler(async (req, res) => {
     }
   }
 
+  // Curated category keys per theme + the category list (with counts) so
+  // the merchant Themes page can group/filter without knowing manifest keys.
+  const decorated = themes.map((t) => ({ ...t, categoryKeys: normaliseThemeCategories(t.categories) }));
   res.json({
     success: true,
     data: {
-      themes,
+      themes: decorated,
+      categories: summariseThemeCategories(themes),
       // Themes from the list are already decorated; a currentTheme fetched
       // directly by slug/id still needs its previewImage overlay.
       currentTheme: withThemePreviewImage(currentTheme),

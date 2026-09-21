@@ -53,6 +53,9 @@
       "error_load": "فشل تحميل القوالب",
       "error_install": "فشل تثبيت القالب",
       "error_uninstall": "فشل إلغاء تثبيت القالب"
+    },
+    "category": {
+      "all": "كل الفئات"
     }
   },
   "editor": {
