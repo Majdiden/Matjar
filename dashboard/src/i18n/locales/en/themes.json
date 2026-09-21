@@ -1217,6 +1217,9 @@
     },
     "home_variant": {
       "label": "Home Layout"
+    },
+    "show_content_sections": {
+      "label": "Show Content Sections (How to use, Ingredients…)"
     }
   },
   "blocks": {

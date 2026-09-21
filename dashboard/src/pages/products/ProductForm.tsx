@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import type { Product, Category, ProductFormData } from '../../types';
 import { VariantEditor } from './VariantEditor';
 import { PreorderEditor } from './PreorderEditor';
+import { SpecificationsEditor, ContentSectionsEditor } from './ContentEditors';
+import { SECTION_KEY_RE, type SpecRow, type ContentSectionRow } from './contentSections';
 
 // GET /categories — response shape; server wraps in responseObject.data.
 interface CategoriesGetResponse {
@@ -108,6 +110,11 @@ export const ProductForm: React.FC = () => {
   // the storefront reads for an Arabic-language store). Empty stays empty; the
   // storefront falls back to the base (English) field.
   const [arData, setArData] = useState({ name: '', shortDescription: '', description: '' });
+  // Product-page content: key/value specifications and merchant-authored
+  // blocks ("How to use", "Ingredients"…). Kept outside ProductFormData like
+  // translations; flattened rows here → schema shape on submit.
+  const [specs, setSpecs] = useState<SpecRow[]>([]);
+  const [contentSections, setContentSections] = useState<ContentSectionRow[]>([]);
 
   useEffect(() => { loadInitialData();
     // loadInitialData closes over `id` and `isEditMode`; refetching on
@@ -144,6 +151,15 @@ export const ProductForm: React.FC = () => {
           shortDescription: ar.shortDescription || '',
           description: ar.description || '',
         });
+        setSpecs((product.specifications || []).map((s) => ({ key: s.key || '', value: s.value || '' })));
+        setContentSections((product.contentSections || []).map((s) => ({
+          key: s.key || '',
+          title: s.title || '',
+          body: s.body || '',
+          titleAr: s.translations?.ar?.title || '',
+          bodyAr: s.translations?.ar?.body || '',
+          autoKey: false,
+        })));
       }
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
@@ -174,6 +190,13 @@ export const ProductForm: React.FC = () => {
       }
     }
     setFormErrors(errors);
+    // Content sections: a filled section needs a valid, unique key.
+    const filled = contentSections.filter((s) => s.title.trim() && s.body.trim());
+    const keys = filled.map((s) => s.key);
+    if (filled.some((s) => !SECTION_KEY_RE.test(s.key)) || new Set(keys).size !== keys.length) {
+      toast.error(t('products.form.content_sections.toast_invalid'));
+      return false;
+    }
     return Object.keys(errors).length === 0;
   };
 
@@ -193,6 +216,18 @@ export const ProductForm: React.FC = () => {
             description: arData.description.trim(),
           },
         },
+        // Empty rows are dropped; empty Arabic strings are omitted.
+        specifications: specs
+          .map((s) => ({ key: s.key.trim(), value: s.value.trim() }))
+          .filter((s) => s.key && s.value),
+        contentSections: contentSections
+          .filter((s) => s.title.trim() && s.body.trim())
+          .map((s) => {
+            const ar: { title?: string; body?: string } = {};
+            if (s.titleAr.trim()) ar.title = s.titleAr.trim();
+            if (s.bodyAr.trim()) ar.body = s.bodyAr.trim();
+            return { key: s.key, title: s.title.trim(), body: s.body.trim(), ...(Object.keys(ar).length ? { translations: { ar } } : {}) };
+          }),
       } as any;
       if (isEditMode && id) {
         await api.products.update(id, payload);
@@ -383,6 +418,9 @@ export const ProductForm: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+
+            <SpecificationsEditor rows={specs} onChange={setSpecs} />
+            <ContentSectionsEditor rows={contentSections} onChange={setContentSections} />
 
             {/* Pricing */}
             <Card>

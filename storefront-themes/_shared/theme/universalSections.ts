@@ -337,6 +337,7 @@ export const universalSections: SectionDefinition[] = [
       { id: 'heading', type: 'text', label: 'Heading', default: 'Details' },
       { id: 'show_description', type: 'checkbox', label: 'Show Description', default: true },
       { id: 'show_specs', type: 'checkbox', label: 'Show Specifications', default: true },
+      { id: 'show_content_sections', type: 'checkbox', label: 'Show Content Sections (How to use, Ingredients…)', default: true },
       { id: 'specs_heading', type: 'text', label: 'Specifications Heading', default: 'Specifications' },
       { id: 'padding_top', type: 'range', label: 'Padding Top', min: 0, max: 160, step: 8, default: 40, unit: 'px' },
       { id: 'padding_bottom', type: 'range', label: 'Padding Bottom', min: 0, max: 160, step: 8, default: 40, unit: 'px' },

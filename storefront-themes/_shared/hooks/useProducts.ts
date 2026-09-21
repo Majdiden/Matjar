@@ -19,16 +19,43 @@ function localizeCategory(cat: any, lang: string): any {
  * wins when filled in (see the Product schema). Every consumer of `product.name`
  * gets the localized value with no theme changes.
  */
+/** A merchant-authored product page block ("How to use", "Ingredients"…). */
+export interface ProductContentSection {
+  key: string;
+  title: string;
+  body: string;
+}
+
+/**
+ * Localized content sections for a product (title/body in the active
+ * language, base text as the fallback). Always an array; empty when the
+ * merchant wrote none. Themes use this for their content tabs.
+ */
+export function productContentSections(p: any, lang: string): ProductContentSection[] {
+  const list = Array.isArray(p?.contentSections) ? p.contentSections : [];
+  return list
+    .map((s: any) => {
+      const tr = s?.translations?.[lang] || {};
+      return { key: String(s?.key || ''), title: tr.title || s?.title || '', body: tr.body || s?.body || '' };
+    })
+    .filter((s: ProductContentSection) => s.title && s.body);
+}
+
 function localizeProduct(p: any, lang: string): any {
   const tr = p?.translations?.[lang];
-  if (!tr) return p;
-  const name = tr.name || p.name;
-  const description = tr.description || p.description;
-  const shortDescription = tr.shortDescription || p.shortDescription;
-  if (name === p.name && description === p.description && shortDescription === p.shortDescription) {
+  const sections = productContentSections(p, lang);
+  const sectionsChanged = Array.isArray(p?.contentSections) && sections.some((s, i) => {
+    const raw = p.contentSections[i];
+    return raw && (raw.title !== s.title || raw.body !== s.body);
+  });
+  if (!tr && !sectionsChanged) return p;
+  const name = tr?.name || p.name;
+  const description = tr?.description || p.description;
+  const shortDescription = tr?.shortDescription || p.shortDescription;
+  if (!sectionsChanged && name === p.name && description === p.description && shortDescription === p.shortDescription) {
     return p;
   }
-  return { ...p, name, description, shortDescription };
+  return { ...p, name, description, shortDescription, contentSections: sections.length ? sections : p.contentSections };
 }
 
 /** Localize a list of products for the active language. */

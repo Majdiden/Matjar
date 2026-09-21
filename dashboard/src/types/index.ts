@@ -114,12 +114,22 @@ export interface VerificationInstructions {
 }
 
 // Product types
+export interface ProductSpecification { key: string; value: string }
+export interface ProductContentSection {
+  key: string;
+  title: string;
+  body: string;
+  translations?: { ar?: { title?: string; body?: string } };
+}
+
 export interface Product {
   _id: string;
   name: string;
   slug: string;
   description: string;
   shortDescription?: string;
+  specifications?: ProductSpecification[];
+  contentSections?: ProductContentSection[];
   price: number;
   salePrice?: number;
   // Strikethrough "was" price. When set and greater than price, the

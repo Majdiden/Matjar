@@ -103,6 +103,14 @@
         },
         "tags": {
           "title": "Tags"
+        },
+        "specifications": {
+          "title": "Specifications",
+          "description": "Key/value facts shown on the product page (material, weight, size…)."
+        },
+        "content_sections": {
+          "title": "Content sections",
+          "description": "Extra blocks on the product page such as How to use or Ingredients. They appear as tabs or an accordion; themes with a dedicated tab (How to use / Ingredients / Nutrition) pick up the matching key (how-to-use, ingredients, nutrition)."
         }
       },
       "field": {
@@ -191,6 +199,38 @@
       "action": {
         "create": "Create Product",
         "update": "Update Product"
+      },
+      "specifications": {
+        "empty": "No specifications yet.",
+        "key_placeholder": "Label (e.g. Material)",
+        "value_placeholder": "Value (e.g. 100% cotton)",
+        "add": "Add specification",
+        "remove": "Remove"
+      },
+      "content_sections": {
+        "suggested": "Suggested:",
+        "preset": {
+          "how-to-use": "How to use",
+          "ingredients": "Ingredients",
+          "nutrition": "Nutrition",
+          "care": "Care",
+          "warranty": "Warranty",
+          "size-guide": "Size guide"
+        },
+        "untitled": "Untitled section",
+        "title_label": "Title",
+        "key_label": "Key",
+        "key_invalid": "Lowercase letters, digits and dashes only.",
+        "key_duplicate": "Another section already uses this key.",
+        "body_label": "Text",
+        "body_hint": "Plain text. Line breaks are kept.",
+        "title_ar_label": "Title (Arabic)",
+        "body_ar_label": "Text (Arabic)",
+        "add": "Add section",
+        "remove": "Remove",
+        "move_up": "Move up",
+        "move_down": "Move down",
+        "toast_invalid": "Each content section needs a valid, unique key."
       }
     },
     "status": {

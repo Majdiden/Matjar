@@ -40,6 +40,26 @@ const productSchema = new Schema({
     },
   ],
   /**
+   * Merchant-authored content blocks for the product page ("How to use",
+   * "Ingredients", "Care", "Warranty"…). Plain text (line breaks kept), no
+   * HTML. `key` is a stable slug themes may use to map a block onto a
+   * dedicated tab; `translations.ar` mirrors the top-level convention.
+   */
+  contentSections: [
+    {
+      key: { type: String, required: true, trim: true, lowercase: true },
+      title: { type: String, required: true, trim: true, maxlength: 80 },
+      body: { type: String, required: true, maxlength: 5000 },
+      translations: {
+        ar: {
+          title: { type: String, trim: true, default: "" },
+          body: { type: String, default: "" },
+        },
+      },
+      _id: false,
+    },
+  ],
+  /**
    * Curated "frequently bought with" pairings. If empty, the storefront falls
    * back to top-selling products in the same category.
    */

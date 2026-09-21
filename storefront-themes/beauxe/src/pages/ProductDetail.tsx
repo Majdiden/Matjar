@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useProduct } from '@matjar/theme-shared/hooks/useProducts';
+import { useProduct, productContentSections } from '@matjar/theme-shared/hooks/useProducts';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useTranslation } from 'react-i18next';
@@ -36,20 +36,23 @@ const PINK = 'var(--color-secondary)';
 const BLUSH = 'var(--color-muted)';
 const CREAM = 'var(--color-accent)';
 
-type TabKey = 'description' | 'how-to-use' | 'reviews';
+// 'description' | 'reviews' | any merchant content-section key.
+type TabKey = string;
 
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
-  const { t } = useTranslation(['theme']);
+  const { t, i18n } = useTranslation(['theme']);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
   const [selection, setSelection] = useState<Record<string, string>>({});
   const [activeVariant, setActiveVariant] = useState<Variant | null>(null);
   const [tab, setTab] = useState<TabKey>('description');
+  // Merchant-authored blocks ("How to use", "Ingredients"…) become tabs.
+  const contentSections = productContentSections(product, i18n.language);
 
   useEffect(() => {
     if (!activeVariant?.image || !product?.images) return;
@@ -330,10 +333,10 @@ const ProductDetail: React.FC = () => {
 
         {/* Tabs */}
         <div className="mt-20 border-b border-pink-100">
-          <div className="flex justify-center gap-12">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 sm:gap-x-12">
             {([
               ['description', t('theme.product_detail.tab_description')],
-              ['how-to-use', t('theme.product_detail.tab_how_to_use')],
+              ...contentSections.map((s) => [s.key, s.title] as [TabKey, string]),
               ['reviews', t('theme.product_detail.tab_reviews')],
             ] as [TabKey, string][]).map(([k, label]) => (
               <button
@@ -353,9 +356,9 @@ const ProductDetail: React.FC = () => {
 
         <div className="max-w-3xl mx-auto pt-10 pb-16 text-sm leading-relaxed" style={{ color: NAVY, opacity: 0.85 }}>
           {tab === 'description' && <ProductDescription product={product} />}
-          {tab === 'how-to-use' && (
-            <p>{t('theme.product_detail.how_to_use_text')}</p>
-          )}
+          {contentSections.filter((s) => s.key === tab).map((s) => (
+            <p key={s.key} className="whitespace-pre-line">{s.body}</p>
+          ))}
           {tab === 'reviews' && (
             <ProductReviews
               product={product}

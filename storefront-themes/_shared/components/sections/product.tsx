@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useThemeSettings } from '../../theme/ThemeProvider';
 import { useProductContext } from '../../contexts/ProductContext';
+import { productContentSections } from '../../hooks/useProducts';
 import { useStore } from '../../contexts/StoreContext';
 import type { SectionComponentProps } from './index';
 
@@ -28,8 +29,11 @@ export const ProductDetailsSection: React.FC<SectionComponentProps> = ({ id }) =
   const ctx = useProductContext();
   const product = ctx?.product;
 
+  const { i18n } = useTranslation();
   const showDescription = s.show_description !== false;
   const showSpecs = s.show_specs !== false;
+  const showContent = s.show_content_sections !== false;
+  const [openKey, setOpenKey] = useState<string | null>(null);
 
   const description: string = product?.description || '';
   const specs: Array<{ key?: string; name?: string; label?: string; value?: string }> =
@@ -38,7 +42,9 @@ export const ProductDetailsSection: React.FC<SectionComponentProps> = ({ id }) =
   if (!product) return null;
   const hasDescription = showDescription && !!description.trim();
   const hasSpecs = showSpecs && specs.length > 0;
-  if (!hasDescription && !hasSpecs) return null;
+  const content = showContent ? productContentSections(product, i18n.language) : [];
+  const hasContent = content.length > 0;
+  if (!hasDescription && !hasSpecs && !hasContent) return null;
 
   const heading = s.heading || t('detail.details_heading', { defaultValue: 'Details' });
   // Description may be sanitised HTML or plain text; render HTML but only the
@@ -92,6 +98,32 @@ export const ProductDetailsSection: React.FC<SectionComponentProps> = ({ id }) =
               );
             })}
           </dl>
+        </div>
+      )}
+
+      {hasContent && (
+        <div className={hasDescription || hasSpecs ? 'mt-8 divide-y' : 'divide-y'} style={{ borderColor: 'var(--color-border, #e5e7eb)' }}>
+          {content.map((block) => {
+            const open = openKey === block.key;
+            return (
+              <div key={block.key} className="py-1">
+                <button
+                  type="button"
+                  onClick={() => setOpenKey(open ? null : block.key)}
+                  aria-expanded={open}
+                  className="w-full flex items-center justify-between gap-4 py-3 text-start font-semibold"
+                >
+                  <span>{block.title}</span>
+                  <span aria-hidden className="text-lg leading-none" style={{ opacity: 0.6 }}>{open ? '−' : '+'}</span>
+                </button>
+                {open && (
+                  <p className="pb-4 text-sm leading-relaxed whitespace-pre-line" style={{ opacity: 0.9 }}>
+                    {block.body}
+                  </p>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </section>

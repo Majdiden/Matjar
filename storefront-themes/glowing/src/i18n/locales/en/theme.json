@@ -93,7 +93,6 @@
     },
     "product_detail": {
       "tab_description": "Description",
-      "tab_shipping": "Shipping & Return",
       "tab_reviews": "Reviews",
       "reviews_count": "({{count}} reviews)",
       "in_stock": "In stock — ready to ship",
@@ -106,9 +105,6 @@
       "free_shipping": "Free shipping on orders over $50",
       "estimated_delivery": "Estimated delivery: 3–5 business days",
       "easy_returns": "30-day easy returns",
-      "shipping_tab_body1": "Free shipping on all US orders over $50. International shipping available at checkout.",
-      "shipping_tab_body2": "30-day returns. If you're not satisfied, return your order within 30 days for a full refund.",
-      "shipping_tab_body3": "All orders are processed within 1–2 business days. You'll receive tracking information via email as soon as your order ships.",
       "you_may_also_like": "You May Also Like",
       "not_found_title": "Not Found",
       "not_found_body": "We couldn't find that product.",

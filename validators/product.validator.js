@@ -64,6 +64,21 @@ const specSchema = z.object({
   value: z.string().min(1),
 });
 
+export const CONTENT_SECTION_MAX = 10;
+const contentSectionSchema = z.object({
+  key: z.string().trim().toLowerCase().regex(/^[a-z0-9][a-z0-9-]{0,39}$/, "Section key must be a slug"),
+  title: z.string().trim().min(1).max(80),
+  body: z.string().trim().min(1).max(5000),
+  translations: z
+    .object({ ar: z.object({ title: z.string().trim().max(80).optional(), body: z.string().trim().max(5000).optional() }).partial().optional() })
+    .partial()
+    .optional(),
+});
+const contentSectionsSchema = z
+  .array(contentSectionSchema)
+  .max(CONTENT_SECTION_MAX)
+  .refine((list) => new Set(list.map((s) => s.key)).size === list.length, { message: "Section keys must be unique" });
+
 const productStatusSchema = z.enum(["active", "draft", "archived"]);
 const weightUnitSchema = z.enum(["kg", "lb", "g", "oz"]);
 
@@ -93,6 +108,7 @@ export const createProductSchema = z.object({
     slug: slugSchema,
     shortDescription: z.string().max(500).optional(),
     specifications: z.array(specSchema).optional(),
+    contentSections: contentSectionsSchema.optional(),
     compareAtPrice: z.number().min(0).nullable().optional(),
     sku: z.string().max(100).optional(),
     status: productStatusSchema.optional(),
@@ -124,6 +140,7 @@ export const updateProductSchema = z.object({
     slug: slugSchema,
     shortDescription: z.string().max(500).optional(),
     specifications: z.array(specSchema).optional(),
+    contentSections: contentSectionsSchema.optional(),
     compareAtPrice: z.number().min(0).nullable().optional(),
     sku: z.string().max(100).optional(),
     status: productStatusSchema.optional(),

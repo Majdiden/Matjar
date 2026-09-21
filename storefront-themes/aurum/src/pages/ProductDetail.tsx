@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useProduct } from '@matjar/theme-shared/hooks/useProducts';
+import { useProduct, productContentSections } from '@matjar/theme-shared/hooks/useProducts';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
@@ -31,10 +31,11 @@ import AurumProductCard from '../components/AurumProductCard';
  *   You may also like (related products)
  */
 
-type TabKey = 'description' | 'shipping' | 'reviews';
+// 'description' | 'reviews' | any merchant content-section key.
+type TabKey = string;
 
 const ProductDetail: React.FC = () => {
-  const { t } = useTranslation(['theme', 'common']);
+  const { t, i18n } = useTranslation(['theme', 'common']);
   const { slug } = useParams<{ slug: string }>();
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
@@ -46,9 +47,12 @@ const ProductDetail: React.FC = () => {
   const [activeVariant, setActiveVariant] = useState<Variant | null>(null);
   const [tab, setTab] = useState<TabKey>('description');
 
+  // Merchant-authored blocks ("How to use", "Care"…) become tabs between
+  // description and reviews.
+  const contentSections = productContentSections(product, i18n.language);
   const TAB_LABELS: Record<TabKey, string> = {
     description: t('theme.product_detail.tab_description'),
-    shipping: t('theme.product_detail.tab_shipping'),
+    ...Object.fromEntries(contentSections.map((s) => [s.key, s.title])),
     reviews: t('theme.product_detail.tab_reviews'),
   };
 
@@ -362,7 +366,7 @@ const ProductDetail: React.FC = () => {
 
         {/* Tabs */}
         <div className="mt-24 border-b border-line">
-          <div className="flex justify-center gap-10">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 sm:gap-x-10">
             {(Object.keys(TAB_LABELS) as TabKey[]).map((k) => (
               <button
                 key={k}
@@ -377,13 +381,9 @@ const ProductDetail: React.FC = () => {
 
         <div className="max-w-3xl mx-auto pt-10 pb-16 text-sm text-mute leading-relaxed">
           {tab === 'description' && <ProductDescription product={product} />}
-          {tab === 'shipping' && (
-            <div className="space-y-4">
-              <p>{t('theme.product_detail.shipping_tab_body1')}</p>
-              <p>{t('theme.product_detail.shipping_tab_body2')}</p>
-              <p>{t('theme.product_detail.shipping_tab_body3')}</p>
-            </div>
-          )}
+          {contentSections.filter((s) => s.key === tab).map((s) => (
+            <p key={s.key} className="whitespace-pre-line">{s.body}</p>
+          ))}
           {tab === 'reviews' && (
             <ProductReviews
               product={product}

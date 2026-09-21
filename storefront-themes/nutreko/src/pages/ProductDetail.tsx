@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useProduct } from '@matjar/theme-shared/hooks/useProducts';
+import { useProduct, productContentSections } from '@matjar/theme-shared/hooks/useProducts';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
@@ -23,10 +23,11 @@ const ORANGE = 'var(--color-accent)';
 const ERROR = 'var(--color-error)';
 const headingFont = { fontFamily: 'var(--font-family-heading)' } as const;
 
-type TabKey = 'description' | 'nutrition' | 'reviews';
+// 'description' | 'reviews' | any merchant content-section key.
+type TabKey = string;
 
 const ProductDetail: React.FC = () => {
-  const { t } = useTranslation('theme');
+  const { t, i18n } = useTranslation('theme');
   const { slug } = useParams<{ slug: string }>();
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
@@ -37,6 +38,8 @@ const ProductDetail: React.FC = () => {
   const [selection, setSelection] = useState<Record<string, string>>({});
   const [activeVariant, setActiveVariant] = useState<Variant | null>(null);
   const [tab, setTab] = useState<TabKey>('description');
+  // Merchant-authored blocks ("Nutrition", "How to use"…) become tabs.
+  const contentSections = productContentSections(product, i18n.language);
 
   useEffect(() => {
     if (!activeVariant?.image || !product?.images) return;
@@ -321,7 +324,7 @@ const ProductDetail: React.FC = () => {
           <div className="flex">
             {([
               ['description', t('theme.product_detail.tab_description')],
-              ['nutrition', t('theme.product_detail.tab_nutrition')],
+              ...contentSections.map((s) => [s.key, s.title] as [TabKey, string]),
               ['reviews', t('theme.product_detail.tab_reviews')],
             ] as [TabKey, string][]).map(([k, label]) => (
               <button
@@ -337,26 +340,12 @@ const ProductDetail: React.FC = () => {
 
         <div className="max-w-3xl mx-auto pt-10 pb-16 text-sm leading-relaxed opacity-85">
           {tab === 'description' && <ProductDescription product={product} />}
-          {tab === 'nutrition' && (
-            <div className="space-y-4">
-              <h3 className="font-display text-2xl uppercase" style={headingFont}>{t('theme.product_detail.nutrition_heading')}</h3>
-              <div className="border-2 border-black">
-                {[
-                  [t('theme.product_detail.nutrition_serving_label', { defaultValue: 'Serving Size' }), t('theme.product_detail.nutrition_serving_value', { defaultValue: '1 Scoop (30g)' })],
-                  [t('theme.product_detail.nutrition_calories', { defaultValue: 'Calories' }), '120'],
-                  [t('theme.product_detail.nutrition_protein', { defaultValue: 'Protein' }), '24g'],
-                  [t('theme.product_detail.nutrition_carbs', { defaultValue: 'Carbs' }), '3g'],
-                  [t('theme.product_detail.nutrition_fat', { defaultValue: 'Fat' }), '1.5g'],
-                  [t('theme.product_detail.nutrition_bcaas', { defaultValue: 'BCAAs' }), '5.5g'],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between p-3 border-b border-black last:border-b-0 font-bold">
-                    <span>{k}</span>
-                    <span>{v}</span>
-                  </div>
-                ))}
-              </div>
+          {contentSections.filter((s) => s.key === tab).map((s) => (
+            <div key={s.key} className="space-y-4">
+              <h3 className="font-display text-2xl uppercase" style={headingFont}>{s.title}</h3>
+              <div className="border-2 border-black p-5 font-bold whitespace-pre-line">{s.body}</div>
             </div>
-          )}
+          ))}
           {tab === 'reviews' && (
             <ProductReviews
               product={product}
