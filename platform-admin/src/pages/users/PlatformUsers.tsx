@@ -8,6 +8,7 @@ import {
   type PlatformInvite,
   type PlatformRoleDef,
   type PlatformSession,
+  type NotificationEventDef,
 } from '../../lib/api-users';
 import { useReauth } from '../../components/useReauth';
 import { useAuth } from '../../contexts/auth-context';
@@ -20,7 +21,7 @@ import { DataList, type DataListColumn } from '../../components/ui/DataList';
 import { PageSpinner, ErrorState, EmptyState } from '../../components/ui/Spinner';
 import { useToast } from '../../components/ui/toast-context';
 import { formatDate, formatRelative } from '../../lib/utils';
-import { Users, UserPlus, RefreshCw, Mail, Ban, Play, KeyRound, LogOut, ShieldCheck, ShieldOff, X, MonitorSmartphone } from 'lucide-react';
+import { Users, UserPlus, RefreshCw, Mail, Ban, Play, KeyRound, LogOut, ShieldCheck, ShieldOff, X, MonitorSmartphone, BellRing } from 'lucide-react';
 
 type Action = 'role' | 'suspend' | 'reactivate' | 'revoke' | 'force-reset' | 'reset-mfa';
 
@@ -36,6 +37,11 @@ export default function PlatformUsers() {
 
   const [users, setUsers] = useState<PlatformStaffUser[]>([]);
   const [roles, setRoles] = useState<PlatformRoleDef[]>([]);
+  const [notificationEvents, setNotificationEvents] = useState<NotificationEventDef[]>([]);
+  // Email alerts: owner-only, and the owner may edit their own row.
+  const isOwner = me?.role === 'owner';
+  const [alertsFor, setAlertsFor] = useState<PlatformStaffUser | null>(null);
+  const [alertChoice, setAlertChoice] = useState<string[]>([]);
   const [invites, setInvites] = useState<PlatformInvite[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +76,7 @@ export default function PlatformUsers() {
       const [list, inv] = await Promise.all([usersApi.list(), usersApi.invites.list()]);
       setUsers(list.users);
       setRoles(list.roles);
+      setNotificationEvents(list.notificationEvents ?? []);
       setInvites(inv);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load platform users');
@@ -186,9 +193,14 @@ export default function PlatformUsers() {
     {
       id: 'actions',
       align: 'end',
-      cell: (u) =>
-        canActOn(u) ? (
+      cell: (u) => (
           <div className="flex flex-wrap justify-end gap-1">
+            {isOwner && (
+              <Button variant="ghost" size="sm" title="Email alerts" onClick={() => { setAlertChoice(u.notifications ?? []); setAlertsFor(u); }}>
+                <BellRing className={`h-3.5 w-3.5 ${u.notifications?.length ? 'text-primary' : ''}`} />
+              </Button>
+            )}
+        {canActOn(u) && (<>
             <Button variant="ghost" size="sm" title="Change role" onClick={() => { setRoleChoice(u.role || 'support'); setPending({ action: 'role', user: u }); }}>
               <ShieldCheck className="h-3.5 w-3.5" />
             </Button>
@@ -215,8 +227,9 @@ export default function PlatformUsers() {
                 <ShieldOff className="h-3.5 w-3.5" />
               </Button>
             )}
+        </>)}
           </div>
-        ) : null,
+      ),
     },
   ];
 
@@ -325,6 +338,49 @@ export default function PlatformUsers() {
             </Select>
             <p className="text-xs text-muted-foreground">{roles.find((r) => r.key === inviteRole)?.description}</p>
           </div>
+        </div>
+      </Modal>
+
+      {/* Email alerts (owner only) */}
+      <Modal
+        open={!!alertsFor}
+        onClose={() => setAlertsFor(null)}
+        title={`Email alerts — ${alertsFor?.name ?? ''}`}
+        description="Which platform events this person receives by email. Bursty events are grouped into one email per 15 minutes."
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setAlertsFor(null)}>Cancel</Button>
+            <Button
+              loading={busy === 'alerts'}
+              onClick={() => {
+                const u = alertsFor!;
+                run('alerts', () => usersApi.setNotifications(u.id, alertChoice), 'Email alerts updated').then(() => setAlertsFor(null)).catch(() => {});
+              }}
+            >
+              Save
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          {notificationEvents.map((ev) => {
+            const on = alertChoice.includes(ev.key);
+            return (
+              <label key={ev.key} className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4"
+                  checked={on}
+                  onChange={(e) => setAlertChoice((prev) => (e.target.checked ? [...prev, ev.key] : prev.filter((k) => k !== ev.key)))}
+                />
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium">{ev.label}</span>
+                  <span className="block text-xs text-muted-foreground">{ev.description}</span>
+                </span>
+              </label>
+            );
+          })}
+          {notificationEvents.length === 0 && <p className="text-sm text-muted-foreground">No alert types available.</p>}
         </div>
       </Modal>
 

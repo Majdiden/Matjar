@@ -18,6 +18,7 @@
  * built-in `close()` for that.
  */
 
+import { notifyPlatform } from "../services/platform/notifications.js";
 import "dotenv/config";
 // Sentry MUST be initialized before any other module so its instrumentation
 // can wrap Mongoose / BullMQ / http at import time. Mirrors the web server's
@@ -119,6 +120,11 @@ async function main() {
       const attempts = job?.attemptsMade || 0;
       const maxAttempts = job?.opts?.attempts || 0;
       if (!maxAttempts || attempts >= maxAttempts) {
+        void notifyPlatform("system.job_failed", {
+          subject: `Job failed: ${queue}/${job?.name || "job"}`,
+          lines: [`Queue: ${queue}`, `Job: ${job?.name || "-"} (#${job?.id || "-"})`, `Attempts: ${attempts}/${maxAttempts || 1}`, `Error: ${String(err?.message || err).slice(0, 300)}`, job?.data?.tenantId ? `Tenant: ${job.data.tenantId}` : ""],
+          link: "/queues",
+        });
         captureException(err, {
           tenantId: job?.data?.tenantId,
           extra: {

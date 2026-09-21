@@ -14,6 +14,7 @@ import {
   currentPeriodKey,
   STATUS_LABEL,
   type BillingSettings,
+  type Plan,
   type CommissionPolicy,
   type Statement,
   type StatementStatus,
@@ -321,6 +322,7 @@ function SettingsTab({ canWrite }: { canWrite: boolean }) {
   const toast = useToast();
   const [settings, setSettings] = useState<BillingSettings | null>(null);
   const [policies, setPolicies] = useState<CommissionPolicy[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [form, setForm] = useState<BillingSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -329,8 +331,8 @@ function SettingsTab({ canWrite }: { canWrite: boolean }) {
   const load = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const [s, p] = await Promise.all([billingApi.settings.get(), billingApi.policies.list().catch(() => [])]);
-      setSettings(s); setForm(s); setPolicies(p);
+      const [s, p, pl] = await Promise.all([billingApi.settings.get(), billingApi.policies.list().catch(() => []), billingApi.plans.list().catch(() => [])]);
+      setSettings(s); setForm(s); setPolicies(p); setPlans(pl);
     } catch (err) { setError(err instanceof Error ? err.message : 'Failed to load settings'); }
     finally { setLoading(false); }
   }, []);
@@ -344,6 +346,7 @@ function SettingsTab({ canWrite }: { canWrite: boolean }) {
     setSaving(true);
     try {
       const next = await billingApi.settings.update({
+        defaultPlanKey: form.defaultPlanKey,
         defaultCommissionPolicyKey: form.defaultCommissionPolicyKey || null,
         statementDay: form.statementDay, dueDays: form.dueDays, graceDays: form.graceDays,
         enforcement: form.enforcement,
@@ -356,6 +359,12 @@ function SettingsTab({ canWrite }: { canWrite: boolean }) {
   return (
     <div className="max-w-xl space-y-4">
       <div className="rounded-lg border bg-card p-4 space-y-4">
+        <Field label="Default plan for new stores" help="Every new signup lands on this plan (unless the merchant picked another active plan). Access programs grant features, not plans.">
+          <Select value={form.defaultPlanKey ?? ''} disabled={!canWrite} onChange={(e) => setForm({ ...form, defaultPlanKey: e.target.value })}>
+            {!plans.some((p) => p.key === form.defaultPlanKey) && <option value={form.defaultPlanKey}>{form.defaultPlanKey} (missing or inactive)</option>}
+            {plans.filter((p) => p.isActive).map((p) => <option key={p._id} value={p.key}>{p.name} ({p.key}) — {p.family === 'commission' ? 'commission' : 'subscription'}</option>)}
+          </Select>
+        </Field>
         <Field label="Default commission policy" help="Applied to non-subscription plans that do not name a policy.">
           <Select value={form.defaultCommissionPolicyKey ?? ''} disabled={!canWrite} onChange={(e) => setForm({ ...form, defaultCommissionPolicyKey: e.target.value || null })}>
             <option value="">None</option>

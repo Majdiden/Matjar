@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/auth-context';
 import { useToast } from './ui/toast-context';
 import { Shield, LogOut, ShieldAlert, Menu, X, ChevronDown } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { lockBodyScroll } from '../lib/scrollLock';
 import { visibleGroups, bottomTabs, type NavGroup } from './nav';
 import type { PlatformUser } from '../lib/api';
 
@@ -131,14 +132,13 @@ export const Layout: React.FC = () => {
 
   useEffect(() => {
     if (!drawerOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const unlock = lockBodyScroll();
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setDrawerOpen(false);
     };
     window.addEventListener('keydown', onEsc);
     return () => {
-      document.body.style.overflow = prev;
+      unlock();
       window.removeEventListener('keydown', onEsc);
     };
   }, [drawerOpen]);
@@ -168,7 +168,7 @@ export const Layout: React.FC = () => {
   return (
     <div className="flex min-h-[100dvh] bg-background">
       {/* Desktop sidebar */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r bg-card md:flex">
+      <aside className="sticky top-0 hidden h-[100dvh] w-60 shrink-0 flex-col self-start border-r bg-card md:flex">
         <div className="flex h-14 items-center border-b px-4">
           <Brand />
         </div>

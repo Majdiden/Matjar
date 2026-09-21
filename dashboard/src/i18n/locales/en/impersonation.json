@@ -33,9 +33,9 @@
     "mode_full": "Full-access session"
   },
   "banner": {
-    "label": "Impersonating {{store}} · ticket #{{ticket}}",
+    "label": "Assisting {{store}} · ticket #{{ticket}}",
     "audited": "All actions are audited",
-    "exit": "Exit impersonation",
+    "exit": "End support session",
     "exiting": "Exiting…",
     "mode_read_only": "Read-only: changes are blocked",
     "mode_full": "Full access"

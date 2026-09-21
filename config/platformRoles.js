@@ -40,7 +40,7 @@ export const PLATFORM_ROLE_DEFS = Object.freeze([
   {
     key: PLATFORM_ROLES.OPERATIONS,
     label: "Operations",
-    description: "Store lifecycle, impersonation, flags, queues, audit.",
+    description: "Store lifecycle, support sessions, flags, queues, audit.",
     scopes: [
       S.SUPPORT_READ,
       S.SUPPORT_IMPERSONATE,
@@ -55,7 +55,7 @@ export const PLATFORM_ROLE_DEFS = Object.freeze([
   {
     key: PLATFORM_ROLES.SUPPORT,
     label: "Support",
-    description: "Inspect stores, impersonate with consent, manage merchant staff access.",
+    description: "Inspect stores, run consent-based support sessions in merchant dashboards, manage merchant staff access.",
     scopes: [S.SUPPORT_READ, S.SUPPORT_IMPERSONATE, S.TENANT_USERS, S.AUDIT_READ],
   },
   {

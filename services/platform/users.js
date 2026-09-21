@@ -12,6 +12,7 @@
  *   - Every mutation is written to the platform audit ledger by the caller
  *     (controllers) with before/after snapshots produced here.
  */
+import { PLATFORM_NOTIFICATION_EVENTS, PLATFORM_NOTIFICATION_KEYS } from "../../config/platformNotificationEvents.js";
 import crypto from "crypto";
 import mongoose from "mongoose";
 import config from "../../config/index.js";
@@ -52,6 +53,7 @@ export function publicUser(u) {
     status: u.platformStatus || "active",
     scopes: resolveEffectiveScopes(u.platformRole, u.platformScopes),
     explicitScopes: Array.isArray(u.platformScopes) ? u.platformScopes : [],
+    notifications: Array.isArray(u.platformNotifications) ? u.platformNotifications : [],
     mustResetPassword: !!u.platformMustResetPassword,
     mfaEnabled: !!u.platformMfa?.enabled,
     mfaEnrolledAt: u.platformMfa?.enrolledAt || null,
@@ -99,6 +101,10 @@ export function platformAdminBaseUrl(req) {
 
 // ── Roles ────────────────────────────────────────────────────────────────
 
+export function listNotificationEvents() {
+  return PLATFORM_NOTIFICATION_EVENTS.map(({ key, label, description }) => ({ key, label, description }));
+}
+
 export function listRoles() {
   return PLATFORM_ROLE_DEFS.map(({ key, label, description, scopes }) => ({ key, label, description, scopes }));
 }
@@ -114,7 +120,7 @@ async function countActiveOwners(excludeId = null) {
 export async function listPlatformUsers() {
   const rows = await TenantUser()
     .find({ platformAdmin: true })
-    .select("name email platformRole platformStatus platformScopes platformMustResetPassword platformLastLoginAt platformSuspendedAt platformSuspensionReason platformMfa.enabled platformMfa.enrolledAt createdAt")
+    .select("name email platformRole platformStatus platformScopes platformNotifications platformMustResetPassword platformLastLoginAt platformSuspendedAt platformSuspensionReason platformMfa.enabled platformMfa.enrolledAt createdAt")
     .sort({ createdAt: 1 })
     .lean();
   return rows.map(publicUser);
@@ -160,6 +166,22 @@ export async function changeRole(actor, id, rawRole) {
   await target.save();
   await revokeAllSessions(target._id, "role changed");
   return { user: publicUser(target), before, after: { role } };
+}
+
+/**
+ * Owner-only: choose which email alerts a platform user receives. Owners may
+ * set their own subscriptions (it is not a privilege change).
+ */
+export async function setNotifications(actor, id, events) {
+  if (String(actor.role || "").toLowerCase() !== PLATFORM_ROLES.OWNER) {
+    throw new APIError("Only a platform owner can change email alerts", 403);
+  }
+  const target = await loadTarget(id);
+  const next = [...new Set(events.filter((k) => PLATFORM_NOTIFICATION_KEYS.includes(k)))];
+  const before = { events: Array.isArray(target.platformNotifications) ? [...target.platformNotifications] : [] };
+  target.platformNotifications = next;
+  await target.save();
+  return { user: publicUser(target), before, after: { events: next } };
 }
 
 export async function suspendUser(actor, id, reason) {

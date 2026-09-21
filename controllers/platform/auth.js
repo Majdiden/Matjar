@@ -3,6 +3,7 @@
  * PUBLIC staff flows (accept invite, password reset). Rate limits are
  * applied in routes/platform/auth.js and routes/platformAdmin.js.
  */
+import { notifyPlatform } from "../../services/platform/notifications.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -65,6 +66,11 @@ const loginHandler = asyncHandler(async (req, res) => {
   const ok = await comparePassword(password, user?.platformPasswordHash || DUMMY_BCRYPT_HASH);
   if (!user || !user.platformPasswordHash || !ok || user.platformStatus === "suspended") {
     logger.warn("Platform login failed", { email: String(email).toLowerCase().trim(), ip: req.ip });
+    void notifyPlatform("security.platform_login_failed", {
+      subject: "Platform console sign-in failed",
+      lines: [`Account: ${String(email).toLowerCase().trim().slice(0, 120)}`, `IP: ${req.ip}`, `Reason: ${!user ? "unknown account" : user.platformStatus === "suspended" ? "suspended account" : "wrong password"}`],
+      link: "/audit",
+    });
     return res.status(401).json({ success: false, message: "Invalid credentials." });
   }
 
@@ -250,6 +256,11 @@ const reauthHandler = asyncHandler(async (req, res) => {
         resourceId: String(user._id),
         outcome: "failure",
         metadata: { method: "password" },
+      });
+      void notifyPlatform("security.platform_login_failed", {
+        subject: "Platform console re-auth failed",
+        lines: [`Account: ${user.email}`, `IP: ${req.ip}`, "Reason: wrong password at re-authentication"],
+        link: "/audit",
       });
       return res.status(400).json({ success: false, code: "REAUTH_FAILED", message: "Incorrect password." });
     }

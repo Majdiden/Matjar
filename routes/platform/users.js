@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireScope, requireRecentReauth, validateObjectId, PLATFORM_SCOPES } from "../../middlewares/platformAdmin.js";
+import { requireScope, requireRecentReauth, requireRole, validateObjectId, PLATFORM_SCOPES } from "../../middlewares/platformAdmin.js";
 import { validate } from "../../middlewares/validate.js";
 import {
   createInviteSchema,
@@ -8,6 +8,7 @@ import {
   reasonOptionalSchema,
   changeOwnPasswordSchema,
   reasonRequiredSchema,
+  setNotificationsSchema,
 } from "../../validators/platform.validator.js";
 import * as c from "../../controllers/platform/users.js";
 import { findPlatformUserBrief } from "../../services/platform/users.js";
@@ -62,6 +63,8 @@ router.delete("/invites/:id", manage, validateObjectId("id"), c.revokeInvite);
 
 // Role changes that grant or remove OWNER require recent re-authentication.
 router.patch("/:id/role", manage, validateObjectId("id"), validate(changeRoleSchema), reauthForOwnerRole, c.changeRole);
+// Email alerts are the owner's call (self-subscription allowed).
+router.patch("/:id/notifications", manage, requireRole("owner"), validateObjectId("id"), validate(setNotificationsSchema), c.setNotifications);
 router.post("/:id/suspend", manage, validateObjectId("id"), validate(suspendUserSchema), c.suspendUser);
 router.post("/:id/reactivate", manage, validateObjectId("id"), validate(reasonOptionalSchema), c.reactivateUser);
 router.post("/:id/revoke-sessions", manage, validateObjectId("id"), validate(reasonOptionalSchema), c.revokeSessions);

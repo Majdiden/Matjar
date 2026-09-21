@@ -185,6 +185,25 @@ describe("E2E signup → store provision", () => {
     assert.equal(days, 14);
   });
 
+  it("lands on the only active plan when the configured default plan is inactive", async () => {
+    const SubscriptionPlan = mongoose.model("SubscriptionPlan");
+    await SubscriptionPlan.create([
+      // "trial" is the configured default but has been switched off.
+      { key: "trial", name: "Trial", family: "subscription", pricing: { baseFee: { amount: 0, currency: "SDG", interval: "month" }, trialDays: 14 }, isActive: false },
+      { key: "pay-as-you-sell", name: "Pay as you sell", family: "commission", pricing: { baseFee: { amount: 0, currency: "SDG", interval: "month" } }, isActive: true },
+    ]);
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Acme Coffee",
+      email: "owner@acme.test",
+      password: "Sup3rSecret!",
+      subdomain: "acme",
+    }).expect(201);
+    const Tenant = mongoose.model("Tenant");
+    const tenant = await Tenant.findById(res.body.responseObject.tenantId).lean();
+    assert.equal(tenant.subscriptionPlan, "pay-as-you-sell");
+    assert.equal(tenant.billing?.trialUsedAt ?? null, null, "commission plans never grant a trial");
+  });
+
   it("rejects a malformed payload via the validator", async () => {
     // Missing subdomain + weak password should not even reach the service.
     const res = await request(app)

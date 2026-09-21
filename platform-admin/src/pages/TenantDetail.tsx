@@ -370,7 +370,7 @@ export default function TenantDetailPage() {
                 onClick={() => setModal('impersonate')}
                 disabled={isDeleted}
               >
-                <UserCog className="h-3.5 w-3.5" /> Impersonate
+                <UserCog className="h-3.5 w-3.5" /> Assist store
               </Button>
             )}
             {canLifecycle && (

@@ -47,11 +47,11 @@ const ACTION_TEMPLATES = {
   "tenant.seed_starter_content": ({ actor, after }) =>
     after?.seeded ? `${actor} seeded starter content (${after.products ?? 0} products)` : `${actor} attempted to seed starter content (nothing seeded)`,
   "plan.change": ({ actor, after, before }) => `${actor} changed the plan${before?.plan ? ` from ${before.plan}` : ""}${after?.plan ? ` to ${after.plan}` : ""}`,
-  "impersonation.request": ({ actor, reason }) => `${actor} requested impersonation access${reason ? ` (${reason})` : ""}`,
-  "impersonation.approve_by_code": ({ actor }) => `${actor} approved impersonation with the owner's code`,
-  "impersonation.enter": ({ actor }) => `${actor} started an impersonation session`,
-  "impersonation.exit": ({ actor }) => `${actor} ended the impersonation session`,
-  "impersonation.mint_legacy": ({ actor }) => `${actor} minted a legacy impersonation token`,
+  "impersonation.request": ({ actor, reason }) => `${actor} requested a support session${reason ? ` (${reason})` : ""}`,
+  "impersonation.approve_by_code": ({ actor }) => `${actor} entered the owner's consent code for a support session`,
+  "impersonation.enter": ({ actor }) => `${actor} started a support session in the merchant dashboard`,
+  "impersonation.exit": ({ actor }) => `${actor} ended the support session`,
+  "impersonation.mint_legacy": ({ actor }) => `${actor} started a legacy support session (no consent — removed feature)`,
   "export.request": ({ actor }) => `${actor} requested a data export`,
   "export.download": ({ actor }) => `${actor} downloaded a data export`,
   "export.sync_download": ({ actor }) => `${actor} downloaded a synchronous data export`,
@@ -85,8 +85,8 @@ const ACTION_TEMPLATES = {
   "product.updated": ({ actor }) => `${actor} updated a product`,
   "product.deleted": ({ actor }) => `${actor} deleted a product`,
   "settings.updated": ({ actor }) => `${actor} changed store settings`,
-  "impersonation.approved": ({ actor }) => `${actor} approved a support impersonation request`,
-  "impersonation.denied": ({ actor }) => `${actor} denied a support impersonation request`,
+  "impersonation.approved": ({ actor }) => `${actor} approved a support session request`,
+  "impersonation.denied": ({ actor }) => `${actor} denied a support session request`,
 };
 
 /** "order.status_updated" → "Order status updated" */

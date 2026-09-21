@@ -266,6 +266,7 @@ export interface TenantEffective {
 }
 
 export interface BillingSettings {
+  defaultPlanKey: string;
   defaultCommissionPolicyKey: string | null;
   statementDay: number;
   dueDays: number;

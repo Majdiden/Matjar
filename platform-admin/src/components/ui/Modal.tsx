@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { cn } from '../../lib/utils';
+import { lockBodyScroll } from '../../lib/scrollLock';
 import { X } from 'lucide-react';
 
 export interface ModalProps {
@@ -26,19 +27,22 @@ export const Modal: React.FC<ModalProps> = ({
   footer,
   className,
 }) => {
+  // Latest onClose via a ref so the lock effect runs once per open/close
+  // rather than on every parent re-render with a fresh inline callback.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   useEffect(() => {
     if (!open) return;
     const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
     };
     window.addEventListener('keydown', onEsc);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const unlock = lockBodyScroll();
     return () => {
       window.removeEventListener('keydown', onEsc);
-      document.body.style.overflow = prevOverflow;
+      unlock();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

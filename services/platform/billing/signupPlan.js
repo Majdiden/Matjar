@@ -34,7 +34,21 @@ export async function resolveSignupPlan(requestedKey) {
       });
     }
   }
-  if (!plan) plan = (await SubscriptionPlan.findOne({ key: defaultKey }).lean()) || { key: defaultKey, pricing: {}, family: "subscription" };
+  if (!plan) {
+    const configured = await SubscriptionPlan.findOne({ key: defaultKey }).lean();
+    if (configured?.isActive) {
+      plan = configured;
+    } else {
+      // The configured default was deactivated or deleted after being set.
+      // Prefer the lowest-sorted ACTIVE self-service plan over a dangling
+      // key, so a catalog with one real plan lands every signup on it.
+      const fallback = await SubscriptionPlan.findOne({ isActive: true, "switching.allowSelfService": { $ne: false } })
+        .sort({ sortOrder: 1, key: 1 })
+        .lean();
+      plan = fallback || configured || { key: defaultKey, pricing: {}, family: "subscription" };
+      logger.warn("signup: default plan not active; using fallback", { defaultKey, fallback: plan.key });
+    }
+  }
 
   const now = new Date();
   const trialDays = plan.family === "commission" ? 0 : Number(plan.pricing?.trialDays) || 0;

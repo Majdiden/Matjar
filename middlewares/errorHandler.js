@@ -87,6 +87,20 @@ export const errorHandler = (err, req, res, next) => {
     errors: error.errors,
   });
 
+  // Owner-configured platform alert for server-side failures (throttled in
+  // the service; never blocks the response).
+  if (error.statusCode >= 500 && !config.isTest) {
+    const method = req.method;
+    const path = String(req.originalUrl || req.url || "").split("?")[0].slice(0, 200);
+    import("../services/platform/notifications.js")
+      .then((m) => m.notifyPlatform("system.request_error", {
+        subject: `API ${error.statusCode} on ${method} ${path}`,
+        lines: [`${method} ${path} → ${error.statusCode}`, `Error: ${String(err?.message || error.message).slice(0, 300)}`, `Host: ${String(req.hostname || "").slice(0, 100)}`],
+        link: "/system/health",
+      }))
+      .catch(() => {});
+  }
+
   // Send error response
   const response = {
     success: false,

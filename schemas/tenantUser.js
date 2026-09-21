@@ -44,6 +44,9 @@ const tenantUserSchema = new Schema({
   // the role's scopes ∪ `platformScopes`. `null` for legacy admins that
   // were bootstrapped with explicit scopes only.
   platformRole: { type: String, default: null, lowercase: true, trim: true },
+  // Email alerts this operator receives (config/platformNotificationEvents.js
+  // keys). Set by a platform OWNER only.
+  platformNotifications: { type: [String], default: [] },
   platformStatus: { type: String, enum: ["active", "suspended"], default: "active" },
   // Bumped to revoke every issued platform token (logout everywhere,
   // suspension, forced password reset). Baked into the JWT at login and

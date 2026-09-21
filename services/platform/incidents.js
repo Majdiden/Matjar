@@ -2,6 +2,7 @@
  * Platform incidents — CRUD + timeline + resolve. Platform-only records.
  * Controllers audit; this module only owns the data rules.
  */
+import { notifyPlatform } from "./notifications.js";
 import mongoose from "mongoose";
 import { APIError } from "../../middlewares/errorHandler.js";
 import { INCIDENT_OPEN_STATUSES, INCIDENT_MAX_TIMELINE } from "../../schemas/incident.js";
@@ -127,6 +128,11 @@ export async function createIncident(body, actor) {
     createdBy: actor.id,
     createdByEmail: actor.email,
   });
+  void notifyPlatform("incident.opened", {
+    subject: `Incident opened (${doc.severity}): ${doc.title}`,
+    lines: [`Severity: ${doc.severity}`, `Status: ${doc.status}`, `Opened by: ${actor.email}`, doc.affectedServices?.length ? `Services: ${doc.affectedServices.join(", ")}` : ""],
+    link: "/incidents?open=1",
+  });
   return doc.toObject();
 }
 
@@ -184,6 +190,11 @@ export async function resolveIncident(id, { resolutionNotes, resolvedAt }, actor
   doc.resolvedAt = resolvedTime;
   doc.resolutionNotes = resolutionNotes;
   doc.timeline.push({ at: new Date(), by: actor.id, byEmail: actor.email, text: resolutionNotes, status: "resolved" });
+  void notifyPlatform("incident.resolved", {
+    subject: `Incident resolved: ${doc.title}`,
+    lines: [`Severity: ${doc.severity}`, `Resolved by: ${actor.email}`, `Resolution: ${String(resolutionNotes).slice(0, 500)}`],
+    link: "/incidents",
+  });
   await doc.save();
   return { before, after: incidentSnapshot(doc), doc: doc.toObject() };
 }

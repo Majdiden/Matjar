@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PLATFORM_NOTIFICATION_KEYS } from "../config/platformNotificationEvents.js";
 
 /**
  * Zod schemas for the platform-admin auth + staff-management endpoints.
@@ -41,6 +42,12 @@ export const acceptInviteSchema = z.object({
 });
 
 export const changeRoleSchema = z.object({ body: z.object({ role, reason: reason.optional() }) });
+export const setNotificationsSchema = z.object({
+  body: z.object({
+    events: z.array(z.enum(PLATFORM_NOTIFICATION_KEYS)).max(PLATFORM_NOTIFICATION_KEYS.length),
+    reason: reason.optional(),
+  }),
+});
 export const suspendUserSchema = z.object({ body: z.object({ reason }) });
 // Console actions on merchant staff/invites always carry an audited reason.
 export const reasonRequiredSchema = z.object({ body: z.object({ reason }) });

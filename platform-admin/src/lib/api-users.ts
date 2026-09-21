@@ -45,6 +45,7 @@ export interface PlatformStaffUser {
   status: 'active' | 'suspended';
   scopes: string[];
   explicitScopes: string[];
+  notifications: string[];
   mustResetPassword: boolean;
   mfaEnabled: boolean;
   mfaEnrolledAt: string | null;
@@ -84,10 +85,20 @@ export function canAssignRole(actorRole: string | null | undefined, target: stri
   return false;
 }
 
+export interface NotificationEventDef {
+  key: string;
+  label: string;
+  description: string;
+}
+
 export const usersApi = {
   list: async () => {
     const res = await http.get('/users');
-    return res.data.data as { users: PlatformStaffUser[]; roles: PlatformRoleDef[] };
+    return res.data.data as { users: PlatformStaffUser[]; roles: PlatformRoleDef[]; notificationEvents: NotificationEventDef[] };
+  },
+  setNotifications: async (id: string, events: string[]) => {
+    const res = await http.patch(`/users/${id}/notifications`, { events });
+    return res.data.data as PlatformStaffUser;
   },
   changeRole: async (id: string, role: string, reason?: string) => {
     const res = await http.patch(`/users/${id}/role`, { role, reason });

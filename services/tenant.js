@@ -1,3 +1,4 @@
+import { notifyPlatform } from "./platform/notifications.js";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import { addATenantRepo } from "../repositories/tenant.js";
@@ -195,6 +196,13 @@ const addATenantService = async (tenantData) => {
 
       await session.commitTransaction();
       await session.endSession();
+
+      // Owner-configured platform alert (fire-and-forget; never blocks signup).
+      void notifyPlatform("tenant.signup", {
+        subject: `New store signup: ${data.name}`,
+        lines: [`Store: ${data.name} (${data.slug})`, `Merchant email: ${tenantData.email}`, `Plan: ${data.subscriptionPlan || "default"}`],
+        link: `/tenants/${data._id}`,
+      });
 
       // Trigger store setup asynchronously via the BullMQ queue so a
       // worker process owns the long-running work. The previous

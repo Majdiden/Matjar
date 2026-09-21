@@ -99,7 +99,7 @@ export function ImpersonationRequestModal({
       try {
         const result = await api.tenants.enterImpersonation(tenantId, gid);
         openImpersonatedDashboard(result.token);
-        toast.success('Impersonation session started');
+        toast.success('Support session started');
         onClose();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to enter session');
@@ -194,8 +194,8 @@ export function ImpersonationRequestModal({
     <Modal
       open={open}
       onClose={phase === 'entering' ? () => {} : onClose}
-      title="Request impersonation access"
-      description="The store owner must approve before you can enter. Access is tied to a support ticket and every action is audited."
+      title="Start a support session"
+      description="You will work inside the merchant's dashboard on their behalf. The store owner must approve first; access is tied to a support ticket and every action is audited."
       footer={
         phase === 'form' ? (
           <>

@@ -11,7 +11,25 @@ import { canActOnRole } from "../../config/platformRoles.js";
 import { APIError } from "../../middlewares/errorHandler.js";
 
 export const listUsers = asyncHandler(async (_req, res) => {
-  res.json({ success: true, data: { users: await users.listPlatformUsers(), roles: users.listRoles() } });
+  res.json({
+    success: true,
+    data: { users: await users.listPlatformUsers(), roles: users.listRoles(), notificationEvents: users.listNotificationEvents() },
+  });
+});
+
+export const setNotifications = asyncHandler(async (req, res) => {
+  const { events, reason } = req.body;
+  const result = await users.setNotifications(req.platformUser, req.params.id, events);
+  await recordPlatformAudit(req, {
+    action: "platform.user.notifications_changed",
+    resourceType: "PlatformUser",
+    resourceId: req.params.id,
+    reason,
+    before: result.before,
+    after: result.after,
+    metadata: { email: result.user.email },
+  });
+  res.json({ success: true, data: result.user });
 });
 
 export const changeRole = asyncHandler(async (req, res) => {

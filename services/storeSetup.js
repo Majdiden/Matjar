@@ -371,7 +371,11 @@ export async function clearSetupStatus(tenantId, providedToken) {
     return { cleared: false };
   }
 
-  await Tenant.findByIdAndUpdate(tenantId, { $unset: { setupStatus: 1 } });
+  // "Clear" only retires the one-time poll token so the public status
+  // endpoint stops answering. The setup record itself (status, timestamps,
+  // steps) stays: the platform console's Setup card and the
+  // "onboarding" lifecycle derivation both read it.
+  await Tenant.findByIdAndUpdate(tenantId, { $unset: { "setupStatus.setupToken": 1 } });
   return { cleared: true };
 }
 
