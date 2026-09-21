@@ -11,6 +11,8 @@ import {
   Activity,
 } from 'lucide-react';
 import { overviewApi, type CurrencyRow, type OverviewAlert, type OverviewSummary } from '../../lib/api-overview';
+import { incidentsApi, SEVERITY_LABEL, STATUS_LABEL, type IncidentSummary } from '../../lib/api-incidents';
+import { Siren } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { PageSpinner, ErrorState } from '../../components/ui/Spinner';
 import { formatDate } from '../../lib/utils';
@@ -97,12 +99,15 @@ export default function Overview() {
   const [data, setData] = useState<OverviewSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [incidents, setIncidents] = useState<IncidentSummary[]>([]);
 
   const load = useCallback(async (refresh = false) => {
     setLoading(true);
     setError(null);
     try {
       setData(await overviewApi.summary(refresh));
+      // Open incidents are a separate, cheap call so a failure there never hides the summary.
+      incidentsApi.openSummary().then((d) => setIncidents(d.incidents)).catch(() => setIncidents([]));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load overview');
     } finally {
@@ -138,6 +143,25 @@ export default function Overview() {
           Refresh
         </Button>
       </div>
+
+      {incidents.length > 0 && (
+        <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm">
+          <div className="mb-2 flex items-center gap-2 font-medium text-red-800">
+            <Siren className="h-4 w-4" /> {incidents.length} open incident{incidents.length === 1 ? '' : 's'}
+          </div>
+          <ul className="space-y-1">
+            {incidents.map((i) => (
+              <li key={i.id}>
+                <Link to={`/incidents?open=1&id=${i.id}`} className="flex items-center gap-2 hover:underline">
+                  <span className="shrink-0 rounded-full bg-background/70 px-2 py-0.5 text-xs font-semibold">{SEVERITY_LABEL[i.severity].split(' ')[0]} {SEVERITY_LABEL[i.severity].split(' ')[1]}</span>
+                  <span className="min-w-0 flex-1 truncate">{i.title}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{STATUS_LABEL[i.status]}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {alerts.length > 0 ? (
         <ul className="space-y-2">

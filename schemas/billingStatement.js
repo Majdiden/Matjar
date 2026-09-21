@@ -64,6 +64,7 @@ const billingStatementSchema = new Schema(
 
 billingStatementSchema.index({ tenantId: 1, periodKey: 1 }, { unique: true });
 billingStatementSchema.index({ status: 1, dueAt: 1 });
+billingStatementSchema.index({ issuedAt: 1 }); // analytics: statements by issue date
 
 billingStatementSchema.pre("save", function (next) {
   this.updatedAt = new Date();

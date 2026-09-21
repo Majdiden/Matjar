@@ -8,6 +8,64 @@ import logger from "../utils/logger.js";
  * Authentication middleware
  * Verifies JWT, injects req.user, req.tenantId, req.tenant, req.models
  */
+
+/**
+ * Read-only impersonation decision (pure; unit-tested).
+ *
+ * A read-only grant may only READ the tenant API. The single exception is
+ * ending the session itself (`POST /api/impersonation/:grantId/exit-self`),
+ * otherwise a read-only operator could never leave cleanly. Any other
+ * mutating method is refused — this runs in the auth middleware on every
+ * impersonated request, so the UI is never the boundary.
+ *
+ * @returns {boolean} true when the request must be blocked.
+ */
+export function isReadOnlyImpersonationBlocked({ readOnly, method, path, grantId }) {
+  if (!readOnly) return false;
+  const m = String(method || "GET").toUpperCase();
+  if (m === "GET" || m === "HEAD" || m === "OPTIONS") return false;
+  const p = String(path || "").replace(/\/+$/, "");
+  if (grantId && m === "POST" && p === `/api/impersonation/${grantId}/exit-self`) return false;
+  return true;
+}
+
+/**
+ * Consent-grant impersonation binding, shared by `authenticate` and
+ * `optionalAuth`. When the token carries an `impersonation` claim (minted by
+ * services/impersonation.js after the owner approved), the request is only
+ * allowed while the grant is still ACTIVE and unexpired — an owner revoke is
+ * immediate, no token blacklist needed. Read-only is decided from the GRANT
+ * row (not the token claim) so a tampered claim cannot escalate.
+ *
+ * @returns null (no impersonation claim), `{ error }` (block with that
+ *   status/code), or the `req.impersonation` context to attach.
+ */
+export async function checkImpersonationGrant({ models, method, path }, decoded) {
+  const claim = decoded.impersonation;
+  if (!claim?.grantId) return null;
+  const grant = await models.ImpersonationGrant.findById(claim.grantId)
+    .select("status sessionExpiresAt supportUserId ticket readOnly")
+    .lean();
+  const live =
+    grant &&
+    grant.status === "active" &&
+    grant.sessionExpiresAt &&
+    new Date(grant.sessionExpiresAt).getTime() > Date.now() &&
+    String(grant.supportUserId) === String(claim.supportUserId);
+  if (!live) {
+    return { error: { status: 401, message: "Impersonation session has ended.", code: "impersonation_ended" } };
+  }
+  const readOnly = grant.readOnly !== false;
+  if (
+    isReadOnlyImpersonationBlocked({ readOnly, method, path, grantId: String(claim.grantId) })
+  ) {
+    return {
+      error: { status: 403, message: "This support session is read-only. Changes are not allowed.", code: "IMPERSONATION_READ_ONLY" },
+    };
+  }
+  return { grantId: String(claim.grantId), supportUserId: String(claim.supportUserId), ticket: grant.ticket, readOnly };
+}
+
 export const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -82,37 +140,15 @@ export const authenticate = async (req, res, next) => {
         .json({ success: false, message: "Session has been revoked. Please log in again." });
     }
 
-    // Consent-grant impersonation binding. When the token carries an
-    // `impersonation` claim (minted by services/impersonation.js after the
-    // owner approved), the request is only allowed while the grant is still
-    // ACTIVE and unexpired. This is what makes an owner revoke immediate:
-    // the moment the grant flips to cancelled/ended/expired, the very next
-    // impersonated request 401s — no token blacklist needed.
-    if (decoded.impersonation?.grantId) {
-      const grant = await req.models.ImpersonationGrant.findById(
-        decoded.impersonation.grantId
-      )
-        .select("status sessionExpiresAt supportUserId ticket")
-        .lean();
-      const live =
-        grant &&
-        grant.status === "active" &&
-        grant.sessionExpiresAt &&
-        new Date(grant.sessionExpiresAt).getTime() > Date.now() &&
-        String(grant.supportUserId) === String(decoded.impersonation.supportUserId);
-      if (!live) {
-        return res.status(401).json({
-          success: false,
-          message: "Impersonation session has ended.",
-          code: "impersonation_ended",
-        });
-      }
-      req.impersonation = {
-        grantId: String(decoded.impersonation.grantId),
-        supportUserId: String(decoded.impersonation.supportUserId),
-        ticket: grant.ticket,
-      };
+    // Consent-grant impersonation binding (see checkImpersonationGrant).
+    const imp = await checkImpersonationGrant(
+      { models: req.models, method: req.method, path: req.originalUrl?.split("?")[0] },
+      decoded
+    );
+    if (imp?.error) {
+      return res.status(imp.error.status).json({ success: false, message: imp.error.message, code: imp.error.code });
     }
+    if (imp) req.impersonation = imp;
 
     req.user = {
       userId: decoded.userId,
@@ -175,12 +211,29 @@ export const optionalAuth = async (req, res, next) => {
         const currentVersion = user?.tokenVersion ?? 0;
         const tokenVersion = decoded.tokenVersion ?? 0;
         if (user && user.isActive && tokenVersion === currentVersion) {
+          // Impersonation tokens get the same grant check as `authenticate`:
+          // an ended/revoked grant makes the request anonymous, and a
+          // read-only grant may not mutate through optionalAuth routes
+          // (storefront cart, checkout, orders, reviews) either.
+          const imp = await checkImpersonationGrant(
+            { models, method: req.method, path: req.originalUrl?.split("?")[0] },
+            decoded
+          );
+          if (imp?.error) {
+            if (imp.error.status === 403) {
+              return res.status(403).json({ success: false, message: imp.error.message, code: imp.error.code });
+            }
+            return next();
+          }
+          if (imp) req.impersonation = imp;
           req.user = {
             userId: decoded.userId,
             tenantId: decoded.tenantId,
             // Roles re-hydrated from the DB so a demoted user loses
             // privileges immediately, not on next token refresh.
             roles: user.roles || [],
+            impersonatedBy: decoded.impersonatedBy,
+            impersonationReason: decoded.impersonationReason,
           };
           // Only populate tenant context if the host resolver didn't
           // already. Never overwrite an existing host-resolved binding.

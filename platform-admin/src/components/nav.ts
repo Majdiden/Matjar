@@ -22,10 +22,10 @@ import {
   Plug,
   Webhook,
   Bug,
+  BarChart3,
   Users,
   ShieldCheck,
-  ShieldAlert,
-} from 'lucide-react';
+  ShieldAlert, SlidersHorizontal, Siren, } from 'lucide-react';
 import { PLATFORM_SCOPES, type PlatformScope, type PlatformUser } from '../lib/api';
 
 /**
@@ -101,6 +101,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: '/features', label: 'Features', icon: ToggleLeft, scope: S.SUPPORT_READ, ready: true },
       { to: '/programs', label: 'Access programs', shortLabel: 'Programs', icon: Flag, scope: S.SUPPORT_READ, ready: true },
       { to: '/phone-countries', label: 'Phone countries', shortLabel: 'Phones', icon: Phone, scope: S.SUPPORT_READ, ready: true },
+      { to: '/settings/global', label: 'Global configuration', shortLabel: 'Config', icon: SlidersHorizontal, scope: S.SUPPORT_READ, ready: true },
     ],
   },
   {
@@ -111,6 +112,17 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: '/feedback', label: 'Feedback', icon: MessageSquare, scope: S.SUPPORT_READ, ready: true },
       { to: '/audit', label: 'Audit log', icon: ScrollText, scope: S.AUDIT_READ, ready: true },
       { to: '/queues', label: 'Queues', icon: Layers, scope: S.SUPPORT_READ, ready: true },
+      { to: '/incidents', label: 'Incidents', icon: Siren, scope: S.SUPPORT_READ, ready: true },
+    ],
+  },
+  {
+    key: 'analytics',
+    label: 'Analytics',
+    items: [
+      { to: '/analytics/platform', label: 'Platform', icon: BarChart3, scope: S.SUPPORT_READ, ready: true },
+      { to: '/analytics/commerce', label: 'Commerce', icon: BarChart3, scope: S.SUPPORT_READ, ready: true },
+      { to: '/analytics/revenue', label: 'Revenue', icon: BarChart3, scope: S.BILLING_READ, ready: true },
+      { to: '/analytics/usage', label: 'Usage', icon: BarChart3, scope: S.SUPPORT_READ, ready: true },
     ],
   },
   {

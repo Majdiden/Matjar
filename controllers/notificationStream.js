@@ -16,6 +16,11 @@ import { asyncHandler } from "../middlewares/errorHandler.js";
  * once open it stays open until the socket closes.
  */
 export const streamTokenController = asyncHandler(async (req, res) => {
+  // A stream outlives the per-request grant check, so an impersonated
+  // session gets none: owner revocation must take effect immediately.
+  if (req.impersonation) {
+    return res.status(403).json({ success: false, code: "IMPERSONATION_NO_STREAM", message: "Realtime notifications are unavailable during impersonation." });
+  }
   const token = signJWT(
     {
       userId: String(req.user.userId),

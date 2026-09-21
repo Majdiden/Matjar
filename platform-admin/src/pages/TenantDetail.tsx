@@ -40,6 +40,7 @@ import TenantPaymentsTab from './TenantPaymentsTab';
 import TenantExportsTab from './TenantExportsTab';
 import TenantFailedWebhooksTab from './TenantFailedWebhooksTab';
 import { ImpersonationRequestModal } from './ImpersonationRequestModal';
+import { TenantPrivacyCard } from './TenantPrivacyCard';
 import TenantBillingTab from './TenantBillingTab';
 import TenantStaffTab from './TenantStaffTab';
 import TenantActivityTab from './TenantActivityTab';
@@ -711,6 +712,8 @@ export default function TenantDetailPage() {
               <Row label="Updated" value={formatDate(tenant.updatedAt)} />
             </CardContent>
           </Card>
+
+          {canExport && <TenantPrivacyCard tenantId={tenantId} ensureReauth={reauth.ensure} />}
         </div>
       )}
 

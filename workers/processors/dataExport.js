@@ -15,6 +15,8 @@
 import mongoose from "mongoose";
 import logger from "../../utils/logger.js";
 import { exportTenantData } from "../../services/dataExport.js";
+import { exportCustomer } from "../../services/customerPrivacy.js";
+import { createScopedModels } from "../../utils/scopedModel.js";
 import { uploadFile } from "../../services/providers/storage.js";
 
 const EXPORT_TTL_MS = 7 * 24 * 3600 * 1000;
@@ -29,7 +31,16 @@ export async function processTenantExport(job) {
   });
 
   try {
-    const dump = await exportTenantData(tenantId);
+    const row = await TenantExport.findById(exportId).select("scope subjectUserId").lean();
+    let dump;
+    if (row?.scope === "customer") {
+      // Privacy access request: one customer's data only, via the scoped models.
+      if (!row.subjectUserId) throw new Error("customer export requires subjectUserId");
+      const models = createScopedModels(mongoose.connection, tenantId);
+      dump = await exportCustomer(models, row.subjectUserId);
+    } else {
+      dump = await exportTenantData(tenantId);
+    }
     const json = JSON.stringify(dump);
     const buffer = Buffer.from(json, "utf8");
     const filename = `tenant-${tenantId}-${exportId}.json`;

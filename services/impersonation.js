@@ -23,72 +23,12 @@ import { emit } from "./notification.js";
 import { IMPERSONATION_TERMINAL } from "../schemas/store/impersonationGrant.js";
 import logger from "../utils/logger.js";
 
-const MAX_TTL_SECONDS = 30 * 60;
-
-export async function mintImpersonationToken({
-  platformUser,
-  tenantId,
-  reason,
-  ttlSeconds = MAX_TTL_SECONDS,
-}) {
-  if (!reason || String(reason).trim().length < 4) {
-    throw new Error("Impersonation reason is required (min 4 chars)");
-  }
-  const ttl = Math.min(Math.max(Number(ttlSeconds) || MAX_TTL_SECONDS, 60), MAX_TTL_SECONDS);
-
-  const Tenant = mongoose.model("Tenant");
-  const tenant = await Tenant.findById(tenantId);
-  if (!tenant) throw new Error("Tenant not found");
-
-  const models = createScopedModels(mongoose.connection, tenant._id);
-  const adminUser = await models.User.findOne({ roles: "admin", isActive: true })
-    .select("_id email tokenVersion roles")
-    .lean();
-  if (!adminUser) throw new Error("No admin user found for tenant");
-
-  const token = signJWT(
-    {
-      userId: String(adminUser._id),
-      tenantId: String(tenant._id),
-      tokenVersion: adminUser.tokenVersion ?? 0,
-      impersonatedBy: platformUser.id,
-      impersonationReason: reason.slice(0, 200),
-    },
-    `${ttl}s`
-  );
-
-  // Audit the mint itself into the tenant's own log so the merchant can
-  // see that a support agent logged in on their behalf.
-  try {
-    await models.AuditLog.create({
-      tenantId: tenant._id,
-      actor: null,
-      actorName: `platform:${platformUser.email || platformUser.id}`,
-      action: "impersonation.minted",
-      resource: "user",
-      resourceId: adminUser._id,
-      metadata: { reason: reason.slice(0, 200), ttlSeconds: ttl },
-    });
-  } catch (_) {
-    // Audit failures must not block the support workflow.
-  }
-
-  return {
-    token,
-    tenantId: String(tenant._id),
-    userId: String(adminUser._id),
-    userEmail: adminUser.email,
-    expiresIn: ttl,
-  };
-}
-
 // ===========================================================================
 // Consent-based impersonation (Customer Support ⇄ store Owner)
 // ===========================================================================
 //
-// Unlike mintImpersonationToken above (silent, operator-side only), this
-// flow REQUIRES the store owner's explicit approval before a token is ever
-// minted. The ImpersonationGrant document is the single source of truth and
+// This flow REQUIRES the store owner's explicit approval before a token is
+// ever minted (the earlier silent operator-side mint was removed). The ImpersonationGrant document is the single source of truth and
 // is re-checked on every impersonated request (middlewares/auth.js) so an
 // owner revoke ends the session instantly.
 //
@@ -131,6 +71,7 @@ export function publicGrant(g) {
     supportName: g.supportName,
     supportEmail: g.supportEmail,
     ownerUserId: String(g.ownerUserId),
+    readOnly: g.readOnly !== false,
     approvalExpiresAt: g.approvalExpiresAt,
     sessionExpiresAt: g.sessionExpiresAt,
     requestedAt: g.requestedAt,
@@ -196,7 +137,7 @@ function emitToOwner(models, grant, type, { severity = "info", title, body, extr
  * the store owner in real time (SSE + Web Push). Returns the operator-safe
  * grant shape (no code — the code only ever appears in the owner's session).
  */
-export async function requestImpersonation({ platformUser, tenantId, ticket }) {
+export async function requestImpersonation({ platformUser, tenantId, ticket, readOnly = true }) {
   const normalizedTicket = normalizeTicket(ticket);
   if (!normalizedTicket) throw new Error("A support ticket number is required.");
 
@@ -239,13 +180,14 @@ export async function requestImpersonation({ platformUser, tenantId, ticket }) {
     ownerEmail: owner.email,
     ticket: normalizedTicket,
     status: "requested",
+    readOnly: readOnly !== false,
     code: generateConsentCode(),
     approvalExpiresAt: new Date(now.getTime() + APPROVAL_WINDOW_SECONDS * 1000),
     requestedAt: now,
   });
 
   auditGrant(models, "impersonation.requested", grant, {
-    metadata: { approvalWindowSeconds: APPROVAL_WINDOW_SECONDS },
+    metadata: { approvalWindowSeconds: APPROVAL_WINDOW_SECONDS, readOnly: grant.readOnly !== false },
   });
 
   // Owner consent popup — carries the code so the owner can read it to
@@ -253,8 +195,11 @@ export async function requestImpersonation({ platformUser, tenantId, ticket }) {
   emitToOwner(models, grant, "impersonation.requested", {
     severity: "warning",
     title: "Customer support is requesting access",
-    body: `Support wants to access your store for ticket #${grant.ticket}. Approve only if you are working with them.`,
-    extraData: { code: grant.code, approvalExpiresAt: grant.approvalExpiresAt },
+    body:
+      grant.readOnly !== false
+        ? `Support wants READ-ONLY access to your store for ticket #${grant.ticket} (they cannot change anything). Approve only if you are working with them.`
+        : `Support wants FULL access to your store for ticket #${grant.ticket} (they can make changes). Approve only if you are working with them.`,
+    extraData: { code: grant.code, approvalExpiresAt: grant.approvalExpiresAt, readOnly: grant.readOnly !== false },
   });
 
   return { ...publicGrant(grant), storeName: tenant.name };
@@ -419,21 +364,23 @@ export async function enterImpersonation({ platformUser, tenantId, grantId }) {
         grantId: String(updated._id),
         supportUserId: String(platformUser.id),
         ticket: updated.ticket,
+        // Informational only — the middleware re-reads the grant on every request.
+        readOnly: updated.readOnly !== false,
       },
     },
     `${remainingSeconds}s`
   );
 
   auditGrant(models, "impersonation.started", updated, {
-    metadata: { sessionExpiresAt: updated.sessionExpiresAt },
+    metadata: { sessionExpiresAt: updated.sessionExpiresAt, readOnly: updated.readOnly !== false },
   });
 
   // Freeze the owner's dashboard.
   emitToOwner(models, updated, "impersonation.started", {
     severity: "warning",
     title: "Support session started",
-    body: `Customer support is now assisting with ticket #${updated.ticket}.`,
-    extraData: { sessionExpiresAt: updated.sessionExpiresAt },
+    body: `Customer support is now assisting with ticket #${updated.ticket}${updated.readOnly !== false ? " (read-only)" : ""}.`,
+    extraData: { sessionExpiresAt: updated.sessionExpiresAt, readOnly: updated.readOnly !== false },
   });
 
   return {
@@ -443,6 +390,7 @@ export async function enterImpersonation({ platformUser, tenantId, grantId }) {
     userId: String(owner._id),
     userEmail: owner.email,
     ticket: updated.ticket,
+    readOnly: updated.readOnly !== false,
     expiresIn: remainingSeconds,
   };
 }

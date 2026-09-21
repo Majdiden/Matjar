@@ -52,6 +52,8 @@ export const ImpersonationBanner: React.FC = () => {
           })}
         </p>
         <p className="truncate text-xs text-white/85">
+          {active.readOnly === false ? t('impersonation:banner.mode_full') : t('impersonation:banner.mode_read_only')}
+          {' · '}
           {t('impersonation:banner.audited')}
         </p>
       </div>

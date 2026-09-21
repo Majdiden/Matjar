@@ -34,6 +34,7 @@ export const RegionalSettings: React.FC<RegionalSettingsProps> = ({ general, set
             <div className="space-y-2">
               <Label>{t('settings.field.regional.currency.label')}</Label>
               <CurrencyPicker
+                restrictToPlatform
                 value={general.currency}
                 onChange={v => setGeneral(g => ({ ...g, currency: v }))}
               />

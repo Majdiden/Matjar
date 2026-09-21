@@ -97,6 +97,9 @@ export function setStoredUser(user: PlatformUser) {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
+/** Unwrap `{ success, data }` envelopes from the platform API. */
+export const unwrapData = <T>(p: Promise<{ data: { data: T } }>) => p.then((r) => r.data.data);
+
 export const http = axios.create({
   baseURL: '/api/platform',
   timeout: 30000,
@@ -392,25 +395,18 @@ export const api = {
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     },
-    impersonate: async (tenantId: string, reason: string, ttlSeconds?: number) => {
-      const res = await http.post(`/tenants/${tenantId}/impersonate`, { reason, ttlSeconds });
-      return res.data.data as {
-        token: string;
-        tenantId: string;
-        userId: string;
-        userEmail: string;
-        expiresIn: number;
-      };
-    },
 
     // --- Consent-based impersonation (owner must approve) ---
     // 1. Request access for a ticket → owner gets a real-time consent popup.
-    requestImpersonation: async (tenantId: string, ticket: string) => {
-      const res = await http.post(`/tenants/${tenantId}/impersonation/request`, { ticket });
+    // `readOnly` (default true) asks for a session where only GET/HEAD/OPTIONS
+    // are allowed — the server enforces it on every impersonated request.
+    requestImpersonation: async (tenantId: string, ticket: string, readOnly = true) => {
+      const res = await http.post(`/tenants/${tenantId}/impersonation/request`, { ticket, readOnly });
       return res.data.data as {
         grantId: string;
         status: string;
         ticket: string;
+        readOnly?: boolean;
         approvalExpiresAt?: string;
         storeName?: string;
       };

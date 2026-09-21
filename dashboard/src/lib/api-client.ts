@@ -377,6 +377,7 @@ export const api = {
             supportEmail?: string;
             code?: string;
             approvalExpiresAt?: string;
+            readOnly?: boolean;
           }>;
           active: {
             grantId: string;
@@ -385,6 +386,7 @@ export const api = {
             supportEmail?: string;
             sessionExpiresAt?: string;
             storeName?: string | null;
+            readOnly?: boolean;
           } | null;
         };
       }>('/impersonation/state'),

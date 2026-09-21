@@ -16,6 +16,10 @@ import { Schema, Types } from "mongoose";
 const tenantExportSchema = new Schema({
   tenantId: { type: Types.ObjectId, ref: "Tenant", required: true, index: true },
   requestedBy: { type: String, default: null },
+  // "tenant" = whole-store dump (default). "customer" = one customer's data
+  // (privacy access request); `subjectUserId` names the customer.
+  scope: { type: String, enum: ["tenant", "customer"], default: "tenant", index: true },
+  subjectUserId: { type: Types.ObjectId, default: null },
   status: {
     type: String,
     enum: ["pending", "running", "ready", "failed", "expired"],

@@ -110,6 +110,15 @@ export const ImpersonationConsentModal: React.FC = () => {
             <span className="text-muted-foreground">{t('impersonation:consent.ticket')}</span>
             <span className="font-mono font-medium">#{grant.ticket}</span>
           </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-muted-foreground">{t('impersonation:consent.access')}</span>
+            <span className={`font-medium ${grant.readOnly === false ? 'text-amber-700' : 'text-emerald-700'}`}>
+              {grant.readOnly === false ? t('impersonation:consent.access_full') : t('impersonation:consent.access_read_only')}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {grant.readOnly === false ? t('impersonation:consent.access_full_hint') : t('impersonation:consent.access_read_only_hint')}
+          </p>
         </div>
 
         {/* Phone fallback: owner reads this code to support. */}

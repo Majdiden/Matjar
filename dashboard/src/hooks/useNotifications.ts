@@ -243,8 +243,12 @@ export function useNotifications() {
             ? (res as { responseObject?: { token?: string } }).responseObject
             : (res as { token?: string } | null | undefined)) ?? null;
         streamToken = obj?.token ?? null;
-      } catch {
-        /* fall through — scheduleReconnect handles it */
+      } catch (err) {
+        // 403 = streaming is deliberately unavailable for this session
+        // (e.g. impersonation); don't hammer the server with retries.
+        const status = (err as { response?: { status?: number } } | null)?.response?.status;
+        if (status === 403) return;
+        /* otherwise fall through — scheduleReconnect handles it */
       }
       if (cancelled) return;
       if (!streamToken) {

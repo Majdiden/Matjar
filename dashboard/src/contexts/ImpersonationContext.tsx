@@ -16,6 +16,8 @@ export interface PendingGrant {
   supportEmail?: string;
   code?: string;
   approvalExpiresAt?: string;
+  /** Support asked for a read-only session (server blocks every write). */
+  readOnly?: boolean;
 }
 
 export interface ActiveGrant {
@@ -25,6 +27,7 @@ export interface ActiveGrant {
   supportEmail?: string;
   sessionExpiresAt?: string;
   storeName?: string | null;
+  readOnly?: boolean;
 }
 
 interface ImpersonationState {

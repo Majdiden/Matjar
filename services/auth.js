@@ -492,6 +492,8 @@ const confirmPasswordReset = async (connection, { token, newPassword }) => {
   };
 
   if (!user) return genericInvalid;
+  // Deactivated or erased accounts can never be revived through a reset link.
+  if (!user.isActive || user.anonymizedAt) return genericInvalid;
   if (user.passwordResetUsedAt) return genericInvalid;
   if (!user.passwordResetTokenExpiresAt) return genericInvalid;
   if (new Date(user.passwordResetTokenExpiresAt).getTime() < Date.now()) {

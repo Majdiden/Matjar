@@ -459,6 +459,7 @@ tenantSchema.index({ email: 1 });
 tenantSchema.index({ slug: 1 });
 tenantSchema.index({ "domains.subdomain.name": 1 });
 tenantSchema.index({ accessPrograms: 1 }); // program membership lookups (Phase B)
+tenantSchema.index({ createdAt: -1 }); // overview/analytics: new-store windows
 tenantSchema.index({ "domains.subdomain.fullDomain": 1 });
 tenantSchema.index(
   { "domains.customDomain.name": 1 },

@@ -77,6 +77,9 @@ const generateHash = async (input) => {
  * @returns {Promise<boolean>} True if passwords match
  */
 const comparePassword = async (plainPassword, hash) => {
+  // Anonymised accounts have `password: null`; treat that as "never matches"
+  // rather than letting bcrypt throw (which surfaced as a 500 on login).
+  if (typeof hash !== "string" || !hash) return false;
   try {
     const match = await bcrypt.compare(plainPassword, hash);
     return match;

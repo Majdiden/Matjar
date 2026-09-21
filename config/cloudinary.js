@@ -59,7 +59,7 @@ export const uploadPresets = {
       { quality: "auto:good" },
       { fetch_format: "auto" },
     ],
-    allowed_formats: ["jpg", "jpeg", "png", "webp", "svg"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
   },
 
   logo: {
@@ -69,7 +69,7 @@ export const uploadPresets = {
       { quality: "auto:best" },
       { fetch_format: "auto" },
     ],
-    allowed_formats: ["jpg", "jpeg", "png", "webp", "svg"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
   },
 
   favicon: {

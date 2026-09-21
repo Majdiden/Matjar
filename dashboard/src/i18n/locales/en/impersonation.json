@@ -14,7 +14,12 @@
     "code_label": "Consent code",
     "approved_toast": "Support access approved",
     "denied_toast": "Request denied",
-    "error": "Could not process your response. Please try again."
+    "error": "Could not process your response. Please try again.",
+    "access": "Access level",
+    "access_read_only": "Read-only",
+    "access_full": "Full access",
+    "access_read_only_hint": "Support can look at your store but cannot change anything.",
+    "access_full_hint": "Support will be able to change data in your store on your behalf. Every action is recorded."
   },
   "overlay": {
     "banner": "Customer support is providing manual assistance for support ticket #{{ticket}}.",
@@ -23,12 +28,16 @@
     "session_ends": "Session ends at {{time}}",
     "end_session": "End session",
     "ending": "Ending…",
-    "ended_toast": "Support session ended. Your dashboard is unlocked."
+    "ended_toast": "Support session ended. Your dashboard is unlocked.",
+    "mode_read_only": "Read-only session",
+    "mode_full": "Full-access session"
   },
   "banner": {
     "label": "Impersonating {{store}} · ticket #{{ticket}}",
     "audited": "All actions are audited",
     "exit": "Exit impersonation",
-    "exiting": "Exiting…"
+    "exiting": "Exiting…",
+    "mode_read_only": "Read-only: changes are blocked",
+    "mode_full": "Full access"
   }
 }

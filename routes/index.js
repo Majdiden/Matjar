@@ -38,6 +38,7 @@ import assetRoutes from "../routes/asset.js";
 import redirectRoutes from "../routes/redirect.js";
 import impersonationRoutes from "../routes/impersonation.js";
 import plansRoutes from "../routes/plans.js";
+import publicConfigRoutes from "../routes/publicConfig.js";
 import billingRoutes from "../routes/billing.js";
 import feedbackRoutes from "../routes/feedback.js";
 
@@ -83,6 +84,7 @@ router.use("/redirects", redirectRoutes); // URL redirects (301/302 mapping)
 router.use("/features", featureRoutes); // Effective platform feature flags (dashboard read)
 router.use("/impersonation", impersonationRoutes); // Owner-side support-impersonation consent
 router.use("/plans", plansRoutes); // Public subscription-plan catalog (geo-localized pricing)
+router.use("/config", publicConfigRoutes); // Public operator-enabled currencies + countries (dashboard pickers)
 router.use("/billing", billingRoutes); // Merchant billing summary + self-service plan change (tenant-scoped)
 router.use("/feedback", feedbackRoutes); // Merchant → platform feedback (tenant-scoped, rate-limited)
 

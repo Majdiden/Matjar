@@ -176,7 +176,7 @@ const ShippingZoneForm: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <Label>{sz('field.countries')}</Label>
-                <CountryPicker value="" onChange={addCountry} placeholder={sz('field.countries_placeholder')} />
+                <CountryPicker restrictToPlatform value="" onChange={addCountry} placeholder={sz('field.countries_placeholder')} />
                 {form.countries.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {form.countries.map((code) => (

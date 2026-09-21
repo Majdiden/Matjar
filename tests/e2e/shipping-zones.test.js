@@ -76,8 +76,10 @@ async function seedHeavyProduct(tenantId) {
 }
 
 const ZONE_PAYLOAD = {
-  name: "North America",
-  countries: ["us", "ca"], // lowercase on purpose — controller normalises
+  name: "Gulf",
+  // Lowercase on purpose — controller normalises. Both are in the platform's
+  // default `commerce.countries` list (newly added zone countries must be).
+  countries: ["sa", "ae"],
   rates: [
     { name: "Light parcel", price: 5, minWeight: 0, maxWeight: 2, estimatedDays: "3-5" },
     { name: "Standard", price: 12, minWeight: 2, maxWeight: 5, estimatedDays: "3-5" },
@@ -88,12 +90,12 @@ const ZONE_PAYLOAD = {
 const SHIPPING_ADDRESS = {
   firstName: "Jane",
   lastName: "Doe",
-  addressLine1: "123 Brewery Lane",
-  city: "Portland",
-  state: "OR",
-  postalCode: "97201",
-  country: "US",
-  phone: "+15035551234",
+  addressLine1: "12 Corniche Road",
+  city: "Jeddah",
+  state: "Makkah",
+  postalCode: "21577",
+  country: "SA",
+  phone: "+966501234567",
 };
 
 describe("E2E shipping zones", () => {
@@ -125,7 +127,7 @@ describe("E2E shipping zones", () => {
     assert.equal(createRes.status, 201, JSON.stringify(createRes.body));
     const zoneId = createRes.body.data._id;
     assert.ok(zoneId);
-    assert.deepEqual(createRes.body.data.countries, ["US", "CA"]);
+    assert.deepEqual(createRes.body.data.countries, ["SA", "AE"]);
 
     // List
     const listRes = await request(app)
@@ -157,6 +159,18 @@ describe("E2E shipping zones", () => {
       .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     assert.equal(finalList.body.data.length, 0);
+  });
+
+  it("rejects a zone country the platform has not enabled", async () => {
+    await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    const res = await request(app)
+      .post("/api/store-settings/shipping/zones")
+      .set("Host", HOST)
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({ ...ZONE_PAYLOAD, countries: ["CA"] }); // not in the default commerce.countries list
+    assert.equal(res.status, 400);
+    assert.match(res.body.message, /not enabled/i);
   });
 
   it("rejects malformed zone payloads", async () => {

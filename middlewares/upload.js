@@ -2,6 +2,7 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary, { uploadPresets } from "../config/cloudinary.js";
 import config from "../config/index.js";
+import { getSettingSync } from "../services/platform/settings.js";
 
 /**
  * Upload Middleware
@@ -13,15 +14,13 @@ import config from "../config/index.js";
  * Validates file type
  */
 const fileFilter = (req, file, cb) => {
-  // Allowed MIME types
-  const allowedMimeTypes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "image/webp",
-  ];
+  // Allowed MIME types come from the global configuration registry
+  // (Platform → Global configuration); the registry restricts them to a
+  // fixed image allow-list, and the code default applies before the first
+  // load or if the stored value is ever invalid.
+  const allowedMimeTypes = getSettingSync("uploads.allowedMimeTypes");
 
-  // SVG blocked by default — XSS risk
+  // SVG blocked unconditionally — XSS risk (never in the allow-list either).
   if (file.mimetype === "image/svg+xml") {
     return cb(new Error("SVG uploads are not allowed for security reasons"), false);
   }
@@ -31,12 +30,29 @@ const fileFilter = (req, file, cb) => {
   } else {
     cb(
       new Error(
-        `Invalid file type. Only JPEG, PNG, and WebP images are allowed. Received: ${file.mimetype}`
+        `Invalid file type. Allowed: ${allowedMimeTypes.join(", ")}. Received: ${file.mimetype}`
       ),
       false
     );
   }
 };
+
+/**
+ * Operator-configured max upload size (bytes). multer's own `limits.fileSize`
+ * (MAX_FILE_SIZE env) stays as the hard ceiling because it is fixed at
+ * instance creation; this runtime value can only tighten it and is enforced
+ * after parsing in `validateUploadedFiles`.
+ */
+export function configuredMaxFileSizeBytes() {
+  const mb = getSettingSync("uploads.maxFileSizeMB");
+  return Math.min(config.maxFileSize, mb * 1024 * 1024);
+}
+
+/** Operator-configured max files per request, never above the process ceiling. */
+export function configuredMaxFilesPerUpload() {
+  return Math.min(config.maxFilesPerUpload, getSettingSync("uploads.maxFilesPerUpload"));
+}
+
 
 /**
  * Create Cloudinary storage configuration for multer
@@ -230,6 +246,31 @@ export const validateUploadedFiles = (req, res, next) => {
       success: false,
       message: "No files uploaded",
     });
+  }
+
+  // Operator-configured size cap (Platform → Global configuration). Runs
+  // here so every upload route gets it without touching the route table.
+  {
+    const max = configuredMaxFileSizeBytes();
+    const all = [
+      ...(req.file ? [req.file] : []),
+      ...(Array.isArray(req.files) ? req.files : []),
+      ...(req.files && !Array.isArray(req.files) ? Object.values(req.files).flat() : []),
+    ];
+    const tooBig = all.find((f) => f && typeof f.size === "number" && f.size > max);
+    if (tooBig) {
+      return res.status(413).json({
+        success: false,
+        message: `File too large. Maximum is ${Math.round(max / (1024 * 1024))} MB.`,
+      });
+    }
+    const maxFiles = configuredMaxFilesPerUpload();
+    if (all.length > maxFiles) {
+      return res.status(400).json({
+        success: false,
+        message: `Too many files. Maximum is ${maxFiles} per upload.`,
+      });
+    }
   }
 
   // Validate single file

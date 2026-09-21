@@ -76,6 +76,10 @@ const userSchema = new Schema({
     },
   ],
   isActive: { type: Boolean, default: true },
+  // Stamped by services/customerPrivacy.js anonymizeCustomer(). Without a
+  // schema field, strict mode silently dropped it and "already anonymised"
+  // could never be detected.
+  anonymizedAt: { type: Date, default: null },
   // Who deactivated a staff account: the merchant (dashboard remove) or the
   // platform console. The console refuses to reactivate a merchant-removed
   // account — that decision belongs to the store owner.
@@ -120,7 +124,9 @@ userSchema.index({ roles: 1, isActive: 1 });
 // Pre-save: hash password if modified + update timestamps
 userSchema.pre("save", async function (next) {
   this.updatedAt = Date.now();
-  if (this.isModified("password") && !this.password.startsWith("$2b$")) {
+  // `password` can be nulled by anonymisation (services/customerPrivacy.js);
+  // only hash a real, still-plaintext value.
+  if (this.isModified("password") && typeof this.password === "string" && !this.password.startsWith("$2b$")) {
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();
@@ -128,6 +134,7 @@ userSchema.pre("save", async function (next) {
 
 // Instance method: compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
+  if (typeof this.password !== "string" || !this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 

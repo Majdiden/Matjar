@@ -69,6 +69,9 @@ export const ActiveImpersonationOverlay: React.FC = () => {
                 {t('impersonation:overlay.subtext')}
               </p>
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                <span className={`rounded-full px-2 py-0.5 font-medium ${active.readOnly === false ? 'bg-amber-500/15 text-amber-700' : 'bg-emerald-500/15 text-emerald-700'}`}>
+                  {active.readOnly === false ? t('impersonation:overlay.mode_full') : t('impersonation:overlay.mode_read_only')}
+                </span>
                 {active.supportName && (
                   <span className="inline-flex items-center gap-1">
                     <ShieldCheck className="h-3.5 w-3.5" />

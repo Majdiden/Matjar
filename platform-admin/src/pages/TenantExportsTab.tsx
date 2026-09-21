@@ -12,6 +12,10 @@ interface ExportRow {
   _id: string;
   tenantId: string;
   requestedBy?: string | null;
+  // 'tenant' = whole-store dump; 'customer' = one data subject (privacy
+  // access request). Shown so an operator never hands over the wrong file.
+  scope?: 'tenant' | 'customer';
+  subjectUserId?: string | null;
   status: 'pending' | 'running' | 'ready' | 'failed' | 'expired';
   // Raw `url` is no longer returned by the API — downloads go through
   // the scope-checked proxy endpoint. `downloadUrl` is synthesized by
@@ -132,7 +136,21 @@ export default function TenantExportsTab({
   const isReady = (r?: ExportRow | { error: string }): r is ExportRow => !!r && !('error' in r);
 
   const columns: DataListColumn<ExportListRow>[] = [
-    { id: 'export', header: 'Export', primary: true, cell: (r) => <span className="text-xs">{shortId(r.id)}</span> },
+    {
+      id: 'export',
+      header: 'Export',
+      primary: true,
+      cell: (r) => (
+        <span className="inline-flex flex-wrap items-center gap-1.5 text-xs">
+          {shortId(r.id)}
+          {isReady(r.row) && (
+            <Badge variant={r.row.scope === 'customer' ? 'warning' : 'outline'}>
+              {r.row.scope === 'customer' ? 'Customer' : 'Full store'}
+            </Badge>
+          )}
+        </span>
+      ),
+    },
     {
       id: 'status',
       header: 'Status',

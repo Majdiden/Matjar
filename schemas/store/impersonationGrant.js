@@ -59,6 +59,13 @@ const impersonationGrantSchema = new Schema({
 
   status: { type: String, enum: IMPERSONATION_STATUSES, default: "requested", index: true },
 
+  // Read-only mode (default). A read-only session may only issue
+  // GET/HEAD/OPTIONS on the tenant API — enforced server-side in
+  // middlewares/auth.js on EVERY impersonated request, never by the UI.
+  // The operator must explicitly ask for a full session; the owner sees
+  // the mode in the consent prompt and in the support banner.
+  readOnly: { type: Boolean, default: true },
+
   // 6-char consent code shown ONLY in the owner's authenticated dashboard.
   // The owner can read it to support (phone fallback) who enters it to
   // approve. Never leaves the owner's session otherwise.

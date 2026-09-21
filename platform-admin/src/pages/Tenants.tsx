@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api, LIFECYCLE_STATES, type Pagination, type TenantListRow } from '../lib/api';
+import { useAuth } from '../contexts/auth-context';
+import { useReauth } from '../components/useReauth';
+import { TenantsBulkBar } from './TenantsBulkBar';
+import { allowedBulkActions } from '../lib/api-bulk';
 import { LifecycleBadge } from '../components/LifecycleBadge';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
@@ -46,6 +50,27 @@ export default function Tenants() {
   const [stats, setStats] = useState<StatsPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Bulk selection (any bulk-capable scope; per-action scope filters the bar). Ids persist across pages so an
+  // operator can pick from several pages; the bar caps at 50.
+  const { user } = useAuth();
+  const reauth = useReauth();
+  const canBulk = allowedBulkActions(user).length > 0;
+  const [selected, setSelected] = useState<Map<string, TenantListRow>>(new Map());
+  const toggleSelected = (row: TenantListRow) =>
+    setSelected((prev) => {
+      const next = new Map(prev);
+      if (next.has(row._id)) next.delete(row._id);
+      else next.set(row._id, row);
+      return next;
+    });
+  const allOnPageSelected = rows.length > 0 && rows.every((r) => selected.has(r._id));
+  const togglePage = () =>
+    setSelected((prev) => {
+      const next = new Map(prev);
+      if (allOnPageSelected) rows.forEach((r) => next.delete(r._id));
+      else rows.forEach((r) => next.set(r._id, r));
+      return next;
+    });
 
   useEffect(() => {
     setQLocal(q);
@@ -177,6 +202,33 @@ export default function Tenants() {
     : [];
 
   const columns: DataListColumn<TenantListRow>[] = [
+    ...(canBulk
+      ? [
+          {
+            id: 'select',
+            header: (
+              <input
+                type="checkbox"
+                aria-label="Select all on this page"
+                className="h-4 w-4 rounded border-input"
+                checked={allOnPageSelected}
+                onChange={togglePage}
+              />
+            ),
+            className: 'w-8',
+            cell: (row: TenantListRow) => (
+              <input
+                type="checkbox"
+                aria-label={`Select ${row.name}`}
+                className="h-4 w-4 rounded border-input"
+                checked={selected.has(row._id)}
+                onChange={() => toggleSelected(row)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            ),
+          } satisfies DataListColumn<TenantListRow>,
+        ]
+      : []),
     {
       id: 'name',
       header: 'Name',
@@ -376,6 +428,15 @@ export default function Tenants() {
         <>
           <DataList columns={columns} rows={rows} rowKey={(r) => r._id} />
 
+          {canBulk && selected.size > 0 && (
+            <TenantsBulkBar
+              selected={[...selected.values()]}
+              onClear={() => setSelected(new Map())}
+              ensureReauth={reauth.ensure}
+              onDone={() => void load()}
+            />
+          )}
+
           {pagination && pagination.pages > 1 && (
             <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
               <div className="text-muted-foreground">
@@ -403,6 +464,7 @@ export default function Tenants() {
           )}
         </>
       )}
+      {reauth.modal}
     </div>
   );
 }

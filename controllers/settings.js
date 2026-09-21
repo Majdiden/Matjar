@@ -1,3 +1,4 @@
+import { getSettingSync } from "../services/platform/settings.js";
 import { APIError } from "../middlewares/errorHandler.js";
 import mongoose from "mongoose";
 import sanitizeHtml from "sanitize-html";
@@ -27,7 +28,24 @@ const POLICY_SANITIZE_OPTIONS = {
 const sanitizePolicyBody = (html) =>
   sanitizeHtml(String(html ?? ""), POLICY_SANITIZE_OPTIONS).trim();
 
-const ALLOWED_CURRENCIES = ["SDG", "USD", "EUR", "GBP", "AED", "SAR", "EGP", "CAD", "AUD", "JPY", "INR"];
+// Store base currencies are operator-managed (Platform → Global configuration,
+// key `commerce.baseCurrencies`); the registry default mirrors the old list.
+const allowedBaseCurrencies = () => getSettingSync("commerce.baseCurrencies");
+const allowedCountries = () => getSettingSync("commerce.countries");
+
+/**
+ * Only NEWLY added country codes must be in the platform allow-list, so a zone
+ * saved before the list was narrowed can still be edited without being rejected.
+ */
+function assertNewCountriesAllowed(countries, existing = []) {
+  const allowed = allowedCountries();
+  if (!Array.isArray(allowed) || allowed.length === 0) return;
+  const known = new Set(existing.map((c) => String(c).toUpperCase()));
+  const rejected = countries.filter((c) => !known.has(c) && !allowed.includes(c));
+  if (rejected.length) {
+    throw new APIError(`Country not enabled on this platform: ${rejected.join(", ")}`, 400);
+  }
+}
 const ALLOWED_TIMEZONES_PATTERN = /^[A-Za-z_\/]+$/;
 // ISO 4217 codes are three uppercase letters; we don't gate by the
 // ALLOWED_CURRENCIES whitelist for markets/FX because merchants legitimately
@@ -242,8 +260,15 @@ export const updateSettings = async (req, res, next) => {
     }
 
     if (settings.currency !== undefined) {
-      if (!ALLOWED_CURRENCIES.includes(settings.currency)) {
-        throw new APIError(`Invalid currency. Allowed: ${ALLOWED_CURRENCIES.join(", ")}`, 400);
+      // Only a CHANGE must be on the operator allow-list — a store whose
+      // currency was later removed from the list can still save unrelated
+      // settings (the bulk PUT always re-sends the current value).
+      const current = req.tenant?.settings?.currency;
+      if (settings.currency !== current) {
+        const allowed = allowedBaseCurrencies();
+        if (!allowed.includes(settings.currency)) {
+          throw new APIError(`Invalid currency. Allowed: ${allowed.join(", ")}`, 400);
+        }
       }
       updateData["settings.currency"] = settings.currency;
     }
@@ -378,6 +403,7 @@ export const createShippingZone = async (req, res, next) => {
   try {
     if (!req.tenant?._id) throw new APIError("Tenant context not found", 400);
     const zone = validateZone(req.body);
+    assertNewCountriesAllowed(zone.countries);
     const Tenant = mongoose.model("Tenant");
     const tenant = await Tenant.findByIdAndUpdate(
       req.tenant._id,
@@ -408,6 +434,12 @@ export const updateShippingZone = async (req, res, next) => {
     }
     const zone = validateZone(req.body);
     const Tenant = mongoose.model("Tenant");
+    const existing = await Tenant.findOne(
+      { _id: req.tenant._id, "settings.shipping.zones._id": zoneId },
+      { "settings.shipping.zones.$": 1 }
+    ).lean();
+    if (!existing) throw new APIError("Zone not found", 404);
+    assertNewCountriesAllowed(zone.countries, existing.settings?.shipping?.zones?.[0]?.countries || []);
     const tenant = await Tenant.findOneAndUpdate(
       { _id: req.tenant._id, "settings.shipping.zones._id": zoneId },
       {

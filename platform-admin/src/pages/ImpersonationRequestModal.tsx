@@ -3,8 +3,9 @@ import { api } from '../lib/api';
 import { Modal } from '../components/ui/Modal';
 import { Button } from '../components/ui/Button';
 import { Input, Label } from '../components/ui/Input';
+import { Toggle } from '../components/ui/Toggle';
 import { useToast } from '../components/ui/toast-context';
-import { ShieldCheck, Clock, Phone } from 'lucide-react';
+import { ShieldCheck, Clock, Phone, Eye, Pencil } from 'lucide-react';
 
 /**
  * Consent-based impersonation flow (operator side).
@@ -33,6 +34,7 @@ export function ImpersonationRequestModal({
   const toast = useToast();
   const [phase, setPhase] = useState<Phase>('form');
   const [ticket, setTicket] = useState('');
+  const [readOnly, setReadOnly] = useState(true);
   const [grantId, setGrantId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
   const [code, setCode] = useState('');
@@ -44,6 +46,7 @@ export function ImpersonationRequestModal({
     pollTimer.current = null;
     setPhase('form');
     setTicket('');
+    setReadOnly(true);
     setGrantId(null);
     setStatus('');
     setCode('');
@@ -151,7 +154,7 @@ export function ImpersonationRequestModal({
       return;
     }
     try {
-      const grant = await api.tenants.requestImpersonation(tenantId, t);
+      const grant = await api.tenants.requestImpersonation(tenantId, t, readOnly);
       setGrantId(grant.grantId);
       setStatus(grant.status);
       setPhase('waiting');
@@ -228,9 +231,23 @@ export function ImpersonationRequestModal({
               autoFocus
             />
           </div>
+          <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                {readOnly ? <Eye className="h-4 w-4 text-emerald-600" /> : <Pencil className="h-4 w-4 text-amber-600" />}
+                {readOnly ? 'Read-only session' : 'Full-access session'}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {readOnly
+                  ? 'You can look at everything but every change is blocked server-side. Use this unless you must act on the merchant\'s behalf.'
+                  : 'You will be able to change data in the store as the owner. The owner sees this in the consent prompt and the banner; every write is audited.'}
+              </p>
+            </div>
+            <Toggle checked={!readOnly} onChange={(v) => setReadOnly(!v)} label="Request full access" />
+          </div>
           <p className="text-xs text-muted-foreground">
             The owner will receive a real-time popup in their dashboard asking them to
-            approve access for this ticket.
+            approve {readOnly ? 'read-only' : 'full'} access for this ticket.
           </p>
         </div>
       )}

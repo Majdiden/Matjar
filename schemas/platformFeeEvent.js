@@ -64,6 +64,7 @@ const platformFeeEventSchema = new Schema(
 
 platformFeeEventSchema.index({ tenantId: 1, periodKey: 1 });
 platformFeeEventSchema.index({ tenantId: 1, occurredAt: -1 });
+platformFeeEventSchema.index({ occurredAt: 1, type: 1 }); // platform-wide commission series
 // Exactly one recognised commission per order (idempotent recognition).
 // Reversals are NOT unique per order — a partially refunded order can be
 // refunded again, producing a second reversal row.

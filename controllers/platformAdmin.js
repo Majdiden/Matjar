@@ -19,7 +19,6 @@ import {
 import { retrySetup, seedStarterContentForTenant } from "../services/storeSetup.js";
 import { getPhoneCountryConfig, setPhoneCountryConfig } from "../services/phoneCountries.js";
 import { PHONE_COUNTRY_CATALOG } from "../config/phoneCountries.js";
-import { mintImpersonationToken } from "../services/impersonation.js";
 import { exportTenantData } from "../services/dataExport.js";
 import { enqueueTenantExport } from "../services/jobs/index.js";
 import { getQueue, QUEUE_NAMES } from "../services/jobs/queues.js";
@@ -488,32 +487,6 @@ export const listTenantPayments = asyncHandler(async (req, res) => {
     .limit(100)
     .lean();
   res.json({ success: true, data: rows });
-});
-
-// --- Impersonation ---------------------------------------------------
-
-export const impersonate = asyncHandler(async (req, res) => {
-  const { reason, ttlSeconds } = req.body || {};
-  const result = await mintImpersonationToken({
-    platformUser: req.platformUser,
-    tenantId: req.params.tenantId,
-    reason,
-    ttlSeconds,
-  });
-  logger.warn("Platform: impersonation minted", {
-    tenantId: req.params.tenantId,
-    by: req.platformUser.email,
-    reason: String(reason).slice(0, 120),
-  });
-  await recordPlatformAudit(req, {
-    action: "impersonation.mint_legacy",
-    resourceType: "Tenant",
-    resourceId: req.params.tenantId,
-    tenantId: req.params.tenantId,
-    reason: reason ? String(reason).slice(0, 500) : null,
-    metadata: { userId: result?.userId || null, expiresIn: result?.expiresIn || null },
-  });
-  res.json({ success: true, data: result });
 });
 
 // --- Failed jobs inspection -----------------------------------------

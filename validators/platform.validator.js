@@ -21,7 +21,9 @@ export const platformPassword = z
   .regex(/\d/, "Password must include a number");
 
 const role = z.string({ required_error: "Role is required" }).trim().toLowerCase().min(2).max(32);
-const reason = z.string().trim().min(4, "Reason must be at least 4 characters").max(500);
+// Shared atoms — reused by the incidents / privacy / bulk validators.
+export const reason = z.string().trim().min(4, "Reason must be at least 4 characters").max(500);
+export const objectId = z.string().regex(/^[a-f0-9]{24}$/i, "Invalid id");
 const token = z.string({ required_error: "Token is required" }).regex(/^[a-f0-9]{64}$/, "Invalid token");
 
 export const platformLoginSchema = z.object({

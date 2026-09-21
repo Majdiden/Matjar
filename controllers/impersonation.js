@@ -52,8 +52,13 @@ export const getStateController = asyncHandler(async (req, res) => {
   res.json({ success: true, data: state });
 });
 
+// Consent decisions belong to the real owner: an operator inside an
+// impersonated session must never approve, deny or revoke a grant.
+const NOT_WHILE_IMPERSONATING = { success: false, code: "IMPERSONATION_CONSENT_ONLY_OWNER", message: "Consent decisions cannot be made from an impersonated session." };
+
 /** POST /api/impersonation/:grantId/approve — owner clicks Approve. */
 export const approveController = asyncHandler(async (req, res) => {
+  if (req.impersonation) return res.status(403).json(NOT_WHILE_IMPERSONATING);
   try {
     const grant = await approveImpersonation({
       tenantId: req.tenantId,
@@ -69,6 +74,7 @@ export const approveController = asyncHandler(async (req, res) => {
 
 /** POST /api/impersonation/:grantId/deny — owner declines. */
 export const denyController = asyncHandler(async (req, res) => {
+  if (req.impersonation) return res.status(403).json(NOT_WHILE_IMPERSONATING);
   try {
     const grant = await denyImpersonation({
       tenantId: req.tenantId,
@@ -87,6 +93,7 @@ export const denyController = asyncHandler(async (req, res) => {
  * 401s. The support session is kicked via the realtime channel.
  */
 export const revokeController = asyncHandler(async (req, res) => {
+  if (req.impersonation) return res.status(403).json(NOT_WHILE_IMPERSONATING);
   try {
     const grant = await endImpersonation({
       tenantId: req.tenantId,
@@ -142,10 +149,14 @@ export const exitSelfController = asyncHandler(async (req, res) => {
  */
 export const requestController = asyncHandler(async (req, res) => {
   try {
+    // Read-only is the default; a full session must be asked for explicitly
+    // (the owner sees which mode they are approving).
+    const readOnly = req.body?.readOnly !== false;
     const grant = await requestImpersonation({
       platformUser: req.platformUser,
       tenantId: req.params.tenantId,
       ticket: req.body?.ticket,
+      readOnly,
     });
     logger.warn("Impersonation requested", {
       tenantId: req.params.tenantId,
@@ -158,6 +169,7 @@ export const requestController = asyncHandler(async (req, res) => {
       resourceId: grant.grantId || grant._id,
       tenantId: req.params.tenantId,
       reason: grant.ticket ? `ticket #${grant.ticket}` : null,
+      metadata: { readOnly: grant.readOnly },
     });
     res.status(201).json({ success: true, data: grant });
   } catch (err) {

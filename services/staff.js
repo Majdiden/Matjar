@@ -21,7 +21,7 @@ import logger from "../utils/logger.js";
 import config from "../config/index.js";
 import { emit as emitNotification } from "./notification.js";
 
-const STAFF_ROLES = ["admin", "manager", "staff"];
+export const STAFF_ROLES = ["admin", "manager", "staff"];
 const EMAIL_RE = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
 
 const hashToken = (raw) =>

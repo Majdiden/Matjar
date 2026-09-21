@@ -37,7 +37,6 @@ import {
   listTenantOrders,
   getTenantOrder,
   listTenantPayments,
-  impersonate,
   listFailedJobs,
   retryFailedJob,
   listFailedWebhooks,
@@ -65,6 +64,10 @@ import platformUserRoutes from "./platform/users.js";
 import tenantUserRoutes from "./platform/tenantUsers.js";
 import billingRoutes from "./platform/billing.js";
 import overviewRoutes from "./platform/overview.js";
+// Phase C sub-routers
+import incidentRoutes from "./platform/incidents.js";
+import privacyRoutes from "./platform/privacy.js";
+import bulkRoutes from "./platform/bulk.js";
 // Phase B sub-routers
 import systemRoutes from "./platform/health.js";
 import webhookInspectorRoutes from "./platform/webhooks.js";
@@ -76,6 +79,8 @@ import usageRoutes from "./platform/usage.js";
 // Phase B (B2): cross-store commerce search + storefront domains/themes/health
 import commerceRoutes from "./platform/commerce.js";
 import storefrontRoutes from "./platform/storefront.js";
+import analyticsRoutes from "./platform/analytics.js";
+import settingsRoutes from "./platform/settings.js";
 import {
   requestController as impersonationRequest,
   pollController as impersonationPoll,
@@ -110,7 +115,12 @@ router.use("/users", platformUserRoutes);
 router.use("/tenants/:tenantId/users", tenantUserRoutes);
 router.use("/billing", billingRoutes);
 router.use("/overview", overviewRoutes);
+router.use("/incidents", incidentRoutes);
+router.use("/tenants/:tenantId/privacy", privacyRoutes);
+router.use("/bulk", bulkRoutes);
 router.use("/system", systemRoutes);
+// Global configuration registry (Phase C) — see config/platformSettingsRegistry.js
+router.use("/settings", settingsRoutes);
 router.use("/webhooks", webhookInspectorRoutes);
 router.use("/feedback", feedbackRoutes);
 router.use("/programs", programRoutes);
@@ -125,6 +135,7 @@ router.use("/tenants/:tenantId", tenantConfigRoutes);
 router.use("/usage", usageRoutes);
 router.use("/commerce", commerceRoutes);
 router.use("/storefront", storefrontRoutes);
+router.use("/analytics", analyticsRoutes); // Phase C: platform analytics (read-only aggregates)
 
 // --- Platform feature flags ---
 router.get("/features", requireScope(PLATFORM_SCOPES.SUPPORT_READ), getPlatformFeatures);
@@ -279,13 +290,9 @@ router.get(
 );
 
 // --- Impersonation (support.impersonate) ---
-// Legacy silent mint (kept for back-compat; the consent flow below is preferred).
-router.post(
-  "/tenants/:tenantId/impersonate",
-  validateObjectId("tenantId"),
-  requireScope(PLATFORM_SCOPES.SUPPORT_IMPERSONATE),
-  impersonate
-);
+// The silent mint (POST /tenants/:id/impersonate) was removed: every
+// impersonation goes through the owner-consent grant flow below, so the
+// read-only guarantee and the revoke-anytime guarantee always hold.
 
 // Consent-based impersonation: request → (owner approves) → enter → exit.
 // The owner must explicitly approve in their dashboard (or read the code to

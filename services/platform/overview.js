@@ -14,6 +14,7 @@ import mongoose from "mongoose";
 import { getQueue, getQueueConnection, QUEUE_NAMES } from "../jobs/queues.js";
 import { DOMAIN_STATUSES } from "../../schemas/domain.js";
 import logger from "../../utils/logger.js";
+import { DEFAULT_CURRENCY, EXCLUDED_ORDER_STATUSES, hasModel, mrrByCurrency, round2, safe as safeMetric, tenantBaseCurrencyMap } from "./metrics.js";
 
 export const CACHE_TTL_MS = 30_000;
 // A forced refresh is honoured at most once per this window (per process);
@@ -24,7 +25,6 @@ const QUEUE_TIMEOUT_MS = 2_500;
 const STUCK_SETUP_MS = 15 * 60 * 1000;
 const STAFF_ROLES = ["admin", "manager", "staff"];
 // Order statuses that never count toward commerce figures.
-const EXCLUDED_ORDER_STATUSES = ["Draft", "Archived"];
 
 let cache = { data: null, at: 0 };
 let lastForcedAt = 0;
@@ -36,17 +36,7 @@ const startOfToday = () => {
   return d;
 };
 
-async function safe(errors, key, fn, fallback) {
-  try {
-    return await fn();
-  } catch (err) {
-    // Driver/Redis messages can leak topology or credentials — keep them
-    // server-side and hand the console an opaque marker.
-    logger.warn("overview: metric unavailable", { metric: key, error: err?.message || String(err) });
-    errors.push({ metric: key, error: "unavailable" });
-    return fallback;
-  }
-}
+const safe = (errors, key, fn, fallback) => safeMetric(errors, key, fn, fallback, "overview");
 
 function withTimeout(promise, ms, label) {
   let timer;
@@ -54,10 +44,6 @@ function withTimeout(promise, ms, label) {
     timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
   });
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
-}
-
-function hasModel(name) {
-  return mongoose.modelNames().includes(name);
 }
 
 // ─── Stores ─────────────────────────────────────────────────────────────────
@@ -132,22 +118,30 @@ async function commerceMetrics(errors) {
     count("cancelled30d", { status: "Cancelled", createdAt: { $gte: daysAgo(30) } }),
     count("refunded30d", { paymentStatus: { $in: ["Refunded", "Partially Refunded"] }, createdAt: { $gte: daysAgo(30) } }),
     safe(errors, "commerce.gmv30d", async () => {
-      // Orders carry no currency of their own; join the tenant's base currency.
+      // Same currency source as Analytics: the order's own baseCurrency,
+      // falling back to the tenant's base currency for orders written before
+      // it was stamped (resolved once per tenant, not per order).
       const rows = await Order.aggregate([
         { $match: { ...base, status: { $nin: [...EXCLUDED_ORDER_STATUSES, "Cancelled"] }, createdAt: { $gte: daysAgo(30) } } },
-        { $group: { _id: "$tenantId", gmv: { $sum: { $ifNull: ["$totalAmount", 0] } }, orders: { $sum: 1 } } },
-        { $lookup: { from: "tenants", localField: "_id", foreignField: "_id", as: "tenant" } },
-        { $unwind: { path: "$tenant", preserveNullAndEmptyArrays: true } },
-        { $project: { currency: { $ifNull: ["$tenant.settings.currencies.base", { $ifNull: ["$tenant.settings.currency", "SDG"] }] }, gmv: 1, orders: 1 } },
-        { $group: { _id: "$currency", gmv: { $sum: "$gmv" }, orders: { $sum: "$orders" } } },
-        { $sort: { gmv: -1 } },
+        {
+          $group: {
+            _id: { currency: "$baseCurrency", tenantId: { $cond: [{ $ifNull: ["$baseCurrency", false] }, null, "$tenantId"] } },
+            gmv: { $sum: { $ifNull: ["$totalAmount", 0] } },
+            orders: { $sum: 1 },
+          },
+        },
       ]);
-      return rows.map((r) => ({
-        currency: r._id,
-        gmv: Math.round(r.gmv * 100) / 100,
-        orders: r.orders,
-        aov: r.orders ? Math.round((r.gmv / r.orders) * 100) / 100 : 0,
-      }));
+      const fallback = await tenantBaseCurrencyMap([...new Set(rows.filter((r) => r._id.tenantId).map((r) => r._id.tenantId))]);
+      const by = {};
+      for (const r of rows) {
+        const currency = r._id.currency || fallback.get(String(r._id.tenantId)) || DEFAULT_CURRENCY;
+        const acc = (by[currency] = by[currency] || { currency, gmv: 0, orders: 0 });
+        acc.gmv += r.gmv;
+        acc.orders += r.orders;
+      }
+      return Object.values(by)
+        .sort((a, b) => b.gmv - a.gmv)
+        .map((r) => ({ currency: r.currency, gmv: round2(r.gmv), orders: r.orders, aov: r.orders ? round2(r.gmv / r.orders) : 0 }));
     }, []),
   ]);
   return { ordersToday, orders7d, orders30d, pending, cancelled30d: cancelled, refunded30d: refunded, gmv30dByCurrency: byCurrency30d };
@@ -163,40 +157,23 @@ async function revenueMetrics(errors) {
   const periodKey = new Date().toISOString().slice(0, 7);
 
   const [mrr, commission, overdue, trialStores] = await Promise.all([
-    safe(errors, "revenue.mrr", async () => {
-      // Active stores on a plan with a base fee. Yearly plans contribute 1/12.
-      const rows = await Tenant.aggregate([
-        { $match: { isActive: true, deletedAt: null, subscriptionStatus: { $nin: ["suspended", "cancelled"] } } },
-        { $lookup: { from: "subscriptionplans", localField: "subscriptionPlan", foreignField: "key", as: "plan" } },
-        { $unwind: "$plan" },
-        {
-          $project: {
-            currency: { $ifNull: ["$plan.pricing.baseFee.currency", { $ifNull: ["$plan.currency", "SDG"] }] },
-            amount: { $ifNull: ["$plan.pricing.baseFee.amount", { $ifNull: ["$plan.price", 0] }] },
-            interval: { $ifNull: ["$plan.pricing.baseFee.interval", { $ifNull: ["$plan.interval", "month"] }] },
-          },
-        },
-        { $project: { currency: 1, monthly: { $cond: [{ $eq: ["$interval", "year"] }, { $divide: ["$amount", 12] }, "$amount"] } } },
-        { $group: { _id: "$currency", mrr: { $sum: "$monthly" }, stores: { $sum: 1 } } },
-        { $match: { mrr: { $gt: 0 } } },
-        { $sort: { mrr: -1 } },
-      ]);
-      return rows.map((r) => ({ currency: r._id, mrr: Math.round(r.mrr * 100) / 100, stores: r.stores }));
-    }, []),
+    // Active stores on a plan with a base fee (shared with Analytics so both
+    // pages agree). Yearly plans contribute 1/12.
+    safe(errors, "revenue.mrr", () => mrrByCurrency(), []),
     safe(errors, "revenue.commission", async () => {
       const rows = await mongoose.model("PlatformFeeEvent").aggregate([
         { $match: { periodKey, type: { $in: ["commission", "reversal"] } } },
         { $group: { _id: "$feeCurrency", amount: { $sum: "$feeAmount" }, events: { $sum: 1 } } },
         { $sort: { amount: -1 } },
       ]);
-      return rows.map((r) => ({ currency: r._id, amount: Math.round(r.amount * 100) / 100, events: r.events }));
+      return rows.map((r) => ({ currency: r._id, amount: round2(r.amount), events: r.events }));
     }, []),
     safe(errors, "revenue.overdue", async () => {
       const rows = await mongoose.model("BillingStatement").aggregate([
         { $match: { status: "overdue" } },
         { $group: { _id: "$currency", amount: { $sum: "$balance" }, count: { $sum: 1 } } },
       ]);
-      return rows.map((r) => ({ currency: r._id, amount: Math.round(r.amount * 100) / 100, count: r.count }));
+      return rows.map((r) => ({ currency: r._id, amount: round2(r.amount), count: r.count }));
     }, []),
     safe(errors, "revenue.trialStores", () => Tenant.countDocuments({ subscriptionPlan: "trial", isActive: true, deletedAt: null }), 0),
   ]);

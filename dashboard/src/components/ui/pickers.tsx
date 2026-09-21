@@ -5,6 +5,7 @@
  */
 import * as React from 'react';
 import { Combobox, type ComboboxOption } from './combobox';
+import { usePublicConfig } from '../../hooks/usePublicConfig';
 
 // ---------------- Data ----------------
 
@@ -260,31 +261,53 @@ interface PickerProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  /**
+   * Restrict options to the operator-enabled list (Platform → Global
+   * configuration). ONLY for the store's base currency / shipping-market
+   * countries; Markets and FX pickers keep the full ISO list.
+   */
+  restrictToPlatform?: boolean;
 }
 
-export function CurrencyPicker(props: PickerProps) {
+// Operator-enabled subset (Platform → Global configuration). The static lists
+// stay the source of labels; when the platform list is unknown (offline
+// first run) the full static list is shown. The current value is always kept
+// selectable so an existing setting never disappears from its own picker.
+function useEnabledOptions(all: ComboboxOption[], enabled: string[] | null, current: string): ComboboxOption[] {
+  return React.useMemo(() => {
+    if (!enabled) return all;
+    const set = new Set(enabled);
+    return all.filter((o) => set.has(o.value) || o.value === current);
+  }, [all, enabled, current]);
+}
+
+export function CurrencyPicker({ restrictToPlatform, ...props }: PickerProps) {
+  const { currencies } = usePublicConfig();
+  const options = useEnabledOptions(CURRENCIES, restrictToPlatform ? currencies : null, props.value);
   return (
     <Combobox
       {...props}
-      options={CURRENCIES}
+      options={options}
       placeholder={props.placeholder || 'Select currency'}
       searchPlaceholder="Search currencies..."
     />
   );
 }
 
-export function CountryPicker(props: PickerProps) {
+export function CountryPicker({ restrictToPlatform, ...props }: PickerProps) {
+  const { countries } = usePublicConfig();
+  const options = useEnabledOptions(COUNTRIES, restrictToPlatform ? countries : null, props.value);
   return (
     <Combobox
       {...props}
-      options={COUNTRIES}
+      options={options}
       placeholder={props.placeholder || 'Select country'}
       searchPlaceholder="Search countries..."
     />
   );
 }
 
-export function TimezonePicker(props: PickerProps) {
+export function TimezonePicker(props: Omit<PickerProps, 'restrictToPlatform'>) {
   return (
     <Combobox
       {...props}
@@ -295,7 +318,7 @@ export function TimezonePicker(props: PickerProps) {
   );
 }
 
-export function LanguagePicker(props: PickerProps) {
+export function LanguagePicker(props: Omit<PickerProps, 'restrictToPlatform'>) {
   return (
     <Combobox
       {...props}

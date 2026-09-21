@@ -196,6 +196,22 @@ export const requireScope = (...required) => (req, res, next) => {
 };
 
 /**
+ * requireAnyScope(...scopes) — at least one of the listed scopes must be
+ * present. Used by endpoints whose per-action scope is decided after body
+ * validation (bulk tenant ops); the controller still checks the exact one.
+ */
+export const requireAnyScope = (...allowed) => (req, res, next) => {
+  const user = req.platformUser;
+  if (!user) {
+    return res.status(401).json({ success: false, message: "Platform auth required." });
+  }
+  if (!allowed.some((s) => user.scopes.includes(s))) {
+    return res.status(403).json({ success: false, message: "Insufficient platform scopes.", missing: allowed });
+  }
+  next();
+};
+
+/**
  * validateObjectId(...paramNames) — 400 fast if any listed route param
  * isn't a valid Mongo ObjectId. Prevents wasted DB roundtrips and the
  * CastError log-noise they generate.
