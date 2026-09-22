@@ -442,8 +442,10 @@ export const DEFAULT_HEADER_MENU_HANDLE = "header";
  *
  * The four entries (Home / All Products / About / Contact) are plain links
  * pointing at routes every theme ships (`/`, `/products`, `/about`,
- * `/contact`), and the static labels are localized to the store's language
- * so an Arabic store starts with Arabic nav copy.
+ * `/contact`). Each is seeded in BOTH languages: `label` carries the store's
+ * own language so the merchant's Menus screen reads naturally, and
+ * `translations` carries en + ar so the storefront follows the shopper's
+ * language instead of freezing at the language the store was created in.
  */
 export async function seedDefaultMenus(models, language) {
   if (!models?.Menu) return { created: 0 };
@@ -455,28 +457,31 @@ export async function seedDefaultMenus(models, language) {
   if (existing) return { created: 0, skipped: true };
 
   const isAr = String(language || "").toLowerCase().startsWith("ar");
-  const copy = isAr
-    ? {
-        title: "القائمة الرئيسية",
-        home: "الرئيسية",
-        shop: "جميع المنتجات",
-        about: "من نحن",
-        contact: "اتصل بنا",
-      }
-    : {
-        title: "Main menu",
-        home: "Home",
-        shop: "All Products",
-        about: "About",
-        contact: "Contact",
-      };
 
-  const items = [
-    { label: copy.home, url: "/", type: "link", order: 0 },
-    { label: copy.shop, url: "/products", type: "link", order: 1 },
-    { label: copy.about, url: "/about", type: "link", order: 2 },
-    { label: copy.contact, url: "/contact", type: "link", order: 3 },
+  // Every item carries BOTH languages. The storefront renders
+  // `translations[lang].label` and falls back to `label`
+  // (see _shared/hooks/useMenu.ts), so a menu seeded with one language
+  // baked into `label` stays in that language even when the shopper
+  // switches — which is how an English store ended up showing an English
+  // menu to an Arabic shopper. `label` holds the store's own language so
+  // the dashboard reads naturally to the merchant; the translations make
+  // the storefront follow the visitor.
+  const L = [
+    { en: "Home", ar: "الرئيسية", url: "/" },
+    { en: "All Products", ar: "جميع المنتجات", url: "/products" },
+    { en: "About", ar: "من نحن", url: "/about" },
+    { en: "Contact", ar: "اتصل بنا", url: "/contact" },
   ];
+
+  const items = L.map((it, order) => ({
+    label: isAr ? it.ar : it.en,
+    translations: { en: { label: it.en }, ar: { label: it.ar } },
+    url: it.url,
+    type: "link",
+    order,
+  }));
+
+  const copy = { title: isAr ? "القائمة الرئيسية" : "Main menu" };
 
   // Scoped models inject tenantId automatically on create.
   await models.Menu.create({
