@@ -47,7 +47,7 @@
     "selected_count": "{{count}} محدد",
     "confirm_delete": {
       "title": "حذف المراجعة؟",
-      "description": "سيتم إزالة المراجعة نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+      "description": "ستتم إزالة المراجعة نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
       "confirm_text": "حذف"
     },
     "confirm_bulk_delete": {

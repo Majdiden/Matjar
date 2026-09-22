@@ -22,7 +22,7 @@ const PLURAL_CATS = ['zero', 'one', 'two', 'few', 'many', 'other'];
 // values that illustrate SYNTAX the user must type in Latin (slugs, codes,
 // hostnames, email and phone shapes, country-code lists, URL patterns).
 const SYNTAX_EXAMPLE = /^(you@example\.com|your@email\.com|colleague@example\.com|store@example\.com|orders@acme\.test|rivera-co|shop\.mystore\.com|summer-sale|my_field|custom|standard|eu|US, CA, MX|\+249 …|\/pages\/\{\{slug\}\}|\{\{from\}\} – \{\{upTo\}\}|vip, wholesale|info@example\.com|ELLE, VOGUE, BAZAAR, FORBES, GRAZIA|HERO 4 SESSION|© \{\{year\}\} \{\{name\}\})$/;
-const ALLOW_SAME = /^(English|العربية|#|•+|\s*|[\d\s.,:%+\-/×x]+|[A-Z]{2,5}|Matjar|Face ID|Touch ID|Google|Apple Pay|Shop Pay|PayPal|Stripe|WhatsApp|Instagram|Facebook|TikTok|Bankak|Fawry|OCash|Cashi|Webhook|SDG|USD|EUR|GBP|COD|SKU|URL|API|CSS|HTML|PDF|CSV|JSON|ID|QR|SMS|OTP|VAT|@\S+|https?:\/\/\S+|\{\{[^}]+\}\})$/;
+const ALLOW_SAME = /^(English|العربية|#|•+|\s*|[\d\s.,:%+\-/×x]+|[A-Z]{2,5}|Matjar|Face ID|Touch ID|Google|Apple Pay|Shop Pay|PayPal|Stripe|WhatsApp|Instagram|Facebook|TikTok|Bankak|Fawry|OCash|Cashi|Webhooks?|User Agent|SDG|USD|EUR|GBP|COD|SKU|URL|API|CSS|HTML|PDF|CSV|JSON|ID|QR|SMS|OTP|VAT|@\S+|https?:\/\/\S+|\{\{[^}]+\}\})$/;
 
 const flat = (o, p = '') =>
   Object.entries(o).flatMap(([k, v]) =>

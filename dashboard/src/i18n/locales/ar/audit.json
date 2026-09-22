@@ -26,7 +26,7 @@
         "ip_address": "عنوان IP",
         "resource_id": "معرف المورد",
         "changes": "التغييرات",
-        "user_agent": "عميل المستخدم"
+        "user_agent": "User Agent"
       },
       "system_actor": "النظام",
       "na": "غير متاح"
@@ -99,8 +99,8 @@
     "user_password_changed": "تم تغيير كلمة المرور",
     "user_invited": "تمت دعوة المستخدم",
     "user_role_changed": "تم تغيير دور المستخدم",
-    "payment_mark_paid": "تم وضع علامة مدفوع",
-    "payment_mark_failed": "تم وضع علامة فشل الدفع",
+    "payment_mark_paid": "تم تحديد الدفعة كمدفوعة",
+    "payment_mark_failed": "تم تحديد الدفعة كفاشلة",
     "payment_capture": "تم تحصيل الدفعة",
     "payment_void": "تم إبطال الدفعة",
     "payment_record_manual": "تم تسجيل دفعة يدوية",
@@ -116,7 +116,7 @@
     "fulfillment": "تنفيذ",
     "return": "إرجاع",
     "customersegment": "شريحة عملاء",
-    "asset": "أصل",
+    "asset": "ملف وسائط",
     "settings": "إعدادات",
     "shippingzone": "منطقة شحن",
     "taxrate": "معدل ضريبة",

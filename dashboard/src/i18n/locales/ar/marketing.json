@@ -30,9 +30,9 @@
         "expires_never": "بلا تاريخ انتهاء",
         "expires_on": "ينتهي {{date}}",
         "selected_count": "{{count}} محدد",
-        "bulk_delete_description": "لن يتمكن العملاء من استرداد هذه الرموز بعد الآن.",
+        "bulk_delete_description": "لن يتمكن العملاء من استخدام هذه الرموز بعد الآن.",
         "delete_title": "حذف هذا الخصم؟",
-        "delete_description": "لن يتمكن العملاء من استرداد هذا الرمز بعد الآن.",
+        "delete_description": "لن يتمكن العملاء من استخدام هذا الرمز بعد الآن.",
         "card_value_label": "القيمة",
         "card_uses_label": "الاستخدامات",
         "bulk_delete_title_zero": "حذف الخصومات",
@@ -60,7 +60,7 @@
         "section": {
           "code": "رمز الخصم",
           "value": "القيمة",
-          "value_order_desc": "المبلغ الذي سيُخصم من الإجمالي الفرعي للطلب.",
+          "value_order_desc": "المبلغ الذي سيُخصم من المجموع الفرعي للطلب.",
           "value_products_desc": "المبلغ الذي سيُخصم من كل بند مؤهل.",
           "applies_to": "ينطبق على",
           "applies_to_desc": "اختر المنتجات و/أو الفئات التي ينطبق عليها هذا الخصم. اتركهما فارغَين لتطبيقه على جميع البنود.",
@@ -73,7 +73,7 @@
           "requirements": "الشروط والحدود",
           "status": "الحالة",
           "combinations": "التوليفات",
-          "combinations_desc": "يمكن للعملاء تجميع خصمين فقط إذا اختار كلاهما السماح بذلك."
+          "combinations_desc": "يمكن للعملاء تجميع خصمين فقط إذا سمح كلاهما بذلك."
         },
         "field": {
           "code": {
@@ -113,7 +113,7 @@
           "bxgy_buy_categories": {
             "label": "أو أي منتج في هذه الفئات"
           },
-          "bxgy_buy_any_hint": "اتركهما فارغَين للسماح بأي منتج في السلة للاحتساب ضمن كمية الشراء.",
+          "bxgy_buy_any_hint": "اتركهما فارغَين لاحتساب أي منتج في السلة ضمن كمية الشراء.",
           "bxgy_get_quantity": {
             "label": "الكمية"
           },
@@ -173,7 +173,7 @@
         "issue_button": "إصدار بطاقة هدية",
         "search_placeholder": "ابحث بآخر 4 أرقام...",
         "empty_title": "لا توجد بطاقات هدايا",
-        "empty_description": "أصدر أول بطاقة هدية لتمكين العملاء من إهداء رصيد المتجر.",
+        "empty_description": "أصدر أول بطاقة هدية ليتمكن عملاؤك من إهداء رصيد المتجر.",
         "selected_count": "{{count}} محدد",
         "column": {
           "code": "الرمز",
@@ -187,7 +187,7 @@
         "filter": {
           "all": "الكل",
           "active": "نشطة",
-          "redeemed": "مستردة",
+          "redeemed": "مستخدمة",
           "expired": "منتهية الصلاحية",
           "disabled": "معطّلة"
         },
@@ -233,7 +233,7 @@
           },
           "message": {
             "label": "رسالة (تُعرض على البطاقة)",
-            "placeholder": "كل عام وأنت بخير!"
+            "placeholder": "عيد ميلاد سعيد!"
           },
           "note": {
             "label": "ملاحظة داخلية",
@@ -245,7 +245,7 @@
           "customer": {
             "label": "العميل (اختياري — يُرتبط بالحساب)",
             "search_placeholder": "ابحث بالاسم أو البريد أو الهاتف…",
-            "searching": "جاري البحث…",
+            "searching": "جارٍ البحث…",
             "no_customers": "لم يُعثر على عملاء.",
             "no_name": "(بدون اسم)",
             "clear_aria": "إزالة العميل"
@@ -360,23 +360,23 @@
         "bulk_failed": "فشل {{count}}",
         "no_export": "لا توجد بطاقات هدايا للتصدير",
         "bulk_toggled_enable_zero": "لم تُفعَّل أي بطاقة",
-        "bulk_toggled_enable_one": "تم تفعيل بطاقة هدايا واحدة",
-        "bulk_toggled_enable_two": "تم تفعيل بطاقتي هدايا",
+        "bulk_toggled_enable_one": "تم تفعيل بطاقة هدية واحدة",
+        "bulk_toggled_enable_two": "تم تفعيل بطاقتي هدية",
         "bulk_toggled_enable_few": "تم تفعيل {{count}} بطاقات هدايا",
-        "bulk_toggled_enable_many": "تم تفعيل {{count}} بطاقة هدايا",
-        "bulk_toggled_enable_other": "تم تفعيل {{count}} بطاقة هدايا",
+        "bulk_toggled_enable_many": "تم تفعيل {{count}} بطاقة هدية",
+        "bulk_toggled_enable_other": "تم تفعيل {{count}} بطاقة هدية",
         "bulk_toggled_disable_zero": "لم تُعطَّل أي بطاقة",
-        "bulk_toggled_disable_one": "تم تعطيل بطاقة هدايا واحدة",
-        "bulk_toggled_disable_two": "تم تعطيل بطاقتي هدايا",
+        "bulk_toggled_disable_one": "تم تعطيل بطاقة هدية واحدة",
+        "bulk_toggled_disable_two": "تم تعطيل بطاقتي هدية",
         "bulk_toggled_disable_few": "تم تعطيل {{count}} بطاقات هدايا",
-        "bulk_toggled_disable_many": "تم تعطيل {{count}} بطاقة هدايا",
-        "bulk_toggled_disable_other": "تم تعطيل {{count}} بطاقة هدايا",
+        "bulk_toggled_disable_many": "تم تعطيل {{count}} بطاقة هدية",
+        "bulk_toggled_disable_other": "تم تعطيل {{count}} بطاقة هدية",
         "exported_zero": "لم تُصدَّر أي بطاقة",
-        "exported_one": "تم تصدير بطاقة هدايا واحدة",
-        "exported_two": "تم تصدير بطاقتي هدايا",
+        "exported_one": "تم تصدير بطاقة هدية واحدة",
+        "exported_two": "تم تصدير بطاقتي هدية",
         "exported_few": "تم تصدير {{count}} بطاقات هدايا",
-        "exported_many": "تم تصدير {{count}} بطاقة هدايا",
-        "exported_other": "تم تصدير {{count}} بطاقة هدايا"
+        "exported_many": "تم تصدير {{count}} بطاقة هدية",
+        "exported_other": "تم تصدير {{count}} بطاقة هدية"
       }
     },
     "promotion": {
@@ -458,7 +458,7 @@
         "validation": {
           "name_countries_required": "الاسم والدول مطلوبان"
         },
-        "saving_button": "جاري الحفظ...",
+        "saving_button": "جارٍ الحفظ...",
         "update_button": "تحديث",
         "create_button": "إنشاء"
       },

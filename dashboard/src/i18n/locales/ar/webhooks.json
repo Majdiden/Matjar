@@ -1,11 +1,11 @@
 {
   "webhooks": {
     "list": {
-      "title": "خطّافات الويب",
+      "title": "Webhooks",
       "subtitle": "تكوين إشعارات الأحداث للخدمات الخارجية",
-      "empty_title": "لا توجد خطّافات ويب مُهيَّأة",
-      "empty_description": "أنشئ خطّافات ويب لتلقي إشعارات فورية عند وقوع أحداث في متجرك",
-      "add_first": "أضف أول خطّاف ويب",
+      "empty_title": "لم تُنشئ أي Webhook بعد",
+      "empty_description": "أنشئ Webhook لتصلك إشعارات فورية عند وقوع أحداث في متجرك",
+      "add_first": "أضف أول Webhook",
       "column": {
         "endpoint": "نقطة النهاية",
         "events": "الأحداث",
@@ -21,8 +21,8 @@
       }
     },
     "form": {
-      "title_create": "إنشاء خطّاف ويب",
-      "title_edit": "تعديل خطّاف الويب",
+      "title_create": "إنشاء Webhook",
+      "title_edit": "تعديل Webhook",
       "description": "تهيئة نقطة نهاية لاستقبال إشعارات الأحداث",
       "field": {
         "url": {
@@ -31,7 +31,7 @@
         },
         "description": {
           "label": "الوصف (اختياري)",
-          "placeholder": "ما الذي يفعله هذا الخطّاف؟"
+          "placeholder": "ما الغرض من هذا الـ Webhook؟"
         },
         "enabled": {
           "label": "مفعّل"
@@ -44,30 +44,30 @@
       "deselect_all": "إلغاء تحديد الكل"
     },
     "action": {
-      "add": "إضافة خطّاف ويب",
+      "add": "إضافة Webhook",
       "edit": "تعديل",
       "send_test": "إرسال اختبار",
-      "copy_secret": "نسخ السر",
+      "copy_secret": "نسخ المفتاح السري",
       "delete": "حذف",
       "save": "حفظ"
     },
     "toast": {
-      "created": "تم إنشاء خطّاف الويب",
-      "updated": "تم تحديث خطّاف الويب",
-      "deleted": "تم حذف خطّاف الويب",
-      "enabled": "تم تفعيل خطّاف الويب",
-      "disabled": "تم تعطيل خطّاف الويب",
+      "created": "تم إنشاء الـ Webhook",
+      "updated": "تم تحديث الـ Webhook",
+      "deleted": "تم حذف الـ Webhook",
+      "enabled": "تم تفعيل الـ Webhook",
+      "disabled": "تم تعطيل الـ Webhook",
       "test_sent": "تم إرسال حدث الاختبار",
-      "secret_copied": "تم نسخ السر",
-      "save_failed": "فشل حفظ خطّاف الويب",
-      "delete_failed": "فشل حذف خطّاف الويب",
-      "toggle_failed": "فشل تغيير حالة خطّاف الويب",
+      "secret_copied": "تم نسخ المفتاح السري",
+      "save_failed": "فشل حفظ الـ Webhook",
+      "delete_failed": "فشل حذف الـ Webhook",
+      "toggle_failed": "فشل تغيير حالة الـ Webhook",
       "test_failed": "فشل الاختبار",
       "url_required": "الرابط مطلوب",
       "event_required": "اختر حدثًا واحدًا على الأقل"
     },
     "confirm_delete": {
-      "title": "حذف خطّاف الويب؟",
+      "title": "حذف الـ Webhook؟",
       "description": "ستتوقف نقطة النهاية {{url}} عن استقبال الأحداث.",
       "confirm_text": "حذف"
     },
