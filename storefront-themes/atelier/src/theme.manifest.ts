@@ -90,9 +90,9 @@ export const heroSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'slide-1', type: 'slide', settings: { image: U('1601049541289-9b1b7bbbfe19'), eyebrow: 'Skin first', heading: 'Rituals that let your skin breathe', cta_text: 'Shop the edit', cta_url: '/products' } },
-    { id: 'slide-2', type: 'slide', settings: { image: U('1596462502278-27bfdc403348'), eyebrow: 'New season', heading: 'Serums built around one active at a time', cta_text: 'Discover serums', cta_url: '/products' } },
-    { id: 'slide-3', type: 'slide', settings: { image: U('1522335789203-aabd1fc54bc9'), eyebrow: 'Everyday glow', heading: 'A lighter routine for busy mornings', cta_text: 'Build your routine', cta_url: '/products' } },
+    { id: 'slide-1', type: 'slide', settings: { image: U('1601049541289-9b1b7bbbfe19'), cta_url: '/products' } },
+    { id: 'slide-2', type: 'slide', settings: { image: U('1596462502278-27bfdc403348'), cta_url: '/products' } },
+    { id: 'slide-3', type: 'slide', settings: { image: U('1522335789203-aabd1fc54bc9'), cta_url: '/products' } },
   ],
 });
 
@@ -111,10 +111,10 @@ export const marqueeSection: SectionDefinition = defineSection({
   ],
   blocks: [{ type: 'message', name: 'Message', settings: [{ id: 'text', type: 'text', label: 'Text', default: '' }] }],
   defaultBlocks: [
-    { id: 'm-1', type: 'message', settings: { text: 'Free delivery on orders over 500' } },
-    { id: 'm-2', type: 'message', settings: { text: 'Dermatologist-tested formulas' } },
-    { id: 'm-3', type: 'message', settings: { text: 'Cruelty-free, always' } },
-    { id: 'm-4', type: 'message', settings: { text: 'New serums just landed' } },
+    { id: 'm-1', type: 'message', settings: {} },
+    { id: 'm-2', type: 'message', settings: {} },
+    { id: 'm-3', type: 'message', settings: {} },
+    { id: 'm-4', type: 'message', settings: {} },
   ],
 });
 
@@ -128,10 +128,10 @@ export const iconRowSection: SectionDefinition = defineSection({
   settings: [...headingGroup({ eyebrow: true, sub: true, cta: true }), ...spacing()],
   blocks: [{ ...iconBlock, limit: 6 }],
   defaultBlocks: [
-    { id: 'i-1', type: 'item', settings: { icon: 'leaf', title: 'Gentle formulas', text: '' } },
-    { id: 'i-2', type: 'item', settings: { icon: 'droplet', title: 'Clean ingredients', text: '' } },
-    { id: 'i-3', type: 'item', settings: { icon: 'shield', title: 'Free from harm', text: '' } },
-    { id: 'i-4', type: 'item', settings: { icon: 'heart', title: 'Cruelty-free care', text: '' } },
+    { id: 'i-1', type: 'item', settings: { icon: 'leaf' } },
+    { id: 'i-2', type: 'item', settings: { icon: 'droplet' } },
+    { id: 'i-3', type: 'item', settings: { icon: 'shield' } },
+    { id: 'i-4', type: 'item', settings: { icon: 'heart' } },
   ],
 });
 
@@ -145,10 +145,10 @@ export const featureGridSection: SectionDefinition = defineSection({
   settings: [...headingGroup({ eyebrow: true }), ...spacing()],
   blocks: [{ ...iconBlock, limit: 8 }],
   defaultBlocks: [
-    { id: 'f-1', type: 'item', settings: { icon: 'leaf', title: 'Natural care', text: 'Thoughtfully sourced ingredients that respect your skin.' } },
-    { id: 'f-2', type: 'item', settings: { icon: 'flask', title: 'Lab-tested', text: 'Every batch checked for purity and performance.' } },
-    { id: 'f-3', type: 'item', settings: { icon: 'shield', title: 'No harsh chemicals', text: 'Minimal formulas that skip the irritants.' } },
-    { id: 'f-4', type: 'item', settings: { icon: 'sun', title: 'Made for daily use', text: 'Balanced textures for morning and night.' } },
+    { id: 'f-1', type: 'item', settings: { icon: 'leaf' } },
+    { id: 'f-2', type: 'item', settings: { icon: 'flask' } },
+    { id: 'f-3', type: 'item', settings: { icon: 'shield' } },
+    { id: 'f-4', type: 'item', settings: { icon: 'sun' } },
   ],
 });
 
@@ -274,11 +274,11 @@ export const statsSection: SectionDefinition = defineSection({
     { id: 'label', type: 'text', label: 'Label text', default: '' },
   ] }],
   defaultBlocks: [
-    { id: 's-1', type: 'stat', settings: { value: '12', suffix: '+', label: 'Years of formulating' } },
-    { id: 's-2', type: 'stat', settings: { value: '38000', suffix: '+', label: 'Orders delivered' } },
-    { id: 's-3', type: 'stat', settings: { value: '98.6', suffix: '%', label: 'Would buy again' } },
-    { id: 's-4', type: 'stat', settings: { value: '27', suffix: 'K', label: 'Community members' } },
-    { id: 's-5', type: 'stat', settings: { value: '0.4', suffix: '%', label: 'Return rate' } },
+    { id: 's-1', type: 'stat', settings: { value: '12', suffix: '+' } },
+    { id: 's-2', type: 'stat', settings: { value: '38000', suffix: '+' } },
+    { id: 's-3', type: 'stat', settings: { value: '98.6', suffix: '%' } },
+    { id: 's-4', type: 'stat', settings: { value: '27', suffix: 'K' } },
+    { id: 's-5', type: 'stat', settings: { value: '0.4', suffix: '%' } },
   ],
 });
 
@@ -317,10 +317,10 @@ export const uspStripSection: SectionDefinition = defineSection({
   settings: [...spacing(30, 30).map((s) => (s.id === 'background_color' ? { ...s, default: '#f5f1eb' } : s))],
   blocks: [{ ...iconBlock, limit: 4 }],
   defaultBlocks: [
-    { id: 'u-1', type: 'item', settings: { icon: 'truck', title: 'Free delivery', text: 'On every order over 500.' } },
-    { id: 'u-2', type: 'item', settings: { icon: 'return', title: 'Easy returns', text: '30 days to change your mind.' } },
-    { id: 'u-3', type: 'item', settings: { icon: 'wallet', title: 'Pay your way', text: 'Cash on delivery and transfers.' } },
-    { id: 'u-4', type: 'item', settings: { icon: 'headset', title: 'Here to help', text: 'Real people, seven days a week.' } },
+    { id: 'u-1', type: 'item', settings: { icon: 'truck' } },
+    { id: 'u-2', type: 'item', settings: { icon: 'return' } },
+    { id: 'u-3', type: 'item', settings: { icon: 'wallet' } },
+    { id: 'u-4', type: 'item', settings: { icon: 'headset' } },
   ],
 });
 
@@ -338,10 +338,10 @@ export const testimonialsSection: SectionDefinition = defineSection({
     { id: 'role', type: 'text', label: 'Role / Location', default: '' },
   ] }],
   defaultBlocks: [
-    { id: 'q-1', type: 'quote', settings: { quote: 'The night cream is the first product that stopped my winter dryness without feeling heavy in the morning.', name: 'Rania A.', role: 'Khartoum' } },
-    { id: 'q-2', type: 'quote', settings: { quote: 'I ordered on a Tuesday and it was at my door on Thursday. The serum smells clean and sinks in fast.', name: 'Mohamed K.', role: 'Omdurman' } },
-    { id: 'q-3', type: 'quote', settings: { quote: 'Finally a sunscreen that does not leave a cast. It has replaced three products in my bag.', name: 'Sara E.', role: 'Port Sudan' } },
-    { id: 'q-4', type: 'quote', settings: { quote: 'The lip tint lasts through coffee and lunch. I bought two more for my sisters.', name: 'Huda M.', role: 'Kassala' } },
+    { id: 'q-1', type: 'quote', settings: {} },
+    { id: 'q-2', type: 'quote', settings: {} },
+    { id: 'q-3', type: 'quote', settings: {} },
+    { id: 'q-4', type: 'quote', settings: {} },
   ],
 });
 
@@ -378,9 +378,9 @@ export const storiesSection: SectionDefinition = defineSection({
     { id: 'link_url', type: 'url', label: 'Link URL', default: '' },
   ] }],
   defaultBlocks: [
-    { id: 'p-1', type: 'post', settings: { image: U('1515377905703-c4788e51af15', 900), date: '', title: 'Layering actives without the sting', excerpt: 'A simple order of operations for retinoids, acids and vitamin C.', link_url: '/pages/about' } },
-    { id: 'p-2', type: 'post', settings: { image: U('1513883049090-d0b7439799bf', 900), date: '', title: 'What "fragrance-free" really promises', excerpt: 'Reading a label like a formulator, in three minutes.', link_url: '/pages/about' } },
-    { id: 'p-3', type: 'post', settings: { image: U('1560750588-73207b1ef5b8', 900), date: '', title: 'The five-minute morning routine', excerpt: 'Cleanse, protect, go. Everything else is optional.', link_url: '/pages/about' } },
+    { id: 'p-1', type: 'post', settings: { image: U('1515377905703-c4788e51af15', 900), link_url: '/pages/about' } },
+    { id: 'p-2', type: 'post', settings: { image: U('1513883049090-d0b7439799bf', 900), link_url: '/pages/about' } },
+    { id: 'p-3', type: 'post', settings: { image: U('1560750588-73207b1ef5b8', 900), link_url: '/pages/about' } },
   ],
 });
 
@@ -450,14 +450,14 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
-    { id: 'announcement_text', type: 'textarea', label: 'Announcement messages (one per line)', default: 'Free delivery on orders over 500\nNew serums just landed\nCruelty-free, always' },
+    { id: 'announcement_text', type: 'textarea', label: 'Announcement messages (one per line)', default: '' },
     { id: 'autoplay_interval', type: 'range', label: 'Announcement rotation', min: 2000, max: 10000, step: 500, default: 4000, unit: 'ms' },
     { id: 'free_shipping_threshold', type: 'number', label: 'Free shipping threshold', default: 500, min: 0, max: 100000 },
     { id: 'show_top_strip', type: 'checkbox', label: 'Show Top Strip', default: true },
     { id: 'header_transparent_home', type: 'checkbox', label: 'Transparent header on home', default: true },
     { id: 'sticky_header', type: 'checkbox', label: 'Sticky header (reveals on scroll up)', default: true },
     { id: 'show_search_popular', type: 'checkbox', label: 'Show popular searches', default: true },
-    { id: 'popular_searches', type: 'text', label: 'Popular searches (comma separated)', default: 'Serum, Cleanser, Sunscreen, Moisturizer, Lip tint' },
+    { id: 'popular_searches', type: 'text', label: 'Popular searches (comma separated)', default: '' },
     { id: 'search_image', type: 'image', label: 'Search panel image', default: U('1556228720-195a672e8a03', 1000) },
     { id: 'mega_menu_products', type: 'checkbox', label: 'Show products in mega menu', default: true },
     { id: 'mega_menu_product_limit', type: 'number', label: 'Mega menu products', default: 4, min: 2, max: 8 },
@@ -485,10 +485,10 @@ const manifest = defineTheme({
     { id: 'countdown_repeat_daily', type: 'checkbox', label: 'Repeat countdown daily', default: false },
     { id: 'show_inventory_bar', type: 'checkbox', label: 'Show inventory bar', default: false },
     { id: 'inventory_start', type: 'number', label: 'Starting stock for the inventory bar', default: 50, min: 1, max: 100000 },
-    { id: 'benefit_1', type: 'text', label: 'Benefit 1', default: 'Free delivery over 500' },
-    { id: 'benefit_2', type: 'text', label: 'Benefit 2', default: 'Easy 30-day returns' },
-    { id: 'benefit_3', type: 'text', label: 'Benefit 3', default: 'Help seven days a week' },
-    { id: 'shipping_note', type: 'text', label: 'Shipping note', default: 'Orders ship within 2 to 5 business days.' },
+    { id: 'benefit_1', type: 'text', label: 'Benefit 1', default: '' },
+    { id: 'benefit_2', type: 'text', label: 'Benefit 2', default: '' },
+    { id: 'benefit_3', type: 'text', label: 'Benefit 3', default: '' },
+    { id: 'shipping_note', type: 'text', label: 'Shipping note', default: '' },
     { id: 'hotline_label', type: 'text', label: 'Hotline Label', default: '' },
     { id: 'hotline_phone', type: 'text', label: 'Hotline Phone', default: '' },
   ],
@@ -499,22 +499,22 @@ const manifest = defineTheme({
     index: withDefaultBlocks([
       { id: 'hero', type: 'atelier-hero', settings: {} },
       { id: 'marquee', type: 'atelier-marquee', settings: {} },
-      { id: 'about', type: 'atelier-icon-row', settings: { eyebrow: 'About us', heading: 'Skin care that treats your skin, and the planet, gently', subheading: 'Small batches, transparent ingredient lists and packaging we can stand behind.', cta_text: 'Our story', cta_url: '/pages/about' } },
-      { id: 'why', type: 'atelier-feature-grid', settings: { eyebrow: 'Trusted formulas', heading: 'Why people switch to us' } },
+      { id: 'about', type: 'atelier-icon-row', settings: { cta_url: '/pages/about' } },
+      { id: 'why', type: 'atelier-feature-grid', settings: {} },
       { id: 'band', type: 'atelier-image-band', settings: {} },
-      { id: 'categories', type: 'atelier-category-tiles', settings: { eyebrow: 'Browse', heading: 'Shop by category' } },
-      { id: 'new-arrivals', type: 'atelier-product-grid', settings: { eyebrow: 'New arrivals', heading: 'Chosen for quality, performance and everyday use', product_source: 'newest', product_limit: 8 } },
-      { id: 'split', type: 'atelier-split-banner', settings: { eyebrow: 'Thoughtful care', heading: 'Where careful formulation meets modern beauty', subheading: 'We test every texture on real skin across a full season before it earns a place on the shelf.', cta_text: 'Shop now', cta_url: '/products' } },
-      { id: 'video', type: 'atelier-video-block', settings: { eyebrow: 'Behind the label', heading: 'See how a serum is made', cta_text: 'Explore more', cta_url: '/products' } },
-      { id: 'deals', type: 'atelier-deals-banner', settings: { eyebrow: 'This week', heading: 'Weekly deals worth the detour', subheading: 'Rotating offers on the essentials, refreshed every Monday.', cta_text: 'Shop deals', cta_url: '/products?sort=popular' } },
-      { id: 'stats', type: 'atelier-stats', settings: { eyebrow: 'Clean beauty essentials', heading: 'A short list of things we measure', subheading: 'The numbers behind a routine people keep coming back to.', cta_text: 'Shop now', cta_url: '/products' } },
-      { id: 'sale', type: 'atelier-product-grid', settings: { eyebrow: 'Offers', heading: 'On sale this week', subheading: 'Limited-time prices on selected essentials.', product_source: 'sale', product_limit: 8 } },
-      { id: 'kind', type: 'atelier-icon-row', settings: { eyebrow: 'Naturally kind', heading: 'Skin care made for everyone' } },
-      { id: 'lookbook', type: 'atelier-lookbook', settings: { eyebrow: 'Get the look', heading: 'How we style a morning shelf' } },
+      { id: 'categories', type: 'atelier-category-tiles', settings: {} },
+      { id: 'new-arrivals', type: 'atelier-product-grid', settings: { product_source: 'newest', product_limit: 8 } },
+      { id: 'split', type: 'atelier-split-banner', settings: { cta_url: '/products' } },
+      { id: 'video', type: 'atelier-video-block', settings: { cta_url: '/products' } },
+      { id: 'deals', type: 'atelier-deals-banner', settings: { cta_url: '/products?sort=popular' } },
+      { id: 'stats', type: 'atelier-stats', settings: { cta_url: '/products' } },
+      { id: 'sale', type: 'atelier-product-grid', settings: { product_source: 'sale', product_limit: 8 } },
+      { id: 'kind', type: 'atelier-icon-row', settings: {} },
+      { id: 'lookbook', type: 'atelier-lookbook', settings: {} },
       { id: 'usp', type: 'atelier-usp-strip', settings: {} },
-      { id: 'testimonials', type: 'atelier-testimonials', settings: { eyebrow: 'What customers say', heading: 'Real feedback from real routines' } },
-      { id: 'before-after', type: 'atelier-before-after', settings: { eyebrow: 'Clearly better', heading: 'See the difference for yourself', cta_text: 'Explore now', cta_url: '/products' } },
-      { id: 'stories', type: 'atelier-stories', settings: { eyebrow: 'Latest stories', heading: 'Notes from the lab' } },
+      { id: 'testimonials', type: 'atelier-testimonials', settings: {} },
+      { id: 'before-after', type: 'atelier-before-after', settings: { cta_url: '/products' } },
+      { id: 'stories', type: 'atelier-stories', settings: {} },
     ]),
     product: [
       { id: 'product-details', type: 'product-details', settings: {} },

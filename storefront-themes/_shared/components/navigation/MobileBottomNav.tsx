@@ -91,6 +91,11 @@ const ICONS = {
  * prefers-reduced-motion.
  */
 const NAV_CSS = `
+/* Reserve room for the floating pill so page footers and sticky CTAs are
+   never hidden beneath it (phones only). */
+@media (max-width: 767px) {
+  body { padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)); }
+}
 .mbn-pill {
   background: var(--color-background, #ffffff);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35), 0 2px 8px -4px rgba(0, 0, 0, 0.2);
@@ -148,6 +153,21 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
   // top. rAF-throttled, direction-based with a small jitter threshold so it
   // never flickers; the actual scale/opacity is a CSS transition for smoothness.
   const [shrunk, setShrunk] = useState(false);
+  // Any open overlay (dialog, drawer, sheet) hides the pill so it never sits
+  // on top of a modal's footer or a drawer's last row. Detected generically:
+  // an element with aria-modal="true" in the document, or a body scroll lock.
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      const modal = document.querySelector('[aria-modal="true"]');
+      const locked = document.body.style.overflow === 'hidden' || document.documentElement.style.overflow === 'hidden';
+      setOverlayOpen(!!modal || locked);
+    };
+    check();
+    const mo = new MutationObserver(check);
+    mo.observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['aria-modal', 'style', 'class', 'inert'] });
+    return () => mo.disconnect();
+  }, []);
   const lastY = useRef(0);
   useEffect(() => {
     lastY.current = window.scrollY;
@@ -231,7 +251,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
     <>
     {/* Hidden while the cart drawer is open so the floating pill never covers
         the drawer's checkout button. */}
-    {!cartOpen && (
+    {!cartOpen && !overlayOpen && (
     <div
       className="pointer-events-none fixed inset-x-0 bottom-0 z-[110] flex justify-center px-4 md:hidden"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}

@@ -31,13 +31,21 @@ const Layout: React.FC = () => {
   const { hidden, scrolled } = useHideOnScroll(96);
 
   const showBar = useThemeSetting<boolean>('show_announcement_bar') !== false;
-  const messages = [useThemeSetting<string>('announcement_text'), useThemeSetting<string>('announcement_text_2'), useThemeSetting<string>('announcement_text_3')].filter(Boolean) as string[];
-  const popular = (useThemeSetting<string>('popular_searches') || '').split(',').map((s) => s.trim()).filter(Boolean);
+  // Merchant copy wins; otherwise the theme's translations supply the demo
+  // strings, so a fresh install reads in the shopper's language.
+  const msg = (v: string | undefined, key: string) => (v && v.trim()) || t(key, { defaultValue: '' });
+  const messages = [
+    msg(useThemeSetting<string>('announcement_text'), 'theme.announcement.1'),
+    msg(useThemeSetting<string>('announcement_text_2'), 'theme.announcement.2'),
+    msg(useThemeSetting<string>('announcement_text_3'), 'theme.announcement.3'),
+  ].filter(Boolean);
+  const popular = msg(useThemeSetting<string>('popular_searches'), 'theme.search.popular_defaults')
+    .split(/[,،]/).map((s) => s.trim()).filter(Boolean);
   const promo = {
     image: useThemeSetting<string>('mega_image'),
-    eyebrow: useThemeSetting<string>('mega_eyebrow'),
-    title: useThemeSetting<string>('mega_title'),
-    ctaText: useThemeSetting<string>('mega_cta_text'),
+    eyebrow: msg(useThemeSetting<string>('mega_eyebrow'), 'theme.mega.eyebrow'),
+    title: msg(useThemeSetting<string>('mega_title'), 'theme.mega.title'),
+    ctaText: msg(useThemeSetting<string>('mega_cta_text'), 'theme.mega.cta'),
     ctaUrl: useThemeSetting<string>('mega_cta_url'),
   };
 
@@ -138,7 +146,7 @@ const Layout: React.FC = () => {
         })}
       </header>
 
-      <main id="linen-main" className="flex-1 pb-20 md:pb-0"><Outlet /></main>
+      <main id="linen-main" className="flex-1"><Outlet /></main>
 
       <Footer />
 

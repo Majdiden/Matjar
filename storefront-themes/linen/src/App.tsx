@@ -8,10 +8,16 @@ import CategoryPage from './pages/CategoryPage';
 import CartPage from './pages/CartPage';
 import en from './i18n/locales/en/theme.json';
 import ar from './i18n/locales/ar/theme.json';
+import { LinenProductCard } from './components/LinenProductCard';
 
 export default createThemeApp({
   Layout,
   manifest,
   locales: { en, ar },
   pages: { Home, Products, ProductDetail, CategoryPage, CartPage },
+  // Shared pages (collections, search, wishlist…) render the theme's own
+  // card through this slot, so a product looks identical everywhere.
+  renderCard: (product: any, onQuickView?: (p: any) => void) => (
+    <LinenProductCard product={product} onQuickView={onQuickView} />
+  ),
 });

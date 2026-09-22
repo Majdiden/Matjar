@@ -293,17 +293,6 @@ export function QuickView(props: QuickViewProps) {
                 compareAtPrice={effectiveCompareAt}
                 size="lg"
               />
-              {savingsPct !== null && (
-                <span
-                  className="text-xs font-semibold px-2 py-0.5 rounded-[var(--radius-pill,9999px)]"
-                  style={{
-                    color: 'var(--color-error, #dc2626)',
-                    backgroundColor: 'color-mix(in srgb, var(--color-error, #dc2626) 10%, transparent)',
-                  }}
-                >
-                  {t('discovery:quickview.save_percent', { percent: savingsPct })}
-                </span>
-              )}
             </div>
             <div className="text-xs text-[var(--color-muted,#6b7280)] mb-5">{t('discovery:quickview.tax_shipping')}</div>
 

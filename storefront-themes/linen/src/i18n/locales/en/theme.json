@@ -24,7 +24,8 @@
       "searching": "Searching…",
       "none": "Nothing found for “{{term}}”.",
       "see_all": "See all {{count}} results",
-      "hint": "Type at least three letters to see suggestions."
+      "hint": "Type at least three letters to see suggestions.",
+      "popular_defaults": "Serum, Moisturizer, Sun care, Mist, Cleanser"
     },
     "footer": {
       "newsletter_heading": "Join the list",
@@ -34,13 +35,135 @@
       "shop": "Shop",
       "help": "Help",
       "contact": "Visit us",
-      "copyright": "© {{year}} {{name}}. All rights reserved."
+      "copyright": "© {{year}} {{name}}. All rights reserved.",
+      "about": "Honest skincare made in small batches. Cream jars, clear labels, and formulas that respect the skin barrier.",
+      "hours": "Sat – Thu, 9:00 – 21:00"
     },
     "section": {
-      "hero": { "slides": "Slides", "go_to": "Go to slide {{n}}", "prev": "Previous slide", "next": "Next slide" },
-      "products": { "empty": "No products to show yet." },
-      "masonry": { "kicker": "Collection", "cta": "Explore" },
-      "stories": { "read_more": "Read more" }
+      "hero": {
+        "slides": "Slides",
+        "go_to": "Go to slide {{n}}",
+        "prev": "Previous slide",
+        "next": "Next slide",
+        "cta": "Shop now",
+        "slide-1": {
+          "eyebrow": "Daily rituals",
+          "heading": "Skin that feels rested, every morning",
+          "body": "Gentle formulas built around a few honest ingredients. Nothing you don’t need, everything you do.",
+          "cta_text": "Shop the ritual"
+        },
+        "slide-2": {
+          "eyebrow": "New season",
+          "heading": "A calmer routine for warmer days",
+          "body": "Lightweight moisture, mineral sun care and a mist you will keep in your bag.",
+          "cta_text": "See what’s new"
+        },
+        "slide-3": {
+          "eyebrow": "Made with care",
+          "heading": "Small batches. Clear labels. Real results.",
+          "body": "Every jar is filled by hand and dated, so what reaches you is as fresh as it should be.",
+          "cta_text": "Our story"
+        }
+      },
+      "products": {
+        "empty": "No products to show yet."
+      },
+      "masonry": {
+        "kicker": "Collection",
+        "cta": "Explore",
+        "eyebrow": "Find your fit",
+        "heading": "Shop by category"
+      },
+      "stories": {
+        "read_more": "Read more",
+        "eyebrow": "From the journal",
+        "heading": "Slow beauty, explained",
+        "st-1": {
+          "date": "Jun 02",
+          "title": "How to layer a routine without overloading your skin",
+          "excerpt": "Thin to thick, water to oil. A five-minute order of operations that works for every skin type."
+        },
+        "st-2": {
+          "date": "May 19",
+          "title": "Why we date every jar",
+          "excerpt": "Freshness is a feature. Here is what happens to plant oils after opening, and how we keep them stable."
+        },
+        "st-3": {
+          "date": "May 04",
+          "title": "Sun care for hot, dry climates",
+          "excerpt": "Mineral filters, reapplication that actually happens, and the one product to keep in the car."
+        }
+      },
+      "support": {
+        "ti-1": {
+          "title": "Shipping",
+          "text": "Free delivery on orders over the threshold"
+        },
+        "ti-2": {
+          "title": "Here to help",
+          "text": "Real people, every day of the week"
+        },
+        "ti-3": {
+          "title": "Easy returns",
+          "text": "30 days to change your mind"
+        },
+        "ti-4": {
+          "title": "Clean formulas",
+          "text": "Fragrance-free, never tested on animals"
+        }
+      },
+      "product_grid": {
+        "eyebrow": "Loved by many",
+        "heading": "Everyday essentials",
+        "view_all": "View all",
+        "grid-1": {
+          "eyebrow": "Loved by many",
+          "heading": "Everyday essentials"
+        },
+        "grid-2": {
+          "eyebrow": "Just landed",
+          "heading": "New this season"
+        }
+      },
+      "promo": {
+        "heading": "A little extra this weekend",
+        "body": "Complimentary gift wrapping and a travel-size mist with every order over the free-shipping threshold. Applied automatically at checkout.",
+        "cta_text": "Shop now"
+      },
+      "editorial": {
+        "eyebrow": "Rich in vitamin C",
+        "heading": "Creams that feel like a deep breath",
+        "body": "We start with cold-pressed plant oils and add only what the skin barrier asks for. The result sinks in fast, leaves no film, and lets your skin get on with its day.",
+        "cta_text": "Shop face care"
+      },
+      "testimonials": {
+        "eyebrow": "Kind words",
+        "heading": "What people tell us",
+        "tm-1": {
+          "quote": "The night cream is the first one that never stung. Two weeks in, my cheeks stopped flaking.",
+          "name": "Rana",
+          "role": "Khartoum"
+        },
+        "tm-2": {
+          "quote": "Ordered on a Tuesday, had it by Thursday, and the jar was dated the week before. That matters to me.",
+          "name": "Mazin",
+          "role": "Omdurman"
+        },
+        "tm-3": {
+          "quote": "Finally a sunscreen that doesn’t leave a white cast on my skin. I wear it every single day now.",
+          "name": "Salma",
+          "role": "Port Sudan"
+        },
+        "tm-4": {
+          "quote": "I bought the mist as a gift and ended up keeping it. The whole family steals it in summer.",
+          "name": "Hiba",
+          "role": "Kassala"
+        }
+      },
+      "instagram": {
+        "eyebrow": "On Instagram",
+        "handle": "@yourstore"
+      }
     },
     "product_card": {
       "add": "Add to cart",
@@ -123,6 +246,16 @@
       "checkout": "Check out",
       "free_shipping_remaining": "Add {{amount}} more for free shipping.",
       "free_shipping_unlocked": "You have unlocked free shipping."
+    },
+    "announcement": {
+      "1": "Free shipping on orders over the threshold",
+      "2": "New: mineral sun care for hot days",
+      "3": "Every jar filled by hand and dated"
+    },
+    "mega": {
+      "eyebrow": "This month",
+      "title": "The barrier repair edit",
+      "cta": "Shop the edit"
     }
   }
 }

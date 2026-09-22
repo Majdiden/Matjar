@@ -79,14 +79,14 @@ export const SearchOverlay: React.FC<Props> = ({ open, onClose, popular }) => {
       <div
         ref={panel}
         role="dialog"
-        aria-modal="true"
+        aria-modal={open ? 'true' : undefined}
         aria-label={t('theme.search.title')}
         className={`linen-drawer absolute inset-x-0 top-0 max-h-[92vh] overflow-y-auto bg-cream ${open ? 'translate-y-0 opacity-100' : '-translate-y-6 opacity-0'}`}
       >
         <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 sm:py-12">
           <div className="mb-8 flex items-start justify-between gap-6">
             <h2 className="font-heading text-3xl text-ink sm:text-4xl">{t('theme.search.title')}</h2>
-            <button type="button" onClick={onClose} className="grid h-11 w-11 place-items-center border border-line text-ink transition-colors hover:bg-ink hover:text-cream" aria-label={t('theme.search.close')}>
+            <button type="button" onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full border border-line text-ink transition-colors hover:bg-ink hover:text-cream" aria-label={t('theme.search.close')}>
               <I.close className="h-5 w-5" />
             </button>
           </div>

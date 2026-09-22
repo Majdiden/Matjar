@@ -119,7 +119,10 @@
       "prev": "Prev",
       "next": "Next",
       "empty_title": "Nothing here yet",
-      "empty_body": "Try clearing a filter or browsing another category."
+      "empty_body": "Try clearing a filter or browsing another category.",
+      "show_products": "Show {{count}} products",
+      "show_products_one": "Show 1 product",
+      "show_products_other": "Show {{count}} products"
     },
     "product_detail": {
       "add_to_bag": "Add to bag",
@@ -178,7 +181,24 @@
         "heading": "Rituals that let your skin breathe",
         "cta": "Shop now",
         "prev": "Previous slide",
-        "next": "Next slide"
+        "next": "Next slide",
+        "blocks": [
+          {
+            "eyebrow": "Skin first",
+            "heading": "Rituals that let your skin breathe",
+            "cta_text": "Shop the edit"
+          },
+          {
+            "eyebrow": "New season",
+            "heading": "Serums built around one active at a time",
+            "cta_text": "Discover serums"
+          },
+          {
+            "eyebrow": "Everyday glow",
+            "heading": "A lighter routine for busy mornings",
+            "cta_text": "Build your routine"
+          }
+        ]
       },
       "category_tiles": {
         "eyebrow": "Browse",
@@ -195,22 +215,215 @@
       "video": {
         "eyebrow": "Behind the label",
         "heading": "See how a serum is made",
-        "play": "Play video"
+        "play": "Play video",
+        "cta": "Explore more"
       },
       "deals": {
-        "cta": "Shop now"
+        "cta": "Shop deals",
+        "eyebrow": "This week",
+        "heading": "Weekly deals worth the detour",
+        "subheading": "Rotating offers on the essentials, refreshed every Monday."
       },
       "lookbook": {
         "add_all": "Add all to cart",
-        "empty": "Add hotspots in the customizer and pick a product for each."
+        "empty": "Add hotspots in the customizer and pick a product for each.",
+        "eyebrow": "Get the look",
+        "heading": "How we style a morning shelf"
       },
       "before_after": {
         "before": "Before",
         "after": "After"
       },
       "stories": {
-        "read_more": "Read more"
+        "read_more": "Read more",
+        "eyebrow": "Latest stories",
+        "heading": "Notes from the lab",
+        "blocks": [
+          {
+            "title": "Layering actives without the sting",
+            "excerpt": "A simple order of operations for retinoids, acids and vitamin C."
+          },
+          {
+            "title": "What \"fragrance-free\" really promises",
+            "excerpt": "Reading a label like a formulator, in three minutes."
+          },
+          {
+            "title": "The five-minute morning routine",
+            "excerpt": "Cleanse, protect, go. Everything else is optional."
+          }
+        ]
+      },
+      "about": {
+        "eyebrow": "About us",
+        "heading": "Skin care that treats your skin, and the planet, gently",
+        "subheading": "Small batches, transparent ingredient lists and packaging we can stand behind.",
+        "cta": "Our story"
+      },
+      "why": {
+        "eyebrow": "Trusted formulas",
+        "heading": "Why people switch to us"
+      },
+      "categories": {
+        "eyebrow": "Browse",
+        "heading": "Shop by category"
+      },
+      "new-arrivals": {
+        "eyebrow": "New arrivals",
+        "heading": "Chosen for quality, performance and everyday use"
+      },
+      "split": {
+        "eyebrow": "Thoughtful care",
+        "heading": "Where careful formulation meets modern beauty",
+        "subheading": "We test every texture on real skin across a full season before it earns a place on the shelf.",
+        "cta": "Shop now"
+      },
+      "stats": {
+        "eyebrow": "Clean beauty essentials",
+        "heading": "A short list of things we measure",
+        "subheading": "The numbers behind a routine people keep coming back to.",
+        "cta": "Shop now",
+        "blocks": [
+          {
+            "label": "Years of formulating"
+          },
+          {
+            "label": "Orders delivered"
+          },
+          {
+            "label": "Would buy again"
+          },
+          {
+            "label": "Community members"
+          },
+          {
+            "label": "Return rate"
+          }
+        ]
+      },
+      "sale": {
+        "eyebrow": "Offers",
+        "heading": "On sale this week",
+        "subheading": "Limited-time prices on selected essentials."
+      },
+      "kind": {
+        "eyebrow": "Naturally kind",
+        "heading": "Skin care made for everyone"
+      },
+      "testimonials": {
+        "eyebrow": "What customers say",
+        "heading": "Real feedback from real routines",
+        "blocks": [
+          {
+            "quote": "The night cream is the first product that stopped my winter dryness without feeling heavy in the morning.",
+            "name": "Rania A.",
+            "role": "Khartoum"
+          },
+          {
+            "quote": "I ordered on a Tuesday and it was at my door on Thursday. The serum smells clean and sinks in fast.",
+            "name": "Mohamed K.",
+            "role": "Omdurman"
+          },
+          {
+            "quote": "Finally a sunscreen that does not leave a cast. It has replaced three products in my bag.",
+            "name": "Sara E.",
+            "role": "Port Sudan"
+          },
+          {
+            "quote": "The lip tint lasts through coffee and lunch. I bought two more for my sisters.",
+            "name": "Huda M.",
+            "role": "Kassala"
+          }
+        ]
+      },
+      "before-after": {
+        "eyebrow": "Clearly better",
+        "heading": "See the difference for yourself",
+        "cta": "Explore now"
+      },
+      "marquee": {
+        "blocks": [
+          {
+            "text": "Free delivery on orders over 500"
+          },
+          {
+            "text": "Dermatologist-tested formulas"
+          },
+          {
+            "text": "Cruelty-free, always"
+          },
+          {
+            "text": "New serums just landed"
+          }
+        ]
+      },
+      "icon_row": {
+        "blocks": [
+          {
+            "title": "Gentle formulas"
+          },
+          {
+            "title": "Clean ingredients"
+          },
+          {
+            "title": "Free from harm"
+          },
+          {
+            "title": "Cruelty-free care"
+          }
+        ]
+      },
+      "feature_grid": {
+        "blocks": [
+          {
+            "title": "Natural care",
+            "text": "Thoughtfully sourced ingredients that respect your skin."
+          },
+          {
+            "title": "Lab-tested",
+            "text": "Every batch checked for purity and performance."
+          },
+          {
+            "title": "No harsh chemicals",
+            "text": "Minimal formulas that skip the irritants."
+          },
+          {
+            "title": "Made for daily use",
+            "text": "Balanced textures for morning and night."
+          }
+        ]
+      },
+      "usp": {
+        "blocks": [
+          {
+            "title": "Free delivery",
+            "text": "On every order over 500."
+          },
+          {
+            "title": "Easy returns",
+            "text": "30 days to change your mind."
+          },
+          {
+            "title": "Pay your way",
+            "text": "Cash on delivery and transfers."
+          },
+          {
+            "title": "Here to help",
+            "text": "Real people, seven days a week."
+          }
+        ]
       }
+    },
+    "global": {
+      "announcement": [
+        "Free delivery on orders over 500",
+        "New serums just landed",
+        "Cruelty-free, always"
+      ],
+      "popular_searches": "Serum, Cleanser, Sunscreen, Moisturizer, Lip tint",
+      "benefit_1": "Free delivery over 500",
+      "benefit_2": "Easy 30-day returns",
+      "benefit_3": "Help seven days a week",
+      "shipping_note": "Orders ship within 2 to 5 business days."
     }
   }
 }

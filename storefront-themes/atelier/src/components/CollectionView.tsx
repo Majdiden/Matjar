@@ -22,6 +22,8 @@ interface Props {
   description?: string;
   categorySlug?: string;
   categoryId?: string;
+  /** Collection handle — a collection is its own entity, not a category. */
+  collectionHandle?: string;
   bannerImage?: string;
 }
 
@@ -32,7 +34,7 @@ function useViewport() {
 }
 
 /** Breadcrumb hero, circular category carousel, toolbar, filters (placement is a setting), grid and pagination. */
-const CollectionView: React.FC<Props> = ({ title, description, categorySlug, categoryId, bannerImage }) => {
+const CollectionView: React.FC<Props> = ({ title, description, categorySlug, categoryId, collectionHandle, bannerImage }) => {
   const { t } = useTranslation(['theme']);
   const { formatPrice } = useStore();
   const { categories } = useCategories();
@@ -82,9 +84,11 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
   }, [perPage, sort, minPrice, maxPrice, categoryId]);
 
   const fetchPage = async (p: number) => {
-    const res: any = categorySlug && !categoryId
-      ? await storefrontApi.getCategory(categorySlug, { ...query, page: p })
-      : await storefrontApi.getProducts({ ...query, page: p });
+    const res: any = collectionHandle
+      ? await storefrontApi.getCollection(collectionHandle, { ...query, page: p })
+      : categorySlug && !categoryId
+        ? await storefrontApi.getCategory(categorySlug, { ...query, page: p })
+        : await storefrontApi.getProducts({ ...query, page: p });
     const d = res?.data || {};
     return { products: d.products || [], pagination: d.pagination || null };
   };
@@ -100,7 +104,7 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
       setPages(pagination?.pages ?? pagination?.totalPages ?? 1);
     }).catch(() => { if (live) { setItems([]); setTotal(0); } }).finally(() => { if (live) setLoading(false); });
     return () => { live = false; };
-  }, [JSON.stringify(query), page, paginationMode, categorySlug]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(query), page, paginationMode, categorySlug, collectionHandle]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     let live = true;
@@ -124,7 +128,14 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
 
   // Force 3 columns below 992px and 2 below 768px regardless of preference.
   const effective: View = width < 768 ? (view === 'list' ? 'list' : 'grid-2') : width < 992 ? (view === 'list' ? 'list' : 'grid-3') : view;
-  const gridCls = effective === 'list' ? 'grid-cols-1' : effective === 'grid-2' ? 'grid-cols-2' : effective === 'grid-3' ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+  // With a sidebar the content column is ~280px narrower, so a 4-up grid
+  // renders cards visibly smaller than the same card everywhere else. Cap it
+  // at 3 columns in that layout so a product card is one size sitewide.
+  const hasSidebar = placement === 'start' || placement === 'end';
+  const gridCls = effective === 'list' ? 'grid-cols-1'
+    : effective === 'grid-2' ? 'grid-cols-2'
+    : effective === 'grid-3' ? 'grid-cols-2 md:grid-cols-3'
+    : hasSidebar ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
   const activeChips = [
     minPrice || maxPrice ? { key: 'price', label: `${formatPrice(Number(minPrice || 0))} – ${formatPrice(Number(maxPrice || priceMax))}`, clear: () => set({ min: null, max: null }) } : null,
     availability ? { key: 'avail', label: availability === 'in' ? t('theme.collection.in_stock') : t('theme.collection.out_of_stock'), clear: () => set({ avail: null }) } : null,
@@ -189,7 +200,7 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
           {placement === 'top' && <div className="mb-8 hidden rounded-[var(--atelier-radius-card)] border border-[#e5e5e5] p-5 lg:block">{filters}</div>}
           {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-3 border-b border-[#e5e5e5] pb-4">
-            <button type="button" onClick={() => setDrawer(true)} className={`at-btn at-btn-outline !py-2 text-[12px] ${isDrawer ? '' : 'lg:hidden'}`}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M7 12h10M10 18h4" /></svg>{t('theme.collection.filter')}</button>
+            <button type="button" onClick={() => setDrawer(true)} className={`at-btn at-btn-outline !min-h-[44px] !px-5 !py-2 text-[12px] ${isDrawer ? '' : 'lg:hidden'}`}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M7 12h10M10 18h4" /></svg>{t('theme.collection.filter')}</button>
             <div className="hidden items-center gap-1.5 sm:flex" role="group" aria-label={t('theme.collection.view')}>
               {(['grid-4', 'grid-3', 'grid-2', 'list'] as View[]).filter((v) => v !== 'grid-4' || defaultCols === '4').map((v) => (
                 <button key={v} type="button" onClick={() => persistView(v)} aria-pressed={view === v} aria-label={t(`theme.collection.view_${v.replace('-', '_')}`)} className={`flex h-[42px] w-[42px] items-center justify-center rounded-[5px] transition-colors duration-300 ${view === v ? 'bg-[#000] text-white' : 'bg-[#e9ebeb] text-[#595959] hover:bg-[#000] hover:text-white'}`}>
@@ -199,7 +210,7 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
             </div>
             <label className="ms-auto flex items-center gap-2 text-[12px] font-bold uppercase">
               <span className="hidden sm:inline">{t('theme.collection.sort_by')}</span>
-              <select value={sort} onChange={(e) => set({ sort: e.target.value || null })} className="at-select">
+              <select value={sort} onChange={(e) => set({ sort: e.target.value || null })} className="at-select min-h-[44px]">
                 {SORTS.map((o) => <option key={o.key} value={o.value}>{t(`theme.collection.sort.${o.key}`)}</option>)}
               </select>
             </label>
@@ -248,9 +259,14 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
 
       {/* Filter drawer (placement setting, and the mobile fallback for sidebars) */}
       <div className={`at-backdrop ${drawer ? 'is-open' : ''}`} onClick={() => setDrawer(false)} aria-hidden />
-      <div ref={drawerRef} className={`at-panel ${isDrawer ? `at-panel-${drawerSide}` : 'at-panel-start'} flex flex-col ${drawer ? 'is-open' : ''}`} role="dialog" aria-modal="true" aria-label={t('theme.collection.filter')} tabIndex={-1}>
-        <div className="flex items-center justify-between border-b border-[#e5e5e5] px-5 py-4"><span className="text-[13px] font-extrabold uppercase tracking-[0.16em]">{t('theme.collection.filter')}</span><button type="button" onClick={() => setDrawer(false)} className="at-rotate-hover flex h-10 w-10 items-center justify-center rounded-full hover:bg-[#f2f2f2]" aria-label={t('theme.layout.close')}><svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg></button></div>
-        <div className={`flex-1 overflow-y-auto at-scrollbar p-5 ${drawerSide === 'top' || drawerSide === 'bottom' ? 'mx-auto w-full max-w-[1320px] md:grid md:grid-cols-3 md:gap-8 [&>div]:contents' : ''}`}>{filters}</div>
+      <div ref={drawerRef} className={`at-panel ${isDrawer ? `at-panel-${drawerSide}` : 'at-panel-start'} flex flex-col ${drawer ? 'is-open' : ''}`} role={drawer ? 'dialog' : undefined} aria-modal={drawer ? 'true' : undefined} aria-hidden={!drawer} aria-label={t('theme.collection.filter')} tabIndex={-1}>
+        <div className="flex items-center justify-between border-b border-[#e5e5e5] px-4 py-3 sm:px-5"><span className="text-[13px] font-extrabold uppercase tracking-[0.16em]">{t('theme.collection.filter')}</span><button type="button" onClick={() => setDrawer(false)} className="at-rotate-hover at-icon-btn h-11 w-11 hover:bg-[#f2f2f2]" aria-label={t('theme.layout.close')}><svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg></button></div>
+        <div className={`flex-1 overflow-y-auto at-scrollbar p-4 sm:p-5 ${drawerSide === 'top' || drawerSide === 'bottom' ? 'mx-auto w-full max-w-[1320px] md:grid md:grid-cols-3 md:gap-8 [&>div]:contents' : ''}`}>{filters}</div>
+        {/* Sticky footer: results update live; this row makes it visible and closes the sheet. */}
+        <div className="at-panel-safe flex items-center gap-3 border-t border-[#e5e5e5] px-4 pt-3 sm:px-5">
+          <button type="button" onClick={() => set({ min: null, max: null, avail: null })} disabled={!activeChips.length} className="at-btn at-btn-outline !min-h-[44px] !px-4 text-[12px] disabled:border-transparent">{t('theme.collection.clear_all')}</button>
+          <button type="button" onClick={() => setDrawer(false)} className="at-btn at-btn-dark !min-h-[44px] flex-1 text-[12px]">{loading ? <span className="at-spinner" /> : t('theme.collection.show_products', { count: visible.length })}</button>
+        </div>
       </div>
       <QuickView product={quick} isOpen={!!quick} onClose={() => setQuick(null)} />
     </div>
@@ -279,7 +295,8 @@ const PriceRange: React.FC<{ max: number; min: number; value: number; onCommit: 
         <div className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-[#1c1c1c]" style={{ insetInlineStart: `${pctLo}%`, width: `${Math.max(0, pctHi - pctLo)}%` }} />
         {[{ v: lo, set: (n: number) => setLo(Math.min(n, hi)) }, { v: hi, set: (n: number) => setHi(Math.max(n, lo)) }].map((h, i) => (
           <input key={i} type="range" min={0} max={max} value={h.v} onChange={(e) => h.set(Number(e.target.value))} onMouseUp={() => onCommit(lo, hi)} onTouchEnd={() => onCommit(lo, hi)} onKeyUp={() => onCommit(lo, hi)}
-            className="pointer-events-none absolute inset-0 h-8 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[3px] [&::-webkit-slider-thumb]:border-[#1c1c1c] [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-300 hover:[&::-webkit-slider-thumb]:border-4 hover:[&::-webkit-slider-thumb]:bg-[color:var(--atelier-bronze)] [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-[#1c1c1c] [&::-moz-range-thumb]:bg-white"
+            onPointerUp={() => onCommit(lo, hi)} onBlur={() => onCommit(lo, hi)}
+            className="at-range"
             aria-label={i === 0 ? 'Minimum price' : 'Maximum price'} />
         ))}
       </div>

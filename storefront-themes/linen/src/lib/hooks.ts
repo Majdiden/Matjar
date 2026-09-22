@@ -77,8 +77,10 @@ export function useFocusTrap(ref: React.RefObject<HTMLElement>, active: boolean)
     const root = ref.current;
     const q = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
     const previouslyFocused = document.activeElement as HTMLElement | null;
-    const first = root.querySelector<HTMLElement>(q);
-    first?.focus();
+    // Focus the panel itself (not its first button): a tap-opened drawer
+    // must not show a keyboard focus ring on the close button.
+    if (!root.hasAttribute('tabindex')) root.setAttribute('tabindex', '-1');
+    root.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
       const nodes = Array.from(root.querySelectorAll<HTMLElement>(q)).filter((n) => n.offsetParent !== null);

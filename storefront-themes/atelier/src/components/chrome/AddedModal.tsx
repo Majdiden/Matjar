@@ -26,14 +26,14 @@ const AddedModal: React.FC = () => {
   return (
     <div className={`fixed inset-0 z-[95] flex items-center justify-center p-4 transition-[opacity,visibility] duration-300 ease-linear ${open ? 'visible opacity-100' : 'invisible opacity-0'}`} aria-hidden={!open}>
       <div className="absolute inset-0 bg-black/50" onClick={dismissAdded} />
-      <div ref={ref} role="dialog" aria-modal="true" aria-label={t('theme.added.title')} tabIndex={-1}
-        className={`relative max-h-[92dvh] w-full max-w-3xl overflow-y-auto at-scrollbar rounded-[var(--atelier-radius-card)] bg-white shadow-2xl transition-transform duration-300 ease-linear ${open ? 'scale-100' : 'scale-95'}`}>
+      <div ref={ref} role={open ? 'dialog' : undefined} aria-modal={open ? 'true' : undefined} aria-label={t('theme.added.title')} tabIndex={-1}
+        className={`relative max-h-[calc(100dvh-2rem)] w-full max-w-3xl overflow-y-auto at-scrollbar rounded-[var(--atelier-radius-card)] bg-white shadow-2xl transition-transform duration-300 ease-linear ${open ? 'scale-100' : 'scale-95'}`}>
         <div className="flex items-center justify-between border-b border-[#eaeaea] px-6 py-4">
           <div>
             <h2 className="text-[13px] font-extrabold uppercase tracking-wider">{t('theme.added.title')}</h2>
             <p className="text-[11px] font-semibold uppercase text-[#6b6b6b]">{t('theme.added.count', { count: cart?.itemCount || 0 })}</p>
           </div>
-          <button type="button" onClick={dismissAdded} className="at-flip-close inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#1c1c1c] text-white transition-colors duration-300 hover:bg-[color:var(--atelier-bronze-ink)]" aria-label={t('theme.layout.close')}>
+          <button type="button" onClick={dismissAdded} className="at-flip-close at-icon-btn h-11 w-11 bg-[#1c1c1c] text-white transition-colors duration-300 hover:bg-[color:var(--atelier-bronze-ink)]" aria-label={t('theme.layout.close')}>
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>
         </div>

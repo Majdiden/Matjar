@@ -75,7 +75,10 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))', paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+    >
       {/* Overlay */}
       <div
         className={cn('fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity', overlayClassName)}
@@ -91,7 +94,7 @@ export function Modal({
         className={cn(
           'relative z-10 w-full bg-white dark:bg-gray-900 rounded-xl shadow-2xl',
           'animate-in fade-in zoom-in-95 duration-200',
-          'max-h-[90vh] overflow-y-auto',
+          'max-h-[calc(100dvh-2rem)] sm:max-h-[90vh] overflow-y-auto',
           sizeClasses[size],
           className
         )}

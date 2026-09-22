@@ -5,7 +5,7 @@ import type { MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { useEscape, useFocusTrap, useBodyScrollLock } from '../lib/hooks';
 import { I } from '../lib/icons';
-import { MenuLink } from './MegaMenu';
+import { MenuLink, itemHref } from './MegaMenu';
 
 interface Props {
   open: boolean;
@@ -35,6 +35,9 @@ export const MobileDrawer: React.FC<Props> = ({ open, onClose, items, fallback, 
   const level = stack[stack.length - 1];
   const list = level ? level.children || [] : items.length ? items : fallback;
   const socialEntries = Object.entries(social || {}).filter((e): e is [string, string] => typeof e[1] === "string" && !!e[1]);
+  // Only add our own "Home" row when the merchant menu has no link to "/".
+  const isHomeHref = (u?: string | null) => { const v = String(u || '').trim().replace(/[?#].*$/, '').replace(/\/+$/, ''); return v === '' || v === '/' || /^https?:\/\/[^/]+$/.test(v); };
+  const hasHome = (items.length ? items : fallback).some((it) => isHomeHref(itemHref(it)));
 
   return (
     <div className={`fixed inset-0 z-[120] lg:hidden ${open ? '' : 'pointer-events-none'}`} aria-hidden={!open}>
@@ -42,9 +45,9 @@ export const MobileDrawer: React.FC<Props> = ({ open, onClose, items, fallback, 
       <div
         ref={panel}
         role="dialog"
-        aria-modal="true"
+        aria-modal={open ? 'true' : undefined}
         aria-label={t('theme.nav.menu')}
-        className={`linen-drawer absolute inset-y-0 start-0 flex w-[88vw] max-w-sm flex-col bg-cream ${open ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'}`}
+        className={`linen-drawer absolute inset-y-0 start-0 flex w-[88vw] max-w-sm flex-col bg-cream outline-none ${open ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'}`}
       >
         <div className="flex items-center justify-between border-b border-line px-4 py-3">
           {level ? (
@@ -55,9 +58,12 @@ export const MobileDrawer: React.FC<Props> = ({ open, onClose, items, fallback, 
           ) : (
             <span className="linen-eyebrow text-dune">{t('theme.nav.menu')}</span>
           )}
-          <button type="button" onClick={onClose} className="grid h-10 w-10 place-items-center text-ink" aria-label={t('theme.nav.close_menu')}>
-            <I.close className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <LanguageSwitcher className="text-ink" />
+            <button type="button" onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full text-ink transition-colors hover:bg-sand" aria-label={t('theme.nav.close_menu')}>
+              <I.close className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {!level && (
@@ -72,7 +78,7 @@ export const MobileDrawer: React.FC<Props> = ({ open, onClose, items, fallback, 
 
         <div className="relative flex-1 overflow-hidden">
           <ul key={level?._id || level?.label || 'root'} className="linen-drawer h-full overflow-y-auto px-2 py-2 animate-[linen-caption_300ms_var(--linen-reveal-ease)_both]">
-            {!level && (
+            {!level && !hasHome && (
               <li><Link to="/" onClick={onClose} className="flex items-center justify-between px-3 py-3.5 font-heading text-xl text-ink">{t('theme.nav.home')}</Link></li>
             )}
             {list.map((item, i) => {
@@ -100,11 +106,8 @@ export const MobileDrawer: React.FC<Props> = ({ open, onClose, items, fallback, 
           </ul>
         </div>
 
-        <div className="space-y-3 border-t border-line px-4 py-4 text-sm text-dune">
-          <div className="flex items-center justify-between">
-            <Link to="/account" onClick={onClose} className="flex items-center gap-2 text-ink"><I.user className="h-4 w-4" /> {t('theme.nav.account')}</Link>
-            <LanguageSwitcher />
-          </div>
+        <div className="space-y-3 border-t border-line px-4 pt-4 text-sm text-dune" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+          <Link to="/account" onClick={onClose} className="flex min-h-[44px] items-center gap-2 text-ink"><I.user className="h-4 w-4" /> {t('theme.nav.account')}</Link>
           {contact?.phone && <a href={`tel:${contact.phone}`} className="block hover:text-clay" dir="ltr">{contact.phone}</a>}
           {contact?.email && <a href={`mailto:${contact.email}`} className="block hover:text-clay" dir="ltr">{contact.email}</a>}
           {socialEntries.length > 0 && (

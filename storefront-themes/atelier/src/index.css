@@ -20,6 +20,8 @@
   --atelier-radius-card: 10px;
   --atelier-radius-thumb: 4px;
   --atelier-header-h: 72px;
+  /* Default section rhythm: 30px desktop (the brief's vertical rhythm), 40px on phones. */
+  --at-section-pad: 30px;
   --font-en: 'DM Sans', system-ui, sans-serif;
   --font-ar: 'Tajawal', 'DM Sans', system-ui, sans-serif;
   --font-heading-en: 'Fraunces', Georgia, serif;
@@ -42,14 +44,57 @@ html[lang='ar'], html[lang='ar'] * { letter-spacing: 0 !important; }
 html[dir='rtl'], html[dir='rtl'] body { direction: rtl; }
 html[dir='ltr'], html[dir='ltr'] body { direction: ltr; }
 
+@media (max-width: 767px) { :root { --at-section-pad: 40px; } }
+
+/* ─── Focus & tap targets ─────────────────────────────────────────
+   Rings only for keyboard focus (never a lingering ring after a tap),
+   always in the theme ink; panels/dialogs receive programmatic focus
+   silently. */
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--color-foreground, #1c1c1c); outline-offset: 2px; border-radius: 2px; }
+.at-btn:focus-visible, .at-icon-btn:focus-visible { outline-offset: 3px; border-radius: 100px; }
+.at-panel:focus, [role='dialog']:focus { outline: none; }
+/* Icon buttons: one circular shape, ≥ 44px tap target on touch. */
+.at-icon-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 100px; flex: none; }
+@media (pointer: coarse) { .at-icon-btn { min-width: 44px; min-height: 44px; } }
+/* Panel safe areas: the last row of a sheet must clear the home indicator. */
+.at-panel-safe { padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px)); }
+/* The shared bottom nav reserves body padding on phones; the dark footer
+   extends over that strip so no pale band shows beneath it. */
+@media (max-width: 767px) {
+  .at-footer { margin-bottom: calc(-1 * (5.25rem + env(safe-area-inset-bottom, 0px))); padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)); }
+}
+/* Horizontal product rail on phones: 72vw cards, snap to start, gutter-aligned. */
+.at-rail { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; padding-inline: 16px; margin-inline: -16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.at-rail::-webkit-scrollbar { display: none; }
+.at-rail > * { flex: 0 0 72vw; max-width: 320px; scroll-snap-align: start; }
+.at-rail-wrap { position: relative; }
+.at-rail-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; inset-inline-end: -16px; width: 32px; pointer-events: none; background: linear-gradient(to var(--at-fade-dir, right), transparent, var(--at-rail-bg, #fff)); }
+html[dir='rtl'] .at-rail-wrap { --at-fade-dir: left; }
+/* Price range: real thumbs on every engine (arbitrary Tailwind variants
+   were unreliable for pseudo-elements). */
+.at-range { position: absolute; inset: 0; width: 100%; height: 2rem; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; pointer-events: none; }
+.at-range::-webkit-slider-runnable-track { background: transparent; height: 2rem; }
+.at-range::-moz-range-track { background: transparent; height: 2rem; }
+.at-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; pointer-events: auto; width: 24px; height: 24px; margin-top: 4px; border-radius: 50%; border: 3px solid var(--color-foreground, #1c1c1c); background: #fff; box-shadow: 0 1px 4px #0000001f; cursor: grab; transition: border-width .3s, background-color .3s; }
+.at-range::-moz-range-thumb { pointer-events: auto; width: 24px; height: 24px; border-radius: 50%; border: 3px solid var(--color-foreground, #1c1c1c); background: #fff; box-shadow: 0 1px 4px #0000001f; cursor: grab; }
+.at-range:hover::-webkit-slider-thumb, .at-range:active::-webkit-slider-thumb { border-width: 4px; background: var(--atelier-bronze); }
+.at-range:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--color-foreground); outline-offset: 2px; }
+
+/* Card action rail: the CTA shows its label only when the card is wide
+   enough for one line (container query); narrow cards get the icon. */
+.at-media { container-type: inline-size; }
+.at-rail-label { display: none; }
+@container (min-width: 230px) { .at-rail-label { display: inline; } }
+
 /* ─── Shared utilities ───────────────────────────────────────────── */
 .at-eyebrow {
   font-weight: 800; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--atelier-bronze-ink);
 }
 .at-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-  border-radius: 100px; padding: 0.875rem 1.75rem; font-weight: 700; font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem; white-space: nowrap;
+  border-radius: 100px; padding: 0.875rem 1.75rem; font-weight: 700; font-size: 14px; min-height: 44px;
   transition: background-color .3s linear, color .3s linear, border-color .3s linear, transform .3s linear;
 }
 .at-btn-dark { background: var(--color-foreground); color: #fff; }
@@ -123,7 +168,7 @@ html[dir='rtl'] .at-panel-start { transform: translateX(100%); }
 html[dir='rtl'] .at-panel-end { transform: translateX(-100%); }
 .at-panel-top { top: 0; left: 0; width: 100%; max-height: 90dvh; transform: translateY(-100%); transition: transform .5s, opacity .5s, visibility 0s linear .5s; }
 .at-panel-bottom { bottom: 0; left: 0; width: 100%; max-height: 90dvh; transform: translateY(100%); transition: transform .5s, opacity .5s, visibility 0s linear .5s; }
-.at-panel.is-open { visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
+.at-panel.is-open, html[dir='rtl'] .at-panel.is-open { visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
 .at-backdrop { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.45); opacity: 0; visibility: hidden; transition: opacity .3s linear, visibility 0s linear .3s; }
 .at-backdrop.is-open { opacity: 1; visibility: visible; transition-delay: 0s; }
 .at-rotate-hover svg { transition: transform .3s linear; }
@@ -136,6 +181,33 @@ html[dir='rtl'] .at-panel-end { transform: translateX(-100%); }
 /* Product grid stacking so the hover rail escapes neighbours */
 .at-grid-item { position: initial; transition: all .4s ease-in-out; }
 .at-grid-item:hover { position: relative; z-index: 3; }
+
+/* Lookbook hotspot popover.
+   Closed => display:none so it contributes no layout width (a
+   visibility:hidden card at a right-hand hotspot pushed the page 82px wide).
+   On phones it centres under the dot and is capped to the viewport instead of
+   flying off the edge. */
+.at-hotspot-pop { position: absolute; z-index: 10; width: 14rem; }
+.at-hotspot-pop[hidden] { display: none; }
+@media (max-width: 639px) {
+  .at-hotspot-pop {
+    inset-inline: auto !important;
+    left: 50% !important;
+    right: auto !important;
+    top: 100% !important;
+    margin: .75rem 0 0 !important;
+    transform: translateX(-50%) !important;
+    width: min(14rem, calc(100vw - 3rem)) !important;
+  }
+}
+
+/* The shared language/currency pickers render their popup inside the dark
+   utility bar, so it inherits white text onto its own light panel. Give the
+   panel (and everything in it) the normal ink colour. */
+.at-util-bar [role='menu'],
+.at-util-bar [role='listbox'] { color: #1c1c1c; }
+.at-util-bar [role='menu'] *,
+.at-util-bar [role='listbox'] * { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   .at-reveal { opacity: 1; animation: none !important; }

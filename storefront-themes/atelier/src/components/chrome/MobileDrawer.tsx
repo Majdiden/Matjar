@@ -5,6 +5,7 @@ import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
+import { CurrencySelector } from '@matjar/theme-shared/components/commerce/CurrencySelector';
 import { useAtelierUI } from '../../contexts/AtelierUI';
 import { useOverlayA11y } from '../../lib/motion';
 import { SocialIcons } from './Footer';
@@ -31,8 +32,12 @@ const MobileDrawer: React.FC = () => {
   useOverlayA11y(isOpen, close, ref);
   useEffect(() => { close(); setStack([]); }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // The merchant menu is used as-is; a Home entry is only prepended when the
+  // menu has no link to "/" (never duplicated).
+  const norm = (u: string) => (u || '/').replace(/\/+$/, '') || '/';
+  const hasHome = items.some((i) => norm(hrefOf(i)) === '/');
   const root: MenuItem[] = items.length
-    ? items
+    ? (hasHome ? items : [{ label: t('theme.layout.nav.home'), url: '/' }, ...items])
     : [{ label: t('theme.layout.nav.home'), url: '/' }, { label: t('theme.layout.nav.shop'), url: '/products', children: categories.map((c: any) => ({ label: c.name, url: `/categories/${c.slug}` })) }, { label: t('theme.layout.nav.wishlist'), url: '/wishlist' }, { label: t('theme.layout.nav.account'), url: '/account' }];
   const current = stack.length ? stack[stack.length - 1].children || [] : root;
   const phone = store?.contact?.phone || store?.contactInfo?.phone;
@@ -41,13 +46,26 @@ const MobileDrawer: React.FC = () => {
   return (
     <>
       <div className={`at-backdrop lg:hidden ${isOpen ? 'is-open' : ''}`} onClick={close} aria-hidden />
-      <div ref={ref} className={`at-panel at-panel-start flex flex-col lg:hidden ${isOpen ? 'is-open' : ''}`} role="dialog" aria-modal="true" aria-label={t('common:aria.menu')} tabIndex={-1}>
-        <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) { close(); navigate(`/search?q=${encodeURIComponent(q.trim())}`); } }} className="relative border-b border-[#eaeaea] p-4" role="search">
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('theme.layout.search_placeholder')} className="at-input h-11 pe-11 text-[12px] font-semibold uppercase placeholder:normal-case" aria-label={t('theme.layout.search')} />
-          <button type="submit" className="absolute end-6 top-1/2 -translate-y-1/2 text-[#1c1c1c]" aria-label={t('theme.layout.search')}>
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+      <div ref={ref} className={`at-panel at-panel-start flex flex-col lg:hidden ${isOpen ? 'is-open' : ''}`} role={isOpen ? 'dialog' : undefined} aria-modal={isOpen ? 'true' : undefined} aria-hidden={!isOpen} aria-label={t('common:aria.menu')} tabIndex={-1}>
+        <div className="flex items-center justify-between gap-3 border-b border-[#eaeaea] px-4 py-3">
+          <span className="text-[12px] font-extrabold uppercase tracking-[0.16em]">{t('common:aria.menu')}</span>
+          <button type="button" onClick={close} className="at-icon-btn h-11 w-11 hover:bg-[#f2f2f2]" aria-label={t('theme.layout.close')}>
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>
+        </div>
+        <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) { close(); navigate(`/search?q=${encodeURIComponent(q.trim())}`); } }} className="px-4 pt-4" role="search">
+          <div className="relative">
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('theme.layout.search_placeholder')} className="at-input h-11 pe-12 text-[12px] font-semibold uppercase placeholder:normal-case" aria-label={t('theme.layout.search')} />
+            <button type="submit" className="at-icon-btn absolute end-1 top-1/2 h-10 w-10 -translate-y-1/2 text-[#1c1c1c]" aria-label={t('theme.layout.search')}>
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+            </button>
+          </div>
         </form>
+        {/* Language + currency live here on phones (the utility bar is desktop-only). */}
+        <div className="flex items-center gap-2 border-b border-[#eaeaea] px-4 py-3 [&_button]:min-h-[40px] [&_select]:min-h-[40px] [&_select]:rounded-full [&_select]:border [&_select]:border-[#c8c8c8] [&_select]:px-3">
+          <LanguageSwitcher />
+          <CurrencySelector />
+        </div>
         <div className="relative flex-1 overflow-hidden">
           <div className="absolute inset-0 flex transition-transform duration-300 ease-linear" style={{ transform: `translateX(${stack.length ? (document.documentElement.dir === 'rtl' ? '100%' : '-100%') : '0'})` }}>
             <ul className="w-full shrink-0 overflow-y-auto at-scrollbar py-2">
@@ -81,8 +99,7 @@ const MobileDrawer: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="border-t border-[#eaeaea] p-5 text-[13px]">
-          <div className="mb-3"><LanguageSwitcher /></div>
+        <div className="at-panel-safe border-t border-[#eaeaea] px-4 pt-4 text-[13px]">
           {phone && <p><span className="font-bold">{t('theme.layout.utility.call')}</span> <a href={`tel:${phone}`} dir="ltr" className="at-link-hover">{phone}</a></p>}
           {email && <p><span className="font-bold">{t('theme.layout.utility.email')}</span> <a href={`mailto:${email}`} className="at-link-hover">{email}</a></p>}
           <SocialIcons className="mt-3" />

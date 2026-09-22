@@ -63,7 +63,7 @@ const AtelierProductCard: React.FC<Props> = ({ product, view = 'grid', onQuickVi
   };
 
   const media = (
-    <div className={`group/media relative overflow-hidden at-card bg-[color:var(--color-accent)] ${view === 'list' ? 'w-[270px] max-w-[45%] shrink-0' : ''}`}>
+    <div className={`group/media at-media relative overflow-hidden at-card bg-[color:var(--color-accent)] ${view === 'list' ? 'w-[270px] max-w-[45%] shrink-0' : ''}`}>
       <Link to={`/products/${product.slug}`} className="block aspect-[4/5]" aria-label={product.name}>
         <img src={primary} alt={product.name} loading="lazy" className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[400ms] ease-linear ${secondary ? 'group-hover/media:opacity-0' : ''}`} />
         {secondary && <img src={secondary} alt="" loading="lazy" aria-hidden className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-[400ms] ease-linear group-hover/media:opacity-100" />}
@@ -72,25 +72,26 @@ const AtelierProductCard: React.FC<Props> = ({ product, view = 'grid', onQuickVi
         <span className="absolute top-3 start-3 rounded-full bg-[color:var(--atelier-sale)] px-2.5 py-1 text-[11px] font-extrabold text-white">-{pct}%</span>
       )}
       {/* Hover action rail: rises from the bottom; always visible on touch (no hover). */}
-      <div className="absolute inset-x-3 bottom-3 flex items-center justify-center gap-2 translate-y-[calc(100%+12px)] opacity-0 transition-[transform,opacity] duration-300 ease-out group-hover/media:translate-y-0 group-hover/media:opacity-100 focus-within:translate-y-0 focus-within:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100">
+      <div className="absolute inset-x-2 bottom-2 flex items-center justify-center gap-1.5 sm:inset-x-3 sm:bottom-3 sm:gap-2 translate-y-[calc(100%+12px)] opacity-0 transition-[transform,opacity] duration-300 ease-out group-hover/media:translate-y-0 group-hover/media:opacity-100 focus-within:translate-y-0 focus-within:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100">
         <WishlistButton
           productId={product._id}
           product={product}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#1c1c1c] shadow-[0_2px_10px_#0000001a] transition-colors duration-300 hover:bg-[#1c1c1c] hover:text-white"
+          className="at-icon-btn h-11 w-11 shrink-0 bg-white text-[#1c1c1c] shadow-[0_2px_10px_#0000001a] transition-colors duration-300 hover:bg-[#1c1c1c] hover:text-white"
           renderIcon={(on) => <svg className="h-4 w-4" viewBox="0 0 24 24" fill={on ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.8"><path d="M12 21s-8-5-8-11a4 4 0 018-1 4 4 0 018 1c0 6-8 11-8 11z" /></svg>}
         />
         {needsOptions ? (
-          <Link to={`/products/${product.slug}`} className="flex h-11 flex-1 items-center justify-center rounded-full bg-white px-4 text-[12px] font-bold uppercase tracking-wider text-[#1c1c1c] shadow-[0_2px_10px_#0000001a] transition-colors duration-300 hover:bg-[#1c1c1c] hover:text-white">
-            {t('theme.card.select_options')}
+          <Link to={`/products/${product.slug}`} aria-label={t('theme.card.select_options')} className="at-rail-cta flex h-11 min-w-[44px] flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 text-[11px] font-bold uppercase tracking-wider text-[#1c1c1c] shadow-[0_2px_10px_#0000001a] transition-colors duration-300 hover:bg-[#1c1c1c] hover:text-white">
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 7h16M4 12h16M4 17h10" /></svg>
+            <span className="at-rail-label">{t('theme.card.select_options')}</span>
           </Link>
         ) : (
-          <button type="button" onClick={add} disabled={!inStock || adding} className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-white px-4 text-[12px] font-bold uppercase tracking-wider text-[#1c1c1c] shadow-[0_2px_10px_#0000001a] transition-colors duration-300 hover:bg-[#1c1c1c] hover:text-white disabled:bg-[#e5e5e5] disabled:text-[#4a4a4a]">
-            {adding && <span className="at-spinner" />}
-            {pre.mode === 'preorder' ? t('theme.card.preorder') : inStock ? t('theme.card.add_to_cart') : t('theme.card.sold_out')}
+          <button type="button" onClick={add} disabled={!inStock || adding} aria-label={pre.mode === 'preorder' ? t('theme.card.preorder') : inStock ? t('theme.card.add_to_cart') : t('theme.card.sold_out')} className="at-rail-cta flex h-11 min-w-[44px] flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 text-[11px] font-bold uppercase tracking-wider text-[#1c1c1c] shadow-[0_2px_10px_#0000001a] transition-colors duration-300 hover:bg-[#1c1c1c] hover:text-white disabled:bg-[#e5e5e5] disabled:text-[#4a4a4a]">
+            {adding ? <span className="at-spinner" /> : <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 8h12l1 13H5L6 8z" /><path d="M9 8V6a3 3 0 016 0v2" /></svg>}
+            <span className="at-rail-label">{pre.mode === 'preorder' ? t('theme.card.preorder') : inStock ? t('theme.card.add_to_cart') : t('theme.card.sold_out')}</span>
           </button>
         )}
         {onQuickView && (
-          <button type="button" onClick={() => onQuickView(product)} aria-label={t('theme.card.quick_view')} className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#1c1c1c] shadow-[0_2px_10px_#0000001a] transition-colors duration-300 hover:bg-[#1c1c1c] hover:text-white">
+          <button type="button" onClick={() => onQuickView(product)} aria-label={t('theme.card.quick_view')} className="at-icon-btn h-11 w-11 shrink-0 bg-white text-[#1c1c1c] shadow-[0_2px_10px_#0000001a] transition-colors duration-300 hover:bg-[#1c1c1c] hover:text-white">
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></svg>
           </button>
         )}

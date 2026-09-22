@@ -119,7 +119,7 @@ const MiniCart: React.FC = () => {
   return (
     <>
       <div className={`at-backdrop ${isOpen ? 'is-open' : ''}`} onClick={close} aria-hidden />
-      <div ref={ref} className={`at-panel at-panel-end flex flex-col ${isOpen ? 'is-open' : ''}`} role="dialog" aria-modal="true" aria-label={t('theme.cart.title')} tabIndex={-1}>
+      <div ref={ref} className={`at-panel at-panel-end flex flex-col ${isOpen ? 'is-open' : ''}`} role={isOpen ? 'dialog' : undefined} aria-modal={isOpen ? 'true' : undefined} aria-hidden={!isOpen} aria-label={t('theme.cart.title')} tabIndex={-1}>
         {/* Edge tabs */}
         <div className="absolute top-24 end-full hidden sm:flex flex-col gap-2 pe-2">
           {tabs.map((tb) => (
@@ -189,7 +189,7 @@ const MiniCart: React.FC = () => {
         </div>
 
         {items.length > 0 && (
-          <div className="border-t border-[#eaeaea] px-6 py-5">
+          <div className="at-panel-safe border-t border-[#eaeaea] px-5 pt-5 sm:px-6">
             <div className="flex items-baseline justify-between">
               <span className="text-[13px] font-extrabold uppercase tracking-wider">{t('theme.cart.total')}</span>
               <span className="text-[22px] font-extrabold">{formatPrice(cart?.total || 0)}</span>

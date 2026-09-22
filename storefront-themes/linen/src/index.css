@@ -25,17 +25,31 @@ html[lang='ar'] .font-heading { font-family: 'Tajawal', var(--font-family-headin
 
 body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 :focus-visible { outline: 2px solid var(--color-primary, #8f5426); outline-offset: 3px; }
+/* Text fields signal focus with their border alone (outline + border read as a double ring). */
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; border-color: var(--color-primary, #8f5426); }
 
 /* ── Eyebrow / caps label ────────────────────────────────────────── */
 .linen-eyebrow { font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; }
 html[lang='ar'] .linen-eyebrow { letter-spacing: 0.04em; }
 
 /* ── Buttons (square, colour per state as classes) ───────────────── */
-.linen-btn { @apply inline-flex items-center justify-center gap-2 px-7 py-3.5 text-[0.8125rem] font-bold uppercase tracking-[0.16em] transition-colors duration-300 disabled:cursor-not-allowed; }
+.linen-btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap px-7 py-3.5 text-center text-[0.8125rem] font-bold uppercase tracking-[0.16em] transition-colors duration-200 disabled:cursor-not-allowed; }
 .linen-btn-solid { @apply bg-sand text-ink hover:bg-bronze hover:text-cream disabled:bg-line disabled:text-dune; }
 .linen-btn-dark  { @apply bg-ink text-cream hover:bg-bronze hover:text-cream disabled:bg-line disabled:text-dune; }
 .linen-btn-outline { @apply border border-bronze bg-transparent text-clay hover:bg-bronze hover:text-cream disabled:border-line disabled:text-dune; }
 html[lang='ar'] .linen-btn { letter-spacing: 0.03em; }
+
+/* ── Section rhythm (customizer value from md; 40px on phones) ────── */
+.linen-section { padding-top: min(var(--linen-pt, 64px), 40px); padding-bottom: min(var(--linen-pb, 64px), 40px); }
+@media (min-width: 768px) { .linen-section { padding-top: var(--linen-pt, 64px); padding-bottom: var(--linen-pb, 64px); } }
+
+/* ── Product rail (phones) ───────────────────────────────────────── */
+.linen-rail { scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-padding-inline: 1rem; }
+.linen-rail::-webkit-scrollbar { display: none; }
+@media (max-width: 767px) {
+  .linen-rail { mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+  html[dir='rtl'] .linen-rail { mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); }
+}
 
 /* ── Reveal on scroll ────────────────────────────────────────────── */
 .linen-reveal { opacity: 0; transform: translateY(16px); transition: opacity 1.2s var(--linen-reveal-ease), transform 1.2s var(--linen-reveal-ease); }
@@ -81,4 +95,23 @@ html[dir='rtl'] .linen-hero-progress { transform-origin: 100% 50%; }
   .linen-hero-progress, .linen-caption > *, .linen-caret::after { animation: none; }
   .linen-card-bar { transform: translateY(0); transition: none; }
   * { scroll-behavior: auto !important; }
+}
+
+/* ── Product card action rail ────────────────────────────────────
+   The wishlist / quick-view buttons keep a comfortable 44px target on
+   roomy cards (home rails, 3-up desktop grids) but shrink on the narrow
+   2-up collection grid so they never dominate the product image. One
+   component, one look, scaled to whatever width it is dropped into. */
+.linen-card-media { container-type: inline-size; container-name: linencard; }
+.linen-card-action { width: 2.75rem; height: 2.75rem; }
+.linen-card-icon { width: 1rem; height: 1rem; }
+@container linencard (max-width: 220px) {
+  .linen-card-actions { inset-inline-end: 0.5rem; top: 0.5rem; gap: 0.375rem; }
+  .linen-card-action { width: 2rem; height: 2rem; }
+  .linen-card-icon { width: 0.875rem; height: 0.875rem; }
+}
+@supports not (container-type: inline-size) {
+  @media (max-width: 639px) {
+    .linen-card-action { width: 2.25rem; height: 2.25rem; }
+  }
 }

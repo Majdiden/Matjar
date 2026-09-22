@@ -708,6 +708,106 @@
     "category-sidebar": {
       "name": "Category Sidebar",
       "description": "Vertical category nav with live product preview panel"
+    },
+    "linen-hero": {
+      "name": "Slideshow Hero",
+      "description": "Image-beside-text slideshow with crossfade, progress bar and replaying captions"
+    },
+    "linen-support-strip": {
+      "name": "Support Strip",
+      "description": "Four icon promises on a sand band with hairline dividers"
+    },
+    "linen-product-grid": {
+      "name": "Product Grid",
+      "description": "Eyebrow, heading and a four-up grid of products with a hover add-to-cart bar"
+    },
+    "linen-promo-banner": {
+      "name": "Promo Banner",
+      "description": "Full-bleed image with a centred cream card"
+    },
+    "linen-category-masonry": {
+      "name": "Category Masonry",
+      "description": "One tall category tile beside four smaller ones, from your real categories"
+    },
+    "linen-editorial-split": {
+      "name": "Editorial Split",
+      "description": "Image beside a short story with an eyebrow, heading and call to action"
+    },
+    "linen-testimonials": {
+      "name": "Testimonials",
+      "description": "Four quotes with a bronze quote mark and a staggered reveal"
+    },
+    "linen-stories": {
+      "name": "Stories",
+      "description": "Three story cards with a date chip, title, excerpt and link"
+    },
+    "linen-instagram": {
+      "name": "Instagram Row",
+      "description": "Six square images with a hover overlay linking to your feed"
+    },
+    "atelier-hero": {
+      "name": "Fade Slideshow",
+      "description": "Full-bleed fading slideshow with a synced progress bar, slow zoom and staggered captions"
+    },
+    "atelier-marquee": {
+      "name": "Ticker",
+      "description": "Continuously scrolling strip of short messages"
+    },
+    "atelier-icon-row": {
+      "name": "Icon Row",
+      "description": "Intro copy with a row of icon items"
+    },
+    "atelier-feature-grid": {
+      "name": "Feature Grid",
+      "description": "Heading with a grid of icon, title and text cards"
+    },
+    "atelier-image-band": {
+      "name": "Image Band",
+      "description": "Decorative strip of images, no text"
+    },
+    "atelier-category-tiles": {
+      "name": "Category Tiles",
+      "description": "Grid of category image tiles with a slow zoom on hover"
+    },
+    "atelier-product-grid": {
+      "name": "Product Grid",
+      "description": "Grid of products from a chosen source"
+    },
+    "atelier-split-banner": {
+      "name": "Split Banner",
+      "description": "Image beside a block of text with a call to action"
+    },
+    "atelier-video-block": {
+      "name": "Video Block",
+      "description": "Poster with a play button that opens the video inline"
+    },
+    "atelier-deals-banner": {
+      "name": "Promo Banner",
+      "description": "Static full-width promotional banner"
+    },
+    "atelier-stats": {
+      "name": "Counter Stats",
+      "description": "Numbers that count up when scrolled into view"
+    },
+    "atelier-lookbook": {
+      "name": "Shoppable Lookbook",
+      "description": "An image with product hotspots and an add-all button"
+    },
+    "atelier-usp-strip": {
+      "name": "USP Strip",
+      "description": "Four icon promises in a strip"
+    },
+    "atelier-testimonials": {
+      "name": "Testimonials",
+      "description": "Customer quotes in a scroll-snap carousel"
+    },
+    "atelier-before-after": {
+      "name": "Before / After",
+      "description": "Drag comparison between two images"
+    },
+    "atelier-stories": {
+      "name": "Stories",
+      "description": "Carousel of editorial cards"
     }
   },
   "settings": {
@@ -1220,6 +1320,150 @@
     },
     "show_content_sections": {
       "label": "Show Content Sections (How to use, Ingredients…)"
+    },
+    "new_days": {
+      "label": "Days a product counts as new"
+    },
+    "tall_image": {
+      "label": "Fallback Image 3"
+    },
+    "announcement_text_2": {
+      "label": "Announcement Text 2"
+    },
+    "announcement_text_3": {
+      "label": "Announcement Text 3"
+    },
+    "free_shipping_threshold": {
+      "label": "Free shipping threshold"
+    },
+    "popular_searches": {
+      "label": "Popular searches (comma separated)"
+    },
+    "mega_image": {
+      "label": "Mega Menu Image"
+    },
+    "mega_eyebrow": {
+      "label": "Mega Menu Eyebrow"
+    },
+    "mega_title": {
+      "label": "Mega Menu Title"
+    },
+    "mega_cta_text": {
+      "label": "Mega Menu CTA Text"
+    },
+    "mega_cta_url": {
+      "label": "Mega Menu CTA URL"
+    },
+    "plp_banner_image": {
+      "label": "Collection Banner Image"
+    },
+    "pdp_banner_image": {
+      "label": "Product Banner Image"
+    },
+    "footer_about": {
+      "label": "Footer About Text"
+    },
+    "opening_hours": {
+      "label": "Opening hours"
+    },
+    "show_counter": {
+      "label": "Show Slide Counter"
+    },
+    "value": {
+      "label": "Number"
+    },
+    "suffix": {
+      "label": "Suffix"
+    },
+    "show_add_all": {
+      "label": "Show \"Add all to cart\""
+    },
+    "x": {
+      "label": "Horizontal position"
+    },
+    "y": {
+      "label": "Vertical position"
+    },
+    "product": {
+      "label": "Product"
+    },
+    "label_1": {
+      "label": "First Label"
+    },
+    "label_2": {
+      "label": "Second Label"
+    },
+    "header_transparent_home": {
+      "label": "Transparent header on home"
+    },
+    "sticky_header": {
+      "label": "Sticky header (reveals on scroll up)"
+    },
+    "show_search_popular": {
+      "label": "Show popular searches"
+    },
+    "search_image": {
+      "label": "Search panel image"
+    },
+    "mega_menu_products": {
+      "label": "Show products in mega menu"
+    },
+    "mega_menu_product_limit": {
+      "label": "Mega menu products"
+    },
+    "collection_banner_image": {
+      "label": "Collection banner image"
+    },
+    "collection_show_categories": {
+      "label": "Show category carousel on collections"
+    },
+    "filter_placement": {
+      "label": "Collection filters"
+    },
+    "pagination": {
+      "label": "Collection pagination"
+    },
+    "default_columns": {
+      "label": "Collection columns"
+    },
+    "products_per_page": {
+      "label": "Products per page"
+    },
+    "gallery_layout": {
+      "label": "Product gallery layout"
+    },
+    "variant_picker_style": {
+      "label": "Variant picker style"
+    },
+    "product_info_style": {
+      "label": "Product tabs style"
+    },
+    "show_sticky_add_to_cart": {
+      "label": "Sticky add-to-cart bar (desktop)"
+    },
+    "countdown_end": {
+      "label": "Flash sale ends (YYYY-MM-DD)"
+    },
+    "countdown_repeat_daily": {
+      "label": "Repeat countdown daily"
+    },
+    "show_inventory_bar": {
+      "label": "Show inventory bar"
+    },
+    "inventory_start": {
+      "label": "Starting stock for the inventory bar"
+    },
+    "benefit_1": {
+      "label": "Benefit 1"
+    },
+    "benefit_2": {
+      "label": "Benefit 2"
+    },
+    "benefit_3": {
+      "label": "Benefit 3"
+    },
+    "shipping_note": {
+      "label": "Shipping note"
     }
   },
   "blocks": {
@@ -1285,6 +1529,18 @@
     },
     "promo": {
       "name": "Promo Tile"
+    },
+    "message": {
+      "name": "Message"
+    },
+    "item": {
+      "name": "Item"
+    },
+    "stat": {
+      "name": "Stat"
+    },
+    "hotspot": {
+      "name": "Hotspot"
     }
   },
   "options": {
@@ -1341,6 +1597,34 @@
     "dark": "Dark",
     "showcase_flagship_tripartite_hero": "Showcase — flagship tripartite hero",
     "mega_catalog_first_with_sidebar_nav": "Mega — catalog-first with sidebar nav",
-    "editorial_promo_led_magazine_layout": "Editorial — promo-led magazine layout"
+    "editorial_promo_led_magazine_layout": "Editorial — promo-led magazine layout",
+    "droplet": "Droplet",
+    "sparkle": "Sparkle",
+    "wallet": "Wallet",
+    "check": "Check",
+    "sun": "Sun",
+    "flask": "Flask",
+    "sidebar_start": "Sidebar (start)",
+    "sidebar_end": "Sidebar (end)",
+    "bar_above_grid": "Bar above grid",
+    "drawer_from_start": "Drawer from start",
+    "drawer_from_top": "Drawer from top",
+    "drawer_from_bottom": "Drawer from bottom",
+    "load_more_button": "Load more button",
+    "numbered_pages": "Numbered pages",
+    "thumbnails_below": "Thumbnails below",
+    "thumbnails_at_start": "Thumbnails at start",
+    "thumbnails_at_end": "Thumbnails at end",
+    "thumbnail_grid": "Thumbnail grid",
+    "image_grid": "Image grid",
+    "image_scroll_sticky_info": "Image scroll (sticky info)",
+    "slider_with_arrows": "Slider with arrows",
+    "slider_with_dots": "Slider with dots",
+    "buttons": "Buttons",
+    "dropdown": "Dropdown",
+    "image_swatches": "Image swatches",
+    "colour_swatches": "Colour swatches",
+    "tabs": "Tabs",
+    "accordion": "Accordion"
   }
 }

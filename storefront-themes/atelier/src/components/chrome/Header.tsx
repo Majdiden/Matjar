@@ -188,15 +188,15 @@ const UtilityBar: React.FC = () => {
   const email = store?.contact?.email || store?.contactInfo?.email;
   if (!show) return null;
   return (
-    <div className="hidden lg:block border-b border-white/10 bg-[#141414] text-white/85">
+    <div className="at-util-bar hidden lg:block border-b border-white/10 bg-[#141414] text-white/85">
       <div className="mx-auto flex h-9 max-w-[1320px] items-center justify-between px-6 text-[12px]">
         <div className="flex items-center gap-6">
           {phone && <span><span className="font-semibold text-white">{hotlineLabel || t('theme.layout.utility.call')}</span> <a href={`tel:${phone}`} className="at-link-hover-light" dir="ltr">{phone}</a></span>}
           {email && <span><span className="font-semibold text-white">{t('theme.layout.utility.email')}</span> <a href={`mailto:${email}`} className="at-link-hover-light">{email}</a></span>}
         </div>
-        <div className="flex items-center gap-5">
-          <div className="[&_button]:text-white/85 [&_select]:bg-transparent [&_select]:text-white/85"><CurrencySelector /></div>
-          <div className="[&_button]:text-white/85"><LanguageSwitcher /></div>
+        <div className="flex items-center gap-4">
+          <div className="[&>button]:text-white/85 [&>button]:min-h-0 [&>button]:border-0 [&>button]:px-1 [&>button]:py-0 [&>button]:text-[12px] [&_select]:bg-transparent [&_select]:text-white/85"><CurrencySelector /></div>
+          <div className="[&>button]:text-white/85 [&>button]:min-h-0 [&>button]:border-white/25 [&>button]:px-2 [&>button]:py-0.5 [&>button]:text-[12px]"><LanguageSwitcher /></div>
           <Link to="/login" className="at-link-hover-light">{t('theme.layout.utility.login')}</Link>
           <Link to="/register" className="at-link-hover-light">{t('theme.layout.utility.register')}</Link>
           <Link to="/wishlist" className="at-link-hover-light">{t('theme.layout.utility.wishlist', { count: count || 0 })}</Link>

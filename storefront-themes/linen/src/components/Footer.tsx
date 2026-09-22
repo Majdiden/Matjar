@@ -19,8 +19,11 @@ export const Footer: React.FC = () => {
   const { store } = useStore();
   const { items: footerItems } = useMenu('footer');
   const { categories } = useCategories();
-  const about = useThemeSetting<string>('footer_about');
-  const hours = useThemeSetting<string>('opening_hours');
+  const aboutSetting = useThemeSetting<string>('footer_about');
+  const hoursSetting = useThemeSetting<string>('opening_hours');
+  // Merchant copy wins; the theme's translations carry the demo defaults.
+  const about = (aboutSetting && aboutSetting.trim()) || t('theme.footer.about', { defaultValue: '' });
+  const hours = (hoursSetting && hoursSetting.trim()) || t('theme.footer.hours', { defaultValue: '' });
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
   const social = Object.entries(store?.socialLinks || {}).filter((e): e is [string, string] => typeof e[1] === 'string' && !!e[1]);

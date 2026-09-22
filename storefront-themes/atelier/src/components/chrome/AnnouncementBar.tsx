@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { prefersReducedMotion } from '../../lib/motion';
 
 /** Parses the global "one message per line" announcement setting. */
 export function useAnnouncementMessages(): string[] {
+  const { t } = useTranslation(['theme']);
   const raw = useThemeSetting<string>('announcement_text') || '';
-  return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  const set = raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  if (set.length) return set;
+  // Not configured → the shipped demo lines, translated.
+  const fallback = t('theme.global.announcement', { returnObjects: true }) as unknown;
+  return Array.isArray(fallback) ? (fallback as string[]) : [];
 }
 
 /** Rotates one message at a time with a 400ms crossfade. */

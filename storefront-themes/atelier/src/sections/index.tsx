@@ -30,22 +30,29 @@ function useBlocks(id: string, section?: { type: string }) {
 
 const Shell: React.FC<{ s: Record<string, any>; children: React.ReactNode; className?: string; full?: boolean; reveal?: boolean }> = ({ s, children, className = '', full, reveal = true }) => {
   const style: React.CSSProperties = {
-    paddingTop: s.padding_top != null ? `${s.padding_top}px` : '30px',
-    paddingBottom: s.padding_bottom != null ? `${s.padding_bottom}px` : '30px',
+    paddingTop: s.padding_top != null ? `${s.padding_top}px` : 'var(--at-section-pad, 30px)',
+    paddingBottom: s.padding_bottom != null ? `${s.padding_bottom}px` : 'var(--at-section-pad, 30px)',
     backgroundColor: s.background_color || undefined,
   };
   const inner = full ? children : <div className={`mx-auto max-w-[1320px] px-4 sm:px-6 ${className}`}>{children}</div>;
   return <section style={style}>{reveal ? <Reveal>{inner}</Reveal> : inner}</section>;
 };
 
+/** Seeded default blocks carry no copy; translate by section type + index so
+ *  the shipped demo content is bilingual. Merchant-entered text always wins. */
+const useBlockT = () => { const st = useSoftT(); return (key: string, i: number, field: string, val: any) => (val || st(`theme.section.${key}.blocks.${i}.${field}`)); };
+
 /** Translate, but treat a missing key (echoed back by i18next) as empty. */
 const useSoftT = () => { const { t } = useTranslation(['theme']); return (k: string) => { const v = t(k, { defaultValue: '' }); return !v || v === k || v.startsWith('theme.') ? '' : v; }; };
 
-const Heading: React.FC<{ s: Record<string, any>; fallbackKey: string; align?: 'start' | 'center'; light?: boolean; className?: string }> = ({ s, fallbackKey, align = 'center', light, className = '' }) => {
+const Heading: React.FC<{ s: Record<string, any>; fallbackKey: string; id?: string; align?: 'start' | 'center'; light?: boolean; className?: string }> = ({ s, fallbackKey, id, align = 'center', light, className = '' }) => {
   const st = useSoftT();
-  const eyebrow = s.eyebrow ?? st(`theme.section.${fallbackKey}.eyebrow`);
-  const heading = s.heading || st(`theme.section.${fallbackKey}.heading`);
-  const sub = s.subheading ?? st(`theme.section.${fallbackKey}.subheading`);
+  // Instance key first (two instances can share one section type and need
+  // different copy), then the section-type key.
+  const k = (f: string) => (id ? st(`theme.section.${id}.${f}`) : '') || st(`theme.section.${fallbackKey}.${f}`);
+  const eyebrow = s.eyebrow || k('eyebrow');
+  const heading = s.heading || k('heading');
+  const sub = s.subheading || k('subheading');
   if (!eyebrow && !heading && !sub) return null;
   return (
     <div className={`${align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'} ${className}`}>
@@ -56,9 +63,9 @@ const Heading: React.FC<{ s: Record<string, any>; fallbackKey: string; align?: '
   );
 };
 
-const Cta: React.FC<{ s: Record<string, any>; fallbackKey?: string; variant?: string; className?: string }> = ({ s, fallbackKey, variant = 'at-btn-dark', className = '' }) => {
+const Cta: React.FC<{ s: Record<string, any>; fallbackKey?: string; id?: string; variant?: string; className?: string }> = ({ s, fallbackKey, id, variant = 'at-btn-dark', className = '' }) => {
   const st = useSoftT();
-  const text = s.cta_text || (fallbackKey ? st(`theme.section.${fallbackKey}.cta`) : '');
+  const text = s.cta_text || (id ? st(`theme.section.${id}.cta`) : '') || (fallbackKey ? st(`theme.section.${fallbackKey}.cta`) : '');
   if (!text) return null;
   return <Link to={s.cta_url || '/products'} className={`at-btn ${variant} ${className}`}>{text}</Link>;
 };
@@ -77,6 +84,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
   const { t } = useTranslation(['theme']);
+  const bt = useBlockT();
   const slides = blocks.length ? blocks : [{ id: 'fallback', type: 'slide', settings: {} }];
   const [idx, setIdx] = useState(0);
   const [cycle, setCycle] = useState(0);
@@ -98,8 +106,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
       {slides.map((sl, i) => {
         const active = i === idx;
         const st = sl.settings || {};
-        const eyebrow = st.eyebrow || t('theme.section.hero.eyebrow');
-        const heading = st.heading || t('theme.section.hero.heading');
+        const eyebrow = bt('hero', i, 'eyebrow', st.eyebrow);
+        const heading = bt('hero', i, 'heading', st.heading);
         const cta = st.cta_text || t('theme.section.hero.cta');
         return (
           <div key={sl.id} className={`absolute inset-0 transition-opacity duration-[600ms] ease-hero ${active ? 'opacity-100' : 'opacity-0'}`} aria-hidden={!active} {...(!active ? { inert: '' as any } : {})} aria-roledescription="slide" aria-label={`${i + 1} / ${slides.length}`}>
@@ -145,8 +153,10 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 const MarqueeSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
+  const bt = useBlockT();
   const global = useAnnouncementMessages();
-  const items = (blocks.map((b) => b.settings.text).filter(Boolean).length ? blocks.map((b) => b.settings.text).filter(Boolean) : global) as string[];
+  const fromBlocks = blocks.map((b, i) => bt('marquee', i, 'text', b.settings.text)).filter(Boolean);
+  const items = (fromBlocks.length ? fromBlocks : global) as string[];
   if (!items.length) return null;
   return (
     <Shell s={s} full reveal={false}>
@@ -161,12 +171,13 @@ const MarqueeSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 const IconRowSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
+  const bt = useBlockT();
   return (
     <Shell s={s}>
-      <Heading s={s} fallbackKey="icon_row" />
-      <Cta s={s} className="mt-6 mx-auto flex w-fit" />
+      <Heading s={s} id={id} fallbackKey="icon_row" />
+      <Cta s={s} id={id} className="mt-6 mx-auto flex w-fit" />
       <div className="mt-12 grid grid-cols-2 gap-8 lg:grid-cols-4">
-        {blocks.map((b, i) => <Reveal key={b.id} delay={i * 80}><IconItem icon={b.settings.icon || 'leaf'} title={b.settings.title} text={b.settings.text} /></Reveal>)}
+        {blocks.map((b, i) => <Reveal key={b.id} delay={i * 80}><IconItem icon={b.settings.icon || 'leaf'} title={bt('icon_row', i, 'title', b.settings.title)} text={bt('icon_row', i, 'text', b.settings.text)} /></Reveal>)}
       </div>
     </Shell>
   );
@@ -177,16 +188,17 @@ const IconRowSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 const FeatureGridSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
+  const bt = useBlockT();
   return (
     <Shell s={s}>
-      <Heading s={s} fallbackKey="feature_grid" />
+      <Heading s={s} id={id} fallbackKey="feature_grid" />
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {blocks.map((b, i) => (
           <Reveal key={b.id} delay={i * 80}>
             <div className="group/f h-full rounded-[var(--atelier-radius-card)] border border-[#e5e5e5] p-6 transition-[transform,box-shadow] duration-300 ease-linear hover:-translate-y-1 hover:shadow-[4px_4px_8px_#0000001a]">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[color:var(--color-accent)] text-[color:var(--atelier-bronze-ink)] transition-colors duration-300 group-hover/f:bg-[#1c1c1c] group-hover/f:text-white"><Icon name={b.settings.icon || 'leaf'} className="h-6 w-6" /></span>
-              <h3 className="mt-4 text-[17px] font-extrabold">{b.settings.title}</h3>
-              <p className="mt-2 text-[14px] leading-relaxed text-[#4a4a4a]">{b.settings.text}</p>
+              <h3 className="mt-4 text-[17px] font-extrabold">{bt('feature_grid', i, 'title', b.settings.title)}</h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-[#4a4a4a]">{bt('feature_grid', i, 'text', b.settings.text)}</p>
             </div>
           </Reveal>
         ))}
@@ -223,7 +235,7 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id }) => {
   const list = categories.slice(0, Number(s.max_categories || 6));
   return (
     <Shell s={s}>
-      <Heading s={s} fallbackKey="category_tiles" />
+      <Heading s={s} id={id} fallbackKey="category_tiles" />
       <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3">
         {loading && list.length === 0 && Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="aspect-[4/5] rounded-[var(--atelier-radius-card)]" />)}
         {list.map((c: any, i: number) => (
@@ -264,10 +276,17 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   return (
     <Shell s={s}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <Heading s={s} fallbackKey="product_grid" align="start" />
+        <Heading s={s} id={id} fallbackKey="product_grid" align="start" />
         {s.show_view_all !== false && <Link to={s.view_all_url || '/products'} className="at-underline-anim shrink-0 text-[12px] font-extrabold uppercase tracking-[0.16em] at-link-hover">{t('theme.section.product_grid.view_all')}</Link>}
       </div>
-      <div className={`mt-10 grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 ${cols}`}>
+      {/* Phones: a horizontal snap rail of large (72vw) cards. From md: the grid. */}
+      <div className="at-rail-wrap mt-8 md:hidden" style={{ ['--at-rail-bg' as any]: s.background_color || '#fff' }}>
+        <div className="at-rail" role="list">
+          {loading && products.length === 0 && Array.from({ length: 3 }).map((_, i) => <div key={i} role="listitem"><Skeleton className="aspect-[4/5] rounded-[var(--atelier-radius-card)]" /><Skeleton className="mt-3 h-4 w-3/4" /></div>)}
+          {products.map((p: any) => <div key={p._id} role="listitem"><AtelierProductCard product={p} onQuickView={onQuickView} /></div>)}
+        </div>
+      </div>
+      <div className={`mt-10 hidden gap-x-5 gap-y-10 md:grid md:grid-cols-3 ${cols}`}>
         {loading && products.length === 0 && Array.from({ length: limit }).map((_, i) => <div key={i}><Skeleton className="aspect-[4/5] rounded-[var(--atelier-radius-card)]" /><Skeleton className="mt-3 h-4 w-3/4" /></div>)}
         {products.map((p: any, i: number) => <Reveal key={p._id} delay={(i % 4) * 70}><AtelierProductCard product={p} onQuickView={onQuickView} /></Reveal>)}
       </div>
@@ -287,8 +306,8 @@ const SplitBannerSection: React.FC<SectionComponentProps> = ({ id }) => {
           {s.image && <img src={s.image} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover transition-transform duration-[700ms] ease-linear hover:scale-105" />}
         </div>
         <div>
-          <Heading s={s} fallbackKey="split_banner" align="start" />
-          <Cta s={s} fallbackKey="split_banner" className="mt-7" />
+          <Heading s={s} id={id} fallbackKey="split_banner" align="start" />
+          <Cta s={s} id={id} fallbackKey="split_banner" className="mt-7" />
         </div>
       </div>
     </Shell>
@@ -335,7 +354,7 @@ const VideoBlockSection: React.FC<SectionComponentProps> = ({ id }) => {
               )}
               <p className="at-eyebrow mt-8 !text-[color:var(--atelier-bronze)]">{s.eyebrow || t('theme.section.video.eyebrow')}</p>
               <h2 className="mt-2 max-w-3xl font-display text-[32px] font-medium leading-tight text-white sm:text-[46px]">{s.heading || t('theme.section.video.heading')}</h2>
-              <Cta s={s} fallbackKey="video" variant="at-btn-light" className="mt-7" />
+              <Cta s={s} id={id} fallbackKey="video" variant="at-btn-light" className="mt-7" />
             </div>
           </>
         )}
@@ -368,6 +387,7 @@ const DealsBannerSection: React.FC<SectionComponentProps> = ({ id }) => {
 const StatsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
+  const bt = useBlockT();
   return (
     <Shell s={s}>
       <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:items-center">
@@ -376,12 +396,12 @@ const StatsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
           <Cta s={s} fallbackKey="stats" className="mt-7" />
         </div>
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3">
-          {blocks.map((b) => (
+          {blocks.map((b, i) => (
             <div key={b.id}>
               <p className="font-display text-[40px] font-medium leading-none sm:text-[52px]">
                 <CountUp value={String(b.settings.value ?? '0')} /><span className="text-[color:var(--atelier-bronze-ink)]">{b.settings.suffix}</span>
               </p>
-              <p className="mt-2 text-[12px] font-extrabold uppercase tracking-[0.14em] text-[#4a4a4a]">{b.settings.label}</p>
+              <p className="mt-2 text-[12px] font-extrabold uppercase tracking-[0.14em] text-[#4a4a4a]">{bt('stats', i, 'label', b.settings.label)}</p>
             </div>
           ))}
         </div>
@@ -419,7 +439,10 @@ const Hotspot: React.FC<{ x: number; y: number; handle: string; onLoaded: (p: an
         <span className="absolute inset-0 animate-ping rounded-full bg-white/60" aria-hidden />
         <svg className="relative h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14" /></svg>
       </button>
-      <div className={`absolute top-1/2 z-10 w-56 -translate-y-1/2 rounded-[var(--atelier-radius-card)] bg-white p-3 shadow-[0_10px_30px_#00000026] transition-[opacity,transform] duration-300 ease-linear ${flip ? 'end-full me-3' : 'start-full ms-3'} ${open ? 'visible translate-x-0 opacity-100' : 'invisible opacity-0'}`}>
+      <div
+        hidden={!open}
+        className={`at-hotspot-pop top-1/2 -translate-y-1/2 rounded-[var(--atelier-radius-card)] bg-white p-3 shadow-[0_10px_30px_#00000026] ${flip ? 'end-full me-3' : 'start-full ms-3'}`}
+      >
         <Link to={`/products/${product.slug}`} className="flex gap-3">
           <span className="block h-16 w-14 shrink-0 overflow-hidden rounded-[4px] bg-[color:var(--color-accent)]">{product.images?.[0] && <img src={product.images[0]} alt="" className="h-full w-full object-cover" />}</span>
           <span className="min-w-0"><span className="block truncate text-[13px] font-semibold">{product.name}</span><span className="block text-[13px] font-extrabold">{formatPrice(product.price)}</span></span>
@@ -454,7 +477,7 @@ const LookbookSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   };
   return (
     <Shell s={s}>
-      <Heading s={s} fallbackKey="lookbook" />
+      <Heading s={s} id={id} fallbackKey="lookbook" />
       <div className="relative mx-auto mt-10 max-w-4xl overflow-visible rounded-[var(--atelier-radius-card)]">
         {s.image && <img src={s.image} alt="" loading="lazy" className="aspect-[16/10] w-full rounded-[var(--atelier-radius-card)] object-cover" />}
         {blocks.map((b) => <Hotspot key={b.id} x={Number(b.settings.x)} y={Number(b.settings.y)} handle={String(b.settings.product)} onLoaded={(p) => { loaded.current[p._id] = p; }} />)}
@@ -472,7 +495,8 @@ const LookbookSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 const UspStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
-  const items = blocks.map((b) => ({ icon: b.settings.icon || 'check', title: b.settings.title, text: b.settings.text })).filter((b) => b.title);
+  const bt = useBlockT();
+  const items = blocks.map((b, i) => ({ icon: b.settings.icon || 'check', title: bt('usp', i, 'title', b.settings.title), text: bt('usp', i, 'text', b.settings.text) })).filter((b) => b.title);
   if (!items.length) return null;
   return <Shell s={s} full><UspStrip items={items} /></Shell>;
 };
@@ -481,7 +505,8 @@ const UspStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 
 const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const blocks = useBlocks(id, section).filter((b) => b.settings.quote);
+  const bt = useBlockT();
+  const blocks = useBlocks(id, section).filter((b, i) => bt('testimonials', i, 'quote', b.settings.quote));
   const { t } = useTranslation(['theme']);
   const track = useRef<HTMLDivElement>(null);
   const scrollBy = (dir: 1 | -1) => {
@@ -501,11 +526,11 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
         </div>
       </div>
       <div ref={track} className="at-hide-scrollbar mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth">
-        {blocks.map((b) => (
+        {blocks.map((b, i) => (
           <figure key={b.id} data-card className="w-[85%] shrink-0 snap-start rounded-[var(--atelier-radius-card)] bg-[color:var(--color-accent)] p-7 sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]">
             <svg className="h-8 w-8 text-[color:var(--atelier-bronze)]" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h4v4H8a2 2 0 00-2 2v2H4v-4a4 4 0 013-4zm9 0h4v4h-3a2 2 0 00-2 2v2h-2v-4a4 4 0 013-4z" /></svg>
-            <blockquote className="mt-4 text-[15px] leading-relaxed text-[#2a2a2a]">{b.settings.quote}</blockquote>
-            <figcaption className="mt-5 text-[13px]"><span className="font-extrabold">{b.settings.name}</span>{b.settings.role && <span className="text-[#6b6b6b]"> · {b.settings.role}</span>}</figcaption>
+            <blockquote className="mt-4 text-[15px] leading-relaxed text-[#2a2a2a]">{bt('testimonials', i, 'quote', b.settings.quote)}</blockquote>
+            <figcaption className="mt-5 text-[13px]"><span className="font-extrabold">{bt('testimonials', i, 'name', b.settings.name)}</span>{bt('testimonials', i, 'role', b.settings.role) && <span className="text-[#6b6b6b]"> · {bt('testimonials', i, 'role', b.settings.role)}</span>}</figcaption>
           </figure>
         ))}
       </div>
@@ -537,7 +562,8 @@ const BeforeAfterSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 const StoriesSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const blocks = useBlocks(id, section).filter((b) => b.settings.title);
+  const bt = useBlockT();
+  const blocks = useBlocks(id, section).filter((b, i) => bt('stories', i, 'title', b.settings.title));
   const { t, i18n } = useTranslation(['theme']);
   if (!blocks.length) return null;
   const fmt = (d: string) => { const dt = d ? new Date(d) : null; return dt && !Number.isNaN(dt.getTime()) ? dt.toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' }) : d; };
@@ -552,8 +578,8 @@ const StoriesSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 {b.settings.image && <img src={b.settings.image} alt="" loading="lazy" className="aspect-[3/2] w-full object-cover transition-transform duration-500 ease-linear group-hover/post:scale-105" />}
               </Link>
               {b.settings.date && <p className="mt-4 text-[11px] font-bold uppercase tracking-wider text-[#6b6b6b]">{fmt(b.settings.date)}</p>}
-              <h3 className="mt-2 font-display text-[22px] leading-snug"><Link to={b.settings.link_url || '#'} className="at-link-hover">{b.settings.title}</Link></h3>
-              {b.settings.excerpt && <p className="mt-2 line-clamp-3 text-[14px] text-[#4a4a4a]">{b.settings.excerpt}</p>}
+              <h3 className="mt-2 font-display text-[22px] leading-snug"><Link to={b.settings.link_url || '#'} className="at-link-hover">{bt('stories', i, 'title', b.settings.title)}</Link></h3>
+              {bt('stories', i, 'excerpt', b.settings.excerpt) && <p className="mt-2 line-clamp-3 text-[14px] text-[#4a4a4a]">{bt('stories', i, 'excerpt', b.settings.excerpt)}</p>}
               <Link to={b.settings.link_url || '#'} className="at-underline-anim mt-3 inline-block text-[12px] font-extrabold uppercase tracking-[0.16em] at-link-hover">{t('theme.section.stories.read_more')}</Link>
             </article>
           </Reveal>

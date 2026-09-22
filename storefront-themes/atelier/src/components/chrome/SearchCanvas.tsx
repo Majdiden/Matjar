@@ -26,7 +26,9 @@ const SearchCanvas: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const showPopular = useThemeSetting<boolean>('show_search_popular') !== false;
-  const popular = (useThemeSetting<string>('popular_searches') || '').split(',').map((s) => s.trim()).filter(Boolean);
+  const popularRaw = useThemeSetting<string>('popular_searches') || '';
+  const popularFallback = t('theme.global.popular_searches', { defaultValue: '' });
+  const popular = (popularRaw || popularFallback).split(/[,،]/).map((s) => s.trim()).filter(Boolean);
   const image = useThemeSetting<string>('search_image');
   const placeholder = useTypewriter(t('theme.layout.search_placeholder'), isOpen);
 
@@ -62,7 +64,7 @@ const SearchCanvas: React.FC = () => {
   return (
     <>
       <div className={`at-backdrop ${isOpen ? 'is-open' : ''}`} onClick={close} aria-hidden />
-      <div ref={ref} className={`at-panel at-panel-top overflow-y-auto at-scrollbar ${isOpen ? 'is-open' : ''}`} role="dialog" aria-modal="true" aria-label={t('theme.layout.search')} tabIndex={-1}>
+      <div ref={ref} className={`at-panel at-panel-top overflow-y-auto at-scrollbar ${isOpen ? 'is-open' : ''}`} role={isOpen ? 'dialog' : undefined} aria-modal={isOpen ? 'true' : undefined} aria-hidden={!isOpen} aria-label={t('theme.layout.search')} tabIndex={-1}>
         <div className="mx-auto max-w-[1320px] px-4 py-8 sm:px-6 sm:py-12">
           <div className="flex items-start justify-between gap-6">
             <h2 className="font-display text-4xl font-medium sm:text-5xl">{t('theme.layout.search')}</h2>

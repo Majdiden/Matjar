@@ -6,6 +6,8 @@ import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import CategoryPage from './pages/CategoryPage';
 import CartPage from './pages/CartPage';
+import CollectionPage from './pages/CollectionPage';
+import AtelierProductCard from './components/AtelierProductCard';
 import en from './i18n/locales/en/theme.json';
 import ar from './i18n/locales/ar/theme.json';
 
@@ -13,5 +15,7 @@ export default createThemeApp({
   Layout,
   manifest,
   locales: { en, ar },
-  pages: { Home, Products, ProductDetail, CategoryPage, CartPage },
+  pages: { Home, Products, ProductDetail, CategoryPage, CartPage, CollectionPage },
+  // Shared pages (search, wishlist, collections index) render the theme card.
+  renderCard: (product: any) => <AtelierProductCard key={product._id} product={product} />,
 });

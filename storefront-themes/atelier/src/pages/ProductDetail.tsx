@@ -164,8 +164,11 @@ const ProductDetail: React.FC = () => {
   const repeatDaily = !!useThemeSetting<boolean>('countdown_repeat_daily');
   const showInventory = !!useThemeSetting<boolean>('show_inventory_bar');
   const inventoryStart = Number(useThemeSetting<number>('inventory_start') || 50);
-  const benefits = [useThemeSetting<string>('benefit_1'), useThemeSetting<string>('benefit_2'), useThemeSetting<string>('benefit_3')].filter(Boolean) as string[];
-  const shippingNote = useThemeSetting<string>('shipping_note');
+  const b1 = useThemeSetting<string>('benefit_1') || t('theme.global.benefit_1', { defaultValue: '' });
+  const b2 = useThemeSetting<string>('benefit_2') || t('theme.global.benefit_2', { defaultValue: '' });
+  const b3 = useThemeSetting<string>('benefit_3') || t('theme.global.benefit_3', { defaultValue: '' });
+  const benefits = [b1, b2, b3].filter(Boolean) as string[];
+  const shippingNote = useThemeSetting<string>('shipping_note') || t('theme.global.shipping_note', { defaultValue: '' });
 
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);

@@ -34,7 +34,8 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={lang === 'ar' ? 'تغيير اللغة' : 'Change language'}
-        className="inline-flex items-center gap-1 px-2 py-1 text-sm font-medium hover:opacity-70 transition-opacity"
+        className="inline-flex min-h-[40px] items-center gap-1.5 rounded-[var(--radius-pill,9999px)] border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#2563eb)]"
+        style={{ borderColor: 'color-mix(in srgb, currentColor 25%, transparent)' }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

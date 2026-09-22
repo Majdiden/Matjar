@@ -58,7 +58,7 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
   const list = variant === 'list';
   return (
     <article className={`group ${list ? 'grid grid-cols-[minmax(120px,38%)_minmax(0,1fr)] gap-5 sm:gap-8' : ''}`}>
-      <div className="relative aspect-square overflow-hidden bg-tint-strong">
+      <div className="linen-card-media relative aspect-square overflow-hidden bg-tint-strong">
         <Link to={`/products/${product.slug}`} className="block h-full w-full" aria-label={product.name}>
           <img src={img} alt={product.name} loading="lazy" onError={() => setImgFailed(true)} className={`h-full w-full object-cover transition-opacity duration-500 ${img2 ? 'group-hover:opacity-0' : 'group-hover:scale-[1.03] transition-transform'}`} />
           {img2 && <img src={img2} alt="" aria-hidden loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" />}
@@ -69,16 +69,16 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
             {isNew && !onSale && <span className="rounded-full border border-ink bg-cream px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-ink">{t('theme.product_card.new')}</span>}
           </div>
         )}
-        <div className="absolute end-3 top-3 flex flex-col gap-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+        <div className="linen-card-actions absolute end-3 top-3 flex flex-col gap-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
           <WishlistButton
             productId={product._id}
             product={product}
-            className="grid h-9 w-9 place-items-center rounded-full border border-line bg-cream text-ink transition-colors hover:bg-ink hover:text-cream"
-            renderIcon={(on) => <I.heart className="h-4 w-4" fill={on ? 'currentColor' : 'none'} />}
+            className="linen-card-action grid place-items-center rounded-full border border-line bg-cream text-ink transition-colors hover:bg-ink hover:text-cream"
+            renderIcon={(on) => <I.heart className="linen-card-icon" fill={on ? 'currentColor' : 'none'} />}
           />
           {onQuickView && (
-            <button type="button" onClick={(e) => { e.preventDefault(); onQuickView(product); }} className="grid h-9 w-9 place-items-center rounded-full border border-line bg-cream text-ink transition-colors hover:bg-ink hover:text-cream" aria-label={t('theme.product_card.quick_view')}>
-              <I.eye className="h-4 w-4" />
+            <button type="button" onClick={(e) => { e.preventDefault(); onQuickView(product); }} className="linen-card-action grid place-items-center rounded-full border border-line bg-cream text-ink transition-colors hover:bg-ink hover:text-cream" aria-label={t('theme.product_card.quick_view')}>
+              <I.eye className="linen-card-icon" />
             </button>
           )}
         </div>

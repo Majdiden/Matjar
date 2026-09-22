@@ -84,7 +84,7 @@ const Footer: React.FC = () => {
       {uspItems.length > 0 && (
         <div className="border-t border-[#e5e5e5] bg-[color:var(--color-accent)] py-8"><UspStrip items={uspItems} /></div>
       )}
-      <div className="bg-[#1c1c1c] text-white">
+      <div className="at-footer bg-[#1c1c1c] text-white">
         <div className="mx-auto grid max-w-[1320px] gap-8 px-4 py-14 sm:px-6 md:grid-cols-12">
           <div className="md:col-span-4">
             <Link to="/" className="inline-block">

@@ -711,6 +711,106 @@
     "category-sidebar": {
       "name": "الشريط الجانبي للفئات",
       "description": "تصفح فئات عمودي مع لوحة معاينة منتجات"
+    },
+    "linen-hero": {
+      "name": "واجهة عرض الشرائح",
+      "description": "شرائح بصورة بجانب النص مع تلاشٍ متدرج وشريط تقدم وعناوين تُعاد حركتها"
+    },
+    "linen-support-strip": {
+      "name": "شريط الوعود",
+      "description": "أربعة وعود بأيقونات على شريط رملي بفواصل رفيعة"
+    },
+    "linen-product-grid": {
+      "name": "شبكة المنتجات",
+      "description": "عنوان تمهيدي وعنوان وشبكة رباعية بشريط إضافة للسلة عند التمرير"
+    },
+    "linen-promo-banner": {
+      "name": "لافتة ترويجية",
+      "description": "صورة بعرض كامل مع بطاقة كريمية في المنتصف"
+    },
+    "linen-category-masonry": {
+      "name": "فسيفساء الفئات",
+      "description": "بطاقة فئة طويلة بجانب أربع بطاقات أصغر من فئاتك الحقيقية"
+    },
+    "linen-editorial-split": {
+      "name": "قصة تحريرية",
+      "description": "صورة بجانب قصة قصيرة بعنوان تمهيدي وعنوان وزر إجراء"
+    },
+    "linen-testimonials": {
+      "name": "آراء العملاء",
+      "description": "أربعة اقتباسات بعلامة اقتباس برونزية وظهور متدرج"
+    },
+    "linen-stories": {
+      "name": "قصص",
+      "description": "ثلاث بطاقات قصص بشريحة تاريخ وعنوان ومقتطف ورابط"
+    },
+    "linen-instagram": {
+      "name": "صف إنستغرام",
+      "description": "ست صور مربعة بطبقة عند التمرير تربط بحسابك"
+    },
+    "atelier-hero": {
+      "name": "عرض شرائح متلاشٍ",
+      "description": "شرائح بعرض كامل مع شريط تقدم متزامن وتكبير بطيء وعناوين متدرجة"
+    },
+    "atelier-marquee": {
+      "name": "شريط متحرك",
+      "description": "شريط رسائل قصيرة يتحرك باستمرار"
+    },
+    "atelier-icon-row": {
+      "name": "صف أيقونات",
+      "description": "نص تمهيدي مع صف من عناصر بأيقونات"
+    },
+    "atelier-feature-grid": {
+      "name": "شبكة المزايا",
+      "description": "عنوان مع شبكة بطاقات بأيقونة وعنوان ونص"
+    },
+    "atelier-image-band": {
+      "name": "شريط صور",
+      "description": "شريط صور زخرفي بلا نص"
+    },
+    "atelier-category-tiles": {
+      "name": "بطاقات الفئات",
+      "description": "شبكة بطاقات فئات مصورة بتكبير بطيء عند التمرير"
+    },
+    "atelier-product-grid": {
+      "name": "شبكة المنتجات",
+      "description": "شبكة منتجات من مصدر تختاره"
+    },
+    "atelier-split-banner": {
+      "name": "لافتة مقسومة",
+      "description": "صورة بجانب كتلة نص مع زر إجراء"
+    },
+    "atelier-video-block": {
+      "name": "كتلة فيديو",
+      "description": "صورة غلاف بزر تشغيل يفتح الفيديو داخل الصفحة"
+    },
+    "atelier-deals-banner": {
+      "name": "لافتة ترويجية",
+      "description": "لافتة ترويجية ثابتة بعرض كامل"
+    },
+    "atelier-stats": {
+      "name": "إحصاءات متحركة",
+      "description": "أرقام تتزايد عند ظهورها في الشاشة"
+    },
+    "atelier-lookbook": {
+      "name": "لوك بوك قابل للتسوق",
+      "description": "صورة بنقاط منتجات وزر إضافة الكل"
+    },
+    "atelier-usp-strip": {
+      "name": "شريط الوعود",
+      "description": "أربعة وعود بأيقونات في شريط"
+    },
+    "atelier-testimonials": {
+      "name": "آراء العملاء",
+      "description": "اقتباسات العملاء في عرض دوّار منزلق"
+    },
+    "atelier-before-after": {
+      "name": "قبل / بعد",
+      "description": "مقارنة بالسحب بين صورتين"
+    },
+    "atelier-stories": {
+      "name": "قصص",
+      "description": "عرض دوّار لبطاقات تحريرية"
     }
   },
   "settings": {
@@ -1223,6 +1323,150 @@
     },
     "show_content_sections": {
       "label": "إظهار أقسام المحتوى (طريقة الاستخدام، المكونات…)"
+    },
+    "new_days": {
+      "label": "عدد الأيام التي يُعد فيها المنتج جديداً"
+    },
+    "tall_image": {
+      "label": "صورة البطاقة الطويلة"
+    },
+    "announcement_text_2": {
+      "label": "نص الإعلان 2"
+    },
+    "announcement_text_3": {
+      "label": "نص الإعلان 3"
+    },
+    "free_shipping_threshold": {
+      "label": "حد الشحن المجاني"
+    },
+    "popular_searches": {
+      "label": "عمليات البحث الشائعة (مفصولة بفواصل)"
+    },
+    "mega_image": {
+      "label": "صورة القائمة الكبيرة"
+    },
+    "mega_eyebrow": {
+      "label": "العنوان التمهيدي للقائمة الكبيرة"
+    },
+    "mega_title": {
+      "label": "عنوان القائمة الكبيرة"
+    },
+    "mega_cta_text": {
+      "label": "نص زر القائمة الكبيرة"
+    },
+    "mega_cta_url": {
+      "label": "رابط زر القائمة الكبيرة"
+    },
+    "plp_banner_image": {
+      "label": "صورة لافتة المجموعة"
+    },
+    "pdp_banner_image": {
+      "label": "صورة لافتة المنتج"
+    },
+    "footer_about": {
+      "label": "نص التعريف في التذييل"
+    },
+    "opening_hours": {
+      "label": "ساعات العمل"
+    },
+    "show_counter": {
+      "label": "إظهار عدّاد الشرائح"
+    },
+    "value": {
+      "label": "الرقم"
+    },
+    "suffix": {
+      "label": "اللاحقة"
+    },
+    "show_add_all": {
+      "label": "إظهار «إضافة الكل إلى السلة»"
+    },
+    "x": {
+      "label": "الموضع الأفقي"
+    },
+    "y": {
+      "label": "الموضع الرأسي"
+    },
+    "product": {
+      "label": "المنتج"
+    },
+    "label_1": {
+      "label": "التسمية الأولى"
+    },
+    "label_2": {
+      "label": "التسمية الثانية"
+    },
+    "header_transparent_home": {
+      "label": "ترويسة شفافة في الصفحة الرئيسية"
+    },
+    "sticky_header": {
+      "label": "ترويسة ثابتة (تظهر عند التمرير للأعلى)"
+    },
+    "show_search_popular": {
+      "label": "إظهار عمليات البحث الشائعة"
+    },
+    "search_image": {
+      "label": "صورة لوحة البحث"
+    },
+    "mega_menu_products": {
+      "label": "إظهار المنتجات في القائمة الكبيرة"
+    },
+    "mega_menu_product_limit": {
+      "label": "عدد منتجات القائمة الكبيرة"
+    },
+    "collection_banner_image": {
+      "label": "صورة لافتة المجموعة"
+    },
+    "collection_show_categories": {
+      "label": "إظهار شريط الفئات في المجموعات"
+    },
+    "filter_placement": {
+      "label": "موضع فلاتر المجموعة"
+    },
+    "pagination": {
+      "label": "ترقيم صفحات المجموعة"
+    },
+    "default_columns": {
+      "label": "أعمدة المجموعة"
+    },
+    "products_per_page": {
+      "label": "عدد المنتجات في الصفحة"
+    },
+    "gallery_layout": {
+      "label": "تخطيط معرض المنتج"
+    },
+    "variant_picker_style": {
+      "label": "نمط اختيار المتغيرات"
+    },
+    "product_info_style": {
+      "label": "نمط تبويبات المنتج"
+    },
+    "show_sticky_add_to_cart": {
+      "label": "شريط الإضافة للسلة الثابت (سطح المكتب)"
+    },
+    "countdown_end": {
+      "label": "انتهاء العرض الخاطف (YYYY-MM-DD)"
+    },
+    "countdown_repeat_daily": {
+      "label": "تكرار العد التنازلي يومياً"
+    },
+    "show_inventory_bar": {
+      "label": "إظهار شريط المخزون"
+    },
+    "inventory_start": {
+      "label": "المخزون الابتدائي لشريط المخزون"
+    },
+    "benefit_1": {
+      "label": "الميزة 1"
+    },
+    "benefit_2": {
+      "label": "الميزة 2"
+    },
+    "benefit_3": {
+      "label": "الميزة 3"
+    },
+    "shipping_note": {
+      "label": "ملاحظة الشحن"
     }
   },
   "blocks": {
@@ -1288,6 +1532,18 @@
     },
     "promo": {
       "name": "بطاقة ترويجية"
+    },
+    "message": {
+      "name": "رسالة"
+    },
+    "item": {
+      "name": "عنصر"
+    },
+    "stat": {
+      "name": "إحصائية"
+    },
+    "hotspot": {
+      "name": "نقطة منتج"
     }
   },
   "options": {
@@ -1344,6 +1600,34 @@
     "dark": "داكن",
     "showcase_flagship_tripartite_hero": "عرض – واجهة ثلاثية رئيسية",
     "mega_catalog_first_with_sidebar_nav": "ميغا – الكتالوج أولاً مع تصفح جانبي",
-    "editorial_promo_led_magazine_layout": "تحريري – تخطيط مجلة ترويجي"
+    "editorial_promo_led_magazine_layout": "تحريري – تخطيط مجلة ترويجي",
+    "droplet": "قطرة",
+    "sparkle": "بريق",
+    "wallet": "محفظة",
+    "check": "علامة صح",
+    "sun": "شمس",
+    "flask": "قارورة",
+    "sidebar_start": "شريط جانبي (البداية)",
+    "sidebar_end": "شريط جانبي (النهاية)",
+    "bar_above_grid": "شريط فوق الشبكة",
+    "drawer_from_start": "درج من البداية",
+    "drawer_from_top": "درج من الأعلى",
+    "drawer_from_bottom": "درج من الأسفل",
+    "load_more_button": "زر تحميل المزيد",
+    "numbered_pages": "صفحات مرقمة",
+    "thumbnails_below": "مصغرات بالأسفل",
+    "thumbnails_at_start": "مصغرات في البداية",
+    "thumbnails_at_end": "مصغرات في النهاية",
+    "thumbnail_grid": "شبكة مصغرات",
+    "image_grid": "شبكة صور",
+    "image_scroll_sticky_info": "تمرير الصور (معلومات ثابتة)",
+    "slider_with_arrows": "عرض بأسهم",
+    "slider_with_dots": "عرض بنقاط",
+    "buttons": "أزرار",
+    "dropdown": "قائمة منسدلة",
+    "image_swatches": "عينات صور",
+    "colour_swatches": "عينات ألوان",
+    "tabs": "تبويبات",
+    "accordion": "قائمة قابلة للطي"
   }
 }
