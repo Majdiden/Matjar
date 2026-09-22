@@ -62,6 +62,9 @@ const SDK_SECTION_TYPES = new Set([
   "new-arrivals",
   "categories",
   "trust-badges",
+  // Universal product-template sections (DEFAULT_SECTION_REGISTRY).
+  "product-details",
+  "product-policies",
 ]);
 
 /**
