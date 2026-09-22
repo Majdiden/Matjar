@@ -49,3 +49,7 @@ scripts/test-*.js
 archive/
 
 docs/
+
+# Redis snapshot written into the repo root by a locally-run redis-server
+dump.rdb
+*.rdb
