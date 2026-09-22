@@ -10,13 +10,13 @@ import type {
   OrderFulfillmentRef, OrderWithExtras,
 } from '../../../types';
 
-// Printable-doc links are opened with window.open (a raw URL the router's
-// basename does NOT prepend). In the production build the router basename is
-// `/dashboard`, so the URL must include it to reach the `/dashboard/orders/...`
-// document routes; in dev (basename '/') it must not. Prepend accordingly.
-const DOC_URL_PREFIX = import.meta.env.MODE === 'production' ? '/dashboard' : '';
+// Printable-doc links are opened with window.open, i.e. a raw absolute URL.
+// The router basename is ALWAYS "/" (see App.tsx) and every route already
+// carries its real `/dashboard/...` path, so this URL is complete as written.
+// Prefixing another "/dashboard" in production produced
+// `/dashboard/dashboard/orders/:id/invoice`, which 404s.
 export const orderDocUrl = (orderId: string, doc: string) =>
-  `${DOC_URL_PREFIX}/dashboard/orders/${orderId}/${doc}`;
+  `/dashboard/orders/${orderId}/${doc}`;
 
 export const getLineId = (line: OrderItem | undefined | null): string => String(line?._id || '');
 

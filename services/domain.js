@@ -16,6 +16,7 @@ import {
 } from "../repositories/domain.js";
 import { getATenantRepo } from "../repositories/tenant.js";
 import { APIError } from "../middlewares/errorHandler.js";
+import { isFeatureEnabledFor } from "./featureFlags.js";
 import {
   createCustomDomainEntry,
   markOwnershipVerified,
@@ -130,8 +131,12 @@ export const addCustomDomainService = async (tenantId, customDomain, verificatio
   const tenant = await getATenantRepo({}, { _id: tenantId });
   if (!tenant) throw new APIError("Tenant not found", 404);
 
-  if (!["pro", "enterprise"].includes(tenant.subscriptionPlan)) {
-    throw new APIError(`Custom domains are only available for Pro and Enterprise plans. Current plan: ${tenant.subscriptionPlan}`, 403);
+  // Entitlement, not a plan name. A hardcoded ["pro","enterprise"] list broke
+  // every store the platform entitled by another route — a commission plan, an
+  // access program, or a per-store override — and would silently deny access
+  // the moment a plan is renamed. `domains.custom` resolves all of those layers.
+  if (!(await isFeatureEnabledFor(tenant, "domains.custom"))) {
+    throw new APIError("Custom domains are not available on your current plan.", 403);
   }
 
   // Create the Domain registry row first. The registry runs the
@@ -707,7 +712,9 @@ export const getDomainInfoService = async (domain) => {
       tenant.domains.primaryDomain === "custom" && isServing
         ? tenant.domains.customDomain.name
         : tenant.domains.subdomain.fullDomain,
-    canUseCustomDomain: ["pro", "enterprise"].includes(tenant.subscriptionPlan),
+    // Same entitlement the write path enforces, so the dashboard never offers
+    // a button the API will refuse (or hides one it would have allowed).
+    canUseCustomDomain: await isFeatureEnabledFor(tenant, "domains.custom"),
     subscriptionPlan: tenant.subscriptionPlan,
     settings: tenant.settings,
   };

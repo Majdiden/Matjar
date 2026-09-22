@@ -42,11 +42,17 @@ type ThemeWithCategories = Theme & { categoryKeys?: string[] };
  */
 function storefrontOriginFromHost(host: string | null | undefined): string {
   if (!host) return window.location.origin;
+  // `fullDomain` may already carry a port (e.g. "beauty.localhost:3000"), so
+  // strip it before deciding whether this is a local host — otherwise the
+  // ".localhost" test fails and we build an https:// URL for a dev machine.
+  const [hostname, hostPort] = host.split(':');
   const isLocal =
-    host === 'localhost' || host.endsWith('.localhost') || host === '127.0.0.1';
+    hostname === 'localhost' || hostname.endsWith('.localhost') || hostname === '127.0.0.1';
   const protocol = isLocal ? 'http:' : 'https:';
-  const port = isLocal && window.location.port ? `:${window.location.port}` : '';
-  return `${protocol}//${host}${port}`;
+  // Keep the port the host already declared; fall back to the one we are
+  // served from so a dev dashboard on :3000 opens the storefront on :3000.
+  const port = hostPort ? `:${hostPort}` : isLocal && window.location.port ? `:${window.location.port}` : '';
+  return `${protocol}//${hostname}${port}`;
 }
 
 interface ThemesListResponse {
@@ -143,6 +149,11 @@ export const Themes: React.FC = () => {
       setStorefrontOrigin(null);
     }
   };
+
+  // The tenant's live storefront root. Falls back to the current origin only
+  // when the domain lookup failed AND we are not on the app host — on the app
+  // host `/` bounces to /dashboard, so that fallback would reopen the dashboard.
+  const storefrontUrl = () => storefrontOrigin || `${window.location.origin}/`;
 
   // `<storefront origin>/?previewTheme=<slug>` — opens the storefront rendered
   // with this theme's bundle + ephemeral demo data (nothing is persisted).
@@ -248,7 +259,10 @@ export const Themes: React.FC = () => {
           </p>
         </div>
         <Button variant="outline" asChild>
-          <a href="/" target="_blank" rel="noreferrer">
+          {/* Must be the TENANT's storefront origin, not `/`. The dashboard is
+              normally served from the tenant-agnostic app host, whose `/`
+              redirects straight back to /dashboard (server/route.config.js). */}
+          <a href={storefrontUrl()} target="_blank" rel="noreferrer">
             <ExternalLink className="h-4 w-4 me-2" />
             {t('themes:list.view_live_store')}
           </a>
@@ -316,7 +330,10 @@ export const Themes: React.FC = () => {
                   {t('themes:list.action.customize')}
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <a href="/" target="_blank" rel="noreferrer">
+                  {/* Same reason as "View live store": `/` is the dashboard on
+                      the app host, so the active theme must be previewed on the
+                      tenant's own storefront origin. */}
+                  <a href={storefrontUrl()} target="_blank" rel="noreferrer">
                     <Eye className="h-4 w-4 me-2" />
                     {t('themes:list.action.preview')}
                   </a>

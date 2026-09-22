@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useLanguage } from '../i18n/LanguageProvider'
 
 interface Props {
@@ -12,6 +12,37 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
   const { lang, setLang } = useLanguage()
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  // Horizontal nudge, in px, that keeps the panel inside the viewport.
+  const [shift, setShift] = useState(0)
+
+  // The panel is anchored to the trigger with `end-0`, which is right for a
+  // trigger sitting at the inline-end of its row (headers) but pushes the
+  // panel off-screen when the trigger sits at the inline-start — notably the
+  // mobile drawer in RTL, where `end-0` resolves to `left:0` and the 11rem
+  // panel runs past the right edge. Themes place this component in several
+  // spots, so rather than have each guess an anchor, measure once per open
+  // and shift the panel back inside.
+  useLayoutEffect(() => {
+    if (!open) { setShift(0); return }
+    const el = menuRef.current
+    if (!el) return
+    const measure = () => {
+      // Read the untranslated position so the correction never compounds.
+      const prev = el.style.transform
+      el.style.transform = ''
+      const r = el.getBoundingClientRect()
+      el.style.transform = prev
+      const M = 8 // keep a small gutter from the screen edge
+      let dx = 0
+      if (r.right > window.innerWidth - M) dx = window.innerWidth - M - r.right
+      if (r.left + dx < M) dx = M - r.left
+      setShift(dx)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [open])
 
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
@@ -58,11 +89,13 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
       </button>
       {open && (
         <div
+          ref={menuRef}
           role="menu"
-          className={`absolute end-0 ${openUp ? 'bottom-full mb-2' : 'top-full mt-2'} min-w-[11rem] rounded-2xl border shadow-xl z-50 p-1.5 text-sm overflow-hidden`}
+          className={`absolute end-0 ${openUp ? 'bottom-full mb-2' : 'top-full mt-2'} min-w-[11rem] max-w-[calc(100vw-1rem)] rounded-2xl border shadow-xl z-50 p-1.5 text-sm overflow-hidden`}
           style={{
             backgroundColor: 'var(--color-background, #ffffff)',
             borderColor: 'var(--color-border, #e5e7eb)',
+            transform: shift ? `translateX(${shift}px)` : undefined,
           }}
         >
           <button

@@ -57,16 +57,26 @@ const addATenantService = async (tenantData) => {
 
     const signupPlan = await resolveSignupPlan(tenantData.subscriptionPlan);
 
-    // Restrict the chosen theme to the platform allowlist (feature-flagged).
-    // A disallowed/unknown slug falls back to the default theme rather than
-    // failing registration. `getAllowedThemeSlugs()` returns null when the full
-    // catalog is enabled (unrestricted).
+    // Restrict the chosen theme to what the platform actually offers: it must
+    // be live in the catalog (status active + published) AND pass the
+    // feature-flag allowlist. Checking only the allowlist let a signup land on
+    // a theme an operator had deprecated — the catalog lookup below then found
+    // nothing, so the store kept `activeTheme` pointing at a disabled theme
+    // with no customization row. A disallowed/unknown/withdrawn slug falls back
+    // to the default theme rather than failing registration.
+    // `getAllowedThemeSlugs()` returns null when the full catalog is enabled.
+    const ThemeModel = mongoose.model("Theme");
     const allowedThemes = await getAllowedThemeSlugs();
     const requestedTheme = tenantData.themeSlug;
-    const themeSlug =
-      requestedTheme && (!allowedThemes || allowedThemes.includes(requestedTheme))
-        ? requestedTheme
-        : "modern";
+    const isOffered =
+      !!requestedTheme &&
+      (!allowedThemes || allowedThemes.includes(requestedTheme)) &&
+      !!(await ThemeModel.exists({ slug: requestedTheme, status: "active", isPublished: true }));
+    const fallbackTheme =
+      (await ThemeModel.findOne({ isDefault: true, status: "active", isPublished: true })
+        .select("slug")
+        .lean())?.slug || "modern";
+    const themeSlug = isOffered ? requestedTheme : fallbackTheme;
 
     // One-time setup token — gates the unauthenticated /store-setup/status
     // poll endpoint so a third party who happens to know the tenantId
