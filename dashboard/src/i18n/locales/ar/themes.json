@@ -15,7 +15,8 @@
       "count_two": "قالبان متاحان",
       "count_few": "{{count}} قوالب متاحة",
       "count_many": "{{count}} قالبًا متاحًا",
-      "count_other": "{{count}} قالب متاح"
+      "count_other": "{{count}} قالب متاح",
+      "count_zero": "لا قوالب"
     },
     "search_placeholder": "بحث في القوالب…",
     "filter": {

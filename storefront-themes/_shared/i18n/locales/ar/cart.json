@@ -7,21 +7,21 @@
       "title": "سلتك فارغة",
       "description": "يبدو أنك لم تضف أي شيء بعد."
     },
-    "subtotal": "الإجمالي الفرعي",
-    "shipping_note": "يُحسب الشحن والضريبة عند الدفع",
+    "subtotal": "المجموع الفرعي",
+    "shipping_note": "يُحسب الشحن والضريبة عند إتمام الشراء",
     "checkout": "إتمام الشراء",
     "continue_shopping": "متابعة التسوق",
-    "loading": "جاري التحميل..."
+    "loading": "جارٍ التحميل..."
   },
   "item": {
     "remove": "إزالة",
     "remove_aria": "إزالة {{name}} من السلة",
-    "quantity_aria": "الكمية لـ {{name}}",
+    "quantity_aria": "كمية {{name}}",
     "preorder_label": "طلب مسبق",
     "preorder_ships_by": "طلب مسبق — يُشحن بحلول {{date}}"
   },
   "summary": {
-    "subtotal": "الإجمالي الفرعي",
+    "subtotal": "المجموع الفرعي",
     "tax": "الضريبة",
     "shipping": "الشحن",
     "total": "الإجمالي",

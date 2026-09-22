@@ -51,10 +51,14 @@
       "confirm_text": "حذف"
     },
     "confirm_bulk_delete": {
-      "title": "حذف مراجعة واحدة؟",
-      "title_plural": "حذف {{count}} مراجعات؟",
       "description": "لا يمكن التراجع عن هذا الإجراء.",
-      "confirm_text": "حذف"
+      "confirm_text": "حذف",
+      "title_zero": "حذف التقييمات؟",
+      "title_one": "حذف تقييم واحد؟",
+      "title_two": "حذف تقييمين؟",
+      "title_few": "حذف {{count}} تقييمات؟",
+      "title_many": "حذف {{count}} تقييمًا؟",
+      "title_other": "حذف {{count}} تقييم؟"
     },
     "toast": {
       "approved": "تمت الموافقة على المراجعة",
@@ -64,13 +68,21 @@
       "reject_failed": "فشل الرفض",
       "delete_failed": "فشل الحذف",
       "fetch_failed": "فشل تحميل المراجعات",
-      "bulk_updated": "تمت الموافقة على مراجعة واحدة",
-      "bulk_updated_plural": "تمت الموافقة على {{count}} مراجعات",
-      "bulk_rejected": "تم رفض مراجعة واحدة",
-      "bulk_rejected_plural": "تم رفض {{count}} مراجعات",
       "bulk_deleted": "تم حذف {{count}}",
       "bulk_update_failed": "فشل التحديث الجماعي",
-      "bulk_delete_failed": "فشل الحذف الجماعي"
+      "bulk_delete_failed": "فشل الحذف الجماعي",
+      "bulk_updated_zero": "لم تتم الموافقة على أي تقييم",
+      "bulk_updated_one": "تمت الموافقة على تقييم واحد",
+      "bulk_updated_two": "تمت الموافقة على تقييمين",
+      "bulk_updated_few": "تمت الموافقة على {{count}} تقييمات",
+      "bulk_updated_many": "تمت الموافقة على {{count}} تقييمًا",
+      "bulk_updated_other": "تمت الموافقة على {{count}} تقييم",
+      "bulk_rejected_zero": "لم يُرفض أي تقييم",
+      "bulk_rejected_one": "تم رفض تقييم واحد",
+      "bulk_rejected_two": "تم رفض تقييمين",
+      "bulk_rejected_few": "تم رفض {{count}} تقييمات",
+      "bulk_rejected_many": "تم رفض {{count}} تقييمًا",
+      "bulk_rejected_other": "تم رفض {{count}} تقييم"
     },
     "pagination": {
       "page_of": "صفحة {{page}} من {{total}}"

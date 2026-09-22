@@ -131,7 +131,8 @@
       "add_to_cart_failed": "تعذّرت الإضافة إلى السلة",
       "sku": "رمز المنتج:",
       "in_stock": "متوفر ({{count}} متاح)",
-      "only_left": "بقي {{count}} فقط"
+      "only_left": "بقي {{count}} فقط",
+      "only_left_zero": "نفد المخزون"
     },
     "category": {
       "not_found_heading": "الفئة غير موجودة",

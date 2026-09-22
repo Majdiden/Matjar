@@ -51,10 +51,10 @@
       "confirm_text": "Delete"
     },
     "confirm_bulk_delete": {
-      "title": "Delete {{count}} review?",
-      "title_plural": "Delete {{count}} reviews?",
       "description": "This cannot be undone.",
-      "confirm_text": "Delete"
+      "confirm_text": "Delete",
+      "title_one": "Delete {{count}} review?",
+      "title_other": "Delete {{count}} reviews?"
     },
     "toast": {
       "approved": "Review approved",
@@ -64,13 +64,13 @@
       "reject_failed": "Failed to reject",
       "delete_failed": "Failed to delete",
       "fetch_failed": "Failed to fetch reviews",
-      "bulk_updated": "{{count}} review approved",
-      "bulk_updated_plural": "{{count}} reviews approved",
-      "bulk_rejected": "{{count}} review rejected",
-      "bulk_rejected_plural": "{{count}} reviews rejected",
       "bulk_deleted": "{{count}} deleted",
       "bulk_update_failed": "Bulk update failed",
-      "bulk_delete_failed": "Bulk delete failed"
+      "bulk_delete_failed": "Bulk delete failed",
+      "bulk_updated_one": "{{count}} review approved",
+      "bulk_updated_other": "{{count}} reviews approved",
+      "bulk_rejected_one": "{{count}} review rejected",
+      "bulk_rejected_other": "{{count}} reviews rejected"
     },
     "pagination": {
       "page_of": "Page {{page}} of {{total}}"

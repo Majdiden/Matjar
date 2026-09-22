@@ -1,6 +1,6 @@
 {
   "filter": {
-    "title": "تصفية",
+    "title": "التصفية",
     "active_filters": "الفلاتر النشطة",
     "clear_all": "مسح الكل",
     "apply": "تطبيق",
@@ -18,8 +18,8 @@
   "quickview": {
     "title": "عرض سريع",
     "close_aria": "إغلاق العرض السريع",
-    "tax_shipping": "الضريبة مشمولة. يُحسب الشحن عند الدفع.",
-    "variant_label": "متغيّر",
+    "tax_shipping": "شامل الضريبة. يُحسب الشحن عند إتمام الشراء.",
+    "variant_label": "المتغيّر",
     "quantity_label": "الكمية",
     "out_of_stock": "غير متوفر",
     "in_stock": "متوفر",
@@ -34,7 +34,8 @@
     "added": "أُضيف إلى السلة",
     "save_percent": "وفّر {{percent}}%",
     "view_full_details": "عرض التفاصيل كاملة ←",
-    "image_dot_aria": "عرض الصورة {{index}}"
+    "image_dot_aria": "عرض الصورة {{index}}",
+    "low_stock": "بقي {{count}} فقط في المخزون"
   },
   "scroll_to_top_aria": "العودة إلى الأعلى"
 }

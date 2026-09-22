@@ -4,22 +4,22 @@
   "out_of_stock": "غير متوفر",
   "sold_out": "نفد المخزون",
   "in_stock": "متوفر",
-  "low_stock": "{{count}} متبقٍ فقط",
-  "preorder": "الطلب المسبق",
+  "low_stock": "بقي {{count}} فقط",
+  "preorder": "طلب مسبق",
   "preorder_badge": "طلب مسبق",
   "choose_options": "اختر الخيارات",
   "select_options_hint": "اختر الخيارات من صفحة المنتج",
-  "only_remaining": "{{count}} متبقٍ فقط",
+  "only_remaining": "بقي {{count}} فقط",
   "price": {
-    "from": "من",
-    "compare_at": "السعر قبل",
+    "from": "يبدأ من",
+    "compare_at": "السعر الأصلي",
     "save_amount": "وفّر {{amount}}",
     "save_percent": "وفّر {{percent}}%",
-    "tax_included": "الضريبة مشمولة.",
-    "shipping_at_checkout": "يُحسب الشحن عند الدفع."
+    "tax_included": "شامل الضريبة.",
+    "shipping_at_checkout": "يُحسب الشحن عند إتمام الشراء."
   },
   "variant": {
-    "label": "متغيّر"
+    "label": "المتغيّر"
   },
   "quantity": {
     "label": "الكمية",
@@ -46,6 +46,9 @@
     "empty": "لا توجد مراجعات بعد. كن أول من يشارك تجربته.",
     "based_on_zero": "لا توجد مراجعات",
     "based_on_one": "بناءً على مراجعة واحدة",
+    "based_on_two": "بناءً على تقييمين",
+    "based_on_few": "بناءً على {{count}} تقييمات",
+    "based_on_many": "بناءً على {{count}} تقييمًا",
     "based_on_other": "بناءً على {{count}} مراجعات",
     "rating_aria": "{{rating}} من أصل {{max}} نجوم",
     "write_review": "اكتب مراجعة",
@@ -67,7 +70,7 @@
     "star_aria_few": "{{count}} نجوم",
     "star_aria_many": "{{count}} نجمة",
     "star_aria_other": "{{count}} نجوم",
-    "verified_purchase": "مشترٍ موثّق",
+    "verified_purchase": "شراء موثّق",
     "verified": "موثّق",
     "anonymous": "مجهول"
   },
@@ -99,16 +102,16 @@
   "payment": {
     "guaranteed": {
       "title": "دفع آمن مضمون",
-      "description": "دفع آمن بواسطة مزودي دفع موثوقين"
+      "description": "دفع آمن عبر مزوّدي دفع موثوقين"
     },
     "no_methods": "لا توجد طرق دفع متاحة. يرجى التواصل مع الدعم.",
-    "choose_provider": "اختر مزودًا",
+    "choose_provider": "اختر المزوّد",
     "transfer_to": "التحويل إلى:",
     "beneficiary": "المستفيد:",
     "account": "الحساب:",
     "phone": "الهاتف:",
     "required": "مطلوب",
-    "please_choose_provider": "يرجى اختيار مزود.",
+    "please_choose_provider": "يرجى اختيار المزوّد.",
     "method": {
       "cod": "الدفع عند الاستلام",
       "bank_transfer": "تحويل بنكي",
@@ -125,10 +128,10 @@
     }
   },
   "description": {
-    "no_description": "لا يوجد وصف متاح."
+    "no_description": "لا يوجد وصف لهذا المنتج."
   },
   "specifications": {
-    "empty": "لا توجد مواصفات مدرجة لهذا المنتج."
+    "empty": "لا توجد مواصفات لهذا المنتج."
   },
   "tab": {
     "description": "الوصف",
@@ -137,7 +140,7 @@
   },
   "bundle": {
     "title": "كثيرًا ما يُشترى معًا",
-    "subtitle": "يقرن العملاء هذه المنتجات في الغالب.",
+    "subtitle": "غالبًا ما يشتري العملاء هذه المنتجات معًا.",
     "addon_total": "إجمالي الإضافات",
     "this_item": "هذا المنتج",
     "of_extras_selected_zero": "لم يُختر أي إضافة",
@@ -146,13 +149,13 @@
     "of_extras_selected_few": "{{selected}} من أصل {{total}} إضافات مختارة",
     "of_extras_selected_many": "{{selected}} من أصل {{total}} إضافة مختارة",
     "of_extras_selected_other": "{{selected}} من أصل {{total}} إضافات مختارة",
-    "add_selected": "إضافة المحدد إلى السلة",
+    "add_selected": "أضف المحدد إلى السلة",
     "adding": "جارٍ الإضافة...",
     "choose_options": "اختر الخيارات"
   },
   "similar": {
     "title": "منتجات مشابهة",
-    "subtitle": "المزيد من هذه المجموعة قد يعجبك."
+    "subtitle": "قد يعجبك المزيد من هذه المجموعة."
   },
   "featured_badge": "مميّز",
   "card": {

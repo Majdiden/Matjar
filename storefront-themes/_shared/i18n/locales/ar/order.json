@@ -28,25 +28,25 @@
       "field": {
         "email": {
           "label": "البريد الإلكتروني",
-          "placeholder": "you@example.com"
+          "placeholder": "ahmed@example.com"
         }
       },
       "submit": "عرض الطلب",
-      "looking_up": "جاري البحث…",
+      "looking_up": "جارٍ البحث…",
       "order_label": "الطلب",
       "placed_on": "طُلب {{date}}",
       "cancel_order": "إلغاء الطلب",
-      "cancelling": "جاري الإلغاء…",
+      "cancelling": "جارٍ الإلغاء…",
       "status": {
         "order_received": "تم استلام الطلب",
-        "being_prepared": "جاري التحضير",
+        "being_prepared": "قيد التجهيز",
         "on_its_way": "في الطريق إليك",
         "delivered": "تم التسليم",
         "cancelled": "ملغى",
         "refunded": "تم الاسترداد"
       },
       "shipment_status": {
-        "preparing": "جاري التحضير",
+        "preparing": "قيد التجهيز",
         "shipped": "تم الشحن",
         "delivered": "تم التسليم",
         "cancelled": "ملغى"
@@ -65,7 +65,7 @@
       "shipment_count_one": "شحنة واحدة لهذا الطلب",
       "shipment_count_two": "شحنتان لهذا الطلب",
       "shipment_count_few": "{{count}} شحنات لهذا الطلب",
-      "shipment_count_many": "{{count}} شحنة لهذا الطلب",
+      "shipment_count_many": "{{count}} شحنةً",
       "shipment_count_other": "{{count}} شحنة لهذا الطلب",
       "shipment_n": "الشحنة {{n}}",
       "shipped_on": "تم الشحن {{date}}",
@@ -79,7 +79,7 @@
       "preorder_ships": "طلب مسبق — يُشحن {{date}}",
       "qty": "الكمية {{qty}}",
       "summary": {
-        "subtotal": "الإجمالي الفرعي",
+        "subtotal": "المجموع الفرعي",
         "discount": "الخصم",
         "shipping": "الشحن",
         "tax": "الضريبة",
@@ -92,7 +92,7 @@
       "back_home": "العودة إلى الرئيسية",
       "cancel_confirm": {
         "title": "إلغاء هذا الطلب؟",
-        "description": "لا يمكن التراجع عن هذا — سيتم الإفراج عن المخزون المحجوز.",
+        "description": "لا يمكن التراجع عن هذا — وسيُعاد المخزون المحجوز.",
         "confirm": "إلغاء الطلب",
         "cancel": "الاحتفاظ بالطلب"
       }

@@ -1,7 +1,7 @@
 {
   "checkout": {
     "title": "إتمام الشراء",
-    "loading": "جاري تحميل صفحة الدفع...",
+    "loading": "جارٍ تحميل صفحة إتمام الشراء...",
     "step": {
       "1": {
         "title": "المعلومات"
@@ -25,7 +25,7 @@
         "title": "معلومات التواصل",
         "email": {
           "label": "البريد الإلكتروني",
-          "placeholder": "you@example.com",
+          "placeholder": "ahmed@example.com",
           "hint": "سنرسل تأكيد طلبك إلى هذا البريد."
         },
         "marketing": "أرسل لي الأخبار والعروض بالبريد الإلكتروني"
@@ -48,7 +48,7 @@
           "placeholder": "عنوان الشارع"
         },
         "address2": {
-          "label": "الشقة، الجناح، إلخ. (اختياري)"
+          "label": "الشقة، الطابق، إلخ. (اختياري)"
         },
         "city": {
           "label": "المدينة"
@@ -71,7 +71,7 @@
         "gift_card_covers": "بطاقة الهدايا تغطي إجمالي الطلب بالكامل. لا حاجة إلى دفع إضافي.",
         "notes": {
           "label": "ملاحظات الطلب (اختياري)",
-          "placeholder": "تعليمات التسليم، رسالة هدية، إلخ."
+          "placeholder": "تعليمات التوصيل، رسالة هدية، إلخ."
         }
       },
       "review": {
@@ -79,8 +79,8 @@
         "contact_label": "التواصل",
         "ship_to_label": "الشحن إلى",
         "payment_label": "الدفع",
-        "terms": "أوافق على شروط الخدمة وسياسة الخصوصية.",
-        "terms_and_conditions": "شروط الخدمة",
+        "terms": "أوافق على الشروط والأحكام وسياسة الخصوصية.",
+        "terms_and_conditions": "الشروط والأحكام",
         "privacy_policy": "سياسة الخصوصية"
       }
     },
@@ -89,7 +89,7 @@
       "continue_to_payment": "المتابعة إلى الدفع",
       "review_order": "مراجعة الطلب",
       "place_order": "تأكيد الطلب · {{total}}",
-      "placing": "جاري تأكيد الطلب...",
+      "placing": "جارٍ تأكيد الطلب...",
       "back": "رجوع",
       "edit": "تعديل"
     },
@@ -100,33 +100,33 @@
     },
     "summary": {
       "title": "ملخّص الطلب",
-      "subtotal": "الإجمالي الفرعي",
+      "subtotal": "المجموع الفرعي",
       "discount": "الخصم",
       "shipping": "الشحن",
-      "shipping_calculated": "يحسب لاحقًا",
+      "shipping_calculated": "يُحسب لاحقًا",
       "shipping_free": "مجاني",
       "tax": "الضريبة",
-      "tax_calculated": "يحسب لاحقًا",
+      "tax_calculated": "يُحسب لاحقًا",
       "gift_card": "بطاقة الهدايا",
       "total": "الإجمالي",
-      "updating": "جاري تحديث الإجماليات…",
-      "code_applied": "تم تطبيق الكود {{code}}",
-      "discount_placeholder": "كود الخصم",
+      "updating": "جارٍ تحديث الإجماليات…",
+      "code_applied": "تم تطبيق الرمز {{code}}",
+      "discount_placeholder": "رمز الخصم",
       "apply": "تطبيق",
       "remove": "إزالة",
-      "gift_card_placeholder": "كود بطاقة الهدايا",
+      "gift_card_placeholder": "رمز بطاقة الهدايا",
       "your_gift_cards": "بطاقات هداياك",
-      "gift_card_applied": "بطاقة الهدايا •••• {{last4}} مطبّقة",
+      "gift_card_applied": "تم تطبيق بطاقة الهدايا •••• {{last4}}",
       "gift_card_balance": "(الرصيد {{balance}})",
-      "preorder_notice_title": "يتضمن عناصر الطلب المسبق",
+      "preorder_notice_title": "يتضمّن منتجات بطلب مسبق",
       "preorder_ships_by": "يُشحن بحلول {{date}}",
       "preorder_badge": "طلب مسبق",
       "preorder_ships_inline": "— يُشحن {{date}}",
       "price_each": "{{price}} للقطعة"
     },
     "error": {
-      "choose_payment": "يرجى اختيار طريقة دفع.",
-      "accept_terms": "يجب قبول شروط الخدمة لتأكيد طلبك.",
+      "choose_payment": "يرجى اختيار طريقة الدفع.",
+      "accept_terms": "يجب قبول الشروط والأحكام لتأكيد طلبك.",
       "place_order": "فشل تأكيد الطلب. يرجى المحاولة مرة أخرى.",
       "email_required": "البريد الإلكتروني مطلوب",
       "first_name_required": "الاسم الأول مطلوب",

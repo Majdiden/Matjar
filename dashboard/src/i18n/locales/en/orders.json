@@ -72,9 +72,9 @@
     },
     "replacement": {
       "label": "Replacement order",
-      "has_replacements": "Has {{count}} replacement",
-      "has_replacements_plural": "Has {{count}} replacements",
-      "view_timeline": "· view timeline"
+      "view_timeline": "· view timeline",
+      "has_replacements_one": "Has {{count}} replacement",
+      "has_replacements_other": "Has {{count}} replacements"
     },
     "guest": "Guest",
     "item_count_one": "{{count}} item",
@@ -218,7 +218,7 @@
     "replacement_info": {
       "is_replacement": "This is a replacement order.",
       "has_one": "This order has a replacement order.",
-      "has_many": "This order has {{count}} replacement orders."
+      "has_other": "This order has {{count}} replacement orders."
     },
     "order_title": "Order {{number}}",
     "contact": {
@@ -462,13 +462,9 @@
     "address_shipping_updated": "Shipping address updated",
     "address_billing_updated": "Billing address updated",
     "address_save_failed": "Failed to save address",
-    "export_success": "Exported {{count}} order",
-    "export_success_plural": "Exported {{count}} orders",
     "no_orders_to_export": "No orders to export",
     "export_failed": "Export failed",
     "load_failed": "Failed to load orders",
-    "bulk_marked": "{{count}} order marked as {{status}}",
-    "bulk_marked_plural": "{{count}} orders marked as {{status}}",
     "bulk_update_failed": "{{count}} failed to update",
     "lifecycle_load_failed": "Failed to load order lifecycle",
     "payment_action_updated": "{{label}} — updated",
@@ -477,7 +473,11 @@
     "draft_complete_failed": "Failed to complete draft",
     "draft_deleted": "Draft deleted",
     "draft_delete_failed": "Failed to delete draft",
-    "export_started": "Preparing your export…"
+    "export_started": "Preparing your export…",
+    "export_success_one": "Exported {{count}} order",
+    "export_success_other": "Exported {{count}} orders",
+    "bulk_marked_one": "{{count}} order marked as {{status}}",
+    "bulk_marked_other": "{{count}} orders marked as {{status}}"
   },
   "validation": {
     "note_empty": "Note cannot be empty",

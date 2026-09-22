@@ -30,13 +30,13 @@
         "expires_never": "No expiry",
         "expires_on": "Expires {{date}}",
         "selected_count": "{{count}} selected",
-        "bulk_delete_title": "Delete {{count}} discount",
-        "bulk_delete_title_plural": "Delete {{count}} discounts",
         "bulk_delete_description": "Customers will no longer be able to redeem these codes.",
         "delete_title": "Delete this discount?",
         "delete_description": "Customers will no longer be able to redeem this code.",
         "card_value_label": "Value",
-        "card_uses_label": "Uses"
+        "card_uses_label": "Uses",
+        "bulk_delete_title_one": "Delete {{count}} discount",
+        "bulk_delete_title_other": "Delete {{count}} discounts"
       },
       "picker": {
         "title": "Select discount type",
@@ -353,14 +353,14 @@
         "refund_applied": "Refund applied",
         "refund_failed": "Refund failed",
         "amount_invalid": "Enter a valid amount",
-        "bulk_toggled_enable": "{{count}} gift card enabled",
-        "bulk_toggled_enable_plural": "{{count}} gift cards enabled",
-        "bulk_toggled_disable": "{{count}} gift card disabled",
-        "bulk_toggled_disable_plural": "{{count}} gift cards disabled",
         "bulk_failed": "{{count}} failed",
-        "exported": "Exported {{count}} gift card",
-        "exported_plural": "Exported {{count}} gift cards",
-        "no_export": "No gift cards to export"
+        "no_export": "No gift cards to export",
+        "bulk_toggled_enable_one": "{{count}} gift card enabled",
+        "bulk_toggled_enable_other": "{{count}} gift cards enabled",
+        "bulk_toggled_disable_one": "{{count}} gift card disabled",
+        "bulk_toggled_disable_other": "{{count}} gift cards disabled",
+        "exported_one": "Exported {{count}} gift card",
+        "exported_other": "Exported {{count}} gift cards"
       }
     },
     "promotion": {

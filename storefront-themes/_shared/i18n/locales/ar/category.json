@@ -17,11 +17,11 @@
     "results_count_few": "{{count}} منتجات",
     "results_count_many": "{{count}} منتجًا",
     "results_count_other": "{{count}} منتج",
-    "loading": "جاري التحميل…",
+    "loading": "جارٍ التحميل…",
     "filter": {
       "price_min": "من",
       "price_max": "إلى",
-      "price_min_currency": "0 ج.م",
+      "price_min_currency": "0",
       "price_max_currency": "بلا حد"
     },
     "empty": {
@@ -42,7 +42,7 @@
     "results_count_other": "{{count}} منتج",
     "empty": {
       "title": "لا توجد منتجات في هذه المجموعة",
-      "description": "تحقق مرة أخرى قريبًا.",
+      "description": "عُد إلينا قريبًا.",
       "browse_all": "تصفح جميع المنتجات"
     },
     "pagination": {
@@ -62,19 +62,19 @@
     "product_count_other": "{{count}} منتج",
     "empty": {
       "title": "لا توجد مجموعات بعد",
-      "description": "تحقق مرة أخرى قريبًا — المجموعات في الطريق.",
+      "description": "عُد إلينا قريبًا — المجموعات في الطريق.",
       "browse_all": "تصفح جميع المنتجات"
     }
   },
   "search": {
     "title": "بحث",
-    "empty_prompt": "أدخل مصطلح بحث للعثور على المنتجات.",
+    "empty_prompt": "اكتب ما تبحث عنه للعثور على المنتجات.",
     "results_for": "نتائج البحث عن \"{{query}}\"",
     "results_count_zero": "لا توجد نتائج",
     "results_count_one": "نتيجة واحدة",
     "results_count_two": "نتيجتان",
     "results_count_few": "{{count}} نتائج",
-    "results_count_many": "{{count}} نتيجة",
+    "results_count_many": "{{count}} نتيجةً",
     "results_count_other": "{{count}} نتيجة",
     "empty": {
       "title": "لا توجد نتائج",

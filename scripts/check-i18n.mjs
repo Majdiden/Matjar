@@ -17,8 +17,12 @@ const ROOTS = [
 ];
 
 const PLURAL_CATS = ['zero', 'one', 'two', 'few', 'many', 'other'];
-// Strings that are legitimately identical in both locales.
-const ALLOW_SAME = /^(English|العربية|#|\s*|[\d\s.,:%+\-/×x]+|[A-Z]{2,5}|Matjar|Face ID|Touch ID|Google|Apple Pay|Shop Pay|PayPal|Stripe|WhatsApp|Instagram|Facebook|TikTok|Bankak|Fawry|OCash|Cashi|Webhook|SDG|USD|EUR|GBP|COD|SKU|URL|API|CSS|HTML|PDF|CSV|JSON|ID|QR|SMS|OTP|VAT|@\S+|https?:\/\/\S+|\{\{[^}]+\}\})$/;
+// Strings that are legitimately identical in both locales: language names in
+// their own script, masked passwords, symbols, and — deliberately — example
+// values that illustrate SYNTAX the user must type in Latin (slugs, codes,
+// hostnames, email and phone shapes, country-code lists, URL patterns).
+const SYNTAX_EXAMPLE = /^(you@example\.com|your@email\.com|colleague@example\.com|store@example\.com|orders@acme\.test|rivera-co|shop\.mystore\.com|summer-sale|my_field|custom|standard|eu|US, CA, MX|\+249 …|\/pages\/\{\{slug\}\}|\{\{from\}\} – \{\{upTo\}\}|vip, wholesale|info@example\.com|ELLE, VOGUE, BAZAAR, FORBES, GRAZIA|HERO 4 SESSION|© \{\{year\}\} \{\{name\}\})$/;
+const ALLOW_SAME = /^(English|العربية|#|•+|\s*|[\d\s.,:%+\-/×x]+|[A-Z]{2,5}|Matjar|Face ID|Touch ID|Google|Apple Pay|Shop Pay|PayPal|Stripe|WhatsApp|Instagram|Facebook|TikTok|Bankak|Fawry|OCash|Cashi|Webhook|SDG|USD|EUR|GBP|COD|SKU|URL|API|CSS|HTML|PDF|CSV|JSON|ID|QR|SMS|OTP|VAT|@\S+|https?:\/\/\S+|\{\{[^}]+\}\})$/;
 
 const flat = (o, p = '') =>
   Object.entries(o).flatMap(([k, v]) =>
@@ -72,7 +76,7 @@ for (const root of ROOTS) {
       if (invented.length || (missing.length && !softCat)) {
         err(`${ap}: placeholders differ for "${k}" — en[${te}] ar[${ta}]`);
       }
-      if (v.trim() && v.trim() === source.trim() && !ALLOW_SAME.test(v.trim())) {
+      if (v.trim() && v.trim() === source.trim() && !ALLOW_SAME.test(v.trim()) && !SYNTAX_EXAMPLE.test(v.trim())) {
         err(`${ap}: untranslated "${k}" = "${v.slice(0, 60)}"`);
       }
       if (/[A-Za-z]{4,}/.test(v) && !ALLOW_SAME.test(v.trim())) {

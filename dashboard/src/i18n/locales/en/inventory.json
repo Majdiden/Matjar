@@ -27,8 +27,6 @@
       "low_stock": "Low Stock",
       "out_of_stock": "Out of Stock"
     },
-    "variant_count": "({{count}} variant)",
-    "variant_count_plural": "({{count}} variants)",
     "card_on_hand_label": "On hand",
     "card_price_label": "Price",
     "card_updated": "Updated {{date}}",
@@ -48,8 +46,10 @@
       "adjusted": "Stock adjusted by {{delta}}",
       "adjust_failed": "Failed to adjust stock",
       "fetch_failed": "Failed to fetch inventory",
-      "exported": "Exported {{count}} item",
-      "exported_plural": "Exported {{count}} items"
-    }
+      "exported_one": "Exported {{count}} item",
+      "exported_other": "Exported {{count}} items"
+    },
+    "variant_count_one": "({{count}} variant)",
+    "variant_count_other": "({{count}} variants)"
   }
 }

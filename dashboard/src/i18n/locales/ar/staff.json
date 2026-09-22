@@ -73,10 +73,14 @@
         "confirm_text": "إزالة"
       },
       "confirm_bulk_remove": {
-        "title": "إزالة موظف واحد؟",
-        "title_plural": "إزالة {{count}} موظفين؟",
         "description": "سيفقدون وصولهم إلى لوحة التحكم فورًا.",
-        "confirm_text": "إزالة"
+        "confirm_text": "إزالة",
+        "title_zero": "إزالة الموظفين؟",
+        "title_one": "إزالة موظف واحد؟",
+        "title_two": "إزالة موظفين اثنين؟",
+        "title_few": "إزالة {{count}} موظفين؟",
+        "title_many": "إزالة {{count}} موظفًا؟",
+        "title_other": "إزالة {{count}} موظف؟"
       },
       "toast": {
         "removed": "تمت إزالة {{name}}",

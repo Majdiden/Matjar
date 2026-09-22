@@ -28,7 +28,7 @@
       },
       "deactivate": {
         "title": "تعطيل الحساب",
-        "subtitle": "سيتم تسجيل خروجك وتعطيل تسجيل الدخول. يتم الاحتفاظ بسجل طلباتك حتى تظل الإيصالات والمستردات متاحة."
+        "subtitle": "سيتم تسجيل خروجك وتعطيل تسجيل الدخول. نحتفظ بسجل طلباتك حتى تظل الإيصالات والمستردات متاحة."
       }
     },
     "field": {
@@ -115,13 +115,13 @@
       "start_shopping": "ابدأ التسوق",
       "track": "تتبع الطلب ←",
       "cancel": "إلغاء",
-      "cancelling": "جاري الإلغاء…",
+      "cancelling": "جارٍ الإلغاء…",
       "cancel_confirm_title": "إلغاء هذا الطلب؟",
-      "cancel_confirm_description": "لا يمكن التراجع عن هذا — سيتم الإفراج عن المخزون المحجوز.",
+      "cancel_confirm_description": "لا يمكن التراجع عن هذا — وسيُعاد المخزون المحجوز.",
       "cancel_confirm_text": "إلغاء الطلب",
       "cancel_keep_text": "الاحتفاظ بالطلب",
-      "item_count_one": "{{count}} منتج",
-      "item_count_other": "{{count}} منتجات",
+      "item_count_one": "منتج واحد",
+      "item_count_other": "{{count}} منتج",
       "more": "+{{count}} أخرى",
       "status": {
         "Pending": "تم استلام الطلب",
@@ -130,37 +130,41 @@
         "Delivered": "تم التسليم",
         "Cancelled": "ملغى",
         "Refunded": "مسترد"
-      }
+      },
+      "item_count_zero": "لا توجد منتجات",
+      "item_count_two": "منتجان",
+      "item_count_few": "{{count}} منتجات",
+      "item_count_many": "{{count}} منتجًا"
     },
     "wishlist": {
-      "empty": "قائمة أمنياتك فارغة.",
+      "empty": "المفضّلة لديك فارغة.",
       "browse": "تصفح المنتجات ←",
       "open_full": "فتح صفحة المفضّلة كاملة ←",
-      "removing": "جاري الإزالة…",
+      "removing": "جارٍ الإزالة…",
       "remove": "إزالة",
-      "loading": "جاري تحميل المفضّلة…",
+      "loading": "جارٍ تحميل المفضّلة…",
       "no_image": "لا توجد صورة"
     },
     "reviews": {
       "empty": "لم تكتب أي مراجعات بعد.",
       "browse": "ابحث عن منتج لمراجعته ←",
-      "loading": "جاري تحميل المراجعات…"
+      "loading": "جارٍ تحميل المراجعات…"
     },
     "giftcards": {
       "empty": "لا تمتلك أي بطاقات هدايا بعد.",
-      "loading": "جاري تحميل بطاقات الهدايا…",
+      "loading": "جارٍ تحميل بطاقات الهدايا…",
       "card": "بطاقة الهدايا •••• {{last4}}",
       "balance": "الرصيد {{balance}} من {{initial}}",
-      "expires": "· تنتهي {{date}}"
+      "expires": "· تنتهي في {{date}}"
     },
     "action": {
       "sign_out": "تسجيل الخروج",
       "save_changes": "حفظ التغييرات",
-      "saving": "جاري الحفظ…",
+      "saving": "جارٍ الحفظ…",
       "update_password": "تحديث كلمة المرور",
-      "updating": "جاري التحديث…",
+      "updating": "جارٍ التحديث…",
       "deactivate": "تعطيل حسابي",
-      "deactivating": "جاري التعطيل…",
+      "deactivating": "جارٍ التعطيل…",
       "add_address": "إضافة عنوان"
     },
     "toast": {
@@ -204,16 +208,16 @@
     "field": {
       "email": {
         "label": "البريد الإلكتروني",
-        "placeholder": "your@email.com"
+        "placeholder": "ahmed@example.com"
       },
       "password": {
         "label": "كلمة المرور",
         "placeholder": "••••••••"
       }
     },
-    "forgot_link": "نسيت؟",
+    "forgot_link": "نسيتها؟",
     "submit": "تسجيل الدخول",
-    "submitting": "جاري تسجيل الدخول...",
+    "submitting": "جارٍ تسجيل الدخول...",
     "signing_in_to": "تسجيل الدخول إلى {{store}}",
     "no_account_link": "أنشئ حسابًا",
     "no_account_text": "ليس لديك حساب؟",
@@ -229,7 +233,7 @@
       },
       "email": {
         "label": "البريد الإلكتروني",
-        "placeholder": "your@email.com"
+        "placeholder": "ahmed@example.com"
       },
       "password": {
         "label": "كلمة المرور",
@@ -241,8 +245,8 @@
       }
     },
     "submit": "إنشاء حساب",
-    "submitting": "جاري إنشاء الحساب...",
-    "terms_html": "بإنشاء حساب فإنك توافق على شروط الخدمة وسياسة الخصوصية.",
+    "submitting": "جارٍ إنشاء الحساب...",
+    "terms_html": "بإنشاء حساب فإنك توافق على الشروط والأحكام وسياسة الخصوصية.",
     "have_account_link": "تسجيل الدخول",
     "have_account_text": "هل لديك حساب بالفعل؟",
     "joining": "الانضمام إلى {{store}}",
@@ -253,16 +257,16 @@
     }
   },
   "wishlist": {
-    "title": "قائمة أمنياتك",
+    "title": "المفضّلة لديك",
     "login_prompt": "سجّل الدخول لمشاهدة العناصر التي حفظتها لوقت لاحق.",
     "login_action": "تسجيل الدخول",
     "empty": {
       "title": "المفضّلة فارغة",
-      "description": "قائمة أمنياتك فارغة — تصفح المنتجات لحفظ المفضّلة لديك."
+      "description": "المفضّلة لديك فارغة — تصفّح المنتجات واحفظ ما يعجبك."
     },
     "browse_products": "تصفح المنتجات",
-    "move_to_cart": "إضافة إلى السلة",
-    "adding_to_cart": "جاري الإضافة…",
+    "move_to_cart": "أضف إلى السلة",
+    "adding_to_cart": "جارٍ الإضافة…",
     "remove": "إزالة من المفضّلة",
     "no_image": "لا توجد صورة"
   },

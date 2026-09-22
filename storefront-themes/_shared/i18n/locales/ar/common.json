@@ -29,7 +29,7 @@
     "copy": "نسخ",
     "paste": "لصق",
     "cut": "قص",
-    "duplicate": "نسخ",
+    "duplicate": "تكرار",
     "download": "تنزيل",
     "upload": "رفع",
     "import": "استيراد",
@@ -55,7 +55,7 @@
     "deactivate": "إلغاء التفعيل",
     "enable": "تمكين",
     "disable": "تعطيل",
-    "approve": "الموافقة",
+    "approve": "موافقة",
     "reject": "رفض",
     "accept": "قبول",
     "decline": "رفض",
@@ -78,12 +78,12 @@
     "yes": "نعم",
     "no": "لا",
     "ok": "حسنًا",
-    "loading": "جاري التحميل",
-    "loading_ellipsis": "جاري التحميل…",
-    "saving": "جاري الحفظ",
-    "saving_ellipsis": "جاري الحفظ…",
-    "sending": "جاري الإرسال",
-    "processing": "جاري المعالجة",
+    "loading": "جارٍ التحميل",
+    "loading_ellipsis": "جارٍ التحميل…",
+    "saving": "جارٍ الحفظ",
+    "saving_ellipsis": "جارٍ الحفظ…",
+    "sending": "جارٍ الإرسال",
+    "processing": "جارٍ المعالجة",
     "success": "تم بنجاح",
     "saved": "تم الحفظ",
     "sent": "تم الإرسال",
@@ -183,7 +183,7 @@
     "open_cart": "فتح السلة",
     "close_cart": "إغلاق السلة",
     "account": "الحساب",
-    "wishlist": "المفضلة",
+    "wishlist": "المفضّلة",
     "search": "البحث",
     "quick_view": "عرض سريع",
     "categories": "الفئات",
@@ -225,7 +225,7 @@
     "newsletter": {
       "heading": "ابقَ على اطلاع",
       "subscribe": "اشتراك",
-      "email_placeholder": "بريدك@example.com"
+      "email_placeholder": "ahmed@example.com"
     },
     "categories": {
       "heading": "تسوّق حسب الفئة",
@@ -234,7 +234,8 @@
       "items_count_two": "عنصران",
       "items_count_few": "{{count}} عناصر",
       "items_count_many": "{{count}} عنصرًا",
-      "items_count_other": "{{count}} عناصر"
+      "items_count_other": "{{count}} عناصر",
+      "items_count": "{{count}} عناصر"
     },
     "trust": {
       "free_shipping_title": "شحن مجاني",

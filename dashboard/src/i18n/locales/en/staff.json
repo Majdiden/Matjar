@@ -73,10 +73,10 @@
         "confirm_text": "Remove"
       },
       "confirm_bulk_remove": {
-        "title": "Remove {{count}} staff member?",
-        "title_plural": "Remove {{count}} staff members?",
         "description": "They will lose dashboard access immediately.",
-        "confirm_text": "Remove"
+        "confirm_text": "Remove",
+        "title_one": "Remove {{count}} staff member?",
+        "title_other": "Remove {{count}} staff members?"
       },
       "toast": {
         "removed": "{{name}} removed",

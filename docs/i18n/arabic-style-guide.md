@@ -89,8 +89,8 @@ extensions, and any placeholder token (`{{count}}`, `{{orderNumber}}`,
 | add to cart | أضف إلى السلة | |
 | buy now | اشترِ الآن | note the kasra on `اشترِ` |
 | wishlist | المفضّلة | not `قائمة الرغبات` |
-| review (product) | تقييم | |
-| rating | التقييم | |
+| rating (the stars) | تقييم | the score itself |
+| review (the written text) | مراجعة | "Your review" = `مراجعتك`, "Your rating" = `تقييمك` |
 | subtotal | المجموع الفرعي | |
 | total | الإجمالي | |
 | tax | الضريبة | |

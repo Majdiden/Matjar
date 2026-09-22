@@ -27,8 +27,6 @@
       "low_stock": "مخزون منخفض",
       "out_of_stock": "غير متوفر"
     },
-    "variant_count": "({{count}} متغيّر)",
-    "variant_count_plural": "({{count}} متغيّرات)",
     "card_on_hand_label": "المتاح",
     "card_price_label": "السعر",
     "card_updated": "تحديث {{date}}",
@@ -48,8 +46,18 @@
       "adjusted": "تم تعديل المخزون بمقدار {{delta}}",
       "adjust_failed": "فشل تعديل المخزون",
       "fetch_failed": "فشل تحميل المخزون",
-      "exported": "تم تصدير {{count}} عنصر",
-      "exported_plural": "تم تصدير {{count}} عناصر"
-    }
+      "exported_zero": "لم يُصدَّر أي عنصر",
+      "exported_one": "تم تصدير عنصر واحد",
+      "exported_two": "تم تصدير عنصرين",
+      "exported_few": "تم تصدير {{count}} عناصر",
+      "exported_many": "تم تصدير {{count}} عنصرًا",
+      "exported_other": "تم تصدير {{count}} عنصر"
+    },
+    "variant_count_zero": "(لا متغيّرات)",
+    "variant_count_one": "(متغيّر واحد)",
+    "variant_count_two": "(متغيّران)",
+    "variant_count_few": "({{count}} متغيّرات)",
+    "variant_count_many": "({{count}} متغيّرًا)",
+    "variant_count_other": "({{count}} متغيّر)"
   }
 }

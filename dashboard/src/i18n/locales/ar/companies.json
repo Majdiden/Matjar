@@ -24,7 +24,7 @@
       "field": {
         "name": {
           "label": "اسم الشركة",
-          "placeholder": "Acme Corp",
+          "placeholder": "شركة النيل للتجارة",
           "error": {
             "required": "اسم الشركة مطلوب"
           }

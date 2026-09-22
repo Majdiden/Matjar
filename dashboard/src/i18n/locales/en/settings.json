@@ -430,8 +430,6 @@
     },
     "fx_rates_updated_at": "Last updated {{datetime}}",
     "shipping_zone_mode_warning": "Switch shipping mode to \"Zone\" above to use these rates at checkout.",
-    "zone_rates_badge": "{{count}} rate",
-    "zone_rates_badge_plural": "{{count}} rates",
     "fx_missing_warning": "No FX rate for {{currency}} → {{base}}. Add one on the Currencies tab or presentment will fall back to {{base}}.",
     "market_badge_disabled": "Disabled",
     "market_badge_default": "Default",
@@ -584,6 +582,8 @@
         "description": "How cash on delivery works and any conditions.",
         "title_placeholder": "Cash on Delivery Policy"
       }
-    }
+    },
+    "zone_rates_badge_one": "{{count}} rate",
+    "zone_rates_badge_other": "{{count}} rates"
   }
 }

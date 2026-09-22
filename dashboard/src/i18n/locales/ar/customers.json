@@ -137,7 +137,7 @@
         },
         "tags": {
           "label": "العلامات (مفصولة بفواصل)",
-          "placeholder": "vip, wholesale"
+          "placeholder": "مميز، جملة"
         },
         "email_contains": {
           "label": "البريد الإلكتروني يحتوي على",

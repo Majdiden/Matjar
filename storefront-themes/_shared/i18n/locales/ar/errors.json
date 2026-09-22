@@ -22,8 +22,8 @@
     "discount_invalid": "رمز الخصم غير صالح.",
     "discount_code_invalid": "الرمز \"{{code}}\" غير صالح.",
     "totals_calc_failed": "تعذّر حساب الإجمالي.",
-    "gift_card_not_found": "لم يتم العثور على بطاقة الهدية.",
-    "gift_card_invalid": "بطاقة الهدية غير صالحة.",
+    "gift_card_not_found": "لم يتم العثور على بطاقة الهدايا.",
+    "gift_card_invalid": "بطاقة الهدايا غير صالحة.",
     "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
   }
 }
