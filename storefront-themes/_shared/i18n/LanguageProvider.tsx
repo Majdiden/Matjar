@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import i18nInstance, { STORAGE_KEY_LANG } from './index'
 
@@ -41,7 +41,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const dir: Dir = lang === 'ar' ? 'rtl' : 'ltr'
   const firstLangRun = useRef(true)
 
-  useEffect(() => {
+  // LAYOUT effect: a passive effect runs after the browser paints, so an
+  // Arabic shopper got one LTR frame before the document flipped to RTL —
+  // the whole page visibly jumping sides on every refresh. The language is
+  // resolved synchronously at init (see resolveInitialLang), so writing
+  // dir/lang before paint costs nothing and makes the first frame correct.
+  useLayoutEffect(() => {
     document.documentElement.lang = lang
     document.documentElement.dir = dir
     document.body.dir = dir

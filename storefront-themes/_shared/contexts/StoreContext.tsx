@@ -43,6 +43,31 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+/**
+ * Read the store payload the server embedded in the SPA shell
+ * (middlewares/storefrontServe.js). Every theme reads its colors, fonts,
+ * layout and section config off `store.themeCustomization`; fetching that
+ * over the network means the first paint happens against the theme's
+ * manifest DEFAULTS and then swaps — the flash of the default theme on
+ * refresh. Reading it here, synchronously during module evaluation, makes
+ * the very first render the real store.
+ *
+ * Returns null on anything unexpected (tag absent, malformed JSON, an old
+ * cached shell) so the component falls back to fetching, as before.
+ */
+const readEmbeddedStore = (): StoreInfo | null => {
+  try {
+    const el = document.getElementById('__MATJAR_STORE__');
+    if (!el?.textContent) return null;
+    const parsed = JSON.parse(el.textContent);
+    return parsed && typeof parsed === 'object' && parsed.name ? (parsed as StoreInfo) : null;
+  } catch {
+    return null;
+  }
+};
+
+const EMBEDDED_STORE = typeof document !== 'undefined' ? readEmbeddedStore() : null;
+
 export const useStore = () => {
   const ctx = useContext(StoreContext);
   if (!ctx) throw new Error('useStore must be used within StoreProvider');
@@ -50,8 +75,10 @@ export const useStore = () => {
 };
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [store, setStore] = useState<StoreInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [store, setStore] = useState<StoreInfo | null>(EMBEDDED_STORE);
+  // Already hydrated from the shell => never gate the app on the network.
+  // BootGate stays as the fallback for a shell without the payload.
+  const [loading, setLoading] = useState(!EMBEDDED_STORE);
 
   const refresh = React.useCallback(async () => {
     try {
@@ -64,6 +91,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   }, []);
 
+  // Revalidate in the background even when the shell was embedded — the HTML
+  // may have been served from a cache before the merchant's latest publish.
+  // A no-op when nothing changed; a correction (not a flash) when it did.
   useEffect(() => {
     refresh();
   }, [refresh]);

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState, useEffect, useCallback, type ReactNode } from 'react';
+import React, { createContext, useContext, useMemo, useState, useEffect, useLayoutEffect, useCallback, type ReactNode } from 'react';
 import type { ThemeManifest, MergedThemeSettings, SectionInstance, ThemeColors, ThemeTypography, ThemeDesignTokens } from '../types/theme';
 import { useStore } from '../contexts/StoreContext';
 import { useLanguage } from '../i18n/LanguageProvider';
@@ -598,7 +598,16 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
   // working) and `[data-color-mode="dark"]` holds the dark override so
   // components deep in the tree can opt into either palette without a
   // full re-render.
-  useEffect(() => {
+  //
+  // LAYOUT effect, not a passive one: a passive effect runs AFTER the
+  // browser has painted, so the first frame showed the theme stylesheet's
+  // built-in palette and the merchant's colors only landed on the second —
+  // visible as a flash of the default theme on every refresh. The store
+  // payload is embedded in the shell (StoreContext), so by this point the
+  // real colors are already known; writing them before paint means the
+  // first frame is correct. It is the same string-building work, just
+  // scheduled a frame earlier.
+  useLayoutEffect(() => {
     if (typeof document === 'undefined') return;
 
     const lightColors: ThemeColors = {

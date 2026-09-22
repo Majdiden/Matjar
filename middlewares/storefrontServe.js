@@ -9,6 +9,7 @@ import { resolveTenantByHost } from "../services/domainRegistry.js";
 import { createScopedModels } from "../utils/scopedModel.js";
 import { isStoreDraft } from "../services/storeSetup.js";
 import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
+import { buildStoreInfo } from "../services/storefrontStoreInfo.js";
 import {
   buildStorefrontHead,
   injectHead,
@@ -158,6 +159,29 @@ export function clearRedirectCache() {
  * helmet strips via its default `no-referrer` policy). The asset handler then
  * resolves the bundle from `req.query.previewTheme`.
  */
+/**
+ * Embed the store payload as a JSON <script> the app reads synchronously.
+ *
+ * JSON inside HTML is only unsafe through the characters that can end the
+ * script element or start a comment/HTML block, so `<` and `&` are escaped
+ * to their \u form (still valid JSON, so JSON.parse is unaffected), along
+ * with the two line separators that are literal newlines in JS strings but
+ * legal raw inside JSON. `type="application/json"` is inert — the browser
+ * never executes it.
+ *
+ * Placed before </head> so it is parsed ahead of the (deferred) module
+ * bundle. Falls back to appending when the shell has no </head>.
+ */
+function injectStorePayload(html, store) {
+  const json = JSON.stringify(store)
+    .replace(/</g, "\\u003c")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+  const tag = `<script id="__MATJAR_STORE__" type="application/json">${json}</script>`;
+  return html.includes("</head>") ? html.replace("</head>", `${tag}</head>`) : html + tag;
+}
+
 function readPreviewIndexHtml(distPath, previewSlug) {
   const html = fs.readFileSync(path.join(distPath, "index.html"), "utf8");
   const q = `previewTheme=${encodeURIComponent(previewSlug)}`;
@@ -542,6 +566,30 @@ export function createStorefrontMiddleware() {
         html = injectHead(html, headTags);
       } catch (e) {
         logger.warn("Storefront head injection failed; serving base HTML", { error: e.message });
+      }
+
+      // ─── Embed the store payload in the shell ───────────────────
+      //
+      // Every theme reads its colors, fonts, layout, name and section
+      // config off `store.themeCustomization`. Fetched over the network,
+      // that arrives one or more round-trips AFTER first paint, so the app
+      // renders a frame against the theme's manifest DEFAULTS and then
+      // swaps — the "flash of the default theme on refresh". Serving the
+      // same payload inside the HTML lets StoreContext hydrate
+      // synchronously, so the very first paint is already this merchant's
+      // store. The client still re-fetches in the background to pick up a
+      // publish that landed between the HTML and the JS.
+      //
+      // Best-effort: any failure just leaves the shell without the tag and
+      // the client falls back to fetching, exactly as before.
+      try {
+        const storeInfo = buildStoreInfo(tenant, {
+          previewParam: typeof req.query.preview === "string" ? req.query.preview : null,
+          previewTheme: previewDist ? previewSlug : null,
+        });
+        html = injectStorePayload(html, storeInfo);
+      } catch (e) {
+        logger.warn("Storefront store payload injection failed", { error: e.message });
       }
 
       // DRAFT banner — injected server-side so it works on ANY theme without
