@@ -47,6 +47,23 @@ router.use(
   })
 );
 
+// A request for a FILE that does not exist must 404 — it must never fall
+// through to the SPA handler below. Returning the HTML shell under a `.js`
+// URL makes the browser's module loader reject the response (Firefox reports
+// NS_ERROR_CORRUPTED_CONTENT, Chrome a MIME-type refusal), which is exactly
+// what happens after a deploy when a cached/precached shell still asks for a
+// chunk hash that no longer exists. A clean 404 lets the client's
+// `vite:preloadError` handler recover by reloading instead.
+//
+// SPA routes never carry a file extension, so matching on one is safe.
+const STATIC_ASSET = /\.(js|mjs|css|map|png|jpe?g|gif|svg|ico|webp|avif|woff2?|ttf|otf|eot|webmanifest|txt|xml)$/i;
+router.use((req, res, next) => {
+  if (req.path.startsWith("/assets/") || STATIC_ASSET.test(req.path)) {
+    return res.status(404).type("text/plain").send("Not found");
+  }
+  next();
+});
+
 // Serve dashboard HTML for all dashboard routes (SPA fallback).
 // index.html is NOT content-hashed, so it must revalidate on every load —
 // otherwise a cached shell keeps referencing stale asset hashes after a
