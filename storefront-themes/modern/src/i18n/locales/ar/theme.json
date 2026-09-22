@@ -3,7 +3,7 @@
     "section": {
       "hero": {
         "badge": "مجموعة جديدة",
-        "headline": "أهلاً وسهلاً",
+        "headline": "أهلًا وسهلًا",
         "subheadline": "اكتشف منتجات رائعة بأسعار مناسبة",
         "primary_cta": "تسوّق الآن",
         "secondary_cta": "تصفّح الفئات",
@@ -19,13 +19,13 @@
         "items_count_one": "عنصر واحد",
         "items_count_two": "عنصران",
         "items_count_few": "{{count}} عناصر",
-        "items_count_many": "{{count}} عنصراً",
+        "items_count_many": "{{count}} عنصرًا",
         "items_count_other": "{{count}} عنصر",
         "items_count": "{{count}} منتج"
       },
       "featured-products": {
         "heading": "المنتجات المميّزة",
-        "subheading": "منتقاة خصيصاً لك",
+        "subheading": "منتقاة خصيصًا لك",
         "view_all": "عرض الكل",
         "add_to_cart": "إضافة"
       },
@@ -35,18 +35,18 @@
         "secure_payment_title": "دفع آمن",
         "secure_payment_desc": "تشفير SSL بمعيار 256 بت",
         "easy_returns_title": "إرجاع سهل",
-        "easy_returns_desc": "ضمان استرداد الأموال خلال 30 يوماً"
+        "easy_returns_desc": "ضمان استرداد الأموال خلال 30 يومًا"
       },
       "promo-banners": {
         "slide1_title": "عروض كبيرة على أفضل الأجهزة",
         "slide1_subtitle": "وفّر على الأجهزة التي تتمناها — لفترة محدودة.",
         "slide1_cta": "تسوق العروض",
-        "slide2_title": "وصل حديثاً",
+        "slide2_title": "وصل حديثًا",
         "slide2_subtitle": "منتجات جديدة كل أسبوع — كن أول من يقتنيها.",
         "slide2_cta": "تسوق الجديد"
       },
       "new-arrivals": {
-        "heading": "وصل حديثاً",
+        "heading": "وصل حديثًا",
         "subheading": "وصل للتو إلى متجرنا",
         "see_more": "عرض المزيد",
         "add_to_cart": "إضافة إلى السلة"
@@ -95,7 +95,7 @@
       "sort_price_asc": "السعر: من الأقل للأعلى",
       "sort_price_desc": "السعر: من الأعلى للأقل",
       "sort_popular": "الأكثر شعبية",
-      "sort_top_rated": "الأعلى تقييماً",
+      "sort_top_rated": "الأعلى تقييمًا",
       "search_placeholder": "ابحث عن المنتجات...",
       "clear_search": "مسح البحث",
       "no_products": "لا توجد منتجات",
@@ -107,7 +107,7 @@
     "product_detail": {
       "not_found_heading": "المنتج غير موجود",
       "back_to_shop": "العودة إلى المتجر",
-      "select_option_availability": "حدد خياراً لمعرفة التوفر",
+      "select_option_availability": "حدد خيارًا لمعرفة التوفر",
       "in_stock_zero": "غير متوفر",
       "in_stock_one": "متوفر (قطعة واحدة)",
       "in_stock_two": "متوفر (قطعتان)",
@@ -151,7 +151,7 @@
       "subtotal_one": "الإجمالي الفرعي (عنصر واحد)",
       "subtotal_two": "الإجمالي الفرعي (عنصران)",
       "subtotal_few": "الإجمالي الفرعي ({{count}} عناصر)",
-      "subtotal_many": "الإجمالي الفرعي ({{count}} عنصراً)",
+      "subtotal_many": "الإجمالي الفرعي ({{count}} عنصرًا)",
       "subtotal_other": "الإجمالي الفرعي ({{count}} عنصر)",
       "shipping": "الشحن",
       "calculated_at_checkout": "يُحسب عند إتمام الشراء",

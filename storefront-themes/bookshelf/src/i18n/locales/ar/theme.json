@@ -23,7 +23,7 @@
         "author": "جورج ر. ر. مارتن"
       },
       "bestsellers": {
-        "heading": "الأكثر مبيعاً",
+        "heading": "الأكثر مبيعًا",
         "subheading": "الكتب التي يقرأها الجميع الآن",
         "add": "إضافة"
       },
@@ -73,7 +73,7 @@
       "breadcrumb_products": "المنتجات",
       "product_not_found": "المنتج غير موجود",
       "back_to_shop": "العودة إلى المتجر",
-      "select_option": "اختر خياراً لمعرفة التوفر",
+      "select_option": "اختر خيارًا لمعرفة التوفر",
       "in_stock": "متوفر ({{count}} متاح)",
       "preorder": "طلب مسبق",
       "preorder_ships": "طلب مسبق — يُشحن {{date}}",

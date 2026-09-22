@@ -33,23 +33,23 @@
         "default_fragrance": "العطور"
       },
       "product_grid": {
-        "heading_bestsellers": "الأكثر مبيعاً",
-        "heading_new_arrivals": "وصول حديثاً",
+        "heading_bestsellers": "الأكثر مبيعًا",
+        "heading_new_arrivals": "وصول حديثًا",
         "subheading": "محبوبة من مجتمعنا",
         "view_all": "عرض جميع المنتجات"
       },
       "banner": {
         "eyebrow": "عرض محدود",
-        "heading": "اشتري واحدة واحصلي على أخرى مجاناً",
+        "heading": "اشتري واحدة واحصلي على أخرى مجانًا",
         "subheading": "على جميع مجموعات العناية بالبشرة هذا الأسبوع فقط.",
         "cta": "تسوّقي العرض"
       },
       "testimonials": {
         "heading": "ماذا تقول عملاؤنا",
         "verified_buyer": "مشترية موثّقة",
-        "default_quote_1": "أحب هذا السيروم كثيراً!",
+        "default_quote_1": "أحب هذا السيروم كثيرًا!",
         "default_quote_2": "مكونات نظيفة ونتائج مذهلة.",
-        "default_quote_3": "أصبح أساسياً في روتيني."
+        "default_quote_3": "أصبح أساسيًا في روتيني."
       }
     },
     "layout": {
@@ -67,8 +67,8 @@
       "tagline": "جمال نظيف وغير مُختبَر على الحيوانات، مصنوع بحب. انضمي إلى آلاف اللواتي اخترن التألق.",
       "shop_heading": "المتجر",
       "shop_all": "جميع المنتجات",
-      "best_sellers": "الأكثر مبيعاً",
-      "new_arrivals": "وصول حديثاً",
+      "best_sellers": "الأكثر مبيعًا",
+      "new_arrivals": "وصول حديثًا",
       "gift_sets": "مجموعات الهدايا",
       "help_heading": "المساعدة",
       "shipping": "الشحن",
@@ -96,7 +96,7 @@
       "filter_price": "السعر",
       "price_min_placeholder": "الأدنى",
       "price_max_placeholder": "الأعلى",
-      "best_sellers": "الأكثر مبيعاً",
+      "best_sellers": "الأكثر مبيعًا",
       "loading": "جاري التحميل…",
       "showing_products": "عرض {{count}} منتج",
       "sort_newest": "الأحدث",
@@ -132,14 +132,14 @@
       "in_stock": "متوفر — جاهز للشحن",
       "sold_out": "نفد المخزون",
       "out_of_stock": "غير متوفر",
-      "add_to_wishlist": "أضيفي إلى قائمة الأمنيات",
+      "add_to_wishlist": "أضيفي إلى المفضّلة",
       "tab_description": "الوصف",
       "tab_reviews": "التقييمات",
       "benefit_vegan": "نباتي · غير مُختبَر على الحيوانات · خالٍ من البارابين",
       "benefit_shipping": "شحن مجاني للطلبات التي تتجاوز 50$",
-      "benefit_returns": "إرجاع مجاني خلال 30 يوماً",
+      "benefit_returns": "إرجاع مجاني خلال 30 يومًا",
       "benefit_secure": "دفع آمن بشهادة SSL",
-      "related_eyebrow": "قد يعجبكِ أيضاً",
+      "related_eyebrow": "قد يعجبكِ أيضًا",
       "related_heading": "أكملي الروتين"
     },
     "cart": {

@@ -1,7 +1,7 @@
 {
   "order": {
     "success": {
-      "title": "شكراً على طلبك!",
+      "title": "شكرًا على طلبك!",
       "subtitle": "تم استلام طلبك {{orderNumber}}.",
       "confirmation_sent": "تم إرسال تأكيد إلى {{email}}.",
       "order_placed": "تاريخ الطلب",
@@ -18,7 +18,7 @@
       "contact_question": "هل لديك أسئلة عن طلبك؟",
       "contact_link": "تواصل مع {{store}}",
       "error_title": "تعذّر تحميل طلبك",
-      "error_description": "إذا كنت قد أجريت طلباً للتو، تحقق من بريدك الإلكتروني للتأكيد.",
+      "error_description": "إذا كنت قد أجريت طلبًا للتو، تحقق من بريدك الإلكتروني للتأكيد.",
       "error_check_email": "تعذّر العثور على هذا الطلب. يرجى التحقق من بريدك الإلكتروني للتأكيد.",
       "back_home": "العودة إلى الرئيسية"
     },
@@ -26,7 +26,10 @@
       "title": "تتبع طلبك",
       "gate_subtitle": "أدخل عنوان البريد الإلكتروني الذي استخدمته عند إتمام الشراء لعرض هذا الطلب.",
       "field": {
-        "email": { "label": "البريد الإلكتروني", "placeholder": "you@example.com" }
+        "email": {
+          "label": "البريد الإلكتروني",
+          "placeholder": "you@example.com"
+        }
       },
       "submit": "عرض الطلب",
       "looking_up": "جاري البحث…",

@@ -2,7 +2,7 @@
   "reviews": {
     "list": {
       "title": "المراجعات",
-      "subtitle": "{{count}} مراجعة إجمالاً",
+      "subtitle": "{{count}} مراجعة إجمالًا",
       "empty_title": "لا توجد مراجعات",
       "empty_description": "ستظهر هنا مراجعات العملاء.",
       "select_all": "تحديد الكل",
@@ -47,7 +47,7 @@
     "selected_count": "{{count}} محدد",
     "confirm_delete": {
       "title": "حذف المراجعة؟",
-      "description": "سيتم إزالة المراجعة نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+      "description": "سيتم إزالة المراجعة نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
       "confirm_text": "حذف"
     },
     "confirm_bulk_delete": {

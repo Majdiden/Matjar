@@ -50,12 +50,24 @@
       }
     },
     "action": {
-      "create": { "label": "إنشاء" },
-      "update": { "label": "تحديث" },
-      "delete": { "label": "حذف" },
-      "add": { "label": "إضافة" },
-      "remove": { "label": "إزالة" },
-      "edit": { "label": "تعديل" }
+      "create": {
+        "label": "إنشاء"
+      },
+      "update": {
+        "label": "تحديث"
+      },
+      "delete": {
+        "label": "حذف"
+      },
+      "add": {
+        "label": "إضافة"
+      },
+      "remove": {
+        "label": "إزالة"
+      },
+      "edit": {
+        "label": "تعديل"
+      }
     },
     "toast": {
       "load_failed": "فشل تحميل سجلات التدقيق"

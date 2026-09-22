@@ -5,7 +5,7 @@
         "eyebrow": "صنع يدوي وأصيل",
         "heading_line1": "مصنوع بالأيدي،",
         "heading_line2": "مُبدَع بالقلب",
-        "subheading": "اكتشف قطعاً فريدة من صنع الحرفيين المستقلين من حول العالم.",
+        "subheading": "اكتشف قطعًا فريدة من صنع الحرفيين المستقلين من حول العالم.",
         "primary_cta": "استكشف المجموعة",
         "secondary_cta": "تصفّح الحرف"
       },
@@ -28,7 +28,7 @@
         "pieces_label": "قطع"
       },
       "new_arrivals": {
-        "heading": "وصول حديثاً",
+        "heading": "وصول حديثًا",
         "subheading": "طازج من الورشة",
         "see_more": "عرض المزيد"
       },
@@ -91,7 +91,7 @@
     "product_detail": {
       "back_to_shop": "العودة إلى المتجر",
       "products_breadcrumb": "المنتجات",
-      "select_option": "اختر خياراً لمعرفة التوفر",
+      "select_option": "اختر خيارًا لمعرفة التوفر",
       "in_stock": "متوفر ({{count}} متاح)",
       "preorder": "طلب مسبق — يُشحن {{date}}",
       "preorder_label": "طلب مسبق",

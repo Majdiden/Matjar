@@ -51,10 +51,10 @@
       "tabbed_products": {
         "title": "المنتجات المميّزة",
         "tab_all": "جميع المنتجات",
-        "tab_new": "وصل حديثاً",
-        "tab_best_sellers": "الأكثر مبيعاً",
+        "tab_new": "وصل حديثًا",
+        "tab_best_sellers": "الأكثر مبيعًا",
         "tab_on_sale": "عروض التخفيضات",
-        "empty": "لا توجد منتجات في هذا التغذية حتى الآن — تحقق لاحقاً."
+        "empty": "لا توجد منتجات في هذا التغذية حتى الآن — تحقق لاحقًا."
       },
       "category_sidebar": {
         "eyebrow": "تسوّق حسب القسم",
@@ -66,7 +66,7 @@
       },
       "tonmart_feeds": {
         "featured_heading": "المنتجات المميّزة",
-        "new_arrivals_heading": "وصل حديثاً",
+        "new_arrivals_heading": "وصل حديثًا",
         "shop_products_heading": "تسوّق المنتجات",
         "view_all": "عرض الكل"
       },
@@ -78,7 +78,7 @@
         "items_count_one": "منتج واحد",
         "items_count_two": "منتجان",
         "items_count_few": "{{count}} منتجات",
-        "items_count_many": "{{count}} منتجاً",
+        "items_count_many": "{{count}} منتجًا",
         "items_count_other": "{{count}} منتج"
       }
     },
@@ -96,7 +96,7 @@
       "compare_remove": "إزالة من المقارنة",
       "compare_add": "إضافة إلى المقارنة",
       "toggle_compare": "تبديل المقارنة",
-      "add_to_wishlist": "إضافة إلى قائمة الأمنيات",
+      "add_to_wishlist": "إضافة إلى المفضّلة",
       "quick_view": "عرض سريع"
     },
     "banner": {
@@ -160,7 +160,7 @@
       "breadcrumb_products": "المنتجات",
       "product_not_found": "المنتج غير موجود",
       "back_to_shop": "العودة إلى المتجر",
-      "select_option": "اختر خياراً لمعرفة التوفر",
+      "select_option": "اختر خيارًا لمعرفة التوفر",
       "in_stock": "متوفر ({{count}} متاح)",
       "preorder": "طلب مسبق",
       "preorder_ships": "طلب مسبق — يُشحن {{date}}",
@@ -223,13 +223,13 @@
       "browse_all": "تصفّح جميع المجموعات",
       "search_placeholder": "أدخل كلماتك البحثية...",
       "account": "الحساب",
-      "hello_login": "مرحباً، سجّل الدخول",
+      "hello_login": "مرحبًا، سجّل الدخول",
       "call_us": "اتصل بنا:",
       "buy_now": "اشترِ الآن",
       "share": "مشاركة",
       "compare": "مقارنة",
       "comparing": "قيد المقارنة",
-      "ask_question": "اطرح سؤالاً",
+      "ask_question": "اطرح سؤالًا",
       "faq": "الأسئلة الشائعة",
       "view_all_reviews": "عرض جميع التقييمات ({{count}})"
     },
@@ -245,7 +245,7 @@
       "delivery_policy_line3": "التسليم السريع: 1–2 يوم عمل (بتكلفة إضافية).",
       "shipping_return_heading": "الشحن والإرجاع",
       "shipping_return_line1": "شحن مجاني على الطلبات التي تزيد عن 200 دولار.",
-      "shipping_return_line2": "نافذة إرجاع لمدة 30 يوماً — يجب أن تكون المنتجات غير مستخدمة وفي تغليفها الأصلي.",
+      "shipping_return_line2": "نافذة إرجاع لمدة 30 يومًا — يجب أن تكون المنتجات غير مستخدمة وفي تغليفها الأصلي.",
       "shipping_return_line3": "تواصل مع الدعم لبدء إجراءات الإرجاع.",
       "based_on_reviews": "بناءً على {{count}} مراجعة",
       "based_on_reviews_plural": "بناءً على {{count}} مراجعة",
@@ -264,8 +264,8 @@
       "anonymous": "مجهول",
       "this_item": "هذا المنتج",
       "choose_options_link": "اختر الخيارات",
-      "frequently_bought_heading": "يُشترى معه أيضاً",
-      "frequently_bought_subtitle": "العملاء كثيراً ما يقترنون هذه المنتجات معاً.",
+      "frequently_bought_heading": "يُشترى معه أيضًا",
+      "frequently_bought_subtitle": "العملاء كثيرًا ما يقترنون هذه المنتجات معًا.",
       "addon_total_label": "إجمالي الإضافات",
       "extras_selected": "{{selected}} من أصل {{total}} إضافات محددة",
       "add_selected_to_cart": "إضافة المحدد إلى السلة",

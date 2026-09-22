@@ -31,13 +31,13 @@
       "milmaa-benefits": {
         "eyebrow": "لماذا ميلماء",
         "heading": "بداية صحية لكل يوم",
-        "badge": "معتمد عضوياً",
+        "badge": "معتمد عضويًا",
         "benefit_1_title": "غنيّ بالكالسيوم وفيتامين د",
         "benefit_1_description": "كل حصة توفّر جرعتك اليومية من المعادن الأساسية.",
         "benefit_2_title": "نباتي 100%",
         "benefit_2_description": "بلا حليب بقري، بلا لاكتوز، وبلا تنازل عن القوام الكريمي.",
         "benefit_3_title": "بلا سكر مضاف",
-        "benefit_3_description": "محلّى طبيعياً — كما أرادت الطبيعة."
+        "benefit_3_description": "محلّى طبيعيًا — كما أرادت الطبيعة."
       },
       "milmaa-blog": {
         "heading": "من دفتر اليوميات",
@@ -119,7 +119,7 @@
       "count_one": "منتج واحد",
       "count_two": "منتجان",
       "count_few": "{{count}} منتجات",
-      "count_many": "{{count}} منتجاً",
+      "count_many": "{{count}} منتجًا",
       "count_other": "{{count}} منتج",
       "empty": "لا توجد منتجات. جرّب فلاتر مختلفة."
     },
@@ -135,13 +135,13 @@
       "save_label": "وفّر",
       "preorder_status": "طلب مسبق",
       "only_left": "بقي {{remaining}} فقط",
-      "save_to_wishlist": "أضف إلى قائمة الأمنيات",
+      "save_to_wishlist": "أضف إلى المفضّلة",
       "tab_description": "الوصف",
       "tab_reviews": "المراجعات",
-      "you_may_also_love": "قد يعجبك أيضاً",
+      "you_may_also_love": "قد يعجبك أيضًا",
       "benefit_plant_based": "100% نباتي وخالٍ من منتجات الألبان",
       "benefit_free_shipping": "شحن مجاني للطلبات التي تزيد عن $40",
-      "benefit_returns": "إرجاع مجاني خلال 30 يوماً",
+      "benefit_returns": "إرجاع مجاني خلال 30 يومًا",
       "benefit_secure": "دفع آمن بشهادة SSL"
     },
     "category": {
@@ -162,7 +162,7 @@
       "subtotal_one": "الإجمالي الفرعي (عنصر واحد)",
       "subtotal_two": "الإجمالي الفرعي (عنصران)",
       "subtotal_few": "الإجمالي الفرعي ({{count}} عناصر)",
-      "subtotal_many": "الإجمالي الفرعي ({{count}} عنصراً)",
+      "subtotal_many": "الإجمالي الفرعي ({{count}} عنصرًا)",
       "subtotal_other": "الإجمالي الفرعي ({{count}} عنصر)",
       "shipping": "الشحن",
       "calculated_at_checkout": "يُحسب عند إتمام الشراء",
@@ -183,7 +183,7 @@
         "role": "مدرب يوغا"
       },
       "tm-3": {
-        "quote": "أخيراً حليباً غير لبني يُشبه الحليب الحقيقي. نكهة اللوز لا تُقاوم!",
+        "quote": "أخيرًا حليبًا غير لبني يُشبه الحليب الحقيقي. نكهة اللوز لا تُقاوم!",
         "author": "بريا ك.",
         "role": "عاشقة طعام"
       }

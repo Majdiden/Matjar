@@ -36,15 +36,15 @@
         "cat_vitamins": "فيتامينات"
       },
       "nutreko-product-grid": {
-        "top_sellers_heading": "الأكثر مبيعاً",
+        "top_sellers_heading": "الأكثر مبيعًا",
         "top_sellers_subheading": "الأساسيات التي يحتاجها كل رياضي",
-        "trending_heading": "الأكثر رواجاً",
+        "trending_heading": "الأكثر رواجًا",
         "fuel_heading": "أوقد تمرينك",
         "view_all": "عرض الكل →"
       },
       "nutreko-banner": {
         "eyebrow": "عرض محدود",
-        "heading": "اشترِ 2 واحصل على 1 مجاناً",
+        "heading": "اشترِ 2 واحصل على 1 مجانًا",
         "subheading": "على جميع مسحوق الواي بروتين — هذا الأسبوع فقط.",
         "cta": "تسوّق العرض"
       }
@@ -62,7 +62,7 @@
         "text": "شحن مجاني للطلبات التي تزيد عن $75  ·  منتجات 100% أصيلة"
       },
       "deal": {
-        "text": "اشترِ 2 واحصل على 1 مجاناً على جميع مسحوق الواي بروتين — هذا الأسبوع فقط."
+        "text": "اشترِ 2 واحصل على 1 مجانًا على جميع مسحوق الواي بروتين — هذا الأسبوع فقط."
       }
     },
     "announcement": {
@@ -117,7 +117,7 @@
       "count_one": "منتج واحد",
       "count_two": "منتجان",
       "count_few": "{{count}} منتجات",
-      "count_many": "{{count}} منتجاً",
+      "count_many": "{{count}} منتجًا",
       "count_other": "{{count}} منتج",
       "empty": "لا توجد منتجات. جرّب فلاتر مختلفة.",
       "count": "{{count}} منتج"
@@ -139,10 +139,10 @@
       "tab_reviews": "المراجعات",
       "reviews_count": "({{n}} مراجعة)",
       "save": "وفّر {{amount}}",
-      "you_may_also_like": "قد يعجبك أيضاً",
+      "you_may_also_like": "قد يعجبك أيضًا",
       "benefit_shipping": "شحن مجاني $75+",
       "benefit_secure": "دفع آمن",
-      "benefit_returns": "إرجاع خلال 30 يوماً",
+      "benefit_returns": "إرجاع خلال 30 يومًا",
       "benefit_authentic": "ضمان الأصالة"
     },
     "category": {
@@ -156,7 +156,7 @@
       "count_one": "منتج واحد",
       "count_two": "منتجان",
       "count_few": "{{count}} منتجات",
-      "count_many": "{{count}} منتجاً",
+      "count_many": "{{count}} منتجًا",
       "count_other": "{{count}} منتج",
       "count": "{{count}} منتج"
     },
@@ -173,7 +173,7 @@
       "subtotal_one": "الإجمالي الفرعي (عنصر واحد)",
       "subtotal_two": "الإجمالي الفرعي (عنصران)",
       "subtotal_few": "الإجمالي الفرعي ({{count}} عناصر)",
-      "subtotal_many": "الإجمالي الفرعي ({{count}} عنصراً)",
+      "subtotal_many": "الإجمالي الفرعي ({{count}} عنصرًا)",
       "subtotal_other": "الإجمالي الفرعي ({{count}} عنصر)",
       "shipping": "الشحن",
       "calculated_at_checkout": "يُحسب عند إتمام الشراء",

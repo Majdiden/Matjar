@@ -2,7 +2,7 @@
   "theme": {
     "hero": {
       "main": {
-        "headline": "أهلاً وسهلاً بك في متجرنا",
+        "headline": "أهلًا وسهلًا بك في متجرنا",
         "subheadline": "اكتشف مجموعتنا المختارة من المنتجات عالية الجودة.",
         "cta": "تسوّق الآن"
       }
@@ -23,7 +23,7 @@
         },
         "easy_returns": {
           "title": "إرجاع سهل",
-          "description": "سياسة إرجاع لمدة 30 يوماً"
+          "description": "سياسة إرجاع لمدة 30 يومًا"
         },
         "secure_checkout": {
           "title": "دفع آمن",
@@ -73,7 +73,7 @@
       "breadcrumb_products": "المنتجات",
       "product_not_found": "المنتج غير موجود",
       "back_to_shop": "العودة إلى المتجر",
-      "select_option": "اختر خياراً لمعرفة التوفر",
+      "select_option": "اختر خيارًا لمعرفة التوفر",
       "in_stock": "متوفر ({{count}} متاح)",
       "preorder": "طلب مسبق",
       "preorder_ships": "طلب مسبق — يُشحن {{date}}",

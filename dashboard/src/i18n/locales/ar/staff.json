@@ -7,7 +7,7 @@
       "tab_invites": "الدعوات المعلّقة",
       "card_title": "أعضاء الفريق",
       "card_description": "المسؤولون والمديرون والموظفون الذين لديهم وصول إلى لوحة التحكم.",
-      "empty_title": "لا يوجد موظفون بعد. ادعُ شخصاً للبدء.",
+      "empty_title": "لا يوجد موظفون بعد. ادعُ شخصًا للبدء.",
       "empty_search": "لا يوجد موظفون يطابقون بحثك.",
       "search_placeholder": "بحث بالاسم أو البريد الإلكتروني...",
       "selected_count": "{{count}} محدد",
@@ -75,7 +75,7 @@
       "confirm_bulk_remove": {
         "title": "إزالة موظف واحد؟",
         "title_plural": "إزالة {{count}} موظفين؟",
-        "description": "سيفقدون وصولهم إلى لوحة التحكم فوراً.",
+        "description": "سيفقدون وصولهم إلى لوحة التحكم فورًا.",
         "confirm_text": "إزالة"
       },
       "toast": {
@@ -96,7 +96,7 @@
     },
     "edit_roles": {
       "title": "تعديل الأدوار — {{name}}",
-      "description": "اختر دوراً واحداً أو أكثر لهذا العضو.",
+      "description": "اختر دورًا واحدًا أو أكثر لهذا العضو.",
       "group_builtin": "الأدوار المدمجة",
       "group_custom": "الأدوار المخصصة"
     },
@@ -159,16 +159,36 @@
     },
     "permission": {
       "group": {
-        "products": { "label": "المنتجات" },
-        "orders": { "label": "الطلبات" },
-        "customers": { "label": "العملاء" },
-        "settings": { "label": "الإعدادات" },
-        "staff": { "label": "الموظفون" },
-        "analytics": { "label": "التحليلات" },
-        "marketing": { "label": "التسويق" },
-        "themes": { "label": "القوالب" },
-        "payments": { "label": "المدفوعات" },
-        "inventory": { "label": "المخزون" }
+        "products": {
+          "label": "المنتجات"
+        },
+        "orders": {
+          "label": "الطلبات"
+        },
+        "customers": {
+          "label": "العملاء"
+        },
+        "settings": {
+          "label": "الإعدادات"
+        },
+        "staff": {
+          "label": "الموظفون"
+        },
+        "analytics": {
+          "label": "التحليلات"
+        },
+        "marketing": {
+          "label": "التسويق"
+        },
+        "themes": {
+          "label": "القوالب"
+        },
+        "payments": {
+          "label": "المدفوعات"
+        },
+        "inventory": {
+          "label": "المخزون"
+        }
       }
     },
     "accept_invite": {
@@ -184,7 +204,9 @@
       "description": "لقد تمت دعوتك للانضمام بصفة",
       "description_suffix": ". أنشئ حسابك للبدء.",
       "field": {
-        "email": { "label": "البريد الإلكتروني" },
+        "email": {
+          "label": "البريد الإلكتروني"
+        },
         "name": {
           "label": "الاسم الكامل",
           "placeholder": "مثال: محمد أحمد"

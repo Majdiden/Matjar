@@ -24,7 +24,7 @@
       },
       "new_arrivals": {
         "eyebrow": "وصل للتو",
-        "heading": "وصول حديثاً"
+        "heading": "وصول حديثًا"
       },
       "trust_bar": {
         "free_shipping_title": "شحن مجاني",
@@ -32,7 +32,7 @@
         "secure_payment_title": "دفع آمن",
         "secure_payment_desc": "مشفّر بشهادة SSL",
         "easy_returns_title": "إرجاع سهل",
-        "easy_returns_desc": "سياسة 30 يوماً",
+        "easy_returns_desc": "سياسة 30 يومًا",
         "luxury_packaging_title": "تغليف فاخر",
         "luxury_packaging_desc": "جاهز للإهداء"
       }
@@ -78,7 +78,7 @@
       "breadcrumb_products": "المنتجات",
       "product_not_found": "المنتج غير موجود",
       "back_to_shop": "العودة إلى المتجر",
-      "select_option": "اختر خياراً لمعرفة التوفر",
+      "select_option": "اختر خيارًا لمعرفة التوفر",
       "in_stock": "متوفر ({{count}} متاح)",
       "preorder": "طلب مسبق",
       "preorder_ships": "طلب مسبق — يُشحن {{date}}",

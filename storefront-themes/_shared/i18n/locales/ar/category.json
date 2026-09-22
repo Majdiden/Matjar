@@ -6,7 +6,7 @@
       "newest": "الأحدث",
       "price_asc": "السعر: من الأقل إلى الأعلى",
       "price_desc": "السعر: من الأعلى إلى الأقل",
-      "popular": "الأكثر رواجاً",
+      "popular": "الأكثر رواجًا",
       "featured": "مميّز",
       "name_asc": "الاسم: أ-ي"
     },
@@ -15,7 +15,7 @@
     "results_count_one": "منتج واحد",
     "results_count_two": "منتجان",
     "results_count_few": "{{count}} منتجات",
-    "results_count_many": "{{count}} منتجاً",
+    "results_count_many": "{{count}} منتجًا",
     "results_count_other": "{{count}} منتج",
     "loading": "جاري التحميل…",
     "filter": {
@@ -38,11 +38,11 @@
     "results_count_one": "منتج واحد",
     "results_count_two": "منتجان",
     "results_count_few": "{{count}} منتجات",
-    "results_count_many": "{{count}} منتجاً",
+    "results_count_many": "{{count}} منتجًا",
     "results_count_other": "{{count}} منتج",
     "empty": {
       "title": "لا توجد منتجات في هذه المجموعة",
-      "description": "تحقق مرة أخرى قريباً.",
+      "description": "تحقق مرة أخرى قريبًا.",
       "browse_all": "تصفح جميع المنتجات"
     },
     "pagination": {
@@ -58,11 +58,11 @@
     "product_count_one": "منتج واحد",
     "product_count_two": "منتجان",
     "product_count_few": "{{count}} منتجات",
-    "product_count_many": "{{count}} منتجاً",
+    "product_count_many": "{{count}} منتجًا",
     "product_count_other": "{{count}} منتج",
     "empty": {
       "title": "لا توجد مجموعات بعد",
-      "description": "تحقق مرة أخرى قريباً — المجموعات في الطريق.",
+      "description": "تحقق مرة أخرى قريبًا — المجموعات في الطريق.",
       "browse_all": "تصفح جميع المنتجات"
     }
   },

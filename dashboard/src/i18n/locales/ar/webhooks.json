@@ -64,7 +64,7 @@
       "toggle_failed": "فشل تغيير حالة خطّاف الويب",
       "test_failed": "فشل الاختبار",
       "url_required": "الرابط مطلوب",
-      "event_required": "اختر حدثاً واحداً على الأقل"
+      "event_required": "اختر حدثًا واحدًا على الأقل"
     },
     "confirm_delete": {
       "title": "حذف خطّاف الويب؟",
@@ -72,23 +72,57 @@
       "confirm_text": "حذف"
     },
     "event": {
-      "order_created": { "label": "إنشاء طلب" },
-      "order_updated": { "label": "تحديث طلب" },
-      "order_cancelled": { "label": "إلغاء طلب" },
-      "order_fulfilled": { "label": "تنفيذ طلب" },
-      "order_refunded": { "label": "استرداد طلب" },
-      "product_created": { "label": "إنشاء منتج" },
-      "product_updated": { "label": "تحديث منتج" },
-      "product_deleted": { "label": "حذف منتج" },
-      "customer_created": { "label": "إنشاء عميل" },
-      "customer_updated": { "label": "تحديث عميل" },
-      "inventory_low_stock": { "label": "مخزون منخفض" },
-      "inventory_updated": { "label": "تحديث المخزون" },
-      "payment_succeeded": { "label": "نجاح الدفع" },
-      "payment_failed": { "label": "فشل الدفع" },
-      "payment_refunded": { "label": "استرداد الدفع" },
-      "theme_published": { "label": "نشر القالب" },
-      "theme_installed": { "label": "تثبيت القالب" }
+      "order_created": {
+        "label": "إنشاء طلب"
+      },
+      "order_updated": {
+        "label": "تحديث طلب"
+      },
+      "order_cancelled": {
+        "label": "إلغاء طلب"
+      },
+      "order_fulfilled": {
+        "label": "تنفيذ طلب"
+      },
+      "order_refunded": {
+        "label": "استرداد طلب"
+      },
+      "product_created": {
+        "label": "إنشاء منتج"
+      },
+      "product_updated": {
+        "label": "تحديث منتج"
+      },
+      "product_deleted": {
+        "label": "حذف منتج"
+      },
+      "customer_created": {
+        "label": "إنشاء عميل"
+      },
+      "customer_updated": {
+        "label": "تحديث عميل"
+      },
+      "inventory_low_stock": {
+        "label": "مخزون منخفض"
+      },
+      "inventory_updated": {
+        "label": "تحديث المخزون"
+      },
+      "payment_succeeded": {
+        "label": "نجاح الدفع"
+      },
+      "payment_failed": {
+        "label": "فشل الدفع"
+      },
+      "payment_refunded": {
+        "label": "استرداد الدفع"
+      },
+      "theme_published": {
+        "label": "نشر القالب"
+      },
+      "theme_installed": {
+        "label": "تثبيت القالب"
+      }
     }
   }
 }

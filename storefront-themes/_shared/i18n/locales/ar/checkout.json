@@ -3,10 +3,18 @@
     "title": "إتمام الشراء",
     "loading": "جاري تحميل صفحة الدفع...",
     "step": {
-      "1": { "title": "المعلومات" },
-      "2": { "title": "الشحن" },
-      "3": { "title": "الدفع" },
-      "4": { "title": "المراجعة" }
+      "1": {
+        "title": "المعلومات"
+      },
+      "2": {
+        "title": "الشحن"
+      },
+      "3": {
+        "title": "الدفع"
+      },
+      "4": {
+        "title": "المراجعة"
+      }
     },
     "logged_in_as": "مسجّل الدخول كـ",
     "view_account": "عرض الحساب",
@@ -26,18 +34,34 @@
         "title": "عنوان الشحن",
         "saved_addresses": "العناوين المحفوظة",
         "use_new_address": "+ استخدام عنوان جديد",
-        "first_name": { "label": "الاسم الأول" },
-        "last_name": { "label": "الاسم الأخير" },
-        "phone": { "label": "الهاتف" },
+        "first_name": {
+          "label": "الاسم الأول"
+        },
+        "last_name": {
+          "label": "الاسم الأخير"
+        },
+        "phone": {
+          "label": "الهاتف"
+        },
         "address": {
           "label": "العنوان",
           "placeholder": "عنوان الشارع"
         },
-        "address2": { "label": "الشقة، الجناح، إلخ. (اختياري)" },
-        "city": { "label": "المدينة" },
-        "state": { "label": "الولاية / المنطقة" },
-        "postal": { "label": "الرمز البريدي" },
-        "country": { "label": "الدولة" },
+        "address2": {
+          "label": "الشقة، الجناح، إلخ. (اختياري)"
+        },
+        "city": {
+          "label": "المدينة"
+        },
+        "state": {
+          "label": "الولاية / المنطقة"
+        },
+        "postal": {
+          "label": "الرمز البريدي"
+        },
+        "country": {
+          "label": "الدولة"
+        },
         "save_address": "حفظ هذا العنوان في حسابي للمرة القادمة"
       },
       "payment": {
@@ -79,10 +103,10 @@
       "subtotal": "الإجمالي الفرعي",
       "discount": "الخصم",
       "shipping": "الشحن",
-      "shipping_calculated": "يحسب لاحقاً",
+      "shipping_calculated": "يحسب لاحقًا",
       "shipping_free": "مجاني",
       "tax": "الضريبة",
-      "tax_calculated": "يحسب لاحقاً",
+      "tax_calculated": "يحسب لاحقًا",
       "gift_card": "بطاقة الهدايا",
       "total": "الإجمالي",
       "updating": "جاري تحديث الإجماليات…",

@@ -8,9 +8,9 @@
     },
     "section": {
       "product_grid": {
-        "best_sellers_title": "الأكثر مبيعاً",
+        "best_sellers_title": "الأكثر مبيعًا",
         "best_sellers_subtitle": "اختيارات مفضّلة لدى مجتمعنا",
-        "new_arrivals_title": "وصل حديثاً"
+        "new_arrivals_title": "وصل حديثًا"
       },
       "quote": {
         "default_quote": "«الجمال يبدأ في اللحظة التي تقرّرين فيها أن تكوني نفسك.»",
@@ -45,8 +45,8 @@
       "col_company": "الشركة",
       "col_newsletter": "النشرة البريدية",
       "all_products": "جميع المنتجات",
-      "best_sellers": "الأكثر مبيعاً",
-      "new_arrivals": "وصل حديثاً",
+      "best_sellers": "الأكثر مبيعًا",
+      "new_arrivals": "وصل حديثًا",
       "gift_cards": "بطاقات الهدايا",
       "shipping": "الشحن",
       "returns": "الإرجاع",
@@ -100,12 +100,12 @@
       "out_of_stock": "غير متوفر",
       "buy_it_now": "اشتري الآن",
       "compare": "مقارنة",
-      "wishlist": "قائمة الأمنيات",
+      "wishlist": "المفضّلة",
       "share": "مشاركة",
       "free_shipping": "شحن مجاني للطلبات التي تزيد عن 50$",
       "estimated_delivery": "التسليم المقدّر: 3–5 أيام عمل",
-      "easy_returns": "إرجاع سهل خلال 30 يوماً",
-      "you_may_also_like": "قد يعجبك أيضاً",
+      "easy_returns": "إرجاع سهل خلال 30 يومًا",
+      "you_may_also_like": "قد يعجبك أيضًا",
       "not_found_title": "غير موجود",
       "not_found_body": "تعذّر العثور على هذا المنتج.",
       "back_to_shop": "العودة إلى المتجر",
