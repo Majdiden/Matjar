@@ -9,7 +9,7 @@
     "section": {
       "product_grid": {
         "best_sellers_title": "الأكثر مبيعًا",
-        "best_sellers_subtitle": "اختيارات مفضّلة لدى مجتمعنا",
+        "best_sellers_subtitle": "اختيارات منتقاة يحبّها مجتمعنا",
         "new_arrivals_title": "وصل حديثًا"
       },
       "quote": {
@@ -18,7 +18,7 @@
       },
       "instagram": {
         "title": "@GLOWINGBEAUTY",
-        "subtitle": "تابعينا على إنستغرام للحصول على إلهام يومي"
+        "subtitle": "تابعينا على Instagram للحصول على إلهام يومي"
       },
       "promo_cards": {
         "card1_eyebrow": "موسم جديد",
@@ -83,7 +83,7 @@
       "sort_price_asc": "السعر: من الأقل إلى الأعلى",
       "sort_price_desc": "السعر: من الأعلى إلى الأقل",
       "sort_popular": "الأكثر شعبية",
-      "empty": "لا توجد منتجات. جرّبي فلاتر مختلفة.",
+      "empty": "لا توجد منتجات. جرّبي خيارات تصفية مختلفة.",
       "loading": "جاري التحميل…"
     },
     "category": {
@@ -102,7 +102,7 @@
       "compare": "مقارنة",
       "wishlist": "المفضّلة",
       "share": "مشاركة",
-      "free_shipping": "شحن مجاني للطلبات التي تزيد عن 50$",
+      "free_shipping": "شحن مجاني للطلبات التي تزيد على 50$",
       "estimated_delivery": "التسليم المقدّر: 3–5 أيام عمل",
       "easy_returns": "إرجاع سهل خلال 30 يومًا",
       "you_may_also_like": "قد يعجبك أيضًا",
@@ -117,7 +117,7 @@
     },
     "product_card": {
       "sale_badge": "تخفيض -{{pct}}%",
-      "choose_options": "اختر الخيارات",
+      "choose_options": "اختاري الخيارات",
       "add_to_cart": "+ إضافة إلى السلة",
       "pre_order": "طلب مسبق"
     },
@@ -130,13 +130,13 @@
       "clear": "إفراغ السلة",
       "remove": "إزالة",
       "each": "للقطعة",
-      "subtotal": "الإجمالي الفرعي ({{count}} عناصر)",
+      "subtotal": "المجموع الفرعي ({{count}} عنصر)",
       "shipping": "الشحن",
-      "shipping_calc": "يُحسب عند الدفع",
+      "shipping_calc": "يُحسب عند إتمام الشراء",
       "tax": "الضريبة",
-      "tax_calc": "تُحسب عند الدفع",
+      "tax_calc": "تُحسب عند إتمام الشراء",
       "total": "الإجمالي",
-      "checkout": "المتابعة إلى الدفع",
+      "checkout": "إتمام الشراء",
       "continue_shopping": "متابعة التسوق"
     }
   }

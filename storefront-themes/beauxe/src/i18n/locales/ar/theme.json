@@ -3,12 +3,12 @@
     "section": {
       "top_bar": {
         "text": "تخفيضات الصيف · خصم يصل إلى 40% على منتجات مختارة",
-        "link": "تسوّق الآن"
+        "link": "تسوّقي الآن"
       },
       "hero": {
         "eyebrow": "مجموعة جديدة",
         "heading": "الجمال الطبيعي، بتعريف جديد",
-        "subheading": "اكتشفي روتين العناية بالبشرة النظيف وغير المُختبَر على الحيوانات، المُصنَّع بأنقى مكونات الطبيعة.",
+        "subheading": "اكتشفي عنايةً نظيفة بالبشرة، لا تُختبر على الحيوانات، ومصنوعة من أنقى ما تقدّمه الطبيعة.",
         "cta": "تسوّقي المجموعة",
         "trust_line": "تقييم 4.9 من أكثر من 2300 مراجعة",
         "badge": "جمال\nنظيف\n2024"
@@ -19,7 +19,7 @@
         "natural_title": "100% طبيعي",
         "natural_subtitle": "مكونات نظيفة",
         "cruelty_title": "غير مُختبَر على الحيوانات",
-        "cruelty_subtitle": "نحن ضد التجارب على الحيوانات",
+        "cruelty_subtitle": "لا نختبر منتجاتنا على الحيوانات",
         "secure_title": "دفع آمن",
         "secure_subtitle": "مشفّر بشهادة SSL",
         "favourites": "مختارات بعناية لكِ"
@@ -34,8 +34,8 @@
       },
       "product_grid": {
         "heading_bestsellers": "الأكثر مبيعًا",
-        "heading_new_arrivals": "وصول حديثًا",
-        "subheading": "محبوبة من مجتمعنا",
+        "heading_new_arrivals": "وصل حديثًا",
+        "subheading": "يحبّها مجتمعنا",
         "view_all": "عرض جميع المنتجات"
       },
       "banner": {
@@ -45,7 +45,7 @@
         "cta": "تسوّقي العرض"
       },
       "testimonials": {
-        "heading": "ماذا تقول عملاؤنا",
+        "heading": "ماذا يقول عملاؤنا",
         "verified_buyer": "مشترية موثّقة",
         "default_quote_1": "أحب هذا السيروم كثيرًا!",
         "default_quote_2": "مكونات نظيفة ونتائج مذهلة.",
@@ -68,7 +68,7 @@
       "shop_heading": "المتجر",
       "shop_all": "جميع المنتجات",
       "best_sellers": "الأكثر مبيعًا",
-      "new_arrivals": "وصول حديثًا",
+      "new_arrivals": "وصل حديثًا",
       "gift_sets": "مجموعات الهدايا",
       "help_heading": "المساعدة",
       "shipping": "الشحن",
@@ -103,7 +103,7 @@
       "sort_price_asc": "السعر: من الأدنى إلى الأعلى",
       "sort_price_desc": "السعر: من الأعلى إلى الأدنى",
       "sort_popular": "الأكثر شعبية",
-      "no_results": "لا توجد منتجات. جرّبي فلاتر مختلفة."
+      "no_results": "لا توجد منتجات. جرّبي خيارات تصفية مختلفة."
     },
     "category": {
       "breadcrumb_home": "الرئيسية",
@@ -128,7 +128,7 @@
       "save_amount": "وفّري {{amount}}",
       "reviews_count": "({{count}} تقييم)",
       "preorder_label": "طلب مسبق",
-      "only_left": "{{count}} فقط متبقية",
+      "only_left": "لم يتبقَّ سوى {{count}}",
       "in_stock": "متوفر — جاهز للشحن",
       "sold_out": "نفد المخزون",
       "out_of_stock": "غير متوفر",
@@ -149,7 +149,7 @@
       "start_shopping": "ابدئي التسوق",
       "page_heading": "سلة التسوق",
       "clear_cart": "إفراغ السلة",
-      "subtotal": "الإجمالي الفرعي ({{count}} عنصر)",
+      "subtotal": "المجموع الفرعي ({{count}} عنصر)",
       "shipping_label": "الشحن",
       "shipping_value": "يُحسب عند إتمام الشراء",
       "tax_label": "الضريبة",
@@ -164,8 +164,8 @@
       "sale": "تخفيض",
       "preorder": "طلب مسبق",
       "new": "جديد",
-      "choose_options": "اختر الخيارات",
-      "select_options_tooltip": "اختر الخيارات من صفحة المنتج",
+      "choose_options": "اختاري الخيارات",
+      "select_options_tooltip": "اختاري الخيارات من صفحة المنتج",
       "add_to_cart": "+ أضيفي إلى السلة",
       "sold_out": "نفد المخزون",
       "only_left": "{{count}} فقط متبقية"

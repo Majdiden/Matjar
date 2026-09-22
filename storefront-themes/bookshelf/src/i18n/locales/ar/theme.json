@@ -2,19 +2,19 @@
   "theme": {
     "section": {
       "hero": {
-        "eyebrow": "قراءات منتقاة لعقول فضولية",
+        "eyebrow": "قراءات منتقاة لعقول شغوفة",
         "heading_line1": "اكتشف",
         "heading_line2": "قراءتك القادمة",
-        "subheading": "كتب منتقاة بعناية من كل الأجناس الأدبية، تُوصَّل إلى بابك.",
+        "subheading": "كتب منتقاة بعناية من كل الأنواع الأدبية، تصل إلى بابك.",
         "cta": "تصفّح المجموعة"
       },
       "genres": {
-        "heading": "تصفّح حسب الجنس الأدبي",
+        "heading": "تصفّح حسب النوع الأدبي",
         "subheading": "اعثر على مغامرتك القادمة في أي فئة"
       },
       "staff_picks": {
         "heading": "اختيارات الفريق",
-        "subheading": "منتقاة بعناية من فريقنا من عشّاق الكتب",
+        "subheading": "انتقاها فريقنا من عشّاق الكتب",
         "add_to_shelf": "أضف إلى الرف",
         "see_all": "عرض الكل"
       },
@@ -29,13 +29,13 @@
       },
       "newsletter": {
         "heading": "ابدأ قائمة قراءتك",
-        "subheading": "اشترك للحصول على توصيات منتقاة وعروض حصرية ووصول مبكر للإصدارات الجديدة.",
-        "placeholder": "بريدك@الإلكتروني.com",
+        "subheading": "اشترك لتصلك توصيات منتقاة وعروض حصرية، وكن أول من يعرف بالإصدارات الجديدة.",
+        "placeholder": "your@email.com",
         "button": "اشترك"
       }
     },
     "layout": {
-      "announcement": "شحن مجاني للطلبات التي تتجاوز 35$ — أطعم شغفك بالقراءة!",
+      "announcement": "شحن مجاني للطلبات التي تتجاوز 35$ — أشبع شغفك بالقراءة!",
       "nav": {
         "browse": "تصفّح",
         "browse_all": "تصفّح الكل",
@@ -74,35 +74,35 @@
       "product_not_found": "المنتج غير موجود",
       "back_to_shop": "العودة إلى المتجر",
       "select_option": "اختر خيارًا لمعرفة التوفر",
-      "in_stock": "متوفر ({{count}} متاح)",
+      "in_stock": "متوفر ({{count}} نسخة)",
       "preorder": "طلب مسبق",
       "preorder_ships": "طلب مسبق — يُشحن {{date}}",
-      "only_left": "{{count}} فقط متبقية",
-      "sold_out": "نفد المخزون",
-      "out_of_stock": "غير متوفر",
+      "only_left": "بقي {{count}} فقط",
+      "sold_out": "نفدت الكمية",
+      "out_of_stock": "نفد المخزون",
       "description_heading": "الوصف",
       "sku": "رمز المنتج: {{sku}}"
     },
     "cart": {
-      "loading": "جاري تحميل السلة...",
+      "loading": "جارٍ تحميل السلة...",
       "empty_heading": "سلتك فارغة",
       "empty_subtext": "يبدو أنك لم تضف أي شيء بعد",
       "start_shopping": "ابدأ التسوق",
       "page_heading": "سلة التسوق",
       "clear_cart": "إفراغ السلة",
-      "subtotal": "الإجمالي الفرعي ({{count}} عنصر)",
+      "subtotal": "المجموع الفرعي ({{count}} كتاب)",
       "shipping_label": "الشحن",
       "shipping_value": "يُحسب عند إتمام الشراء",
       "tax_label": "الضريبة",
       "tax_value": "تُحسب عند إتمام الشراء",
       "total": "الإجمالي",
-      "checkout_button": "المتابعة إلى الدفع",
+      "checkout_button": "إتمام الشراء",
       "continue_shopping": "متابعة التسوق",
       "remove": "إزالة",
-      "price_each": "{{price}} للقطعة"
+      "price_each": "{{price}} للنسخة"
     },
     "footer": {
-      "tagline": "قراءتك الرائعة القادمة في انتظارك. اختيارات منتقاة لكل قارئ.",
+      "tagline": "كتابك القادم بانتظارك. اختيارات منتقاة لكل قارئ.",
       "explore_heading": "استكشف",
       "browse_all": "تصفّح الكل",
       "help_heading": "المساعدة",

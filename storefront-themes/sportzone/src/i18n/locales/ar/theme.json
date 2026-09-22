@@ -5,7 +5,7 @@
         "eyebrow": "الموسم الجديد",
         "headline_line1": "تجاوز",
         "headline_line2": "حدودك",
-        "subheadline": "معدات الأداء للرياضيين الذين يطلبون الأفضل. تدرّب أكثر، اذهب أبعد.",
+        "subheadline": "معدات أداء للرياضيين الذين لا يقبلون إلا الأفضل. تدرّب أقوى، وانطلق أبعد.",
         "cta_primary": "تسوّق الآن",
         "cta_secondary": "تصفّح الكل"
       }
@@ -21,8 +21,8 @@
         "add_to_cart": "إضافة إلى السلة"
       },
       "cta_banner": {
-        "title": "هل أنت مستعد للأداء؟",
-        "subtitle": "شحن مجاني على جميع الطلبات التي تزيد عن 75 دولار. لا أعذار.",
+        "title": "جاهز للتحدي؟",
+        "subtitle": "شحن مجاني على كل الطلبات فوق 75$. بلا أعذار.",
         "cta": "ابدأ الآن"
       },
       "performance_gear": {
@@ -32,7 +32,7 @@
         "default_title": "شارة الثقة",
         "free_returns": {
           "title": "إرجاع مجاني",
-          "description": "إرجاع خلال 30 يومًا بدون أسئلة"
+          "description": "إرجاع خلال 30 يومًا دون أسئلة"
         },
         "pro_gear": {
           "title": "معدات احترافية",
@@ -46,7 +46,7 @@
     },
     "banner": {
       "announcement": {
-        "text": "شحن مجاني على الطلبات التي تزيد عن 75 دولار — لا أعذار.",
+        "text": "شحن مجاني على الطلبات فوق 75$ — بلا أعذار.",
         "cta": "تسوّق الآن"
       }
     },
@@ -82,29 +82,29 @@
       "product_not_found": "المنتج غير موجود",
       "back_to_shop": "العودة إلى المتجر",
       "select_option": "اختر خيارًا لمعرفة التوفر",
-      "in_stock": "متوفر ({{count}} متاح)",
+      "in_stock": "متوفر ({{count}} قطعة)",
       "preorder": "طلب مسبق",
       "preorder_ships": "طلب مسبق — يُشحن {{date}}",
-      "only_left": "{{count}} فقط متبقية",
-      "sold_out": "نفد المخزون",
-      "out_of_stock": "غير متوفر",
+      "only_left": "بقي {{count}} فقط",
+      "sold_out": "نفدت الكمية",
+      "out_of_stock": "نفد المخزون",
       "description_heading": "الوصف",
       "sku_label": "رمز المنتج"
     },
     "cart": {
-      "loading": "جاري تحميل السلة...",
+      "loading": "جارٍ تحميل السلة...",
       "empty_heading": "سلتك فارغة",
       "empty_subtext": "يبدو أنك لم تضف أي شيء بعد",
       "start_shopping": "ابدأ التسوق",
       "page_heading": "سلة التسوق",
       "clear_cart": "إفراغ السلة",
-      "subtotal": "الإجمالي الفرعي ({{count}} عنصر)",
+      "subtotal": "المجموع الفرعي ({{count}} قطعة)",
       "shipping_label": "الشحن",
       "shipping_value": "يُحسب عند إتمام الشراء",
       "tax_label": "الضريبة",
       "tax_value": "تُحسب عند إتمام الشراء",
       "total": "الإجمالي",
-      "checkout_button": "المتابعة إلى الدفع",
+      "checkout_button": "إتمام الشراء",
       "continue_shopping": "متابعة التسوق",
       "remove": "إزالة",
       "each": "للقطعة"
