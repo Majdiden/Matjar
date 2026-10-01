@@ -159,7 +159,10 @@
           "placeholder": "Select category",
           "error": {
             "required": "Required"
-          }
+          },
+          "search_placeholder": "Search or create a category…",
+          "empty": "No categories yet — type a name to create one",
+          "create": "Create \"{{name}}\""
         },
         "regular_price": {
           "label": "Regular Price *",
