@@ -922,3 +922,25 @@ shared components/sections.
   Arabic name "متجر" can appear as a tagline/subtitle if asked.
 - **Punctuation inside Arabic strings**: use `،` `؛` `؟` (not `,` `;` `?`).
   Inside English fragments embedded in Arabic, keep English punctuation.
+- **Dates in Arabic**: format with `ar-SD-u-nu-latn` — plain `ar-SD`
+  renders Arabic-Indic digits in Chromium/Node, which breaks the
+  Western-numerals rule above.
+
+---
+
+## Validation & error messages
+
+Field names in dashboard error messages are wrapped as `الحقل «…»`
+(e.g. `الحقل «الوصف» مطلوب.`) so the sentence agrees grammatically
+whatever the field's gender; an unknown field becomes `هذا الحقل`.
+
+| English              | Arabic                    |
+| -------------------- | ------------------------- |
+| Compare-at price     | السعر قبل الخصم           |
+| Cost price           | سعر التكلفة               |
+| Deposit              | عربون                     |
+| Ships by {{date}}    | يُشحن بحلول {{date}}       |
+| Site icon (favicon)  | أيقونة الموقع             |
+| is required          | مطلوب                     |
+| Session expired      | انتهت صلاحية الجلسة       |
+| Something went wrong | حدث خطأ                   |

@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ordersApi } from '../api/client';
 import { useStore } from '../contexts/StoreContext';
 import { useTranslation } from 'react-i18next';
+// Dates follow the storefront language (ar → ar-SD), not the browser locale.
+import { preorderDateLocale } from '../utils/preorder';
 
 /**
  * Order Success / Thank-You page
@@ -176,7 +178,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
           <div>
             <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">{t('order.success.order_placed')}</p>
             <p className="text-sm font-medium">
-              {placedAt.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+              {placedAt.toLocaleDateString(preorderDateLocale(), { year: 'numeric', month: 'long', day: 'numeric' })}
               {' · '}
               {placedAt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
             </p>
@@ -213,7 +215,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
                   {(item as any).isPreorder && (
                     <p className="text-xs text-amber-600 font-medium">
                       {(item as any).preorderExpectedShipDate
-                        ? t('order.success.preorder_ships', { date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) })
+                        ? t('order.success.preorder_ships', { date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(preorderDateLocale(), { month: 'short', day: 'numeric', year: 'numeric' }) })
                         : t('order.success.preorder')}
                     </p>
                   )}

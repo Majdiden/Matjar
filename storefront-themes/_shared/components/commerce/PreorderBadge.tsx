@@ -50,7 +50,7 @@ export const PreorderBadge: React.FC<PreorderBadgeProps> = (props) => {
       )}
       style={{ backgroundColor: bg, color: '#fff' }}
     >
-      <span>{t('preorder_badge.label')}</span>
+      <span>{t('preorder_badge')}</span>
       {!compact && pre.shipByLabel && (
         <span className="font-medium normal-case tracking-normal opacity-90">
           · {pre.shipByLabel}

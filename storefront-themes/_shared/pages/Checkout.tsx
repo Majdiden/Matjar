@@ -7,6 +7,8 @@ import PaymentMethodPicker from '../components/commerce/PaymentMethodPicker';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { COUNTRIES, getCitiesForCountry, optionsWithCurrent, locationLabel } from '../data/locations';
+// Dates follow the storefront language (ar → ar-SD), not the browser locale.
+import { preorderDateLocale } from '../utils/preorder';
 
 interface CheckoutProps {
   className?: string;
@@ -1002,7 +1004,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   <p className="font-semibold">{t('checkout.summary.preorder_notice_title')}</p>
                   {latest && (
                     <p className="opacity-90">
-                      {t('checkout.summary.preorder_ships_by', { date: latest.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) })}
+                      {t('checkout.summary.preorder_ships_by', { date: latest.toLocaleDateString(preorderDateLocale(), { month: 'long', day: 'numeric', year: 'numeric' }) })}
                     </p>
                   )}
                 </div>
@@ -1031,7 +1033,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       <p className="text-amber-600 text-xs font-medium">
                         {t('checkout.summary.preorder_badge')}
                         {(item as any).preorderExpectedShipDate
-                          ? ` ${t('checkout.summary.preorder_ships_inline', { date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) })}`
+                          ? ` ${t('checkout.summary.preorder_ships_inline', { date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(preorderDateLocale(), { month: 'short', day: 'numeric' }) })}`
                           : ''}
                       </p>
                     )}
