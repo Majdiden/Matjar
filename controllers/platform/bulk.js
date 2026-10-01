@@ -13,18 +13,24 @@ import { runBulkTenantAction } from "../../services/platform/bulk.js";
 const ACTION_AUDIT = {
   suspend: "tenant.suspend",
   unsuspend: "tenant.unsuspend",
+  schedule_deletion: "tenant.schedule_deletion",
+  cancel_deletion: "tenant.cancel_deletion",
   add_to_program: "program.member.add",
   remove_from_program: "program.member.remove",
   change_plan: "plan.change",
+  cancel_plan_change: "plan.change.cancel",
 };
 
 /** Scope required per bulk action — mirrors the single-tenant routes. */
 export const BULK_ACTION_SCOPE = Object.freeze({
   suspend: PLATFORM_SCOPES.TENANT_LIFECYCLE,
   unsuspend: PLATFORM_SCOPES.TENANT_LIFECYCLE,
+  schedule_deletion: PLATFORM_SCOPES.TENANT_LIFECYCLE,
+  cancel_deletion: PLATFORM_SCOPES.TENANT_LIFECYCLE,
   add_to_program: PLATFORM_SCOPES.FLAGS_WRITE,
   remove_from_program: PLATFORM_SCOPES.FLAGS_WRITE,
   change_plan: PLATFORM_SCOPES.BILLING_WRITE,
+  cancel_plan_change: PLATFORM_SCOPES.BILLING_WRITE,
 });
 export const BULK_SCOPES = Object.freeze([...new Set(Object.values(BULK_ACTION_SCOPE))]);
 

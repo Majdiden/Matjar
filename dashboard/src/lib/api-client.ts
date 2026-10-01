@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { loginUrl, isOnLoginPage } from './authHandoff';
+import { localizeApiError } from './api-errors';
 
 // API Base URL — always same-origin `/api`.
 //
@@ -93,7 +94,10 @@ async function apiCall<T>(
     return response.data;
   } catch (error: unknown) {
     if (isAxiosErrorLike(error)) {
-      throw error.response?.data ?? error.message ?? 'An error occurred';
+      // Same envelope as before, with `message` / `errors[i].message`
+      // rewritten into the dashboard language (see lib/api-errors).
+      const status = (error as { response?: { status?: number } }).response?.status;
+      throw localizeApiError(error.response?.data ?? error.message ?? 'An error occurred', status);
     }
     throw error;
   }

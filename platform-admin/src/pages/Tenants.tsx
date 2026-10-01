@@ -462,6 +462,9 @@ export default function Tenants() {
               </div>
             </div>
           )}
+
+          {/* Room for the fixed bulk bar so it never covers the last rows or the pager. */}
+          {canBulk && selected.size > 0 && <div aria-hidden className="h-16" />}
         </>
       )}
       {reauth.modal}

@@ -107,9 +107,7 @@ const ProductDetail: React.FC = () => {
   });
   const isPreorder = preState.mode === 'preorder';
   const isPreorderable = isPreorder;
-  const shipDateLabel = preState.shipByLabel
-    ? preState.shipByLabel.replace(/^Ships by\s+/i, '')
-    : null;
+  const shipDateLabel = preState.shipDate;
   const canAddToCart =
     !adding && !requiresVariantSelection && !preState.ctaDisabled && (displayStock > 0 || isPreorder);
   // Honour per-customer / remaining caps. `null` means uncapped.

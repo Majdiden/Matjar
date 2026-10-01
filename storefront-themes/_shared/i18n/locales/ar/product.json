@@ -166,5 +166,13 @@
     "sold_out": "نفد المخزون",
     "out_of_stock": "غير متوفر",
     "reserving": "جارٍ الحجز…"
+  },
+  "preorder_state": {
+    "ships_by": "يُشحن بحلول {{date}}",
+    "ships_by_inline": "يُشحن بحلول {{date}}",
+    "deposit": "احجز بعربون {{pct}}%",
+    "discount": "خصم {{pct}}% على الطلب المسبق",
+    "select_options": "اختر الخيارات",
+    "adding": "جارٍ الإضافة…"
   }
 }

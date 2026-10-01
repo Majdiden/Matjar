@@ -83,9 +83,7 @@ const ProductDetail: React.FC = () => {
   });
   const isPreorderable = preState.mode === 'preorder';
   const isPreorderSoldOut = preState.mode === 'soldOut';
-  const shipDateLabel = preState.shipByLabel
-    ? preState.shipByLabel.replace(/^Ships by\s+/i, '')
-    : null;
+  const shipDateLabel = preState.shipDate;
   const effectivePrice = preState.effectivePrice;
   const effectiveCompareAt =
     preState.savingsPct > 0 ? preState.originalPrice : displayCompareAt;
@@ -198,7 +196,7 @@ const ProductDetail: React.FC = () => {
           ) : isPreorderable ? (
             <div className="mb-6">
               <p className="text-sm text-amber-600">
-                {t('theme.product_detail.preorder')}{shipDateLabel ? ` — ${t('theme.product_detail.preorder_ships', { date: shipDateLabel })}` : ''}
+                {shipDateLabel ? t('theme.product_detail.preorder_ships', { date: shipDateLabel }) : t('theme.product_detail.preorder')}
               </p>
               {preState.lowRemaining && preState.remaining !== null && (
                 <p className="text-xs font-semibold text-amber-700 mt-1">{t('theme.product_detail.only_left', { count: preState.remaining })}</p>

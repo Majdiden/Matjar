@@ -261,7 +261,7 @@ const ProductDetail: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-gold" />
                     <span className="text-gold">
-                      {t('theme.product_detail.pre_order')}{preState.shipByLabel ? ` — ${preState.shipByLabel.toLowerCase()}` : ''}
+                      {t('theme.product_detail.pre_order')}{preState.shipByInline ? ` — ${preState.shipByInline}` : ''}
                     </span>
                   </div>
                   {preState.lowRemaining && preState.remaining !== null && (
