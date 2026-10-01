@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import type { Product, Category, ProductFormData } from '../../types';
 import { VariantEditor } from './VariantEditor';
 import { PreorderEditor } from './PreorderEditor';
+import { CategoryPicker } from './CategoryPicker';
 import { SpecificationsEditor, ContentSectionsEditor } from './ContentEditors';
 import { SECTION_KEY_RE, type SpecRow, type ContentSectionRow } from './contentSections';
 
@@ -397,23 +398,13 @@ export const ProductForm: React.FC = () => {
 
                 <div className="space-y-2">
                   <Label>{t('products.form.field.category.label')}</Label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between">
-                        {formData.category
-                          ? categories.find(c => c._id === formData.category)?.name || t('products.form.field.category.placeholder')
-                          : t('products.form.field.category.placeholder')}
-                        <ChevronDown className="h-4 w-4 ms-2 opacity-50" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-full">
-                      {categories.map(cat => (
-                        <DropdownMenuItem key={cat._id} onClick={() => handleChange('category', cat._id)}>
-                          {cat.name}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <CategoryPicker
+                    value={formData.category}
+                    onChange={id => handleChange('category', id)}
+                    categories={categories}
+                    onCategoryCreated={cat => setCategories(prev => [...prev, cat])}
+                    invalid={Boolean(formErrors.category)}
+                  />
                   {formErrors.category && <p className="text-xs text-destructive">{formErrors.category}</p>}
                 </div>
               </CardContent>
@@ -509,7 +500,7 @@ export const ProductForm: React.FC = () => {
                       <ChevronDown className="h-4 w-4 opacity-50" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent>
+                  <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width]">
                     <DropdownMenuItem onClick={() => handleChange('status', 'draft')}>{t('products.status.draft')}</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleChange('status', 'active')}>{t('products.status.active')}</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleChange('status', 'archived')}>{t('products.status.archived')}</DropdownMenuItem>

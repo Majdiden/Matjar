@@ -159,7 +159,10 @@
           "placeholder": "اختر الفئة",
           "error": {
             "required": "مطلوب"
-          }
+          },
+          "search_placeholder": "ابحث عن فئة أو أنشئ واحدة…",
+          "empty": "لا توجد فئات بعد — اكتب اسمًا لإنشاء فئة",
+          "create": "إنشاء \"{{name}}\""
         },
         "regular_price": {
           "label": "السعر الأصلي *",
