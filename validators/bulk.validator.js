@@ -1,8 +1,20 @@
 import { z } from "zod";
 import { objectId, reason } from "./platform.validator.js";
 
-export const BULK_ACTIONS = ["suspend", "unsuspend", "add_to_program", "remove_from_program", "change_plan"];
+export const BULK_ACTIONS = [
+  "suspend",
+  "unsuspend",
+  "schedule_deletion",
+  "cancel_deletion",
+  "add_to_program",
+  "remove_from_program",
+  "change_plan",
+  "cancel_plan_change",
+];
 export const BULK_MAX_TENANTS = 50;
+// Mirrors the single-tenant schedule-deletion window in services/tenantLifecycle.js.
+export const BULK_MIN_GRACE_DAYS = 1;
+export const BULK_MAX_GRACE_DAYS = 90;
 
 const planKey = z.string().trim().toLowerCase().min(1).max(64).regex(/^[a-z0-9][a-z0-9-_]*$/);
 
@@ -17,6 +29,7 @@ export const bulkTenantsSchema = z.object({
           programId: objectId.optional(),
           planKey: planKey.optional(),
           effectiveAt: z.enum(["immediately", "next_period"]).optional(),
+          graceDays: z.coerce.number().int().min(BULK_MIN_GRACE_DAYS).max(BULK_MAX_GRACE_DAYS).optional(),
         })
         .default({}),
     })

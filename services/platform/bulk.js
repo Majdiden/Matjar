@@ -2,7 +2,8 @@
  * Bulk tenant operations.
  *
  * Deliberately narrow: a fixed allow-list of reversible actions (never purge,
- * never delete), at most BULK_MAX_TENANTS ids per call, run SEQUENTIALLY
+ * never delete — schedule_deletion only closes the store and starts the
+ * grace window, which cancel_deletion undoes), at most BULK_MAX_TENANTS ids per call, run SEQUENTIALLY
  * through the same single-tenant services the console uses — so every
  * lifecycle guard, program rule and plan rule applies per tenant, and each
  * tenant gets its own audit row exactly as if the operator had clicked it.
@@ -10,9 +11,9 @@
  * outcomes.
  */
 import mongoose from "mongoose";
-import { suspendTenant, unsuspendTenant } from "../tenantLifecycle.js";
+import { suspendTenant, unsuspendTenant, scheduleTenantDeletion, cancelScheduledDeletion } from "../tenantLifecycle.js";
 import { addMember, removeMember } from "./programs.js";
-import { schedulePlanChange } from "./billing/planChanges.js";
+import { schedulePlanChange, cancelScheduledChange } from "./billing/planChanges.js";
 import { BULK_ACTIONS, BULK_MAX_TENANTS } from "../../validators/bulk.validator.js";
 
 export { BULK_ACTIONS, BULK_MAX_TENANTS };
@@ -32,6 +33,7 @@ function lifecycleSnapshot(t) {
         lifecycle: t.lifecycle?.state || null,
         subscriptionStatus: t.subscriptionStatus,
         subscriptionPlan: t.subscriptionPlan || null,
+        deletionScheduledAt: t.deletionScheduledAt || null,
         accessPrograms: t.accessPrograms || [],
       }
     : null;
@@ -41,7 +43,7 @@ async function snapshot(tenantId) {
   const t = await mongoose
     .model("Tenant")
     .findById(tenantId)
-    .select("lifecycle.state subscriptionStatus subscriptionPlan accessPrograms")
+    .select("lifecycle.state subscriptionStatus subscriptionPlan deletionScheduledAt accessPrograms")
     .lean();
   return lifecycleSnapshot(t);
 }
@@ -61,6 +63,17 @@ async function runOne({ action, tenantId, reason, params, actor }) {
       case "unsuspend":
         await unsuspendTenant({ tenantId, reason, platformUserEmail: actor.email });
         break;
+      case "schedule_deletion":
+        await scheduleTenantDeletion({
+          tenantId,
+          reason,
+          platformUserEmail: actor.email,
+          ...(params.graceDays ? { graceDays: params.graceDays } : {}),
+        });
+        break;
+      case "cancel_deletion":
+        await cancelScheduledDeletion({ tenantId, platformUserEmail: actor.email });
+        break;
       case "add_to_program":
         await addMember(params.programId, tenantId);
         break;
@@ -78,6 +91,12 @@ async function runOne({ action, tenantId, reason, params, actor }) {
           selfService: false,
         });
         break;
+      case "cancel_plan_change": {
+        const cancelled = await cancelScheduledChange(tenantId);
+        // A silent no-op would read as "done"; report it per tenant instead.
+        if (!cancelled) return { ok: false, error: "No scheduled plan change", code: 409, before, after: before };
+        break;
+      }
       default:
         return { ok: false, error: "Unsupported action", code: 400, before, after: before };
     }
