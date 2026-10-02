@@ -46,6 +46,9 @@ import { LiveStoreBanner } from '../../components/LiveStoreBanner';
 import { SetupProgress, stepIndex } from './components/SetupProgress';
 import { DnsRecordsBlock } from './components/DnsRecordsBlock';
 import { errMsg } from '../../lib/errors';
+import { ltrIsolate } from '../../lib/utils';
+import { useFeatures } from '../../contexts/features-context';
+import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '../../components/EmptyState';
 
 // Poll every 10s while any row is in a transitional state
@@ -60,6 +63,8 @@ const POLL_INTERVAL_MS = 10_000;
 
 export const Domains: React.FC = () => {
   const { t } = useTranslation(['domains', 'common']);
+  const navigate = useNavigate();
+  const { hasFeature } = useFeatures();
   const [domainInfo, setDomainInfo] = useState<DomainInfoResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string>('');
@@ -125,6 +130,11 @@ export const Domains: React.FC = () => {
 
   const primary = useMemo(() => rows.find((r) => r.isPrimary), [rows]);
 
+  // The free platform subdomain is available on every plan; only connecting
+  // a custom domain needs the plan feature (the server enforces the same on
+  // /domains/custom*).
+  const canUseCustomDomain = hasFeature('domains.custom') && !!domainInfo?.canUseCustomDomain;
+
   const customDomains = useMemo(
     () =>
       rows
@@ -151,7 +161,7 @@ export const Domains: React.FC = () => {
     try {
       setActionLoading(`primary:${row._id}`);
       await api.domains.setPrimaryDomain(type);
-      toast.success(t('domains:toast.set_primary', { hostname: row.hostname }));
+      toast.success(t('domains:toast.set_primary', { hostname: ltrIsolate(row.hostname) }));
       await loadDomainInfo({ silent: true });
     } catch (err) {
       toast.error(errMsg(err, t('domains:toast.error_primary')));
@@ -164,7 +174,7 @@ export const Domains: React.FC = () => {
     try {
       setActionLoading(`retry:${row._id}`);
       await api.domains.enableSSL();
-      toast.success(t('domains:toast.retry_ssl', { hostname: row.hostname }));
+      toast.success(t('domains:toast.retry_ssl', { hostname: ltrIsolate(row.hostname) }));
       await loadDomainInfo({ silent: true });
     } catch (err) {
       toast.error(errMsg(err, t('domains:toast.error_retry')));
@@ -177,7 +187,7 @@ export const Domains: React.FC = () => {
     try {
       setActionLoading(`recheck:${row._id}`);
       await api.domains.verifyCustomDomain();
-      toast.success(t('domains:toast.recheck_dns', { hostname: row.hostname }));
+      toast.success(t('domains:toast.recheck_dns', { hostname: ltrIsolate(row.hostname) }));
       await loadDomainInfo({ silent: true });
     } catch (err) {
       toast.error(errMsg(err, t('domains:toast.error_recheck')));
@@ -189,7 +199,7 @@ export const Domains: React.FC = () => {
   const handleRemove = async (row: DomainRegistryRow) => {
     if (
       !(await confirm({
-        title: t('domains:confirm.remove_title', { hostname: row.hostname }),
+        title: t('domains:confirm.remove_title', { hostname: ltrIsolate(row.hostname) }),
         description: t('domains:confirm.remove_description'),
         confirmText: t('domains:confirm.remove_confirm'),
         variant: 'destructive',
@@ -200,7 +210,7 @@ export const Domains: React.FC = () => {
     try {
       setActionLoading(`remove:${row._id}`);
       await api.domains.removeCustomDomain(row._id);
-      toast.success(t('domains:toast.removed', { hostname: row.hostname }));
+      toast.success(t('domains:toast.removed', { hostname: ltrIsolate(row.hostname) }));
       await loadDomainInfo({ silent: true });
     } catch (err) {
       toast.error(errMsg(err, t('domains:toast.error_remove')));
@@ -255,14 +265,12 @@ export const Domains: React.FC = () => {
             {t('domains:list.subtitle')}
           </p>
         </div>
-        <Button
-          onClick={() => setAddOpen(true)}
-          disabled={!domainInfo?.canUseCustomDomain}
-          size="lg"
-        >
-          <Plus className="h-4 w-4 me-2" />
-          {t('domains:list.action.connect')}
-        </Button>
+        {canUseCustomDomain && (
+          <Button onClick={() => setAddOpen(true)} size="lg">
+            <Plus className="h-4 w-4 me-2" />
+            {t('domains:list.action.connect')}
+          </Button>
+        )}
       </div>
 
       {/* -- Hero: your store is live at ------------------------------ */}
@@ -296,7 +304,7 @@ export const Domains: React.FC = () => {
               {t('domains:list.custom.section_hint')}
             </p>
           </div>
-          {customDomains.length > 0 && domainInfo?.canUseCustomDomain && (
+          {customDomains.length > 0 && canUseCustomDomain && (
             <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
               <Plus className="h-3.5 w-3.5 me-1.5" />
               {t('domains:list.custom.add_another')}
@@ -309,7 +317,7 @@ export const Domains: React.FC = () => {
             icon={Globe}
             title={t('domains:list.empty.title')}
             description={t('domains:list.empty.hint')}
-            action={domainInfo?.canUseCustomDomain ? (
+            action={canUseCustomDomain ? (
               <Button onClick={() => setAddOpen(true)}>
                 <Plus className="h-4 w-4 me-1.5" />
                 {t('domains:list.empty.action')}
@@ -336,7 +344,7 @@ export const Domains: React.FC = () => {
       </section>
 
       {/* -- Plan gate ------------------------------------------------ */}
-      {!domainInfo?.canUseCustomDomain && (
+      {!canUseCustomDomain && !loading && (
         <Card className="border-primary/40 bg-primary/5">
           <CardContent className="py-6 flex items-center gap-4">
             <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
@@ -348,14 +356,18 @@ export const Domains: React.FC = () => {
                 {t('domains:list.plan_gate.hint', { plan: domainInfo?.subscriptionPlan })}
               </p>
             </div>
-            <Button>{t('domains:list.plan_gate.upgrade')}</Button>
+            {hasFeature('billing.subscription') && (
+              <Button onClick={() => navigate('/dashboard/subscription')}>
+                {t('domains:list.plan_gate.upgrade')}
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
 
       {/* -- Dialogs -------------------------------------------------- */}
       <AddDomainDialog
-        open={addOpen}
+        open={addOpen && canUseCustomDomain}
         onOpenChange={setAddOpen}
         onComplete={() => loadDomainInfo({ silent: true })}
       />
@@ -365,13 +377,15 @@ export const Domains: React.FC = () => {
           <DialogHeader>
             <DialogTitle>{t('domains:subdomain_dialog.title')}</DialogTitle>
             <DialogDescription>
-              {t('domains:subdomain_dialog.description', { suffix: platformSuffix })}
+              {t('domains:subdomain_dialog.description', { suffix: ltrIsolate(`.${platformSuffix}`) })}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-2">
             <Label>{t('domains:subdomain_dialog.field.new_address.label')}</Label>
-            <div className="flex items-center gap-2">
+            {/* Domains are always Latin and read left-to-right, even in Arabic. */}
+            <div className="flex items-center gap-2" dir="ltr">
               <Input
+                dir="ltr"
                 value={newSubdomain}
                 onChange={(e) =>
                   setNewSubdomain(
@@ -453,7 +467,7 @@ function PlatformSubdomainCard({
       <CardContent>
         <div className="flex items-center gap-2 p-3 rounded-md bg-muted/40 border">
           <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
-          <span className="font-mono text-sm flex-1 truncate">{fullDomain}</span>
+          <span className="font-mono text-sm flex-1 truncate"><bdi dir="ltr">{fullDomain}</bdi></span>
           <Button
             variant="ghost"
             size="icon"
@@ -637,7 +651,7 @@ function CustomDomainCard({
                 className="font-mono text-lg font-semibold truncate"
                 title={row.hostname}
               >
-                {row.hostname}
+                <bdi dir="ltr">{row.hostname}</bdi>
               </h3>
               {row.isPrimary && (
                 <Badge variant="secondary" className="gap-1 text-[10px] h-5">

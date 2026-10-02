@@ -331,7 +331,7 @@ export const Login: React.FC = () => {
                     {s.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="font-semibold text-lg leading-snug truncate">{s.name}</div>
-                  <div className="text-sm text-muted-foreground truncate mt-1">{s.domain}</div>
+                  <div className="text-sm text-muted-foreground truncate mt-1"><bdi dir="ltr">{s.domain}</bdi></div>
                   <div className="mt-4 inline-flex items-center text-sm font-medium text-foreground/80 group-hover:text-foreground">
                     {t('auth.pick_store.open_store')}
                     <ArrowRight className="h-4 w-4 ms-1 transition-transform group-hover:translate-x-0.5 rtl:rotate-180" />

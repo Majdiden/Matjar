@@ -163,7 +163,7 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
       { name: t('nav:sidebar.storefront.pages'), href: '/dashboard/pages', icon: FileText, permission: ['themes.read', 'themes.write'] },
       { name: t('nav:sidebar.storefront.media'), href: '/dashboard/media', icon: Image, permission: 'themes.write' },
       { name: t('nav:sidebar.storefront.redirects'), href: '/dashboard/redirects', icon: CornerDownRight, permission: ['themes.read', 'themes.write'], feature: 'redirects' },
-      { name: t('nav:sidebar.storefront.domains'), href: '/dashboard/domains', icon: Globe, permission: ['domains.read', 'domains.write'], feature: 'domains.custom' },
+      { name: t('nav:sidebar.storefront.domains'), href: '/dashboard/domains', icon: Globe, permission: ['domains.read', 'domains.write'] },
     ],
   },
   {
