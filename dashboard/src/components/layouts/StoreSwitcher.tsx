@@ -80,7 +80,7 @@ export const StoreSwitcherDialog: React.FC<StoreSwitcherDialogProps> = ({
                 </span>
                 <span className="flex-1 overflow-hidden">
                   <span className="block truncate text-sm font-medium">{s.name}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{s.domain}</span>
+                  <span className="block truncate text-xs text-muted-foreground"><bdi dir="ltr">{s.domain}</bdi></span>
                 </span>
                 {switching === s.id ? (
                   <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />

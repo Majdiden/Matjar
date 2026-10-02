@@ -64,7 +64,7 @@ export const LiveStoreBanner: React.FC<LiveStoreBannerProps> = ({
                 className="font-mono text-lg sm:text-xl md:text-2xl font-semibold truncate mt-0.5"
                 title={hostname}
               >
-                {hostname}
+                <bdi dir="ltr">{hostname}</bdi>
               </p>
             </div>
           </div>

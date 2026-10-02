@@ -851,9 +851,11 @@ export const Register: React.FC = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="subdomain">{t('auth.field.subdomain.label')}</Label>
-                <div className="flex items-center gap-0 border rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-ring">
+                {/* Domains are always Latin and read left-to-right, even in Arabic. */}
+                <div className="flex items-center gap-0 border rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-ring" dir="ltr">
                   <Input
                     id="subdomain"
+                    dir="ltr"
                     placeholder={t('auth.field.subdomain.placeholder')}
                     value={form.subdomain}
                     onChange={e => {
@@ -862,7 +864,7 @@ export const Register: React.FC = () => {
                     }}
                     className="border-0 focus-visible:ring-0 shadow-none"
                   />
-                  <div className="px-3 text-sm text-muted-foreground bg-muted h-10 flex items-center whitespace-nowrap" dir="ltr">
+                  <div className="px-3 text-sm text-muted-foreground bg-muted h-10 flex items-center whitespace-nowrap">
                     .{STORE_DOMAIN_SUFFIX}
                   </div>
                   <div className="px-3 h-10 flex items-center bg-muted">

@@ -144,7 +144,7 @@ function App() {
             <Route index element={<RequirePermission permission="dashboard.read"><Dashboard /></RequirePermission>} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="feedback" element={<Feedback />} />
-            <Route path="domains" element={<RequireFeature feature="domains.custom"><RequirePermission permission={['domains.read', 'domains.write']}><Domains /></RequirePermission></RequireFeature>} />
+            <Route path="domains" element={<RequirePermission permission={['domains.read', 'domains.write']}><Domains /></RequirePermission>} />
             <Route path="products" element={<RequirePermission permission="products.read"><Products /></RequirePermission>} />
             <Route path="products/new" element={<RequirePermission permission="products.write"><ProductForm /></RequirePermission>} />
             <Route path="products/:id/edit" element={<RequirePermission permission="products.write"><ProductForm /></RequirePermission>} />
