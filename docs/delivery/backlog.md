@@ -16,6 +16,7 @@ This backlog contains all Product Backlog Items (PBIs) for implementing the E-co
 | 7 | Merchant | As a merchant, I want a real-time preview system so that I can see changes to my theme immediately before publishing | Proposed | [View Details](./7/prd.md) - Preview renders in real-time, supports all device sizes, shows live data, change history maintained |
 | 8 | Developer/Merchant | As a developer or merchant, I want a theme marketplace so that custom themes can be distributed, discovered, and installed easily | Proposed | [View Details](./8/prd.md) - Theme upload/approval process, search/discovery features, installation workflow, payment processing |
 | 9 | Platform operator/Merchant | As a platform operator and merchant working from a phone, I want starter-content seeding under my control, a phone number on merchant accounts (Sudan dial code by default), and fully responsive admin surfaces | Done | [View Details](./9/prd.md) - Seed flag + on-demand seed, phone capture/validation/profile edit, operator-managed country codes, platform admin and merchant dashboard usable at 390px |
+| 10 | Merchant | As a merchant selling in several countries, I want customers charged in the right currency and shown prices in their market currency | InProgress | [View Details](./10/prd.md) - Stripe charges use the store currency with correct minor units; storefront prices follow the visitor's market |
 
 ## PBI History Log
 
@@ -23,6 +24,7 @@ This backlog contains all Product Backlog Items (PBIs) for implementing the E-co
 |-----------|--------|------------|---------|------|
 | 2024-12-19 14:30:00 | 1-8 | create_pbi | Initial PBIs created from PRD analysis | AI Assistant |
 | 2026-09-19 09:00:00 | 9 | create_pbi | Mobile-first operator & merchant experience (seed control, phone identity, responsive admin surfaces) | AI Assistant |
+| 2026-10-02 09:00:00 | 10 | create_pbi | Multi-currency storefront pricing; first task fixes Stripe charge currency | AI Assistant |
 
 ## Notes
 - PBIs are ordered by technical dependency and implementation priority

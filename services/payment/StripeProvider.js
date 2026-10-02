@@ -15,6 +15,7 @@
  */
 
 import Stripe from "stripe";
+import { toStripeAmount, fromStripeAmount } from "../../utils/stripeAmount.js";
 import { PaymentProvider } from "./PaymentProvider.js";
 
 const DEFAULT_API_VERSION = "2024-06-20";
@@ -33,7 +34,7 @@ export class StripeProvider extends PaymentProvider {
 
   async initializePayment({ amount, currency = "usd", metadata = {}, automaticPaymentMethods = true }) {
     const intent = await this.stripe.paymentIntents.create({
-      amount: Math.round(Number(amount) * 100),
+      amount: toStripeAmount(amount, currency),
       currency: String(currency).toLowerCase(),
       metadata,
       ...(automaticPaymentMethods ? { automatic_payment_methods: { enabled: true } } : {}),
@@ -42,26 +43,39 @@ export class StripeProvider extends PaymentProvider {
       providerId: intent.id,
       clientSecret: intent.client_secret,
       status: intent.status,
-      amount: intent.amount / 100,
+      amount: fromStripeAmount(intent.amount, intent.currency),
       currency: intent.currency,
     };
   }
 
+  // Partial capture/refund amounts arrive in major units; the intent's own
+  // currency decides how they scale to Stripe's minor units.
+  async #intentCurrency(paymentId) {
+    const intent = await this.stripe.paymentIntents.retrieve(paymentId);
+    return intent.currency;
+  }
+
   async capturePayment(paymentId, amount = null) {
-    const params = amount != null ? { amount_to_capture: Math.round(Number(amount) * 100) } : undefined;
+    const params = amount != null
+      ? { amount_to_capture: toStripeAmount(amount, await this.#intentCurrency(paymentId)) }
+      : undefined;
     const intent = await this.stripe.paymentIntents.capture(paymentId, params);
-    return { providerId: intent.id, status: intent.status, amount: intent.amount / 100 };
+    return {
+      providerId: intent.id,
+      status: intent.status,
+      amount: fromStripeAmount(intent.amount, intent.currency),
+    };
   }
 
   async refundPayment(transactionId, amount = null, reason = null) {
     const body = { payment_intent: transactionId };
-    if (amount != null) body.amount = Math.round(Number(amount) * 100);
+    if (amount != null) body.amount = toStripeAmount(amount, await this.#intentCurrency(transactionId));
     if (reason) body.reason = reason;
     const refund = await this.stripe.refunds.create(body);
     return {
       providerId: refund.id,
       paymentIntentId: transactionId,
-      amount: refund.amount / 100,
+      amount: fromStripeAmount(refund.amount, refund.currency),
       status: refund.status,
     };
   }
@@ -71,7 +85,7 @@ export class StripeProvider extends PaymentProvider {
     return {
       providerId: intent.id,
       status: intent.status,
-      amount: intent.amount / 100,
+      amount: fromStripeAmount(intent.amount, intent.currency),
       currency: intent.currency,
     };
   }
@@ -97,7 +111,7 @@ export class StripeProvider extends PaymentProvider {
           type: "payment_success",
           eventId: event.id,
           providerId: pi.id,
-          amount: pi.amount / 100,
+          amount: fromStripeAmount(pi.amount, pi.currency),
           currency: pi.currency,
           metadata: pi.metadata || {},
         };
@@ -118,7 +132,7 @@ export class StripeProvider extends PaymentProvider {
           type: "payment_refunded",
           eventId: event.id,
           providerId: ch.payment_intent,
-          amount: ch.amount_refunded / 100,
+          amount: fromStripeAmount(ch.amount_refunded, ch.currency),
           metadata: ch.metadata || {},
         };
       }

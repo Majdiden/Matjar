@@ -40,7 +40,9 @@ export const createPaymentIntentController = asyncHandler(async (req, res) => {
     return res.status(403).json({ success: false, message: "Not authorized" });
   }
 
-  const result = await createPaymentIntent(order, req.tenantId);
+  // Same default the storefront uses to display prices (storefrontStoreInfo).
+  const storeCurrency = req.tenant?.settings?.currency || "SDG";
+  const result = await createPaymentIntent(order, req.tenantId, storeCurrency);
 
   // Store payment intent ID on the order
   await req.models.Order.findByIdAndUpdate(orderId, {
