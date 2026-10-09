@@ -25,6 +25,7 @@ import { focusFirstInvalid } from '../../lib/focusFirstInvalid';
 import {
   EMPTY_ANSWER, fromDraft, hasArabic, isEditedConflict, toAsciiDigits, toDraft, type AnswerDraft,
 } from './answers';
+import { getTenantLocale } from '../../lib/format';
 
 /** Server-side limits (services/generatedPages.js). */
 const MAX_LENGTH = { areas: 300, fee: 200, time: 100, conditions: 600 } as const;
@@ -144,7 +145,7 @@ export const StorePolicies: React.FC = () => {
   };
 
   const formatZonePrice = (price: number | null) =>
-    !price ? t('storePages:policies.zone_free') : `${price.toLocaleString(i18n.language)} ${state?.currency || ''}`.trim();
+    !price ? t('storePages:policies.zone_free') : `${price.toLocaleString(getTenantLocale())} ${state?.currency || ''}`.trim();
 
   return (
     <StoreScreen title={t('storePages:policies.title')} intro={t('storePages:policies.intro')} loading={loading}>

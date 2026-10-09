@@ -28,6 +28,7 @@ import { toast } from 'sonner';
 import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errMsg } from '../../lib/errors';
+import { formatDate } from '../../lib/format';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -74,7 +75,7 @@ const roleBadgeVariant = (role: StaffRole): 'default' | 'secondary' | 'outline' 
 };
 
 const fmtDate = (iso?: string) =>
-  iso ? new Date(iso).toLocaleDateString() : '—';
+  iso ? formatDate(iso) : '—';
 
 interface RolesListResponse {
   roles?: CustomRole[];

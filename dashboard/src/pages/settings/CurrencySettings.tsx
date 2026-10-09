@@ -15,6 +15,7 @@ import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { errorMessage, type CurrencyConfig } from './shared';
+import { getTenantLocale } from '../../lib/format';
 
 export const CurrencySettings: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
@@ -130,7 +131,7 @@ export const CurrencySettings: React.FC = () => {
 
         {config.ratesUpdatedAt && (
           <p className="text-xs text-muted-foreground">
-            {t('settings.fx_rates_updated_at', { datetime: new Date(config.ratesUpdatedAt).toLocaleString() })}
+            {t('settings.fx_rates_updated_at', { datetime: new Date(config.ratesUpdatedAt).toLocaleString(getTenantLocale()) })}
           </p>
         )}
 

@@ -626,7 +626,7 @@ export const Dashboard: React.FC = () => {
             <StatCard
               className="h-full"
               label={t('dashboard:metric.orders')}
-              value={orderStats.orders30d.toLocaleString()}
+              value={orderStats.orders30d.toLocaleString(getTenantLocale())}
               icon={ShoppingCart}
               delta={ordersDelta}
               description={t('dashboard:metric.orders_description')}
@@ -637,7 +637,7 @@ export const Dashboard: React.FC = () => {
             <StatCard
               className="h-full"
               label={t('dashboard:metric.products')}
-              value={totals.products.toLocaleString()}
+              value={totals.products.toLocaleString(getTenantLocale())}
               icon={Package}
               description={t('dashboard:metric.products_description')}
               chart={<SalesSparkline points={cumulativeSeries(productDaily, totals.products)} />}
@@ -647,7 +647,7 @@ export const Dashboard: React.FC = () => {
             <StatCard
               className="h-full"
               label={t('dashboard:metric.customers')}
-              value={totals.customers.toLocaleString()}
+              value={totals.customers.toLocaleString(getTenantLocale())}
               icon={Users}
               description={t('dashboard:metric.customers_description')}
               chart={<SalesSparkline points={cumulativeSeries(customerDaily, totals.customers)} />}
@@ -674,7 +674,7 @@ export const Dashboard: React.FC = () => {
               <Link to="/dashboard/orders">
                 <StatCard
                   label={t('dashboard:metric.orders')}
-                  value={orderStats.orders30d.toLocaleString()}
+                  value={orderStats.orders30d.toLocaleString(getTenantLocale())}
                   icon={ShoppingCart}
                   delta={ordersDelta}
                   description={withTrend(t('dashboard:metric.orders_description'), ordersDelta)}
@@ -691,7 +691,7 @@ export const Dashboard: React.FC = () => {
               <Link to="/dashboard/products">
                 <StatCard
                   label={t('dashboard:metric.products')}
-                  value={totals.products.toLocaleString()}
+                  value={totals.products.toLocaleString(getTenantLocale())}
                   icon={Package}
                   description={t('dashboard:metric.products_description')}
                   chart={<SalesSparkline points={cumulativeSeries(productDaily, totals.products)} />}
@@ -700,7 +700,7 @@ export const Dashboard: React.FC = () => {
               <Link to="/dashboard/customers">
                 <StatCard
                   label={t('dashboard:metric.customers')}
-                  value={totals.customers.toLocaleString()}
+                  value={totals.customers.toLocaleString(getTenantLocale())}
                   icon={Users}
                   description={t('dashboard:metric.customers_description')}
                   chart={<SalesSparkline points={cumulativeSeries(customerDaily, totals.customers)} />}

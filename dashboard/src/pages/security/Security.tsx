@@ -26,6 +26,7 @@ import { Skeleton } from '../../components/ui/skeleton';
 import { OtpInput } from '../../components/OtpInput';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { toast } from 'sonner';
+import { formatDate } from '../../lib/format';
 
 const OTP_LENGTH = 4;
 
@@ -45,7 +46,7 @@ interface Passkey {
  * namespace (en + ar); layout uses logical CSS so it mirrors under RTL.
  */
 export const SecurityPanel: React.FC = () => {
-  const { t, i18n } = useTranslation(['security', 'common']);
+  const { t } = useTranslation(['security', 'common']);
   const { user } = useAuth();
 
   // ── Passkeys ──
@@ -248,11 +249,11 @@ export const SecurityPanel: React.FC = () => {
                     <div className="text-xs text-muted-foreground">
                       {pk.lastUsedAt
                         ? t('security.passkey.last_used', {
-                            date: new Date(pk.lastUsedAt).toLocaleDateString(i18n.language),
+                            date: formatDate(pk.lastUsedAt),
                           })
                         : t('security.passkey.added', {
                             date: pk.createdAt
-                              ? new Date(pk.createdAt).toLocaleDateString(i18n.language)
+                              ? formatDate(pk.createdAt)
                               : '',
                           })}
                     </div>

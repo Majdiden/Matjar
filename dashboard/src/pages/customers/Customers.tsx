@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatPrice, formatDate } from '../../lib/format';
+import { formatPrice, formatDate, getTenantLocale } from '../../lib/format';
 import { errMsg } from '../../lib/errors';
 import { Link } from 'react-router-dom';
 import { api } from '../../lib/api-client';
@@ -217,8 +217,8 @@ export default function Customers() {
 
   const statCards = useMemo(
     () => [
-      { label: t('customers.stat.total_customers'), value: stats.total.toLocaleString(), icon: Users, description: t('customers.stat.total_customers_desc') },
-      { label: t('customers.stat.active'), value: stats.active.toLocaleString(), icon: UserCheck, description: t('customers.stat.active_desc') },
+      { label: t('customers.stat.total_customers'), value: stats.total.toLocaleString(getTenantLocale()), icon: Users, description: t('customers.stat.total_customers_desc') },
+      { label: t('customers.stat.active'), value: stats.active.toLocaleString(getTenantLocale()), icon: UserCheck, description: t('customers.stat.active_desc') },
       { label: t('customers.stat.total_revenue'), value: formatPrice(stats.totalSpent), icon: DollarSign, description: t('customers.stat.total_revenue_desc') },
       { label: t('customers.stat.avg_ltv'), value: formatPrice(stats.avgLtv), icon: TrendingUp, description: t('customers.stat.avg_ltv_desc') },
     ],

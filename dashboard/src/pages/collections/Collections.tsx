@@ -18,6 +18,7 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
+import { formatDate } from '../../lib/format';
 
 interface Collection {
   _id: string;
@@ -339,7 +340,7 @@ export const Collections: React.FC = () => {
                     {col.type === 'smart' ? t('products.collections.list.type_badge.smart') : t('products.collections.list.type_badge.manual')}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(col.updatedAt).toLocaleDateString()}
+                    {formatDate(col.updatedAt)}
                   </span>
                 </div>
               </CardContent>

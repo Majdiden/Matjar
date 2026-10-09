@@ -23,6 +23,7 @@ import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { Link, useNavigate } from 'react-router-dom';
+import { getTenantLocale, formatDate } from '../../lib/format';
 
 interface Payment {
   _id: string;
@@ -138,7 +139,7 @@ export const Payments: React.FC = () => {
   };
 
   const formatCurrency = (amount: number, currency = 'USD') =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+    new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency }).format(amount);
 
   if (loading) {
     return (
@@ -281,7 +282,7 @@ export const Payments: React.FC = () => {
                     </TableCell>
                     <TableCell>{getStatusBadge(payment.status)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {new Date(payment.createdAt).toLocaleDateString()}
+                      {formatDate(payment.createdAt)}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>

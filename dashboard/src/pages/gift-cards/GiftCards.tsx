@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { toCSV, downloadCSV } from '../../lib/utils';
 import { useViewMode, ViewToggle } from '../../components/ui/view-toggle';
+import { getTenantLocale } from '../../lib/format';
 
 interface GiftCard {
   _id: string;
@@ -394,10 +395,10 @@ const GiftCards: React.FC = () => {
   };
 
   const formatMoney = (amount: number, currency: string) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+    new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency }).format(amount);
 
   const formatDate = (d?: string) =>
-    d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+    d ? new Date(d).toLocaleDateString(getTenantLocale(), { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 
   return (
     <div className="space-y-6">

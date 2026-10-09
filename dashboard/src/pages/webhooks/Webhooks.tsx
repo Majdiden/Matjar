@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errMsg } from '../../lib/errors';
+import { getTenantLocale } from '../../lib/format';
 
 interface WebhookEndpoint {
   _id: string;
@@ -267,7 +268,7 @@ export const Webhooks: React.FC = () => {
                             <XCircle className="h-3.5 w-3.5 text-destructive" />
                           )}
                           <span className="text-xs">
-                            {t(`common:status.${webhook.lastDelivery.status}`, { defaultValue: webhook.lastDelivery.status })} - {new Date(webhook.lastDelivery.timestamp).toLocaleString()}
+                            {t(`common:status.${webhook.lastDelivery.status}`, { defaultValue: webhook.lastDelivery.status })} - {new Date(webhook.lastDelivery.timestamp).toLocaleString(getTenantLocale())}
                           </span>
                         </div>
                       ) : (

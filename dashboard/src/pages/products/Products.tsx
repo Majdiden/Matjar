@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatPrice } from '../../lib/format';
+import { formatPrice, getTenantLocale } from '../../lib/format';
 import { errMsg } from '../../lib/errors';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../components/PageHeader';
@@ -202,9 +202,9 @@ export const Products: React.FC = () => {
   };
 
   const statCards = useMemo(() => [
-    { label: t('products.list.stat.total_products'), value: stats.total.toLocaleString(), icon: Package, description: t('products.list.stat.total_description') },
-    { label: t('products.list.stat.active'), value: stats.active.toLocaleString(), icon: CheckCircle2, description: t('products.list.stat.active_description') },
-    { label: t('products.list.stat.low_stock'), value: stats.lowStock.toLocaleString(), icon: AlertTriangle, description: t('products.list.stat.low_stock_description') },
+    { label: t('products.list.stat.total_products'), value: stats.total.toLocaleString(getTenantLocale()), icon: Package, description: t('products.list.stat.total_description') },
+    { label: t('products.list.stat.active'), value: stats.active.toLocaleString(getTenantLocale()), icon: CheckCircle2, description: t('products.list.stat.active_description') },
+    { label: t('products.list.stat.low_stock'), value: stats.lowStock.toLocaleString(getTenantLocale()), icon: AlertTriangle, description: t('products.list.stat.low_stock_description') },
     { label: t('products.list.stat.inventory_value'), value: formatPrice(stats.value), icon: TrendingUp, description: t('products.list.stat.inventory_value_description') },
   ], [stats, t]);
 

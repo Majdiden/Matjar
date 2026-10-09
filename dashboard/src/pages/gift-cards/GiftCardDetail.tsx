@@ -16,6 +16,7 @@ import { ArrowLeft, Loader2, RefreshCw, PlusCircle, Ban, CheckCircle } from 'luc
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { focusFieldById } from '../../lib/focusFirstInvalid';
+import { getTenantLocale } from '../../lib/format';
 
 interface Transaction {
   _id: string;
@@ -181,10 +182,10 @@ const GiftCardDetail: React.FC = () => {
   };
 
   const formatMoney = (amount: number, currency: string) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+    new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency }).format(amount);
 
   const formatDate = (d?: string) =>
-    d ? new Date(d).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+    d ? new Date(d).toLocaleString(getTenantLocale(), { dateStyle: 'medium', timeStyle: 'short' }) : '—';
 
   if (loading) {
     return (
