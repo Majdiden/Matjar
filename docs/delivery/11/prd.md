@@ -29,7 +29,9 @@ Deleting a store from the platform console only ever archived it: "schedule dele
 - **Deletion** (`services/tenantDeletion.js`) runs in this order: mark the store inactive → delete its Domain rows (it stops serving and the hostname is freed) → delete files (`services/tenantFilePurge.js`: Cloudinary folder prefixes for the store's domain/slug/custom domain, media-library assets by id, export files, dev-mode local files) → every collection in `TENANT_SCOPED_MODELS` → admin rows that only exist for the store (merchant TenantUser rows, legacy Subscription, TenantExport, Feature/Pricing overrides, StorefrontHealth, usage snapshots, feedback, incident references) → the Tenant row last.
 - **Resumable rather than transactional.** Each step is an idempotent deleteMany, and the Tenant row is only removed once every database step succeeds. A failure leaves the store listed as deleted, and running the action again finishes it.
 - **Safety rails.** The wipe refuses anything that isn't a real ObjectId (an undefined id would otherwise become an empty filter and match every store). Storage prefixes accept only hostname-like identifiers and always end in "/".
-- **Retained on purpose**: `PlatformAuditLog`, `BillingStatement`, `PlatformFeeEvent` and `PlanChange`. These are the platform's own ledger and financial records, and they reference the store by id only.
+- **Retained on purpose**:
+  - The store's **orders and payments** (`RETAINED_STORE_COLLECTIONS`), kept as financial records. Before the Tenant row is removed they are stamped with `deletedStore { name, slug, domain, currency, deletedAt }`, so the platform's cross-store order list still shows which store they belonged to. The grace-period purge keeps them too.
+  - `PlatformAuditLog`, `BillingStatement`, `PlatformFeeEvent` and `PlanChange`: the platform's own ledger and billing records, which reference the store by id only.
 - **Lifecycle purge** (grace-period sweep) now reuses the same full collection wipe instead of its partial hard-coded list. It still keeps the tombstone.
 - **Audit & alerts**: one `tenant.delete_permanently` audit row per store (counts, file results, failed steps, retained records), one `bulk.tenants` summary row for bulk runs, and a new `tenant.deleted_permanently` email event that owners always receive.
 
@@ -43,7 +45,7 @@ Deleting a store from the platform console only ever archived it: "schedule dele
 
 1. Admins and other roles can't delete stores unless an owner grants it; owners can. Grant and revoke are owner-only and take effect immediately.
 2. Every deletion requires the operator's correct password and a typed confirmation; wrong input changes nothing.
-3. After deletion, the store's Tenant row, domains, merchant logins and every scoped collection are gone; the hostname is available again; other stores and platform staff are untouched; the audit row exists and contains no password.
+3. After deletion, the store's Tenant row, domains, merchant logins and every scoped collection except orders and payments are gone; orders and payments remain, labelled with the deleted store; the hostname is available again; other stores and platform staff are untouched; the audit row exists and contains no password.
 4. Bulk deletion handles up to 20 stores, reports per-store outcomes, and continues past failures.
 
 ## Related Tasks

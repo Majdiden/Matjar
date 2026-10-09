@@ -71,6 +71,16 @@ const ARABIC_DIACRITICS = /[ؐ-ًؚ-ٰٟۖ-ۭـ]/g;
 const ARABIC_INDIC_DIGIT = /[٠-٩۰-۹]/g;
 const ARABIC_CHAR = /[؀-ۿ]/;
 
+// Invisible formatting characters (Unicode "Cf": bidi marks/embeddings/
+// isolates, zero-width joiners, BOM). Apps with an Arabic interface wrap
+// copied links in these, which defeats URL detection if left in.
+const INVISIBLE_FORMAT_CHARS = /\p{Cf}/gu;
+const UNICODE_SPACES = /[\s\u00a0\u2000-\u200a\u202f\u205f\u3000]+/g;
+
+/** Strip invisible formatting characters and normalise spaces. */
+export const cleanInput = (text: string): string =>
+  String(text ?? '').replace(INVISIBLE_FORMAT_CHARS, '').replace(UNICODE_SPACES, ' ').trim();
+
 /** True when the text contains Arabic script. */
 export const hasArabic = (text: string): boolean => ARABIC_CHAR.test(text);
 
@@ -101,7 +111,7 @@ const trimHyphens = (s: string) => s.replace(/^-+|-+$/g, '');
 
 /** Full store name (any script) → finished subdomain suggestion. */
 export function slugifyStoreName(name: string): string {
-  const latin = transliterateArabic(name.toLowerCase())
+  const latin = transliterateArabic(cleanInput(name).toLowerCase())
     .normalize('NFKD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/['’]/g, '')
@@ -116,7 +126,7 @@ export function slugifyStoreName(name: string): string {
  * tidies up when the field loses focus.
  */
 export function sanitizeSubdomainTyping(value: string): string {
-  return transliterateArabic(value.toLowerCase())
+  return transliterateArabic(value.replace(INVISIBLE_FORMAT_CHARS, '').toLowerCase())
     .normalize('NFKD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/[\s._/]+/g, '-')
@@ -140,10 +150,32 @@ export function finalizeSubdomain(value: string, platformDomain: string): string
 
 /** Does this pasted/typed text look like a URL rather than a name? */
 export function looksLikeLink(text: string): boolean {
-  const t = text.trim();
+  const t = cleanInput(text);
   if (!t || /\s/.test(t)) return false;
   return /^[a-z][a-z0-9+.-]*:\/\//i.test(t) || /^www\./i.test(t) || /^[^/]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(t);
 }
+
+/**
+ * The first web address in the text, or null. Handles a link pasted with
+ * words around it ("صفحتي: https://facebook.com/nile") and trailing
+ * punctuation.
+ */
+export function extractLink(text: string): string | null {
+  const t = cleanInput(text);
+  if (looksLikeLink(t)) return t;
+  for (const token of t.split(' ')) {
+    const candidate = token.replace(/^[(<«"'“]+|[)>»"'”.,،؛!?]+$/g, '');
+    if (looksLikeLink(candidate)) return candidate;
+  }
+  return null;
+}
+
+// A subdomain that is a web address with its punctuation stripped
+// ("httpswwwfacebookcom…", "facebook-com-nile"). Mirrors utils/subdomain.js
+// on the backend — keep the two patterns in sync.
+const LINK_LIKE_SUBDOMAIN = /^(https?(-|www)|www-)|(facebook|fb|instagram|tiktok|twitter|youtube)-?com|(^|-)wa-me(-|$)|whatsapp|(^|-)t-me-/;
+
+export const slugLooksLikeLink = (slug: string): boolean => LINK_LIKE_SUBDOMAIN.test(slug);
 
 const hostIn = (host: string, list: readonly string[]) =>
   list.some((h) => host === h || host.endsWith(`.${h}`));
@@ -201,13 +233,14 @@ export type LinkInterpretation =
  * store name.
  */
 export function interpretLinkInput(text: string, platformDomain: string): LinkInterpretation {
-  if (!looksLikeLink(text)) {
-    const slug = finalizeSubdomain(sanitizeSubdomainTyping(text), platformDomain);
+  const link = extractLink(text);
+  if (!link) {
+    const slug = finalizeSubdomain(sanitizeSubdomainTyping(cleanInput(text)), platformDomain);
     return EXAMPLE_SLUGS.has(slug) ? { kind: 'example', slug: '' } : { kind: 'text', slug };
   }
-  const url = parseUrl(text);
+  const url = parseUrl(link);
   if (!url || (url.protocol !== 'https:' && url.protocol !== 'http:')) {
-    return { kind: 'text', slug: finalizeSubdomain(sanitizeSubdomainTyping(text), platformDomain) };
+    return { kind: 'text', slug: finalizeSubdomain(sanitizeSubdomainTyping(cleanInput(text)), platformDomain) };
   }
   const host = url.hostname.toLowerCase().replace(/^www\./, '');
   const domain = platformDomain.toLowerCase();

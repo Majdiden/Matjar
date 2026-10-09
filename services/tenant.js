@@ -16,6 +16,13 @@ import { resolveMerchantPhone } from "./phoneCountries.js";
 import { resolveSignupPlan } from "./platform/billing/signupPlan.js";
 import { APIError } from "../middlewares/errorHandler.js";
 import { normalizeSocialLinks } from "../utils/socialLinks.js";
+import { validateSubdomain } from "../utils/subdomain.js";
+
+// New stores speak Arabic unless the merchant signed up in another
+// supported language: the platform's market is Sudan. Drives order emails,
+// seeded menus/payment methods and starter content.
+export const DEFAULT_STORE_LANGUAGE = "ar";
+export const STORE_LANGUAGES = Object.freeze(["ar", "en"]);
 
 const addATenantService = async (tenantData) => {
   const session = await mongoose.startSession();
@@ -32,6 +39,11 @@ const addATenantService = async (tenantData) => {
     // didn't send storeName.
     const storeName = tenantData.storeName || tenantData.name;
     const slug = tenantData.subdomain || storeName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    // Same rules as the availability check (shape, reserved names, pasted
+    // web addresses) — without this, signup could claim "app"/"api" or a
+    // stripped Facebook URL that the check endpoint would have refused.
+    const subdomainCheck = validateSubdomain(slug);
+    if (!subdomainCheck.valid) throw new APIError(subdomainCheck.error, 400);
 
     const Tenant = mongoose.model("Tenant");
     const isSubdomainAvailable = await Tenant.isSubdomainAvailable(slug);
@@ -141,7 +153,7 @@ const addATenantService = async (tenantData) => {
         previewToken: crypto.randomBytes(16).toString("hex"),
         currency: tenantData.currency || "SDG",
         timezone: tenantData.timezone || "Africa/Khartoum",
-        language: tenantData.language || "en",
+        language: tenantData.language || DEFAULT_STORE_LANGUAGE,
         activeTheme: themeSlug,
         // Order-email sender defaults (requirement): display name = store name,
         // address = no-reply@<platform root domain> (e.g. no-reply@matjar.to).

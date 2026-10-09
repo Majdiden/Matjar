@@ -12,11 +12,14 @@ import assert from "node:assert/strict";
 import {
   SUBDOMAIN_PATTERN,
   finalizeSubdomain,
+  cleanInput,
+  extractLink,
   hasArabic,
   insertedText,
   interpretLinkInput,
   looksLikeLink,
   sanitizeSubdomainTyping,
+  slugLooksLikeLink,
   slugifyStoreName,
   transliterateArabic,
 } from "../../dashboard/src/lib/storeLink.ts";
@@ -153,5 +156,47 @@ describe("insertedText", () => {
     assert.equal(insertedText("nile", "nilehttps://facebook.com/x"), "https://facebook.com/x");
     assert.equal(insertedText("ab", "aXYb"), "XY");
     assert.equal(insertedText("nile", "nil"), "");
+  });
+});
+
+describe("links copied from Arabic-interface apps", () => {
+  // Facebook/WhatsApp in Arabic wrap copied links in invisible direction
+  // marks; before this fix they defeated detection entirely.
+  const FB = "https://www.facebook.com/profile.php?id=61575300460050";
+  for (const [name, wrapped] of [
+    ["LRE/PDF embedding", `\u202A${FB}\u202C`],
+    ["RLM marks", `\u200F${FB}\u200F`],
+    ["LRI/PDI isolate", `\u2066${FB}\u2069`],
+    ["zero-width space + NBSP", `\u200B\u00A0${FB}\u00A0`],
+  ]) {
+    it(`recognises a Facebook link wrapped in ${name}`, () => {
+      const r = interpretLinkInput(wrapped, DOMAIN);
+      assert.equal(r.kind, "social");
+      assert.equal(r.url, FB);
+    });
+  }
+
+  it("cleans invisible characters out of names too", () => {
+    assert.equal(cleanInput("\u202Bمتجر النيل\u202C"), "متجر النيل");
+    assert.equal(slugifyStoreName("\u200Fمتجر\u200F"), "mtjr");
+  });
+
+  it("finds a link pasted with words around it", () => {
+    assert.equal(extractLink("صفحتي: https://facebook.com/nile."), "https://facebook.com/nile");
+    assert.equal(interpretLinkInput("my page (facebook.com/nile.store)", DOMAIN).platform, "facebook");
+    assert.equal(extractLink("متجر النيل"), null);
+  });
+});
+
+describe("slugLooksLikeLink", () => {
+  it("flags web addresses with their punctuation stripped", () => {
+    for (const s of ["httpswwwfacebookcomprofilephpid6157530046005", "https-www-facebook-com-x", "www-nile-com", "facebook-com-nile", "nile-instagram-com", "wa-me-249912345678", "whatsapp-nile", "http-nile"]) {
+      assert.equal(slugLooksLikeLink(s), true, s);
+    }
+  });
+  it("leaves ordinary store names alone", () => {
+    for (const s of ["nile-perfumes", "mtjr-alshms", "httpie", "wame", "fbshop", "www3", "tme"]) {
+      assert.equal(slugLooksLikeLink(s), false, s);
+    }
   });
 });

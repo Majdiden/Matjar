@@ -46,6 +46,7 @@ import {
   looksLikeLink,
   sanitizeSubdomainTyping,
   slugifyStoreName,
+  slugLooksLikeLink,
   storeUrlFor,
   type LinkInterpretation,
   type SocialLinks,
@@ -208,7 +209,11 @@ export const Register: React.FC = () => {
 
   // Debounced subdomain availability check
   useEffect(() => {
-    if (!SUBDOMAIN_PATTERN.test(form.subdomain) || form.subdomain.length < SUBDOMAIN_MIN_LENGTH) {
+    if (
+      !SUBDOMAIN_PATTERN.test(form.subdomain) ||
+      form.subdomain.length < SUBDOMAIN_MIN_LENGTH ||
+      slugLooksLikeLink(form.subdomain)
+    ) {
       setSubdomainAvailable(null);
       return;
     }
@@ -499,6 +504,9 @@ export const Register: React.FC = () => {
       else if (sd.length < SUBDOMAIN_MIN_LENGTH) errs.subdomain = t('auth.field.subdomain.error.too_short');
       else if (!SUBDOMAIN_PATTERN.test(sd))
         errs.subdomain = t('auth.field.subdomain.error.invalid');
+      // Backstop for a web address that reached the field by any route
+      // (typed, autofilled, an old cached app): never let it become the link.
+      else if (slugLooksLikeLink(sd)) errs.subdomain = t('auth.field.subdomain.error.looks_like_link');
       else if (subdomainChecking) errs.subdomain = t('auth.field.subdomain.error.checking');
       else if (subdomainAvailable === false) errs.subdomain = t('auth.field.subdomain.error.taken');
       else if (subdomainAvailable !== true) errs.subdomain = t('auth.field.subdomain.error.waiting');
@@ -557,6 +565,8 @@ export const Register: React.FC = () => {
     // still applied at setup (installDefaultTheme), and the tenant records
     // themeSelected:false so the dashboard can nudge "choose a theme" later.
     const skipTheme = !!opts?.skipTheme;
+    // The store speaks the language the merchant signed up in.
+    const storeLanguage: 'ar' | 'en' = i18n.language?.startsWith('en') ? 'en' : 'ar';
     if (!skipTheme) {
       const errs = validateStep('theme');
       setTouched(prev => ({ ...prev, themeSlug: true }));
@@ -590,6 +600,7 @@ export const Register: React.FC = () => {
           themeSlug: skipTheme ? undefined : form.themeSlug,
           themeSelected: !skipTheme,
           niche: form.niche,
+          language: storeLanguage,
           ...(Object.keys(socialLinks).length ? { socialLinks } : {}),
         })) as {
           responseObject?: {
@@ -648,6 +659,7 @@ export const Register: React.FC = () => {
         emailVerificationToken,
         phone: phone.national.trim(),
         phoneCountry: phone.country || defaultPhoneCountry,
+        language: storeLanguage,
         ...(Object.keys(socialLinks).length ? { socialLinks } : {}),
       })) as {
         responseObject?: {
@@ -1003,7 +1015,7 @@ export const Register: React.FC = () => {
                     <span>{t('auth.field.subdomain.notice.arabic_name')}</span>
                   </p>
                 )}
-                {SUBDOMAIN_PATTERN.test(form.subdomain) && form.subdomain.length >= SUBDOMAIN_MIN_LENGTH && (
+                {SUBDOMAIN_PATTERN.test(form.subdomain) && form.subdomain.length >= SUBDOMAIN_MIN_LENGTH && !slugLooksLikeLink(form.subdomain) && (
                   <p className="text-sm">
                     <span className="text-muted-foreground">{t('auth.field.subdomain.preview')}</span>{' '}
                     <bdi dir="ltr" className="font-medium break-all">{storeUrlFor(form.subdomain, STORE_DOMAIN_SUFFIX)}</bdi>

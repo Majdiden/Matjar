@@ -13,9 +13,11 @@
  *   4. Admin-database rows that only exist for this store.
  *   5. The Tenant row itself, LAST.
  *
- * Kept on purpose (RETAINED_PLATFORM_RECORDS): the platform's own audit
- * ledger and financial records. They reference the store by id only and
- * are the platform's records, not the store's.
+ * Kept on purpose:
+ *   - RETAINED_STORE_COLLECTIONS: the store's orders and payments — financial
+ *     records that must outlive the store (accounting, tax, disputes).
+ *   - RETAINED_PLATFORM_RECORDS: the platform's own audit ledger and billing
+ *     records. They reference the store by id only.
  *
  * Resumable instead of transactional: a multi-collection wipe of a large
  * store can exceed MongoDB transaction limits. Every step is an idempotent
@@ -28,6 +30,9 @@ import logger from "../utils/logger.js";
 import { createScopedModels, TENANT_SCOPED_MODELS } from "../utils/scopedModel.js";
 import { purgeTenantFiles } from "./tenantFilePurge.js";
 import { invalidateFeatureFlagCache } from "./featureFlags.js";
+
+/** Store collections kept as financial records whenever a store's data is wiped. */
+export const RETAINED_STORE_COLLECTIONS = Object.freeze(["Order", "Payment"]);
 
 /** Platform records deliberately kept after a hard delete. */
 export const RETAINED_PLATFORM_RECORDS = Object.freeze([
@@ -47,9 +52,10 @@ function assertTenantObjectId(tenantId) {
 }
 
 /**
- * Delete every tenant-scoped document of one store. Shared by the lifecycle
- * purge and the hard delete. Never throws for a single collection; returns
- * per-collection counts and the names that failed.
+ * Delete every tenant-scoped document of one store except its financial
+ * records (RETAINED_STORE_COLLECTIONS). Shared by the lifecycle purge and the
+ * hard delete. Never throws for a single collection; returns per-collection
+ * counts and the names that failed.
  */
 export async function wipeTenantScopedData(tenantId) {
   const id = assertTenantObjectId(tenantId);
@@ -57,6 +63,7 @@ export async function wipeTenantScopedData(tenantId) {
   const counts = {};
   const failed = [];
   for (const name of TENANT_SCOPED_MODELS) {
+    if (RETAINED_STORE_COLLECTIONS.includes(name)) continue;
     try {
       const r = await models[name].deleteMany({});
       counts[name] = r.deletedCount || 0;
@@ -126,7 +133,19 @@ export async function hardDeleteTenant(tenantId) {
   const exports = await mongoose.model("TenantExport").find({ tenantId: id }).select("storageKey provider").lean();
   const files = await purgeTenantFiles(tenant, { assets, exports });
 
-  // 3. Store data.
+  // 3. Store data. Kept financial records first get the store's identity
+  //    stamped on them, so they still say which store they belonged to.
+  const deletedStore = {
+    name: tenant.settings?.storeName || tenant.name,
+    slug: tenant.slug,
+    domain: tenant.domain,
+    currency: tenant.settings?.currency,
+    deletedAt: new Date(),
+  };
+  const scopedModels = createScopedModels(mongoose.connection, id);
+  for (const name of RETAINED_STORE_COLLECTIONS) {
+    await step(`stamp:${name}`, () => scopedModels[name].updateMany({}, { $set: { deletedStore } }));
+  }
   const scoped = await wipeTenantScopedData(id);
   Object.assign(counts, scoped.counts);
   failed.push(...scoped.failed);

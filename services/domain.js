@@ -34,16 +34,7 @@ import {
   normalizeHostname,
 } from "../utils/hostnameNormalize.js";
 import logger from "../utils/logger.js";
-
-function validateSubdomain(subdomain) {
-  const subdomainRegex = /^[a-z0-9]([a-z0-9-]{1,61}[a-z0-9])?$/;
-  if (!subdomainRegex.test(subdomain)) {
-    return { valid: false, error: "Subdomain must be 3-63 characters, contain only lowercase letters, numbers, and hyphens" };
-  }
-  const reserved = ["www", "api", "admin", "app", "mail", "email", "ftp", "blog", "shop", "store", "help", "support", "dev", "staging", "test", "demo", "cdn", "static", "assets", "matjar"];
-  if (reserved.includes(subdomain)) return { valid: false, error: "This subdomain is reserved" };
-  return { valid: true };
-}
+import { validateSubdomain } from "../utils/subdomain.js";
 
 export const checkSubdomainAvailabilityService = async (subdomain) => {
   const slug = subdomain.toLowerCase();

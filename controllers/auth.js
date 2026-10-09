@@ -13,7 +13,7 @@ import {
   confirmPasswordReset,
 } from "../services/auth.js";
 import { getEffectivePermissions } from "../middlewares/authorize.js";
-import { addATenantService, addStoreForExistingUserService } from "../services/tenant.js";
+import { addATenantService, addStoreForExistingUserService, STORE_LANGUAGES } from "../services/tenant.js";
 import { requestEmailOtp, verifyEmailOtp, verifyEmailVerificationToken } from "../services/otp.js";
 import { signJWT } from "../utils/misc.js";
 import { asyncHandler, APIError } from "../middlewares/errorHandler.js";
@@ -154,7 +154,8 @@ export const addStoreController = asyncHandler(async (req, res) => {
     themeSelected: req.body.themeSelected,
     niche: req.body.niche,
     currency: req.body.currency,
-    language: req.body.language,
+    // Unvalidated route: only pass a supported language through.
+    language: STORE_LANGUAGES.includes(req.body.language) ? req.body.language : undefined,
     socialLinks: req.body.socialLinks,
   });
 

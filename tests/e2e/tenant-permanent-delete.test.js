@@ -56,6 +56,14 @@ async function seedStoreData(tenantId) {
   const models = createScopedModels(mongoose.connection, new mongoose.Types.ObjectId(tenantId));
   await models.Page.create({ title: "About", slug: "about", content: "<p>hi</p>" });
   await models.Asset.create({ url: "/uploads/product/x.jpg", publicId: "local-product-1", preset: "product", storage: "local" });
+  await models.Order.create({
+    products: [{ product: new mongoose.Types.ObjectId(), quantity: 1, price: 10 }],
+    totalAmount: 10,
+    paymentMethod: "cod",
+    status: "Pending",
+    guestCustomer: { email: "guest@buyer.test" },
+    shippingAddress: { addressLine1: "1 St", city: "Khartoum", postalCode: "0", country: "SD" },
+  });
 }
 
 async function storeRowCounts(tenantId) {
@@ -66,6 +74,7 @@ async function storeRowCounts(tenantId) {
     merchants: await mongoose.model("TenantUser").countDocuments({ tenantId: id }),
     users: await mongoose.model("User").countDocuments({ tenantId: id }),
     pages: await mongoose.model("Page").countDocuments({ tenantId: id }),
+    orders: await mongoose.model("Order").countDocuments({ tenantId: id }),
     assets: await mongoose.model("Asset").countDocuments({ tenantId: id }),
   };
 }
@@ -99,7 +108,12 @@ describe("E2E permanent store deletion", () => {
     // The password never echoes back.
     assert.doesNotMatch(JSON.stringify(res.body), new RegExp(PLATFORM_PASSWORD));
 
-    assert.deepEqual(await storeRowCounts(doomed), { tenant: 0, domains: 0, merchants: 0, users: 0, pages: 0, assets: 0 });
+    assert.deepEqual(await storeRowCounts(doomed), { tenant: 0, domains: 0, merchants: 0, users: 0, pages: 0, orders: 1, assets: 0 });
+    // Orders are kept as financial records, labelled with the deleted store.
+    const keptOrder = await mongoose.model("Order").findOne({ tenantId: doomed }).lean();
+    assert.equal(keptOrder.deletedStore.name, "doomed store");
+    assert.equal(keptOrder.deletedStore.slug, "doomed");
+    assert.ok(keptOrder.deletedStore.deletedAt);
     const keptCounts = await storeRowCounts(kept);
     assert.equal(keptCounts.tenant, 1);
     assert.equal(keptCounts.domains, 1);
@@ -122,11 +136,11 @@ describe("E2E permanent store deletion", () => {
   });
 
   it("denies admins by role; an owner can grant and revoke the permission per person", async () => {
-    const tenantId = await provisionTenant(app, "shop");
+    const tenantId = await provisionTenant(app, "nile");
     const owner = await platformUser(app, "owner");
     const admin = await platformUser(app, "admin");
     const ops = await platformUser(app, "operations");
-    const body = { confirmSlug: "shop", reason: "Test store cleanup", password: PLATFORM_PASSWORD };
+    const body = { confirmSlug: "nile", reason: "Test store cleanup", password: PLATFORM_PASSWORD };
     const url = `/api/platform/tenants/${tenantId}/delete-permanently`;
 
     await request(app).post(url).set(auth(admin)).send(body).expect(403);

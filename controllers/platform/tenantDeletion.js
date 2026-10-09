@@ -14,7 +14,7 @@ import mongoose from "mongoose";
 import { asyncHandler } from "../../middlewares/errorHandler.js";
 import { recordPlatformAudit } from "../../services/platform/audit.js";
 import { notifyPlatform } from "../../services/platform/notifications.js";
-import { hardDeleteTenant, RETAINED_PLATFORM_RECORDS } from "../../services/tenantDeletion.js";
+import { hardDeleteTenant, RETAINED_PLATFORM_RECORDS, RETAINED_STORE_COLLECTIONS } from "../../services/tenantDeletion.js";
 import logger from "../../utils/logger.js";
 
 const AUDIT_ACTION = "tenant.delete_permanently";
@@ -57,7 +57,7 @@ async function deleteOne(req, tenant, { reason, batchId }) {
         counts: result.counts,
         files: result.files,
         ...(result.failed.length ? { failedSteps: result.failed } : {}),
-        retained: RETAINED_PLATFORM_RECORDS,
+        retained: [...RETAINED_STORE_COLLECTIONS, ...RETAINED_PLATFORM_RECORDS],
       },
     });
     return { tenantId: String(tenant._id), ...before, ok: result.completed, files: result.files, failed: result.failed };

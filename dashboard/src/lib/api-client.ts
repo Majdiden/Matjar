@@ -210,6 +210,8 @@ export const api = {
       // Social pages recognised in the signup form (e.g. a pasted Facebook
       // URL). The server re-validates hosts and normalises to https.
       socialLinks?: SocialLinks;
+      // Store language ('ar' default server-side).
+      language?: 'ar' | 'en';
     }) => api.post('/auth/register', data),
 
     // Enabled phone dial codes (+ default) for the signup / profile phone
@@ -292,6 +294,7 @@ export const api = {
       themeSlug?: string;
       themeSelected?: boolean;
       niche?: string;
+      language?: 'ar' | 'en';
       socialLinks?: SocialLinks;
     }) => api.post('/auth/stores', data),
 

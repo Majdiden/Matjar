@@ -87,6 +87,9 @@ export const registerTenantSchema = z.object({
     // to the platform default country (Sudan) when omitted.
     phoneCountry: z.string().length(2).optional(),
     socialLinks: socialLinksSchema,
+    // The dashboard language the merchant signed up in; becomes the store's
+    // language. Omitted → Arabic (services/tenant.js DEFAULT_STORE_LANGUAGE).
+    language: z.enum(["ar", "en"]).optional(),
   }),
 });
 

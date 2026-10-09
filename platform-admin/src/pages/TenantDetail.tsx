@@ -799,11 +799,12 @@ export default function TenantDetailPage() {
               </p>
             )}
             <p>
-              Deletes the store and everything in it: products, orders, customers, pages, settings,
-              staff logins, uploaded images and its web address. This cannot be undone.
+              Deletes the store and everything in it: products, customers, pages, settings, staff
+              logins, uploaded images and its web address. This cannot be undone.
             </p>
             <p className="text-xs text-muted-foreground">
-              Kept for the platform: the audit log and billing records (they reference the store by id only).
+              Kept as financial records: the store's orders and payments (labelled with the store's
+              name), plus the platform audit log and billing records.
             </p>
           </div>
         }

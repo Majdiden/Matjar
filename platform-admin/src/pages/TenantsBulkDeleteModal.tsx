@@ -85,7 +85,7 @@ export function TenantsBulkDeleteModal({ open, selected, onClose, onDone }: {
       description={
         result
           ? `${result.summary.ok} deleted · ${result.summary.failed} failed`
-          : 'Deletes each store and everything in it: products, orders, customers, pages, settings, staff logins, uploaded images and its web address. This cannot be undone. The audit log and billing records are kept.'
+          : "Deletes each store and everything in it: products, customers, pages, settings, staff logins, uploaded images and its web address. This cannot be undone. Orders and payments are kept as financial records, along with the platform audit log and billing records."
       }
       footer={
         result ? (
