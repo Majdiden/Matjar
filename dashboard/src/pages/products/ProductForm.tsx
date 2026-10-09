@@ -25,6 +25,10 @@ import { SECTION_KEY_RE, type SpecRow, type ContentSectionRow } from './contentS
 import { LinkSlugField } from '../../components/LinkSlugField';
 import { useStorefrontHost } from '../../hooks/useStorefrontHost';
 import { slugifyLink } from '../../lib/storeLink';
+import { focusFieldById, focusFirstInvalid } from '../../lib/focusFirstInvalid';
+
+// Wrapper of the variant editor, focused when variants are on but empty.
+const VARIANTS_SECTION_ID = 'product-variants';
 
 // GET /categories — response shape; server wraps in responseObject.data.
 interface CategoriesGetResponse {
@@ -199,6 +203,7 @@ export const ProductForm: React.FC = () => {
     if (formData.hasVariants) {
       if (!formData.variants || formData.variants.length === 0) {
         toast.error(t('products.toast.variants_missing'));
+        focusFieldById(VARIANTS_SECTION_ID);
         return false;
       }
     }
@@ -215,7 +220,12 @@ export const ProductForm: React.FC = () => {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      // Show the merchant where the problem is (a field or the content
+      // sections; the variants case focuses its own section).
+      focusFirstInvalid();
+      return;
+    }
     try {
       setSaving(true);
       // Base (English) fields save as before; only the `ar` side is attached.
@@ -263,6 +273,7 @@ export const ProductForm: React.FC = () => {
       const { fieldErrors, messages } = parseServerValidation(err);
       if (messages.length > 0) {
         setFormErrors(prev => ({ ...prev, ...fieldErrors }));
+        focusFirstInvalid();
         toast.error(messages.length === 1 ? messages[0] : `${fallback}: ${messages.join(' • ')}`);
       } else {
         toast.error(e?.message || fallback);
@@ -348,6 +359,7 @@ export const ProductForm: React.FC = () => {
                     placeholder={t('products.form.field.name.placeholder')}
                     value={formData.name}
                     onChange={e => handleChange('name', e.target.value)}
+                    aria-invalid={formErrors.name ? true : undefined}
                   />
                   {formErrors.name && <p className="text-xs text-destructive">{formErrors.name}</p>}
                 </div>
@@ -406,6 +418,7 @@ export const ProductForm: React.FC = () => {
                     value={formData.description}
                     onChange={e => handleChange('description', e.target.value)}
                     rows={5}
+                    aria-invalid={formErrors.description ? true : undefined}
                   />
                   {formErrors.description && <p className="text-xs text-destructive">{formErrors.description}</p>}
                 </div>
@@ -425,7 +438,7 @@ export const ProductForm: React.FC = () => {
 
                 <div className="space-y-2">
                   <Label>{t('products.form.field.sku.label')}</Label>
-                  <Input placeholder={t('products.form.field.sku.placeholder')} value={formData.sku} onChange={e => handleChange('sku', e.target.value)} />
+                  <Input placeholder={t('products.form.field.sku.placeholder')} value={formData.sku} onChange={e => handleChange('sku', e.target.value)} aria-invalid={formErrors.sku ? true : undefined} />
                   {formErrors.sku && <p className="text-xs text-destructive">{formErrors.sku}</p>}
                 </div>
 
@@ -456,19 +469,19 @@ export const ProductForm: React.FC = () => {
                   <div className="space-y-2">
                     <Label>{t('products.form.field.regular_price.label')}</Label>
                     <Input type="number" step="0.01" min="0" placeholder="0.00" value={formData.price}
-                      onChange={e => handleChange('price', parseFloat(e.target.value) || 0)} />
+                      onChange={e => handleChange('price', parseFloat(e.target.value) || 0)} aria-invalid={formErrors.price ? true : undefined} />
                     {formErrors.price && <p className="text-xs text-destructive">{formErrors.price}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>{t('products.form.field.sale_price.label')}</Label>
                     <Input type="number" step="0.01" min="0" placeholder="0.00" value={formData.salePrice || ''}
-                      onChange={e => handleChange('salePrice', e.target.value ? parseFloat(e.target.value) : undefined)} />
+                      onChange={e => handleChange('salePrice', e.target.value ? parseFloat(e.target.value) : undefined)} aria-invalid={formErrors.salePrice ? true : undefined} />
                     {formErrors.salePrice && <p className="text-xs text-destructive">{formErrors.salePrice}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>{t('products.form.field.stock.label')}</Label>
                     <Input type="number" min="0" placeholder="0" value={formData.stock}
-                      onChange={e => handleChange('stock', parseInt(e.target.value) || 0)} />
+                      onChange={e => handleChange('stock', parseInt(e.target.value) || 0)} aria-invalid={formErrors.stock ? true : undefined} />
                     {formErrors.stock && <p className="text-xs text-destructive">{formErrors.stock}</p>}
                   </div>
                 </div>
@@ -482,20 +495,22 @@ export const ProductForm: React.FC = () => {
             />
 
             {/* Variants */}
-            <VariantEditor
-              hasVariants={!!formData.hasVariants}
-              options={formData.options || []}
-              variants={formData.variants || []}
-              basePrice={formData.price}
-              onChange={(next) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  hasVariants: next.hasVariants,
-                  options: next.options,
-                  variants: next.variants,
-                }));
-              }}
-            />
+            <div id={VARIANTS_SECTION_ID}>
+              <VariantEditor
+                hasVariants={!!formData.hasVariants}
+                options={formData.options || []}
+                variants={formData.variants || []}
+                basePrice={formData.price}
+                onChange={(next) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    hasVariants: next.hasVariants,
+                    options: next.options,
+                    variants: next.variants,
+                  }));
+                }}
+              />
+            </div>
 
             {/* Images */}
             <Card>

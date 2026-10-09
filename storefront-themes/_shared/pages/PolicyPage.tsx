@@ -3,41 +3,95 @@ import { useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../contexts/StoreContext';
 import { POLICY_KEYS, policyLabel, type PolicyKey } from '../lib/policies';
+import { usePageFacts, type PageFactKey } from '../hooks/usePageFacts';
+import { useThemeSlot } from '../theme/ThemeSlotsProvider';
+import { FG, MUTED, PAGE_SLOT, usePageStyleTokens } from '../theme/pageStyle';
+import { PageHero } from '../components/pages/PageHero';
+import { FactGrid } from '../components/pages/FactGrid';
+import { ContactCta } from '../components/pages/ContactCta';
+import { PageContainer, Prose } from '../components/pages/PageLayout';
+import type { PageIconName } from '../components/pages/PageIcon';
+
+const POLICY_ICONS: Record<PolicyKey, PageIconName> = {
+  privacy: 'lock',
+  returns: 'returns',
+  delivery: 'truck',
+  cod: 'cash',
+};
 
 /**
- * Renders a single merchant-authored store policy (privacy / returns /
- * delivery / cod) at `/policies/:key`. The body is server-sanitised HTML, so
- * it's safe to inject. Unknown keys redirect home; a known-but-unpublished
- * policy shows a short empty state.
+ * Summary facts above a policy written from the merchant's answers (PBI
+ * 10-11; mirrors GENERATED_POLICY_KEYS in services/generatedPages.js).
+ * Privacy is never generated, so it has none.
  */
-const PolicyPage: React.FC<{ className?: string }> = ({ className = '' }) => {
+const POLICY_FACTS: Partial<Record<PolicyKey, readonly PageFactKey[]>> = {
+  delivery: ['delivery', 'deliveryTime', 'payment'],
+  returns: ['returns', 'delivery'],
+  cod: ['payment', 'delivery', 'deliveryTime'],
+};
+
+/**
+ * A single merchant-authored store policy (privacy / returns / delivery /
+ * cod) at `/policies/:key`: a header band with the policy's icon, the facts
+ * from the merchant's policy answers at a glance (`store.trust`), the body
+ * in a readable card, then "Questions? Message us on WhatsApp". The body is
+ * server-sanitised HTML, so it's safe to inject. Unknown keys redirect home;
+ * a known-but-unpublished policy shows a short empty state.
+ * A theme can replace it through the `page.policy` slot.
+ */
+const PolicyPage: React.FC<{ className?: string }> = (props) => {
+  const Slot = useThemeSlot<React.ComponentType<{ className?: string }>>(PAGE_SLOT.policy);
+  return Slot ? <Slot {...props} /> : <StorePolicyPage {...props} />;
+};
+
+const NO_FACTS: readonly PageFactKey[] = [];
+
+const StorePolicyPage: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { key } = useParams<{ key: string }>();
   const { store } = useStore();
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation(['common', 'generated']);
+  const tk = usePageStyleTokens();
+  const known = !!key && POLICY_KEYS.includes(key as PolicyKey);
+  const policyKey = key as PolicyKey;
+  const factKeys = (known && store?.trust && POLICY_FACTS[policyKey]) || NO_FACTS;
+  const facts = usePageFacts({ keys: factKeys });
 
-  if (!key || !POLICY_KEYS.includes(key as PolicyKey)) {
-    return <Navigate to="/" replace />;
-  }
+  if (!known) return <Navigate to="/" replace />;
 
-  const policy = store?.policies?.[key];
-  const title = (policy?.title && policy.title.trim()) || policyLabel(key as PolicyKey, t);
+  const policy = store?.policies?.[policyKey];
+  const title = (policy?.title && policy.title.trim()) || policyLabel(policyKey, t);
+  const editorial = tk.style === 'editorial';
 
   return (
-    <div className={`max-w-3xl mx-auto px-4 sm:px-6 py-12 ${className}`}>
-      <h1 className="text-3xl font-bold mb-6" style={{ color: 'var(--color-foreground)' }}>
-        {title}
-      </h1>
-      {policy?.body ? (
-        <div
-          className="leading-relaxed [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h1]:mb-3 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-2 [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_p]:mb-4 [&_a]:underline [&_ul]:list-disc [&_ul]:ps-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:ps-6 [&_ol]:mb-4 [&_li]:mb-1 [&_blockquote]:border-s-4 [&_blockquote]:ps-4 [&_blockquote]:italic [&_blockquote]:opacity-80"
-          style={{ color: 'var(--color-foreground)' }}
-          dangerouslySetInnerHTML={{ __html: policy.body }}
-        />
-      ) : (
-        <p className="opacity-70" style={{ color: 'var(--color-foreground)' }}>
-          {t('common:storefront.policies.empty', { defaultValue: "This policy hasn't been published yet." })}
-        </p>
-      )}
+    <div className={`pb-12 sm:pb-16 ${className}`}>
+      <PageHero compact eyebrow={store?.name} title={title} icon={POLICY_ICONS[policyKey]} />
+
+      <PageContainer className={editorial ? 'py-10 sm:py-14' : 'py-8 sm:py-10'}>
+        {facts.length > 0 && (
+          <div className="mb-8">
+            <p className={`${tk.eyebrowClass} mb-3`} style={{ color: MUTED }}>
+              {t('generated:pages.policy.summary')}
+            </p>
+            <FactGrid facts={facts} label={t('generated:pages.policy.summary')} />
+          </div>
+        )}
+
+        {policy?.body ? (
+          // Privacy is plain prose; the shopping policies sit in a card under their facts.
+          <article
+            className={policyKey === 'privacy' ? '' : editorial ? 'pt-8' : 'p-5 sm:p-8'}
+            style={policyKey === 'privacy' ? undefined : editorial ? { borderTop: tk.card.borderTop } : tk.card}
+          >
+            <Prose html={policy.body} />
+          </article>
+        ) : (
+          <p className="text-center py-10" style={{ color: FG, opacity: 0.7 }}>
+            {t('common:storefront.policies.empty', { defaultValue: "This policy hasn't been published yet." })}
+          </p>
+        )}
+      </PageContainer>
+
+      <ContactCta title={t('generated:pages.policy.questions_title')} text={t('generated:pages.policy.questions_text')} />
     </div>
   );
 };

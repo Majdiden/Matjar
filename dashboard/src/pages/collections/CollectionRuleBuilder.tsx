@@ -158,6 +158,7 @@ export const CollectionRuleBuilder: React.FC<CollectionRuleBuilderProps> = ({
 
               {/* Value */}
               <Input
+                id={`collection-rule-value-${i}`}
                 className="w-44"
                 value={rule.value}
                 onChange={(e) => onUpdateRule(i, { value: e.target.value })}

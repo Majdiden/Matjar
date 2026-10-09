@@ -39,7 +39,7 @@ export const beauxeHeroSection: SectionDefinition = defineSection({
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
     { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', level: 'basic', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'image', type: 'image', label: 'Model Image', level: 'basic' },
   ],
@@ -172,15 +172,9 @@ export const beauxeTestimonialsSection: SectionDefinition = defineSection({
 // ─── Template ────────────────────────────────────────────────────
 
 const indexTemplate: SectionInstance[] = [
-  { id: 'beauxe-topbar', type: 'beauxe-top-bar', settings: {} },
   { id: 'beauxe-hero', type: 'beauxe-hero', settings: {} },
-  { id: 'beauxe-features', type: 'beauxe-feature-strip', settings: {} },
-  { id: 'beauxe-categories', type: 'beauxe-category-tiles', settings: {} },
-  { id: 'beauxe-bestsellers', type: 'beauxe-product-grid', settings: { heading: 'BEST SELLERS' } },
-  { id: 'beauxe-banner', type: 'beauxe-banner', settings: {} },
   { id: 'beauxe-newarrivals', type: 'beauxe-product-grid', settings: { heading: 'NEW ARRIVALS', source: 'newest' } },
-  { id: 'beauxe-testimonials', type: 'beauxe-testimonials', settings: {} },
-  { id: 'beauxe-newsletter', type: 'newsletter', settings: {} },
+  { id: 'beauxe-bestsellers', type: 'beauxe-product-grid', settings: { heading: 'BEST SELLERS' } },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

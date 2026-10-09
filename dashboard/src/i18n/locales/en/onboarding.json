@@ -23,9 +23,8 @@
     "launch": "Open my store"
   },
   "checklist": {
-    "title": "3 steps to your first sale",
+    "title": "Get your store ready for its first sale",
     "progress": "{{done}} of {{total}}",
-    "dismiss": "Hide this list",
     "done": "Done",
     "step": {
       "product": {
@@ -33,28 +32,40 @@
         "desc": "A photo, a name and a price are enough.",
         "action": "Add a product"
       },
-      "payments": {
-        "title": "How customers pay",
-        "desc": "Cash on delivery is on: customers pay when the order arrives.",
-        "desc_more": "Cash on delivery is on. You can also add Bankak or another bank transfer.",
-        "desc_none": "No way to pay is switched on. Turn one on so customers can order.",
-        "action_ok": "OK, that works for me",
-        "action_choose": "Choose how you get paid"
-      },
       "share": {
         "title": "Share your store",
         "desc": "Send your store link to your customers on WhatsApp, Facebook or any app.",
         "desc_waiting": "Your store link will be ready in a moment.",
         "action": "Share my store",
         "message": "Our store is now online! Browse our products and order here:"
+      },
+      "brand": {
+        "title": "Add your logo and cover photo",
+        "desc": "Your logo, a big photo of your store and a short line about it. It's the first thing customers see.",
+        "action": "Add logo and photo"
+      },
+      "policies": {
+        "title": "Write your delivery and returns policy",
+        "desc": "Answer a few short questions and we'll write your delivery and returns pages, so customers feel safe ordering.",
+        "action": "Answer the questions"
       }
+    }
+  },
+  "guide": {
+    "title": "Set up your store",
+    "fold": "Minimise",
+    "expand": "Show the steps",
+    "short": {
+      "product": "Product",
+      "brand": "Logo",
+      "policies": "Delivery",
+      "share": "Share"
     },
-    "make_it_yours": {
-      "title": "Make it yours",
-      "desc": "Add your logo, colour and cover photo.",
-      "logo": "Logo",
-      "color": "Colour",
-      "cover": "Cover photo"
+    "here": {
+      "product": "Finish here: a photo, a name and a price, then tap \"Publish product\".",
+      "brand": "Finish here: the logo, the cover photo and the short line. Each field saves by itself.",
+      "policies": "Finish here: answer the questions, then save.",
+      "share": ""
     }
   }
 }

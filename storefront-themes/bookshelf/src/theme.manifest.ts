@@ -18,7 +18,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — your store cover photo is used when empty' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
     { id: 'gradient_from', type: 'color', label: 'Gradient From', default: '#7c3aed' },
     { id: 'gradient_via', type: 'color', label: 'Gradient Via', default: '#6d28d9' },
@@ -198,20 +198,14 @@ const manifest = defineTheme({
   ],
 
   templates: {
+    // Homepage: hero, newest products, featured products (Staff Picks). The
+    // other sections stay addable from the advanced editor. `new-arrivals` is
+    // the universal section; an empty heading falls back to the theme's
+    // translated one.
     index: [
       { id: 'hero', type: 'hero', settings: {} },
-      { id: 'genres', type: 'genres', settings: {}, blocks: [
-        { id: 'genre-1', type: 'genre', settings: { name: 'Fiction', icon: 'F' } },
-        { id: 'genre-2', type: 'genre', settings: { name: 'Non-Fiction', icon: 'N' } },
-        { id: 'genre-3', type: 'genre', settings: { name: 'Sci-Fi', icon: 'S' } },
-        { id: 'genre-4', type: 'genre', settings: { name: 'Mystery', icon: 'M' } },
-        { id: 'genre-5', type: 'genre', settings: { name: 'Romance', icon: 'R' } },
-        { id: 'genre-6', type: 'genre', settings: { name: 'History', icon: 'H' } },
-      ]},
+      { id: 'new-arrivals', type: 'new-arrivals', settings: { heading: '' } },
       { id: 'staff-picks', type: 'staff-picks', settings: {} },
-      { id: 'reading-quote', type: 'reading-quote', settings: {} },
-      { id: 'bestsellers', type: 'bestsellers', settings: {} },
-      { id: 'newsletter', type: 'newsletter', settings: {} },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard

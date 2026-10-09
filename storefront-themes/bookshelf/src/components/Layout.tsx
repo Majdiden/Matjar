@@ -10,6 +10,7 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
+import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
@@ -30,13 +31,20 @@ const Layout: React.FC = () => {
     item.type === 'external' || item.target === '_blank';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useTranslation(['theme']);
+  const stripText = useTopStripText();
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf5ff]">
-      <AnnouncementBar
-        message={t('theme.layout.announcement')}
-        className="bg-[#7c3aed] text-white text-xs text-center py-1.5 font-medium"
-      />
+      {/* Top strip — the merchant's text from My Store, on every page */}
+      {stripText && (
+        <div data-section-id={TOP_STRIP_ANCHOR}>
+          <AnnouncementBar
+            message={stripText}
+            dismissible={false}
+            className="bg-[#7c3aed] text-white text-xs text-center py-1.5 font-medium"
+          />
+        </div>
+      )}
 
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-violet-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-6">

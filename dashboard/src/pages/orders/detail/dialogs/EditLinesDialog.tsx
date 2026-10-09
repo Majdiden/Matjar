@@ -12,6 +12,7 @@ import { api } from '../../../../lib/api-client';
 import { formatPrice } from '../../../../lib/format';
 import { errMsg } from '../../../../lib/errors';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../../../lib/focusFirstInvalid';
 import type { OrderItem, Product, ProductVariant } from '../../../../types';
 import { useOrderDetail } from '../context';
 
@@ -156,6 +157,7 @@ export const EditLinesDialog: React.FC<{
     if (!order) return;
     if (lines.length === 0) {
       toast.error(t('orders:detail.edit_items.error_no_lines'));
+      focusFieldById('edit-lines-product-search');
       return;
     }
     try {
@@ -191,6 +193,7 @@ export const EditLinesDialog: React.FC<{
           <div className="relative" ref={boxRef}>
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
+              id="edit-lines-product-search"
               placeholder={t('orders:create.product_search_placeholder')}
               className="ps-9"
               value={productQuery}

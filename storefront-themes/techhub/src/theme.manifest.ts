@@ -21,9 +21,9 @@ export const heroShowcaseSection: SectionDefinition = defineSection({
   settings: [
     { id: 'sidebar_heading', type: 'text', label: 'Sidebar Heading', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 10, min: 4, max: 14 },
-    // Top strip (hotline · shipping · flash-deal label). `show_top_strip`
-    // hides the whole row; the text fields override the i18n defaults.
-    { id: 'show_top_strip', type: 'checkbox', label: 'Show Top Strip', default: true },
+    // Inner top strip (hotline · shipping · flash-deal label). Off by
+    // default: the store's one top strip is the layout bar above the header.
+    { id: 'show_top_strip', type: 'checkbox', label: 'Show Top Strip', default: false },
     { id: 'hotline_label', type: 'text', label: 'Hotline Label', default: '' },
     { id: 'hotline_phone', type: 'text', label: 'Hotline Phone', bind: 'brand.whatsapp', default: '' },
     { id: 'shipping_strip', type: 'text', label: 'Shipping Strip', default: '' },
@@ -195,31 +195,12 @@ export const categorySidebarSection: SectionDefinition = defineSection({
   ],
 });
 
-// ─── Home Variants ───────────────────────────────────────────────
+// ─── Home Template ───────────────────────────────────────────────
 
-const showcaseVariant: SectionInstance[] = [
+const indexTemplate: SectionInstance[] = [
   { id: 'home-showcase-hero', type: 'hero-showcase', settings: {} },
-  { id: 'home-showcase-features', type: 'features-strip', settings: {} },
-  { id: 'home-showcase-promos', type: 'promo-banner-grid', settings: {} },
-  { id: 'home-showcase-tabs', type: 'tabbed-product-grid', settings: {} },
-  { id: 'home-showcase-category-icons', type: 'category-icons', settings: {} },
-  { id: 'home-showcase-newsletter', type: 'newsletter', settings: {} },
-];
-
-const megaVariant: SectionInstance[] = [
-  { id: 'home-mega-hero', type: 'hero-showcase', settings: {} },
-  { id: 'home-mega-features', type: 'features-strip', settings: {} },
-  { id: 'home-mega-categories', type: 'category-sidebar', settings: {} },
-  { id: 'home-mega-featured', type: 'tabbed-product-grid', settings: { heading: 'POPULAR RIGHT NOW' } },
-  { id: 'home-mega-trust', type: 'trust-badges', settings: {} },
-];
-
-const editorialVariant: SectionInstance[] = [
-  { id: 'home-editorial-promos', type: 'promo-banner-grid', settings: {} },
-  { id: 'home-editorial-hero', type: 'hero-showcase', settings: {} },
-  { id: 'home-editorial-tabs', type: 'tabbed-product-grid', settings: { heading: 'SHOP THE EDIT', columns: '4' } },
-  { id: 'home-editorial-category-icons', type: 'category-icons', settings: {} },
-  { id: 'home-editorial-newsletter', type: 'newsletter', settings: {} },
+  { id: 'home-new-arrivals', type: 'new-arrivals', settings: {} },
+  { id: 'home-featured', type: 'featured-products', settings: {} },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────
@@ -285,11 +266,6 @@ const manifest = defineTheme({
       { value: 'light', label: 'Light' },
       { value: 'dark', label: 'Dark' },
     ]},
-    { id: 'home_variant', type: 'select', label: 'Home Layout', default: 'showcase', options: [
-      { value: 'showcase', label: 'Showcase — flagship tripartite hero' },
-      { value: 'mega', label: 'Mega — catalog-first with sidebar nav' },
-      { value: 'editorial', label: 'Editorial — promo-led magazine layout' },
-    ]},
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
     { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: '' },
     { id: 'enable_quick_view', type: 'checkbox', label: 'Enable Quick View', default: true },
@@ -306,7 +282,7 @@ const manifest = defineTheme({
   ],
 
   templates: {
-    index: showcaseVariant,
+    index: indexTemplate,
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard
     // Visual Editor. The storefront reads `sectionsByTemplate` from
@@ -317,12 +293,6 @@ const manifest = defineTheme({
     cart: [],
     search: [],
     page: [],
-  },
-
-  homeVariants: {
-    showcase: showcaseVariant,
-    mega: megaVariant,
-    editorial: editorialVariant,
   },
 });
 

@@ -18,7 +18,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — your store cover photo is used when empty' },
-    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
+    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', level: 'basic', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
     { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: '' },
     { id: 'secondary_button_url', type: 'url', label: 'Secondary Button URL', default: '/categories' },
@@ -209,18 +209,12 @@ const manifest = defineTheme({
   ],
 
   templates: {
+    // Homepage: hero, newest products, featured products. The other sections
+    // stay addable from the advanced editor.
     index: [
       { id: 'hero', type: 'hero', settings: {} },
-      { id: 'philosophy', type: 'philosophy', settings: {} },
-      { id: 'featured-products', type: 'featured-products', settings: {} },
-      { id: 'artisan-spotlight', type: 'artisan-spotlight', settings: {}, blocks: [
-        { id: 'maker-1', type: 'maker', settings: { name: 'Maria Santos', craft: 'Ceramics', quote: 'Every piece carries the warmth of the kiln and the patience of my hands.' } },
-        { id: 'maker-2', type: 'maker', settings: { name: 'James Okafor', craft: 'Woodworking', quote: 'I let the grain of the wood guide each cut. Nature is my co-designer.' } },
-        { id: 'maker-3', type: 'maker', settings: { name: 'Aiko Tanaka', craft: 'Textiles', quote: 'Weaving connects me to generations of makers before me.' } },
-      ]},
-      { id: 'categories', type: 'categories', settings: {} },
       { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
-      { id: 'newsletter', type: 'newsletter', settings: {} },
+      { id: 'featured-products', type: 'featured-products', settings: {} },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard

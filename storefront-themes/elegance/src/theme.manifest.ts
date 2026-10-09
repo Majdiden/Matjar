@@ -16,7 +16,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '', info: 'Small uppercase label shown above the headline' },
     { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '', info: 'Falls back to store name if empty' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
     { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', default: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80', info: 'Recommended minimum width: 1600px' },
     { id: 'image_brightness', type: 'range', label: 'Image Brightness', min: 20, max: 100, step: 5, default: 70, unit: '%', info: 'Controls the darkening overlay over the image' },
@@ -220,18 +220,12 @@ const manifest = defineTheme({
   ],
 
   templates: {
+    // Homepage: hero, newest products, featured products. The other sections
+    // stay addable from the advanced editor.
     index: [
       { id: 'hero', type: 'hero', settings: {} },
-      { id: 'collections', type: 'collections', settings: {} },
-      { id: 'featured-products', type: 'featured-products', settings: {} },
-      { id: 'editorial-banner', type: 'editorial-banner', settings: {} },
       { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
-      { id: 'trust-bar', type: 'trust-bar', settings: {}, blocks: [
-        { id: 'trust-1', type: 'trust-item', settings: { title: 'Free Shipping', description: 'On orders over $200' } },
-        { id: 'trust-2', type: 'trust-item', settings: { title: 'Secure Payment', description: 'SSL encrypted' } },
-        { id: 'trust-3', type: 'trust-item', settings: { title: 'Easy Returns', description: '30-day policy' } },
-        { id: 'trust-4', type: 'trust-item', settings: { title: 'Luxury Packaging', description: 'Gift-ready' } },
-      ]},
+      { id: 'featured-products', type: 'featured-products', settings: {} },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard

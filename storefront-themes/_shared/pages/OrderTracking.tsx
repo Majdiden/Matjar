@@ -6,6 +6,7 @@ import { useConfirm } from '../components/primitives/ConfirmDialog';
 import { useTranslation } from 'react-i18next';
 // Dates follow the storefront language (ar → ar-SD), not the browser locale.
 import { preorderDateLocale } from '../utils/preorder';
+import { storefrontLocale } from '../utils/locale';
 
 /**
  * Customer-facing order tracking page (/orders/:id).
@@ -468,10 +469,10 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                     return line?.name || (typeof line?.product === 'object' ? line?.product?.name : 'Item');
                   };
                   const dateLabel =
-                    f.deliveredAt ? t('order.tracking.delivered_on', { date: new Date(f.deliveredAt).toLocaleDateString() }) :
-                    f.shippedAt   ? t('order.tracking.shipped_on', { date: new Date(f.shippedAt).toLocaleDateString() }) :
-                    f.cancelledAt ? t('order.tracking.cancelled_on', { date: new Date(f.cancelledAt).toLocaleDateString() }) :
-                                    t('order.tracking.created_on', { date: new Date(f.createdAt).toLocaleDateString() });
+                    f.deliveredAt ? t('order.tracking.delivered_on', { date: new Date(f.deliveredAt).toLocaleDateString(storefrontLocale()) }) :
+                    f.shippedAt   ? t('order.tracking.shipped_on', { date: new Date(f.shippedAt).toLocaleDateString(storefrontLocale()) }) :
+                    f.cancelledAt ? t('order.tracking.cancelled_on', { date: new Date(f.cancelledAt).toLocaleDateString(storefrontLocale()) }) :
+                                    t('order.tracking.created_on', { date: new Date(f.createdAt).toLocaleDateString(storefrontLocale()) });
                   return (
                     <div key={f._id} className="px-6 py-4 space-y-2">
                       <div className="flex items-center justify-between gap-3">
@@ -555,7 +556,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                       <p className="text-xs text-gray-500 mt-0.5">{entry.note}</p>
                     )}
                     <p className="text-[11px] text-gray-400 mt-0.5">
-                      {new Date(entry.at).toLocaleString()}
+                      {new Date(entry.at).toLocaleString(storefrontLocale())}
                     </p>
                   </li>
                 );

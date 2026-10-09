@@ -23,5 +23,50 @@
     "returns_few": "إرجاع خلال {{count}} أيام",
     "returns_many": "إرجاع خلال {{count}} يومًا",
     "returns_other": "إرجاع خلال {{count}} يوم"
+  },
+  "pages": {
+    "about": {
+      "title": "من نحن",
+      "story_eyebrow": "حكايتنا",
+      "story_title": "تعرّف علينا"
+    },
+    "facts": {
+      "heading": "لمحة سريعة عن المتجر",
+      "since": "في خدمتكم منذ",
+      "city": "مقرّنا",
+      "delivery": "نوصّل إلى",
+      "delivery_time": "مدة التوصيل",
+      "returns": "الإرجاع",
+      "returns_value_zero": "خلال {{days}} يوم",
+      "returns_value_one": "خلال يوم واحد",
+      "returns_value_two": "خلال يومين",
+      "returns_value_few": "خلال {{days}} أيام",
+      "returns_value_many": "خلال {{days}} يومًا",
+      "returns_value_other": "خلال {{days}} يوم",
+      "payment": "طرق الدفع",
+      "cod": "الدفع عند الاستلام"
+    },
+    "showcase": {
+      "eyebrow": "من متجرنا",
+      "title": "منتجاتنا",
+      "see_all": "شاهد كل المنتجات"
+    },
+    "cta": {
+      "title": "لديك سؤال؟",
+      "text": "راسلنا وسنرد عليك في أقرب وقت.",
+      "browse": "تصفّح المنتجات"
+    },
+    "contact": {
+      "call": "اتصل الآن",
+      "write": "أرسل رسالة",
+      "map": "افتح في الخرائط",
+      "whatsapp_hint": "أسرع طريقة للتواصل معنا",
+      "other_ways": "طرق أخرى للتواصل"
+    },
+    "policy": {
+      "summary": "باختصار",
+      "questions_title": "لديك سؤال عن هذه السياسة؟",
+      "questions_text": "تواصل معنا على واتساب وسنوضح لك كل ما تحتاج معرفته."
+    }
   }
 }

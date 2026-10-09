@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatPrice } from '../../lib/format';
+import { formatPrice, getTenantLocale } from '../../lib/format';
 import { errMsg } from '../../lib/errors';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../components/PageHeader';
@@ -26,6 +26,7 @@ import {
   TrendingUp, AlertTriangle, Archive, CheckCircle2, Star, Filter, Download,
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
+import { useNewProductRoute } from '../../hooks/useNewProductRoute';
 import { toast } from 'sonner';
 import { toCSV, downloadCSV } from '../../lib/utils';
 import type { Product, Category, PaginatedResponse } from '../../types';
@@ -47,6 +48,7 @@ type StatusTab = 'all' | 'active' | 'draft' | 'archived' | 'low-stock';
 
 export const Products: React.FC = () => {
   const { t } = useTranslation(['products', 'common']);
+  const newProductRoute = useNewProductRoute();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,9 +202,9 @@ export const Products: React.FC = () => {
   };
 
   const statCards = useMemo(() => [
-    { label: t('products.list.stat.total_products'), value: stats.total.toLocaleString(), icon: Package, description: t('products.list.stat.total_description') },
-    { label: t('products.list.stat.active'), value: stats.active.toLocaleString(), icon: CheckCircle2, description: t('products.list.stat.active_description') },
-    { label: t('products.list.stat.low_stock'), value: stats.lowStock.toLocaleString(), icon: AlertTriangle, description: t('products.list.stat.low_stock_description') },
+    { label: t('products.list.stat.total_products'), value: stats.total.toLocaleString(getTenantLocale()), icon: Package, description: t('products.list.stat.total_description') },
+    { label: t('products.list.stat.active'), value: stats.active.toLocaleString(getTenantLocale()), icon: CheckCircle2, description: t('products.list.stat.active_description') },
+    { label: t('products.list.stat.low_stock'), value: stats.lowStock.toLocaleString(getTenantLocale()), icon: AlertTriangle, description: t('products.list.stat.low_stock_description') },
     { label: t('products.list.stat.inventory_value'), value: formatPrice(stats.value), icon: TrendingUp, description: t('products.list.stat.inventory_value_description') },
   ], [stats, t]);
 
@@ -218,7 +220,7 @@ export const Products: React.FC = () => {
               <Download className="h-4 w-4 me-2" />{t('common:action.export')}
             </Button>
             <Button asChild>
-              <Link to="/dashboard/products/new">
+              <Link to={newProductRoute}>
                 <Plus className="h-4 w-4 me-2" />{t('products.list.new_product')}
               </Link>
             </Button>
@@ -292,7 +294,7 @@ export const Products: React.FC = () => {
             </p>
             {!searchTerm && (
               <Button asChild size="lg">
-                <Link to="/dashboard/products/new">
+                <Link to={newProductRoute}>
                   <Plus className="h-4 w-4 me-2" />{t('products.list.empty.action')}
                 </Link>
               </Button>

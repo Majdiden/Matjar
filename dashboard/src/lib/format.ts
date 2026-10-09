@@ -21,9 +21,27 @@ export function getTenantCurrency(): string {
   catch { return "SDG"; }
 }
 
+/** Unicode extension: Latin digits (0-9) whatever the language. */
+const LATIN_DIGITS = "-u-nu-latn";
+
+/** The dashboard's current language (set on <html lang> by LanguageProvider). */
+function uiLanguage(): "ar" | "en" {
+  const lang = typeof document !== "undefined" ? document.documentElement.lang : "";
+  return lang?.toLowerCase().startsWith("ar") ? "ar" : "en";
+}
+
+/**
+ * Locale for every number, price and date the dashboard shows: the
+ * language the merchant is reading the dashboard in, the store's region
+ * (e.g. SD), and always Latin digits. Arabic-Indic digits (٠١٢) were
+ * confusing next to Latin ones in phone numbers and order numbers, and
+ * showed up even in the English dashboard once stores defaulted to Arabic.
+ */
 export function getTenantLocale(): string {
-  try { return localStorage.getItem(LOCALE_KEY) || "en-US"; }
-  catch { return "en-US"; }
+  let stored = "";
+  try { stored = localStorage.getItem(LOCALE_KEY) || ""; } catch { /* ignore */ }
+  const region = stored.split("-")[1] || (uiLanguage() === "ar" ? "SD" : "US");
+  return `${uiLanguage()}-${region}${LATIN_DIGITS}`;
 }
 
 export function formatPrice(

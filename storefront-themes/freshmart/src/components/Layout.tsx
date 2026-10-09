@@ -10,12 +10,14 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
+import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
+  const stripText = useTopStripText();
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -31,13 +33,16 @@ const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fafff5] pb-16 md:pb-0">
-      {/* Announcement Bar */}
-      <AnnouncementBar
-        message={t('theme.announcement.message')}
-        href="/products"
-        linkText={t('theme.announcement.link_text')}
-        className="bg-[#16a34a] text-white"
-      />
+      {/* Top strip — the merchant's text from My Store, on every page */}
+      {stripText && (
+        <div data-section-id={TOP_STRIP_ANCHOR}>
+          <AnnouncementBar
+            message={stripText}
+            dismissible={false}
+            className="bg-[#16a34a] text-white"
+          />
+        </div>
+      )}
 
       {/* Header */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md shadow-sm">

@@ -62,7 +62,11 @@ On the test store's dashboard home (phone):
 | # | Do | Expect |
 |---|---|---|
 | 3.1 | Look at the card. | "ثلاث خطوات لأول عملية بيع", 0 of 3 (or 1 of 3 if the store has products). |
-| 3.2 | Tap "Add your first product", add one product. | Step 1 shows ✓ "تم". |
+| 3.2 | Tap "Add your first product". | Opens the short form "أضف منتجًا": photos, name, price, "كم قطعة عندك؟". Not the long product form. |
+| 3.2a | Take a photo, type a name, a price **with the Arabic keyboard** (e.g. ١٥٬٠٠٠), tap + once, tap "انشر المنتج". | "منتجك الآن في متجرك" with Share, Add another, Back to home, Edit details. The price shows as 15,000. |
+| 3.2b | Open the store and find the product. | It is live (not a draft), with the photo and price, in a category called "منتجاتنا". Two more quick products land in the same category. |
+| 3.2c | Leave the name empty, or type letters in the price, and tap "انشر المنتج". | Red message under the field; nothing is saved. |
+| 3.2d | Back on home. | Step 1 shows ✓ "تم". With `design.simpleMode` on, the + button in the bottom bar → "New product", and "Add product" on the Products page, also open the short form. |
 | 3.3 | Payment step: tap the button. | Opens payment methods (or "OK, that works for me" if payment methods are off). Step 2 ✓. |
 | 3.4 | Share step: tap Share and **actually send** to someone (or copy the link). | Step 3 ✓. Closing the share sheet without sending must **not** tick it. |
 | 3.5 | All 3 done. | The card disappears. The × dismisses it earlier. |
@@ -176,6 +180,33 @@ Use throwaway stores only.
 | 11.6 | Change one letter of the `token=` in that link. | "Order not found". |
 | 11.7 | Try 11 wrong order numbers in a row with the same email. | After 10, "Too many order lookups" for 15 minutes. |
 | 11.8 | Register a new store (any). | The owner receives "[Matjar] New store signup". |
+
+---
+
+## 13. This round (homepage, editor, pages, digits, delivery prices)
+
+Deploying runs migration 016 automatically: every store's homepage becomes **hero → newest products → featured products**. Text, photos and button words in those parts are kept; other parts leave the homepage but are still in Advanced options.
+
+| # | Do | Expect |
+|---|---|---|
+| 13.1 | Open the test store's homepage on a phone. | Only: top strip (if you wrote one), the big photo at the top, newest products, featured products. |
+| 13.2 | My store → Homepage. | A large preview pinned at the top. Rows: **Top strip** (first, "Shows at the top of every page"), the big photo, newest products, featured products. |
+| 13.3 | Tap the big photo **in the preview**. | Its editing sheet opens; the part is outlined in blue. |
+| 13.4 | Type a new title slowly. | The preview changes **while you type**. It saves when you leave the field: "Saved — live on your store" appears above the bottom bar and **fades after a few seconds**. |
+| 13.5 | Change **the words on the button**. | The button in the preview and on the store changes. |
+| 13.6 | Tap the top strip row (or the strip in the preview), write "التوصيل مجاني داخل الخرطوم", Done. | The strip shows that text on **every page** of the store. Empty text = no strip. |
+| 13.7 | Switch theme in the full editor, then look at the homepage. | Same three parts in the new theme's style, one strip only. |
+| 13.8 | My store → About / Contact (on) / Delivery & returns, then open /about, /contact, /policies/delivery on the store. | Designed pages: photo header, short fact cards, products (About), WhatsApp button. They look different in a luxury theme (aurum), a playful one (kidsworld) and a plain one (modern). |
+| 13.9 | My store → Delivery & returns. | No "delivery price" field. "Delivery prices" shows the prices from Settings → Shipping, with **Edit delivery prices**. With none set: an amber note and **Add delivery prices**. |
+| 13.10 | Set a flat price (or zones) in Settings → Shipping, come back, save the questions. | The delivery page states exactly those prices; checkout charges the same. |
+| 13.11 | Dashboard in Arabic and in English: a customer's page (lifetime spend, last order, customer since), orders list, products list. | All digits are 0-9 (no ٠١٢), in both languages. On the store, order tracking and review dates too. |
+| 13.12 | Any form: leave a required field empty far up the page, tap Save. | The page scrolls to that field and puts the cursor in it. |
+| 13.13 | Phone bottom bar. | Home, Orders, +, Products, More. My store is inside More (More is highlighted while you're in My store). |
+| 13.14 | **Guided setup** (needs `onboarding.v2`; steps 2–3 need `design.simpleMode`). New store with no product: log in. | The dashboard opens **Add a product** straight away, with the guide bar on top ("Set up your store · 0 of 4"). |
+| 13.15 | Publish the product, then go to any other page. | The bar now says step 2 **Add your logo and cover photo** with a button. Next login opens that page directly. |
+| 13.16 | Add the logo, the cover photo and the short line (tagline). | Step 3 **delivery and returns**: answer and save → step 4 **Share**: share from the bar. The bar disappears for good. |
+| 13.17 | Fold the bar (arrow). | It becomes one line on every page; it can't be closed until the steps are done. Home shows the full checklist instead of the bar. |
+| 13.18 | Sidebar (computer) or More (phone). | **My store** is the first entry of the top section, larger, tinted, with "Your store's look and pages" under it. |
 
 ---
 

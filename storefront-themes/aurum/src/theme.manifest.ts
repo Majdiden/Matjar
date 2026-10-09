@@ -28,7 +28,7 @@ export const splitHeroSection: SectionDefinition = defineSection({
   settings: [
     { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', level: 'basic', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'image_left', type: 'image', label: 'Left Image', level: 'basic', default: U('1601121141461-9d6647bca1ed', 1400) },
     { id: 'image_right', type: 'image', label: 'Right Image', default: U('1603561591411-07134e71a2a9', 1400) },
@@ -206,15 +206,8 @@ export const gallerySection: SectionDefinition = defineSection({
 
 const indexTemplate: SectionInstance[] = [
   { id: 'aurum-hero', type: 'aurum-split-hero', settings: {} },
-  { id: 'aurum-marquee', type: 'aurum-marquee', settings: {} },
-  { id: 'aurum-spotlight', type: 'aurum-spotlight', settings: {} },
-  { id: 'aurum-tabs', type: 'aurum-collection-tabs', settings: {} },
-  { id: 'aurum-editorial', type: 'aurum-editorial', settings: {} },
   { id: 'aurum-rail', type: 'aurum-product-rail', settings: {} },
-  { id: 'aurum-trust', type: 'aurum-trust', settings: {} },
-  { id: 'aurum-showcase', type: 'aurum-collections-showcase', settings: {} },
-  { id: 'aurum-statement', type: 'aurum-statement', settings: {} },
-  { id: 'aurum-gallery', type: 'aurum-gallery', settings: {} },
+  { id: 'aurum-featured', type: 'aurum-product-rail', settings: { source: 'featured' } },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

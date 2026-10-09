@@ -7,10 +7,10 @@ import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
+import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { Marquee } from './Marquee';
 import { MegaMenu, MenuLink } from './MegaMenu';
 import { SearchOverlay } from './SearchOverlay';
 import { MobileDrawer } from './MobileDrawer';
@@ -30,15 +30,10 @@ const Layout: React.FC = () => {
   const location = useLocation();
   const { hidden, scrolled } = useHideOnScroll(96);
 
-  const showBar = useThemeSetting<boolean>('show_announcement_bar') !== false;
+  const stripText = useTopStripText();
   // Merchant copy wins; otherwise the theme's translations supply the demo
   // strings, so a fresh install reads in the shopper's language.
   const msg = (v: string | undefined, key: string) => (v && v.trim()) || t(key, { defaultValue: '' });
-  const messages = [
-    msg(useThemeSetting<string>('announcement_text'), 'theme.announcement.1'),
-    msg(useThemeSetting<string>('announcement_text_2'), 'theme.announcement.2'),
-    msg(useThemeSetting<string>('announcement_text_3'), 'theme.announcement.3'),
-  ].filter(Boolean);
   const popular = msg(useThemeSetting<string>('popular_searches'), 'theme.search.popular_defaults')
     .split(/[,،]/).map((s) => s.trim()).filter(Boolean);
   const promo = {
@@ -78,7 +73,11 @@ const Layout: React.FC = () => {
   return (
     <div className="flex min-h-screen flex-col bg-cream font-body text-ink">
       <a href="#linen-main" className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[100] focus:bg-ink focus:px-4 focus:py-2 focus:text-cream">{t('theme.nav.skip')}</a>
-      {showBar && <Marquee messages={messages} />}
+      {stripText && (
+        <div data-section-id={TOP_STRIP_ANCHOR} className="bg-ink px-4 py-2.5 text-center">
+          <p className="linen-eyebrow text-[0.7rem] text-white/85">{stripText}</p>
+        </div>
+      )}
 
       <header
         className={`sticky top-0 z-50 bg-cream transition-[transform,box-shadow] duration-300 ${hidden ? '-translate-y-full' : 'translate-y-0'} ${scrolled ? 'shadow-[0_1px_0_var(--color-border)]' : ''}`}

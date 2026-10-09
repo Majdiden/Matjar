@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatPrice, formatDate } from '../../lib/format';
+import { formatPrice, formatDate, getTenantLocale } from '../../lib/format';
 import { errMsg } from '../../lib/errors';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
@@ -366,9 +366,9 @@ export const Orders: React.FC = () => {
     const withTrend = (base: string, delta?: StatCardDelta) =>
       delta ? `${base} · ${t('orders:list.stat.trend_30d')}` : base;
     return [
-      { label: t('orders:list.stat.total_orders'), value: stats.totalOrders.toLocaleString(), icon: ShoppingCart, delta: ordersDelta, description: withTrend(timeframe, ordersDelta) },
-      { label: t('orders:list.stat.pending'), value: stats.pending.toLocaleString(), icon: Clock, delta: undefined, description: `${t('orders:list.stat.awaiting_fulfillment')} · ${timeframe}` },
-      { label: t('orders:list.stat.delivered'), value: stats.delivered.toLocaleString(), icon: CheckCircle2, delta: undefined, description: `${t('orders:list.stat.completed_orders')} · ${timeframe}` },
+      { label: t('orders:list.stat.total_orders'), value: stats.totalOrders.toLocaleString(getTenantLocale()), icon: ShoppingCart, delta: ordersDelta, description: withTrend(timeframe, ordersDelta) },
+      { label: t('orders:list.stat.pending'), value: stats.pending.toLocaleString(getTenantLocale()), icon: Clock, delta: undefined, description: `${t('orders:list.stat.awaiting_fulfillment')} · ${timeframe}` },
+      { label: t('orders:list.stat.delivered'), value: stats.delivered.toLocaleString(getTenantLocale()), icon: CheckCircle2, delta: undefined, description: `${t('orders:list.stat.completed_orders')} · ${timeframe}` },
       { label: t('orders:list.stat.total_revenue'), value: formatPrice(stats.totalRevenue), icon: DollarSign, delta: revenueDelta, description: withTrend(`${t('orders:list.stat.gross_sales')} · ${timeframe}`, revenueDelta) },
     ];
   }, [stats, hasActiveFilters, t]);

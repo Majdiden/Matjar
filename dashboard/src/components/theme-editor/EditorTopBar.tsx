@@ -25,6 +25,7 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../ui/use-confirm';
+import { getTenantLocale } from '../../lib/format';
 
 /**
  * Row returned by GET /theme-customization/versions. Local to the top
@@ -365,7 +366,7 @@ export default function EditorTopBar({
                     )}
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {v.themeSlug}
-                      {v.publishedAt ? ` · ${new Date(v.publishedAt).toLocaleString()}` : ''}
+                      {v.publishedAt ? ` · ${new Date(v.publishedAt).toLocaleString(getTenantLocale())}` : ''}
                     </p>
                   </div>
                   <Button

@@ -59,65 +59,90 @@ export function themesForNiche<T extends NicheTheme>(themes: T[], niche: string,
 }
 
 // ---------------------------------------------------------------------------
-// "First sale" checklist (10-17)
+// "First sale" essentials (10-17, guided setup 10-28)
 // ---------------------------------------------------------------------------
 
-export type FirstSaleStepKey = 'product' | 'payments' | 'share';
+/**
+ * The essentials a new store goes through before it can sell, in order.
+ * "How customers pay" is not a step: cash on delivery is the only method
+ * today and it is on by default.
+ */
+export type FirstSaleStepKey = 'product' | 'brand' | 'policies' | 'share';
 
-export const FIRST_SALE_STEPS: readonly FirstSaleStepKey[] = ['product', 'payments', 'share'];
+export const FIRST_SALE_STEPS: readonly FirstSaleStepKey[] = ['product', 'brand', 'policies', 'share'];
 
-/** Payment method that is always seeded and on: Cash on Delivery. */
-export const COD_METHOD_CODE = 'cod';
+/** Steps done on the My Store screens (`design.simpleMode`). */
+const MY_STORE_STEPS: ReadonlySet<FirstSaleStepKey> = new Set(['brand', 'policies']);
+
+/** Where each step is done; `null` = done in place (the guide's own button). */
+export const FIRST_SALE_STEP_ROUTES: Readonly<Record<FirstSaleStepKey, string | null>> = Object.freeze({
+  product: '/dashboard/products/quick',
+  brand: '/dashboard/store/brand',
+  policies: '/dashboard/store/policies',
+  share: null,
+});
+
+/** The steps for this store: "logo and cover" and "delivery and returns" need the My Store screens. */
+export function firstSaleSteps({ myStore }: { myStore: boolean }): FirstSaleStepKey[] {
+  return FIRST_SALE_STEPS.filter((k) => myStore || !MY_STORE_STEPS.has(k));
+}
 
 export interface FirstSaleSignals {
   /** Products in the store (any status). */
   productCount: number;
-  /**
-   * Codes of the ENABLED payment methods, or null when unknown — the
-   * `payments.methods` flag is off (COD is then the only method and always
-   * on) or the list failed to load.
-   */
-  enabledPaymentCodes: string[] | null;
-  /** First time the merchant reviewed how customers pay (server stamp). */
-  paymentsReviewedAt: string | null;
-  /** First time the merchant tapped Share on the checklist (server stamp). */
+  /** The store has a logo, a cover photo and the line shown with it (brand kit). */
+  brandReady: boolean;
+  /** The delivery and returns policies were written from the questions. */
+  policiesReady: boolean;
+  /** First time the merchant shared the store link (server stamp). */
   sharedAt: string | null;
 }
 
+interface BrandProfile {
+  logo?: string | null;
+  brand?: { coverImage?: string | null; tagline?: { ar?: string | null } | null } | null;
+}
+
+/**
+ * "Logo and cover" is done once the store has a logo, a cover photo and the
+ * short line shown with it (the tagline, which fills the homepage's big
+ * photo section). Arabic is the required language of the tagline.
+ */
+export function isBrandReady(profile: BrandProfile | null | undefined): boolean {
+  return Boolean(profile?.logo && profile?.brand?.coverImage && profile?.brand?.tagline?.ar?.trim());
+}
+
 export interface FirstSaleProgress {
+  steps: FirstSaleStepKey[];
   done: Record<FirstSaleStepKey, boolean>;
   doneCount: number;
   total: number;
   complete: boolean;
-  /** The first step that is not done yet (the one to highlight), or null. */
+  /** The first step that is not done yet (the one to open), or null. */
   current: FirstSaleStepKey | null;
 }
 
 /**
  * Completion rules:
- *  - product:  at least one product exists.
- *  - payments: customers have a way to pay AND the merchant has seen it —
- *              they reviewed the payment step, or switched on a method other
- *              than cash on delivery (which means they set it up). With the
- *              methods unknown, COD is assumed on, so reviewing is enough.
- *              Every method switched off is never done.
- *  - share:    the merchant tapped Share once.
+ *  - product: at least one product exists.
+ *  - brand:    a logo, a cover photo and the tagline are set.
+ *  - policies: the delivery and returns policies were written.
+ *  - share:   the merchant shared the store link once.
  */
-export function firstSaleProgress(s: FirstSaleSignals): FirstSaleProgress {
-  const codes = s.enabledPaymentCodes;
-  const hasWayToPay = codes == null || codes.length > 0;
-  const setUpOtherMethod = codes != null && codes.some((c) => c !== COD_METHOD_CODE);
+export function firstSaleProgress(s: FirstSaleSignals, steps: readonly FirstSaleStepKey[] = FIRST_SALE_STEPS): FirstSaleProgress {
   const done: Record<FirstSaleStepKey, boolean> = {
     product: s.productCount > 0,
-    payments: hasWayToPay && (Boolean(s.paymentsReviewedAt) || setUpOtherMethod),
+    brand: s.brandReady,
+    policies: s.policiesReady,
     share: Boolean(s.sharedAt),
   };
-  const doneCount = FIRST_SALE_STEPS.filter((k) => done[k]).length;
+  const doneCount = steps.filter((k) => done[k]).length;
   return {
+    steps: [...steps],
     done,
     doneCount,
-    total: FIRST_SALE_STEPS.length,
-    complete: doneCount === FIRST_SALE_STEPS.length,
-    current: FIRST_SALE_STEPS.find((k) => !done[k]) ?? null,
+    total: steps.length,
+    complete: doneCount === steps.length,
+    current: steps.find((k) => !done[k]) ?? null,
   };
 }

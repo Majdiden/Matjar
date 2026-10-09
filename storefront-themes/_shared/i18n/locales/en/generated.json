@@ -19,5 +19,46 @@
     "delivery_time": "Arrives in {{time}}",
     "returns_one": "Returns within {{count}} day",
     "returns_other": "Returns within {{count}} days"
+  },
+  "pages": {
+    "about": {
+      "title": "About us",
+      "story_eyebrow": "Our story",
+      "story_title": "Get to know us"
+    },
+    "facts": {
+      "heading": "About the store at a glance",
+      "since": "Serving you since",
+      "city": "Based in",
+      "delivery": "We deliver to",
+      "delivery_time": "Delivery time",
+      "returns": "Returns",
+      "returns_value_one": "Within {{days}} day",
+      "returns_value_other": "Within {{days}} days",
+      "payment": "Ways to pay",
+      "cod": "Cash on delivery"
+    },
+    "showcase": {
+      "eyebrow": "From our store",
+      "title": "What we sell",
+      "see_all": "See all products"
+    },
+    "cta": {
+      "title": "Have a question?",
+      "text": "Message us and we'll reply as soon as we can.",
+      "browse": "Browse products"
+    },
+    "contact": {
+      "call": "Call now",
+      "write": "Send an email",
+      "map": "Open in maps",
+      "whatsapp_hint": "The quickest way to reach us",
+      "other_ways": "Other ways to reach us"
+    },
+    "policy": {
+      "summary": "In short",
+      "questions_title": "Questions about this policy?",
+      "questions_text": "Message us on WhatsApp and we'll explain anything that isn't clear."
+    }
   }
 }

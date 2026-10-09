@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { StatCard, type StatCardDelta } from '../components/StatCard';
@@ -7,6 +7,7 @@ import { PageHeader } from '../components/PageHeader';
 import { LiveStoreBanner, storefrontUrl } from '../components/LiveStoreBanner';
 import { FirstSaleChecklist } from '../components/FirstSaleChecklist';
 import { useFeatures } from '../contexts/features-context';
+import { useNewProductRoute } from '../hooks/useNewProductRoute';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
@@ -19,6 +20,9 @@ import { api } from '../lib/api-client';
 import { toast } from 'sonner';
 import type { Order, PaginationMeta } from '../types';
 import { getTenantCurrency, getTenantLocale } from '../lib/format';
+import { useSetupGuide } from '../contexts/setup-guide-context';
+import { FIRST_SALE_STEP_ROUTES } from '../lib/onboarding';
+import { useStoreKey } from '../hooks/useStoreProfile';
 
 interface DashboardDomainInfo {
   activeDomain: string;
@@ -171,6 +175,8 @@ const SalesSparkline: React.FC<{ points: number[] }> = ({ points }) => {
 
 // Setup-checklist dismissal (collapsed-bar state only). Same key style
 // as Orders.tsx's 'orders.viewMode'.
+/** Session flag: the current setup step was already opened once. */
+const GUIDE_OPENED_KEY = 'matjar.setupGuide.opened';
 const SETUP_DISMISSED_KEY = 'dashboard.setupDismissed';
 
 type SetupStepKey = 'add_product' | 'payments' | 'theme' | 'test_order' | 'domain';
@@ -197,9 +203,31 @@ interface SetupSignals {
 export const Dashboard: React.FC = () => {
   const { t } = useTranslation(['dashboard', 'common']);
   const { hasFeature } = useFeatures();
+  const newProductRoute = useNewProductRoute();
   // PBI 10-17: the "first sale" checklist replaces the setup checklist for
   // stores with `onboarding.v2` (per-store overrides apply here).
   const firstSaleChecklist = hasFeature('onboarding.v2');
+
+  // Guided setup (PBI 10-28): on the first visit to home in a session, open
+  // the current essential step full-page (e.g. the quick product form), so
+  // the merchant can act at once. Coming back to home later shows the
+  // checklist; the guide bar follows them on every other page.
+  const guide = useSetupGuide();
+  const navigate = useNavigate();
+  const storeKey = useStoreKey();
+  useEffect(() => {
+    const step = guide.active ? guide.progress?.current : null;
+    const route = step ? FIRST_SALE_STEP_ROUTES[step] : null;
+    if (!route) return;
+    const key = `${GUIDE_OPENED_KEY}:${storeKey}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch {
+      return; // no session storage: never redirect (it could loop)
+    }
+    navigate(route);
+  }, [guide.active, guide.progress, navigate, storeKey]);
   const [totals, setTotals] = useState({ products: 0, customers: 0, orders: 0 });
   const [orderStats, setOrderStats] = useState<OrderStats>(EMPTY_ORDER_STATS);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -208,9 +236,6 @@ export const Dashboard: React.FC = () => {
   const [signals, setSignals] = useState<SetupSignals>({
     hasProduct: false, paymentsEnabled: false, themePublished: false, hasOrder: false, hasCustomDomain: false,
   });
-  // Codes of the enabled payment methods for the first-sale checklist; null
-  // when the list is unavailable (payments.methods off → COD only).
-  const [enabledPaymentCodes, setEnabledPaymentCodes] = useState<string[] | null>(null);
   const [starter, setStarter] = useState<{ hasDraftStarter?: boolean; previewUrl?: string } | null>(null);
   // Dense daily trends for the stat-card sparklines over the last TREND_DAYS:
   // sales (revenue + orders) and new customers/products, one value per day.
@@ -334,9 +359,6 @@ export const Dashboard: React.FC = () => {
         ? ((paymentsRes.value as PaymentMethodsResponse)?.data?.methods
           || (paymentsRes.value as PaymentMethodsResponse)?.responseObject?.methods || [])
         : [];
-      setEnabledPaymentCodes(paymentsRes.status === 'fulfilled'
-        ? methods.filter((m) => m?.enabled === true).map((m) => m?.code || '')
-        : null);
       const themeCustomization = themeRes.status === 'fulfilled'
         ? (themeRes.value as ThemeCustomizationResponse)?.responseObject
         : null;
@@ -384,7 +406,7 @@ export const Dashboard: React.FC = () => {
   // once a customization is published OR the merchant selected a theme.
   const setupSteps: SetupStepDef[] = useMemo(() => {
     const steps: SetupStepDef[] = [
-      { key: 'add_product', done: signals.hasProduct, icon: Package, href: '/dashboard/products/new' },
+      { key: 'add_product', done: signals.hasProduct, icon: Package, href: newProductRoute },
       { key: 'payments', done: signals.paymentsEnabled, icon: CreditCard, href: '/dashboard/payments/methods' },
       { key: 'theme', done: signals.themePublished || themeSelected === true, icon: Palette, href: '/dashboard/themes/editor' },
       // Test orders are placed on the storefront itself.
@@ -396,7 +418,7 @@ export const Dashboard: React.FC = () => {
     return themeSelected === false
       ? steps
       : steps.filter((s) => s.key !== 'theme');
-  }, [signals, storeUrl, themeSelected]);
+  }, [signals, storeUrl, themeSelected, newProductRoute]);
 
   const doneCount = setupSteps.filter((s) => s.done).length;
   const setupComplete = doneCount === setupSteps.length;
@@ -498,7 +520,7 @@ export const Dashboard: React.FC = () => {
         description={t('dashboard:subtitle')}
         actions={
           <Button asChild>
-            <Link to="/dashboard/products/new">
+            <Link to={newProductRoute}>
               <Plus className="h-4 w-4 me-2" />
               {t('dashboard:add_product')}
             </Link>
@@ -516,13 +538,7 @@ export const Dashboard: React.FC = () => {
       )}
 
       {firstSaleChecklist && (
-        <FirstSaleChecklist
-          productCount={totals.products}
-          enabledPaymentCodes={enabledPaymentCodes}
-          storeUrl={storeUrl}
-          canManagePayments={hasFeature('payments.methods')}
-          showBrandLink={hasFeature('design.simpleMode')}
-        />
+        <FirstSaleChecklist />
       )}
 
       {/* Setup checklist (audit 3.7.1) — dominant card until the first
@@ -624,7 +640,7 @@ export const Dashboard: React.FC = () => {
             <StatCard
               className="h-full"
               label={t('dashboard:metric.orders')}
-              value={orderStats.orders30d.toLocaleString()}
+              value={orderStats.orders30d.toLocaleString(getTenantLocale())}
               icon={ShoppingCart}
               delta={ordersDelta}
               description={t('dashboard:metric.orders_description')}
@@ -635,7 +651,7 @@ export const Dashboard: React.FC = () => {
             <StatCard
               className="h-full"
               label={t('dashboard:metric.products')}
-              value={totals.products.toLocaleString()}
+              value={totals.products.toLocaleString(getTenantLocale())}
               icon={Package}
               description={t('dashboard:metric.products_description')}
               chart={<SalesSparkline points={cumulativeSeries(productDaily, totals.products)} />}
@@ -645,7 +661,7 @@ export const Dashboard: React.FC = () => {
             <StatCard
               className="h-full"
               label={t('dashboard:metric.customers')}
-              value={totals.customers.toLocaleString()}
+              value={totals.customers.toLocaleString(getTenantLocale())}
               icon={Users}
               description={t('dashboard:metric.customers_description')}
               chart={<SalesSparkline points={cumulativeSeries(customerDaily, totals.customers)} />}
@@ -672,7 +688,7 @@ export const Dashboard: React.FC = () => {
               <Link to="/dashboard/orders">
                 <StatCard
                   label={t('dashboard:metric.orders')}
-                  value={orderStats.orders30d.toLocaleString()}
+                  value={orderStats.orders30d.toLocaleString(getTenantLocale())}
                   icon={ShoppingCart}
                   delta={ordersDelta}
                   description={withTrend(t('dashboard:metric.orders_description'), ordersDelta)}
@@ -689,7 +705,7 @@ export const Dashboard: React.FC = () => {
               <Link to="/dashboard/products">
                 <StatCard
                   label={t('dashboard:metric.products')}
-                  value={totals.products.toLocaleString()}
+                  value={totals.products.toLocaleString(getTenantLocale())}
                   icon={Package}
                   description={t('dashboard:metric.products_description')}
                   chart={<SalesSparkline points={cumulativeSeries(productDaily, totals.products)} />}
@@ -698,7 +714,7 @@ export const Dashboard: React.FC = () => {
               <Link to="/dashboard/customers">
                 <StatCard
                   label={t('dashboard:metric.customers')}
-                  value={totals.customers.toLocaleString()}
+                  value={totals.customers.toLocaleString(getTenantLocale())}
                   icon={Users}
                   description={t('dashboard:metric.customers_description')}
                   chart={<SalesSparkline points={cumulativeSeries(customerDaily, totals.customers)} />}
@@ -776,7 +792,7 @@ export const Dashboard: React.FC = () => {
             <CardContent className="space-y-2">
               {quickActionsStatic ? (
                 [
-                  { label: t('dashboard:section.quick_actions.add_product'), icon: Package, href: '/dashboard/products/new' },
+                  { label: t('dashboard:section.quick_actions.add_product'), icon: Package, href: newProductRoute },
                   { label: t('dashboard:section.quick_actions.view_orders'), icon: ShoppingCart, href: '/dashboard/orders' },
                   { label: t('dashboard:section.quick_actions.manage_themes'), icon: Palette, href: '/dashboard/themes' },
                   { label: t('dashboard:section.quick_actions.domain_settings'), icon: Globe, href: '/dashboard/domains' },

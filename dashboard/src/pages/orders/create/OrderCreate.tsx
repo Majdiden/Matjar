@@ -17,6 +17,7 @@ import { api, type DraftOrderPayload } from '../../../lib/api-client';
 import { formatPrice } from '../../../lib/format';
 import { errMsg } from '../../../lib/errors';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../../lib/focusFirstInvalid';
 import type { Order, OrderItem, Product, ProductVariant, Address } from '../../../types';
 
 // ─── Local state shapes ───────────────────────────────────────────────
@@ -359,20 +360,24 @@ export const OrderCreate: React.FC = () => {
   const buildPayload = (): DraftOrderPayload | null => {
     if (lines.length === 0) {
       toast.error(t('orders:create.toast.no_lines'));
+      focusFieldById('order-product-search');
       return null;
     }
     if (customerMode === 'existing' && !selectedCustomer) {
       toast.error(t('orders:create.toast.no_customer'));
+      focusFieldById('order-customer-search');
       return null;
     }
     if (customerMode === 'guest' && !guest.email.trim()) {
       toast.error(t('orders:create.toast.guest_email_required'));
+      focusFieldById('guest-email');
       return null;
     }
     let shippingMethod: DraftOrderPayload['shippingMethod'] = null;
     if (shippingChoice === 'custom') {
       if (!customShippingName.trim()) {
         toast.error(t('orders:create.toast.custom_shipping_name_required'));
+        focusFieldById('ship-name');
         return null;
       }
       shippingMethod = { name: customShippingName.trim(), price: Number(customShippingPrice) || 0 };
@@ -524,6 +529,7 @@ export const OrderCreate: React.FC = () => {
               <div className="relative" ref={productBoxRef}>
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
+                  id="order-product-search"
                   placeholder={t('orders:create.product_search_placeholder')}
                   className="ps-9"
                   value={productQuery}
@@ -676,6 +682,7 @@ export const OrderCreate: React.FC = () => {
                   <div className="relative" ref={customerBoxRef}>
                     <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
+                      id="order-customer-search"
                       placeholder={t('orders:create.customer_search_placeholder')}
                       className="ps-9"
                       value={customerQuery}

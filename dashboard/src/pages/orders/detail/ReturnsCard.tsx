@@ -11,6 +11,7 @@ import { Input } from '../../../components/ui/input';
 import { RefreshCw, ArrowDownLeft } from 'lucide-react';
 import { api } from '../../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../../lib/focusFirstInvalid';
 import type { Order, OrderReturn } from '../../../types';
 import { useOrderDetail } from './context';
 import { ReplacementDialog } from './dialogs/ReplacementDialog';
@@ -96,6 +97,7 @@ const ReturnsAndReplacements: React.FC<{
     const amt = Number(refundDialog.amount);
     if (isNaN(amt) || amt < 0) {
       toast.error(tR('orders:validation.refund_amount_invalid'));
+      focusFieldById('return-refund-amount');
       return;
     }
     onAdvanceReturn(refundDialog.returnId, 'Refunded', amt);
@@ -276,6 +278,7 @@ const ReturnsAndReplacements: React.FC<{
         </DialogHeader>
         <div className="py-2">
           <Input
+            id="return-refund-amount"
             type="number"
             min={0}
             step="0.01"

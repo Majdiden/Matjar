@@ -1,4 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
+import { storefrontLocale } from '@matjar/theme-shared/utils/locale';
 
 /** True when the visitor prefers reduced motion (evaluated on the client only). */
 export function prefersReducedMotion(): boolean {
@@ -47,7 +48,7 @@ export const CountUp: React.FC<{ value: string; duration?: number; className?: s
   useEffect(() => {
     const el = ref.current;
     if (!el || !Number.isFinite(target)) { setDisplay(String(value)); return; }
-    const fmt = (n: number) => (useGrouping ? n.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) : n.toFixed(decimals));
+    const fmt = (n: number) => (useGrouping ? n.toLocaleString(storefrontLocale(), { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) : n.toFixed(decimals));
     if (prefersReducedMotion() || typeof IntersectionObserver === 'undefined') { setDisplay(fmt(target)); return; }
     let raf = 0;
     const io = new IntersectionObserver((entries) => {

@@ -164,3 +164,43 @@ describe("simple-mode filtering (shared helpers the editor uses)", () => {
     assert.deepEqual(basicSettingsOf(def).map((s) => s.id), ["a", "c"]);
   });
 });
+
+describe("top strip (theme-level) ops", async () => {
+  const lib = await import("../../dashboard/src/lib/homepageEditor.ts");
+  const strip = { show_announcement_bar: true, announcement_text: "Free delivery", announcement_text__ar: "توصيل مجاني" };
+
+  it("keys theme ops by the settings they change, so text and visibility don't replace each other", () => {
+    const text = { kind: "theme", settings: lib.bilingualThemeValues("announcement_text", { ar: "عرض" }) };
+    const show = { kind: "theme", settings: { show_announcement_bar: false } };
+    assert.notEqual(lib.opKey(text), lib.opKey(show));
+    assert.equal(lib.opKey(text), "theme:announcement_text,announcement_text__ar");
+  });
+
+  it("writes both flat keys, blanking the twin instead of dropping it", () => {
+    assert.deepEqual(lib.bilingualThemeValues("announcement_text", { ar: "عرض", en: "Offer" }), {
+      announcement_text: "Offer",
+      announcement_text__ar: "عرض",
+    });
+    assert.deepEqual(lib.bilingualThemeValues("announcement_text", { ar: "", en: "Offer" }), {
+      announcement_text: "Offer",
+      announcement_text__ar: "",
+    });
+    assert.deepEqual(lib.bilingualThemeValues("announcement_text", { ar: "عرض" }), {
+      announcement_text: "عرض",
+      announcement_text__ar: "عرض",
+    });
+  });
+
+  it("applies to theme values only, leaves sections alone, and undoes to the previous values", () => {
+    const op = { kind: "theme", settings: { show_announcement_bar: false } };
+    const sections = [{ id: "hero", type: "hero", settings: {} }];
+    assert.deepEqual(lib.applyOp(sections, op), sections);
+    assert.equal(lib.inverseOp(sections, op), null);
+    const after = lib.applyThemeOp(strip, op);
+    assert.equal(lib.isTopStripShown(after), false);
+    assert.equal(lib.isTopStripShown(strip), true);
+    assert.deepEqual(lib.inverseThemeOp(strip, op), { kind: "theme", settings: { show_announcement_bar: true } });
+    assert.equal(lib.opFits(op, []), true);
+    assert.deepEqual(lib.applyThemeOps(strip, [op, lib.inverseThemeOp(strip, op)]), strip);
+  });
+});

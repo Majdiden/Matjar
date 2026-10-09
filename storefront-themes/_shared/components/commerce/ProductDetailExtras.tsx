@@ -5,6 +5,7 @@ import { useStore } from '../../contexts/StoreContext';
 import { useCart } from '../../contexts/CartContext';
 import { reviewsApi } from '../../api/client';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
+import { storefrontLocale } from '../../utils/locale';
 
 export const SLOT_KEY = 'productDetailExtras';
 
@@ -479,7 +480,7 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
                               <Stars rating={r.rating} />
                               {r.createdAt && (
                                 <span className="text-[11px] text-gray-400">
-                                  {new Date(r.createdAt).toLocaleDateString()}
+                                  {new Date(r.createdAt).toLocaleDateString(storefrontLocale())}
                                 </span>
                               )}
                             </div>

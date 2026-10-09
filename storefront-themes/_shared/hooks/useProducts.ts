@@ -59,7 +59,7 @@ function localizeProduct(p: any, lang: string): any {
 }
 
 /** Localize a list of products for the active language. */
-function localizeProducts(list: any[], lang: string): any[] {
+export function localizeProducts(list: any[], lang: string): any[] {
   return Array.isArray(list) ? list.map((p) => localizeProduct(p, lang)) : list;
 }
 

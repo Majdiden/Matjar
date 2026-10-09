@@ -69,6 +69,10 @@ export interface NavItem {
   // If set, the platform feature flag must be enabled for the item to appear.
   // Combined with `permission` (both must pass). Omit to leave ungated.
   feature?: FeatureKey;
+  // A main entry point: drawn larger and highlighted, with `description`
+  // as a second line (e.g. "My store").
+  featured?: boolean;
+  description?: string;
 }
 
 export interface NavGroup {
@@ -83,6 +87,17 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
     label: t('nav:sidebar.home.title'),
     groupKey: 'home',
     items: [
+      // The phone-first way to set up how the store looks (PBI 10-12): the
+      // main entry point for new merchants, so it leads its section.
+      {
+        name: t('nav:sidebar.storefront.my_store'),
+        description: t('nav:sidebar.storefront.my_store_desc'),
+        href: '/dashboard/store',
+        icon: Store,
+        permission: ['settings.read', 'settings.write', 'themes.read', 'themes.write'],
+        feature: 'design.simpleMode',
+        featured: true,
+      },
       { name: t('nav:sidebar.home.dashboard'), href: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.read' },
       { name: t('nav:sidebar.home.analytics'), href: '/dashboard/analytics', icon: BarChart3, permission: 'analytics.read' },
       { name: t('nav:sidebar.home.wishlists'), href: '/dashboard/wishlists', icon: Heart, permission: 'analytics.read' },
@@ -151,8 +166,6 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
     label: t('nav:sidebar.storefront.title'),
     groupKey: 'storefront',
     items: [
-      // Simple, phone-first entry to the store's look and pages (PBI 10-12).
-      { name: t('nav:sidebar.storefront.my_store'), href: '/dashboard/store', icon: Store, permission: ['settings.read', 'settings.write', 'themes.read', 'themes.write'], feature: 'design.simpleMode' },
       {
         name: t('nav:sidebar.storefront.themes'),
         icon: Palette,

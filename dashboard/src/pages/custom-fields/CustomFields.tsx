@@ -21,6 +21,7 @@ import { FileCode, Plus, Pencil, Trash2 } from 'lucide-react';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 
 // Custom field (metafield) values can be any JSON — string, number,
@@ -119,7 +120,11 @@ export const CustomFields: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!form.key || !form.resource) { toast.error(cf('validation.resource_key_required')); return; }
+    if (!form.key || !form.resource) {
+      toast.error(cf('validation.resource_key_required'));
+      focusFieldById(form.resource ? 'custom-field-key' : 'custom-field-resource');
+      return;
+    }
     setSaving(true);
     try {
       const data = { ...form, value: form.type === 'json' ? JSON.parse(form.value) : form.type === 'number' ? Number(form.value) : form.type === 'boolean' ? form.value === 'true' : form.value };
@@ -184,7 +189,7 @@ export const CustomFields: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{cf('field.resource')}</Label>
-                  <Select value={form.resource} onChange={e => setForm(f => ({ ...f, resource: e.target.value }))}
+                  <Select id="custom-field-resource" value={form.resource} onChange={e => setForm(f => ({ ...f, resource: e.target.value }))}
                     options={RESOURCES.filter(r => r.value)} />
                 </div>
                 <div className="space-y-2">
@@ -200,7 +205,7 @@ export const CustomFields: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>{cf('field.key')}</Label>
-                  <Input value={form.key} onChange={e => setForm(f => ({ ...f, key: e.target.value }))} placeholder="my_field" />
+                  <Input id="custom-field-key" value={form.key} onChange={e => setForm(f => ({ ...f, key: e.target.value }))} placeholder="my_field" />
                 </div>
               </div>
               <div className="space-y-2">

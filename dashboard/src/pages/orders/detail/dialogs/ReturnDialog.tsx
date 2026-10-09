@@ -9,6 +9,7 @@ import { Textarea } from '../../../../components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import { api } from '../../../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../../../lib/focusFirstInvalid';
 import type { OrderItem } from '../../../../types';
 import { getReturnableQuantity } from '../lib';
 import { useOrderDetail } from '../context';
@@ -48,6 +49,7 @@ export const ReturnDialog: React.FC<{
       .map(([orderLineId, quantity]) => ({ orderLineId, quantity }));
     if (items.length === 0) {
       toast.error(t('orders:dialog.return.error_no_items'));
+      focusFieldById('return-lines');
       return;
     }
     try {
@@ -77,13 +79,15 @@ export const ReturnDialog: React.FC<{
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
-          <LinePicker
-            order={order}
-            picks={returnPicks}
-            onChange={setReturnPicks}
-            maxOf={(line: OrderItem) => getReturnableQuantity(order, line)}
-            labelMax={t('orders:detail.line_picker.label_max_received')}
-          />
+          <div id="return-lines">
+            <LinePicker
+              order={order}
+              picks={returnPicks}
+              onChange={setReturnPicks}
+              maxOf={(line: OrderItem) => getReturnableQuantity(order, line)}
+              labelMax={t('orders:detail.line_picker.label_max_received')}
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="return-reason">{t('orders:dialog.return.reason_label')}</Label>
             <Textarea

@@ -50,6 +50,7 @@ import { ltrIsolate } from '../../lib/utils';
 import { useFeatures } from '../../contexts/features-context';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '../../components/EmptyState';
+import { formatDate } from '../../lib/format';
 
 // Poll every 10s while any row is in a transitional state
 // (pending_dns, ownership_verified, dns_verified, provisioning_ssl).
@@ -856,7 +857,7 @@ function LiveDetailsBlock({
   t: (key: string, opts?: Record<string, unknown>) => string;
 }) {
   const issuedAt = row.ssl?.issuedAt
-    ? new Date(row.ssl.issuedAt).toLocaleDateString()
+    ? formatDate(row.ssl.issuedAt)
     : null;
 
   return (

@@ -18,22 +18,26 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useConfirm } from '../../components/ui/use-confirm';
-import { api, type PolicyAnswers, type StorePoliciesState } from '../../lib/api-client';
+import { api, type PolicyAnswers, type ShippingSummary, type StorePoliciesState } from '../../lib/api-client';
 import { AnswerField } from './AnswerField';
 import { StoreScreen } from './StoreScreen';
+import { focusFirstInvalid } from '../../lib/focusFirstInvalid';
 import {
   EMPTY_ANSWER, fromDraft, hasArabic, isEditedConflict, toAsciiDigits, toDraft, type AnswerDraft,
 } from './answers';
+import { getTenantLocale } from '../../lib/format';
+import { notifySetupChanged } from '../../contexts/setup-guide-context';
 
 /** Server-side limits (services/generatedPages.js). */
-const MAX_LENGTH = { areas: 300, fee: 200, time: 100, conditions: 600 } as const;
+const MAX_LENGTH = { areas: 300, time: 100, conditions: 600 } as const;
+/** Where delivery prices are set: Settings → Shipping. */
+const SHIPPING_SETTINGS_ROUTE = '/dashboard/settings?tab=shipping';
 const RETURN_DAYS_MIN = 1;
 const RETURN_DAYS_MAX = 90;
 const POLICY_KEYS = ['delivery', 'returns', 'cod'] as const;
 
 interface Draft {
   areas: AnswerDraft;
-  fee: AnswerDraft;
   time: AnswerDraft;
   accepted: boolean | null;
   days: string;
@@ -41,7 +45,7 @@ interface Draft {
 }
 
 const EMPTY_DRAFT: Draft = {
-  areas: EMPTY_ANSWER, fee: EMPTY_ANSWER, time: EMPTY_ANSWER, accepted: null, days: '', conditions: EMPTY_ANSWER,
+  areas: EMPTY_ANSWER, time: EMPTY_ANSWER, accepted: null, days: '', conditions: EMPTY_ANSWER,
 };
 
 type FieldErrors = Partial<Record<'areas' | 'time' | 'accepted' | 'days', string>>;
@@ -60,7 +64,6 @@ export const StorePolicies: React.FC = () => {
     const a = s.answers;
     setDraft({
       areas: toDraft(a ? a.delivery.areas : s.suggestions?.areas),
-      fee: toDraft(a?.delivery.fee),
       time: toDraft(a?.delivery.time),
       accepted: a ? a.returns.accepted : null,
       days: a?.returns.days ? String(a.returns.days) : '',
@@ -81,6 +84,9 @@ export const StorePolicies: React.FC = () => {
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((d) => ({ ...d, [key]: value }));
 
   const hasZones = (state?.zones.length ?? 0) > 0;
+  // Older servers send only `zones`.
+  const shipping: ShippingSummary =
+    state?.shipping ?? (hasZones ? { mode: 'zones', zones: state!.zones } : { mode: 'unset' });
   const hasPayment = Boolean(state && (state.payment.cod || state.payment.transfers.length));
   // Only the policies this save would write can lose hand edits.
   const editedKeys = POLICY_KEYS.filter((k) => state?.policies[k].edited && (k !== 'cod' || hasPayment));
@@ -109,14 +115,17 @@ export const StorePolicies: React.FC = () => {
     });
 
   const save = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      focusFirstInvalid();
+      return;
+    }
     let overwrite = false;
     if (editedKeys.length) {
       if (!(await askToReplace())) return;
       overwrite = true;
     }
     const answers: PolicyAnswers = {
-      delivery: { areas: fromDraft(draft.areas), fee: fromDraft(draft.fee), time: fromDraft(draft.time) },
+      delivery: { areas: fromDraft(draft.areas), time: fromDraft(draft.time) },
       returns: draft.accepted
         ? { accepted: true, days, conditions: fromDraft(draft.conditions) }
         : { accepted: false },
@@ -132,6 +141,7 @@ export const StorePolicies: React.FC = () => {
       }
       applyState(res.data);
       toast.success(t('storePages:policies.saved'));
+      notifySetupChanged();
     } catch (err) {
       if (!isEditedConflict(err)) toast.error(t('storePages:common.error_save'));
     } finally {
@@ -140,7 +150,7 @@ export const StorePolicies: React.FC = () => {
   };
 
   const formatZonePrice = (price: number | null) =>
-    !price ? t('storePages:policies.zone_free') : `${price.toLocaleString(i18n.language)} ${state?.currency || ''}`.trim();
+    !price ? t('storePages:policies.zone_free') : `${price.toLocaleString(getTenantLocale())} ${state?.currency || ''}`.trim();
 
   return (
     <StoreScreen title={t('storePages:policies.title')} intro={t('storePages:policies.intro')} loading={loading}>
@@ -165,21 +175,7 @@ export const StorePolicies: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {hasZones && (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">{t('storePages:policies.zones_hint')}</p>
-              <ul className="space-y-1 text-sm">
-                {state!.zones.map((z) => (
-                  <li key={z.name} className="flex justify-between gap-3 rounded-md bg-muted/50 px-3 py-2">
-                    <span className="font-medium">{z.name}</span>
-                    <span className="text-muted-foreground">
-                      {formatZonePrice(z.price)}{z.days ? ` · ${z.days}` : ''}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <DeliveryPrices shipping={shipping} formatPrice={formatZonePrice} />
           <AnswerField
             label={hasZones ? t('storePages:policies.areas_extra_label') : t('storePages:policies.areas_label')}
             placeholder={t('storePages:policies.areas_placeholder')}
@@ -188,15 +184,6 @@ export const StorePolicies: React.FC = () => {
             maxLength={MAX_LENGTH.areas}
             error={errors.areas}
           />
-          {!hasZones && (
-            <AnswerField
-              label={t('storePages:policies.fee_label')}
-              placeholder={t('storePages:policies.fee_placeholder')}
-              value={draft.fee}
-              onChange={(v) => set('fee', v)}
-              maxLength={MAX_LENGTH.fee}
-            />
-          )}
           <AnswerField
             label={t('storePages:policies.time_label')}
             placeholder={t('storePages:policies.time_placeholder')}
@@ -218,7 +205,7 @@ export const StorePolicies: React.FC = () => {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label className="text-base font-medium">{t('storePages:policies.accepted_label')}</Label>
-            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t('storePages:policies.accepted_label')}>
+            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t('storePages:policies.accepted_label')} aria-invalid={errors.accepted ? true : undefined}>
               {[true, false].map((value) => (
                 <Button
                   key={String(value)}
@@ -313,3 +300,60 @@ export const StorePolicies: React.FC = () => {
 };
 
 export default StorePolicies;
+
+// ---------------------------------------------------------------------------
+
+/**
+ * Delivery prices, read-only: they come from Settings → Shipping (the same
+ * numbers checkout charges) and the delivery policy states them. Merchants
+ * change them there, not here, so the page and checkout never disagree.
+ */
+function DeliveryPrices({ shipping, formatPrice }: { shipping: ShippingSummary; formatPrice: (price: number | null) => string }) {
+  const { t } = useTranslation('storePages');
+  const lines: Array<{ key: string; label: string; value: string }> = [];
+  if (shipping.mode === 'zones') {
+    for (const z of shipping.zones) {
+      lines.push({ key: z.name, label: z.name, value: `${formatPrice(z.price)}${z.days ? ` · ${z.days}` : ''}` });
+    }
+  } else if (shipping.mode === 'flat') {
+    lines.push({ key: 'flat', label: t('policies.prices.flat'), value: formatPrice(shipping.price) });
+  } else if (shipping.mode === 'weight') {
+    lines.push({ key: 'base', label: t('policies.prices.weight_base'), value: formatPrice(shipping.base) });
+    lines.push({ key: 'kg', label: t('policies.prices.weight_per_kg'), value: formatPrice(shipping.perKg) });
+  } else if (shipping.mode === 'free') {
+    lines.push({ key: 'free', label: t('policies.prices.all_orders'), value: formatPrice(null) });
+  }
+  if (shipping.mode !== 'unset' && shipping.mode !== 'free' && shipping.freeOver) {
+    lines.push({ key: 'free-over', label: t('policies.prices.free_over'), value: formatPrice(shipping.freeOver) });
+  }
+  const unset = shipping.mode === 'unset';
+
+  return (
+    <div className="space-y-2">
+      <p className="text-base font-medium">{t('policies.prices.title')}</p>
+      {unset ? (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
+          {t('policies.prices.unset')}
+        </p>
+      ) : (
+        <>
+          <p className="text-sm text-muted-foreground">{t('policies.prices.hint')}</p>
+          <ul className="space-y-1 text-sm">
+            {lines.map((line) => (
+              <li key={line.key} className="flex justify-between gap-3 rounded-md bg-muted/50 px-3 py-2">
+                <span className="font-medium">{line.label}</span>
+                <span className="text-muted-foreground">{line.value}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <Button asChild variant={unset ? 'default' : 'outline'} className="h-11 w-full sm:w-auto">
+        <Link to={SHIPPING_SETTINGS_ROUTE}>
+          <Truck className="h-4 w-4 me-2" />
+          {unset ? t('policies.prices.set') : t('policies.prices.edit')}
+        </Link>
+      </Button>
+    </div>
+  );
+}

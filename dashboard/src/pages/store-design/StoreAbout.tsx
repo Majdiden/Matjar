@@ -21,6 +21,7 @@ import { useStorefrontHost } from '../../hooks/useStorefrontHost';
 import { api, type StoreAboutState } from '../../lib/api-client';
 import { AnswerField } from './AnswerField';
 import { StoreScreen } from './StoreScreen';
+import { focusFirstInvalid } from '../../lib/focusFirstInvalid';
 import {
   EMPTY_ANSWER, fromDraft, hasArabic, isEditedConflict, toAsciiDigits, toDraft, type AnswerDraft,
 } from './answers';
@@ -95,7 +96,10 @@ export const StoreAbout: React.FC = () => {
     });
 
   const save = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      focusFirstInvalid();
+      return;
+    }
     let overwrite = false;
     if (state?.edited) {
       if (!(await askToReplace())) return;

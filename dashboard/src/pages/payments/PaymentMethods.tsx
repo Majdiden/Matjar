@@ -19,6 +19,7 @@ import { Wallet, Loader2, Package, CreditCard, Info, CircleAlert, Ban } from 'lu
 // integration credentials the platform asks for (`merchantFields`).
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useSetBreadcrumbs } from '../../contexts/breadcrumb-context';
 
 interface ManualProvider {
@@ -175,6 +176,7 @@ export const PaymentMethods: React.FC = () => {
     const missing = (m.merchantFields || []).find(f => f.required && !String(draft[f.name] ?? '').trim());
     if (missing) {
       toast.error(t('payments:method.details.required_error', { label: missing.label }));
+      focusFieldById(`payment-config-${m._id}-${missing.name}`);
       return;
     }
     try {
@@ -205,6 +207,7 @@ export const PaymentMethods: React.FC = () => {
     if (!m || !d) return;
     if (d.enabled && !d.accountNumber?.trim() && !d.phone?.trim()) {
       toast.error(t('payments:method.toast.enable_before_save'));
+      focusFieldById('provider-account-number');
       return;
     }
     // Only merchant-owned fields travel; the provider set is the platform's.
@@ -432,6 +435,7 @@ export const PaymentMethods: React.FC = () => {
                               {f.label}{f.required ? ' *' : ''}
                             </Label>
                             <Input
+                              id={`payment-config-${m._id}-${f.name}`}
                               type={secret ? 'password' : f.type === 'number' ? 'number' : 'text'}
                               value={saved ? '' : value}
                               placeholder={saved ? t('payments:method.details.secret_saved') : ''}
@@ -502,6 +506,7 @@ export const PaymentMethods: React.FC = () => {
                 <div>
                   <Label className="text-xs">{t('payments:method.form.field.account_number.label')}</Label>
                   <Input
+                    id="provider-account-number"
                     value={providerDraft.accountNumber || ''}
                     onChange={e => setProviderDraft(d => d && ({ ...d, accountNumber: e.target.value }))}
                     placeholder={t('payments:method.form.field.account_number.placeholder')}

@@ -30,6 +30,12 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
+    // Simple-editor (My Store) settings: when filled they override the FIRST
+    // slide's heading / text / image / button; the other slides are untouched.
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
+    { id: 'image', type: 'image', label: 'Image', level: 'basic', bind: 'brand.coverImage', default: '' },
+    { id: 'cta_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'autoplay', type: 'checkbox', label: 'Auto-play Carousel', default: true },
     { id: 'autoplay_interval', type: 'range', label: 'Auto-play Interval', min: 3000, max: 9000, step: 500, default: 5000, unit: 'ms' },
     { id: 'pause_on_hover', type: 'checkbox', label: 'Pause on Hover', default: false },
@@ -308,8 +314,6 @@ const manifest = defineTheme({
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
     { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: '' },
-    { id: 'announcement_text_2', type: 'text', label: 'Announcement Text 2', default: '' },
-    { id: 'announcement_text_3', type: 'text', label: 'Announcement Text 3', default: '' },
     { id: 'free_shipping_threshold', type: 'number', label: 'Free shipping threshold', default: 300, min: 0, max: 100000 },
     { id: 'popular_searches', type: 'text', label: 'Popular searches (comma separated)', default: '' },
     { id: 'mega_image', type: 'image', label: 'Mega Menu Image', default: U('1616394584738-fc6e612e71b9', 900) },
@@ -338,15 +342,8 @@ const manifest = defineTheme({
   templates: {
     index: [
       { id: 'hero', type: 'linen-hero', settings: {}, blocks: heroSection.defaultBlocks },
-      { id: 'support', type: 'linen-support-strip', settings: {}, blocks: supportStripSection.defaultBlocks },
-      { id: 'grid-1', type: 'linen-product-grid', settings: { product_source: 'featured' } },
-      { id: 'promo', type: 'linen-promo-banner', settings: {} },
-      { id: 'masonry', type: 'linen-category-masonry', settings: {} },
       { id: 'grid-2', type: 'linen-product-grid', settings: { product_source: 'newest', view_all_url: '/products?sort=newest' } },
-      { id: 'editorial', type: 'linen-editorial-split', settings: {} },
-      { id: 'testimonials', type: 'linen-testimonials', settings: {}, blocks: testimonialsSection.defaultBlocks },
-      { id: 'stories', type: 'linen-stories', settings: {}, blocks: storiesSection.defaultBlocks },
-      { id: 'instagram', type: 'linen-instagram', settings: {}, blocks: instagramSection.defaultBlocks },
+      { id: 'grid-1', type: 'linen-product-grid', settings: { product_source: 'featured' } },
     ],
     product: [
       // Description, merchant content blocks and the shipping policy already

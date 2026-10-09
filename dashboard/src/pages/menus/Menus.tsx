@@ -17,6 +17,7 @@ import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errMsg } from '../../lib/errors';
+import { formatDate } from '../../lib/format';
 
 interface Menu {
   _id: string;
@@ -181,7 +182,7 @@ export const Menus: React.FC = () => {
                       />
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      {new Date(menu.updatedAt).toLocaleDateString()}
+                      {formatDate(menu.updatedAt)}
                     </TableCell>
                     <TableCell onClick={e => e.stopPropagation()}>
                       <DropdownMenu>

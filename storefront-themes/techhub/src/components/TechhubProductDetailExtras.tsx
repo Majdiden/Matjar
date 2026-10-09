@@ -15,6 +15,7 @@ import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { reviewsApi } from '@matjar/theme-shared/api/client';
 import { useThemeCard } from '@matjar/theme-shared/theme/ThemeCardProvider';
 import { useTranslation } from 'react-i18next';
+import { storefrontLocale } from '@matjar/theme-shared/utils/locale';
 
 interface Spec { key: string; value: string }
 
@@ -510,7 +511,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
                             <Stars rating={r.rating} />
                             {r.createdAt && (
                               <span className="text-[11px]" style={{ color: 'var(--color-muted)' }}>
-                                {new Date(r.createdAt).toLocaleDateString()}
+                                {new Date(r.createdAt).toLocaleDateString(storefrontLocale())}
                               </span>
                             )}
                           </div>

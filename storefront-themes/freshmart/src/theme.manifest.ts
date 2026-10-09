@@ -18,7 +18,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — your store cover photo is used when empty' },
-    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
+    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', level: 'basic', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
     { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: '' },
     { id: 'secondary_button_url', type: 'url', label: 'Secondary Button URL', default: '/categories' },
@@ -218,19 +218,12 @@ const manifest = defineTheme({
   ],
 
   templates: {
+    // Homepage: hero, newest products, featured products. The other sections
+    // stay addable from the advanced editor.
     index: [
       { id: 'hero', type: 'hero', settings: {} },
-      { id: 'categories', type: 'categories', settings: {} },
-      { id: 'weekly-deals', type: 'weekly-deals', settings: {} },
-      { id: 'featured-products', type: 'featured-products', settings: {} },
-      { id: 'trust-badges', type: 'trust-badges', settings: {}, blocks: [
-        { id: 'badge-1', type: 'badge', settings: { icon: 'truck', title: 'Same-Day Delivery', description: 'Order before 2PM' } },
-        { id: 'badge-2', type: 'badge', settings: { icon: 'leaf', title: '100% Organic', description: 'Certified produce' } },
-        { id: 'badge-3', type: 'badge', settings: { icon: 'check', title: 'Quality Guarantee', description: 'Or your money back' } },
-        { id: 'badge-4', type: 'badge', settings: { icon: 'heart', title: 'Locally Sourced', description: 'Supporting local farms' } },
-      ]},
       { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
-      { id: 'newsletter', type: 'newsletter', settings: {} },
+      { id: 'featured-products', type: 'featured-products', settings: {} },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard

@@ -17,7 +17,7 @@ import request from "supertest";
 import mongoose from "mongoose";
 import { startTestDb, stopTestDb, clearAllCollections } from "../helpers/db.js";
 import { buildTestApp } from "../helpers/app.js";
-import { installDefaultTheme } from "../../services/theme.js";
+import { installDefaultTheme, selectIndexTemplate } from "../../services/theme.js";
 import { getThemeManifest } from "../../services/themeManifestRegistry.js";
 import { setFeatureOverrides, invalidateFeatureFlagCache } from "../../services/featureFlags.js";
 
@@ -154,43 +154,35 @@ describe("E2E theme engine: brand bindings, presets, theme switch", () => {
     assert.deepEqual(c2.brandValues.colors, {});
   });
 
-  it("starts a new store from its niche preset only with the flag on", async () => {
+  it("starts a new store from the theme homepage; a niche preset is used only with the flag on", async () => {
+    // Every theme's homepage is now the same short list (hero, new arrivals,
+    // featured), so no theme ships a niche preset; the preset path is
+    // checked on a manifest that has one.
+    const sample = {
+      templates: { index: [{ id: "hero" }, { id: "new-arrivals" }, { id: "featured-products" }] },
+      presets: { food: { index: [{ id: "featured-products" }, { id: "hero" }, { id: "new-arrivals" }] } },
+    };
+    assert.deepEqual(selectIndexTemplate(sample, "food").map((s) => s.id), ["featured-products", "hero", "new-arrivals"]);
+    assert.deepEqual(selectIndexTemplate(sample, "books").map((s) => s.id), ["hero", "new-arrivals", "featured-products"]);
+    assert.deepEqual(selectIndexTemplate(sample, "pets").map((s) => s.id), ["hero", "new-arrivals", "featured-products"]);
+
     const theme = await seedTheme("modern");
-    const presetOrder = getThemeManifest("modern").presets.food.index.map((s) => s.id);
     const defaultOrder = getThemeManifest("modern").templates.index.map((s) => s.id);
-    assert.notDeepEqual(presetOrder, defaultOrder);
+    assert.deepEqual(defaultOrder, ["hero", "new-arrivals", "featured-products"]);
     const Tenant = mongoose.model("Tenant");
 
-    // Flag off (default): templates.index, as before.
-    const offId = await provisionTenant(app, { niche: "food", themeSlug: "modern" });
-    const off = await Tenant.findById(offId);
-    assert.equal(off.settings.niche, "food", "the signup niche is recorded");
-    assert.equal((await installDefaultTheme(off)).success, true);
-    const offIndex = (await Tenant.findById(offId).lean()).themeCustomization.published.sectionsByTemplate.index;
-    assert.deepEqual(offIndex.map((s) => s.id), defaultOrder);
-
-    // Flag on: the food preset, published as the store's first homepage.
-    await clearAllCollections();
-    await theme.constructor.create(theme.toObject());
-    await setFeatureOverrides({ "design.simpleMode": true }, null);
-    const onId = await provisionTenant(app, { niche: "food", themeSlug: "modern" });
-    assert.equal((await installDefaultTheme(await Tenant.findById(onId))).success, true);
-    const on = (await Tenant.findById(onId).lean()).themeCustomization;
-    assert.deepEqual(on.published.sectionsByTemplate.index.map((s) => s.id), presetOrder);
-    assert.deepEqual(on.sectionsByTemplate.index.map((s) => s.id), presetOrder);
-    const promo = on.sectionsByTemplate.index.find((s) => s.id === "promo-banners");
-    assert.equal(promo.enabled, false, "the preset hides the photo slider");
-
-    // A niche without a preset, or an unknown one, keeps templates.index.
-    await clearAllCollections();
-    await theme.constructor.create(theme.toObject());
-    await setFeatureOverrides({ "design.simpleMode": true }, null);
-    const otherId = await provisionTenant(app, { niche: "pets", themeSlug: "modern" });
-    const other = await Tenant.findById(otherId);
-    assert.equal(other.settings.niche, null, "unknown niches are not stored");
-    await installDefaultTheme(other);
-    const otherIndex = (await Tenant.findById(otherId).lean()).themeCustomization.published.sectionsByTemplate.index;
-    assert.deepEqual(otherIndex.map((s) => s.id), defaultOrder);
+    for (const flag of [false, true]) {
+      await clearAllCollections();
+      await theme.constructor.create(theme.toObject());
+      if (flag) await setFeatureOverrides({ "design.simpleMode": true }, null);
+      const id = await provisionTenant(app, { niche: "food", themeSlug: "modern" });
+      const tenant = await Tenant.findById(id);
+      assert.equal(tenant.settings.niche, "food", "the signup niche is recorded");
+      assert.equal((await installDefaultTheme(tenant)).success, true);
+      const tc = (await Tenant.findById(id).lean()).themeCustomization;
+      assert.deepEqual(tc.published.sectionsByTemplate.index.map((s) => s.id), defaultOrder);
+      assert.deepEqual(tc.sectionsByTemplate.index.map((s) => s.id), defaultOrder);
+    }
   });
 
   it("switching theme keeps the brand kit and each theme's own customization", async () => {

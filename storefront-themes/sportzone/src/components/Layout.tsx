@@ -12,6 +12,7 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
+import { useTopStripText, SectionAnchor, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 import { useTranslation } from 'react-i18next';
 
 const Layout: React.FC = () => {
@@ -28,18 +29,21 @@ const Layout: React.FC = () => {
     item.type === 'external' || item.target === '_blank';
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useTranslation(['theme']);
+  const topStripText = useTopStripText();
 
   return (
     <div className="min-h-screen flex flex-col bg-white" style={{ '--accent': '#dc2626' } as React.CSSProperties}>
-      <AnnouncementBar
-        message={t('theme.banner.announcement.text')}
-        linkText={t('theme.banner.announcement.cta')}
-        href="/products"
-        bgColor="#dc2626"
-        textColor="#ffffff"
-        dismissible
-        storageKey="sportzone_announce"
-      />
+      {/* Top strip — the merchant's announcement text (My Store), on every page */}
+      {topStripText && (
+        <SectionAnchor id={TOP_STRIP_ANCHOR} className="">
+          <AnnouncementBar
+            message={topStripText}
+            bgColor="#dc2626"
+            textColor="#ffffff"
+            dismissible={false}
+          />
+        </SectionAnchor>
+      )}
 
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-white/5">

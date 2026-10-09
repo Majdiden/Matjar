@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { localizedPaymentMethodLabel } from '../lib/paymentLabel';
 // Dates follow the storefront language (ar → ar-SD), not the browser locale.
 import { preorderDateLocale } from '../utils/preorder';
+import { storefrontLocale } from '../utils/locale';
 
 /**
  * Order Success / Thank-You page
@@ -181,7 +182,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
             <p className="text-sm font-medium">
               {placedAt.toLocaleDateString(preorderDateLocale(), { year: 'numeric', month: 'long', day: 'numeric' })}
               {' · '}
-              {placedAt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+              {placedAt.toLocaleTimeString(storefrontLocale(), { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
           <div className="text-start sm:text-end">

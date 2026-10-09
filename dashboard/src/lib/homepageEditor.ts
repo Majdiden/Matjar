@@ -65,10 +65,53 @@ export type HomepageOp =
       brandValues?: Record<string, string>;
     }
   | { kind: 'visible'; sectionId: string; visible: boolean }
-  | { kind: 'order'; sectionIds: string[] };
+  | { kind: 'order'; sectionIds: string[] }
+  /** Theme-level settings (the top strip): merged into `settings.theme`. */
+  | { kind: 'theme'; settings: Record<string, unknown> };
 
-export const opKey = (op: HomepageOp): string =>
-  op.kind === 'order' ? 'order' : `${op.kind}:${op.sectionId}`;
+export const opKey = (op: HomepageOp): string => {
+  if (op.kind === 'order') return 'order';
+  if (op.kind === 'theme') return `theme:${Object.keys(op.settings).sort().join(',')}`;
+  return `${op.kind}:${op.sectionId}`;
+};
+
+// ---- Top strip --------------------------------------------------------------
+
+/**
+ * The store's top strip is a theme-level setting pair, shown on every page
+ * (storefront-themes/_shared/theme/topStrip.tsx). The editor lists it as the
+ * first, fixed row. `TOP_STRIP_ID` is also its preview anchor.
+ */
+export const TOP_STRIP_ID = 'top-strip';
+export const TOP_STRIP_KEYS = Object.freeze({ show: 'show_announcement_bar', text: 'announcement_text' });
+
+export const isTopStripShown = (values: Record<string, unknown>): boolean => values[TOP_STRIP_KEYS.show] !== false;
+
+/** Theme-level values after a theme op (other ops leave them alone). */
+export function applyThemeOp(values: Record<string, unknown>, op: HomepageOp): Record<string, unknown> {
+  return op.kind === 'theme' ? { ...values, ...op.settings } : values;
+}
+
+export const applyThemeOps = (values: Record<string, unknown>, ops: readonly HomepageOp[]): Record<string, unknown> =>
+  ops.reduce((v, op) => applyThemeOp(v, op), values);
+
+/** The theme op that puts back the keys `op` changes. */
+export function inverseThemeOp(values: Record<string, unknown>, op: Extract<HomepageOp, { kind: 'theme' }>): HomepageOp {
+  return {
+    kind: 'theme',
+    settings: Object.fromEntries(Object.keys(op.settings).map((k) => [k, values[k] ?? ''])),
+  };
+}
+
+/**
+ * A bilingual theme-level text as flat keys. Unlike section settings the
+ * theme bucket is merged key by key on the server, so a dropped Arabic twin
+ * is written as "" rather than removed.
+ */
+export function bilingualThemeValues(id: string, value: BilingualText): Record<string, string> {
+  const next = writeBilingual({}, id, value);
+  return { [id]: String(next[id] ?? ''), [twinKey(id)]: String(next[twinKey(id)] ?? '') };
+}
 
 const str = (v: unknown): string => (typeof v === 'string' ? v : '');
 
@@ -196,6 +239,8 @@ export function applyOp(sections: readonly HomeSection[], op: HomepageOp): HomeS
       const byId = new Map(sections.map((s) => [s.id, s]));
       return ids.map((id, order) => ({ ...(byId.get(id) as HomeSection), order }));
     }
+    case 'theme':
+      return sections.slice();
   }
 }
 
@@ -207,6 +252,7 @@ export function inverseOp(before: readonly HomeSection[], op: HomepageOp): Homep
   if (op.kind === 'order') {
     return { kind: 'order', sectionIds: sortSections(before).map((s) => s.id) };
   }
+  if (op.kind === 'theme') return null; // see inverseThemeOp
   const section = before.find((s) => s.id === op.sectionId);
   if (!section) return null;
   return op.kind === 'settings'
@@ -240,6 +286,6 @@ export function liveSettings(
 
 /** Drop saved ops that no longer fit the current list (section gone). */
 export function opFits(op: HomepageOp, sections: readonly HomeSection[]): boolean {
-  if (op.kind === 'order') return true;
+  if (op.kind === 'order' || op.kind === 'theme') return true;
   return sections.some((s) => s.id === op.sectionId);
 }

@@ -1,6 +1,6 @@
 import { defineTheme } from '@matjar/theme-shared/theme/defineTheme';
 import { defineSection } from '@matjar/theme-shared/theme/defineSection';
-import type { SectionDefinition, SectionInstance, ThemeManifest } from '@matjar/theme-shared/types/theme';
+import type { SectionDefinition, ThemeManifest } from '@matjar/theme-shared/types/theme';
 
 // ─── Section Definitions ─────────────────────────────────────────
 
@@ -16,7 +16,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '', info: 'Main headline — falls back to store name if empty' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'badge_text', type: 'text', label: 'Badge Text', default: '' },
-    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
+    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', level: 'basic', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
     { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: '' },
     { id: 'secondary_button_url', type: 'url', label: 'Secondary Button URL', default: '/categories' },
@@ -231,34 +231,6 @@ export const newsletterSection: SectionDefinition = defineSection({
   ],
 });
 
-// ─── Home sections ───────────────────────────────────────────────
-//
-// One definition per home section instance, shared by `templates.index` and
-// the niche presets below so a preset only changes order and visibility.
-
-const HOME = {
-  hero: { id: 'hero', type: 'hero', settings: {} },
-  categories: { id: 'categories', type: 'categories', settings: {}, blocks: [
-    { id: 'tile-1', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
-    { id: 'tile-2', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
-  ]},
-  featuredProducts: { id: 'featured-products', type: 'featured-products', settings: {} },
-  trustBadges: { id: 'trust-badges', type: 'trust-badges', settings: {}, blocks: [
-    { id: 'badge-1', type: 'badge', settings: { icon: 'shipping', title: 'Free Shipping', description: 'On orders over $50' } },
-    { id: 'badge-2', type: 'badge', settings: { icon: 'lock', title: 'Secure Payment', description: '256-bit SSL encryption' } },
-    { id: 'badge-3', type: 'badge', settings: { icon: 'return', title: 'Easy Returns', description: '30-day money back guarantee' } },
-  ]},
-  promoBanners: { id: 'promo-banners', type: 'promo-banners', settings: {}, blocks: [
-    { id: 'promo-slide-1', type: 'slide', settings: { image: '', link: '/products', align: 'start' } },
-    { id: 'promo-slide-2', type: 'slide', settings: { image: '', link: '/products?sort=newest', align: 'start' } },
-  ]},
-  newArrivals: { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
-  newsletter: { id: 'newsletter', type: 'newsletter', settings: {} },
-} satisfies Record<string, SectionInstance>;
-
-/** Hidden until the merchant has banner photos to show. */
-const hidden = (section: SectionInstance): SectionInstance => ({ ...section, disabled: true });
-
 // ─── Theme Manifest ──────────────────────────────────────────────
 
 const manifest: ThemeManifest = defineTheme({
@@ -331,14 +303,12 @@ const manifest: ThemeManifest = defineTheme({
   ],
 
   templates: {
+    // Homepage: hero, newest products, featured products. The other
+    // sections stay addable from the advanced editor.
     index: [
-      HOME.hero,
-      HOME.categories,
-      HOME.featuredProducts,
-      HOME.trustBadges,
-      HOME.promoBanners,
-      HOME.newArrivals,
-      HOME.newsletter,
+      { id: 'hero', type: 'hero', settings: {} },
+      { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
+      { id: 'featured-products', type: 'featured-products', settings: {} },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard
@@ -350,18 +320,6 @@ const manifest: ThemeManifest = defineTheme({
     cart: [],
     search: [],
     page: [],
-  },
-
-  // Starting homepages for new stores by signup niche (PBI 10). Same
-  // sections as `templates.index`, reordered; the photo banner slider starts
-  // hidden where a new store rarely has campaign photos yet.
-  presets: {
-    food: {
-      index: [HOME.hero, HOME.featuredProducts, HOME.categories, HOME.newArrivals, HOME.trustBadges, HOME.newsletter, hidden(HOME.promoBanners)],
-    },
-    books: {
-      index: [HOME.hero, HOME.newArrivals, HOME.featuredProducts, HOME.categories, HOME.trustBadges, HOME.newsletter, hidden(HOME.promoBanners)],
-    },
   },
 });
 

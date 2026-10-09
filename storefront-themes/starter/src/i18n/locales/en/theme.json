@@ -11,6 +11,10 @@
       "categories": {
         "title": "Categories"
       },
+      "new_arrivals": {
+        "title": "New Arrivals",
+        "view_all": "View All"
+      },
       "featured_products": {
         "title": "Featured Products",
         "view_all": "View All",

@@ -15,6 +15,8 @@ import {
 import { ArrowLeft, Loader2, RefreshCw, PlusCircle, Ban, CheckCircle } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
+import { getTenantLocale } from '../../lib/format';
 
 interface Transaction {
   _id: string;
@@ -128,7 +130,11 @@ const GiftCardDetail: React.FC = () => {
 
   const handleAdjust = async () => {
     const amt = parseFloat(adjustAmount);
-    if (isNaN(amt) || amt <= 0) { toast.error(t('marketing.gift_card.toast.amount_invalid')); return; }
+    if (isNaN(amt) || amt <= 0) {
+      toast.error(t('marketing.gift_card.toast.amount_invalid'));
+      focusFieldById('gift-card-adjust-amount');
+      return;
+    }
     try {
       setActionLoading(true);
       const finalAmount = adjustSign * amt;
@@ -151,7 +157,11 @@ const GiftCardDetail: React.FC = () => {
 
   const handleRefund = async () => {
     const amt = parseFloat(refundAmount);
-    if (isNaN(amt) || amt <= 0) { toast.error(t('marketing.gift_card.toast.amount_invalid')); return; }
+    if (isNaN(amt) || amt <= 0) {
+      toast.error(t('marketing.gift_card.toast.amount_invalid'));
+      focusFieldById('gift-card-refund-amount');
+      return;
+    }
     try {
       setActionLoading(true);
       const res = await api.post(`/gift-cards/${card!._id}/adjust`, {
@@ -172,10 +182,10 @@ const GiftCardDetail: React.FC = () => {
   };
 
   const formatMoney = (amount: number, currency: string) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+    new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency }).format(amount);
 
   const formatDate = (d?: string) =>
-    d ? new Date(d).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+    d ? new Date(d).toLocaleString(getTenantLocale(), { dateStyle: 'medium', timeStyle: 'short' }) : '—';
 
   if (loading) {
     return (
@@ -432,6 +442,7 @@ const GiftCardDetail: React.FC = () => {
             <div className="space-y-1">
               <Label>{t('marketing.gift_card.adjust_dialog.field.amount.label', { currency: card.currency })}</Label>
               <Input
+                id="gift-card-adjust-amount"
                 type="number"
                 min="0.01"
                 step="0.01"
@@ -472,6 +483,7 @@ const GiftCardDetail: React.FC = () => {
             <div className="space-y-1">
               <Label>{t('marketing.gift_card.refund_dialog.field.amount.label', { currency: card.currency })}</Label>
               <Input
+                id="gift-card-refund-amount"
                 type="number"
                 min="0.01"
                 step="0.01"

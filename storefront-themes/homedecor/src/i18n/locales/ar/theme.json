@@ -13,6 +13,11 @@
         "eyebrow": "استكشف",
         "title": "تسوّق حسب الغرفة"
       },
+      "new_arrivals": {
+        "eyebrow": "جديدنا",
+        "title": "وصل حديثاً",
+        "view_all": "عرض الكل"
+      },
       "featured_products": {
         "eyebrow": "منتقى بعناية",
         "title": "اختيارات المحرر",

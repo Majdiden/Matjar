@@ -64,6 +64,7 @@ import {
   type SignupStep,
 } from '../lib/onboarding';
 import { toast } from 'sonner';
+import { focusFirstInvalid } from '../lib/focusFirstInvalid';
 
 // Signup email-OTP length. Must match the backend (services/otp.js).
 const OTP_LENGTH = 4;
@@ -600,6 +601,7 @@ export const Register: React.FC = () => {
     });
     const errs = validateStep(step);
     if (Object.keys(errs).length === 0) onOk();
+    else focusFirstInvalid();
   };
 
   const canAdvance = (): boolean => {
@@ -1094,7 +1096,7 @@ export const Register: React.FC = () => {
             <div>
               <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{v2Copy('auth.register.niche_title', 'niche_title')}</h1>
               <p className="mt-2 text-muted-foreground">{v2Copy('auth.register.niche_subtitle', 'niche_subtitle')}</p>
-              {fieldErrors.niche && <p className="mt-2 text-xs text-destructive">{fieldErrors.niche}</p>}
+              {fieldErrors.niche && <p className="mt-2 text-xs text-destructive" data-field-error>{fieldErrors.niche}</p>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1174,7 +1176,7 @@ export const Register: React.FC = () => {
                   ? t('onboarding:signup.theme_subtitle', { store: form.storeName.trim() || t('onboarding:signup.theme_store_fallback') })
                   : t('auth.register.theme_subtitle')}
               </p>
-              {fieldErrors.themeSlug && <p className="mt-2 text-xs text-destructive">{fieldErrors.themeSlug}</p>}
+              {fieldErrors.themeSlug && <p className="mt-2 text-xs text-destructive" data-field-error>{fieldErrors.themeSlug}</p>}
             </div>
 
             {themesLoading ? (

@@ -36,7 +36,7 @@ export const milmaaHeroSection: SectionDefinition = defineSection({
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
     { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', level: 'basic', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'image', type: 'image', label: 'Hero Image', level: 'basic' },
   ],
@@ -193,15 +193,9 @@ export const milmaaInstagramSection: SectionDefinition = defineSection({
 // ─── Template ────────────────────────────────────────────────────
 
 const indexTemplate: SectionInstance[] = [
-  { id: 'milmaa-strip', type: 'milmaa-top-strip', settings: {} },
   { id: 'milmaa-hero', type: 'milmaa-hero', settings: {} },
-  { id: 'milmaa-flavors', type: 'milmaa-flavors', settings: {} },
+  { id: 'milmaa-newarrivals', type: 'milmaa-product-grid', settings: { source: 'newest' } },
   { id: 'milmaa-grid', type: 'milmaa-product-grid', settings: {} },
-  { id: 'milmaa-benefits', type: 'milmaa-benefits', settings: {} },
-  { id: 'milmaa-blog', type: 'milmaa-blog', settings: {} },
-  { id: 'milmaa-testimonials', type: 'milmaa-testimonials', settings: {} },
-  { id: 'milmaa-insta', type: 'milmaa-instagram', settings: {} },
-  { id: 'milmaa-newsletter', type: 'newsletter', settings: {} },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────
