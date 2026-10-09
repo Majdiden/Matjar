@@ -24,6 +24,7 @@ import { useSetBreadcrumbs } from '../../contexts/breadcrumb-context';
 import { useStorefrontHost } from '../../hooks/useStorefrontHost';
 import { api } from '../../lib/api-client';
 import { formatPrice, getTenantCurrency } from '../../lib/format';
+import { focusFirstInvalid } from '../../lib/focusFirstInvalid';
 import {
   QUICK_PRODUCT_DEFAULT_STOCK,
   QUICK_PRODUCT_LIMITS,
@@ -86,8 +87,12 @@ export const QuickProduct: React.FC = () => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
     const values = validate();
-    if (!values || saving) return;
+    if (!values) {
+      focusFirstInvalid();
+      return;
+    }
     setSaving(true);
     try {
       const description = form.description.trim();
@@ -99,7 +104,8 @@ export const QuickProduct: React.FC = () => {
       const product = res.responseObject?.data;
       if (!product) throw new Error();
       setCreated(product);
-      window.scrollTo({ top: 0 });
+      // The dashboard scrolls inside <main>, not the window.
+      document.querySelector('main')?.scrollTo({ top: 0 });
     } catch (err) {
       toast.error((err as ApiErrorLike)?.message || t('products:products.quick.save_failed'));
     } finally {

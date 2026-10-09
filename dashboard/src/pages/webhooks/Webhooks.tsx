@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errMsg } from '../../lib/errors';
 
@@ -119,8 +120,16 @@ export const Webhooks: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.url.trim()) { toast.error(t('webhooks.toast.url_required')); return; }
-    if (formData.events.length === 0) { toast.error(t('webhooks.toast.event_required')); return; }
+    if (!formData.url.trim()) {
+      toast.error(t('webhooks.toast.url_required'));
+      focusFieldById('webhook-url');
+      return;
+    }
+    if (formData.events.length === 0) {
+      toast.error(t('webhooks.toast.event_required'));
+      focusFieldById('webhook-events');
+      return;
+    }
     try {
       setSaving(true);
       if (editingWebhook) {
@@ -317,6 +326,7 @@ export const Webhooks: React.FC = () => {
             <div className="space-y-2">
               <Label>{t('webhooks.form.field.url.label')}</Label>
               <Input
+                id="webhook-url"
                 type="url"
                 placeholder={t('webhooks.form.field.url.placeholder')}
                 value={formData.url}
@@ -339,7 +349,7 @@ export const Webhooks: React.FC = () => {
               <Label>{t('webhooks.form.field.enabled.label')}</Label>
             </div>
 
-            <div className="space-y-3">
+            <div id="webhook-events" className="space-y-3">
               <Label>{t('webhooks.form.field.events.label', { count: formData.events.length })}</Label>
               {AVAILABLE_EVENTS.map(group => {
                 const allSelected = group.events.every(e => formData.events.includes(e));

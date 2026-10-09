@@ -20,6 +20,7 @@ import {
 import { Building2, Plus, Pencil, Trash2, Users } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 
 interface Company {
@@ -89,7 +90,11 @@ export const Companies: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!form.name) { toast.error(t('companies.form.field.name.error.required')); return; }
+    if (!form.name) {
+      toast.error(t('companies.form.field.name.error.required'));
+      focusFieldById('company-name');
+      return;
+    }
     setSaving(true);
     try {
       const data = {
@@ -154,7 +159,7 @@ export const Companies: React.FC = () => {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>{t('companies.form.field.name.label')}</Label>
-                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('companies.form.field.name.placeholder')} />
+                <Input id="company-name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder={t('companies.form.field.name.placeholder')} />
               </div>
               <div className="space-y-2">
                 <Label>{t('companies.form.field.payment_terms.label')}</Label>

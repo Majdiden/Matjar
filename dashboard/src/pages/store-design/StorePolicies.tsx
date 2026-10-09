@@ -21,6 +21,7 @@ import { useConfirm } from '../../components/ui/use-confirm';
 import { api, type PolicyAnswers, type StorePoliciesState } from '../../lib/api-client';
 import { AnswerField } from './AnswerField';
 import { StoreScreen } from './StoreScreen';
+import { focusFirstInvalid } from '../../lib/focusFirstInvalid';
 import {
   EMPTY_ANSWER, fromDraft, hasArabic, isEditedConflict, toAsciiDigits, toDraft, type AnswerDraft,
 } from './answers';
@@ -109,7 +110,10 @@ export const StorePolicies: React.FC = () => {
     });
 
   const save = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      focusFirstInvalid();
+      return;
+    }
     let overwrite = false;
     if (editedKeys.length) {
       if (!(await askToReplace())) return;
@@ -218,7 +222,7 @@ export const StorePolicies: React.FC = () => {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label className="text-base font-medium">{t('storePages:policies.accepted_label')}</Label>
-            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t('storePages:policies.accepted_label')}>
+            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t('storePages:policies.accepted_label')} aria-invalid={errors.accepted ? true : undefined}>
               {[true, false].map((value) => (
                 <Button
                   key={String(value)}

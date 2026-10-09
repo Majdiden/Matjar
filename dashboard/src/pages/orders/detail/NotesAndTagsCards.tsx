@@ -7,6 +7,7 @@ import { Textarea } from '../../../components/ui/textarea';
 import { Tag as TagIcon, Pin, StickyNote, X, Trash2, Loader2 } from 'lucide-react';
 import { api } from '../../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../../lib/focusFirstInvalid';
 import type { Order } from '../../../types';
 import { formatDateTime } from '../../../lib/format';
 import { useConfirm } from '../../../components/ui/use-confirm';
@@ -33,10 +34,12 @@ export const NotesAndTagsCards: React.FC = () => {
     const body = noteDraft.trim();
     if (!body) {
       toast.error(t('orders:validation.note_empty'));
+      focusFieldById('order-note-draft');
       return;
     }
     if (body.length > 2000) {
       toast.error(t('orders:validation.note_too_long'));
+      focusFieldById('order-note-draft');
       return;
     }
     try {
@@ -81,10 +84,12 @@ export const NotesAndTagsCards: React.FC = () => {
     const tag = tagDraft.trim();
     if (!tag) {
       toast.error(t('orders:validation.tag_empty'));
+      focusFieldById('order-tag-draft');
       return;
     }
     if (tag.length > 32) {
       toast.error(t('orders:validation.tag_too_long'));
+      focusFieldById('order-tag-draft');
       return;
     }
     try {
@@ -156,6 +161,7 @@ export const NotesAndTagsCards: React.FC = () => {
           {canWriteOrders && (
             <div className="flex gap-2">
               <Input
+                id="order-tag-draft"
                 value={tagDraft}
                 onChange={(e) => setTagDraft(e.target.value)}
                 placeholder={t('orders:detail.tags.add_placeholder')}
@@ -194,6 +200,7 @@ export const NotesAndTagsCards: React.FC = () => {
           {canWriteOrders && (
             <div className="space-y-2">
               <Textarea
+                id="order-note-draft"
                 value={noteDraft}
                 onChange={(e) => setNoteDraft(e.target.value)}
                 placeholder={t('orders:detail.notes.add_placeholder')}

@@ -24,6 +24,7 @@ import {
 import { CornerDownRight, Plus, MoreHorizontal, Edit, Trash2, Loader2 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 
 interface RedirectRow {
@@ -75,6 +76,7 @@ export const Redirects: React.FC = () => {
   const handleSave = async () => {
     if (!edit.fromPath.trim() || !edit.toPath.trim()) {
       toast.error(t('redirects:toast.paths_required'));
+      focusFieldById(edit.fromPath.trim() ? 'redirect-to' : 'redirect-from');
       return;
     }
     try {
@@ -217,6 +219,7 @@ export const Redirects: React.FC = () => {
             <div className="space-y-1">
               <Label>{t('redirects:dialog.from.label')}</Label>
               <Input
+                id="redirect-from"
                 dir="ltr"
                 value={edit.fromPath}
                 onChange={(e) => setEdit((s) => ({ ...s, fromPath: e.target.value }))}
@@ -227,6 +230,7 @@ export const Redirects: React.FC = () => {
             <div className="space-y-1">
               <Label>{t('redirects:dialog.to.label')}</Label>
               <Input
+                id="redirect-to"
                 dir="ltr"
                 value={edit.toPath}
                 onChange={(e) => setEdit((s) => ({ ...s, toPath: e.target.value }))}

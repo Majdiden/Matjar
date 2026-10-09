@@ -9,6 +9,7 @@ import { Badge } from '../../components/ui/badge';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { errMsg } from '../../lib/errors';
 
 type StaffRole = 'admin' | 'manager' | 'staff';
@@ -65,9 +66,21 @@ export const AcceptInvite: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) { toast.error(t('staff.accept_invite.toast.name_required')); return; }
-    if (password.length < 8) { toast.error(t('staff.accept_invite.toast.password_short')); return; }
-    if (password !== confirmPassword) { toast.error(t('staff.accept_invite.toast.password_mismatch')); return; }
+    if (!name.trim()) {
+      toast.error(t('staff.accept_invite.toast.name_required'));
+      focusFieldById('name');
+      return;
+    }
+    if (password.length < 8) {
+      toast.error(t('staff.accept_invite.toast.password_short'));
+      focusFieldById('password');
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast.error(t('staff.accept_invite.toast.password_mismatch'));
+      focusFieldById('confirm-password');
+      return;
+    }
 
     try {
       setSubmitting(true);

@@ -25,6 +25,7 @@ import {
 import { toCSV, downloadCSV } from '../../lib/utils';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errMsg } from '../../lib/errors';
 
@@ -245,6 +246,7 @@ export const Staff: React.FC = () => {
   const submitInvite = async () => {
     if (!inviteEmail.trim()) {
       toast.error(t('staff.invite.toast.email_required'));
+      focusFieldById('invite-email');
       return;
     }
     try {
@@ -312,6 +314,7 @@ export const Staff: React.FC = () => {
     if (!editingMember) return;
     if (editRoles.length === 0) {
       toast.error(t('staff.member.toast.role_required'));
+      focusFieldById('edit-roles-builtin');
       return;
     }
     try {
@@ -640,7 +643,7 @@ export const Staff: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="py-2 space-y-4">
-            <div className="space-y-3">
+            <div id="edit-roles-builtin" className="space-y-3">
               <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 {t('staff.edit_roles.group_builtin')}
               </div>

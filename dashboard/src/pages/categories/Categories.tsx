@@ -23,6 +23,7 @@ import { useConfirm } from '../../components/ui/use-confirm';
 import { LinkSlugField } from '../../components/LinkSlugField';
 import { useStorefrontHost } from '../../hooks/useStorefrontHost';
 import { slugifyLink } from '../../lib/storeLink';
+import { focusFirstInvalid } from '../../lib/focusFirstInvalid';
 
 // Shape of the `GET /categories` list response as returned by the backend.
 // The server wraps the payload in `responseObject.data`; the optional
@@ -153,7 +154,10 @@ export const Categories: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      focusFirstInvalid();
+      return;
+    }
 
     try {
       setSaving(true);

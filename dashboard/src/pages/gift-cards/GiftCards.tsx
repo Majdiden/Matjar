@@ -20,6 +20,7 @@ import { Gift, Plus, Copy, AlertCircle, Loader2, Search, X, Ban, CheckCircle2, D
 import { FilterPills } from '../../components/ui/filter-pills';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { toCSV, downloadCSV } from '../../lib/utils';
 import { useViewMode, ViewToggle } from '../../components/ui/view-toggle';
 
@@ -353,6 +354,7 @@ const GiftCards: React.FC = () => {
   const handleIssue = async () => {
     if (!form.initialAmount || isNaN(Number(form.initialAmount))) {
       toast.error(t('marketing.gift_card.toast.amount_invalid'));
+      focusFieldById('gift-card-initial-amount');
       return;
     }
     try {
@@ -672,6 +674,7 @@ const GiftCards: React.FC = () => {
               <div className="space-y-1">
                 <Label>{t('marketing.gift_card.issue_dialog.field.amount.label')}</Label>
                 <Input
+                  id="gift-card-initial-amount"
                   type="number"
                   min="0"
                   step="0.01"

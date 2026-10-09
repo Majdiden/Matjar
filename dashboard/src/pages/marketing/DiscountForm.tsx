@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../..
 import { Skeleton } from "../../components/ui/skeleton";
 import { Select } from "../../components/ui/select";
 import { toast } from "sonner";
+import { focusFieldById } from "../../lib/focusFirstInvalid";
 import type { DiscountMethod, PickerItem, BxgyState, FormState } from "./discount-form-types";
 import { DiscountAppliesToSection } from "./DiscountAppliesToSection";
 import { DiscountBxgySections } from "./DiscountBxgySections";
@@ -330,6 +331,7 @@ export default function DiscountForm() {
     e.preventDefault();
     if (!form.code.trim()) {
       toast.error(t('marketing.discount.toast.code_required'));
+      focusFieldById("discount-code");
       return;
     }
     setSaving(true);
@@ -405,6 +407,7 @@ export default function DiscountForm() {
               <div className="space-y-2">
                 <Label>{t('marketing.discount.form.field.code.label')}</Label>
                 <Input
+                  id="discount-code"
                   required
                   value={form.code}
                   onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}

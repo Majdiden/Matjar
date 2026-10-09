@@ -18,6 +18,7 @@ import {
 import { Receipt, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errorMessage, FlagRow } from './shared';
 
@@ -94,9 +95,15 @@ export const TaxSettings: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!form.country.trim()) return toast.error(t('settings.validation.country_required'));
+    if (!form.country.trim()) {
+      focusFieldById('tax-country');
+      return toast.error(t('settings.validation.country_required'));
+    }
     const ratePct = parseFloat(form.rate);
-    if (isNaN(ratePct) || ratePct < 0 || ratePct > 100) return toast.error(t('settings.validation.rate_range'));
+    if (isNaN(ratePct) || ratePct < 0 || ratePct > 100) {
+      focusFieldById('tax-rate');
+      return toast.error(t('settings.validation.rate_range'));
+    }
     const payload: {
       country: string;
       state?: string;
@@ -231,10 +238,12 @@ export const TaxSettings: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('settings.field.tax.country.label')}</Label>
-                <CountryPicker
-                  value={form.country}
-                  onChange={v => setForm(f => ({ ...f, country: v }))}
-                />
+                <div id="tax-country">
+                  <CountryPicker
+                    value={form.country}
+                    onChange={v => setForm(f => ({ ...f, country: v }))}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>{t('settings.field.tax.state.label')}</Label>
@@ -243,7 +252,7 @@ export const TaxSettings: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label>{t('settings.field.tax.rate.label')}</Label>
-              <Input type="number" step="0.001" min="0" max="100" value={form.rate} onChange={e => setForm(f => ({ ...f, rate: e.target.value }))} placeholder={t('settings.field.tax.rate.placeholder')} />
+              <Input id="tax-rate" type="number" step="0.001" min="0" max="100" value={form.rate} onChange={e => setForm(f => ({ ...f, rate: e.target.value }))} placeholder={t('settings.field.tax.rate.placeholder')} />
             </div>
             <div className="space-y-2">
               <Label>{t('settings.field.tax.display_name.label')}</Label>

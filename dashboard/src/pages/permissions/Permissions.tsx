@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 
 interface Role {
@@ -116,7 +117,11 @@ export const Permissions: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) { toast.error(t('staff.role.toast.name_required')); return; }
+    if (!formData.name.trim()) {
+      toast.error(t('staff.role.toast.name_required'));
+      focusFieldById('role-name');
+      return;
+    }
     try {
       setSaving(true);
       if (editingRole) {
@@ -270,6 +275,7 @@ export const Permissions: React.FC = () => {
               <div className="space-y-2">
                 <Label>{t('staff.role.form.field.name.label')}</Label>
                 <Input
+                  id="role-name"
                   placeholder={t('staff.role.form.field.name.placeholder')}
                   value={formData.name}
                   onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}

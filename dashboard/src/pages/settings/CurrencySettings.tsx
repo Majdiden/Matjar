@@ -13,6 +13,7 @@ import { CurrencyPicker } from '../../components/ui/pickers';
 import { Save, Loader2, Plus, Trash2 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { errorMessage, type CurrencyConfig } from './shared';
 
 export const CurrencySettings: React.FC = () => {
@@ -40,12 +41,18 @@ export const CurrencySettings: React.FC = () => {
 
   const handleSave = async () => {
     const rates: Record<string, number> = {};
-    for (const row of draftRates) {
+    for (const [i, row] of draftRates.entries()) {
       const code = row.code.trim().toUpperCase();
       const num = parseFloat(row.rate);
       if (!code) continue;
-      if (!/^[A-Z]{3}$/.test(code)) return toast.error(t('settings.validation.invalid_currency_code', { code: row.code }));
-      if (isNaN(num) || num <= 0) return toast.error(t('settings.validation.rate_must_be_positive', { code }));
+      if (!/^[A-Z]{3}$/.test(code)) {
+        focusFieldById(`currency-code-${i}`);
+        return toast.error(t('settings.validation.invalid_currency_code', { code: row.code }));
+      }
+      if (isNaN(num) || num <= 0) {
+        focusFieldById(`currency-rate-${i}`);
+        return toast.error(t('settings.validation.rate_must_be_positive', { code }));
+      }
       rates[code] = num;
     }
     setSaving(true);
@@ -97,7 +104,7 @@ export const CurrencySettings: React.FC = () => {
             <div className="space-y-2">
               {draftRates.map((row, i) => (
                 <div key={i} className="flex gap-2 items-center">
-                  <div className="w-32 shrink-0 sm:w-40">
+                  <div id={`currency-code-${i}`} className="w-32 shrink-0 sm:w-40">
                     <CurrencyPicker
                       value={row.code}
                       onChange={v => updateRow(i, { code: v })}
@@ -105,6 +112,7 @@ export const CurrencySettings: React.FC = () => {
                     />
                   </div>
                   <Input
+                    id={`currency-rate-${i}`}
                     type="number" step="0.0001" min="0"
                     placeholder={t('settings.field.currencies.rate_placeholder')}
                     className="flex-1"

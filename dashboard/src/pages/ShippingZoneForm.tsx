@@ -10,6 +10,7 @@ import { CountryPicker } from '../components/ui/pickers';
 import { ArrowLeft, Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { api } from '../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../lib/focusFirstInvalid';
 
 interface ShippingZone {
   _id: string;
@@ -93,12 +94,27 @@ const ShippingZoneForm: React.FC = () => {
     setForm((f) => ({ ...f, rates: f.rates.map((r, j) => (j === i ? { ...r, ...patch } : r)) }));
 
   const handleSave = async () => {
-    if (!form.name.trim()) return toast.error(sz('validation.name_required'));
-    if (form.countries.length === 0) return toast.error(sz('validation.country_required'));
-    if (form.rates.length === 0) return toast.error(sz('validation.rate_required'));
-    for (const r of form.rates) {
-      if (!r.name.trim()) return toast.error(sz('validation.rate_name_required'));
-      if (r.price < 0) return toast.error(sz('validation.rate_price_negative'));
+    if (!form.name.trim()) {
+      focusFieldById('zone-name');
+      return toast.error(sz('validation.name_required'));
+    }
+    if (form.countries.length === 0) {
+      focusFieldById('zone-countries');
+      return toast.error(sz('validation.country_required'));
+    }
+    if (form.rates.length === 0) {
+      focusFieldById('zone-add-rate');
+      return toast.error(sz('validation.rate_required'));
+    }
+    for (const [i, r] of form.rates.entries()) {
+      if (!r.name.trim()) {
+        focusFieldById(`zone-rate-name-${i}`);
+        return toast.error(sz('validation.rate_name_required'));
+      }
+      if (r.price < 0) {
+        focusFieldById(`zone-rate-price-${i}`);
+        return toast.error(sz('validation.rate_price_negative'));
+      }
     }
     const payload = {
       name: form.name.trim(),
@@ -169,6 +185,7 @@ const ShippingZoneForm: React.FC = () => {
               <div className="space-y-2">
                 <Label>{sz('field.zone_name')}</Label>
                 <Input
+                  id="zone-name"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder={sz('field.zone_name_placeholder')}
@@ -176,7 +193,9 @@ const ShippingZoneForm: React.FC = () => {
               </div>
               <div className="space-y-2">
                 <Label>{sz('field.countries')}</Label>
-                <CountryPicker restrictToPlatform value="" onChange={addCountry} placeholder={sz('field.countries_placeholder')} />
+                <div id="zone-countries">
+                  <CountryPicker restrictToPlatform value="" onChange={addCountry} placeholder={sz('field.countries_placeholder')} />
+                </div>
                 {form.countries.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {form.countries.map((code) => (
@@ -204,7 +223,7 @@ const ShippingZoneForm: React.FC = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">{sz('section.rates')}</CardTitle>
-              <Button variant="outline" size="sm" onClick={addRate}>
+              <Button id="zone-add-rate" variant="outline" size="sm" onClick={addRate}>
                 <Plus className="h-3.5 w-3.5 me-1" />{sz('add_rate')}
               </Button>
             </CardHeader>
@@ -224,11 +243,12 @@ const ShippingZoneForm: React.FC = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs">{sz('field.rate_name')}</Label>
-                      <Input value={rate.name} onChange={(e) => updateRate(i, { name: e.target.value })} placeholder={sz('field.rate_name_placeholder')} />
+                      <Input id={`zone-rate-name-${i}`} value={rate.name} onChange={(e) => updateRate(i, { name: e.target.value })} placeholder={sz('field.rate_name_placeholder')} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">{sz('field.rate_price')}</Label>
                       <Input
+                        id={`zone-rate-price-${i}`}
                         type="number"
                         step="0.01"
                         min="0"

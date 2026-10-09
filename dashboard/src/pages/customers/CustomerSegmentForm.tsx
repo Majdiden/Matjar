@@ -10,6 +10,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { ArrowLeft, Eye, Loader2, Save } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { errMsg } from '../../lib/errors';
 
 interface SegmentFilters {
@@ -166,6 +167,7 @@ const CustomerSegmentForm: React.FC = () => {
   const save = async () => {
     if (!form.name.trim()) {
       toast.error(t('segment.form.field.name.error.required'));
+      focusFieldById('seg-name');
       return;
     }
     try {

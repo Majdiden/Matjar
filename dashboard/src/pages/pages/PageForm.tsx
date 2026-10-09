@@ -22,6 +22,7 @@ import { RichTextEditor } from '../../components/RichTextEditor';
 import { api } from '../../lib/api-client';
 import { slugifyLink } from '../../lib/storeLink';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 
 // Storefront locales offered in the Language select (audit 3.9.4).
@@ -161,7 +162,11 @@ export const PageForm: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!form.title.trim()) { toast.error(t('pages:toast.title_required')); return; }
+    if (!form.title.trim()) {
+      toast.error(t('pages:toast.title_required'));
+      focusFieldById('page-title');
+      return;
+    }
     try {
       setSaving(true);
       const payload = {
@@ -236,7 +241,11 @@ export const PageForm: React.FC = () => {
   // (dashboard + storefront on the same tenant host) and prod.
   const handlePreview = async () => {
     const slug = form.slug || slugify(form.title);
-    if (!slug) { toast.error(t('pages:toast.slug_required_preview')); return; }
+    if (!slug) {
+      toast.error(t('pages:toast.slug_required_preview'));
+      focusFieldById('page-slug');
+      return;
+    }
     try {
       setPreviewing(true);
       const res = (await api.themeCustomization.generatePreview()) as {
@@ -319,6 +328,7 @@ export const PageForm: React.FC = () => {
           <div className="space-y-1">
             <Label>{t('pages:form.field.title.label')} <span className="text-destructive">*</span></Label>
             <Input
+              id="page-title"
               value={form.title}
               onChange={(e) => handleTitleChange(e.target.value)}
               placeholder={t('pages:form.field.title.placeholder')}
@@ -327,6 +337,7 @@ export const PageForm: React.FC = () => {
           <div className="space-y-1">
             <Label>{t('pages:form.field.slug.label')}</Label>
             <Input
+              id="page-slug"
               value={form.slug}
               onChange={(e) => handleSlugChange(e.target.value)}
               placeholder={t('pages:form.field.slug.placeholder')}

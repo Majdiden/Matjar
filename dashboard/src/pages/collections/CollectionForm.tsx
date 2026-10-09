@@ -20,6 +20,7 @@ import {
 import { api } from '../../lib/api-client';
 import { slugifyLink } from '../../lib/storeLink';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 import {
   CollectionRuleBuilder, CollectionPreviewDialog, defaultOperatorFor, type Rule,
@@ -335,9 +336,15 @@ export const CollectionForm: React.FC = () => {
   // ─── Save / Delete ────────────────────────────────────────────────────────
 
   const handleSave = async () => {
-    if (!form.title.trim()) { toast.error(t('products.collections.form.title_required')); return; }
-    if (form.type === 'smart' && form.rules.some((r) => !r.value)) {
+    if (!form.title.trim()) {
+      toast.error(t('products.collections.form.title_required'));
+      focusFieldById('collection-title');
+      return;
+    }
+    const emptyRuleIndex = form.type === 'smart' ? form.rules.findIndex((r) => !r.value) : -1;
+    if (emptyRuleIndex !== -1) {
       toast.error(t('products.collections.form.rules_required'));
+      focusFieldById(`collection-rule-value-${emptyRuleIndex}`);
       return;
     }
 
@@ -438,6 +445,7 @@ export const CollectionForm: React.FC = () => {
           <div className="space-y-1">
             <Label>{t('products.collections.form.field.title.label')} <span className="text-destructive">*</span></Label>
             <Input
+              id="collection-title"
               value={form.title}
               onChange={(e) => handleTitleChange(e.target.value)}
               placeholder={t('products.collections.form.field.title.placeholder')}
