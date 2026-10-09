@@ -155,8 +155,8 @@ const ProductDetail: React.FC = () => {
             <p className="linen-eyebrow text-clay">{product.category?.name || ''}</p>
             <h2 className="font-heading mt-2 text-3xl leading-tight text-ink sm:text-4xl">{product.name}</h2>
             {(product.reviewCount ?? 0) > 0 && <div className="mt-3"><RatingStars rating={product.averageRating || product.rating || 0} reviewCount={product.reviewCount} showCount /></div>}
-            <p className="mt-4 text-2xl text-ink">
-              {onSale && <s className="me-3 text-lg text-dune">{formatPrice(compareAt)}</s>}
+            <p className="mt-4 flex flex-wrap items-baseline gap-3 text-2xl text-ink">
+              {onSale && <s className="linen-strike text-lg text-dune">{formatPrice(compareAt)}</s>}
               <span className={onSale ? 'font-bold text-clay' : ''}>{formatPrice(pre.effectivePrice ?? price)}</span>
             </p>
             {product.shortDescription && <p className="mt-4 text-dune">{product.shortDescription}</p>}

@@ -28,6 +28,25 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
 /* Text fields signal focus with their border alone (outline + border read as a double ring). */
 input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; border-color: var(--color-primary, #8f5426); }
 
+/* ── Compare-at price rule ────────────────────────────────────────
+   Chrome draws `line-through` from the font's own strikeout metric, and
+   Tajawal (the Arabic body face) places it near the baseline, so on a row
+   of digits the line reads as an underline. Draw the rule at the digits'
+   optical middle instead.
+
+   Measured in the browser at 100px: inline content box 1.15em, baseline
+   0.90em from its top, digit cap height 0.677em — so the rule belongs
+   0.90 − 0.339 = 0.561em down. An inline box's background area is the
+   font-derived content area, so this scales with font-size. Applied only
+   under Arabic; the Latin face strikes correctly on its own. */
+html[lang='ar'] .linen-strike {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  background-position: 0 0.561em;
+}
+
 /* ── Eyebrow / caps label ────────────────────────────────────────── */
 .linen-eyebrow { font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; }
 html[lang='ar'] .linen-eyebrow { letter-spacing: 0.04em; }

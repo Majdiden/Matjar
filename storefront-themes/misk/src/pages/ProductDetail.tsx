@@ -267,7 +267,7 @@ const ProductDetail: React.FC = () => {
 
             <p className="misk-num mt-4 flex flex-wrap items-baseline gap-3 text-2xl text-ink">
               <span className={onSale ? 'font-bold' : ''}>{formatPrice(pre.effectivePrice ?? price)}</span>
-              {onSale && <s className="text-lg text-muted">{formatPrice(compareAt)}</s>}
+              {onSale && <s className="misk-strike text-lg text-muted">{formatPrice(compareAt)}</s>}
               {onSale && showSave && <span className="rounded-full bg-sale px-3 py-1 text-xs font-bold text-white">{t('theme.product.save', { percent: savePct })}</span>}
             </p>
 

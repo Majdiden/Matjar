@@ -50,6 +50,29 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
 /* Prices and counters never reflow as digits change. */
 .misk-num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
 
+/* ── Compare-at price rule ────────────────────────────────────────
+   Chrome draws `line-through` from the font's own strikeout metric, and
+   Tajawal places it near the baseline — on a row of digits the line reads
+   as an underline rather than a strike. Draw the rule ourselves instead,
+   at the digits' optical middle.
+
+   Geometry measured in the browser at 100px (canvas fontBoundingBox
+   metrics disagree with the metrics Chrome lays inline boxes out from, so
+   these come from the rendered box, not from TextMetrics):
+     inline content box   1.15em
+     baseline from top    0.90em
+     digit cap height     0.677em  → half is 0.339em
+     rule position        0.90 − 0.339 = 0.561em from the content-box top
+   An inline box's background area is the font-derived content area, so
+   this holds regardless of line-height and scales with font-size. */
+.misk-strike {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  background-position: 0 0.561em;
+}
+
 /* ── Eyebrow ──────────────────────────────────────────────────────
    Weight + colour carry the eyebrow. Uppercase/tracking apply only to
    Latin — Arabic has no case, and tracking breaks naskh joins. */

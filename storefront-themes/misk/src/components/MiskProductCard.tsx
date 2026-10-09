@@ -146,7 +146,7 @@ export const MiskProductCard: React.FC<Props> = ({
             price stays first. */}
         <p className={`misk-num mt-1.5 flex items-baseline gap-2 text-sm ${textAlign === 'text-center' ? 'justify-center' : 'justify-start'}`}>
           <span className={onSale ? 'font-bold text-ink' : 'text-ink'}>{formatPrice(product.price)}</span>
-          {onSale && <s className="text-muted">{formatPrice(product.compareAtPrice)}</s>}
+          {onSale && <s className="misk-strike text-muted">{formatPrice(product.compareAtPrice)}</s>}
         </p>
         {list && product.shortDescription && <p className="mt-3 line-clamp-3 text-sm text-muted">{product.shortDescription}</p>}
         {list && (

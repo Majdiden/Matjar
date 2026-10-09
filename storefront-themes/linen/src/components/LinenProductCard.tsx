@@ -95,8 +95,11 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
         {showRating && (product.reviewCount ?? 0) > 0 && (
           <div className={`mt-1.5 flex ${list ? '' : 'justify-center'}`}><RatingStars rating={product.averageRating || product.rating || 0} reviewCount={product.reviewCount} size="sm" showCount /></div>
         )}
-        <p className={`mt-1.5 text-[0.95rem] ${list ? '' : ''}`}>
-          {onSale && <s className="me-2 text-dune">{formatPrice(product.compareAtPrice)}</s>}
+        {/* Flex + gap, not an inline margin: in an RTL paragraph the two
+            prices form a single bidi run and an inline margin collapses
+            between them, so they render touching. */}
+        <p className={`mt-1.5 flex items-baseline gap-2 text-[0.95rem] ${list ? '' : 'justify-center'}`}>
+          {onSale && <s className="linen-strike text-dune">{formatPrice(product.compareAtPrice)}</s>}
           <span className={onSale ? 'font-bold text-clay' : 'text-ink'}>{formatPrice(product.price)}</span>
         </p>
         {list && product.shortDescription && <p className="mt-3 line-clamp-3 text-[0.95rem] text-dune">{product.shortDescription}</p>}
