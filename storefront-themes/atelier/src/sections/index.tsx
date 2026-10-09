@@ -17,6 +17,7 @@ import { useAnnouncementMessages } from '../components/chrome/AnnouncementBar';
 import { useAtelierUI } from '../contexts/AtelierUI';
 import { BeforeAfter, CountUp, Icon, Marquee, Reveal, prefersReducedMotion } from '../lib/motion';
 import manifest from '../theme.manifest';
+import { storefrontLocale } from '@matjar/theme-shared/utils/locale';
 
 /** Resolved blocks, falling back to the manifest definition's defaults when a store instance carries none. */
 function useBlocks(id: string, section?: { type: string }) {
@@ -571,9 +572,9 @@ const StoriesSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const bt = useBlockT();
   const blocks = useBlocks(id, section).filter((b, i) => bt('stories', i, 'title', b.settings.title));
-  const { t, i18n } = useTranslation(['theme']);
+  const { t } = useTranslation(['theme']);
   if (!blocks.length) return null;
-  const fmt = (d: string) => { const dt = d ? new Date(d) : null; return dt && !Number.isNaN(dt.getTime()) ? dt.toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' }) : d; };
+  const fmt = (d: string) => { const dt = d ? new Date(d) : null; return dt && !Number.isNaN(dt.getTime()) ? dt.toLocaleDateString(storefrontLocale(), { month: 'short', day: 'numeric', year: 'numeric' }) : d; };
   return (
     <Shell s={s}>
       <Heading s={s} fallbackKey="stories" />

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { reviewsApi } from '../../api/client';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
+import { storefrontLocale } from '../../utils/locale';
 
 export const SLOT_KEY = 'productReviews';
 
@@ -303,7 +304,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = (props) => {
                       <Stars rating={r.rating} color={accentColor} />
                       {r.createdAt && (
                         <span className="text-[11px] opacity-50">
-                          {new Date(r.createdAt).toLocaleDateString()}
+                          {new Date(r.createdAt).toLocaleDateString(storefrontLocale())}
                         </span>
                       )}
                     </div>
