@@ -211,7 +211,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
               {t('order.tracking.field.email.label')}
             </label>
             <input
-              type="email"
+              type="email" dir="ltr"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}

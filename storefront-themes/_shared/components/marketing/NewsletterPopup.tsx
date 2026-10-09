@@ -93,7 +93,7 @@ function NewsletterPopupLegacy(props: NewsletterPopupProps) {
 
               <form onSubmit={handleSubmit} className="space-y-3">
                 <input
-                  type="email"
+                  type="email" dir="ltr"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder={t('newsletter.placeholder')}

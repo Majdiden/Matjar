@@ -483,7 +483,7 @@ export const OrderCreate: React.FC = () => {
       </div>
       <div className="space-y-1.5 sm:col-span-2">
         <Label htmlFor={`${idPrefix}-phone`}>{t('orders:dialog.address_edit.field.phone')}</Label>
-        <Input id={`${idPrefix}-phone`} value={value.phone || ''} onChange={(e) => onChange({ ...value, phone: e.target.value })} />
+        <Input type="tel" inputMode="tel" dir="ltr" id={`${idPrefix}-phone`} value={value.phone || ''} onChange={(e) => onChange({ ...value, phone: e.target.value })} />
       </div>
     </div>
   );
@@ -718,7 +718,7 @@ export const OrderCreate: React.FC = () => {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1.5 sm:col-span-2">
                     <Label htmlFor="guest-email">{t('orders:create.customer.email')}</Label>
-                    <Input id="guest-email" type="email" value={guest.email} onChange={(e) => setGuest((g) => ({ ...g, email: e.target.value }))} />
+                    <Input id="guest-email" type="email" dir="ltr" value={guest.email} onChange={(e) => setGuest((g) => ({ ...g, email: e.target.value }))} />
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="guest-first">{t('orders:dialog.address_edit.field.first_name')}</Label>
@@ -730,7 +730,7 @@ export const OrderCreate: React.FC = () => {
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
                     <Label htmlFor="guest-phone">{t('orders:dialog.address_edit.field.phone')}</Label>
-                    <Input id="guest-phone" value={guest.phone} onChange={(e) => setGuest((g) => ({ ...g, phone: e.target.value }))} />
+                    <Input type="tel" inputMode="tel" dir="ltr" id="guest-phone" value={guest.phone} onChange={(e) => setGuest((g) => ({ ...g, phone: e.target.value }))} />
                   </div>
                 </div>
               )}

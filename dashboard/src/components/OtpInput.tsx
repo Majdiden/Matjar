@@ -8,11 +8,10 @@ import React, { useRef, useEffect, useCallback } from 'react';
  * so the caller never needs a separate "verify" button press (though one can
  * still be kept as a fallback — `onComplete` is idempotent-safe on the caller).
  *
- * RTL: the boxes are laid out in normal document flow, so the first digit sits
- * at the logical START of the line (right edge under `dir="rtl"`, left under
- * LTR) and they fill start→end. Each box is `dir="ltr"` internally so a single
- * digit's caret behaviour is stable regardless of page direction. Spacing uses
- * logical `gap` (direction-agnostic).
+ * Direction: the code always reads left to right, like the number in the SMS
+ * or email, so the group is `dir="ltr"` even on an Arabic page: the first
+ * digit is the leftmost box and ArrowLeft/ArrowRight move the way they look.
+ * (Filling from the right in Arabic confused merchants typing the code.)
  */
 export interface OtpInputProps {
   /** Number of boxes / expected code length. */
@@ -145,6 +144,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
   return (
     <div
       className="flex items-center gap-2 sm:gap-3"
+      dir="ltr"
       role="group"
       aria-label={ariaLabel}
     >

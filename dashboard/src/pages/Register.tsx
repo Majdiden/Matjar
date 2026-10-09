@@ -885,7 +885,7 @@ export const Register: React.FC = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="email">{t('auth.field.email.label')}</Label>
-                <Input id="email" type="email" placeholder={t('auth.field.email.placeholder')}
+                <Input id="email" type="email" dir="ltr" placeholder={t('auth.field.email.placeholder')}
                   value={form.email} autoComplete="email"
                   onChange={e => update('email', e.target.value)}
                   aria-invalid={!!fieldErrors.email || emailExists} />

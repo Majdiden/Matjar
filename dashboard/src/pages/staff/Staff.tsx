@@ -601,7 +601,7 @@ export const Staff: React.FC = () => {
               <Label htmlFor="invite-email">{t('staff.invite.field.email.label')}</Label>
               <Input
                 id="invite-email"
-                type="email"
+                type="email" dir="ltr"
                 placeholder={t('staff.invite.field.email.placeholder')}
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}

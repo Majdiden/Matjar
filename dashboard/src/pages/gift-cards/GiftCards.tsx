@@ -709,7 +709,7 @@ const GiftCards: React.FC = () => {
             <div className="space-y-1">
               <Label>{t('marketing.gift_card.issue_dialog.field.recipient_email.label')}</Label>
               <Input
-                type="email"
+                type="email" dir="ltr"
                 placeholder={t('marketing.gift_card.issue_dialog.field.recipient_email.placeholder')}
                 value={form.recipientEmail}
                 onChange={e => setForm(f => ({ ...f, recipientEmail: e.target.value }))}

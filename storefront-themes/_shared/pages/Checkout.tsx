@@ -652,7 +652,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
               <div>
                 <label className="block text-sm font-medium mb-1">{t('checkout.field.contact.email.label')}</label>
                 <input
-                  type="email"
+                  type="email" dir="ltr"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -750,7 +750,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.phone.label')}</label>
-                <input type="tel" required value={shipping.phone} onChange={setShippingField('phone')} className={inputClass} style={inputStyle} />
+                <input type="tel" inputMode="tel" dir="ltr" required value={shipping.phone} onChange={setShippingField('phone')} className={inputClass} style={inputStyle} />
               </div>
 
               <div>

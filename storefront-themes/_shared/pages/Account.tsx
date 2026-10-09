@@ -389,6 +389,8 @@ const ProfileTab: React.FC<{
         <label className={fieldLabel}>{t('account.field.phone.label')}</label>
         <input
           type="tel"
+          inputMode="tel"
+          dir="ltr"
           className={inputCls}
           style={{ '--tw-ring-color': accent } as React.CSSProperties}
           value={form.phone}
@@ -813,6 +815,8 @@ const AddressesTab: React.FC<{
               <label className={fieldLabel}>{t('account.address.field.phone.label')}</label>
               <input
                 type="tel"
+                inputMode="tel"
+                dir="ltr"
                 className={inputCls}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
                 value={editing.phone || ''}

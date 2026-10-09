@@ -160,7 +160,7 @@ const Contact: React.FC<ContactProps> = ({
               <label className="block text-sm font-medium mb-1">{t('footer.contact.field.email.label')}</label>
               <input
                 name="email"
-                type="email"
+                type="email" dir="ltr"
                 required
                 value={form.email}
                 onChange={handleChange}

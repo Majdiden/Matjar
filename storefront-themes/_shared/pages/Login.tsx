@@ -62,7 +62,7 @@ const Login: React.FC<LoginProps> = ({
         <div>
           <label className="block text-sm font-medium mb-1">{t('login.field.email.label')}</label>
           <input
-            type="email"
+            type="email" dir="ltr"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
