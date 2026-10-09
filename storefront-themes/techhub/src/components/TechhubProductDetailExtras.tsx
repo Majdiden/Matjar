@@ -2,8 +2,8 @@
  * Techhub-styled override for the shared ProductDetailExtras.
  *
  * Registered via `ThemeSlotsProvider` under the `productDetailExtras` slot.
- * Renders 4 tabs (Description · Specifications · Delivery & Shipping ·
- * Customer Reviews) in the techhub visual language (CSS-var driven,
+ * Renders up to 4 tabs (Description · Specifications · Delivery & Shipping ·
+ * Customer Reviews; specs and delivery only when the store has them) in the techhub visual language (CSS-var driven,
  * uppercase 11px labels, primary-colored underline indicator), followed
  * by a Frequently Bought Together block and a Similar Products grid
  * that reuses the registered theme card when available.
@@ -16,6 +16,8 @@ import { reviewsApi } from '@matjar/theme-shared/api/client';
 import { useThemeCard } from '@matjar/theme-shared/theme/ThemeCardProvider';
 import { useTranslation } from 'react-i18next';
 import { storefrontLocale } from '@matjar/theme-shared/utils/locale';
+import { publishedPolicy } from '@matjar/theme-shared/lib/policies';
+import { useTrustLines, TrustLineIconSvg } from '@matjar/theme-shared/components/commerce/TrustBadges';
 
 interface Spec { key: string; value: string }
 
@@ -114,7 +116,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
   className = '',
 }) => {
   const { t } = useTranslation(['theme']);
-  const { formatPrice } = useStore();
+  const { formatPrice, store } = useStore();
   const { addItem } = useCart();
   const themeCard = useThemeCard();
   const accent = 'var(--color-primary)';
@@ -152,11 +154,18 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
   const distribution = ratingDistribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
   const maxBucket = Math.max(1, ...Object.values(distribution));
 
+  // Delivery tab: the store's own facts and published delivery / returns
+  // policies — hidden when the merchant has published neither.
+  const trustLines = useTrustLines();
+  const deliveryPolicies = [publishedPolicy(store, 'delivery', t), publishedPolicy(store, 'returns', t)]
+    .filter((p): p is NonNullable<typeof p> => !!p);
+  const hasDelivery = trustLines.length > 0 || deliveryPolicies.length > 0;
+
   // Build tab list — hide specs tab when no specs exist.
   const tabs: Array<{ id: TabKey; label: string }> = [
     { id: 'description', label: t('theme.product_detail_extras.tab_description') },
     ...(specs.length > 0 ? [{ id: 'specifications' as TabKey, label: t('theme.product_detail_extras.tab_specifications') }] : []),
-    { id: 'delivery', label: t('theme.product_detail_extras.tab_delivery') },
+    ...(hasDelivery ? [{ id: 'delivery' as TabKey, label: t('theme.product_detail_extras.tab_delivery') }] : []),
     { id: 'reviews', label: t('theme.product_detail_extras.tab_reviews') },
   ];
   const [tab, setTab] = useState<TabKey>('description');
@@ -295,24 +304,29 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
           </div>
         )}
 
-        {tab === 'delivery' && (
-          <div className="max-w-3xl space-y-4">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-foreground)' }}>
-                {t('theme.product_detail_extras.delivery_policy_heading')}
-              </p>
-              <p className="mb-1">{t('theme.product_detail_extras.delivery_policy_line1')}</p>
-              <p className="mb-1">{t('theme.product_detail_extras.delivery_policy_line2')}</p>
-              <p>{t('theme.product_detail_extras.delivery_policy_line3')}</p>
-            </div>
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-foreground)' }}>
-                {t('theme.product_detail_extras.shipping_return_heading')}
-              </p>
-              <p className="mb-1">{t('theme.product_detail_extras.shipping_return_line1')}</p>
-              <p className="mb-1">{t('theme.product_detail_extras.shipping_return_line2')}</p>
-              <p>{t('theme.product_detail_extras.shipping_return_line3')}</p>
-            </div>
+        {tab === 'delivery' && hasDelivery && (
+          <div className="max-w-3xl space-y-6">
+            {trustLines.length > 0 && (
+              <ul className="space-y-2">
+                {trustLines.map((line) => (
+                  <li key={line.key} className="flex items-center gap-3">
+                    <TrustLineIconSvg name={line.icon} className="w-5 h-5 shrink-0 text-[color:var(--color-primary)]" />
+                    <span>{line.text}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {deliveryPolicies.map((policy) => (
+              <div key={policy.key}>
+                <p className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-foreground)' }}>
+                  {policy.title}
+                </p>
+                <div
+                  className="leading-relaxed break-words [&_p]:mb-2 [&_a]:underline [&_ul]:list-disc [&_ul]:ps-5 [&_ul]:mb-2 [&_ol]:list-decimal [&_ol]:ps-5 [&_ol]:mb-2 [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-1 [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_>*:last-child]:mb-0"
+                  dangerouslySetInnerHTML={{ __html: policy.body }}
+                />
+              </div>
+            ))}
           </div>
         )}
 

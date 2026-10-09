@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 interface SportzoneHeroProps {
   /** Featured-product image used full-bleed when the merchant hasn't set a
@@ -23,26 +24,28 @@ interface SportzoneHeroProps {
  * gradient + colour blocks (never a blank band).
  *
  * Self-contained + customizer-aware: reads the same hero settings (by its
- * section instance id) and i18n fallback keys Home fed the shared Hero.
+ * section instance id); optional extras render only when the merchant set them.
  */
 const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero' }) => {
   const { t } = useTranslation('theme');
   const { store } = useStore();
   const hero = useThemeSettings(sectionId);
 
-  const eyebrow = hero.eyebrow_text || t('theme.hero.main.eyebrow');
-  const line1 = hero.heading_line1 || t('theme.hero.main.headline_line1');
-  const line2 = hero.heading_line2 || t('theme.hero.main.headline_line2');
-  const subtitle = hero.subheading || store?.description || t('theme.hero.main.subheadline');
+  // Only the merchant's own copy: the headline falls back to the store name;
+  // the eyebrow, outlined second line and second button show only when set.
+  const eyebrow = merchantText(hero.eyebrow_text);
+  const line1 = merchantText(hero.heading_line1) || store?.name || '';
+  const line2 = merchantText(hero.heading_line2);
+  const subtitle = merchantText(hero.subheading);
   const primaryCta = {
-    label: hero.primary_button_text || t('theme.hero.main.cta_primary'),
+    label: merchantText(hero.primary_button_text) || t('theme.hero.main.cta_primary'),
     href: hero.primary_button_url || '/products',
   };
-  const secondaryCta = {
-    label: hero.secondary_button_text || t('theme.hero.main.cta_secondary'),
-    href: hero.secondary_button_url || '/categories',
-  };
-  const backgroundImage: string | undefined = hero.background_image || undefined;
+  const secondaryText = merchantText(hero.secondary_button_text);
+  const secondaryCta = secondaryText
+    ? { label: secondaryText, href: hero.secondary_button_url || '/categories' }
+    : null;
+  const backgroundImage: string | undefined = merchantImage(hero.background_image) || undefined;
   const overlayOpacity: number = hero.overlay_opacity || 0;
   const image = backgroundImage || media;
 
@@ -113,6 +116,7 @@ const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero'
             style={{ fontFamily: 'var(--font-family-heading)' }}
           >
             <span className="block">{line1}</span>
+            {line2 && (
             <span
               className="block"
               style={{
@@ -124,11 +128,14 @@ const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero'
             >
               {line2}
             </span>
+            )}
           </h1>
 
-          <p className="mt-5 max-w-lg text-base sm:text-lg font-medium text-white/85">
-            {subtitle}
-          </p>
+          {subtitle && (
+            <p className="mt-5 max-w-lg text-base sm:text-lg font-medium text-white/85">
+              {subtitle}
+            </p>
+          )}
 
           <div className="mt-9 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             {/* Big angular (parallelogram) primary CTA */}
@@ -145,12 +152,14 @@ const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero'
               </span>
             </Link>
 
+            {secondaryCta && (
             <Link
               to={secondaryCta.href}
               className="inline-flex items-center justify-center px-9 py-4 text-base font-black uppercase italic tracking-wider text-white border-2 border-white/30 [transform:skewX(-10deg)] transition-colors duration-[var(--duration-fast,150ms)] hover:border-white hover:bg-white/10"
             >
               <span className="[transform:skewX(10deg)]">{secondaryCta.label}</span>
             </Link>
+            )}
           </div>
         </div>
       </div>

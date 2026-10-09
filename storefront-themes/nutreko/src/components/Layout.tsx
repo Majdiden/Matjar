@@ -10,7 +10,8 @@ import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/to
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
@@ -18,7 +19,7 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
 /**
  * Nutreko Layout — bold black header with lime accent.
  *
- * ─ Lime info strip with free shipping / authentic guarantee
+ * ─ Lime info strip with the store's own announcement (when set)
  * ─ Black sticky header: chunky wordmark left, uppercase nav center, icons right
  * ─ Black footer with lime highlights
  */
@@ -43,6 +44,7 @@ const Layout: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const barText = useTopStripText();
+  const footer = useStoreFooter();
 
   const brand = (store?.name || 'NUTREKO').toUpperCase();
   const isActive = (path: string) =>
@@ -150,60 +152,57 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {/* ═══ FOOTER (black) ══════════════════════════════════════ */}
+      {/* ═══ FOOTER (black) — content from the store's own data ═══ */}
       <footer className="mt-20 pt-16 pb-6 bg-black text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
             <div className="md:col-span-2">
-              <div className="font-display text-4xl mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>
-                {brand}<span style={{ color: LIME }}>.</span>
-              </div>
-              <p className="text-sm mb-5 max-w-xs text-white/60">
-                {t('theme.footer.tagline')}
-              </p>
-              <div className="flex gap-3">
-                {['f', 'i', 'y', 't'].map((s) => (
-                  <a
-                    key={s}
-                    href="#"
-                    className="w-10 h-10 border-2 border-white/20 flex items-center justify-center text-sm font-bold hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition"
-                  >
-                    {s.toUpperCase()}
-                  </a>
-                ))}
-              </div>
+              {footer.logo ? (
+                <img src={footer.logo} alt={footer.storeName} className="h-12 w-auto mb-4 object-contain" />
+              ) : (
+                <div className="font-display text-4xl mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>
+                  {brand}<span style={{ color: LIME }}>.</span>
+                </div>
+              )}
+              {footer.description && (
+                <p className="text-sm mb-5 max-w-xs text-white/60">{footer.description}</p>
+              )}
+              {footer.social.length > 0 && (
+                <div className="flex gap-3">
+                  {footer.social.map((s) => (
+                    <a
+                      key={s.platform}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.name}
+                      className="w-10 h-10 border-2 border-white/20 flex items-center justify-center hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition"
+                    >
+                      <SocialIcon platform={s.platform} className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
-            <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{t('theme.footer.col_shop')}</h4>
-              <div className="space-y-3 text-sm text-white/70">
-                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.item_all_products')}</Link>
-                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.item_protein')}</Link>
-                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.item_pre_workout')}</Link>
-                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.item_recovery')}</Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{t('theme.footer.col_support')}</h4>
-              <div className="space-y-3 text-sm text-white/70">
-                <Link to="/policies/delivery" className="block hover:text-white transition">{t('theme.footer.item_shipping')}</Link>
-                <Link to="/policies/returns" className="block hover:text-white transition">{t('theme.footer.item_returns')}</Link>
-                <Link to="/contact" className="block hover:text-white transition">{t('theme.footer.item_faqs')}</Link>
-                <Link to="/contact" className="block hover:text-white transition">{t('theme.footer.item_contact')}</Link>
-                <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:text-white transition" />
-              </div>
-            </div>
-            <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{t('theme.footer.col_company')}</h4>
-              <div className="space-y-3 text-sm text-white/70">
-                <Link to="/about" className="block hover:text-white transition">{t('theme.footer.item_about')}</Link>
-                <Link to="/about" className="block hover:text-white transition">{t('theme.footer.item_blog')}</Link>
-                <Link to="/about" className="block hover:text-white transition">{t('theme.footer.item_ambassadors')}</Link>
-                <Link to="/about" className="block hover:text-white transition">{t('theme.footer.item_careers')}</Link>
-              </div>
-            </div>
+            {[
+              { title: footer.titles.shop, links: footer.shop },
+              { title: footer.titles.help, links: footer.help },
+              { title: footer.titles.policies, links: footer.policies },
+            ]
+              .filter((col) => col.links.length > 0)
+              .map((col) => (
+                <div key={col.title}>
+                  <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{col.title}</h4>
+                  <div className="space-y-3 text-sm text-white/70">
+                    {col.links.map((l) => (
+                      <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
           </div>
           <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-white/50">
-            <span>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), brand })}</span>
+            <span>{footer.copyright}</span>
             <FooterPaymentBadges size="sm" />
           </div>
         </div>

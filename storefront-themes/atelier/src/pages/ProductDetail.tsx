@@ -14,6 +14,9 @@ import ProductReviews from '@matjar/theme-shared/components/commerce/ProductRevi
 import ProductDescription from '@matjar/theme-shared/components/commerce/ProductDescription';
 import { ProductProvider } from '@matjar/theme-shared/contexts/ProductContext';
 import { contactApi } from '@matjar/theme-shared/api/client';
+import { useTrustLines, type TrustLineIcon } from '@matjar/theme-shared/components/commerce/TrustBadges';
+import { publishedPolicy } from '@matjar/theme-shared/lib/policies';
+import { merchantText } from '@matjar/theme-shared/theme/heroContent';
 import { ATELIER_SECTION_REGISTRY } from '../sections';
 import AtelierProductCard from '../components/AtelierProductCard';
 import { useAtelierUI } from '../contexts/AtelierUI';
@@ -146,6 +149,9 @@ const Pickers: React.FC<{ options: VariantOption[]; variants: Variant[]; selecti
   );
 };
 
+/** Atelier icon for each kind of store fact (lib/motion Icon names). */
+const TRUST_ICON: Record<TrustLineIcon, string> = { cash: 'wallet', transfer: 'transfer', truck: 'truck', clock: 'clock', return: 'return' };
+
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
@@ -164,11 +170,17 @@ const ProductDetail: React.FC = () => {
   const repeatDaily = !!useThemeSetting<boolean>('countdown_repeat_daily');
   const showInventory = !!useThemeSetting<boolean>('show_inventory_bar');
   const inventoryStart = Number(useThemeSetting<number>('inventory_start') || 50);
-  const b1 = useThemeSetting<string>('benefit_1') || t('theme.global.benefit_1', { defaultValue: '' });
-  const b2 = useThemeSetting<string>('benefit_2') || t('theme.global.benefit_2', { defaultValue: '' });
-  const b3 = useThemeSetting<string>('benefit_3') || t('theme.global.benefit_3', { defaultValue: '' });
-  const benefits = [b1, b2, b3].filter(Boolean) as string[];
-  const shippingNote = useThemeSetting<string>('shipping_note') || t('theme.global.shipping_note', { defaultValue: '' });
+  // The store's own facts (delivery, returns, payment) first, then any
+  // benefits the merchant typed in the theme settings — never demo copy.
+  const trustLines = useTrustLines();
+  const b1 = merchantText(useThemeSetting<string>('benefit_1'));
+  const b2 = merchantText(useThemeSetting<string>('benefit_2'));
+  const b3 = merchantText(useThemeSetting<string>('benefit_3'));
+  const benefits: { key: string; icon: string; text: string }[] = [
+    ...trustLines.map((l) => ({ key: l.key, icon: TRUST_ICON[l.icon], text: l.text })),
+    ...[b1, b2, b3].map((text, i) => ({ key: `benefit-${i}`, icon: 'check', text: text || '' })),
+  ].filter((b, i, all) => b.text && all.findIndex((o) => o.text === b.text) === i);
+  const shippingNote = merchantText(useThemeSetting<string>('shipping_note'));
 
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
@@ -246,7 +258,11 @@ const ProductDetail: React.FC = () => {
   const wishlisted = wishlist.includes(product._id);
   const contentSections = productContentSections(product, i18n.language);
   const cat = typeof product.category === 'object' ? product.category : null;
-  const policies = store?.policies || {};
+  // Published policies in the shopper's language. When the product template
+  // already carries the policies section, it shows them — no second copy here.
+  const policiesInTemplate = productSections.some((sec) => sec.type === 'product-policies');
+  const deliveryPolicy = policiesInTemplate ? null : publishedPolicy(store, 'delivery', t);
+  const returnsPolicy = policiesInTemplate ? null : publishedPolicy(store, 'returns', t);
   const ctaLabel = pre.mode === 'preorder' ? t('theme.product_detail.preorder') : t('theme.product_detail.add_to_bag');
   const sold = Math.max(0, inventoryStart - stock);
   const soldPct = Math.min(100, Math.round((sold / inventoryStart) * 100));
@@ -264,8 +280,8 @@ const ProductDetail: React.FC = () => {
 
   const panels: { key: string; label: string; body: React.ReactNode }[] = [
     { key: 'description', label: t('theme.product_detail.tab_description'), body: <ProductDescription product={product} /> },
-    ...(policies.delivery ? [{ key: 'delivery', label: policies.delivery.title || t('theme.product_detail.tab_delivery'), body: <div className="prose max-w-none text-[14px] leading-[1.75]" dangerouslySetInnerHTML={{ __html: policies.delivery.body }} /> }] : []),
-    ...(policies.returns ? [{ key: 'returns', label: policies.returns.title || t('theme.product_detail.tab_returns'), body: <div className="prose max-w-none text-[14px] leading-[1.75]" dangerouslySetInnerHTML={{ __html: policies.returns.body }} /> }] : []),
+    ...(deliveryPolicy ? [{ key: 'delivery', label: deliveryPolicy.title || t('theme.product_detail.tab_delivery'), body: <div className="prose max-w-none text-[14px] leading-[1.75]" dangerouslySetInnerHTML={{ __html: deliveryPolicy.body }} /> }] : []),
+    ...(returnsPolicy ? [{ key: 'returns', label: returnsPolicy.title || t('theme.product_detail.tab_returns'), body: <div className="prose max-w-none text-[14px] leading-[1.75]" dangerouslySetInnerHTML={{ __html: returnsPolicy.body }} /> }] : []),
     ...contentSections.map((s) => ({ key: s.key, label: s.title, body: <p className="whitespace-pre-line text-[14px] leading-[1.75]">{s.body}</p> })),
   ];
 
@@ -327,7 +343,7 @@ const ProductDetail: React.FC = () => {
       {benefits.length > 0 && (
         <div className="mt-8 rounded-[var(--atelier-radius-card)] bg-[color:var(--color-accent)] p-5">
           <p className="font-display text-[18px]">{t('theme.product_detail.benefits_title')}</p>
-          <ul className="mt-3 space-y-2">{benefits.map((b, i) => <li key={i} className="flex items-center gap-3 text-[14px]"><Icon name={['truck', 'return', 'headset'][i] || 'check'} className="h-5 w-5 text-[color:var(--atelier-bronze-ink)]" />{b}</li>)}</ul>
+          <ul className="mt-3 space-y-2">{benefits.map((b) => <li key={b.key} className="flex items-center gap-3 text-[14px]"><Icon name={b.icon} className="h-5 w-5 shrink-0 text-[color:var(--atelier-bronze-ink)]" />{b.text}</li>)}</ul>
         </div>
       )}
       {shippingNote && <p className="mt-4 text-[13px] text-[#4a4a4a]">{shippingNote}</p>}

@@ -11,6 +11,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import type { Product } from '@matjar/theme-shared/types/commerce';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // Niche default hero image — a cozy shelf of books — so the hero is never
 // empty even before the merchant sets one.
@@ -43,17 +45,26 @@ const reveal = (visible: boolean) => (visible ? 'opacity-100 translate-y-0' : 'o
 const BookshelfHero: React.FC<BookshelfSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
-  const { products: featured } = useFeaturedProducts(6);
+  const { store } = useStore();
+  const { products: featured, loading } = useFeaturedProducts(6);
+  // Only the merchant's own content: the title falls back to the store name;
+  // the second heading line and eyebrow show only when set.
+  const title = [merchantText(hero.heading_line1) || store?.name || '', merchantText(hero.heading_line2)].filter(Boolean).join(' ');
+  // Photo: the merchant's own, else a book cover from the store; the theme's
+  // stock photo only for a brand-new store with no products yet.
+  const own = merchantImage(hero.background_image, store?.brand?.coverImage);
+  const productPhoto = merchantImage(...(featured || []).map((p) => p.images?.[0]));
   return (
     <Hero
       variant="spotlight"
       tone="dark"
-      title={`${hero.heading_line1 || t('theme.section.hero.heading_line1')} ${hero.heading_line2 || t('theme.section.hero.heading_line2')}`}
-      subtitle={hero.subheading || t('theme.section.hero.subheading')}
+      title={title}
+      subtitle={merchantText(hero.subheading) || undefined}
       primaryCta={{ label: hero.button_text || t('theme.section.hero.cta'), href: hero.button_url || '/products' }}
-      backgroundImage={hero.background_image || undefined}
-      media={featured?.find((p) => p.images?.[0])?.images?.[0]}
-      defaultImage={HERO_DEFAULT_IMAGE}
+      saleText={merchantText(hero.eyebrow_text) || undefined}
+      backgroundImage={own || undefined}
+      media={productPhoto || undefined}
+      defaultImage={!own && !productPhoto && !loading ? HERO_DEFAULT_IMAGE : undefined}
     />
   );
 };
@@ -120,9 +131,9 @@ const BookshelfStaffPicks: React.FC<BookshelfSectionProps> = ({ id, onQuickView 
         <div className="flex items-center justify-between mb-10">
           <div>
             <h2 className="text-2xl font-bold">{staffPicks.heading || t('theme.section.staff_picks.heading')}</h2>
-            <p className="text-gray-500 text-sm mt-1">
-              {staffPicks.subheading || t('theme.section.staff_picks.subheading')}
-            </p>
+            {staffPicks.subheading && (
+              <p className="text-gray-500 text-sm mt-1">{staffPicks.subheading}</p>
+            )}
           </div>
           <Link
             to={staffPicks.view_all_url || '/products'}
@@ -190,7 +201,7 @@ const BookshelfQuote: React.FC<BookshelfSectionProps> = ({ id }) => {
 /** Shared literary product rail (bestsellers / new arrivals). */
 const BookRail: React.FC<{
   heading: string;
-  subheading: string;
+  subheading?: string;
   products: Product[];
   loading: boolean;
   addToCartText: string;
@@ -204,7 +215,7 @@ const BookRail: React.FC<{
       <div className="flex items-end justify-between gap-4 mb-8">
         <div>
           <h2 className="text-2xl font-bold mb-2">{heading}</h2>
-          <p className="text-gray-500 text-sm">{subheading}</p>
+          {subheading && <p className="text-gray-500 text-sm">{subheading}</p>}
         </div>
         {viewAll && (
           <Link to={viewAll.href} className="text-[#7c3aed] font-semibold text-sm hover:underline shrink-0">
@@ -262,7 +273,7 @@ const BookshelfNewArrivals: React.FC<BookshelfSectionProps> = ({ id, onQuickView
   return (
     <BookRail
       heading={arrivals.heading || t('theme.section.new_arrivals.heading')}
-      subheading={arrivals.subheading || t('theme.section.new_arrivals.subheading')}
+      subheading={arrivals.subheading}
       products={products}
       loading={loading}
       addToCartText={t('theme.section.new_arrivals.add')}

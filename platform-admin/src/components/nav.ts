@@ -41,6 +41,18 @@ import { PLATFORM_SCOPES, type PlatformScope, type PlatformUser } from '../lib/a
  * ── SIBLING WORKSTREAMS: add your pages here (flip `ready: true`) AND the
  *    route in App.tsx. Keep the group order. ──────────────────────────────
  */
+/**
+ * A tab inside a page, deep-linked as `?tab=<id>`. `id: null` is the page's
+ * default tab (no query param). The page renders its tab strip from the same
+ * list, so the quick navigator (CommandPalette) stays in sync with it.
+ */
+export interface NavTab {
+  id: string;
+  label: string;
+  /** Default tab: linked without `?tab=`. */
+  isDefault?: boolean;
+  scope?: PlatformScope;
+}
 export interface NavItem {
   to: string;
   label: string;
@@ -52,6 +64,10 @@ export interface NavItem {
   /** Show in the phone bottom tab bar. */
   tab?: boolean;
   ready?: boolean;
+  /** In-page tabs (deep-linkable), for the quick navigator. */
+  tabs?: readonly NavTab[];
+  /** Extra search terms for the quick navigator. */
+  keywords?: string;
 }
 export interface NavGroup {
   key: string;
@@ -60,6 +76,31 @@ export interface NavGroup {
 }
 
 const S = PLATFORM_SCOPES;
+
+/** Billing page tabs (pages/billing/Billing.tsx renders these). */
+export const BILLING_TABS = [
+  { id: 'statements', label: 'Statements', isDefault: true },
+  { id: 'policies', label: 'Commission policies' },
+  { id: 'settings', label: 'Settings' },
+] as const satisfies readonly NavTab[];
+
+/**
+ * Store detail tabs (pages/TenantDetail.tsx renders these). `scope` hides a
+ * tab the operator cannot read — the server enforces; this avoids dead UI.
+ */
+export const TENANT_TABS = [
+  { id: 'overview', label: 'Overview', isDefault: true },
+  { id: 'orders', label: 'Orders' },
+  { id: 'payments', label: 'Payments', scope: S.BILLING_READ },
+  { id: 'billing', label: 'Billing', scope: S.BILLING_READ },
+  { id: 'config', label: 'Configuration' },
+  { id: 'usage', label: 'Usage' },
+  { id: 'staff', label: 'Staff', scope: S.TENANT_USERS },
+  { id: 'storefront', label: 'Storefront' },
+  { id: 'activity', label: 'Activity', scope: S.AUDIT_READ },
+  { id: 'exports', label: 'Exports', scope: S.TENANT_EXPORT },
+  { id: 'webhooks', label: 'Failed webhooks' },
+] as const satisfies readonly NavTab[];
 
 export const NAV_GROUPS: NavGroup[] = [
   { key: 'overview', label: null, items: [{ to: '/', label: 'Overview', icon: LayoutDashboard, end: true, tab: true, ready: true }] },
@@ -82,7 +123,7 @@ export const NAV_GROUPS: NavGroup[] = [
     key: 'billing',
     label: 'Payments & Billing',
     items: [
-      { to: '/billing', label: 'Billing', icon: Receipt, scope: S.BILLING_READ, tab: true, ready: true },
+      { to: '/billing', label: 'Billing', icon: Receipt, scope: S.BILLING_READ, tab: true, ready: true, tabs: BILLING_TABS, keywords: 'statements invoices commission' },
       { to: '/plans', label: 'Plans', icon: CreditCard, scope: S.BILLING_READ, ready: true },
       { to: '/payments', label: 'Payment methods', shortLabel: 'Payments', icon: Wallet, scope: S.SUPPORT_READ, ready: true },
     ],
@@ -147,6 +188,15 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
 ];
+
+export function canSeeTab(user: PlatformUser | null, tab: NavTab): boolean {
+  return !tab.scope || !!user?.scopes?.includes(tab.scope);
+}
+
+/** URL of a page tab (`?tab=` omitted for the default tab). */
+export function tabHref(base: string, tab: NavTab): string {
+  return tab.isDefault ? base : `${base}?tab=${encodeURIComponent(tab.id)}`;
+}
 
 export function canSee(user: PlatformUser | null, item: NavItem): boolean {
   if (item.role && user?.role !== item.role) return false;

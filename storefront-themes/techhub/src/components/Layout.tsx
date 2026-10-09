@@ -9,7 +9,8 @@ import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/to
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { SocialIcon, WhatsAppIcon } from '@matjar/theme-shared/components/pages/PageIcon';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
@@ -24,8 +25,8 @@ import { useTranslation } from 'react-i18next';
  *   • Row 2 (white): "Browse all collection" pill + big rounded search
  *     bar + account / wishlist / cart icons
  *
- * Footer is dark navy with a green wordmark, 4-column link grid and a
- * contact strip.
+ * Footer is dark navy with a green wordmark, the store's link columns and
+ * a contact strip (store data only).
  */
 // The header/footer are a deep navy so the green wordmark + green accents
 // stay legible. (`--color-secondary` is a green tint, which renders the
@@ -40,10 +41,9 @@ const Layout: React.FC = () => {
   // Store-managed header nav. When present it drives the nav; while
   // loading/empty we fall back to the category list so nav never disappears.
   const { items: menuItems } = useMenu('header');
-  // Footer links are editable from the dashboard: create a menu with location
-  // "footer" whose TOP-LEVEL items are column headings and their children are
-  // the links. Falls back to the theme's default columns when none exists.
-  const { items: footerMenu } = useMenu('footer');
+  // Footer content comes from the store's own data (categories, policies,
+  // contact details, social pages) — no theme demo links.
+  const footer = useStoreFooter();
   const hasMenu = menuItems.length > 0;
   const itemHref = (item: MenuItem) => item.resolvedUrl || item.url || '/';
   const isExternal = (item: MenuItem) =>
@@ -59,70 +59,6 @@ const Layout: React.FC = () => {
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
 
   const brandName = (store?.name || 'TECHHUB').toUpperCase();
-
-  // Footer link columns — from a store-managed "footer" menu when present
-  // (top-level item = column heading, its children = the links), else the
-  // theme's default columns. Merchants edit these in Dashboard → Menus.
-  const defaultFooterColumns = [
-    {
-      heading: t('theme.footer.help_support_heading'),
-      links: [
-        { label: t('theme.footer.shipping_info'), href: '#' },
-        { label: t('theme.footer.returns'), href: '#' },
-        { label: t('theme.footer.how_to_order'), href: '#' },
-        { label: t('theme.footer.how_to_track'), href: '#' },
-        { label: t('theme.footer.size_guide'), href: '#' },
-      ],
-    },
-    {
-      heading: t('theme.footer.company_info_heading'),
-      links: [
-        { label: t('theme.footer.about_us'), href: '#' },
-        { label: t('theme.footer.our_blog'), href: '#' },
-        { label: t('theme.footer.careers'), href: '#' },
-        { label: t('theme.footer.store_locations'), href: '#' },
-        { label: t('theme.footer.testimonial'), href: '#' },
-      ],
-    },
-    {
-      heading: t('theme.footer.customer_care_heading'),
-      links: [
-        { label: t('theme.footer.faq'), href: '#' },
-        { label: t('theme.footer.terms_of_service'), href: '#' },
-        { label: t('theme.footer.privacy_policy'), href: '#' },
-        { label: t('theme.footer.contact_us'), href: '#' },
-        { label: t('theme.footer.gift_card'), href: '#' },
-      ],
-    },
-  ];
-
-  const footerColumns =
-    footerMenu.length > 0
-      ? footerMenu.slice(0, 3).map((col) => ({
-          heading: col.label,
-          links: (col.children || []).map((c) => ({
-            label: c.label,
-            href: itemHref(c),
-            external: isExternal(c),
-          })),
-        }))
-      : defaultFooterColumns;
-
-  const renderFooterLink = (link: { label: string; href: string; external?: boolean }) => {
-    const cls = 'block hover:text-white transition';
-    if (link.external || link.href === '#' || /^https?:\/\//.test(link.href)) {
-      return (
-        <a key={link.label} href={link.href} className={cls}>
-          {link.label}
-        </a>
-      );
-    }
-    return (
-      <Link key={link.label} to={link.href} className={cls}>
-        {link.label}
-      </Link>
-    );
-  };
 
   return (
     <div
@@ -178,14 +114,24 @@ const Layout: React.FC = () => {
               )}
             </nav>
 
-            <div className="hidden md:flex items-center gap-5 text-xs text-white">
-              <span className="flex items-center gap-1.5">
-                <svg className="w-4 h-4" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
-                </svg>
-                <span className="whitespace-nowrap">{t('theme.nav.call_us')} <span style={{ color: 'var(--color-primary)' }}>{t('theme.contact.phone', { defaultValue: '+1 (555) 456-7890' })}</span></span>
-              </span>
-            </div>
+            {/* The store's own phone number only — hidden when it has none. */}
+            {footer.contact.phone && (
+              <div className="hidden md:flex items-center gap-5 text-xs text-white">
+                <span className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
+                  </svg>
+                  <span className="whitespace-nowrap">
+                    {t('theme.nav.call_us')}{' '}
+                    {footer.contact.phone.href ? (
+                      <a href={footer.contact.phone.href} dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</a>
+                    ) : (
+                      <span dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</span>
+                    )}
+                  </span>
+                </span>
+              </div>
+            )}
 
             <button
               onClick={() => setMenuOpen(!menuOpen)}
@@ -299,73 +245,106 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {/* ═══ FOOTER — dark navy ═══════════════════════════════════ */}
+      {/* ═══ FOOTER — dark navy, content from the store's own data ═══ */}
       {/* pb is larger on mobile so the fixed MobileBottomNav (md:hidden) never
           covers the copyright row; collapses back to a tight pad from md up. */}
       <footer className="pt-16 pb-24 md:pb-4 mt-12 text-slate-300" style={{ backgroundColor: NAVY }}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
             <div>
-              <h3 className="text-2xl font-black tracking-tight mb-4" style={{ color: 'var(--color-primary)' }}>
-                {brandName}
-              </h3>
-              <p className="text-sm mb-5 text-slate-400">
-                {t('theme.footer.tagline')}
-              </p>
-              <div className="flex items-center gap-2">
-                {['facebook', 'pinterest', 'twitter', 'linkedin', 'vimeo'].map((social) => (
-                  <a
-                    key={social}
-                    href="#"
-                    aria-label={social}
-                    className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition text-white text-xs"
-                  >
-                    {social[0].toUpperCase()}
-                  </a>
-                ))}
-              </div>
+              {footer.logo ? (
+                <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto mb-4 object-contain" />
+              ) : (
+                <h3 className="text-2xl font-black tracking-tight mb-4" style={{ color: 'var(--color-primary)' }}>
+                  {brandName}
+                </h3>
+              )}
+              {footer.description && (
+                <p className="text-sm mb-5 text-slate-400">{footer.description}</p>
+              )}
+              {footer.social.length > 0 && (
+                <div className="flex items-center gap-2">
+                  {footer.social.map((s) => (
+                    <a
+                      key={s.platform}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.name}
+                      className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition text-white"
+                    >
+                      <SocialIcon platform={s.platform} className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {footerColumns.map((col, idx) => (
-              <div key={col.heading || idx}>
-                <h4 className="font-bold text-sm mb-4 uppercase tracking-wide text-white">{col.heading}</h4>
-                <div className="space-y-2.5 text-sm text-slate-400">
-                  {col.links.map(renderFooterLink)}
-                  {idx === footerColumns.length - 1 && (
-                    <PolicyLinks className="mt-2.5" heading={false} linkClassName="block hover:text-white transition" />
+            {[
+              { title: footer.titles.shop, links: footer.shop },
+              { title: footer.titles.help, links: footer.help },
+              { title: footer.titles.policies, links: footer.policies },
+            ]
+              .filter((col) => col.links.length > 0)
+              .map((col) => (
+                <div key={col.title}>
+                  <h4 className="font-bold text-sm mb-4 uppercase tracking-wide text-white">{col.title}</h4>
+                  <div className="space-y-2.5 text-sm text-slate-400">
+                    {col.links.map((l) => (
+                      <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+          </div>
+
+          {/* Contact strip — only the details the merchant has set */}
+          {(footer.contact.phone || footer.contact.email || footer.contact.whatsapp || footer.contact.address) && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 border-y border-white/10 text-sm">
+              {footer.contact.phone && (
+                <div className="flex items-center gap-3">
+                  <svg className="w-5 h-5 shrink-0" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
+                  </svg>
+                  <span className="text-white font-semibold">{t('theme.footer.available_by_phone')}</span>
+                  {footer.contact.phone.href ? (
+                    <a href={footer.contact.phone.href} dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</a>
+                  ) : (
+                    <span dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</span>
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Contact strip */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 border-y border-white/10 text-sm">
-            <div className="flex items-center gap-3">
-              <svg className="w-5 h-5" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
-              </svg>
-              <span className="text-white font-semibold">{t('theme.footer.available_by_phone')}</span>
-              <span style={{ color: 'var(--color-primary)' }}>{t('theme.contact.phone', { defaultValue: '+1 (555) 456-7890' })}</span>
+              )}
+              {footer.contact.whatsapp && (
+                <div className="flex items-center gap-3">
+                  <span style={{ color: 'var(--color-primary)' }}><WhatsAppIcon className="w-5 h-5 shrink-0" /></span>
+                  <span className="text-white font-semibold">WhatsApp</span>
+                  <a href={footer.contact.whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-slate-400 hover:text-white">
+                    {footer.contact.whatsapp.display}
+                  </a>
+                </div>
+              )}
+              {footer.contact.email && (
+                <div className="flex items-center gap-3">
+                  <svg className="w-5 h-5 shrink-0" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-white font-semibold">{t('theme.footer.email_label')}</span>
+                  <a href={`mailto:${footer.contact.email}`} className="text-slate-400 hover:text-white">{footer.contact.email}</a>
+                </div>
+              )}
+              {footer.contact.address && (
+                <div className="flex items-center gap-3">
+                  <svg className="w-5 h-5 shrink-0" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                  </svg>
+                  <span className="text-slate-400">{footer.contact.address}</span>
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-3">
-              <svg className="w-5 h-5" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span className="text-white font-semibold">{t('theme.footer.email_label')}</span>
-              <span className="text-slate-400">{t('theme.contact.email', { defaultValue: 'info@example.com' })}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <svg className="w-5 h-5" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-white font-semibold">{t('theme.footer.opening_hours_label')}</span>
-              <span className="text-slate-400">{t('theme.footer.opening_hours')}</span>
-            </div>
-          </div>
+          )}
 
           <div className="flex flex-wrap items-center justify-between gap-4 pt-6 text-xs text-slate-400">
-            <span>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), name: store?.name || 'TechHub' })}</span>
+            <span>{footer.copyright}</span>
             <FooterPaymentBadges size="sm" />
           </div>
         </div>

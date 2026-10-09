@@ -6,10 +6,10 @@ import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useFeaturedProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { useAtelierUI } from '../../contexts/AtelierUI';
 import { useOverlayA11y } from '../../lib/motion';
-import { FreeShippingBar, LineItem } from './MiniCart';
+import { LineItem } from './MiniCart';
 import AtelierProductCard from '../AtelierProductCard';
 
-/** Centred confirmation after add-to-cart: the added line, totals, free-shipping bar and a "you may also like" rail. */
+/** Centred confirmation after add-to-cart: the added line, totals and a "you may also like" rail. */
 const AddedModal: React.FC = () => {
   const { t } = useTranslation(['theme']);
   const { added, dismissAdded } = useAtelierUI();
@@ -43,7 +43,6 @@ const AddedModal: React.FC = () => {
             {t('theme.added.success', { name: added?.name || '' })}
           </p>
           {line && <LineItem item={line} />}
-          <FreeShippingBar subtotal={cart?.subtotal || 0} className="mt-2" />
           <div className="mt-5 grid gap-4 md:grid-cols-[1fr_260px]">
             <div className="hidden md:block" />
             <div className="grid gap-2">

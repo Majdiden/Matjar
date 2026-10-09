@@ -13,7 +13,8 @@ import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/Mobi
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 
 /**
  * Beauxe Layout — navy announcement + pink-accent header.
@@ -47,6 +48,8 @@ const Layout: React.FC = () => {
   const barText = useTopStripText();
 
   const brand = (store?.name || 'BEAUXE').toUpperCase();
+  const footer = useStoreFooter();
+  const contact = footer.contact;
   const isActive = (path: string) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
 
@@ -161,60 +164,65 @@ const Layout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
             <div className="md:col-span-2">
-              <div className="font-serif text-4xl mb-4" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
-                {brand}
-              </div>
-              <p className="text-sm mb-5 max-w-xs" style={{ color: NAVY, opacity: 0.75 }}>
-                {t('theme.footer.tagline')}
-              </p>
-              <div className="flex gap-3">
-                {['f', 'i', 'p', 't'].map((s) => (
-                  <a
-                    key={s}
-                    href="#"
-                    className="w-9 h-9 rounded-full border border-current/20 flex items-center justify-center text-xs hover:bg-current/5 transition"
-                    style={{ color: NAVY }}
-                  >
-                    {s}
-                  </a>
-                ))}
-              </div>
-              <PolicyLinks className="mt-6" heading={false} linkClassName="block text-[var(--color-primary)]/80 hover:opacity-100 hover:underline transition" />
+              {footer.logo ? (
+                <img src={footer.logo} alt={footer.storeName} className="h-12 w-auto max-w-[200px] object-contain mb-4" />
+              ) : (
+                <div className="font-serif text-4xl mb-4" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
+                  {footer.storeName.toUpperCase()}
+                </div>
+              )}
+              {footer.description && (
+                <p className="text-sm mb-5 max-w-xs" style={{ color: NAVY, opacity: 0.75 }}>
+                  {footer.description}
+                </p>
+              )}
+              {(contact.address || contact.phone || contact.whatsapp || contact.email) && (
+                <div className="space-y-1.5 text-sm mb-5" style={{ color: NAVY, opacity: 0.8 }}>
+                  {contact.address && <p>{contact.address}</p>}
+                  {contact.phone && (contact.phone.href
+                    ? <a href={contact.phone.href} dir="ltr" className="block hover:underline">{contact.phone.text}</a>
+                    : <p dir="ltr">{contact.phone.text}</p>)}
+                  {contact.whatsapp && <a href={contact.whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="block hover:underline">{contact.whatsapp.display}</a>}
+                  {contact.email && <a href={`mailto:${contact.email}`} className="block hover:underline">{contact.email}</a>}
+                </div>
+              )}
+              {footer.social.length > 0 && (
+                <div className="flex gap-3">
+                  {footer.social.map((l) => (
+                    <a
+                      key={l.platform}
+                      href={l.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={l.name}
+                      className="w-9 h-9 rounded-full border border-current/20 flex items-center justify-center text-xs hover:bg-current/5 transition"
+                      style={{ color: NAVY }}
+                    >
+                      <SocialIcon platform={l.platform} className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
             {[
-              { h: t('theme.footer.shop_heading'), items: [
-                { label: t('theme.footer.shop_all'), to: '/products' },
-                { label: t('theme.footer.best_sellers'), to: '/products' },
-                { label: t('theme.footer.new_arrivals'), to: '/products' },
-                { label: t('theme.footer.gift_sets'), to: '/products' },
-              ] },
-              { h: t('theme.footer.help_heading'), items: [
-                { label: t('theme.footer.shipping'), to: '/policies/delivery' },
-                { label: t('theme.footer.returns'), to: '/policies/returns' },
-                { label: t('theme.footer.faqs'), to: '/contact' },
-                { label: t('theme.footer.contact'), to: '/contact' },
-              ] },
-              { h: t('theme.footer.about_heading'), items: [
-                { label: t('theme.footer.our_story'), to: '/about' },
-                { label: t('theme.footer.ingredients'), to: '/about' },
-                { label: t('theme.footer.sustainability'), to: '/about' },
-                { label: t('theme.footer.careers'), to: '/about' },
-              ] },
-            ].map((col) => (
+              { h: footer.titles.shop, items: footer.shop },
+              { h: footer.titles.help, items: footer.help },
+              { h: footer.titles.policies, items: footer.policies },
+            ].filter((col) => col.items.length > 0).map((col) => (
               <div key={col.h}>
                 <h4 className="text-[11px] tracking-[0.22em] uppercase font-bold mb-5" style={{ color: NAVY }}>
                   {col.h}
                 </h4>
                 <div className="space-y-3 text-sm" style={{ color: NAVY, opacity: 0.8 }}>
                   {col.items.map((item) => (
-                    <Link key={item.label} to={item.to} className="block hover:opacity-100 hover:underline transition">{item.label}</Link>
+                    <Link key={item.to} to={item.to} className="block hover:opacity-100 hover:underline transition">{item.label}</Link>
                   ))}
                 </div>
               </div>
             ))}
           </div>
           <div className="border-t border-pink-200/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]" style={{ color: NAVY, opacity: 0.7 }}>
-            <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), brand })}</span>
+            <span>{footer.copyright}</span>
             <FooterPaymentBadges size="sm" />
           </div>
         </div>

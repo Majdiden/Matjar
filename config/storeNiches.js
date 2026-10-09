@@ -1,11 +1,17 @@
 /**
- * Store niches a merchant picks at signup (dashboard Register.tsx
- * NICHE_IDS). Stored on `tenant.settings.niche` and used to pick a theme's
- * per-niche starting homepage (`manifest.presets[niche]`, PBI 10). Not the
- * same list as config/themeCategories.js, which groups theme catalog keys.
+ * The original signup niches. Theme presets are keyed by these
+ * (`manifest.presets[niche]`, PBI 10; utils/themeManifestRules.js), so they
+ * stay the fixed set a preset may target.
  *
- * Mirrored by NICHE_IDS in storefront-themes/_shared/theme/brandBindings.ts;
- * tests/unit/themeBindingsParity.test.js keeps the three lists identical.
+ * What signup OFFERS is now the platform-managed theme category list
+ * (services/themeCategories.js); every id below is one of its default
+ * categories (config/themeCategories.js), and `tenant.settings.niche` accepts
+ * these ids or any active category key (resolveStoreNicheKey). A category
+ * without a preset simply starts from `templates.index`.
+ *
+ * Mirrored by NICHE_IDS in storefront-themes/_shared/theme/brandBindings.ts
+ * and by the offline fallback list in dashboard Register.tsx;
+ * tests/unit/themeBindingsParity.test.js keeps them identical.
  */
 export const STORE_NICHES = Object.freeze([
   "fashion",

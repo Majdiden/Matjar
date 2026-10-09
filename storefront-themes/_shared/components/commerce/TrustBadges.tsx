@@ -34,24 +34,23 @@ const Icon: React.FC<{ name: BadgeIcon }> = ({ name }) => (
   </svg>
 );
 
-interface Badge {
+export type TrustLineIcon = BadgeIcon;
+
+/** One store fact for a product page: "Cash on delivery", "Returns within 7 days"… */
+export interface TrustLine {
   key: string;
-  icon: BadgeIcon;
+  icon: TrustLineIcon;
   text: string;
 }
 
-interface TrustBadgesProps {
-  className?: string;
-}
-
 /**
- * Trust badges for product pages (PBI 10-11): "Cash on delivery", "Bankak
- * transfer", "Delivery to: …", "Returns within N days". Built from the
- * merchant's policy answers (`store.trust`) and the store's live payment
- * methods. Renders nothing — and fetches nothing — for a store that never
- * answered the policy questions, so those stores look exactly as before.
+ * The store's own delivery, returns and payment facts (PBI 10-11), from the
+ * merchant's policy answers (`store.trust`) and live payment methods, in the
+ * shopper's language. Empty — and nothing is fetched — for a store that
+ * never answered the policy questions. Themes render these instead of demo
+ * claims ("Free shipping over $50", "30-day returns").
  */
-export const TrustBadges: React.FC<TrustBadgesProps> = ({ className = '' }) => {
+export function useTrustLines(): TrustLine[] {
   const { store } = useStore();
   const { t, i18n } = useTranslation('generated');
   const trust = store?.trust;
@@ -66,11 +65,11 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({ className = '' }) => {
     return () => { cancelled = true; };
   }, [trust?.payments]);
 
-  if (!trust) return null;
+  if (!trust) return [];
 
   const lang = i18n.language || 'ar';
   const isArabic = !lang.startsWith('en');
-  const badges: Badge[] = [];
+  const badges: TrustLine[] = [];
 
   for (const m of methods || []) {
     if (m.type === 'cod') badges.push({ key: 'cod', icon: 'cash', text: t('trust.cod') });
@@ -90,6 +89,28 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({ className = '' }) => {
   if (trust.returns?.days) {
     badges.push({ key: 'returns', icon: 'return', text: t('trust.returns', { count: trust.returns.days }) });
   }
+  return badges;
+}
+
+/** The icon of a trust line, sized by the caller's font (1em by default 16px). */
+export const TrustLineIconSvg: React.FC<{ name: TrustLineIcon; className?: string }> = ({ name, className = 'w-4 h-4 shrink-0' }) => (
+  <svg className={className} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d={ICON_PATHS[name]} />
+  </svg>
+);
+
+interface TrustBadgesProps {
+  className?: string;
+}
+
+/**
+ * Trust badges for product pages (PBI 10-11): the store's trust lines
+ * (useTrustLines) as pills. Renders nothing for a store that never answered
+ * the policy questions, so those stores look exactly as before.
+ */
+export const TrustBadges: React.FC<TrustBadgesProps> = ({ className = '' }) => {
+  const { t } = useTranslation('generated');
+  const badges = useTrustLines();
 
   if (!badges.length) return null;
 

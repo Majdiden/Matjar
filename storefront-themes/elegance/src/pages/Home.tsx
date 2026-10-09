@@ -10,6 +10,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import EditorialHero from '../components/EditorialHero';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
+import { useTrustLines } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 /** Props every bespoke section gets: its instance id (settings/blocks key) and the Quick View opener. */
@@ -23,12 +25,12 @@ const HEADING_FONT = { fontFamily: 'var(--font-family-heading, "Playfair Display
 // Hero — bespoke editorial full-bleed hero (reads the same hero settings +
 // i18n keys this theme always fed the shared Hero)
 const EleganceHero: React.FC<EleganceSectionProps> = ({ id }) => {
-  const hero = useThemeSettings(id);
-  const { products: featured } = useFeaturedProducts(8);
+  const { products: featured, loading } = useFeaturedProducts(8);
   return (
     <EditorialHero
       sectionId={id}
-      media={!hero.background_image ? featured?.find((p) => p.images?.[0])?.images?.[0] : undefined}
+      mediaLoading={loading}
+      media={merchantImage(...(featured || []).map((p) => p.images?.[0])) || undefined}
     />
   );
 };
@@ -176,18 +178,39 @@ const EleganceNewArrivals: React.FC<EleganceSectionProps> = ({ id, onQuickView }
   );
 };
 
-// Trust bar
+// Demo copy older installs stored as literal trust-bar settings — treated as unset.
+const LEGACY_TRUST_TEXT = new Set([
+  'Free Shipping', 'On orders over $200',
+  'Secure Payment', 'SSL encrypted',
+  'Easy Returns', '30-day policy',
+  'Luxury Packaging', 'Gift-ready',
+]);
+const trustText = (value: unknown): string => {
+  const text = merchantText(value) || '';
+  return LEGACY_TRUST_TEXT.has(text) ? '' : text;
+};
+const TRUST_COLS: Record<number, string> = { 1: 'md:grid-cols-1', 2: 'md:grid-cols-2', 3: 'md:grid-cols-3' };
+
+// Trust bar — the merchant's items, else the store's own delivery / returns /
+// payment facts; hidden when there are neither.
 const EleganceTrustBar: React.FC<EleganceSectionProps> = ({ id }) => {
   const trustBar = useThemeSettings(id);
   const trustBarBlocks = useSectionBlocks(id);
-  if (trustBar.show_section === false) return null;
+  const trustLines = useTrustLines();
+  const merchantItems = trustBarBlocks
+    .map((block) => ({ id: block.id, title: trustText(block.settings.title), description: trustText(block.settings.description) }))
+    .filter((item) => item.title || item.description);
+  const items = merchantItems.length > 0
+    ? merchantItems
+    : trustLines.map((line) => ({ id: line.key, title: line.text, description: '' }));
+  if (trustBar.show_section === false || items.length === 0) return null;
   return (
     <section className="border-t border-b">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-        {trustBarBlocks.map((block) => (
-          <div key={block.id}>
-            <h4 className="text-xs tracking-[0.15em] uppercase font-medium mb-1">{block.settings.title}</h4>
-            <p className="text-xs text-gray-500">{block.settings.description}</p>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-2 ${TRUST_COLS[items.length] || 'md:grid-cols-4'} gap-8 text-center`}>
+        {items.map((item) => (
+          <div key={item.id}>
+            {item.title && <h4 className="text-xs tracking-[0.15em] uppercase font-medium mb-1">{item.title}</h4>}
+            {item.description && <p className="text-xs text-gray-500">{item.description}</p>}
           </div>
         ))}
       </div>

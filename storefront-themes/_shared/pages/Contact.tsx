@@ -3,6 +3,7 @@ import { useStore } from '../contexts/StoreContext';
 import { contactApi } from '../api/client';
 import { useTranslation } from 'react-i18next';
 import { usePage } from '../hooks/usePage';
+import { useContactInfo } from '../hooks/useContactInfo';
 
 interface ContactProps {
   className?: string;
@@ -22,6 +23,12 @@ const Contact: React.FC<ContactProps> = ({
   // Merchant-authored CMS content (editable in the dashboard) shown above the
   // contact form so edits reflect on the storefront.
   const { page } = usePage('contact');
+  // The store's own details only — no placeholder email or invented
+  // opening hours; a detail the merchant never set is not shown.
+  const info = useContactInfo();
+  const email = info.email || (store as any)?.email || null;
+  const phone = info.phone?.text || (store as any)?.phone || null;
+  const address = info.address || (store as any)?.address || null;
 
   const SUBJECTS = [
     t('footer.contact.subject.general'),
@@ -94,29 +101,32 @@ const Contact: React.FC<ContactProps> = ({
         <div className="space-y-6">
           <div>
             <h3 className="font-semibold mb-2">{t('footer.contact.info.store')}</h3>
-            <p className="text-gray-600 text-sm">{store?.name || 'Our Store'}</p>
+            <p className="text-gray-600 text-sm">{store?.name || info.storeName}</p>
           </div>
-          <div>
-            <h3 className="font-semibold mb-2">{t('footer.contact.info.email')}</h3>
-            <p className="text-gray-600 text-sm">{store?.email || 'support@store.com'}</p>
-          </div>
-          {store?.phone && (
+          {email && (
+            <div>
+              <h3 className="font-semibold mb-2">{t('footer.contact.info.email')}</h3>
+              <p className="text-gray-600 text-sm">{email}</p>
+            </div>
+          )}
+          {phone && (
             <div>
               <h3 className="font-semibold mb-2">{t('footer.contact.info.phone')}</h3>
-              <p className="text-gray-600 text-sm">{store.phone}</p>
+              <p className="text-gray-600 text-sm">{phone}</p>
             </div>
           )}
-          {store?.address && (
+          {address && (
             <div>
               <h3 className="font-semibold mb-2">{t('footer.contact.info.address')}</h3>
-              <p className="text-gray-600 text-sm">{store.address}</p>
+              <p className="text-gray-600 text-sm">{address}</p>
             </div>
           )}
-          <div>
-            <h3 className="font-semibold mb-2">{t('footer.contact.info.hours')}</h3>
-            <p className="text-gray-600 text-sm">{t('footer.contact.info.hours_weekday')}</p>
-            <p className="text-gray-600 text-sm">{t('footer.contact.info.hours_weekend')}</p>
-          </div>
+          {info.hours && (
+            <div>
+              <h3 className="font-semibold mb-2">{t('footer.contact.info.hours')}</h3>
+              <p className="text-gray-600 text-sm">{info.hours}</p>
+            </div>
+          )}
         </div>
 
         {/* Contact Form */}

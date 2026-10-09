@@ -1,5 +1,15 @@
 {
   "footer": {
+    "store_footer": {
+      "shop": "Shop",
+      "all_products": "All products",
+      "help": "Help",
+      "about": "About us",
+      "contact": "Contact us",
+      "policies": "Policies",
+      "follow": "Follow us",
+      "copyright": "© {{year}} {{name}}"
+    },
     "about": {
       "title": "About Us",
       "default_story": "{{name}} was founded with a simple mission: to provide exceptional products with outstanding service. We believe in quality, value, and building lasting relationships with our customers.",
@@ -43,7 +53,7 @@
       "submit": "Send Message",
       "submitting": "Sending…",
       "success_title": "Message Sent",
-      "success_description": "We'll get back to you within 24 hours.",
+      "success_description": "We'll get back to you as soon as we can.",
       "toast": {
         "success": "Message sent successfully."
       },

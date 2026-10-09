@@ -14,11 +14,13 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { SocialIcon, WhatsAppIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
   const topStripText = useTopStripText();
+  const sf = useStoreFooter();
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -251,113 +253,132 @@ const Layout: React.FC = () => {
   );
 
   /* ------------------------------------------------------------------ */
-  /* Shared footer building blocks                                       */
+  /* Shared footer building blocks — content from the store's own data   */
+  /* (useStoreFooter); each variant only changes the layout.             */
   /* ------------------------------------------------------------------ */
 
-  const renderSocialLinks = (circleCls: string) =>
-    store?.socialLinks ? (
-      <div className="flex gap-3">
-        {Object.entries(store.socialLinks).map(([platform, url]) => (
+  const renderSocialLinks = (circleCls: string, iconCls = 'w-4 h-4') =>
+    sf.social.length > 0 ? (
+      <div className="flex flex-wrap gap-3">
+        {sf.social.map((s) => (
           <a
-            key={platform}
-            href={url as string}
+            key={s.platform}
+            href={s.url}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={s.name}
             className={circleCls}
           >
-            {platform[0]}
+            <SocialIcon platform={s.platform} className={iconCls} />
           </a>
         ))}
       </div>
     ) : null;
 
-  const hasContact = !!(store?.contact?.email || store?.contact?.phone || store?.contact?.address);
+  const { whatsapp, phone, email, address } = sf.contact;
+  const hasContact = !!(whatsapp || phone || email || address);
 
-  // Store contact details (from Settings → Policies).
+  // Store contact details — only the ones the merchant set.
   const renderContactList = (listCls: string) =>
     hasContact ? (
       <ul className={listCls}>
-        {store?.contact?.email && (
-          <li><a href={`mailto:${store.contact.email}`} className="hover:text-white transition">{store.contact.email}</a></li>
+        {email && (
+          <li><a href={`mailto:${email}`} className="hover:text-white transition">{email}</a></li>
         )}
-        {store?.contact?.phone && (
-          <li dir="ltr"><a href={`tel:${store.contact.phone}`} className="hover:text-white transition">{store.contact.phone}</a></li>
+        {phone && (
+          <li>
+            {phone.href ? <a href={phone.href} dir="ltr" className="hover:text-white transition">{phone.text}</a> : <span dir="ltr">{phone.text}</span>}
+          </li>
         )}
-        {store?.contact?.address && (
-          <li className="whitespace-pre-line">{store.contact.address}</li>
+        {whatsapp && (
+          <li>
+            <a href={whatsapp.href} dir="ltr" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white transition">
+              <WhatsAppIcon className="w-3.5 h-3.5" />
+              {whatsapp.display}
+            </a>
+          </li>
+        )}
+        {address && (
+          <li className="whitespace-pre-line">{address}</li>
         )}
       </ul>
     ) : null;
 
-  const copyright = (
-    <span>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), brand: store?.name || 'Store' })}</span>
+  const renderLinks = (links: { label: string; to: string }[], listCls: string) => (
+    <ul className={listCls}>
+      {links.map((l) => (
+        <li key={l.to}><Link to={l.to} className="hover:text-white transition">{l.label}</Link></li>
+      ))}
+    </ul>
   );
+
+  const brandName = sf.logo ? (
+    <img src={sf.logo} alt={sf.storeName} className="h-9 w-auto object-contain" />
+  ) : (
+    sf.storeName
+  );
+
+  const copyright = <span>{sf.copyright}</span>;
+  const hasPolicies = sf.policies.length > 0;
 
   /* ------------------------------------------------------------------ */
   /* Footer variants                                                     */
   /* ------------------------------------------------------------------ */
 
-  // "standard" — the current 4-column footer.
+  // "standard" — brand, shop, help (+ policies when the store has any).
   const standardFooter = (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className={`grid grid-cols-1 ${hasPolicies ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8`}>
           <div>
-            <h3 className="text-white font-bold text-lg mb-4">{store?.name || 'Store'}</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">{store?.description || t('theme.footer.tagline')}</p>
-            {store?.socialLinks && (
+            <h3 className="text-white font-bold text-lg mb-4">{brandName}</h3>
+            {sf.description && <p className="text-sm text-gray-400 leading-relaxed">{sf.description}</p>}
+            {sf.social.length > 0 && (
               <div className="mt-4">
-                {renderSocialLinks('w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition text-xs uppercase')}
+                {renderSocialLinks('w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition')}
               </div>
             )}
             {renderContactList('mt-4 space-y-1 text-sm text-gray-400')}
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_shop')}</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/products" className="hover:text-white transition">{t('theme.footer.item_all_products')}</Link></li>
-              {categories.slice(0, 4).map(cat => (
-                <li key={cat._id}>
-                  <Link to={`/categories/${cat.slug}`} className="hover:text-white transition">{cat.name}</Link>
-                </li>
-              ))}
-            </ul>
+            <h4 className="text-white font-semibold mb-3">{sf.titles.shop}</h4>
+            {renderLinks(sf.shop, 'space-y-2 text-sm')}
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_customer_service')}</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.item_contact_us')}</Link></li>
-            </ul>
-            {/* Real, merchant-authored policy links (renders nothing until a
-                policy is published) replace the old dead placeholder spans. */}
-            <PolicyLinks className="mt-2 space-y-2 text-sm" heading={false} linkClassName="hover:text-white transition" />
+            <h4 className="text-white font-semibold mb-3">{sf.titles.help}</h4>
+            {renderLinks(sf.help, 'space-y-2 text-sm')}
           </div>
+          {hasPolicies && (
+            <div>
+              <h4 className="text-white font-semibold mb-3">{sf.titles.policies}</h4>
+              {renderLinks(sf.policies, 'space-y-2 text-sm')}
+            </div>
+          )}
         </div>
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
           {copyright}
-          <PolicyLinks inline className="flex flex-wrap gap-4" heading={false} linkClassName="hover:text-gray-300 transition" />
         </div>
       </div>
     </footer>
   );
 
-  // "minimal" — one slim band: brand + essential links + compact newsletter,
-  // then a thin contact/copyright row. Much less vertical weight, nothing lost.
+  // "minimal" — one slim band: brand + essential links, then a thin
+  // contact/copyright row. Much less vertical weight, nothing lost.
   const minimalFooter = (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <span className="text-white font-bold">{store?.name || 'Store'}</span>
-            <Link to="/products" className="hover:text-white transition">{t('theme.footer.item_all_products')}</Link>
-            <Link to="/contact" className="hover:text-white transition">{t('theme.footer.item_contact_us')}</Link>
-            <PolicyLinks inline className="flex flex-wrap gap-x-4 gap-y-2" heading={false} linkClassName="hover:text-white transition" />
+            <span className="text-white font-bold">{brandName}</span>
+            {[sf.shop[0], ...sf.help, ...sf.policies].filter(Boolean).map((l) => (
+              <Link key={l.to} to={l.to} className="hover:text-white transition">{l.label}</Link>
+            ))}
           </div>
         </div>
         <div className="border-t border-gray-800 mt-5 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-gray-500">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {renderContactList('flex flex-wrap items-center gap-x-4 gap-y-1 text-gray-400')}
-            {renderSocialLinks('w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition text-[10px] uppercase')}
+            {renderSocialLinks('w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition', 'w-3.5 h-3.5')}
           </div>
           {copyright}
         </div>
@@ -365,51 +386,45 @@ const Layout: React.FC = () => {
     </footer>
   );
 
-  // "expanded" — a substantial footer: full-width newsletter band up top
-  // (divider band), then a wider grid with a bigger brand block and roomier
-  // spacing. All columns and content preserved.
+  // "expanded" — a substantial footer: a wider grid with a bigger brand
+  // block and roomier spacing. All columns and content preserved.
   const expandedFooter = (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
+        <div className={`grid grid-cols-1 md:grid-cols-2 ${hasPolicies ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-10 lg:gap-12`}>
           {/* Bigger brand block spanning two columns on large screens */}
           <div className="lg:col-span-2 max-w-md">
             <h3
               className="text-white font-bold text-2xl mb-4"
               style={{ fontFamily: 'var(--font-family-heading, inherit)' }}
             >
-              {store?.name || 'Store'}
+              {brandName}
             </h3>
-            <p className="text-sm text-gray-400 leading-relaxed">{store?.description || t('theme.footer.tagline')}</p>
-            {store?.socialLinks && (
+            {sf.description && <p className="text-sm text-gray-400 leading-relaxed">{sf.description}</p>}
+            {sf.social.length > 0 && (
               <div className="mt-6">
-                {renderSocialLinks('w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition text-xs uppercase')}
+                {renderSocialLinks('w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition')}
               </div>
             )}
             {renderContactList('mt-6 space-y-2 text-sm text-gray-400')}
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-4">{t('theme.footer.col_shop')}</h4>
-            <ul className="space-y-3 text-sm">
-              <li><Link to="/products" className="hover:text-white transition">{t('theme.footer.item_all_products')}</Link></li>
-              {categories.slice(0, 4).map(cat => (
-                <li key={cat._id}>
-                  <Link to={`/categories/${cat.slug}`} className="hover:text-white transition">{cat.name}</Link>
-                </li>
-              ))}
-            </ul>
+            <h4 className="text-white font-semibold mb-4">{sf.titles.shop}</h4>
+            {renderLinks(sf.shop, 'space-y-3 text-sm')}
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-4">{t('theme.footer.col_customer_service')}</h4>
-            <ul className="space-y-3 text-sm">
-              <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.item_contact_us')}</Link></li>
-            </ul>
-            <PolicyLinks className="mt-3 space-y-3 text-sm" heading={false} linkClassName="hover:text-white transition" />
+            <h4 className="text-white font-semibold mb-4">{sf.titles.help}</h4>
+            {renderLinks(sf.help, 'space-y-3 text-sm')}
           </div>
+          {hasPolicies && (
+            <div>
+              <h4 className="text-white font-semibold mb-4">{sf.titles.policies}</h4>
+              {renderLinks(sf.policies, 'space-y-3 text-sm')}
+            </div>
+          )}
         </div>
-        <div className="border-t border-gray-800 mt-14 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+        <div className="border-t border-gray-800 mt-14 pt-8 text-center text-sm text-gray-500">
           {copyright}
-          <PolicyLinks inline className="flex flex-wrap gap-4" heading={false} linkClassName="hover:text-gray-300 transition" />
         </div>
       </div>
     </footer>

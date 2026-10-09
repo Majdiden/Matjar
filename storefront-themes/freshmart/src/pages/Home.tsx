@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useThemeSettings, useMerchantBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useTrustLines, TrustLineIconSvg } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
@@ -10,17 +11,14 @@ import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
-import { CountdownTimer } from '@matjar/theme-shared/components/marketing/CountdownTimer';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 // Niche default hero image — a bright fresh-produce shot — so the hero is
 // never empty even before the merchant sets one.
 const HERO_DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=1600&q=80&auto=format&fit=crop';
 
-// Grocery shoppers respond to time-bound freshness messaging — a weekly
-// rotation creates urgency and matches how real supermarket flyers work.
-// The next-Sunday calculation keeps the countdown rolling without any
-// merchant intervention.
 // Map the icon key stored per block to its SVG. Merchants can pick from
 // this allow-list in the dashboard; unknown keys fall back to the shield
 // so the layout never renders empty.
@@ -55,15 +53,6 @@ function renderTrustIcon(icon: string): React.ReactNode {
   }
 }
 
-function getNextSunday(): Date {
-  const now = new Date();
-  const day = now.getDay();
-  const daysUntilSunday = day === 0 ? 7 : 7 - day;
-  const next = new Date(now);
-  next.setDate(now.getDate() + daysUntilSunday);
-  next.setHours(23, 59, 59, 999);
-  return next;
-}
 
 
 /** Props every bespoke section gets: its instance id (settings/blocks key) and the Quick View opener. */
@@ -75,21 +64,26 @@ interface FreshmartSectionProps {
 const ENTRANCE = 'transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))]';
 const reveal = (visible: boolean) => (visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8');
 
-// Hero — shared imagery-forward hero (green copy panel + produce image)
+// Hero — shared imagery-forward hero (green copy panel + produce image).
+// Only the merchant's own copy: title falls back to the store name, extras
+// (badge, second heading line, second button) show only when set.
 const FreshmartHero: React.FC<FreshmartSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
+  const { store } = useStore();
   const { products: featured } = useFeaturedProducts(8);
+  const title = [merchantText(hero.heading_line1) || store?.name || '', merchantText(hero.heading_line2)].filter(Boolean).join(' ');
+  const secondaryText = merchantText(hero.secondary_button_text);
   return (
     <Hero
       variant="split"
       tone="dark"
-      title={`${hero.heading_line1 || t('theme.hero.heading_line1')} ${hero.heading_line2 || t('theme.hero.heading_line2')}`}
-      subtitle={hero.subheading || t('theme.hero.subheading')}
-      primaryCta={{ label: hero.primary_button_text || t('theme.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
-      secondaryCta={{ label: hero.secondary_button_text || t('theme.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
-      saleText={hero.badge_text || t('theme.hero.badge_text')}
-      backgroundImage={hero.background_image || undefined}
+      title={title}
+      subtitle={merchantText(hero.subheading) || undefined}
+      primaryCta={{ label: merchantText(hero.primary_button_text) || t('theme.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
+      secondaryCta={secondaryText ? { label: secondaryText, href: hero.secondary_button_url || '/categories' } : undefined}
+      saleText={merchantText(hero.badge_text) || undefined}
+      backgroundImage={merchantImage(hero.background_image) || undefined}
       media={featured?.find((p) => p.images?.[0])?.images?.[0]}
       defaultImage={HERO_DEFAULT_IMAGE}
     />
@@ -139,22 +133,32 @@ const FreshmartCategories: React.FC<FreshmartSectionProps> = ({ id }) => {
   );
 };
 
-// Weekly Deals — grocery flyer-style countdown to next Sunday
+/**
+ * Demo subheading the deals strip used to ship as its default ("Save up to
+ * 40%…"). Sections added before it was cleared still carry it in their
+ * saved settings; a discount the store never offered counts as unset.
+ */
+const DEMO_DEALS_SUBHEADINGS = new Set(["Save up to 40% on this week's hand-picked selection"]);
+
+// Weekly Deals — grocery flyer-style strip. Badge and offer line come from
+// the merchant only: no invented discount, deadline or countdown.
 const FreshmartWeeklyDeals: React.FC<FreshmartSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const deals = useThemeSettings(id);
+  const badge = merchantText(deals.badge_label);
+  const offer = merchantText(deals.subheading);
+  const subheading = offer && !DEMO_DEALS_SUBHEADINGS.has(offer) ? offer : null;
   return (
     <section className="bg-gradient-to-r from-[#d97706] to-[#dc2626] py-10 px-4">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-white">
         <div className="flex-1 text-center md:text-start">
-          <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-bold mb-2 backdrop-blur-sm">
-            {deals.badge_label || t('theme.section.weekly_deals.badge')}
-          </span>
+          {badge && (
+            <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-bold mb-2 backdrop-blur-sm">
+              {badge}
+            </span>
+          )}
           <h2 className="text-3xl md:text-4xl font-extrabold mb-1">{deals.heading || t('theme.section.weekly_deals.title')}</h2>
-          <p className="text-white text-sm">{deals.subheading || t('theme.section.weekly_deals.subtitle')}</p>
-        </div>
-        <div className="flex-shrink-0">
-          <CountdownTimer endDate={getNextSunday()} variant="boxes" label={t('theme.section.weekly_deals.ends_in', { defaultValue: 'Ends in' })} />
+          {subheading && <p className="text-white text-sm">{subheading}</p>}
         </div>
         <Link
           to={deals.cta_url || '/products?onSale=true'}
@@ -210,20 +214,45 @@ const FreshmartFeatured: React.FC<FreshmartSectionProps> = ({ id, onQuickView })
   );
 };
 
-// Trust Badges
+/** Demo badges this theme used to ship; sections saved back then still carry them. */
+const LEGACY_DEMO_BADGES = [
+  { title: 'Same-Day Delivery', description: 'Order before 2PM' },
+  { title: '100% Organic', description: 'Certified produce' },
+  { title: 'Quality Guarantee', description: 'Or your money back' },
+  { title: 'Locally Sourced', description: 'Supporting local farms' },
+];
+
+// Trust Badges — the merchant's own badges, else the store's real
+// delivery / returns / payment facts. The demo badges ("Same-Day Delivery",
+// "Quality Guarantee — or your money back") never show.
 const FreshmartTrustBadges: React.FC<FreshmartSectionProps> = ({ id }) => {
   const trust = useThemeSettings(id);
-  const trustBlocks = useSectionBlocks(id);
+  const badgeBlocks = useMerchantBlocks(id, ['title', 'description'], LEGACY_DEMO_BADGES);
+  const trustLines = useTrustLines();
   const { ref, isIntersecting: visible } = useIntersectionObserver({ threshold: 0.1 });
   if (trust.show_section === false) return null;
+  const badges = badgeBlocks.length > 0
+    ? badgeBlocks.map((block) => ({
+        key: block.id,
+        icon: renderTrustIcon(block.settings.icon),
+        title: merchantText(block.settings.title),
+        description: merchantText(block.settings.description),
+      }))
+    : trustLines.map((line) => ({
+        key: line.key,
+        icon: <TrustLineIconSvg name={line.icon} className="w-8 h-8" />,
+        title: line.text,
+        description: null,
+      }));
+  if (badges.length === 0) return null;
   return (
     <section ref={ref as React.RefObject<HTMLElement>} className={`max-w-7xl mx-auto px-4 py-16 ${ENTRANCE} ${reveal(visible)}`}>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-        {trustBlocks.map((block) => (
-          <div key={block.id} className="bg-white rounded-2xl p-6 shadow-sm border border-green-50 hover:shadow-md transition">
-            <span className="text-[#16a34a] flex justify-center mb-3">{renderTrustIcon(block.settings.icon)}</span>
-            <h3 className="font-bold text-sm mb-1">{block.settings.title}</h3>
-            <p className="text-xs text-gray-500">{block.settings.description}</p>
+        {badges.map((badge) => (
+          <div key={badge.key} className="bg-white rounded-2xl p-6 shadow-sm border border-green-50 hover:shadow-md transition">
+            <span className="text-[#16a34a] flex justify-center mb-3">{badge.icon}</span>
+            {badge.title && <h3 className="font-bold text-sm mb-1">{badge.title}</h3>}
+            {badge.description && <p className="text-xs text-gray-500">{badge.description}</p>}
           </div>
         ))}
       </div>

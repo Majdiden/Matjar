@@ -101,6 +101,22 @@
       "facebook_placeholder": "الصق رابط صفحتك هنا",
       "instagram_placeholder": "الصق الرابط أو اكتب اسم الحساب",
       "tiktok_placeholder": "الصق الرابط أو اكتب اسم الحساب"
+    },
+    "save_all": {
+      "button": "احفظ",
+      "done": "تم حفظ معلومات متجرك",
+      "failed": "لم نتمكن من حفظ كل شيء. تأكد من الاتصال وحاول مرة أخرى."
+    },
+    "contact": {
+      "title": "وسائل التواصل",
+      "help": "تظهر في صفحة «تواصل معنا» وأسفل كل صفحات متجرك.",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "address": "العنوان",
+      "phone_placeholder": "0912 345 678",
+      "email_placeholder": "store@example.com",
+      "address_placeholder": "مثلًا: شارع الجمهورية، الخرطوم",
+      "use_account": "استخدم {{value}}"
     }
   },
   "preview": {
@@ -242,6 +258,7 @@
     },
     "top_strip": {
       "name": "الشريط العلوي",
+      "empty_prompt": "اكتب هنا رسالة لعملائك",
       "everywhere": "يظهر أعلى كل صفحات متجرك",
       "help": "سطر قصير أعلى المتجر، مثل عرض أو معلومة عن التوصيل.",
       "text_label": "النص",

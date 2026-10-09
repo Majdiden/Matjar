@@ -10,7 +10,8 @@ import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/to
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
@@ -32,6 +33,11 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
   facebook: (
     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  ),
+  x: (
+    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
   ),
   twitter: (
@@ -66,9 +72,9 @@ const Layout: React.FC = () => {
   const barText = useTopStripText();
 
   const brand = (store?.name || 'AURUM').toUpperCase();
-  const socials = Object.entries(store?.socialLinks || {}).filter(
-    ([key, url]) => Boolean(url) && Boolean(SOCIAL_ICONS[key.toLowerCase()])
-  );
+  const footer = useStoreFooter();
+  const contact = footer.contact;
+  const footerWordmark = footer.storeName.toUpperCase();
   const isActive = (path: string) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
   const navCls = (path: string) =>
@@ -206,7 +212,7 @@ const Layout: React.FC = () => {
       {/* ═══ FOOTER ══════════════════════════════════════════════ */}
       <footer className="mt-28 border-t border-line">
         {/* Giant wordmark */}
-        <div className="overflow-hidden select-none py-8 md:py-12" aria-hidden>
+        {footerWordmark && <div className="overflow-hidden select-none py-8 md:py-12" aria-hidden>
           <div
             className="font-display leading-[0.95] uppercase text-center whitespace-nowrap text-ink/90"
             style={{
@@ -214,68 +220,89 @@ const Layout: React.FC = () => {
               // Scale to the brand's length so a long name (e.g. "AURUM
               // JEWELRY") fills the width without being clipped, while short
               // names stay capped at the dramatic display size.
-              fontSize: `min(17vw, calc(150vw / ${Math.max(brand.length, 4)}))`,
+              fontSize: `min(17vw, calc(150vw / ${Math.max(footerWordmark.length, 4)}))`,
             }}
           >
-            {brand}
+            {footerWordmark}
           </div>
-        </div>
+        </div>}
 
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-10 py-14 border-t border-line">
+          <div className={`grid grid-cols-2 ${footer.policies.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-10 py-14 border-t border-line`}>
             {/* About */}
             <div className="col-span-2 md:col-span-1">
-              <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_about')}</h4>
-              <p className="text-sm text-mute leading-relaxed mb-5">
-                {store?.description || t('theme.footer.tagline')}
-              </p>
-              {socials.length > 0 && (
+              {footer.logo ? (
+                <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto max-w-[180px] object-contain mb-5" />
+              ) : (
+                <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{footer.storeName}</h4>
+              )}
+              {footer.description && (
+                <p className="text-sm text-mute leading-relaxed mb-5">{footer.description}</p>
+              )}
+              {(contact.phone || contact.whatsapp || contact.email || contact.address) && (
+                <div className="space-y-2 text-sm text-mute mb-5">
+                  {contact.address && <p>{contact.address}</p>}
+                  {contact.phone && (contact.phone.href
+                    ? <a href={contact.phone.href} dir="ltr" className="block hover:text-ink transition-colors">{contact.phone.text}</a>
+                    : <p dir="ltr">{contact.phone.text}</p>)}
+                  {contact.whatsapp && <a href={contact.whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="block hover:text-ink transition-colors">{contact.whatsapp.display}</a>}
+                  {contact.email && <a href={`mailto:${contact.email}`} className="block hover:text-ink transition-colors">{contact.email}</a>}
+                </div>
+              )}
+              {footer.social.length > 0 && (
                 <div className="flex items-center gap-4 text-mute">
-                  {socials.map(([key, url]) => (
+                  {footer.social.map((l) => (
                     <a
-                      key={key}
-                      href={url as string}
+                      key={l.platform}
+                      href={l.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={key}
+                      aria-label={l.name}
                       className="hover:text-gold transition-colors"
                     >
-                      {SOCIAL_ICONS[key.toLowerCase()]}
+                      {SOCIAL_ICONS[l.platform] || <SocialIcon platform={l.platform} className="w-4 h-4" />}
                     </a>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Collections */}
+            {/* Shop */}
             <div>
-              <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_collections')}</h4>
+              <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{footer.titles.shop}</h4>
               <div className="space-y-3 text-sm text-mute">
-                <Link to="/products" className="block hover:text-ink transition-colors">{t('theme.footer.all_products')}</Link>
-                {categories.slice(0, 5).map((cat) => (
-                  <Link key={cat._id} to={`/categories/${cat.slug}`} className="block hover:text-ink transition-colors">
-                    {cat.name}
-                  </Link>
+                {footer.shop.map((l) => (
+                  <Link key={l.to} to={l.to} className="block hover:text-ink transition-colors">{l.label}</Link>
                 ))}
               </div>
             </div>
 
-            {/* Information */}
+            {/* Help */}
             <div>
-              <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{t('theme.footer.col_information')}</h4>
+              <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{footer.titles.help}</h4>
               <div className="space-y-3 text-sm text-mute">
-                <Link to="/search" className="block hover:text-ink transition-colors">{t('theme.footer.search')}</Link>
-                <Link to="/about" className="block hover:text-ink transition-colors">{t('theme.footer.faqs')}</Link>
-                <Link to="/account" className="block hover:text-ink transition-colors">{t('theme.footer.order_tracking')}</Link>
-                <Link to="/contact" className="block hover:text-ink transition-colors">{t('theme.footer.contact')}</Link>
-                <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:text-ink transition-colors" />
+                {footer.help.map((l) => (
+                  <Link key={l.to} to={l.to} className="block hover:text-ink transition-colors">{l.label}</Link>
+                ))}
               </div>
             </div>
+
+            {/* Policies */}
+            {footer.policies.length > 0 && (
+              <div>
+                <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{footer.titles.policies}</h4>
+                <div className="space-y-3 text-sm text-mute">
+                  {footer.policies.map((l) => (
+                    <Link key={l.to} to={l.to} className="block hover:text-ink transition-colors">{l.label}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Copyright */}
           <div className="border-t border-line py-7 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] tracking-[0.18em] uppercase text-mute">
-            <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), name: brand })}</span>
+            <span>{footer.copyright}</span>
             <FooterPaymentBadges size="sm" />
           </div>
         </div>

@@ -18,7 +18,7 @@
   "quickview": {
     "title": "عرض سريع",
     "close_aria": "إغلاق العرض السريع",
-    "tax_shipping": "شامل الضريبة. يُحسب الشحن عند إتمام الشراء.",
+    "tax_shipping": "يُحسب الشحن عند إتمام الشراء.",
     "variant_label": "المتغيّر",
     "quantity_label": "الكمية",
     "out_of_stock": "غير متوفر",

@@ -50,7 +50,7 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   description: 'Showcase featured products in a grid with quick-view support',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: "Today's Picks" },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 2, max: 16 },
     { id: 'show_rating', type: 'checkbox', label: 'Show Rating', default: true },
@@ -85,10 +85,11 @@ export const trustBadgesSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'badge-1', type: 'badge', settings: { icon: 'truck', title: 'Same-Day Delivery', description: 'Order before 2PM' } },
-    { id: 'badge-2', type: 'badge', settings: { icon: 'leaf', title: '100% Organic', description: 'Certified produce' } },
-    { id: 'badge-3', type: 'badge', settings: { icon: 'check', title: 'Quality Guarantee', description: 'Or your money back' } },
-    { id: 'badge-4', type: 'badge', settings: { icon: 'heart', title: 'Locally Sourced', description: 'Supporting local farms' } },
+    // Empty until the merchant writes them (no demo claims on a live store).
+    { id: 'badge-1', type: 'badge', settings: { icon: 'truck', title: '', description: '' } },
+    { id: 'badge-2', type: 'badge', settings: { icon: 'leaf', title: '', description: '' } },
+    { id: 'badge-3', type: 'badge', settings: { icon: 'check', title: '', description: '' } },
+    { id: 'badge-4', type: 'badge', settings: { icon: 'heart', title: '', description: '' } },
   ],
 });
 
@@ -97,13 +98,14 @@ export const weeklyDealsSection: SectionDefinition = defineSection({
   name: 'Weekly Deals Bar',
   icon: 'Tag',
   category: 'commerce',
-  description: 'Urgency strip with heading, subheading, a countdown to Sunday, and a CTA button',
+  description: 'Deals strip with badge, heading, subheading and a CTA button',
   target: 'body',
   limit: 1,
   settings: [
     { id: 'badge_label', type: 'text', label: 'Badge Label', default: '' },
     { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: "Save up to 40% on this week's hand-picked selection" },
+    // No demo default: an offer line shows only when the merchant writes one.
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'cta_label', type: 'text', label: 'CTA Label', level: 'basic', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products?onSale=true' },
   ],

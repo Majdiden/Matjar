@@ -35,6 +35,7 @@ import {
   EyeOff,
   Loader2,
   Monitor,
+  Pencil,
   RotateCw,
   SlidersHorizontal,
   Undo2,
@@ -52,6 +53,7 @@ import {
   isTopStripShown,
   liveSettings,
   moveAmong,
+  readBilingual,
   sortSections,
   TOP_STRIP_ID,
   TOP_STRIP_KEYS,
@@ -88,7 +90,7 @@ function defaultsOf(def: SectionDefinition | undefined): Record<string, unknown>
 }
 
 export default function HomepageEditor() {
-  const { t } = useTranslation(['storeDesign', 'nav']);
+  const { t, i18n } = useTranslation(['storeDesign', 'nav']);
   const { can } = useAuth();
   const partName = usePartName();
   const isDesktop = useIsDesktop();
@@ -312,6 +314,8 @@ export default function HomepageEditor() {
               <SectionRow
                 name={t('storeDesign:homepage.top_strip.name')}
                 detail={t('storeDesign:homepage.top_strip.everywhere')}
+                preview={topStripPreview(theme, i18n.language) || t('storeDesign:homepage.top_strip.empty_prompt')}
+                previewEmpty={!topStripPreview(theme, i18n.language)}
                 shown={isTopStripShown(theme)}
                 onOpen={() => setOpenId(TOP_STRIP_ID)}
                 onToggle={(visible) => change({ kind: 'theme', settings: { [TOP_STRIP_KEYS.show]: visible } })}
@@ -384,10 +388,21 @@ export default function HomepageEditor() {
 
 // ---------------------------------------------------------------------------
 
+/** The top strip's text in the dashboard language (else the other one), for its row. */
+function topStripPreview(values: Record<string, unknown>, lang: string): string {
+  const text = readBilingual(values, TOP_STRIP_KEYS.text);
+  const first = lang.startsWith('ar') ? text.ar : text.en;
+  return (first || text.ar || text.en || '').trim();
+}
+
 interface SectionRowProps {
   name: string;
-  /** Second line instead of "Edit" (e.g. "On every page"). */
+  /** Second line (e.g. "On every page"). */
   detail?: string;
+  /** What the part says now, quoted under its name (e.g. the top strip text). */
+  preview?: string;
+  /** `preview` is a prompt to write something, not the text itself. */
+  previewEmpty?: boolean;
   shown: boolean;
   first?: boolean;
   last?: boolean;
@@ -397,18 +412,30 @@ interface SectionRowProps {
   onMove?: (delta: -1 | 1) => void;
 }
 
-function SectionRow({ name, detail, shown, first, last, onOpen, onToggle, onMove }: SectionRowProps) {
+function SectionRow({ name, detail, preview, previewEmpty, shown, first, last, onOpen, onToggle, onMove }: SectionRowProps) {
   const { t } = useTranslation('storeDesign');
   return (
     <li className={cn('flex items-stretch rounded-xl border bg-card shadow-sm', !shown && 'bg-muted/40')}>
       <button
         type="button"
         onClick={onOpen}
-        className="flex min-h-[64px] min-w-0 flex-1 flex-col justify-center rounded-s-xl px-3 py-2 text-start transition-colors hover:bg-accent active:bg-accent"
+        className="group flex min-h-[64px] min-w-0 flex-1 items-center gap-2 rounded-s-xl px-3 py-2 text-start transition-colors hover:bg-accent active:bg-accent"
       >
-        <span className={cn('block text-base font-semibold', !shown && 'text-muted-foreground')}>{name}</span>
-        <span className="mt-0.5 block text-sm text-muted-foreground">
-          {shown ? detail ?? t('homepage.edit') : t('homepage.hidden')}
+        <span className="min-w-0 flex-1">
+          <span className={cn('block text-base font-semibold', !shown && 'text-muted-foreground')}>{name}</span>
+          {preview && (
+            <bdi className={cn('mt-0.5 block truncate text-sm', previewEmpty ? 'italic text-muted-foreground' : 'text-foreground')}>
+              {previewEmpty ? preview : `«${preview}»`}
+            </bdi>
+          )}
+          {(!shown || detail) && (
+            <span className="mt-0.5 block text-xs text-muted-foreground">{shown ? detail : t('homepage.hidden')}</span>
+          )}
+        </span>
+        {/* Says plainly that tapping the row opens it for editing. */}
+        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-sm font-medium text-primary transition-colors group-hover:bg-primary/15">
+          <Pencil className="h-3.5 w-3.5" aria-hidden />
+          {t('homepage.edit')}
         </span>
       </button>
       <div className="flex shrink-0 items-center">

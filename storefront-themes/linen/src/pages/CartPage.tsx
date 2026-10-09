@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
-import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { I } from '../lib/icons';
 
 const PLACEHOLDER = 'https://placehold.co/240x240/ecdec1/0f0f0f?text=%20';
@@ -12,12 +11,9 @@ const CartPage: React.FC = () => {
   const { t } = useTranslation(['theme']);
   const { cart, updateItem, removeItem, loading } = useCart();
   const { formatPrice } = useStore();
-  const threshold = Number(useThemeSetting<number>('free_shipping_threshold')) || 0;
 
   const empty = !cart || cart.items.length === 0;
   const subtotal = cart?.subtotal ?? 0;
-  const remaining = threshold > 0 ? Math.max(0, threshold - subtotal) : 0;
-  const progress = threshold > 0 ? Math.min(100, (subtotal / threshold) * 100) : 100;
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6 md:py-16">
@@ -74,12 +70,6 @@ const CartPage: React.FC = () => {
 
           <aside className="h-fit bg-tint p-6 sm:p-8">
             <h2 className="font-heading text-2xl text-ink">{t('theme.cart.summary')}</h2>
-            {threshold > 0 && (
-              <div className="mt-5">
-                <p className="text-sm text-ink">{remaining > 0 ? t('theme.cart.free_shipping_remaining', { amount: formatPrice(remaining) }) : t('theme.cart.free_shipping_unlocked')}</p>
-                <div className="mt-2 h-[3px] w-full bg-line"><div className="h-full bg-bronze transition-[width] duration-500" style={{ width: `${progress}%` }} /></div>
-              </div>
-            )}
             <dl className="mt-6 space-y-3 text-[0.95rem]">
               <div className="flex justify-between"><dt className="text-dune">{t('theme.cart.subtotal', { count: cart!.itemCount })}</dt><dd className="text-ink">{formatPrice(subtotal)}</dd></div>
               {cart!.discount > 0 && <div className="flex justify-between"><dt className="text-dune">{t('theme.cart.discount')}</dt><dd className="text-[color:var(--color-success)]">−{formatPrice(cart!.discount)}</dd></div>}

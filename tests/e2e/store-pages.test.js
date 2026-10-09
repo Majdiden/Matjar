@@ -191,6 +191,26 @@ describe("E2E generated store pages", () => {
     assert.deepEqual(await models.Page.find({ slug: "about" }).lean(), before);
   });
 
+  it("rewrites the generated About page when the store is renamed, unless edited by hand", async () => {
+    const tenantId = await provisionTenant(app, "nile");
+    const token = await login(app, "nile");
+    const models = createScopedModels(mongoose.connection, tenantId);
+    await models.Page.deleteMany({ slug: "about" });
+    await call(app, "put", "nile", token, "about", { answers: ABOUT_ANSWERS }).expect(200);
+
+    const rename = (name) =>
+      request(app).put("/api/store-profile").set("Host", "nile.localhost").set("Authorization", `Bearer ${token}`).send({ storeName: name });
+    await rename("عطور النيل الجديدة").expect(200);
+    const ar = await models.Page.findOne({ slug: "about", locale: "ar" }).lean();
+    assert.match(ar.content, /عطور النيل الجديدة/, "the welcome line names the new store");
+    assert.equal(ar.generator.edited, false);
+
+    // A page the merchant rewrote by hand keeps their words.
+    await models.Page.updateOne({ _id: ar._id }, { $set: { content: "<p>كلامي</p>", "generator.edited": true } });
+    await rename("اسم آخر").expect(200);
+    assert.equal((await models.Page.findOne({ _id: ar._id }).lean()).content, "<p>كلامي</p>");
+  });
+
   it("does not overwrite a hand-made About page without confirmation", async () => {
     const tenantId = await provisionTenant(app, "nile");
     const token = await login(app, "nile");
@@ -287,8 +307,14 @@ describe("E2E generated store pages", () => {
     const reread = await call(app, "get", "nile", token, "policies").expect(200);
     assert.deepEqual(reread.body.data.answers.delivery.areas, { ar: "الخرطوم وأم درمان" });
 
+    // Both languages are kept, so English shoppers read English.
+    assert.equal(p.delivery.translations.ar.title, "التوصيل");
+    assert.equal(p.delivery.translations.en.title, "Delivery");
+    assert.match(p.returns.translations.en.body, /7 days/);
+
     const store = await storeInfo(app, "nile");
     assert.equal(store.policies.delivery.title, "التوصيل");
+    assert.equal(store.policies.delivery.translations.en.title, "Delivery");
     assert.deepEqual(store.trust, {
       payments: true,
       delivery: { areas: { ar: "الخرطوم وأم درمان" }, time: { ar: "يومين", en: "two days" } },
@@ -304,6 +330,9 @@ describe("E2E generated store pages", () => {
       .expect(200);
     const edited = await call(app, "get", "nile", token, "policies").expect(200);
     assert.equal(edited.body.data.policies.returns.edited, true);
+    const editedInfo = await storeInfo(app, "nile");
+    assert.equal(editedInfo.policies.returns.translations, undefined, "hand-edited policies show the merchant's words in every language");
+    assert.ok(editedInfo.policies.delivery.translations);
     assert.equal(edited.body.data.policies.delivery.edited, false);
 
     const conflict = await call(app, "put", "nile", token, "policies", { answers: POLICY_ANSWERS }).expect(409);

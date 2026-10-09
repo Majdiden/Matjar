@@ -20,6 +20,14 @@ import { MiskVariantPicker } from '../components/MiskVariantPicker';
 import { Reveal } from '../lib/Reveal';
 import { useStoredState } from '../lib/hooks';
 import { I } from '../lib/icons';
+import { useTrustLines, type TrustLineIcon } from '@matjar/theme-shared/components/commerce/TrustBadges';
+import { publishedPolicies } from '@matjar/theme-shared/lib/policies';
+import { merchantText } from '@matjar/theme-shared/theme/heroContent';
+
+/** Misk icon for each kind of store fact. */
+const TRUST_ICON: Record<TrustLineIcon, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
+  cash: I.wallet, transfer: I.transfer, truck: I.truck, clock: I.clock, return: I.return,
+};
 
 const PLACEHOLDER = 'https://placehold.co/900x900/f4efe7/14110e?text=%20';
 const RECENT_KEY = 'misk.recently_viewed';
@@ -55,8 +63,16 @@ const ProductDetail: React.FC = () => {
   const showSticky = useThemeSetting<boolean>('show_sticky_add_to_cart') !== false;
   const showBuyNow = useThemeSetting<boolean>('show_buy_now') !== false;
   const showNotes = useThemeSetting<boolean>('show_delivery_note') !== false;
-  const deliveryNote = (useThemeSetting<string>('delivery_note') || '').trim() || t('theme.product.delivery_note');
-  const returnsNote = (useThemeSetting<string>('returns_note') || '').trim() || t('theme.product.returns_note');
+  // The store's own facts (delivery, returns, payment), then any note the
+  // merchant typed in the theme settings — never the theme's demo promises.
+  const trustLines = useTrustLines();
+  const deliveryNote = merchantText(useThemeSetting<string>('delivery_note'));
+  const returnsNote = merchantText(useThemeSetting<string>('returns_note'));
+  const notes: { key: string; icon: TrustLineIcon; text: string }[] = [
+    ...trustLines,
+    ...(deliveryNote ? [{ key: 'delivery-note', icon: 'truck' as const, text: deliveryNote }] : []),
+    ...(returnsNote ? [{ key: 'returns-note', icon: 'return' as const, text: returnsNote }] : []),
+  ];
   const showRelated = useThemeSetting<boolean>('show_related') !== false;
   const showRecent = useThemeSetting<boolean>('show_recently_viewed') !== false;
 
@@ -135,8 +151,10 @@ const ProductDetail: React.FC = () => {
   const canAdd = (inStock || !!pre.config) && !adding && !buying && !needsSelection && !pre.ctaDisabled;
   const wishlisted = wishlist.includes(product._id);
   const contentSections = productContentSections(product, i18n.language);
-  const policies: any = (store as any)?.policies || {};
-  const shippingPolicy = policies.delivery || policies.shipping || policies.returns || null;
+  // Published delivery / returns policies in the shopper's language. When the
+  // product template already carries the policies section, it shows them.
+  const policiesInTemplate = productSections.some((sec) => sec.type === 'product-policies');
+  const shopPolicies = policiesInTemplate ? [] : publishedPolicies(store, t).filter((p) => p.key === 'delivery' || p.key === 'returns');
   const recentList = (recent || []).filter((p) => p && p._id !== product._id);
 
   const add = async () => {
@@ -238,7 +256,7 @@ const ProductDetail: React.FC = () => {
   const panels = [
     { key: 'description', title: t('theme.product.description'), body: <ProductDescription product={product} /> },
     ...contentSections.map((cs) => ({ key: cs.key, title: cs.title, body: <p className="whitespace-pre-line">{cs.body}</p> })),
-    ...(shippingPolicy ? [{ key: 'shipping', title: t('theme.product.shipping_returns'), body: <div className="prose prose-sm max-w-none text-muted" dangerouslySetInnerHTML={{ __html: shippingPolicy.body }} /> }] : []),
+    ...shopPolicies.map((p) => ({ key: p.key, title: p.title, body: <div className="prose prose-sm max-w-none text-muted" dangerouslySetInnerHTML={{ __html: p.body }} /> })),
   ];
 
   return (
@@ -322,10 +340,12 @@ const ProductDetail: React.FC = () => {
               {wishlisted ? t('theme.product.wishlisted') : t('theme.product.add_to_wishlist')}
             </button>
 
-            {showNotes && (
+            {showNotes && notes.length > 0 && (
               <ul className="mt-8 space-y-3 text-sm text-muted">
-                <li className="flex items-start gap-3"><I.truck className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink" />{deliveryNote}</li>
-                <li className="flex items-start gap-3"><I.return className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink" />{returnsNote}</li>
+                {notes.map((n) => {
+                  const Icon = TRUST_ICON[n.icon];
+                  return <li key={n.key} className="flex items-start gap-3"><Icon className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink" />{n.text}</li>;
+                })}
               </ul>
             )}
 

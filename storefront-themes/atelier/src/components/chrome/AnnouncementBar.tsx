@@ -1,17 +1,15 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
 
-/** Parses the global announcement setting into lines (the Ticker section's fallback copy). */
+/**
+ * Parses the global announcement setting into lines (the Ticker section's
+ * fallback copy). Not configured → none: the shipped demo lines promised
+ * free delivery the store never offered.
+ */
 export function useAnnouncementMessages(): string[] {
-  const { t } = useTranslation(['theme']);
   const raw = useThemeSetting<string>('announcement_text') || '';
-  const set = raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-  if (set.length) return set;
-  // Not configured → the shipped demo lines, translated.
-  const fallback = t('theme.global.announcement', { returnObjects: true }) as unknown;
-  return Array.isArray(fallback) ? (fallback as string[]) : [];
+  return raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
 }
 
 /** The store's single top strip: the merchant's text from My Store, nothing when off or empty. */

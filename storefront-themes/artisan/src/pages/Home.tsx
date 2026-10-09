@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useThemeSettings, useMerchantBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
@@ -11,6 +11,8 @@ import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import type { Product } from '@matjar/theme-shared/types/commerce';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // Niche default hero image — a warm artisan craft / maker's table shot — so
 // the hero is never empty even before the merchant sets one.
@@ -29,28 +31,42 @@ const reveal = (visible: boolean) => (visible ? 'opacity-100 translate-y-0' : 'o
 const ArtisanHero: React.FC<ArtisanSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
-  const { products: featured } = useFeaturedProducts(6);
+  const { store } = useStore();
+  const { products: featured, loading } = useFeaturedProducts(6);
+  // Only the merchant's own content: the title falls back to the store name;
+  // the second heading line, eyebrow and second button show only when set.
+  const title = [merchantText(hero.heading_line1) || store?.name || '', merchantText(hero.heading_line2)].filter(Boolean).join(' ');
+  const secondaryLabel = merchantText(hero.secondary_button_text);
+  // Photo: the merchant's own, else a product photo; the theme's stock photo
+  // only for a brand-new store with no products yet.
+  const own = merchantImage(hero.background_image, store?.brand?.coverImage);
+  const productPhoto = merchantImage(...(featured || []).map((p) => p.images?.[0]));
   return (
     <Hero
       variant="split"
       tone="light"
-      title={`${hero.heading_line1 || t('theme.section.hero.heading_line1')} ${hero.heading_line2 || t('theme.section.hero.heading_line2')}`}
-      subtitle={hero.subheading || t('theme.section.hero.subheading')}
+      title={title}
+      subtitle={merchantText(hero.subheading) || undefined}
       primaryCta={{ label: hero.primary_button_text || t('theme.section.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
-      secondaryCta={{ label: hero.secondary_button_text || t('theme.section.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
-      saleText={hero.eyebrow_text || t('theme.section.hero.eyebrow')}
-      backgroundImage={hero.background_image || undefined}
-      media={featured?.find((p) => p.images?.[0])?.images?.[0]}
-      defaultImage={HERO_DEFAULT_IMAGE}
+      secondaryCta={secondaryLabel ? { label: secondaryLabel, href: hero.secondary_button_url || '/categories' } : undefined}
+      saleText={merchantText(hero.eyebrow_text) || undefined}
+      backgroundImage={own || undefined}
+      media={productPhoto || undefined}
+      defaultImage={!own && !productPhoto && !loading ? HERO_DEFAULT_IMAGE : undefined}
     />
   );
 };
 
-// Our Philosophy
+// Our Philosophy — the merchant's own words (section text, else the store
+// description). No demo sourcing claims ("we partner directly with
+// artisans… authentic"); nothing written → no section.
 const ArtisanPhilosophy: React.FC<ArtisanSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const philosophy = useThemeSettings(id);
+  const { store } = useStore();
   const { ref, isIntersecting: visible } = useIntersectionObserver({ threshold: 0.1 });
+  const body = merchantText(philosophy.body_text) || merchantText(store?.description);
+  if (!body) return null;
   return (
     <section ref={ref as React.RefObject<HTMLElement>} className={`max-w-3xl mx-auto px-6 py-20 text-center ${ENTRANCE} ${reveal(visible)}`}>
       {philosophy.show_dividers !== false && <div className="w-16 h-px bg-[var(--color-accent)] mx-auto mb-6" />}
@@ -58,7 +74,7 @@ const ArtisanPhilosophy: React.FC<ArtisanSectionProps> = ({ id }) => {
         {philosophy.heading || t('theme.section.philosophy.heading')}
       </h2>
       <p className="text-gray-600 leading-relaxed text-lg">
-        {philosophy.body_text || t('theme.section.philosophy.body')}
+        {body}
       </p>
       {philosophy.show_dividers !== false && <div className="w-16 h-px bg-[var(--color-accent)] mx-auto mt-6" />}
     </section>
@@ -108,12 +124,21 @@ const ArtisanFeatured: React.FC<ArtisanSectionProps> = ({ id, onQuickView }) => 
   );
 };
 
-// Maker Spotlight
+/** Demo makers this theme used to ship; sections saved back then still carry them. */
+const LEGACY_DEMO_MAKERS = [
+  { name: 'Maria Santos', craft: 'Ceramics', quote: 'Every piece carries the warmth of the kiln and the patience of my hands.' },
+  { name: 'James Okafor', craft: 'Woodworking', quote: 'I let the grain of the wood guide each cut. Nature is my co-designer.' },
+  { name: 'Aiko Tanaka', craft: 'Textiles', quote: 'Weaving connects me to generations of makers before me.' },
+];
+
+// Maker Spotlight — only makers the merchant added. The demo makers and
+// their quotes are invented people, so they never show; no makers → no section.
 const ArtisanSpotlight: React.FC<ArtisanSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const spotlight = useThemeSettings(id);
-  const spotlightBlocks = useSectionBlocks(id);
+  const spotlightBlocks = useMerchantBlocks(id, ['name', 'craft', 'quote'], LEGACY_DEMO_MAKERS);
   const { ref, isIntersecting: visible } = useIntersectionObserver({ threshold: 0.1 });
+  if (spotlightBlocks.length === 0) return null;
   return (
     <section ref={ref as React.RefObject<HTMLElement>} className={`bg-[var(--color-muted)]/20/30 py-16 ${ENTRANCE} ${reveal(visible)}`}>
       <div className="max-w-6xl mx-auto px-6">
@@ -129,9 +154,9 @@ const ArtisanSpotlight: React.FC<ArtisanSectionProps> = ({ id }) => {
                 <div className="w-20 h-20 rounded-full bg-[var(--color-muted)]/20 mx-auto mb-4 flex items-center justify-center text-[var(--color-primary)] text-2xl font-bold italic">
                   {String(name || '?').split(' ').map(n => n[0]).join('')}
                 </div>
-                <h3 className="font-bold text-[var(--color-primary)]">{name}</h3>
-                <p className="text-xs text-[var(--color-accent)] uppercase tracking-wider mb-3">{craft}</p>
-                <p className="text-sm text-gray-500 italic leading-relaxed">"{quote}"</p>
+                {name && <h3 className="font-bold text-[var(--color-primary)]">{name}</h3>}
+                {craft && <p className="text-xs text-[var(--color-accent)] uppercase tracking-wider mb-3">{craft}</p>}
+                {quote && <p className="text-sm text-gray-500 italic leading-relaxed">"{quote}"</p>}
               </div>
             );
           })}

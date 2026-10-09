@@ -14,11 +14,13 @@ import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/Annou
 import { useTopStripText, SectionAnchor, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
   const topStripText = useTopStripText();
+  const footer = useStoreFooter();
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -151,40 +153,66 @@ const Layout: React.FC = () => {
 
       <footer className="bg-gradient-to-r from-[#ec4899] via-[#8b5cf6] to-[#3b82f6] text-white py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div className={`grid grid-cols-1 ${footer.policies.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8 mb-8`}>
             <div>
               <h3 className="text-xl font-extrabold mb-3">
-                {store?.name || 'KidsWorld'} <span className="text-[#fbbf24]"><svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span>
+                {footer.logo ? (
+                  <img src={footer.logo} alt={footer.storeName} className="h-9 w-auto object-contain" />
+                ) : (
+                  <>
+                    {footer.storeName} <span className="text-[#fbbf24]"><svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span>
+                  </>
+                )}
               </h3>
-              <p className="text-sm text-white/80 leading-relaxed">
-                {t('theme.footer.tagline')}
-              </p>
+              {footer.description && (
+                <p className="text-sm text-white/80 leading-relaxed">{footer.description}</p>
+              )}
+              {footer.social.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4" aria-label={footer.titles.follow}>
+                  {footer.social.map((s) => (
+                    <a
+                      key={s.platform}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.name}
+                      className="w-9 h-9 rounded-full bg-white/20 hover:bg-[#fbbf24] flex items-center justify-center transition"
+                    >
+                      <SocialIcon platform={s.platform} className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
-              <h4 className="font-bold mb-3 text-sm uppercase tracking-wider">{t('theme.footer.col_shop')}</h4>
+              <h4 className="font-bold mb-3 text-sm uppercase tracking-wider">{footer.titles.shop}</h4>
               <div className="flex flex-col gap-2 text-sm text-white/80">
-                <Link to="/products" className="hover:text-[#fbbf24] transition">{t('theme.footer.all_toys')}</Link>
-                {categories.slice(0, 3).map(cat => (
-                  <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[#fbbf24] transition">
-                    {cat.name}
-                  </Link>
+                {footer.shop.map((l) => (
+                  <Link key={l.to} to={l.to} className="hover:text-[#fbbf24] transition">{l.label}</Link>
                 ))}
               </div>
             </div>
             <div>
-              <h4 className="font-bold mb-3 text-sm uppercase tracking-wider">{t('theme.footer.col_help')}</h4>
+              <h4 className="font-bold mb-3 text-sm uppercase tracking-wider">{footer.titles.help}</h4>
               <div className="flex flex-col gap-2 text-sm text-white/80">
-                <span className="cursor-pointer hover:text-[#fbbf24] transition">{t('theme.footer.about_us')}</span>
-                <Link to="/contact" className="hover:text-[#fbbf24] transition">{t('theme.footer.contact')}</Link>
-                <span className="cursor-pointer hover:text-[#fbbf24] transition">{t('theme.footer.shipping_returns')}</span>
-                <PolicyLinks className="mt-2" heading={false} linkClassName="hover:text-[#fbbf24] transition" />
+                {footer.help.map((l) => (
+                  <Link key={l.to} to={l.to} className="hover:text-[#fbbf24] transition">{l.label}</Link>
+                ))}
               </div>
             </div>
+            {footer.policies.length > 0 && (
+              <div>
+                <h4 className="font-bold mb-3 text-sm uppercase tracking-wider">{footer.titles.policies}</h4>
+                <div className="flex flex-col gap-2 text-sm text-white/80">
+                  {footer.policies.map((l) => (
+                    <Link key={l.to} to={l.to} className="hover:text-[#fbbf24] transition">{l.label}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <div className="border-t border-white/20 pt-6 text-center">
-            <p className="text-xs text-white/60">
-              {t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'KidsWorld' })}
-            </p>
+            <p className="text-xs text-white/60">{footer.copyright}</p>
           </div>
         </div>
       </footer>

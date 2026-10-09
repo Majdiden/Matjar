@@ -90,8 +90,8 @@
   },
   "payment": {
     "guaranteed": {
-      "title": "Guaranteed Safe Checkout",
-      "description": "Secure checkout powered by trusted payment providers"
+      "title": "Ways to pay",
+      "description": "The payment methods this store accepts"
     },
     "no_methods": "No payment methods available. Please contact support.",
     "choose_provider": "Choose a provider",

@@ -10,6 +10,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import BeauxeProductCard from '../components/BeauxeProductCard';
 import { useTranslation } from 'react-i18next';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 const NAVY = 'var(--color-primary)';
 const PINK = 'var(--color-secondary)';
@@ -32,10 +34,12 @@ const TILE_TINTS = ['#f8e4e4', '#faf3ec', '#f3ddd1'];
 
 const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
-  const { t } = useTranslation(['theme']);
+  // Only the merchant's own text — no demo sale when they left it empty.
+  const text = merchantText(s.text);
+  if (!text) return null;
   return (
     <div className="text-white text-[11px] tracking-[0.2em] py-2.5 text-center" style={{ backgroundColor: NAVY }}>
-      {s.text || t('theme.section.top_bar.text')}
+      {text}
       {s.link_text && (
         <Link to={s.link_url || '/products'} className="ms-3 underline hover:text-[color:var(--color-secondary)]">
           {s.link_text}
@@ -50,34 +54,42 @@ const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
+  const { store } = useStore();
   // Image precedence: merchant/demo `image` setting → featured product shot →
   // baked-in niche default. A failing URL steps to the next candidate.
   const { products: featured } = useFeaturedProducts(1);
+  const ownPhoto = merchantImage(s.image, store?.brand?.coverImage);
   const candidates = React.useMemo(
-    () => [s.image as string, featured?.[0]?.images?.[0], HERO_DEFAULT_IMAGE].filter(Boolean) as string[],
-    [s.image, featured]
+    () => [ownPhoto, s.image as string, featured?.[0]?.images?.[0], HERO_DEFAULT_IMAGE].filter(Boolean) as string[],
+    [ownPhoto, s.image, featured]
   );
   const [failed, setFailed] = React.useState<Set<string>>(() => new Set());
   const heroImage = candidates.find((src) => !failed.has(src));
+  // Extras only when the merchant typed them; the title falls back to the store name.
+  const eyebrow = merchantText(s.eyebrow);
+  const heading = merchantText(s.heading) || store?.name || '';
+  const sub = merchantText(s.subheading);
   return (
     <section className="relative overflow-hidden" style={{ backgroundColor: BLUSH }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         {/* Text */}
         <div className="relative z-10 text-center md:text-start">
-          {s.eyebrow && (
+          {eyebrow && (
             <div className="text-[11px] tracking-[0.3em] uppercase font-semibold mb-5" style={{ color: ROSE_INK }}>
-              {s.eyebrow}
+              {eyebrow}
             </div>
           )}
-          <h1
-            className="font-serif text-5xl md:text-6xl lg:text-7xl leading-[1.05] mb-6"
-            style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
-          >
-            {s.heading || t('theme.section.hero.heading')}
-          </h1>
-          {s.subheading && (
+          {heading && (
+            <h1
+              className="font-serif text-5xl md:text-6xl lg:text-7xl leading-[1.05] mb-6"
+              style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
+            >
+              {heading}
+            </h1>
+          )}
+          {sub && (
             <p className="text-base md:text-lg leading-relaxed mb-8 max-w-md mx-auto md:mx-0" style={{ color: NAVY, opacity: 0.8 }}>
-              {s.subheading}
+              {sub}
             </p>
           )}
           <Link
@@ -91,19 +103,6 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             </svg>
           </Link>
 
-          {/* Trust line */}
-          <div className="mt-8 flex items-center gap-4 justify-center md:justify-start text-[11px]" style={{ color: NAVY }}>
-            <div className="flex items-center gap-1.5">
-              <span className="flex items-center gap-0.5" aria-hidden style={{ color: PINK }}>
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <svg key={i} className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                ))}
-              </span>
-              <span className="opacity-75">{t('theme.section.hero.trust_line')}</span>
-            </div>
-          </div>
         </div>
 
         {/* Model image */}
@@ -146,15 +145,21 @@ const iconFor = (key: string) => {
   return icons[key] || icons.truck;
 };
 
+/**
+ * Demo feature titles older manifests copied into a store's saved blocks
+ * ("Free Shipping", "Secure Checkout"…). They are the theme's claims, not the
+ * merchant's, so they never render.
+ */
+const DEMO_FEATURE_TITLES = new Set(['Free Shipping', '100% Natural', 'Cruelty Free', 'Secure Checkout']);
+
 const FeatureStripSection: React.FC<SectionComponentProps> = ({ section }) => {
-  const { t } = useTranslation(['theme']);
   const blocks: any[] = (section as any)?.blocks || [];
-  const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { icon: 'truck', title: t('theme.section.feature_strip.free_shipping_title'), subtitle: t('theme.section.feature_strip.free_shipping_subtitle') } },
-    { id: 'b', settings: { icon: 'leaf', title: t('theme.section.feature_strip.natural_title'), subtitle: t('theme.section.feature_strip.natural_subtitle') } },
-    { id: 'c', settings: { icon: 'heart', title: t('theme.section.feature_strip.cruelty_title'), subtitle: t('theme.section.feature_strip.cruelty_subtitle') } },
-    { id: 'd', settings: { icon: 'shield', title: t('theme.section.feature_strip.secure_title'), subtitle: t('theme.section.feature_strip.secure_subtitle') } },
-  ];
+  // Only features the merchant wrote; the strip disappears without any.
+  const items = blocks.filter((b) => {
+    const title = merchantText(b?.settings?.title);
+    return title && !DEMO_FEATURE_TITLES.has(title);
+  });
+  if (items.length === 0) return null;
   return (
     <section className="py-10" style={{ backgroundColor: CREAM }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -288,6 +293,9 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
 
 // ─── Product grid ─────────────────────────────────────────────────
 
+/** English headings the index template used to seed as literal settings. */
+const LEGACY_GRID_HEADINGS = ['NEW ARRIVALS', 'BEST SELLERS'];
+
 const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
@@ -296,6 +304,8 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const featured = useFeaturedProducts(limit);
   const regular = useProducts({ sort: source === 'newest' ? 'newest' : 'popular', limit });
   const { products, loading } = source === 'featured' ? featured : regular;
+  // Older installs stored the English defaults as literal settings; treat them as unset.
+  const merchantHeading = LEGACY_GRID_HEADINGS.includes(String(s.heading || '').trim()) ? null : merchantText(s.heading);
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
@@ -304,7 +314,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           {s.subheading || t('theme.section.feature_strip.favourites')}
         </div>
         <h2 className="font-serif text-4xl md:text-5xl" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
-          {s.heading || t('theme.section.product_grid.heading_bestsellers')}
+          {merchantHeading || t(source === 'newest' ? 'theme.section.product_grid.heading_new_arrivals' : 'theme.section.product_grid.heading_bestsellers')}
         </h2>
         <div className="w-16 h-[2px] mx-auto mt-5" style={{ backgroundColor: PINK }} />
       </div>
@@ -338,6 +348,9 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
 const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
+  // An offer is the merchant's own — nothing to show until they write one.
+  const heading = merchantText(s.heading);
+  if (!heading) return null;
   return (
     <section className="my-20" style={{ backgroundColor: s.background_color || BLUSH }}>
       <div className="max-w-5xl mx-auto px-6 py-20 text-center">
@@ -350,7 +363,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
           className="font-serif text-5xl md:text-6xl mb-6"
           style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
         >
-          {s.heading || t('theme.section.banner.heading')}
+          {heading}
         </h2>
         {s.subheading && (
           <p className="text-base max-w-md mx-auto mb-8" style={{ color: NAVY, opacity: 0.8 }}>
@@ -371,15 +384,18 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 // ─── Testimonials ─────────────────────────────────────────────────
 
+/** Demo reviewers older manifests copied into a store's saved blocks — never shown. */
+const DEMO_TESTIMONIAL_AUTHORS = new Set(['Emma R.', 'Sophie L.', 'Mia K.']);
+
 const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
   const blocks: any[] = (section as any)?.blocks || [];
-  const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { quote: t('theme.section.testimonials.default_quote_1', { defaultValue: 'Absolutely love this serum!' }), author: 'Emma R.', role: t('theme.section.testimonials.verified_buyer') } },
-    { id: 'b', settings: { quote: t('theme.section.testimonials.default_quote_2', { defaultValue: 'Clean ingredients, amazing results.' }), author: 'Sophie L.', role: t('theme.section.testimonials.verified_buyer') } },
-    { id: 'c', settings: { quote: t('theme.section.testimonials.default_quote_3', { defaultValue: 'A new staple in my routine.' }), author: 'Mia K.', role: t('theme.section.testimonials.verified_buyer') } },
-  ];
+  // Only quotes the merchant added; no invented customers or ratings.
+  const items = blocks.filter((b) =>
+    merchantText(b?.settings?.quote) && !DEMO_TESTIMONIAL_AUTHORS.has(merchantText(b?.settings?.author) || ''),
+  );
+  if (items.length === 0) return null;
   return (
     <section className="py-20" style={{ backgroundColor: CREAM }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -394,18 +410,12 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
             const bs = b.settings || {};
             return (
               <div key={b.id} className="bg-white rounded-3xl p-8 text-center shadow-sm">
-                <div className="flex justify-center mb-4">
-                  {[1,2,3,4,5].map((i) => (
-                    <svg key={i} className="w-4 h-4" fill={PINK} viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  ))}
-                </div>
+                <div className="font-serif text-5xl leading-none mb-2" style={{ fontFamily: 'var(--font-family-heading)', color: PINK }} aria-hidden="true">&ldquo;</div>
                 <p className="font-serif text-lg italic mb-5" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
                   "{bs.quote}"
                 </p>
-                <div className="text-sm font-bold" style={{ color: NAVY }}>— {bs.author}</div>
-                {bs.role && <div className="text-[11px] opacity-70 uppercase tracking-wider mt-1">{bs.role || t('theme.section.testimonials.verified_buyer')}</div>}
+                {bs.author && <div className="text-sm font-bold" style={{ color: NAVY }}>— {bs.author}</div>}
+                {bs.role && <div className="text-[11px] opacity-70 uppercase tracking-wider mt-1">{bs.role}</div>}
               </div>
             );
           })}

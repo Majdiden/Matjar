@@ -8,7 +8,7 @@
         "eyebrow": "100% PLANT-BASED",
         "heading": "Embracing the power of strength",
         "subheading": "Creamy, dreamy plant-based milk crafted from the finest nuts, oats and seeds — for a healthier, tastier you.",
-        "cta": "Shop Milk",
+        "cta": "Shop now",
         "watch_story": "Watch Story",
         "badge": "100% NATURAL"
       },
@@ -25,7 +25,7 @@
         "flavor_3_subtitle": "Buttery smooth, protein-rich"
       },
       "milmaa-product-grid": {
-        "heading": "Shop Our Milks",
+        "heading": "Shop our products",
         "subheading": "Every carton is a small sip of happiness",
         "newest_heading": "New Arrivals"
       },
@@ -129,7 +129,7 @@
       "not_found_body": "We couldn't find that product.",
       "back_to_shop": "Back to Shop",
       "badge_natural": "100% NATURAL",
-      "in_stock": "In stock — ready to ship",
+      "in_stock": "In stock",
       "sold_out": "Sold out",
       "out_of_stock": "Out of stock",
       "reviews_label": "reviews",

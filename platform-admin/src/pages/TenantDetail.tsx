@@ -48,21 +48,12 @@ import TenantStorefrontTab from './TenantStorefrontTab';
 import { storefrontUrl } from '../lib/api-storefront';
 import TenantConfigTab from './TenantConfigTab';
 import TenantUsageTab from './TenantUsageTab';
+import { TENANT_TABS, canSeeTab } from '../components/nav';
 
-type Tab = 'overview' | 'orders' | 'payments' | 'billing' | 'config' | 'usage' | 'staff' | 'activity' | 'exports' | 'webhooks' | 'storefront';
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'orders', label: 'Orders' },
-  { id: 'payments', label: 'Payments' },
-  { id: 'billing', label: 'Billing' },
-  { id: 'config', label: 'Configuration' },
-  { id: 'usage', label: 'Usage' },
-  { id: 'staff', label: 'Staff' },
-  { id: 'storefront', label: 'Storefront' },
-  { id: 'activity', label: 'Activity' },
-  { id: 'exports', label: 'Exports' },
-  { id: 'webhooks', label: 'Failed webhooks' },
-];
+// Tab list (with per-tab scopes) lives in components/nav.ts so the quick
+// navigator can deep-link the same tabs.
+const TABS = TENANT_TABS;
+type Tab = (typeof TABS)[number]['id'];
 
 interface TenantDetail {
   _id: string;
@@ -131,7 +122,6 @@ export default function TenantDetailPage() {
   const canLifecycle = hasScope(user, PLATFORM_SCOPES.TENANT_LIFECYCLE);
   const canImpersonate = hasScope(user, PLATFORM_SCOPES.SUPPORT_IMPERSONATE);
   const canExport = hasScope(user, PLATFORM_SCOPES.TENANT_EXPORT);
-  const canReadBilling = hasScope(user, PLATFORM_SCOPES.BILLING_READ);
   // Permanent deletion: owners by role, other staff only if an owner granted it.
   const canDeletePermanently = hasScope(user, PLATFORM_SCOPES.TENANT_DELETE);
 
@@ -506,15 +496,8 @@ export default function TenantDetailPage() {
 
       <div className="-mx-4 border-b md:mx-0">
         <div className="-mb-px flex gap-1 overflow-x-auto whitespace-nowrap px-4 scrollbar-hide md:px-0">
-          {TABS.filter((t) => {
-            // Hide tabs the operator has no scope to read. Server
-            // enforces; this just avoids dead UI.
-            if (t.id === 'payments' || t.id === 'billing') return canReadBilling;
-            if (t.id === 'staff') return hasScope(user, PLATFORM_SCOPES.TENANT_USERS);
-            if (t.id === 'activity') return hasScope(user, PLATFORM_SCOPES.AUDIT_READ);
-            if (t.id === 'exports') return canExport;
-            return true;
-          }).map((t) => (
+          {/* Hide tabs the operator has no scope to read. Server enforces; this just avoids dead UI. */}
+          {TABS.filter((t) => canSeeTab(user, t)).map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}

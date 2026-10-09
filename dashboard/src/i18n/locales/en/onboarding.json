@@ -52,6 +52,30 @@
     }
   },
   "guide": {
+    "tip": {
+      "step": "Step {{n}} of {{total}}",
+      "got_it": "Got it",
+      "hide": "Hide the tip",
+      "show": "Show the tip: {{step}}",
+      "next": "Done! Next: {{step}}",
+      "all_done": "Your store is ready. Well done!",
+      "here": {
+        "product": "Start with a photo of your product, then its name, price and quantity.",
+        "brand": "Add your logo, a short line about your store and a cover photo. Each one saves by itself.",
+        "logo": "Start with your logo. It saves as soon as you pick it.",
+        "tagline": "Write one short line about what you sell.",
+        "cover": "Last one: a wide photo for the top of your store.",
+        "policies": "Answer these questions about delivery and returns.",
+        "policies_save": "When you're done, tap Save. We'll write your policies for you.",
+        "share": "Send your store link to your customers on WhatsApp."
+      },
+      "go": {
+        "product": "Tap here to add your first product.",
+        "brand": "Your logo and cover photo are here.",
+        "policies": "Delivery and returns are here.",
+        "share": "Tap here to send your store link."
+      }
+    },
     "title": "Set up your store",
     "fold": "Minimise",
     "expand": "Show the steps",

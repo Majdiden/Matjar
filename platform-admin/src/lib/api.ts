@@ -307,8 +307,11 @@ export const api = {
     return res.data.data as PlatformUser;
   },
   tenants: {
-    list: async (params: { page?: number; limit?: number; status?: string; q?: string; lifecycle?: string; sort?: TenantListSort } = {}) => {
-      const res = await http.get('/tenants', { params });
+    list: async (
+      params: { page?: number; limit?: number; status?: string; q?: string; lifecycle?: string; sort?: TenantListSort } = {},
+      opts: { signal?: AbortSignal } = {}
+    ) => {
+      const res = await http.get('/tenants', { params, signal: opts.signal });
       return res.data.data as { tenants: TenantListRow[]; pagination: Pagination };
     },
     stats: async () => {

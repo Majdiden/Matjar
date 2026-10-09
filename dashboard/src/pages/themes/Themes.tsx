@@ -22,17 +22,12 @@ import { toast } from 'sonner';
 import type { Theme } from '../../types';
 import type { DomainInfoResponse } from '../domains/types';
 import { useConfirm } from '../../components/ui/use-confirm';
+import { categoryName, type ThemeCategoryInfo } from '../../lib/themeCategories';
 
 type Filter = 'all' | 'free' | 'popular';
 
-/** Curated theme category from the API (config/themeCategories.js). */
-interface ThemeCategory {
-  key: string;
-  label: string;
-  labelAr: string;
-  icon: string;
-  count: number;
-}
+/** Platform-managed theme category from the API (services/themeCategories.js). */
+type ThemeCategory = ThemeCategoryInfo & { count: number };
 type ThemeWithCategories = Theme & { categoryKeys?: string[] };
 
 /**
@@ -110,13 +105,12 @@ const ThemeScreenshot: React.FC<{
 export const Themes: React.FC = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation(['themes', 'common']);
-  const isAr = i18n.language?.startsWith('ar');
   const [themes, setThemes] = useState<ThemeWithCategories[]>([]);
   const [categories, setCategories] = useState<ThemeCategory[]>([]);
   const [category, setCategory] = useState<string>('all');
   const categoryLabel = (key: string) => {
     const c = categories.find((x) => x.key === key);
-    return c ? (isAr && c.labelAr ? c.labelAr : c.label) : key;
+    return c ? categoryName(c, i18n.language) : key;
   };
   const [activeTheme, setActiveTheme] = useState<Theme | null>(null);
   const [loading, setLoading] = useState(true);

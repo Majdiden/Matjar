@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
-import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { checkoutApi } from '@matjar/theme-shared/api/client';
 import { useDiscount } from '@matjar/theme-shared/hooks/useDiscount';
 import { useAtelierUI } from '../../contexts/AtelierUI';
@@ -11,29 +10,6 @@ import { useOverlayA11y } from '../../lib/motion';
 
 export const NOTE_KEY = 'atelier.cart.note';
 export const DISCOUNT_KEY = 'atelier.cart.discount';
-
-/** "Spend X more for free shipping" bar with a truck marker. */
-export const FreeShippingBar: React.FC<{ subtotal: number; className?: string }> = ({ subtotal, className = '' }) => {
-  const { t } = useTranslation(['theme']);
-  const { formatPrice } = useStore();
-  const threshold = Number(useThemeSetting<number>('free_shipping_threshold') ?? 0);
-  if (!threshold || threshold <= 0) return null;
-  const remaining = Math.max(0, threshold - subtotal);
-  const pct = Math.min(100, (subtotal / threshold) * 100);
-  return (
-    <div className={className}>
-      <p className="text-[12px] font-extrabold tracking-[0.25px]">
-        {remaining > 0 ? t('theme.cart.free_shipping_remaining', { amount: formatPrice(remaining) }) : t('theme.cart.free_shipping_unlocked')}
-      </p>
-      <div className="relative mt-3 h-2 rounded-full bg-[#e5e5e5]">
-        <div className="h-full rounded-full bg-[color:var(--atelier-success)] transition-[width] duration-500 ease-linear" style={{ width: `${pct}%` }} />
-        <span className="absolute -top-2.5 flex h-7 w-7 -translate-x-1/2 rtl:translate-x-1/2 items-center justify-center rounded-full border-2 border-[color:var(--atelier-success)] bg-white text-[color:var(--atelier-success)] transition-[inset-inline-start] duration-500 ease-linear" style={{ insetInlineStart: `${pct}%` }} aria-hidden>
-          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7zM7 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" /></svg>
-        </span>
-      </div>
-    </div>
-  );
-};
 
 export const LineItem: React.FC<{ item: any; compact?: boolean }> = ({ item, compact }) => {
   const { t } = useTranslation(['theme']);
@@ -194,7 +170,6 @@ const MiniCart: React.FC = () => {
               <span className="text-[13px] font-extrabold uppercase tracking-wider">{t('theme.cart.total')}</span>
               <span className="text-[22px] font-extrabold">{formatPrice(cart?.total || 0)}</span>
             </div>
-            <FreeShippingBar subtotal={cart?.subtotal || 0} className="mt-4" />
             <div className="mt-5 grid gap-2">
               <Link to="/cart" onClick={close} className="at-btn at-btn-outline w-full">{t('theme.cart.view_cart')}</Link>
               <Link to={terms ? '/checkout' : '#'} onClick={(e) => { if (!terms) e.preventDefault(); else close(); }} aria-disabled={!terms} className={`at-btn w-full ${terms ? 'at-btn-dark' : 'pointer-events-none bg-[#e5e5e5] text-[#4a4a4a]'}`}>{t('theme.cart.checkout')}</Link>

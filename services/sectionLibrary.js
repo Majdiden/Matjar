@@ -97,8 +97,9 @@ export const SECTION_TYPES = {
     category: "ecommerce",
     icon: "⭐",
     defaultSettings: {
-      heading: "Featured Products",
-      subheading: "Check out our top picks",
+      // Blank: the storefront shows its translated heading.
+      heading: "",
+      subheading: "",
       productLimit: 8,
       sortBy: "featured",
       displayStyle: "grid",
@@ -114,8 +115,9 @@ export const SECTION_TYPES = {
     category: "ecommerce",
     icon: "🆕",
     defaultSettings: {
-      heading: "New Arrivals",
-      subheading: "Discover what's new",
+      // Blank: the storefront shows its translated heading.
+      heading: "",
+      subheading: "",
       productLimit: 12,
       sortBy: "newest",
       displayStyle: "grid",

@@ -4,8 +4,12 @@
  * Merchants write in Arabic; English is always optional. The Arabic input
  * (dir="rtl", lang="ar") is always shown. A small "+ English (optional)"
  * link reveals an English input (dir="ltr"); when the value already has
- * English, that input is shown from the start. Works the same under an
- * Arabic or English dashboard.
+ * English, that input is shown from the start.
+ *
+ * In the English dashboard both inputs are shown, English first (left to
+ * right, like the rest of the page) and Arabic under it, so the field
+ * doesn't read right-to-left for a merchant working in English. Arabic is
+ * still the required language.
  *
  * Usage:
  *
@@ -90,7 +94,8 @@ export const BilingualField: React.FC<BilingualFieldProps> = ({
   disabled,
   className,
 }) => {
-  const { t } = useTranslation('storeDesign');
+  const { t, i18n } = useTranslation('storeDesign');
+  const englishFirst = !(i18n.language || 'ar').startsWith('ar');
   const autoId = useId();
   const baseId = id || autoId;
   const arId = `${baseId}-ar`;
@@ -157,6 +162,31 @@ export const BilingualField: React.FC<BilingualFieldProps> = ({
       </div>
     );
   };
+
+  if (englishFirst) {
+    return (
+      <div className={cn('space-y-2', className)} onBlur={handleBlur}>
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <label htmlFor={enId} className="text-base font-semibold">
+            {label}
+          </label>
+          {labelAction}
+        </div>
+        {help && <p className="text-sm text-muted-foreground">{help}</p>}
+        <p className="text-xs font-medium text-muted-foreground">{t('bilingual.english')}</p>
+        {renderInput('en')}
+        <label htmlFor={arId} className="block pt-1 text-xs font-medium text-muted-foreground">
+          {t('bilingual.arabic')}
+        </label>
+        {renderInput('ar')}
+        {message && (
+          <p id={errorId} className="text-sm text-destructive" role="alert">
+            {message}
+          </p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={cn('space-y-2', className)} onBlur={handleBlur}>

@@ -723,6 +723,10 @@ export const api = {
 
     getActive: () => api.get('/themes/active'),
 
+    // Public: active theme categories (en/ar names, in the platform owner's
+    // order) + each offered theme's category keys. Signup runs before login.
+    getCategories: () => api.get('/themes/categories'),
+
     getById: (id: string) => api.get(`/themes/${id}`),
 
     getBySlug: (slug: string) => api.get(`/themes/slug/${slug}`),

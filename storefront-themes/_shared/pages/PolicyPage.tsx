@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../contexts/StoreContext';
-import { POLICY_KEYS, policyLabel, type PolicyKey } from '../lib/policies';
+import { POLICY_KEYS, policyLabel, publishedPolicy, type PolicyKey } from '../lib/policies';
 import { usePageFacts, type PageFactKey } from '../hooks/usePageFacts';
 import { useThemeSlot } from '../theme/ThemeSlotsProvider';
 import { FG, MUTED, PAGE_SLOT, usePageStyleTokens } from '../theme/pageStyle';
@@ -58,8 +58,9 @@ const StorePolicyPage: React.FC<{ className?: string }> = ({ className = '' }) =
 
   if (!known) return <Navigate to="/" replace />;
 
-  const policy = store?.policies?.[policyKey];
-  const title = (policy?.title && policy.title.trim()) || policyLabel(policyKey, t);
+  // The shopper's language for generated policies (lib/policies.ts).
+  const policy = publishedPolicy(store, policyKey, t);
+  const title = policy?.title || policyLabel(policyKey, t);
   const editorial = tk.style === 'editorial';
 
   return (

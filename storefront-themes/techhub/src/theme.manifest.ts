@@ -80,9 +80,11 @@ export const featuresStripSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'feat-1', type: 'feature', settings: { icon: 'truck', title: 'Free US Shipping', subtitle: 'For US customers on orders above $200' } },
-    { id: 'feat-2', type: 'feature', settings: { icon: 'card', title: 'Secure Payment', subtitle: 'We accept Visa, AmEx, Paypal and more' } },
-    { id: 'feat-3', type: 'feature', settings: { icon: 'shield', title: '1 Year Warranty', subtitle: 'All of our products are made with care' } },
+    // Empty until the merchant writes them; meanwhile the strip shows the
+    // store's own delivery / returns / payment facts.
+    { id: 'feat-1', type: 'feature', settings: { icon: 'truck', title: '', subtitle: '' } },
+    { id: 'feat-2', type: 'feature', settings: { icon: 'card', title: '', subtitle: '' } },
+    { id: 'feat-3', type: 'feature', settings: { icon: 'shield', title: '', subtitle: '' } },
   ],
 });
 
@@ -199,8 +201,8 @@ export const categorySidebarSection: SectionDefinition = defineSection({
 
 const indexTemplate: SectionInstance[] = [
   { id: 'home-showcase-hero', type: 'hero-showcase', settings: {} },
-  { id: 'home-new-arrivals', type: 'new-arrivals', settings: {} },
-  { id: 'home-featured', type: 'featured-products', settings: {} },
+  { id: 'home-new-arrivals', type: 'new-arrivals', settings: { heading: '' } },
+  { id: 'home-featured', type: 'featured-products', settings: { heading: '' } },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

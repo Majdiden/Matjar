@@ -3,7 +3,7 @@
  *
  * Bold black/lime sports-nutrition sections.
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@matjar/theme-shared/components/sections';
@@ -12,23 +12,37 @@ import { useFeaturedProducts, useProducts } from '@matjar/theme-shared/hooks/use
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import NutrekoProductCard from '../components/NutrekoProductCard';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // Niche default hero image (supplements/fitness) so the power hero is never empty.
 const HERO_DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&q=80&auto=format&fit=crop';
 
 const LIME = 'var(--color-primary)';
+
+/** First photos of the store's own products (newest first) for hero image slots — never stock. */
+function useStoreProductPhotos(count: number) {
+  const { products, loading } = useProducts({ sort: 'newest', limit: 8 });
+  const photos = useMemo(
+    () => products.map((p: any) => p?.images?.[0]).filter((u: unknown) => !isStockImage(u)).slice(0, count) as string[],
+    [products, count],
+  );
+  return { photos, loading };
+}
 const DARK = 'var(--color-secondary)';
 const headingFont = { fontFamily: 'var(--font-family-heading)' } as const;
 
 // ─── Top info strip ───────────────────────────────────────────────
 
 const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
-  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
+  // Only the merchant's own text — no demo promise when they left it empty.
+  const text = merchantText(s.text);
+  if (!text) return null;
   return (
     <div className="text-[11px] tracking-[0.2em] font-bold py-2.5 text-center" style={{ backgroundColor: LIME, color: DARK }}>
-      <span className="inline-flex items-center gap-2"><svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg>{s.text || t('theme.announcement.default', { defaultValue: 'FREE SHIPPING ON ORDERS OVER $75' })}</span>
+      <span className="inline-flex items-center gap-2"><svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg>{text}</span>
     </div>
   );
 };
@@ -38,6 +52,18 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
+  const { store } = useStore();
+  // Only the merchant's own content: the title falls back to the store
+  // name, extras (eyebrow, second button) show only when set.
+  const eyebrow = merchantText(s.eyebrow);
+  const heading = merchantText(s.heading) || store?.name || '';
+  const secondaryCta = merchantText(s.secondary_cta_text);
+  // Photo: the merchant's own, else a product photo, else (a brand-new
+  // store with no products) the theme's default.
+  const own = merchantImage(s.image, store?.brand?.coverImage);
+  const { photos, loading } = useStoreProductPhotos(1);
+  const photo = own || photos[0] || null;
+  const showDefault = !own && !loading && photos.length === 0;
   return (
     <section className="relative overflow-hidden bg-black text-white">
       {/* diagonal lime stripes background */}
@@ -47,16 +73,16 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <div>
-          {s.eyebrow && (
+          {eyebrow && (
             <div className="text-[11px] tracking-[0.25em] uppercase font-black mb-6" style={{ color: LIME }}>
-              {s.eyebrow}
+              {eyebrow}
             </div>
           )}
           <h1
             className="font-display text-5xl sm:text-6xl md:text-7xl leading-[0.95] uppercase"
             style={headingFont}
           >
-            {(s.heading || t('theme.section.nutreko-hero.heading', { defaultValue: 'FUEL YOUR PERFORMANCE' })).split(' ').map((w: string, i: number) => (
+            {heading.split(' ').map((w: string, i: number) => (
               <span key={i} className={i === 1 ? 'text-[var(--color-primary)]' : ''}>{w} </span>
             ))}
           </h1>
@@ -76,38 +102,24 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
-            {s.secondary_cta_text && (
+            {secondaryCta && (
               <Link
                 to={s.cta_url || '/products'}
                 className="inline-block px-10 py-4 text-[11px] tracking-[0.22em] uppercase font-black border-2 border-white hover:bg-white hover:text-black transition"
               >
-                {s.secondary_cta_text}
+                {secondaryCta}
               </Link>
             )}
-          </div>
-
-          {/* Stats */}
-          <div className="mt-12 grid grid-cols-3 gap-6 max-w-md border-t border-white/10 pt-6">
-            {[
-              ['500+', t('theme.section.nutreko-hero.stat_products')],
-              ['50K+', t('theme.section.nutreko-hero.stat_customers')],
-              ['100%', t('theme.section.nutreko-hero.stat_authentic')],
-            ].map(([n, l]) => (
-              <div key={l}>
-                <div className="font-display text-3xl" style={{ fontFamily: 'var(--font-family-heading)', color: LIME }}>{n}</div>
-                <div className="text-[10px] tracking-[0.2em] uppercase text-white/60 mt-1">{l}</div>
-              </div>
-            ))}
           </div>
         </div>
 
         <div className="relative hidden md:block">
           <div className="aspect-square bg-gradient-to-br from-white/5 to-transparent border-4 border-white/10 relative overflow-hidden">
-            {s.image ? (
-              <img src={s.image as string} alt="" onError={(e) => { e.currentTarget.src = HERO_DEFAULT_IMAGE; }} className="w-full h-full object-contain p-8" />
-            ) : (
+            {photo ? (
+              <img src={photo} alt="" className="w-full h-full object-contain p-8" />
+            ) : showDefault ? (
               <img src={HERO_DEFAULT_IMAGE} alt="" className="w-full h-full object-cover" />
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -117,15 +129,21 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 // ─── Guarantee panels ─────────────────────────────────────────────
 
+/**
+ * Demo panel titles older manifests copied into a store's saved blocks
+ * ("100% AUTHENTIC", "FAST SHIPPING"…). They are the theme's claims, not the
+ * merchant's, so they never render.
+ */
+const DEMO_GUARANTEE_TITLES = new Set(['100% AUTHENTIC', 'MAXIMUM POTENCY', 'LAB TESTED', 'FAST SHIPPING']);
+
 const GuaranteeSection: React.FC<SectionComponentProps> = ({ section }) => {
-  const { t } = useTranslation('theme');
   const blocks: any[] = (section as any)?.blocks || [];
-  const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { icon: '100% AUTHENTIC', title: t('theme.section.nutreko-guarantee.authentic_title', { defaultValue: '100% AUTHENTIC' }), subtitle: t('theme.section.nutreko-guarantee.authentic_subtitle', { defaultValue: 'Sourced direct from brands' }) } },
-    { id: 'b', settings: { icon: 'MAXIMUM POTENCY', title: t('theme.section.nutreko-guarantee.potency_title', { defaultValue: 'MAXIMUM POTENCY' }), subtitle: t('theme.section.nutreko-guarantee.potency_subtitle', { defaultValue: 'Premium grade formulas' }) } },
-    { id: 'c', settings: { icon: 'LAB TESTED', title: t('theme.section.nutreko-guarantee.lab_title', { defaultValue: 'LAB TESTED' }), subtitle: t('theme.section.nutreko-guarantee.lab_subtitle', { defaultValue: 'Every batch verified' }) } },
-    { id: 'd', settings: { icon: 'FAST SHIPPING', title: t('theme.section.nutreko-guarantee.shipping_title', { defaultValue: 'FAST SHIPPING' }), subtitle: t('theme.section.nutreko-guarantee.shipping_subtitle', { defaultValue: 'Ships within 24 hours' }) } },
-  ];
+  // Only panels the merchant wrote; the section disappears without any.
+  const items = blocks.filter((b) => {
+    const title = merchantText(b?.settings?.title);
+    return title && !DEMO_GUARANTEE_TITLES.has(title);
+  });
+  if (items.length === 0) return null;
 
   const icons: Record<string, string> = {
     '100% AUTHENTIC': 'M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z',
@@ -140,7 +158,7 @@ const GuaranteeSection: React.FC<SectionComponentProps> = ({ section }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x-2 divide-black border-2 border-black">
           {items.slice(0, 4).map((b, i) => {
             const bs = b.settings || {};
-            const iconPath = icons[(bs.icon || bs.title) as string] || icons['100% AUTHENTIC'];
+            const iconPath = Object.values(icons)[i % 4];
             return (
               <div key={b.id || i} className="p-6 md:p-8 text-center hover:bg-[var(--color-primary)] transition">
                 <svg className="w-10 h-10 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -229,7 +247,9 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
         <div>
           <h2 className="font-display text-4xl md:text-5xl uppercase" style={headingFont}>
-            {s.heading || t('theme.section.nutreko-product-grid.top_sellers_heading', { defaultValue: 'TOP SELLERS' })}
+            {s.heading || (source === 'newest'
+              ? t('theme.section.nutreko-product-grid.trending_heading', { defaultValue: 'TRENDING NOW' })
+              : t('theme.section.nutreko-product-grid.top_sellers_heading', { defaultValue: 'TOP SELLERS' }))}
           </h2>
           {s.subheading && <p className="mt-2 text-sm opacity-60">{s.subheading}</p>}
           <div className="w-16 h-1 mt-4" style={{ backgroundColor: LIME }} />
@@ -265,6 +285,9 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
 const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
+  // A promo is the merchant's own offer — nothing to show until they write one.
+  const heading = merchantText(s.heading);
+  if (!heading) return null;
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div className="relative bg-black text-white overflow-hidden border-2 border-black">
@@ -277,7 +300,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
               </div>
             )}
             <h2 className="font-display text-4xl md:text-6xl uppercase leading-[0.95]" style={headingFont}>
-              {s.heading || t('theme.section.nutreko-banner.heading', { defaultValue: 'BUY 2 GET 1 FREE' })}
+              {heading}
             </h2>
             {s.subheading && (
               <p className="mt-4 text-white/70 max-w-md">{s.subheading}</p>

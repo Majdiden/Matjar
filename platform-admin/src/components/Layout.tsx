@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/auth-context';
 import { useToast } from './ui/toast-context';
-import { Shield, LogOut, ShieldAlert, Menu, X, ChevronDown } from 'lucide-react';
+import { Shield, LogOut, ShieldAlert, Menu, X, ChevronDown, Search } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { lockBodyScroll } from '../lib/scrollLock';
 import { visibleGroups, bottomTabs, type NavGroup } from './nav';
 import type { PlatformUser } from '../lib/api';
+import { CommandPalette } from './CommandPalette';
+import { isMacLike, usePaletteShortcut } from '../lib/commandPalette';
 
 const COLLAPSE_KEY = 'platform_admin_nav_collapsed';
 function readCollapsed(): Record<string, boolean> {
@@ -119,6 +121,19 @@ export const Layout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Quick navigator (Ctrl/Cmd+K, "/", or the top-bar search button).
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const openPalette = useCallback(() => {
+    setDrawerOpen(false);
+    setPaletteOpen(true);
+  }, []);
+  const togglePalette = useCallback(() => {
+    setDrawerOpen(false);
+    setPaletteOpen((o) => !o);
+  }, []);
+  const closePalette = useCallback(() => setPaletteOpen(false), []);
+  usePaletteShortcut(togglePalette, openPalette);
+  const shortcutLabel = isMacLike() ? '⌘K' : 'Ctrl K';
 
   const handleLogout = () => {
     logout();
@@ -206,12 +221,29 @@ export const Layout: React.FC = () => {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile top bar */}
-        <header className="sticky top-0 z-40 flex h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 items-center justify-between border-b bg-background/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur md:hidden">
-          <Brand />
+        {/* Top bar: brand + menu on phones; quick-navigator search on every size. */}
+        <header className="sticky top-0 z-40 flex h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 items-center gap-1 border-b bg-background/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur md:h-14 md:px-6 md:pt-0">
+          <div className="md:hidden">
+            <Brand />
+          </div>
+          <button
+            type="button"
+            onClick={openPalette}
+            aria-haspopup="dialog"
+            aria-expanded={paletteOpen}
+            aria-keyshortcuts="Control+K Meta+K"
+            aria-label={`Search pages and stores (${shortcutLabel})`}
+            className="ms-auto flex items-center gap-2 rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground md:ms-0 md:h-9 md:w-full md:max-w-sm md:border md:border-input md:bg-background md:px-3 md:py-1 md:shadow-sm"
+          >
+            <Search className="h-5 w-5 shrink-0 md:h-4 md:w-4" />
+            <span className="hidden flex-1 truncate text-start text-sm md:inline">Search pages and stores…</span>
+            <kbd className="hidden shrink-0 rounded border bg-muted px-1.5 py-0.5 font-sans text-[10px] font-medium md:inline">
+              {shortcutLabel}
+            </kbd>
+          </button>
           <button
             onClick={() => setDrawerOpen(true)}
-            className="-me-2 rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="-me-2 rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground md:hidden"
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
@@ -249,6 +281,8 @@ export const Layout: React.FC = () => {
           </div>
         </nav>
       </div>
+
+      <CommandPalette open={paletteOpen} onClose={closePalette} />
     </div>
   );
 };

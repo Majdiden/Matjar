@@ -138,9 +138,10 @@ export const trustBadgesSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'badge-1', type: 'badge', settings: { title: 'Free Returns', description: '30-day no-questions-asked returns', icon: 'returns' } },
-    { id: 'badge-2', type: 'badge', settings: { title: 'Pro Gear', description: 'Used by professional athletes worldwide', icon: 'pro' } },
-    { id: 'badge-3', type: 'badge', settings: { title: 'Fast Delivery', description: 'Express shipping on all orders', icon: 'lightning' } },
+    // Empty until the merchant writes them (no demo claims on a live store).
+    { id: 'badge-1', type: 'badge', settings: { title: '', description: '', icon: 'returns' } },
+    { id: 'badge-2', type: 'badge', settings: { title: '', description: '', icon: 'pro' } },
+    { id: 'badge-3', type: 'badge', settings: { title: '', description: '', icon: 'lightning' } },
   ],
 });
 

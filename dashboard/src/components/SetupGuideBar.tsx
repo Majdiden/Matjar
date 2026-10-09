@@ -15,6 +15,7 @@ import { Button } from './ui/button';
 import { ShareButton } from './ShareButton';
 import { useSetupGuide } from '../contexts/setup-guide-context';
 import { FIRST_SALE_STEP_ROUTES } from '../lib/onboarding';
+import { guideAttrs } from '../lib/guideTip';
 import { readJson, writeJson } from '../hooks/useStoreProfile';
 import { cn } from '../lib/utils';
 
@@ -109,6 +110,7 @@ export const SetupGuideBar: React.FC = () => {
             className="h-11 shrink-0"
             disabled={!storeUrl}
             onShared={recordShared}
+            {...guideAttrs('share', 'entry')}
           >
             <Share2 className="h-4 w-4 me-2" />
             {t('checklist.step.share.action')}

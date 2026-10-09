@@ -14,6 +14,8 @@ import { useFeaturedProducts, useProducts } from '@matjar/theme-shared/hooks/use
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import GlowingProductCard from '../components/GlowingProductCard';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // Baked default imagery (verified Unsplash skincare shots) so a fresh store
 // on this theme looks complete before the merchant uploads anything. Every
@@ -30,12 +32,14 @@ const GLOWING_DEFAULTS = {
 
 // ─── Top strip (announcement) ─────────────────────────────────────
 
+// Only the merchant's own message — no demo shipping promise as fallback.
 const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
-  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
+  const text = merchantText(s.text);
+  if (!text) return null;
   return (
     <div className="bg-black text-white text-[11px] tracking-[0.18em] font-medium py-2.5 text-center">
-      {s.text || t('theme.announcement.default_text')}
+      {text}
     </div>
   );
 };
@@ -45,6 +49,11 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
+  const { store } = useStore();
+  // Extras only when the merchant typed them; the title falls back to the store name.
+  const eyebrow = merchantText(s.eyebrow);
+  const heading = merchantText(s.heading) || store?.name || '';
+  const sub = merchantText(s.subheading);
   return (
     <section className="relative overflow-hidden" style={{ backgroundColor: 'var(--color-accent)' }}>
       {/* soft leaf decoration */}
@@ -58,20 +67,22 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 md:py-36 text-center">
-        {s.eyebrow && (
+        {eyebrow && (
           <div className="text-[11px] tracking-[0.32em] uppercase text-neutral-700 mb-6">
-            {s.eyebrow}
+            {eyebrow}
           </div>
         )}
-        <h1
-          className="font-display text-5xl sm:text-6xl md:text-7xl leading-[1.05] text-black max-w-3xl mx-auto"
-          style={{ fontFamily: 'var(--font-family-heading)' }}
-        >
-          {s.heading || t('theme.hero.headline')}
-        </h1>
-        {s.subheading && (
+        {heading && (
+          <h1
+            className="font-display text-5xl sm:text-6xl md:text-7xl leading-[1.05] text-black max-w-3xl mx-auto"
+            style={{ fontFamily: 'var(--font-family-heading)' }}
+          >
+            {heading}
+          </h1>
+        )}
+        {sub && (
           <p className="mt-6 text-sm md:text-base text-neutral-700 max-w-xl mx-auto leading-relaxed">
-            {s.subheading}
+            {sub}
           </p>
         )}
         <Link
@@ -85,7 +96,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             default otherwise, so the hero is never an empty colour stage. */}
         <div className="mt-14 max-w-4xl mx-auto overflow-hidden rounded-t-[999px] rounded-b-3xl group">
           <img
-            src={s.image || GLOWING_DEFAULTS.hero}
+            src={merchantImage(s.image, store?.brand?.coverImage) || s.image || GLOWING_DEFAULTS.hero}
             alt=""
             aria-hidden="true"
             onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = 'none'; }}
@@ -159,6 +170,9 @@ const PromoCardsSection: React.FC<SectionComponentProps> = ({ id, section }) => 
 
 // ─── Product grid (source-based) ──────────────────────────────────
 
+/** English headings the index template used to seed as literal settings. */
+const LEGACY_GRID_HEADINGS = ['NEW ARRIVALS', 'BEST SELLERS'];
+
 const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) => {
   const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
@@ -170,6 +184,8 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const featured = useFeaturedProducts(limit);
   const regular = useProducts({ sort: source === 'newest' ? 'newest' : 'popular', limit });
   const { products, loading } = source === 'featured' ? featured : regular;
+  // Older installs stored the English defaults as literal settings; treat them as unset.
+  const merchantHeading = LEGACY_GRID_HEADINGS.includes(String(s.heading || '').trim()) ? null : merchantText(s.heading);
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
@@ -178,7 +194,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
           className="font-display text-4xl md:text-5xl text-black"
           style={{ fontFamily: 'var(--font-family-heading)' }}
         >
-          {s.heading || t('theme.section.product_grid.best_sellers_title')}
+          {merchantHeading || t(source === 'newest' ? 'theme.section.product_grid.new_arrivals_title' : 'theme.section.product_grid.best_sellers_title')}
         </h2>
         {s.subheading && (
           <p className="mt-3 text-sm text-neutral-500 max-w-md mx-auto">{s.subheading}</p>

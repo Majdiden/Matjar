@@ -10,7 +10,8 @@ import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/Mobi
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { SocialIcon, WhatsAppIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { useTranslation } from 'react-i18next';
 import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 
@@ -28,6 +29,8 @@ const Layout: React.FC = () => {
     item.type === 'external' || item.target === '_blank';
   const { t } = useTranslation(['theme']);
   const topStripText = useTopStripText();
+  const footer = useStoreFooter();
+  const hasContact = !!(footer.contact.email || footer.contact.phone || footer.contact.whatsapp || footer.contact.address);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -172,27 +175,46 @@ const Layout: React.FC = () => {
             className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm"
             style={{ color: 'var(--color-muted)' }}
           >
-            <p>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), name: store?.name || 'Store' })}</p>
-            <div className="flex gap-6">
-              <Link to="/products" className="transition hover:opacity-80">{t('theme.footer.products')}</Link>
-              <Link to="/about" className="transition hover:opacity-80">{t('theme.footer.about')}</Link>
-              <Link to="/contact" className="transition hover:opacity-80">{t('theme.footer.contact')}</Link>
-              <PolicyLinks inline className="contents" linkClassName="transition hover:opacity-80" />
-            </div>
+            <p>{footer.copyright}</p>
+            <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+              {[...footer.shop, ...footer.help, ...footer.policies].map((l) => (
+                <Link key={l.to} to={l.to} className="transition hover:opacity-80">{l.label}</Link>
+              ))}
+            </nav>
           </div>
-          {/* Store contact details (from Settings → Policies) — only when set. */}
-          {(store?.contact?.email || store?.contact?.phone || store?.contact?.address) && (
+          {/* Store contact details and social pages — only the ones set. */}
+          {(hasContact || footer.social.length > 0) && (
             <div
-              className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-center text-sm"
+              className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center text-sm"
               style={{ color: 'var(--color-muted)' }}
             >
-              {store?.contact?.email && (
-                <a href={`mailto:${store.contact.email}`} className="transition hover:opacity-80">{store.contact.email}</a>
+              {footer.contact.email && (
+                <a href={`mailto:${footer.contact.email}`} className="transition hover:opacity-80">{footer.contact.email}</a>
               )}
-              {store?.contact?.phone && (
-                <a href={`tel:${store.contact.phone}`} dir="ltr" className="transition hover:opacity-80">{store.contact.phone}</a>
+              {footer.contact.phone && (
+                footer.contact.phone.href
+                  ? <a href={footer.contact.phone.href} dir="ltr" className="transition hover:opacity-80">{footer.contact.phone.text}</a>
+                  : <span dir="ltr">{footer.contact.phone.text}</span>
               )}
-              {store?.contact?.address && <span>{store.contact.address}</span>}
+              {footer.contact.whatsapp && (
+                <a href={footer.contact.whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="inline-flex items-center gap-1.5 transition hover:opacity-80">
+                  <WhatsAppIcon className="w-4 h-4" />
+                  {footer.contact.whatsapp.display}
+                </a>
+              )}
+              {footer.contact.address && <span>{footer.contact.address}</span>}
+              {footer.social.map((s) => (
+                <a
+                  key={s.platform}
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.name}
+                  className="transition hover:opacity-80"
+                >
+                  <SocialIcon platform={s.platform} className="w-4 h-4" />
+                </a>
+              ))}
             </div>
           )}
         </div>

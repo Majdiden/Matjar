@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { hasScope, PLATFORM_SCOPES, type Pagination } from '../../lib/api';
 import { storefrontApi, type ThemeRow, type ThemeStoreRow, type ThemeCategoryOption } from '../../lib/api-storefront';
 import { ThemeDetailsModal } from './ThemeDetailsModal';
+import { ThemeCategoriesPanel } from './ThemeCategoriesPanel';
 import { useAuth } from '../../contexts/auth-context';
 import { DataList, type DataListColumn } from '../../components/ui/DataList';
 import { Badge } from '../../components/ui/Badge';
@@ -55,6 +56,8 @@ export default function StorefrontThemes() {
     }
   };
 
+  const categoryLabel = (key: string) => categoryOptions.find((c) => c.key === key)?.label ?? key;
+
   if (!canRead) return <ErrorState error="Viewing themes requires the support.read scope." />;
 
   const columns: DataListColumn<ThemeRow>[] = [
@@ -69,7 +72,12 @@ export default function StorefrontThemes() {
     { id: 'stores', header: 'Stores', align: 'end', cell: (r) => (
       <button className="underline-offset-2 hover:underline" onClick={() => openStores(r)}>{r.storesUsing}</button>
     ) },
-    { id: 'cats', header: 'Categories', fullWidthOnMobile: true, cell: (r) => <div className="flex flex-wrap gap-1">{(r.categories || []).slice(0, 4).map((c) => <Badge key={c} variant="outline" className="text-[10px]">{c}</Badge>)}</div> },
+    { id: 'cats', header: 'Categories', fullWidthOnMobile: true, cell: (r) => (
+      <div className="flex flex-wrap items-center gap-1">
+        {(r.categoryKeys || []).map((k) => <Badge key={k} variant="outline" className="text-[10px]">{categoryLabel(k)}</Badge>)}
+        {!r.categoryKeysManaged && <span className="text-[10px] text-muted-foreground" title="Not assigned by hand: taken from the theme's manifest">auto</span>}
+      </div>
+    ) },
     { id: 'actions', align: 'end', cell: (r) => canWrite ? (
       <div className="flex justify-end gap-1">
         <Button variant="ghost" size="sm" title="Edit name, cover, description, categories" onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
@@ -102,6 +110,8 @@ export default function StorefrontThemes() {
         : loading && rows.length === 0 ? <PageSpinner />
         : rows.length === 0 ? <EmptyState title="No themes" description="Run `node scripts/seed-themes.js` to register the built-in themes." />
         : <DataList columns={columns} rows={rows} rowKey={(r) => r._id} />}
+
+      <ThemeCategoriesPanel canWrite={canWrite} onChanged={load} />
 
       <ConfirmModal
         open={!!confirm} onClose={() => setConfirm(null)}

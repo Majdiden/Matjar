@@ -31,6 +31,7 @@ import { getAllowedThemeSlugs, isFeatureEnabledFor } from "./featureFlags.js";
 import { normalizeStoreNiche } from "../config/storeNiches.js";
 import { validateCustomization } from "./themeValidator.js";
 import { validateCustomCSS } from "./cssPolicy.js";
+import { carryCustomization } from "./themeSwitchCarry.js";
 
 /**
  * Append an audit row to ThemeCustomizationVersion for a
@@ -151,6 +152,15 @@ export const buildCustomizationFromManifest = (themeSlug, options = {}) => {
   };
 
   return { sectionsByTemplate, settings };
+};
+
+/** `(sectionType) => setting ids` the theme's manifest declares, for the switch carry-over. */
+const heroSettingKeys = (themeSlug) => {
+  const sections = getThemeManifest(themeSlug)?.sections;
+  return (type) => {
+    const def = Array.isArray(sections) ? sections.find((s) => s?.type === type) : null;
+    return Array.isArray(def?.settings) ? def.settings.map((s) => s.id) : [];
+  };
 };
 
 export const createThemeService = async (themeData) => {
@@ -407,9 +417,22 @@ export const installThemeService = async (themeId, tenantId) => {
   const currentTc = currentTenant.toObject().themeCustomization || {};
   const previousSlug = currentTenant.settings?.activeTheme;
   const restored = restoreSavedCustomization(theme.slug, currentTc.savedByTheme?.[theme.slug]);
-  const { sectionsByTemplate, settings } = restored?.published || buildCustomizationFromManifest(theme.slug);
+  // A fresh customization takes the merchant's homepage words, photo and top
+  // strip from the outgoing theme (services/themeSwitchCarry.js); a restored
+  // one is already theirs.
+  const fresh = buildCustomizationFromManifest(theme.slug);
+  const declaredKeys = heroSettingKeys(theme.slug);
+  const { sectionsByTemplate, settings } =
+    restored?.published || carryCustomization(currentTc.published, fresh, declaredKeys);
   const customCSS = restored?.published?.customCSS || "";
-  const draft = restored?.draft || { settings, sectionsByTemplate, customCSS };
+  const draft = restored?.draft || {
+    ...carryCustomization(
+      currentTc.sectionsByTemplate ? { settings: currentTc.settings, sectionsByTemplate: currentTc.sectionsByTemplate } : currentTc.published,
+      fresh,
+      declaredKeys
+    ),
+    customCSS,
+  };
   const now = new Date();
 
   const stash = {};

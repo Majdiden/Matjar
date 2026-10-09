@@ -12,13 +12,15 @@ import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/Mobi
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
   const topStripText = useTopStripText();
+  const footer = useStoreFooter();
   const stripBg = useThemeSetting<string>('announcement_bg');
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
@@ -139,37 +141,67 @@ const Layout: React.FC = () => {
       {/* 3-Column Footer */}
       <footer className="bg-[#2d2d2d] text-gray-300 py-14">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div className={`grid grid-cols-1 ${footer.policies.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8 mb-8`}>
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <svg className="w-5 h-5 text-[#d4a76a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                <h3 className="text-white font-semibold text-lg">{store?.name || 'HomeDecor'}</h3>
+                {footer.logo ? (
+                  <img src={footer.logo} alt={footer.storeName} className="h-8 w-auto object-contain" />
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 text-[#d4a76a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <h3 className="text-white font-semibold text-lg">{footer.storeName}</h3>
+                  </>
+                )}
               </div>
-              <p className="text-sm">{t('theme.footer.tagline')}</p>
+              {footer.description && <p className="text-sm">{footer.description}</p>}
+              {footer.social.length > 0 && (
+                <div className="flex flex-wrap gap-3 mt-4" aria-label={footer.titles.follow}>
+                  {footer.social.map((s) => (
+                    <a
+                      key={s.platform}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.name}
+                      className="text-gray-400 hover:text-[#d4a76a] transition"
+                    >
+                      <SocialIcon platform={s.platform} className="w-5 h-5" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
-              <h4 className="text-white text-sm font-semibold mb-3">{t('theme.footer.col_shop')}</h4>
+              <h4 className="text-white text-sm font-semibold mb-3">{footer.titles.shop}</h4>
               <div className="space-y-2 text-sm">
-                <Link to="/products" className="block hover:text-white transition">{t('theme.footer.all_products')}</Link>
-                {categories.slice(0, 3).map(cat => (
-                  <Link key={cat._id} to={`/categories/${cat.slug}`} className="block hover:text-white transition">{cat.name}</Link>
+                {footer.shop.map((l) => (
+                  <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>
                 ))}
               </div>
             </div>
             <div>
-              <h4 className="text-white text-sm font-semibold mb-3">{t('theme.footer.col_help')}</h4>
+              <h4 className="text-white text-sm font-semibold mb-3">{footer.titles.help}</h4>
               <div className="space-y-2 text-sm">
-                <p className="hover:text-white transition cursor-pointer">{t('theme.footer.shipping_returns')}</p>
-                <p className="hover:text-white transition cursor-pointer">{t('theme.footer.care_instructions')}</p>
-                <Link to="/contact" className="hover:text-white transition block">{t('theme.footer.contact_us')}</Link>
-                <PolicyLinks className="mt-2" heading={false} linkClassName="hover:text-white transition" />
+                {footer.help.map((l) => (
+                  <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>
+                ))}
               </div>
             </div>
+            {footer.policies.length > 0 && (
+              <div>
+                <h4 className="text-white text-sm font-semibold mb-3">{footer.titles.policies}</h4>
+                <div className="space-y-2 text-sm">
+                  {footer.policies.map((l) => (
+                    <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <div className="border-t border-gray-700 pt-6 text-center text-xs">
-            {t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'HomeDecor' })}
+            {footer.copyright}
           </div>
         </div>
       </footer>

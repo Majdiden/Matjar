@@ -76,6 +76,8 @@ import { ImpersonationConsentModal } from '../impersonation/ImpersonationConsent
 import { ActiveImpersonationOverlay } from '../impersonation/ActiveImpersonationOverlay';
 import { ImpersonationBanner } from '../impersonation/ImpersonationBanner';
 import { SetupGuideBar } from '../SetupGuideBar';
+import { SetupGuideTip } from '../SetupGuideTip';
+import { guideMenuAttrs } from '../../lib/guideTip';
 import { SetupGuideProvider } from '../../contexts/SetupGuideContext';
 
 // ---------------------------------------------------------------------------
@@ -141,6 +143,7 @@ function NavLink({
       <Link
         to={href}
         onClick={onClick}
+        {...guideMenuAttrs(href)}
         aria-current={isActive ? 'page' : undefined}
         className={cn(
           'mb-2 flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-all',
@@ -172,6 +175,7 @@ function NavLink({
     <Link
       to={href}
       onClick={onClick}
+      {...guideMenuAttrs(href)}
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all',
         isActive
@@ -253,6 +257,7 @@ function NavGroupItem({
               key={child.href}
               to={child.href}
               onClick={onNavigate}
+              {...guideMenuAttrs(child.href)}
               className={cn(
                 'block rounded-md px-3 py-1.5 text-sm transition-all',
                 isActive
@@ -883,6 +888,8 @@ const DashboardLayoutInner: React.FC = () => {
         {/* Thumb-reachable bottom navigation (phones only; sidebar at lg+). */}
         <BottomNav onMore={() => setMobileOpen(true)} pendingOrders={pendingOrders} />
         </div>
+        {/* Points at where to tap next for the current setup step. */}
+        <SetupGuideTip />
         <NotificationPermissionPrompt />
         <PasskeyEnrollPrompt />
         {/* In-app store switcher — mounted at the layout root so it survives

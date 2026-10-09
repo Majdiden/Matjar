@@ -3,7 +3,7 @@
  *
  * Pastel teal/cream/pink plant-based milk sections.
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@matjar/theme-shared/components/sections';
@@ -13,6 +13,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import MilmaaProductCard from '../components/MilmaaProductCard';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // Niche default hero image (organic/wellness) so the editorial hero is never empty.
 const HERO_DEFAULT_IMAGE =
@@ -25,6 +27,16 @@ const YELLOW = 'var(--color-secondary)';
 const CREAM = 'var(--color-background)';
 const MUTED = 'var(--color-muted)';
 const HEADING_FONT = 'var(--font-family-heading)';
+
+/** First photos of the store's own products (newest first) for hero image slots — never stock. */
+function useStoreProductPhotos(count: number) {
+  const { products, loading } = useProducts({ sort: 'newest', limit: 8 });
+  const photos = useMemo(
+    () => products.map((p: any) => p?.images?.[0]).filter((u: unknown) => !isStockImage(u)).slice(0, count) as string[],
+    [products, count],
+  );
+  return { photos, loading };
+}
 
 /** Pastel tint rotation used behind imagery so photos sit inside the palette. */
 const TINTS = [YELLOW, PINK, TEAL];
@@ -40,11 +52,13 @@ const tintScrim = (tint: string): React.CSSProperties => ({
 // ─── Top strip ────────────────────────────────────────────────────
 
 const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
-  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
+  // Only the merchant's own text — no demo promise when they left it empty.
+  const text = merchantText(s.text);
+  if (!text) return null;
   return (
     <div className="text-white text-[12px] py-2.5 text-center font-medium" style={{ backgroundColor: TEAL }}>
-      {s.text || t('theme.section.milmaa-top-strip.text', { defaultValue: '100% Plant-Based · Free Shipping on Orders Over $40' })}
+      {text}
     </div>
   );
 };
@@ -54,17 +68,24 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
+  const { store } = useStore();
+  // Only the merchant's own content: title falls back to the store name,
+  // the eyebrow shows only when set, no demo second button.
+  // Photo: the merchant's own, else a product photo, else (a brand-new
+  // store with no products) the theme's default.
+  const own = merchantImage(s.image, store?.brand?.coverImage);
+  const { photos, loading } = useStoreProductPhotos(1);
+  const showDefault = !own && !loading && photos.length === 0;
   return (
     <Hero
       variant="editorial"
       align="start"
-      title={s.heading || t('theme.section.milmaa-hero.heading')}
-      subtitle={s.subheading || t('theme.section.milmaa-hero.subheading')}
+      title={merchantText(s.heading) || store?.name || ''}
+      subtitle={merchantText(s.subheading) || undefined}
       primaryCta={{ label: s.cta_text || t('theme.section.milmaa-hero.cta'), href: (s.cta_url as string) || '/products' }}
-      secondaryCta={{ label: t('theme.section.milmaa-hero.watch_story'), href: '/about' }}
-      saleText={s.eyebrow || t('theme.section.milmaa-hero.eyebrow')}
-      backgroundImage={(s.image as string) || undefined}
-      defaultImage={HERO_DEFAULT_IMAGE}
+      saleText={merchantText(s.eyebrow) || undefined}
+      backgroundImage={own || photos[0] || undefined}
+      defaultImage={showDefault ? HERO_DEFAULT_IMAGE : undefined}
     />
   );
 };
@@ -218,7 +239,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
         <h2 className="font-serif text-4xl md:text-5xl font-semibold" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
           {s.heading || (source === 'newest'
             ? t('theme.section.milmaa-product-grid.newest_heading', { defaultValue: 'New Arrivals' })
-            : t('theme.section.milmaa-product-grid.heading', { defaultValue: 'Shop Our Milks' }))}
+            : t('theme.section.milmaa-product-grid.heading', { defaultValue: 'Shop our products' }))}
         </h2>
         {s.subheading && <p className="mt-3 text-base opacity-70">{s.subheading}</p>}
       </div>
@@ -241,15 +262,22 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
 
 // ─── Benefits ─────────────────────────────────────────────────────
 
+/**
+ * Demo benefit titles older manifests copied into a store's saved blocks.
+ * They are product claims the merchant never made, so they never render.
+ */
+const DEMO_BENEFIT_TITLES = new Set(['Rich in calcium & vitamin D', '100% plant-based', 'Zero added sugar']);
+
 const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
-  const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { title: t('theme.section.milmaa-benefits.benefit_1_title', { defaultValue: 'Rich in calcium & vitamin D' }), description: t('theme.section.milmaa-benefits.benefit_1_description', { defaultValue: 'Each serving delivers your daily dose of essential minerals.' }) } },
-    { id: 'b', settings: { title: t('theme.section.milmaa-benefits.benefit_2_title', { defaultValue: '100% plant-based' }), description: t('theme.section.milmaa-benefits.benefit_2_description', { defaultValue: 'No dairy, no lactose, no compromise on creaminess.' }) } },
-    { id: 'c', settings: { title: t('theme.section.milmaa-benefits.benefit_3_title', { defaultValue: 'Zero added sugar' }), description: t('theme.section.milmaa-benefits.benefit_3_description', { defaultValue: 'Naturally sweetened — the way nature intended.' }) } },
-  ];
+  // Only benefits the merchant wrote; the section disappears without any.
+  const items = blocks.filter((b) => {
+    const title = merchantText(b?.settings?.title);
+    return title && !DEMO_BENEFIT_TITLES.has(title);
+  });
+  if (items.length === 0) return null;
 
   return (
     <section className="py-20" style={{ backgroundColor: MUTED }}>
@@ -261,9 +289,6 @@ const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
             ) : (
               <img src="https://placehold.co/600x600/f7c1b7/2c4a4a?text=Why+Milmaa" alt="" className="w-full h-full object-cover" />
             )}
-          </div>
-          <div className="absolute -bottom-4 -end-4 w-28 h-28 rounded-full flex items-center justify-center text-center font-bold text-xs shadow-lg" style={{ backgroundColor: YELLOW, color: CREAM }}>
-            {t('theme.section.milmaa-benefits.badge')}
           </div>
         </div>
 
@@ -370,15 +395,18 @@ const BlogSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 
 // ─── Testimonials ─────────────────────────────────────────────────
 
+/** Demo reviewers older manifests copied into a store's saved blocks — never shown. */
+const DEMO_TESTIMONIAL_AUTHORS = new Set(['Sarah M.', 'David L.', 'Priya K.']);
+
 const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
   const blocks: any[] = (section as any)?.blocks || [];
-  const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { quote: t('theme.testimonial.tm-1.quote'), author: 'Sarah M.', role: t('theme.testimonial.tm-1.role') } },
-    { id: 'b', settings: { quote: t('theme.testimonial.tm-2.quote'), author: 'David L.', role: t('theme.testimonial.tm-2.role') } },
-    { id: 'c', settings: { quote: t('theme.testimonial.tm-3.quote'), author: 'Priya K.', role: t('theme.testimonial.tm-3.role') } },
-  ];
+  // Only quotes the merchant added; no invented customers or ratings.
+  const items = blocks.filter((b) =>
+    merchantText(b?.settings?.quote) && !DEMO_TESTIMONIAL_AUTHORS.has(merchantText(b?.settings?.author) || ''),
+  );
+  if (items.length === 0) return null;
 
   return (
     <section className="py-20" style={{ backgroundColor: CREAM }}>
@@ -394,13 +422,7 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
             const bs = b.settings || {};
             return (
               <div key={b.id} className="bg-white rounded-[32px] p-8">
-                <div className="flex mb-4">
-                  {[1,2,3,4,5].map((j) => (
-                    <svg key={j} className="w-4 h-4" fill={YELLOW} viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  ))}
-                </div>
+                <div className="font-serif text-5xl leading-none mb-2" style={{ fontFamily: HEADING_FONT, color: YELLOW }} aria-hidden="true">&ldquo;</div>
                 <p className="font-serif text-lg leading-relaxed mb-6 italic" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
                   "{bs.quote}"
                 </p>

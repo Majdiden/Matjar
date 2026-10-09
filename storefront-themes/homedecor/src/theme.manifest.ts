@@ -52,7 +52,7 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow Label', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: "Editor's Picks" },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
     { id: 'view_all_url', type: 'url', label: 'View All URL', default: '/products' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 9, min: 3, max: 18 },
@@ -91,9 +91,10 @@ export const philosophySection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'pillar-1', type: 'pillar', settings: { title: 'Sustainably Sourced', description: 'Responsibly harvested materials from certified suppliers.' } },
-    { id: 'pillar-2', type: 'pillar', settings: { title: 'Built to Endure', description: 'Rigorous quality testing ensures lasting beauty and function.' } },
-    { id: 'pillar-3', type: 'pillar', settings: { title: 'Thoughtful Design', description: 'Each piece balances form, function, and timeless aesthetics.' } },
+    // Empty until the merchant writes them (no demo claims on a live store).
+    { id: 'pillar-1', type: 'pillar', settings: { title: '', description: '' } },
+    { id: 'pillar-2', type: 'pillar', settings: { title: '', description: '' } },
+    { id: 'pillar-3', type: 'pillar', settings: { title: '', description: '' } },
   ],
 });
 

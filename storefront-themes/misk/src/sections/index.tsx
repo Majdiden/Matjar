@@ -14,6 +14,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { MiskProductCard } from '../components/MiskProductCard';
 import { Reveal } from '../lib/Reveal';
 import { I, iconFor } from '../lib/icons';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // ─── helpers ──────────────────────────────────────────────────────
 
@@ -36,6 +38,12 @@ const blocksOf = (section: any): any[] => (Array.isArray(section?.blocks) ? sect
 /** The keys of `s` that hold a non-empty value (blank simple-editor fields don't override). */
 const filled = (s: Record<string, any>, keys: string[]) =>
   Object.fromEntries(keys.filter((k) => typeof s[k] === 'string' && s[k].trim()).map((k) => [k, s[k]]));
+
+/**
+ * Merchant text only — for copy whose shipped demo line would be a claim
+ * about the store (delivery, returns, payment, gifts, customer quotes).
+ */
+const own = (value: unknown): string => merchantText(value) || '';
 
 const copy = (t: (k: string, o?: any) => string, value: unknown, ...keys: string[]): string => {
   const v = typeof value === 'string' ? value.trim() : '';
@@ -100,7 +108,13 @@ const Cta: React.FC<{ to?: string; className?: string; children: React.ReactNode
 const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const slides = blocksOf(section).filter((b) => b.type === 'slide');
+  const storeName = useStore().store?.name || '';
+  // Once the merchant has their own photo, extra slides still carrying a
+  // theme stock photo are dropped; slides they filled themselves stay.
+  const hasOwnPhoto = !!merchantImage(s.image);
+  const slides = blocksOf(section)
+    .filter((b) => b.type === 'slide')
+    .filter((b, i) => !hasOwnPhoto || i === 0 || !isStockImage(b.settings?.image));
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -114,6 +128,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
     const id2 = window.setTimeout(() => go(idx + 1), interval);
     return () => window.clearTimeout(id2);
   }, [autoplay, paused, idx, interval, go]);
+  useEffect(() => { if (idx >= slides.length) setIdx(0); }, [idx, slides.length]);
 
   if (!slides.length) return null;
 
@@ -127,7 +142,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
       className={`relative overflow-hidden ${height}`}
       style={{ background: s.band_color || 'var(--misk-midnight, #191528)', '--misk-hero-duration': `${interval}ms` } as React.CSSProperties}
       aria-roledescription="carousel"
-      aria-label={t('theme.hero.eyebrow')}
+      aria-label={storeName || undefined}
       onMouseEnter={() => pauseOnHover && setPaused(true)}
       onMouseLeave={() => pauseOnHover && setPaused(false)}
     >
@@ -136,10 +151,11 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
           // The section-level (My Store) settings override the first slide.
           const b = i === 0 ? { ...(slide.settings || {}), ...filled(s, ['heading', 'subheading', 'image', 'cta_text']) } : slide.settings || {};
           const active = i === idx;
-          const n = (i % 3) + 1;
-          const heading = copy(t, b.heading, `theme.hero.heading_${n}`);
-          const sub = copy(t, b.subheading, `theme.hero.sub_${n}`);
-          const eyebrow = copy(t, b.eyebrow, 'theme.hero.eyebrow');
+          // Merchant copy only: extras (eyebrow, short line) show when typed,
+          // the title falls back to the store name.
+          const heading = merchantText(b.heading) || storeName;
+          const sub = merchantText(b.subheading);
+          const eyebrow = merchantText(b.eyebrow);
           const cta = copy(t, b.cta_text, 'theme.hero.cta');
           return (
             <div
@@ -540,8 +556,8 @@ const CountdownSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 const UspStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const { t } = useTranslation(['theme']);
-  const items = blocksOf(section).filter((b) => b.type === 'item');
+  // Only promises the merchant wrote; the strip disappears without any.
+  const items = blocksOf(section).filter((b) => b.type === 'item' && own(b.settings?.title));
   if (!items.length) return null;
   const divide = s.show_dividers !== false;
 
@@ -557,8 +573,8 @@ const UspStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 <Reveal delay={(i % 4) as 0 | 1 | 2 | 3} className="flex items-start gap-4">
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-line text-gold-ink"><Icon className="h-6 w-6" /></span>
                   <span>
-                    <span className="block font-display text-lg text-ink">{copy(t, c.title, `theme.usp.items.${i + 1}.title`)}</span>
-                    <span className="mt-1 block text-sm text-muted">{copy(t, c.text, `theme.usp.items.${i + 1}.text`)}</span>
+                    <span className="block font-display text-lg text-ink">{own(c.title)}</span>
+                    {own(c.text) && <span className="mt-1 block text-sm text-muted">{own(c.text)}</span>}
                   </span>
                 </Reveal>
               </li>
@@ -579,7 +595,7 @@ const SplitBannerSection: React.FC<SectionComponentProps> = ({ id }) => {
   const radius = s.image_radius != null ? `${s.image_radius}px` : '10px';
   const eyebrow = copy(t, s.eyebrow, 'theme.split.eyebrow');
   const heading = copy(t, s.heading, 'theme.split.heading');
-  const sub = copy(t, s.subheading, 'theme.split.sub');
+  const sub = own(s.subheading);
   const cta = copy(t, s.cta_text, 'theme.split.cta');
 
   return (
@@ -648,7 +664,8 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id }) => {
 const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const quotes = blocksOf(section).filter((b) => b.type === 'quote');
+  // Only quotes the merchant added — never invented customers.
+  const quotes = blocksOf(section).filter((b) => b.type === 'quote' && own(b.settings?.quote));
   if (!quotes.length) return null;
 
   return (
@@ -663,8 +680,7 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
         <ul className="misk-rail misk-snap md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:p-0">
           {quotes.map((b, i) => {
             const c = b.settings || {};
-            const quote = copy(t, c.quote, `theme.testimonials.items.${i + 1}.quote`);
-            if (!quote) return null;
+            const quote = own(c.quote);
             return (
               <li key={b.id || i}>
                 <Reveal delay={(i % 4) as 0 | 1 | 2 | 3}>
@@ -672,8 +688,8 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
                     <I.quote className="h-6 w-6 text-gold" />
                     <blockquote className="flex-1 text-base text-ink">{quote}</blockquote>
                     <figcaption className="text-sm">
-                      <span className="block font-bold text-ink">{copy(t, c.name, `theme.testimonials.items.${i + 1}.name`)}</span>
-                      <span className="block text-muted">{copy(t, c.role, `theme.testimonials.items.${i + 1}.role`)}</span>
+                      {own(c.name) && <span className="block font-bold text-ink">{own(c.name)}</span>}
+                      {own(c.role) && <span className="block text-muted">{own(c.role)}</span>}
                     </figcaption>
                   </figure>
                 </Reveal>
@@ -742,10 +758,9 @@ const SEPARATORS: Record<string, string> = { diamond: '◆', dot: '•', slash: 
 
 const MarqueeSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const { t } = useTranslation(['theme']);
   const messages = blocksOf(section)
     .filter((b) => b.type === 'message')
-    .map((b, i) => copy(t, b.settings?.text, `theme.marquee.${i + 1}`))
+    .map((b) => own(b.settings?.text))
     .filter(Boolean);
   if (!messages.length) return null;
 

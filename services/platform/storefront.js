@@ -123,7 +123,7 @@ export async function listThemes() {
   const Theme = mongoose.model("Theme");
   const Tenant = mongoose.model("Tenant");
   const [themes, usage] = await Promise.all([
-    Theme.find({}).select("name slug version description status isDefault previewImage categories tags overrides statistics catalogSync createdAt updatedAt").sort({ name: 1 }).lean(),
+    Theme.find({}).select("name slug version description status isDefault previewImage categories categoryKeys tags overrides statistics catalogSync createdAt updatedAt").sort({ name: 1 }).lean(),
     Tenant.aggregate([
       { $match: { deletedAt: null } },
       { $group: { _id: "$settings.activeTheme", n: { $sum: 1 } } },

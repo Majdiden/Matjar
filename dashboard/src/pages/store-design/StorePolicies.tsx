@@ -26,6 +26,7 @@ import {
   EMPTY_ANSWER, fromDraft, hasArabic, isEditedConflict, toAsciiDigits, toDraft, type AnswerDraft,
 } from './answers';
 import { getTenantLocale } from '../../lib/format';
+import { guideAttrs } from '../../lib/guideTip';
 import { notifySetupChanged } from '../../contexts/setup-guide-context';
 
 /** Server-side limits (services/generatedPages.js). */
@@ -167,7 +168,7 @@ export const StorePolicies: React.FC = () => {
         </div>
       )}
 
-      <Card>
+      <Card {...guideAttrs('policies')}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Truck className="h-5 w-5" />
@@ -291,7 +292,7 @@ export const StorePolicies: React.FC = () => {
         </Card>
       )}
 
-      <Button className="w-full h-11 text-base" onClick={save} disabled={saving || !state}>
+      <Button className="w-full h-11 text-base" onClick={save} disabled={saving || !state} {...guideAttrs('policies', 'field', 'policies_save')}>
         {saving && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
         {state?.answers ? t('storePages:policies.update') : t('storePages:policies.save')}
       </Button>

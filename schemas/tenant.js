@@ -114,7 +114,8 @@ const tenantSchema = new Schema({
     language: { type: String, default: "en" },
     taxIncluded: { type: Boolean, default: false },
     activeTheme: { type: String, default: null }, // Theme slug
-    // What the store sells, picked at signup (config/storeNiches.js). Picks
+    // What the store sells, picked at signup: a theme category key
+    // (services/themeCategories.js; legacy ids in config/storeNiches.js). Picks
     // the theme's per-niche starting homepage at store creation (PBI 10).
     // null for stores created before it was recorded or without a pick.
     niche: { type: String, default: null },
@@ -157,11 +158,15 @@ const tenantSchema = new Schema({
     // Store policies. Each has a merchant-authored title + a rich-text (HTML)
     // body, surfaced in the storefront footer, on dedicated policy pages, and
     // in checkout. Bodies are sanitised on write (controllers/settings.js).
+    // Generated policies (PBI 10-11) also keep a copy per storefront
+    // language in `translations` (title + body); the storefront shows the
+    // shopper's language while the generated text is untouched, and the
+    // merchant's own edited body (title/body) in every language after.
     policies: {
       privacy: { title: { type: String, default: null }, body: { type: String, default: null } },
-      returns: { title: { type: String, default: null }, body: { type: String, default: null } },
-      delivery: { title: { type: String, default: null }, body: { type: String, default: null } },
-      cod: { title: { type: String, default: null }, body: { type: String, default: null } },
+      returns: { title: { type: String, default: null }, body: { type: String, default: null }, translations: { type: Schema.Types.Mixed, default: undefined } },
+      delivery: { title: { type: String, default: null }, body: { type: String, default: null }, translations: { type: Schema.Types.Mixed, default: undefined } },
+      cod: { title: { type: String, default: null }, body: { type: String, default: null }, translations: { type: Schema.Types.Mixed, default: undefined } },
     },
     // Answers behind the generated delivery / returns / payment policies
     // (PBI 10-11, services/storePages.js), kept so the text can be rebuilt.

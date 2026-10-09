@@ -5,8 +5,8 @@ import type { SectionDefinition, SectionInstance } from '@matjar/theme-shared/ty
 /**
  * NUTREKO — bold black/white/lime supplements theme.
  *
- * Sports-nutrition vibe: chunky sans headlines, 100% AUTHENTIC /
- * MAXIMUM POTENCY guarantee panels, explore-the-range category strip,
+ * Sports-nutrition vibe: chunky sans headlines, the merchant's own
+ * guarantee panels, explore-the-range category strip,
  * TOP SELLERS + TRENDING NOW + FUEL YOUR WORKOUT product rails.
  */
 
@@ -48,7 +48,7 @@ export const nutrekoGuaranteeSection: SectionDefinition = defineSection({
   name: 'Guarantee Panels',
   icon: 'ShieldCheck',
   category: 'marketing',
-  description: '100% AUTHENTIC / MAXIMUM POTENCY / LAB TESTED panels',
+  description: 'Bold icon panels with the store\'s own promises',
   target: 'body',
   settings: [],
   blocks: [
@@ -62,10 +62,11 @@ export const nutrekoGuaranteeSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'g-1', type: 'panel', settings: { title: '100% AUTHENTIC', subtitle: 'Sourced direct from brands' } },
-    { id: 'g-2', type: 'panel', settings: { title: 'MAXIMUM POTENCY', subtitle: 'Premium grade formulas' } },
-    { id: 'g-3', type: 'panel', settings: { title: 'LAB TESTED', subtitle: 'Every batch verified' } },
-    { id: 'g-4', type: 'panel', settings: { title: 'FAST SHIPPING', subtitle: 'Ships within 24 hours' } },
+    // Empty panels for the merchant to fill: a guarantee is theirs to make.
+    { id: 'g-1', type: 'panel', settings: {} },
+    { id: 'g-2', type: 'panel', settings: {} },
+    { id: 'g-3', type: 'panel', settings: {} },
+    { id: 'g-4', type: 'panel', settings: {} },
   ],
 });
 
@@ -138,8 +139,8 @@ export const nutrekoBannerSection: SectionDefinition = defineSection({
 
 const indexTemplate: SectionInstance[] = [
   { id: 'nutreko-hero', type: 'nutreko-hero', settings: {} },
-  { id: 'nutreko-trending', type: 'nutreko-product-grid', settings: { heading: 'TRENDING NOW', source: 'newest' } },
-  { id: 'nutreko-topsellers', type: 'nutreko-product-grid', settings: { heading: 'TOP SELLERS', source: 'featured' } },
+  { id: 'nutreko-trending', type: 'nutreko-product-grid', settings: { source: 'newest' } },
+  { id: 'nutreko-topsellers', type: 'nutreko-product-grid', settings: { source: 'featured' } },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

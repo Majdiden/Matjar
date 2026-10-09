@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
-import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { I } from '../lib/icons';
 
 const PLACEHOLDER = 'https://placehold.co/240x240/f4efe7/14110e?text=%20';
@@ -12,12 +11,11 @@ const CartPage: React.FC = () => {
   const { t } = useTranslation(['theme']);
   const { cart, updateItem, removeItem, loading } = useCart();
   const { formatPrice } = useStore();
-  const threshold = Number(useThemeSetting<number>('free_shipping_threshold')) || 0;
 
+  // No free-shipping bar: checkout has no free-shipping threshold, so it
+  // could promise free delivery that the order would not get.
   const empty = !cart || cart.items.length === 0;
   const subtotal = cart?.subtotal ?? 0;
-  const remaining = threshold > 0 ? Math.max(0, threshold - subtotal) : 0;
-  const progress = threshold > 0 ? Math.min(100, (subtotal / threshold) * 100) : 100;
 
   return (
     <div className="mx-auto max-w-[1320px] px-4 py-10 sm:px-6 md:py-16">
@@ -91,14 +89,6 @@ const CartPage: React.FC = () => {
           <aside className="h-fit rounded-[var(--radius-lg,18px)] bg-sand p-6 sm:p-8">
             <h2 className="font-display text-2xl text-ink">{t('theme.cart.summary')}</h2>
 
-            {threshold > 0 && (
-              <div className="mt-5">
-                <p className="text-sm text-ink">
-                  {remaining > 0 ? t('theme.cart.free_shipping_remaining', { amount: formatPrice(remaining) }) : t('theme.cart.free_shipping_unlocked')}
-                </p>
-                <div className="mt-2 h-[3px] w-full bg-line"><div className="h-full bg-gold transition-[width] duration-500" style={{ width: `${progress}%` }} /></div>
-              </div>
-            )}
 
             <dl className="misk-num mt-6 space-y-3 text-sm">
               <div className="flex justify-between">

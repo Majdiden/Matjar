@@ -18,6 +18,7 @@ import { useAtelierUI } from '../contexts/AtelierUI';
 import { BeforeAfter, CountUp, Icon, Marquee, Reveal, prefersReducedMotion } from '../lib/motion';
 import manifest from '../theme.manifest';
 import { storefrontLocale } from '@matjar/theme-shared/utils/locale';
+import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 /** Resolved blocks, falling back to the manifest definition's defaults when a store instance carries none. */
 function useBlocks(id: string, section?: { type: string }) {
@@ -43,6 +44,13 @@ const Shell: React.FC<{ s: Record<string, any>; children: React.ReactNode; class
  *  the shipped demo content is bilingual. Merchant-entered text always wins. */
 const useBlockT = () => { const st = useSoftT(); return (key: string, i: number, field: string, val: any) => (val || st(`theme.section.${key}.blocks.${i}.${field}`)); };
 
+/**
+ * Merchant text only, for blocks whose shipped demo copy would be a claim
+ * about the store (delivery, returns, payment, formulas, numbers, customer
+ * quotes): an empty block stays empty and is not rendered.
+ */
+const ownText = (_key: string, _i: number, _field: string, val: any): string => merchantText(val) || '';
+
 /** Translate, but treat a missing key (echoed back by i18next) as empty. */
 const useSoftT = () => { const { t } = useTranslation(['theme']); return (k: string) => { const v = t(k, { defaultValue: '' }); return !v || v === k || v.startsWith('theme.') ? '' : v; }; };
 
@@ -53,7 +61,9 @@ const Heading: React.FC<{ s: Record<string, any>; fallbackKey: string; id?: stri
   const k = (f: string) => (id ? st(`theme.section.${id}.${f}`) : '') || st(`theme.section.${fallbackKey}.${f}`);
   const eyebrow = s.eyebrow || k('eyebrow');
   const heading = s.heading || k('heading');
-  const sub = s.subheading || k('subheading');
+  // Sub-copy is the merchant's own: the shipped lines describe a store
+  // ("refreshed every Monday", "small batches") that may not be theirs.
+  const sub = merchantText(s.subheading);
   if (!eyebrow && !heading && !sub) return null;
   return (
     <div className={`${align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'} ${className}`}>
@@ -89,8 +99,12 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
   const { t } = useTranslation(['theme']);
-  const bt = useBlockT();
-  const slides = blocks.length ? blocks : [{ id: 'fallback', type: 'slide', settings: {} }];
+  const storeName = useStore().store?.name || '';
+  // Once the merchant has their own photo, extra slides still carrying a
+  // theme stock photo are dropped; slides they filled themselves stay.
+  const hasOwnPhoto = !!merchantImage(s.image);
+  const all = blocks.length ? blocks : [{ id: 'fallback', type: 'slide', settings: {} }];
+  const slides = hasOwnPhoto ? all.filter((sl, i) => i === 0 || !isStockImage(sl.settings?.image)) : all;
   const [idx, setIdx] = useState(0);
   const [cycle, setCycle] = useState(0);
   const [hover, setHover] = useState(false);
@@ -98,6 +112,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const autoplay = s.autoplay !== false && slides.length > 1 && !(s.pause_on_hover && hover);
   const reduced = prefersReducedMotion();
   const go = (n: number) => { setIdx(((n % slides.length) + slides.length) % slides.length); setCycle((c) => c + 1); };
+  useEffect(() => { if (idx >= slides.length) setIdx(0); }, [idx, slides.length]);
   useEffect(() => {
     if (!autoplay) return;
     const t0 = setInterval(() => go(idx + 1), interval);
@@ -112,8 +127,9 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
         const active = i === idx;
         // The section-level (My Store) settings override the first slide.
         const st = i === 0 ? { ...sl.settings, ...pick(s, ['heading', 'image', 'cta_text']) } : sl.settings || {};
-        const eyebrow = bt('hero', i, 'eyebrow', st.eyebrow);
-        const heading = bt('hero', i, 'heading', st.heading);
+        // Extras (eyebrow) only when the merchant typed them; title falls back to the store name.
+        const eyebrow = merchantText(st.eyebrow);
+        const heading = merchantText(st.heading) || storeName;
         const sub = i === 0 ? s.subheading : '';
         const cta = st.cta_text || t('theme.section.hero.cta');
         return (
@@ -161,9 +177,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 const MarqueeSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
-  const bt = useBlockT();
   const global = useAnnouncementMessages();
-  const fromBlocks = blocks.map((b, i) => bt('marquee', i, 'text', b.settings.text)).filter(Boolean);
+  const fromBlocks = blocks.map((b, i) => ownText('marquee', i, 'text', b.settings.text)).filter(Boolean);
   const items = (fromBlocks.length ? fromBlocks : global) as string[];
   if (!items.length) return null;
   return (
@@ -178,8 +193,9 @@ const MarqueeSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 
 const IconRowSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const blocks = useBlocks(id, section);
-  const bt = useBlockT();
+  const blocks = useBlocks(id, section).filter((b) => merchantText(b.settings.title));
+  const bt = ownText;
+  if (!blocks.length) return null;
   return (
     <Shell s={s}>
       <Heading s={s} id={id} fallbackKey="icon_row" />
@@ -195,8 +211,9 @@ const IconRowSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 
 const FeatureGridSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const blocks = useBlocks(id, section);
-  const bt = useBlockT();
+  const blocks = useBlocks(id, section).filter((b) => merchantText(b.settings.title));
+  const bt = ownText;
+  if (!blocks.length) return null;
   return (
     <Shell s={s}>
       <Heading s={s} id={id} fallbackKey="feature_grid" />
@@ -394,8 +411,10 @@ const DealsBannerSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 const StatsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const blocks = useBlocks(id, section);
-  const bt = useBlockT();
+  // Only figures the merchant labelled — the seeded numbers are not theirs.
+  const blocks = useBlocks(id, section).filter((b) => merchantText(b.settings.label));
+  const bt = ownText;
+  if (!blocks.length) return null;
   return (
     <Shell s={s}>
       <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:items-center">
@@ -503,8 +522,7 @@ const LookbookSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 const UspStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
-  const bt = useBlockT();
-  const items = blocks.map((b, i) => ({ icon: b.settings.icon || 'check', title: bt('usp', i, 'title', b.settings.title), text: bt('usp', i, 'text', b.settings.text) })).filter((b) => b.title);
+  const items = blocks.map((b, i) => ({ icon: b.settings.icon || 'check', title: ownText('usp', i, 'title', b.settings.title), text: ownText('usp', i, 'text', b.settings.text) })).filter((b) => b.title);
   if (!items.length) return null;
   return <Shell s={s} full><UspStrip items={items} /></Shell>;
 };
@@ -513,7 +531,8 @@ const UspStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 
 const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const bt = useBlockT();
+  // Only quotes the merchant added — never invented customers.
+  const bt = ownText;
   const blocks = useBlocks(id, section).filter((b, i) => bt('testimonials', i, 'quote', b.settings.quote));
   const { t } = useTranslation(['theme']);
   const track = useRef<HTMLDivElement>(null);

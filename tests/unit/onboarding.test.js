@@ -74,6 +74,16 @@ describe("themesForNiche", () => {
     assert.deepEqual(slugs(themesForNiche(themes, "books")), slugs(themes));
     assert.deepEqual(slugs(themesForNiche(themes, "")), slugs(themes));
   });
+
+  it("prefers the platform-managed categoryKeys over raw manifest categories", () => {
+    const managed = [
+      { slug: "glow", categories: ["cosmetics"], categoryKeys: ["beauty"] },
+      { slug: "plain", categories: ["beauty"], categoryKeys: [] },
+      { slug: "old", categories: ["beauty"] },
+    ];
+    assert.deepEqual(slugs(themesForNiche(managed, "beauty")), ["glow", "old"]);
+    assert.deepEqual(slugs(themesForNiche(managed, "beauty", SIGNUP_V2_THEME_LIMIT)), ["glow", "old", "plain"]);
+  });
 });
 
 describe("firstSaleProgress", () => {

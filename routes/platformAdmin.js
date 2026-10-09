@@ -13,6 +13,8 @@
  */
 
 import { Router } from "express";
+import { ipKeyGenerator } from "express-rate-limit";
+import { createRateLimiter } from "../middlewares/rateLimiters.js";
 import {
   platformAuthenticate,
   requireScope,
@@ -149,7 +151,18 @@ router.get("/phone-countries", requireScope(PLATFORM_SCOPES.SUPPORT_READ), getPh
 router.put("/phone-countries", requireScope(PLATFORM_SCOPES.FLAGS_WRITE), updatePhoneCountries);
 
 // --- Tenant inspection (support.read) ---
-router.get("/tenants", requireScope(PLATFORM_SCOPES.SUPPORT_READ), listTenants);
+// Text search (`?q=`) also powers the console's quick navigator, which fires
+// as the operator types (debounced) — cap searches per operator. Plain
+// paging/filtering without `q` is not counted.
+const tenantSearchLimiter = createRateLimiter({
+  prefix: "platform:tenant-search",
+  windowMs: 60 * 1000,
+  max: 120,
+  skip: (req) => !req.query.q,
+  keyGenerator: (req) => (req.platformUser?.id ? `u:${req.platformUser.id}` : `ip:${ipKeyGenerator(req.ip)}`),
+  message: "Too many searches. Try again in a minute.",
+});
+router.get("/tenants", requireScope(PLATFORM_SCOPES.SUPPORT_READ), tenantSearchLimiter, listTenants);
 router.get(
   "/tenants-stats",
   requireScope(PLATFORM_SCOPES.SUPPORT_READ),

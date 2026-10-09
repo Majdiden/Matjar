@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useThemeSettings, useTemplateSections, useMerchantBlocks } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useTrustLines, TrustLineIconSvg } from '@matjar/theme-shared/components/commerce/TrustBadges';
+import { merchantText } from '@matjar/theme-shared/theme/heroContent';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
@@ -128,12 +130,13 @@ function CtaBannerBlock({ id }: SectionProps) {
 
   return (
     <section className="py-16 text-center px-4" style={{ backgroundColor: ctaBgColor }}>
-      <h2 className="text-3xl md:text-4xl font-black uppercase text-white mb-4">
+      <h2 className={`text-3xl md:text-4xl font-black uppercase text-white ${merchantText(cta.subheading) ? 'mb-4' : 'mb-8'}`}>
         {cta.heading || t('theme.section.cta_banner.title')}
       </h2>
-      <p className="text-white mb-8 max-w-md mx-auto">
-        {cta.subheading || t('theme.section.cta_banner.subtitle')}
-      </p>
+      {/* The merchant's own line only — no demo promise ("Free shipping over $75"). */}
+      {merchantText(cta.subheading) && (
+        <p className="text-white mb-8 max-w-md mx-auto">{merchantText(cta.subheading)}</p>
+      )}
       <Link
         to={cta.button_url || '/products'}
         className="inline-block px-10 py-4 font-black uppercase tracking-wider hover:opacity-90 transition"
@@ -181,25 +184,18 @@ function PerformanceGearBlock({ id, onQuickView }: SectionProps) {
   );
 }
 
-/** Trust Badges */
-function TrustBadgesBlock({ id }: SectionProps) {
-  const { t } = useTranslation(['theme', 'common']);
-  const trust = useThemeSettings(id);
-  const trustObserver = useIntersectionObserver({ threshold: 0.1 });
+/** Demo badges this theme used to ship; sections saved back then still carry them. */
+const LEGACY_DEMO_BADGES = [
+  { title: 'Free Returns', description: '30-day no-questions-asked returns' },
+  { title: 'Pro Gear', description: 'Used by professional athletes worldwide' },
+  { title: 'Fast Delivery', description: 'Express shipping on all orders' },
+];
 
-  // Default trust badge blocks — overridden by manifest blocks when available
-  // Strings are resolved via t() so they work in both EN and AR
-  const defaultBadges = [
-    { title: t('theme.section.trust_badges.free_returns.title'), desc: t('theme.section.trust_badges.free_returns.description'), icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" /></svg>
-    )},
-    { title: t('theme.section.trust_badges.pro_gear.title'), desc: t('theme.section.trust_badges.pro_gear.description'), icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
-    )},
-    { title: t('theme.section.trust_badges.fast_delivery.title'), desc: t('theme.section.trust_badges.fast_delivery.description'), icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-    )},
-  ];
+/** Trust Badges — the merchant's own badges, else the store's real delivery / returns / payment facts */
+function TrustBadgesBlock({ id }: SectionProps) {
+  const badgeBlocks = useMerchantBlocks(id, ['title', 'description'], LEGACY_DEMO_BADGES);
+  const trustLines = useTrustLines();
+  const trustObserver = useIntersectionObserver({ threshold: 0.1 });
 
   // Icon map for trust-badges blocks
   const iconMap: Record<string, React.ReactNode> = {
@@ -208,14 +204,22 @@ function TrustBadgesBlock({ id }: SectionProps) {
     lightning: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
   };
 
-  const trustBlocks: Array<{ title: string; desc: string; icon: React.ReactNode }> =
-    Array.isArray(trust.blocks) && trust.blocks.length > 0
-      ? trust.blocks.map((b: any) => ({
-          title: b.settings?.title || t('theme.section.trust_badges.default_title'),
-          desc: b.settings?.description || '',
-          icon: iconMap[b.settings?.icon] ?? iconMap.lightning,
-        }))
-      : defaultBadges;
+  // Badges the merchant wrote (the demo badges — "Free Returns, 30-day…" —
+  // don't count), else the store's own facts. Nothing to say → no section.
+  const trustBlocks: Array<{ key: string; title: string; desc: string; icon: React.ReactNode }> = badgeBlocks.length > 0
+    ? badgeBlocks.map((b) => ({
+        key: b.id,
+        title: merchantText(b.settings.title) || '',
+        desc: merchantText(b.settings.description) || '',
+        icon: iconMap[b.settings.icon] ?? iconMap.lightning,
+      }))
+    : trustLines.map((line) => ({
+        key: line.key,
+        title: line.text,
+        desc: '',
+        icon: <TrustLineIconSvg name={line.icon} className="w-8 h-8" />,
+      }));
+  if (trustBlocks.length === 0) return null;
 
   return (
     <section
@@ -224,11 +228,11 @@ function TrustBadgesBlock({ id }: SectionProps) {
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {trustBlocks.map((f) => (
-          <div key={f.title} className="bg-white rounded-lg p-6 border-2 border-gray-100 hover:border-[#dc2626]/30 flex items-start gap-4 transition">
+          <div key={f.key} className="bg-white rounded-lg p-6 border-2 border-gray-100 hover:border-[#dc2626]/30 flex items-center gap-4 transition">
             <div className="text-[#dc2626] flex-shrink-0">{f.icon}</div>
             <div>
-              <h3 className="font-black uppercase mb-1">{f.title}</h3>
-              <p className="text-sm text-gray-500">{f.desc}</p>
+              {f.title && <h3 className="font-black uppercase mb-1">{f.title}</h3>}
+              {f.desc && <p className="text-sm text-gray-500">{f.desc}</p>}
             </div>
           </div>
         ))}

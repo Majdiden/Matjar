@@ -3,6 +3,8 @@ import { APIError } from "../middlewares/errorHandler.js";
 import mongoose from "mongoose";
 import sanitizeHtml from "sanitize-html";
 import { logAudit } from "../utils/audit.js";
+import { refreshGeneratedAboutService } from "../services/storePages.js";
+import logger from "../utils/logger.js";
 import { STORE_CONTACT_FIELDS, normalizeStoreContactField } from "../utils/storeContact.js";
 
 // The four store policies the merchant can author. Keys map 1:1 to
@@ -379,6 +381,12 @@ export const updateSettings = async (req, res, next) => {
       changes: updateData,
       req,
     });
+    // A renamed store: rewrite the generated About page (it names the store).
+    if ("settings.storeName" in updateData) {
+      await refreshGeneratedAboutService(req.models, tenant._id).catch((err) =>
+        logger.warn("settings: About page not refreshed after rename", { tenantId: String(tenant._id), error: err?.message })
+      );
+    }
     res.json({ success: true, data: tenant.settings });
   } catch (error) {
     next(error);

@@ -9,7 +9,9 @@
  *   2. A new store starts from its theme's niche preset (flag on), and from
  *      `templates.index` when the flag is off or the niche has no preset.
  *   3. Switching theme keeps the brand kit; each theme keeps its own
- *      customization (restored on switching back, never cross-applied).
+ *      customization (restored on switching back). A theme used for the
+ *      first time takes the homepage words, photo and top strip from the
+ *      outgoing one, never its colours or CSS.
  */
 import { describe, it, before, after, beforeEach } from "node:test";
 import assert from "node:assert/strict";
@@ -192,22 +194,44 @@ describe("E2E theme engine: brand bindings, presets, theme switch", () => {
     const client = api(app, await login(app));
     await client.put("/api/store-profile", BRAND).expect(200);
 
-    // Customize modern: own subheading + primary colour + custom CSS, published.
+    // Customize modern: own homepage words, photo, top strip, primary colour
+    // and custom CSS, published.
     const m0 = await getCustomization(client);
+    const PHOTO = "https://cdn.example.com/nile-cover.jpg";
     await client
-      .patch("/api/theme-customization/sections/hero/settings", { settings: { ...hero(m0).settings, subheading: "Modern words" } })
+      .patch("/api/theme-customization/sections/hero/settings", {
+        settings: {
+          ...hero(m0).settings,
+          heading: "Nile perfumes",
+          heading__ar: "عطور النيل",
+          subheading: "Modern words",
+          primary_button_text: "Browse",
+          background_image: PHOTO,
+        },
+      })
+      .expect(200);
+    await client
+      .put("/api/theme-customization/settings", { settings: { theme: { announcement_text: "Free delivery", announcement_text__ar: "توصيل مجاني" } } })
       .expect(200);
     await client.put("/api/theme-customization/settings", { settings: { colors: { primary: "#123456" } } }).expect(200);
     await client.put("/api/theme-customization/custom-css", { css: ".x { color: red; }" }).expect(200);
     await client.post("/api/theme-customization/publish").expect(200);
 
-    // → starter: brand kit still applies, nothing from modern leaks in.
+    // → starter: brand kit still applies; the homepage words, photo and top
+    // strip follow by role (services/themeSwitchCarry.js); the look doesn't.
     await client.post(`/api/themes/${starter._id}/install`).expect(200);
     const s1 = await getCustomization(client);
     assert.equal(s1.themeSlug, "starter");
-    assert.equal(hero(s1).settingSources.subheading, "brand", "brand kit follows the store");
-    assert.equal(hero(s1).brandValues.subheading__ar, "عطور أصلية");
-    assert.notEqual(hero(s1).settings.subheading, "Modern words");
+    assert.equal(hero(s1).settingSources.subheading, "override", "the merchant's own subtitle, not the tagline");
+    assert.equal(hero(s1).settings.heading, "Nile perfumes");
+    assert.equal(hero(s1).settings.heading__ar, "عطور النيل");
+    assert.equal(hero(s1).settings.subheading, "Modern words");
+    assert.equal(hero(s1).settings.button_text, "Browse", "primary_button_text → button_text");
+    assert.equal(hero(s1).settings.background_image, PHOTO);
+    assert.equal(s1.settings.theme.announcement_text__ar, "توصيل مجاني");
+    const liveStarter = await request(app).get("/storefront/store-info").set("Host", HOST).expect(200);
+    const liveStarterHero = liveStarter.body.data.store.themeCustomization.sectionsByTemplate.index.find((s) => s.id === "hero");
+    assert.equal(liveStarterHero.settings.heading, "Nile perfumes", "carried into the live homepage too");
     assert.notEqual(s1.settings.colors.primary, "#123456");
     assert.equal(s1.customCSS, "");
     assert.equal(s1.settingSources.colors.primary, "brand");
@@ -226,7 +250,7 @@ describe("E2E theme engine: brand bindings, presets, theme switch", () => {
     assert.equal(m1.themeSlug, "modern");
     assert.equal(hero(m1).settings.subheading, "Modern words");
     assert.equal(hero(m1).settingSources.subheading, "override");
-    assert.notEqual(hero(m1).settings.heading, "Starter heading");
+    assert.equal(hero(m1).settings.heading, "Nile perfumes", "a theme used before comes back as left, not re-carried");
     assert.equal(m1.settings.colors.primary, "#123456");
     assert.equal(m1.customCSS, ".x { color: red; }");
     const live = await request(app).get("/storefront/store-info").set("Host", HOST).expect(200);

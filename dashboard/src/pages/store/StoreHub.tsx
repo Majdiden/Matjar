@@ -34,6 +34,7 @@ import { useStoreKey, useStoreProfile } from '../../hooks/useStoreProfile';
 import { readHomepageSummary } from '../../hooks/useHomepageEditor';
 import { firstMissingBrandItem, type StoreProfile } from '../../lib/storeProfile';
 import { cn } from '../../lib/utils';
+import { guideAttrs } from '../../lib/guideTip';
 
 type Tone = 'done' | 'todo' | 'neutral';
 
@@ -139,7 +140,7 @@ export default function StoreHub() {
                 {t('hub.store_card.view')}
               </a>
             </Button>
-            <ShareButton url={url} message={t('common:share.store_message')} className="h-12" />
+            <ShareButton url={url} message={t('common:share.store_message')} className="h-12" {...guideAttrs('share', 'entry')} />
           </div>
         )}
       </Card>
@@ -151,6 +152,7 @@ export default function StoreHub() {
             <HubCard
               key={item.key}
               to={item.href}
+              guide={item.key === 'brand' || item.key === 'policies' ? item.key : undefined}
               icon={item.icon}
               title={t(`hub.${item.key}.title`)}
               status={text}
@@ -184,6 +186,8 @@ interface HubCardProps {
   /** Quieter styling for the advanced entry. */
   muted?: boolean;
   trailing?: React.ReactNode;
+  /** The setup step this card opens, for the setup tip. */
+  guide?: string;
 }
 
 const TONE_CLASS: Record<Tone, string> = {
@@ -192,10 +196,11 @@ const TONE_CLASS: Record<Tone, string> = {
   neutral: 'text-muted-foreground',
 };
 
-function HubCard({ to, icon: Icon, title, status, tone, muted, trailing }: HubCardProps) {
+function HubCard({ to, icon: Icon, title, status, tone, muted, trailing, guide }: HubCardProps) {
   return (
     <Link
       to={to}
+      {...(guide ? guideAttrs(guide, 'entry') : {})}
       className={cn(
         'flex min-h-[72px] items-center gap-3 rounded-xl border bg-card p-3 shadow-sm transition-colors hover:bg-accent active:bg-accent',
         muted && 'bg-muted/30 shadow-none',

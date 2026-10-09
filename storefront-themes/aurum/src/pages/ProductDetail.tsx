@@ -6,6 +6,7 @@ import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
 import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
+import { useTrustLines, TrustLineIconSvg } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import ProductReviews from '@matjar/theme-shared/components/commerce/ProductReviews';
 import ProductDescription from '@matjar/theme-shared/components/commerce/ProductDescription';
@@ -25,9 +26,9 @@ import AurumProductCard from '../components/AurumProductCard';
  *   │               │                         │  · short desc · variants
  *   │               │                         │  · qty · ADD (white solid)
  *   │               │                         │  · BUY IT NOW (outline)
- *   │               │                         │  · delivery info
+ *   │               │                         │  · store delivery/returns facts
  *   └───────────────┴─────────────────────────┘
- *   tabs: description · shipping & return · reviews
+ *   tabs: description · merchant content sections · reviews
  *   You may also like (related products)
  */
 
@@ -40,6 +41,7 @@ const ProductDetail: React.FC = () => {
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
+  const trustLines = useTrustLines();
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
@@ -338,27 +340,17 @@ const ProductDetail: React.FC = () => {
               )}
             </div>
 
-            {/* Delivery info */}
-            <div className="space-y-3 text-xs text-mute border-t border-line pt-6">
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9-1.5h10.5a1.5 1.5 0 001.5-1.5v-8.25a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v9.75l1.5 1.5zm12 1.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.5a1.5 1.5 0 001.5-1.5v-4.5l-3.75-3.75H15" />
-                </svg>
-                <span>{t('theme.product_detail.free_shipping')}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{t('theme.product_detail.estimated_delivery')}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                </svg>
-                <span>{t('theme.product_detail.easy_returns')}</span>
-              </div>
-            </div>
+            {/* The store's own delivery / returns / payment facts */}
+            {trustLines.length > 0 && (
+              <ul className="space-y-3 text-xs text-mute border-t border-line pt-6">
+                {trustLines.map((line) => (
+                  <li key={line.key} className="flex items-center gap-3">
+                    <TrustLineIconSvg name={line.icon} className="w-5 h-5 shrink-0 text-gold" />
+                    <span>{line.text}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <GuaranteedCheckout className="mt-6" />
           </div>

@@ -13,6 +13,7 @@ import ProductDescription from '@matjar/theme-shared/components/commerce/Product
 import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { ProductProvider } from '@matjar/theme-shared/contexts/ProductContext';
+import { useTrustLines, type TrustLineIcon } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import BeauxeProductCard from '../components/BeauxeProductCard';
 
 /**
@@ -41,11 +42,27 @@ const CREAM = 'var(--color-accent)';
 // 'description' | 'reviews' | any merchant content-section key.
 type TabKey = string;
 
+/** Beauxe's line icons (1.6 stroke) for the store's trust lines. */
+const TRUST_ICON_PATHS: Record<TrustLineIcon, React.ReactNode> = {
+  truck: <><path d="M14 18V6a1 1 0 0 0-1-1H2v13" /><path d="M14 9h4l4 4v5h-2" /><circle cx="7" cy="18" r="2" /><circle cx="17" cy="18" r="2" /></>,
+  return: <><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></>,
+  clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+  cash: <><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2.5" /><path d="M6 12h.01M18 12h.01" /></>,
+  transfer: <><path d="M7 21 3 17l4-4" /><path d="M3 17h13" /><path d="m17 3 4 4-4 4" /><path d="M21 7H8" /></>,
+};
+
+const BeauxeTrustIcon: React.FC<{ name: TrustLineIcon }> = ({ name }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0" aria-hidden="true">
+    {TRUST_ICON_PATHS[name]}
+  </svg>
+);
+
 const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { product, reviews, relatedProducts, ratingDistribution, loading, error } = useProduct(slug!);
   const { formatPrice } = useStore();
   const { addItem } = useCart();
+  const trustLines = useTrustLines();
   const wishlist = useWishlist();
   const { t, i18n } = useTranslation(['theme']);
   const [qty, setQty] = useState(1);
@@ -324,20 +341,17 @@ const ProductDetail: React.FC = () => {
 
             <GuaranteedCheckout className="mt-6" />
 
-            {/* Benefits */}
-            <div className="space-y-3 pt-6 border-t border-pink-100 text-xs" style={{ color: NAVY }}>
-              {([
-                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6" /></svg>, t('theme.product_detail.benefit_vegan')],
-                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><path d="M14 18V6a1 1 0 0 0-1-1H2v13" /><path d="M14 9h4l4 4v5h-2" /><circle cx="7" cy="18" r="2" /><circle cx="17" cy="18" r="2" /></svg>, t('theme.product_detail.benefit_shipping')],
-                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>, t('theme.product_detail.benefit_returns')],
-                [<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>, t('theme.product_detail.benefit_secure')],
-              ] as [React.ReactNode, string][]).map(([icon, text]) => (
-                <div key={text} className="flex items-center gap-3">
-                  {icon}
-                  <span>{text}</span>
-                </div>
-              ))}
-            </div>
+            {/* The store's own delivery, returns and payment facts — nothing when the merchant never answered */}
+            {trustLines.length > 0 && (
+              <div className="space-y-3 pt-6 border-t border-pink-100 text-xs" style={{ color: NAVY }}>
+                {trustLines.map((line) => (
+                  <div key={line.key} className="flex items-center gap-3">
+                    <BeauxeTrustIcon name={line.icon} />
+                    <span>{line.text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
