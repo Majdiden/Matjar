@@ -32,3 +32,6 @@ This document lists all tasks associated with PBI 10.
 | 10-22 | [Scroll to the field with a validation error](./10-22.md) | Review | Merchants on phones tapped Save and nothing seemed to happen when a field further up or down was wrong |
 | 10-23 | [Homepage editor: big live preview, tap to edit, top strip](./10-23.md) | Review | Feedback from the test store: the 'Saved' bar parked in the middle of the list, the preview was tiny, tapping the preview did nothing and typed text only showed after leaving the field |
 | 10-24 | [Homepage = top strip, hero, new arrivals, featured (all themes)](./10-24.md) | Review | User request: every theme's homepage is a single top strip, the hero, newly added products and featured products; the hero button text must be editable from My Store |
+| 10-25 | [Generated pages designed per theme](./10-25.md) | Review | About, Contact and generated policies were a title and plain text |
+| 10-26 | [Latin digits for prices, numbers and dates](./10-26.md) | Review | Since stores default to Arabic, prices and dates showed Arabic-Indic digits even in the English dashboard |
+| 10-27 | [Delivery prices from the shipping settings](./10-27.md) | Review | The delivery questions asked for a free-text price that could disagree with checkout |

@@ -183,6 +183,28 @@ Use throwaway stores only.
 
 ---
 
+## 13. This round (homepage, editor, pages, digits, delivery prices)
+
+Deploying runs migration 016 automatically: every store's homepage becomes **hero → newest products → featured products**. Text, photos and button words in those parts are kept; other parts leave the homepage but are still in Advanced options.
+
+| # | Do | Expect |
+|---|---|---|
+| 13.1 | Open the test store's homepage on a phone. | Only: top strip (if you wrote one), the big photo at the top, newest products, featured products. |
+| 13.2 | My store → Homepage. | A large preview pinned at the top. Rows: **Top strip** (first, "Shows at the top of every page"), the big photo, newest products, featured products. |
+| 13.3 | Tap the big photo **in the preview**. | Its editing sheet opens; the part is outlined in blue. |
+| 13.4 | Type a new title slowly. | The preview changes **while you type**. It saves when you leave the field: "Saved — live on your store" appears above the bottom bar and **fades after a few seconds**. |
+| 13.5 | Change **the words on the button**. | The button in the preview and on the store changes. |
+| 13.6 | Tap the top strip row (or the strip in the preview), write "التوصيل مجاني داخل الخرطوم", Done. | The strip shows that text on **every page** of the store. Empty text = no strip. |
+| 13.7 | Switch theme in the full editor, then look at the homepage. | Same three parts in the new theme's style, one strip only. |
+| 13.8 | My store → About / Contact (on) / Delivery & returns, then open /about, /contact, /policies/delivery on the store. | Designed pages: photo header, short fact cards, products (About), WhatsApp button. They look different in a luxury theme (aurum), a playful one (kidsworld) and a plain one (modern). |
+| 13.9 | My store → Delivery & returns. | No "delivery price" field. "Delivery prices" shows the prices from Settings → Shipping, with **Edit delivery prices**. With none set: an amber note and **Add delivery prices**. |
+| 13.10 | Set a flat price (or zones) in Settings → Shipping, come back, save the questions. | The delivery page states exactly those prices; checkout charges the same. |
+| 13.11 | Dashboard in Arabic and in English: a customer's page (lifetime spend, last order, customer since), orders list, products list. | All digits are 0-9 (no ٠١٢), in both languages. On the store, order tracking and review dates too. |
+| 13.12 | Any form: leave a required field empty far up the page, tap Save. | The page scrolls to that field and puts the cursor in it. |
+| 13.13 | Phone bottom bar. | Home, Orders, +, Products, More. My store is inside More (More is highlighted while you're in My store). |
+
+---
+
 ## 12. Turning things back off
 
 If anything in sections 2–6 misbehaves, turn `design.simpleMode` / `onboarding.v2` off for the store: the merchant UI disappears and the storefront keeps whatever was already saved. Sections 1, 7–11 are not behind flags; report problems and I'll fix forward.
