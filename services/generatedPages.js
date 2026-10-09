@@ -439,20 +439,22 @@ const providerName = (provider, lang) =>
 /**
  * Build the generated policies for one language.
  *
- * Free-text answers use the requested language and fall back to Arabic: a
- * policy is a single text in the store's language, so an English store
- * whose merchant answered only in Arabic still gets complete sentences.
+ * Free-text answers use the requested language. The copy in the store's own
+ * language (`fallback: true`, the default) falls back to Arabic, so an
+ * English store whose merchant answered only in Arabic still gets complete
+ * sentences. The other language's copy (`fallback: false`) leaves out an
+ * answer not written in it, rather than mixing Arabic into English.
  *
  * @param {object} answers  normalised policy answers
- * @param {object} ctx      { lang, zones (summarizeZones), payment (summarizePaymentMethods), currency }
+ * @param {object} ctx      { lang, fallback, zones (summarizeZones), payment (summarizePaymentMethods), currency }
  * @returns {{ delivery: {title, body}, returns: {title, body}, cod?: {title, body} }}
  */
 export function buildPolicies(
   answers,
-  { lang = PRIMARY_LANG, shipping = { mode: "unset" }, payment = null, currency = "" } = {}
+  { lang = PRIMARY_LANG, fallback = true, shipping = { mode: "unset" }, payment = null, currency = "" } = {}
 ) {
   const tpl = POLICY_TEMPLATES[lang] || POLICY_TEMPLATES[PRIMARY_LANG];
-  const text = (v) => pick(v, lang, { fallback: true });
+  const text = (v) => pick(v, lang, { fallback });
   const out = {};
   const price = (n) => formatPrice(n, currency, lang);
   const zones = shipping.mode === "zones" ? shipping.zones : [];

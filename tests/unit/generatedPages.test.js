@@ -155,6 +155,13 @@ describe("policy generator", () => {
     assert.match(p.cod.body, /Transfer with Bankak/);
   });
 
+  it("leaves untranslated answers out of the other language's copy", () => {
+    const p = buildPolicies(answers, { lang: "en", fallback: false, payment, currency: "SDG" });
+    assert.match(p.delivery.body, /We deliver to: Khartoum./, "the English answer is kept");
+    assert.doesNotMatch(p.delivery.body, /يومين|arrives within/, "no Arabic inside English");
+    assert.match(p.returns.body, /within 14 days of receiving it/);
+  });
+
   it("lists shipping zones with their lowest price and estimate", () => {
     const zones = summarizeZones([
       { name: "بحري", rates: [{ price: 3000, estimatedDays: "3 أيام" }, { price: 2000, estimatedDays: "يومين" }] },

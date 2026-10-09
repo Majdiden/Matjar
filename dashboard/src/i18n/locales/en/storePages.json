@@ -53,6 +53,7 @@
     "edit_info": "Edit store info"
   },
   "policies": {
+    "english_note": "English-speaking shoppers read this. Leave it empty and it is left out of the English policy.",
     "title": "Delivery, returns and payment",
     "intro": "Answer a few questions and we'll write these pages for you. Customers also see them as short badges on your products.",
     "language_note_ar": "The pages are written in Arabic, your store's language.",

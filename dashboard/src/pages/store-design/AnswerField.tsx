@@ -11,6 +11,8 @@ interface AnswerFieldProps {
   maxLength?: number;
   error?: string | null;
   required?: boolean;
+  /** See BilingualField: opens the English box with this note under it. */
+  englishNote?: string;
 }
 
 /**
@@ -19,7 +21,7 @@ interface AnswerFieldProps {
  * keeps the questionnaires' `{ ar: string, en: string }` draft shape.
  */
 export const AnswerField: React.FC<AnswerFieldProps> = ({
-  label, value, onChange, placeholder, multiline = false, maxLength, error, required,
+  label, value, onChange, placeholder, multiline = false, maxLength, error, required, englishNote,
 }) => (
   <BilingualField
     label={label}
@@ -31,5 +33,6 @@ export const AnswerField: React.FC<AnswerFieldProps> = ({
     maxLength={maxLength}
     error={error}
     required={required}
+    englishNote={englishNote}
   />
 );
