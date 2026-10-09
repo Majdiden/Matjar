@@ -415,6 +415,41 @@ export const marqueeSection: SectionDefinition = defineSection({
 
 // ─── Template helpers ─────────────────────────────────────────────
 
+/**
+ * The settings the phone-first simple editor surfaces for each section —
+ * at most three apiece (MAX_BASIC_SETTINGS_PER_SECTION), chosen as the
+ * things a merchant on a phone actually wants to change. Everything else
+ * stays in the advanced editor. Annotated here, in one table, rather than
+ * sprinkled through the definitions, because the limit is per section and
+ * is far easier to keep honest when the whole set is visible at once.
+ */
+const BASIC_SETTINGS: Record<string, string[]> = {
+  'misk-hero': ['band_color', 'section_height'],
+  'misk-notes': ['heading', 'subheading', 'source'],
+  'misk-scent-cards': ['heading', 'subheading', 'cta_text'],
+  'misk-concept': ['heading', 'body', 'image_main'],
+  'misk-product-grid': ['heading', 'product_source', 'product_limit'],
+  'misk-countdown': ['heading', 'end_at', 'background_image'],
+  'misk-usp-strip': ['columns'],
+  'misk-split-banner': ['image', 'heading', 'cta_text'],
+  'misk-category-tiles': ['heading', 'max_categories', 'columns'],
+  'misk-testimonials': ['heading', 'subheading'],
+  'misk-stories': ['heading', 'cta_text'],
+  'misk-marquee': ['speed'],
+};
+
+/** Mark the settings named in BASIC_SETTINGS as simple-editor fields. */
+function annotateBasic(defs: SectionDefinition[]): SectionDefinition[] {
+  return defs.map((d) => {
+    const ids = BASIC_SETTINGS[d.type];
+    if (!ids) return d;
+    return {
+      ...d,
+      settings: d.settings.map((s) => (ids.includes(s.id) ? ({ ...s, level: 'basic' } as SectionSetting) : s)),
+    };
+  });
+}
+
 const ALL_SECTIONS: SectionDefinition[] = [
   heroSection, notesSection, scentCardsSection, conceptSection, productGridSection, countdownSection,
   uspStripSection, splitBannerSection, categoryTilesSection, testimonialsSection, storiesSection, marqueeSection,
@@ -593,13 +628,13 @@ const manifest = defineTheme({
 
     // ── Contact / WhatsApp (replaces the reference newsletter block) ──
     { id: 'show_whatsapp_block', type: 'checkbox', label: 'Show WhatsApp Block', default: true },
-    { id: 'whatsapp_number', type: 'text', label: 'WhatsApp Number (international format)', default: '' },
+    { id: 'whatsapp_number', type: 'text', label: 'WhatsApp Number (international format)', bind: 'brand.whatsapp', default: '' },
     { id: 'whatsapp_heading', type: 'text', label: 'WhatsApp Heading', default: '' },
     { id: 'whatsapp_text', type: 'textarea', label: 'WhatsApp Text', default: '' },
     { id: 'show_floating_whatsapp', type: 'checkbox', label: 'Show Floating WhatsApp Button', default: false },
   ],
 
-  sections: ALL_SECTIONS,
+  sections: annotateBasic(ALL_SECTIONS),
 
   templates: {
     index: withDefaultBlocks([
