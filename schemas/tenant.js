@@ -125,6 +125,17 @@ const tenantSchema = new Schema({
       phone: { type: String, default: null },
       address: { type: String, default: null },
     },
+    // Store social pages, rendered as footer links by every theme. Written
+    // only through utils/socialLinks.js (https-only, per-platform host
+    // allowlist). No defaults on purpose: absent keys stay absent so themes
+    // never receive empty entries.
+    socialLinks: {
+      facebook: { type: String },
+      instagram: { type: String },
+      tiktok: { type: String },
+      telegram: { type: String },
+      x: { type: String },
+    },
     // Store policies. Each has a merchant-authored title + a rich-text (HTML)
     // body, surfaced in the storefront footer, on dedicated policy pages, and
     // in checkout. Bodies are sanitised on write (controllers/settings.js).

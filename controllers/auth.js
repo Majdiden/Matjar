@@ -155,6 +155,7 @@ export const addStoreController = asyncHandler(async (req, res) => {
     niche: req.body.niche,
     currency: req.body.currency,
     language: req.body.language,
+    socialLinks: req.body.socialLinks,
   });
 
   // Sign a JWT for the NEW store's admin user so the dashboard can hop to the

@@ -293,7 +293,14 @@
     }
   },
   "share": {
-    "whatsapp": "شارك عبر WhatsApp",
-    "whatsapp_message": "تفضّل بزيارة متجري: {{url}}"
+    "button": "مشاركة",
+    "store_message": "تفضّل بزيارة متجري:",
+    "copy_link": "نسخ الرابط",
+    "copied": "تم نسخ الرابط",
+    "targets": {
+      "whatsapp": "واتساب",
+      "facebook": "فيسبوك",
+      "telegram": "تيليجرام"
+    }
   }
 }

@@ -28,6 +28,7 @@ import {
   ShoppingBag,
   Mail,
   RefreshCw,
+  Info,
 } from 'lucide-react';
 import { api } from '../lib/api-client';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
@@ -35,6 +36,21 @@ import { OtpInput } from '../components/OtpInput';
 import { PhoneInput } from '../components/PhoneInput';
 import { validatePhoneValue, type PhoneValue } from '../lib/phone';
 import { usePhoneCountries } from '../hooks/usePhoneCountries';
+import {
+  SUBDOMAIN_MIN_LENGTH,
+  SUBDOMAIN_PATTERN,
+  finalizeSubdomain,
+  hasArabic,
+  insertedText,
+  interpretLinkInput,
+  looksLikeLink,
+  sanitizeSubdomainTyping,
+  slugifyStoreName,
+  storeUrlFor,
+  type LinkInterpretation,
+  type SocialLinks,
+  type SocialPlatform,
+} from '../lib/storeLink';
 import { toast } from 'sonner';
 
 // Signup email-OTP length. Must match the backend (services/otp.js).
@@ -57,6 +73,14 @@ interface ThemeOption {
 }
 
 type Step = 'welcome' | 'account' | 'otp' | 'store' | 'niche' | 'theme';
+
+// A plain-words explanation shown under a store-step field after we
+// reinterpret what the merchant pasted (see lib/storeLink.ts).
+interface LinkNotice {
+  field: 'storeName' | 'subdomain';
+  kind: Exclude<LinkInterpretation['kind'], 'text'>;
+  platform?: SocialPlatform;
+}
 
 const STEPS: Step[] = ['welcome', 'account', 'otp', 'store', 'niche', 'theme'];
 
@@ -146,6 +170,10 @@ export const Register: React.FC = () => {
   const [subdomainTouched, setSubdomainTouched] = useState(false);
   const [subdomainChecking, setSubdomainChecking] = useState(false);
   const [subdomainAvailable, setSubdomainAvailable] = useState<boolean | null>(null);
+  // Social pages recognised in pasted links — sent with the signup so the
+  // store's footer links to them.
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
+  const [linkNotice, setLinkNotice] = useState<LinkNotice | null>(null);
   // Upfront email-exists check — if the email already has an account we stop
   // the user here and point them to sign in (to add a store to that account)
   // instead of letting them fail at the final register call.
@@ -170,24 +198,20 @@ export const Register: React.FC = () => {
 
   // Auto-suggest subdomain from store name until the user edits the field
   // directly. We re-sync on every keystroke so "Standards" fills the whole
-  // slug, not just "s".
+  // slug, not just "s". Arabic names are transliterated (a web address can't
+  // hold Arabic letters).
   useEffect(() => {
     if (subdomainTouched) return;
-    const slug = form.storeName
-      .toLowerCase()
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/['']/g, '')
-      .replace(/&/g, ' and ')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 63);
+    const slug = slugifyStoreName(form.storeName);
     setForm(p => (p.subdomain === slug ? p : { ...p, subdomain: slug }));
   }, [form.storeName, subdomainTouched]);
 
   // Debounced subdomain availability check
   useEffect(() => {
-    if (form.subdomain.length < 3) { setSubdomainAvailable(null); return; }
+    if (!SUBDOMAIN_PATTERN.test(form.subdomain) || form.subdomain.length < SUBDOMAIN_MIN_LENGTH) {
+      setSubdomainAvailable(null);
+      return;
+    }
     setSubdomainChecking(true);
     const t = setTimeout(async () => {
       try {
@@ -275,6 +299,85 @@ export const Register: React.FC = () => {
       setOtpDevCode(null);
     }
   };
+
+  // ── Store link field ──
+  // Merchants paste "their store's address" here — often their Facebook page
+  // or our example link verbatim. Interpret it instead of mangling it, keep
+  // any social page, and explain what happened in plain words.
+  const applyLinkInput = (field: LinkNotice['field'], result: LinkInterpretation) => {
+    if (result.kind === 'social') {
+      setSocialLinks(prev => ({ ...prev, [result.platform]: result.url }));
+    }
+    if (field === 'subdomain') {
+      if (result.slug) {
+        setSubdomainTouched(true);
+        update('subdomain', result.slug);
+      } else {
+        // Nothing usable in the link — go back to suggesting from the name.
+        setSubdomainTouched(false);
+      }
+    }
+    setLinkNotice(
+      result.kind === 'text'
+        ? null
+        : { field, kind: result.kind, platform: result.kind === 'social' ? result.platform : undefined },
+    );
+  };
+
+  /**
+   * What a paste (or a multi-character insert) into `field` means, or null
+   * when it's ordinary text to insert as-is. The name field only reacts to
+   * links; the link field also catches our example copied verbatim.
+   */
+  const interpretPaste = (field: LinkNotice['field'], text: string): LinkInterpretation | null => {
+    if (text.length < 2) return null;
+    if (field === 'storeName' && !looksLikeLink(text)) return null;
+    const result = interpretLinkInput(text, STORE_DOMAIN_SUFFIX);
+    return result.kind === 'text' ? null : result;
+  };
+
+  /** Clipboard paste: handle links ourselves instead of inserting them. */
+  const handleLinkPaste = (field: LinkNotice['field']) => (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const result = interpretPaste(field, e.clipboardData.getData('text'));
+    if (!result) return;
+    e.preventDefault();
+    applyLinkInput(field, result);
+  };
+
+  // Some keyboards (e.g. Android clipboard suggestions) insert text without a
+  // paste event, so onChange checks what was inserted too.
+  const onStoreNameChange = (value: string) => {
+    const pasted = interpretPaste('storeName', insertedText(form.storeName, value));
+    if (pasted) { applyLinkInput('storeName', pasted); return; }
+    setLinkNotice(n => (n?.field === 'storeName' ? null : n));
+    update('storeName', value);
+  };
+
+  const onSubdomainChange = (value: string) => {
+    const pasted = interpretPaste('subdomain', insertedText(form.subdomain, value));
+    if (pasted) { applyLinkInput('subdomain', pasted); return; }
+    setSubdomainTouched(true);
+    setLinkNotice(n => (n?.field === 'subdomain' ? null : n));
+    update('subdomain', sanitizeSubdomainTyping(value));
+  };
+
+  const linkNoticeText = (notice: LinkNotice): string => {
+    const platform = notice.platform ? t(`auth.social.${notice.platform}`) : '';
+    if (notice.field === 'storeName') {
+      return notice.kind === 'social'
+        ? t('auth.field.store_name.notice.social', { platform })
+        : t('auth.field.store_name.notice.link');
+    }
+    return t(`auth.field.subdomain.notice.${notice.kind}`, { platform });
+  };
+
+  const renderLinkNotice = (field: LinkNotice['field']) =>
+    linkNotice?.field === field ? (
+      <p className="flex items-start gap-1.5 text-xs text-muted-foreground" role="status">
+        <Info className="h-3.5 w-3.5 mt-px shrink-0" aria-hidden="true" />
+        <span>{linkNoticeText(linkNotice)}</span>
+      </p>
+    ) : null;
 
   // ── Email-OTP verification ──
   // Request a 4-digit code for the account email. Used both when first
@@ -393,8 +496,8 @@ export const Register: React.FC = () => {
 
       const sd = form.subdomain;
       if (!sd) errs.subdomain = t('auth.field.subdomain.error.required');
-      else if (sd.length < 3) errs.subdomain = t('auth.field.subdomain.error.too_short');
-      else if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(sd))
+      else if (sd.length < SUBDOMAIN_MIN_LENGTH) errs.subdomain = t('auth.field.subdomain.error.too_short');
+      else if (!SUBDOMAIN_PATTERN.test(sd))
         errs.subdomain = t('auth.field.subdomain.error.invalid');
       else if (subdomainChecking) errs.subdomain = t('auth.field.subdomain.error.checking');
       else if (subdomainAvailable === false) errs.subdomain = t('auth.field.subdomain.error.taken');
@@ -487,6 +590,7 @@ export const Register: React.FC = () => {
           themeSlug: skipTheme ? undefined : form.themeSlug,
           themeSelected: !skipTheme,
           niche: form.niche,
+          ...(Object.keys(socialLinks).length ? { socialLinks } : {}),
         })) as {
           responseObject?: {
             accessToken?: string;
@@ -544,6 +648,7 @@ export const Register: React.FC = () => {
         emailVerificationToken,
         phone: phone.national.trim(),
         phoneCountry: phone.country || defaultPhoneCountry,
+        ...(Object.keys(socialLinks).length ? { socialLinks } : {}),
       })) as {
         responseObject?: {
           subdomain?: string;
@@ -844,13 +949,16 @@ export const Register: React.FC = () => {
                 <Label htmlFor="storeName">{t('auth.field.store_name.label')}</Label>
                 <Input id="storeName" placeholder={t('auth.field.store_name.placeholder')}
                   value={form.storeName} autoFocus
-                  onChange={e => update('storeName', e.target.value)}
+                  onChange={e => onStoreNameChange(e.target.value)}
+                  onPaste={handleLinkPaste('storeName')}
                   aria-invalid={!!fieldErrors.storeName} />
                 {fieldErrors.storeName && <p className="text-xs text-destructive">{fieldErrors.storeName}</p>}
+                {renderLinkNotice('storeName')}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="subdomain">{t('auth.field.subdomain.label')}</Label>
+                <p id="subdomain-help" className="text-xs text-muted-foreground">{t('auth.field.subdomain.help')}</p>
                 {/* Domains are always Latin and read left-to-right, even in Arabic. */}
                 <div className="flex items-center gap-0 border rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-ring" dir="ltr">
                   <Input
@@ -858,10 +966,18 @@ export const Register: React.FC = () => {
                     dir="ltr"
                     placeholder={t('auth.field.subdomain.placeholder')}
                     value={form.subdomain}
-                    onChange={e => {
-                      setSubdomainTouched(true);
-                      update('subdomain', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+                    onChange={e => onSubdomainChange(e.target.value)}
+                    onPaste={handleLinkPaste('subdomain')}
+                    onBlur={() => {
+                      const tidy = finalizeSubdomain(form.subdomain, STORE_DOMAIN_SUFFIX);
+                      if (tidy !== form.subdomain) update('subdomain', tidy);
                     }}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    inputMode="url"
+                    aria-describedby="subdomain-help"
+                    aria-invalid={!!fieldErrors.subdomain}
                     className="border-0 focus-visible:ring-0 shadow-none"
                   />
                   <div className="px-3 text-sm text-muted-foreground bg-muted h-10 flex items-center whitespace-nowrap">
@@ -880,6 +996,19 @@ export const Register: React.FC = () => {
                 ) : subdomainAvailable === true ? (
                   <p className="text-xs text-green-600">{t('auth.field.subdomain.available')}</p>
                 ) : null}
+                {renderLinkNotice('subdomain')}
+                {!linkNotice && !subdomainTouched && hasArabic(form.storeName) && form.subdomain && (
+                  <p className="flex items-start gap-1.5 text-xs text-muted-foreground" role="status">
+                    <Info className="h-3.5 w-3.5 mt-px shrink-0" aria-hidden="true" />
+                    <span>{t('auth.field.subdomain.notice.arabic_name')}</span>
+                  </p>
+                )}
+                {SUBDOMAIN_PATTERN.test(form.subdomain) && form.subdomain.length >= SUBDOMAIN_MIN_LENGTH && (
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">{t('auth.field.subdomain.preview')}</span>{' '}
+                    <bdi dir="ltr" className="font-medium break-all">{storeUrlFor(form.subdomain, STORE_DOMAIN_SUFFIX)}</bdi>
+                  </p>
+                )}
               </div>
             </div>
           </div>

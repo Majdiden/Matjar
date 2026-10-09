@@ -155,6 +155,37 @@ describe("E2E signup → store provision", () => {
     assert.equal(await Tenant.countDocuments({ slug: "acme" }), 0);
   });
 
+  it("stores a social link captured at signup, normalised to https", async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Acme Coffee",
+      email: "owner@acme.test",
+      password: "Sup3rSecret!",
+      subdomain: "acme",
+      // What the dashboard sends after a merchant pastes their Facebook page
+      // into the store-link field.
+      socialLinks: { facebook: "m.facebook.com/acmecoffee" },
+    }).expect(201);
+
+    const Tenant = mongoose.model("Tenant");
+    const tenant = await Tenant.findById(res.body.responseObject.tenantId).lean();
+    assert.deepEqual(tenant.settings.socialLinks, { facebook: "https://m.facebook.com/acmecoffee" });
+  });
+
+  it("rejects a social link on a foreign host or unknown platform before writing", async () => {
+    const base = { name: "Acme Coffee", email: "owner@acme.test", password: "Sup3rSecret!", subdomain: "acme" };
+
+    const foreign = await request(app).post("/api/auth/register")
+      .send({ ...base, socialLinks: { facebook: "https://evil.example/acme" } });
+    assert.equal(foreign.status, 400);
+
+    const unknown = await request(app).post("/api/auth/register")
+      .send({ ...base, socialLinks: { myspace: "https://myspace.com/acme" } });
+    assert.equal(unknown.status, 400);
+
+    const Tenant = mongoose.model("Tenant");
+    assert.equal(await Tenant.countDocuments({ slug: "acme" }), 0);
+  });
+
   it("serves the enabled phone countries publicly (Sudan by default)", async () => {
     const res = await request(app).get("/api/auth/phone-countries").expect(200);
     const ro = res.body.responseObject;
