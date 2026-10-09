@@ -19,9 +19,9 @@ This document lists all tasks associated with PBI 10.
 | 10-9 | About page from questions | Proposed | Answers stored on `Page`; plain-Arabic templates; optional English |
 | 10-10 | Contact page from the brand kit | Proposed | Theme-rendered system page: WhatsApp button, phone, city, hours, social links |
 | 10-11 | Policies from questions + trust badges | Proposed | Delivery/returns/payment answers → `settings.policies.*`; shared trust-badge component on product pages |
-| 10-12 | "متجري" (My store) hub + brand kit form | Proposed | Phone-first dashboard route behind `design.simpleMode` |
+| 10-12 | ["متجري" (My store) hub + brand kit form](./10-12.md) | Review | Phone-first dashboard route behind `design.simpleMode` |
 | 10-13 | Homepage simple editor | Proposed | Phone preview, tap a section → bottom sheet with basic settings, show/hide/move, save-and-publish with undo |
-| 10-14 | Arabic-first bilingual field | Proposed | Arabic input with "+ English (optional)"; used everywhere in simple mode |
+| 10-14 | [Arabic-first bilingual field](./10-14.md) | Review | Arabic input with "+ English (optional)"; used everywhere in simple mode |
 | 10-15 | Theme switch keeps brand kit and content | Proposed | Verification + regression test |
 | 10-16 | [Signup reorder (onboarding v2)](./10-16.md) | Review | Behind `onboarding.v2` (global; `?flow=v2` override); account → store name → what you sell → city + delivery areas → 3 looks with the store name; WhatsApp defaults to the account phone |
 | 10-17 | ["First sale" checklist](./10-17.md) | Review | First product → payment → share (+ "Make it yours"); replaces the setup checklist under `onboarding.v2` per store; share/payments-review stamped via `/api/onboarding` |

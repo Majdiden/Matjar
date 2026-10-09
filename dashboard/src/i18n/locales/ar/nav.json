@@ -40,6 +40,7 @@
     },
     "storefront": {
       "title": "واجهة المتجر",
+      "my_store": "متجري",
       "themes": "القوالب",
       "theme_library": "مكتبة القوالب",
       "visual_editor": "المحرر المرئي",
@@ -92,6 +93,7 @@
     "home": "الرئيسية",
     "orders": "الطلبات",
     "products": "المنتجات",
+    "store": "متجري",
     "more": "المزيد",
     "menu_title": "القائمة",
     "create": "إنشاء",

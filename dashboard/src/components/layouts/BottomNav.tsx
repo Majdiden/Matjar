@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LayoutDashboard, ShoppingCart, Package, Menu, Plus, ClipboardList, PackagePlus } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Menu, Plus, ClipboardList, PackagePlus, Store } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../contexts/auth-context';
 import { useFeatures } from '../../contexts/features-context';
@@ -20,24 +20,31 @@ interface BottomNavProps {
 }
 
 interface Dest {
-  key: 'home' | 'orders' | 'products';
+  key: 'home' | 'orders' | 'products' | 'store';
   href: string;
   icon: React.ElementType;
   permission?: string | string[];
-  // Platform feature gate. None of the current dests (home/orders/products)
-  // are gated — this is plumbing so future dests can be.
+  // Platform feature gate (e.g. "My store" only shows with design.simpleMode).
   feature?: FeatureKey;
   badge?: boolean;
 }
 
-// Two destinations flank the centre quick-action button; a third (Products)
-// is reachable from the action menu and the More sheet.
+// Home and Orders sit before the centre quick-action button; Products (plus
+// "My store" when simple mode is on) and the More sheet trigger after it.
 const LEFT_DESTS: Dest[] = [
   { key: 'home', href: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.read' },
   { key: 'orders', href: '/dashboard/orders', icon: ShoppingCart, permission: 'orders.read', badge: true },
 ];
 const RIGHT_DESTS: Dest[] = [
   { key: 'products', href: '/dashboard/products', icon: Package, permission: 'products.read' },
+  // "My store" (PBI 10-12) — the phone-first way to set up how the store looks.
+  {
+    key: 'store',
+    href: '/dashboard/store',
+    icon: Store,
+    permission: ['settings.read', 'settings.write', 'themes.read', 'themes.write'],
+    feature: 'design.simpleMode',
+  },
 ];
 
 /**

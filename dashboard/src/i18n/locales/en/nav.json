@@ -40,6 +40,7 @@
     },
     "storefront": {
       "title": "Storefront",
+      "my_store": "My store",
       "themes": "Themes",
       "theme_library": "Theme library",
       "visual_editor": "Visual editor",
@@ -92,6 +93,7 @@
     "home": "Home",
     "orders": "Orders",
     "products": "Products",
+    "store": "My store",
     "more": "More",
     "menu_title": "Menu",
     "create": "Create",
