@@ -15,6 +15,7 @@ import { upsertPlatformSubdomainDomain } from "./domainRegistry.js";
 import { resolveMerchantPhone } from "./phoneCountries.js";
 import { resolveSignupPlan } from "./platform/billing/signupPlan.js";
 import { APIError } from "../middlewares/errorHandler.js";
+import { normalizeSocialLinks } from "../utils/socialLinks.js";
 
 const addATenantService = async (tenantData) => {
   const session = await mongoose.startSession();
@@ -53,6 +54,14 @@ const addATenantService = async (tenantData) => {
     let phoneCountry = null;
     if (tenantData.phone && String(tenantData.phone).trim()) {
       ({ phone, phoneCountry } = await resolveMerchantPhone(tenantData.phone, tenantData.phoneCountry));
+    }
+
+    // Social pages the merchant handed us at signup (typically a Facebook URL
+    // pasted into the store-link field). Validated before any write, like the
+    // phone: https-only and on the platform's own hosts, or the request fails.
+    const { links: socialLinks, invalid: invalidSocial } = normalizeSocialLinks(tenantData.socialLinks);
+    if (invalidSocial.length) {
+      throw new APIError(`Invalid social link for: ${invalidSocial.join(", ")}`, 400);
     }
 
     const signupPlan = await resolveSignupPlan(tenantData.subscriptionPlan);
@@ -126,6 +135,7 @@ const addATenantService = async (tenantData) => {
       },
       settings: {
         storeName,
+        ...(Object.keys(socialLinks).length ? { socialLinks } : {}),
         // Stable per-store secret for the owner draft-preview link
         // (?preview=<token> reveals unpublished/draft content on the storefront).
         previewToken: crypto.randomBytes(16).toString("hex"),
@@ -321,6 +331,7 @@ const addStoreForExistingUserService = (existingUser, storeData = {}) =>
     currency: storeData.currency,
     language: storeData.language,
     subscriptionPlan: storeData.subscriptionPlan,
+    socialLinks: storeData.socialLinks,
     skipAutoSetup: storeData.skipAutoSetup,
   });
 

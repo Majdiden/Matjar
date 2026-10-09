@@ -1,4 +1,5 @@
 import { isValidEditorPreviewToken } from "./themeCustomization.js";
+import { publicSocialLinks } from "../utils/socialLinks.js";
 
 /**
  * Build the public store payload — the exact object returned as
@@ -121,7 +122,7 @@ export function buildStoreInfo(tenant, options = {}) {
     currency: tenant.settings?.currency || "SDG",
     theme: effectiveTheme,
     themeCustomization: effectiveCustomization,
-    socialLinks: tenant.settings?.socialLinks || null,
+    socialLinks: publicSocialLinks(tenant.settings?.socialLinks),
     contactInfo: tenant.settings?.contactInfo || null,
     contact: tenant.settings?.contact || null,
     // Only expose policies that actually have a body — the storefront

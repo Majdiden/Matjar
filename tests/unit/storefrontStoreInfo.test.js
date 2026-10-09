@@ -69,6 +69,13 @@ describe("buildStoreInfo", () => {
     assert.equal(buildStoreInfo(bare).policies, null);
   });
 
+  it("exposes only valid, non-empty social links (themes render every entry)", () => {
+    assert.equal(buildStoreInfo(tenant()).socialLinks, null);
+    const t = tenant();
+    t.settings.socialLinks = { facebook: "https://facebook.com/beauxe", instagram: "", x: "javascript:alert(1)" };
+    assert.deepEqual(buildStoreInfo(t).socialLinks, { facebook: "https://facebook.com/beauxe" });
+  });
+
   it("serves the DRAFT snapshot for a valid editor preview token", () => {
     const t = tenant();
     t.themeCustomization.previewToken = "a".repeat(64);

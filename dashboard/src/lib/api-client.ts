@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { loginUrl, isOnLoginPage } from './authHandoff';
 import { localizeApiError } from './api-errors';
+import type { SocialLinks } from './storeLink';
 
 // API Base URL — always same-origin `/api`.
 //
@@ -206,6 +207,9 @@ export const api = {
       // The server normalises to E.164 against the enabled phone countries.
       phone?: string;
       phoneCountry?: string;
+      // Social pages recognised in the signup form (e.g. a pasted Facebook
+      // URL). The server re-validates hosts and normalises to https.
+      socialLinks?: SocialLinks;
     }) => api.post('/auth/register', data),
 
     // Enabled phone dial codes (+ default) for the signup / profile phone
@@ -288,6 +292,7 @@ export const api = {
       themeSlug?: string;
       themeSelected?: boolean;
       niche?: string;
+      socialLinks?: SocialLinks;
     }) => api.post('/auth/stores', data),
 
     // In-app store switcher. `myStores` lists every store the signed-in
