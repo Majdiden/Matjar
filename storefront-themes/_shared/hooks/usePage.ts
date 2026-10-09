@@ -1,6 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { storefrontApi } from '../api/client';
+import type { BrandText } from '../types/commerce';
+
+/**
+ * Facts behind an About page written from the merchant's answers (PBI 10-9).
+ * Present only while the page is still the generated text — gone once the
+ * merchant edits it by hand.
+ */
+export interface GeneratedAboutFacts {
+  kind: 'about';
+  since?: number;
+  city?: BrandText;
+  photo?: string;
+}
 
 export interface CmsPage {
   _id?: string;
@@ -9,6 +22,7 @@ export interface CmsPage {
   content: string;
   metaTitle?: string;
   metaDescription?: string;
+  generated?: GeneratedAboutFacts;
 }
 
 /**

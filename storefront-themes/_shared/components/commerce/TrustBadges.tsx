@@ -10,7 +10,7 @@ import type { PaymentMethodPublic } from '../../api/client';
  * (mirrors TRANSFER_PROVIDER_NAMES in services/generatedPages.js). Other
  * providers, and every provider in English, use the store's own label.
  */
-const PROVIDER_NAMES_AR: Record<string, string> = {
+export const PROVIDER_NAMES_AR: Record<string, string> = {
   bankak: 'بنكك',
   fawry: 'فوري',
   ocash: 'أوكاش',
