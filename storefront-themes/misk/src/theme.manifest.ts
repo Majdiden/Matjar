@@ -83,6 +83,12 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
+    // Simple-editor (My Store) settings: when filled they override the FIRST
+    // slide's heading / text / image / button; the other slides are untouched.
+    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', bind: 'brand.tagline', default: '' },
+    { id: 'image', type: 'image', label: 'Image', bind: 'brand.coverImage', default: '' },
+    { id: 'cta_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'layout', type: 'select', label: 'Layout', default: 'image_start', options: [
       { label: 'Image at start', value: 'image_start' }, { label: 'Image at end', value: 'image_end' },
     ] },
@@ -417,14 +423,14 @@ export const marqueeSection: SectionDefinition = defineSection({
 
 /**
  * The settings the phone-first simple editor surfaces for each section —
- * at most three apiece (MAX_BASIC_SETTINGS_PER_SECTION), chosen as the
+ * at most four apiece (MAX_BASIC_SETTINGS_PER_SECTION), chosen as the
  * things a merchant on a phone actually wants to change. Everything else
  * stays in the advanced editor. Annotated here, in one table, rather than
  * sprinkled through the definitions, because the limit is per section and
  * is far easier to keep honest when the whole set is visible at once.
  */
 const BASIC_SETTINGS: Record<string, string[]> = {
-  'misk-hero': ['band_color', 'section_height'],
+  'misk-hero': ['heading', 'subheading', 'image', 'cta_text'],
   'misk-notes': ['heading', 'subheading', 'source'],
   'misk-scent-cards': ['heading', 'subheading', 'cta_text'],
   'misk-concept': ['heading', 'body', 'image_main'],
@@ -540,10 +546,8 @@ const manifest = defineTheme({
 
     // ── Announcement ──
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
-    { id: 'announcement_text', type: 'text', label: 'Announcement 1', default: '' },
-    { id: 'announcement_text_2', type: 'text', label: 'Announcement 2', default: '' },
-    { id: 'announcement_text_3', type: 'text', label: 'Announcement 3', default: '' },
-    { id: 'announcement_interval', type: 'range', label: 'Announcement Rotation', min: 2000, max: 12000, step: 500, default: 5000, unit: 'ms' },
+    // One strip on every page with the merchant's own text (My Store → Homepage).
+    { id: 'announcement_text', type: 'text', label: 'Top Strip Text', default: '' },
     { id: 'announcement_background', type: 'color', label: 'Announcement Background', default: '#14110e' },
     { id: 'announcement_color', type: 'color', label: 'Announcement Text Colour', default: '#ffffff' },
 
@@ -638,12 +642,11 @@ const manifest = defineTheme({
 
   templates: {
     index: withDefaultBlocks([
+      // Every theme's homepage: the hero, newest products, featured products
+      // (PBI 10). The other sections stay addable from the advanced editor.
       { id: 'hero', type: 'misk-hero', settings: {} },
-      { id: 'notes', type: 'misk-notes', settings: {} },
-      { id: 'scent-cards', type: 'misk-scent-cards', settings: { cta_url: '/products' } },
-      { id: 'concept', type: 'misk-concept', settings: { cta_url: '/pages/about' } },
-      { id: 'flash-sale', type: 'misk-product-grid', settings: { product_source: 'sale', product_limit: 12 } },
-      { id: 'countdown', type: 'misk-countdown', settings: { cta_url: '/products' } },
+      { id: 'new-arrivals', type: 'misk-product-grid', settings: { product_source: 'newest', product_limit: 8 } },
+      { id: 'featured', type: 'misk-product-grid', settings: { product_source: 'featured', product_limit: 8 } },
     ]),
     product: [
       { id: 'product-details', type: 'product-details', settings: {} },

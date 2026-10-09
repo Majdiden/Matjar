@@ -33,6 +33,10 @@ const blocksOf = (section: any): any[] => (Array.isArray(section?.blocks) ? sect
  * shopper's language instead of hard-coded English. Keys are tried in order
  * and an empty result renders nothing at all.
  */
+/** The keys of `s` that hold a non-empty value (blank simple-editor fields don't override). */
+const filled = (s: Record<string, any>, keys: string[]) =>
+  Object.fromEntries(keys.filter((k) => typeof s[k] === 'string' && s[k].trim()).map((k) => [k, s[k]]));
+
 const copy = (t: (k: string, o?: any) => string, value: unknown, ...keys: string[]): string => {
   const v = typeof value === 'string' ? value.trim() : '';
   if (v) return v;
@@ -129,7 +133,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
     >
       <div className={`relative mx-auto grid max-w-[1320px] ${height}`}>
         {slides.map((slide, i) => {
-          const b = slide.settings || {};
+          // The section-level (My Store) settings override the first slide.
+          const b = i === 0 ? { ...(slide.settings || {}), ...filled(s, ['heading', 'subheading', 'image', 'cta_text']) } : slide.settings || {};
           const active = i === idx;
           const n = (i % 3) + 1;
           const heading = copy(t, b.heading, `theme.hero.heading_${n}`);
@@ -399,7 +404,8 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
   const limit = Number(s.product_limit) || 12;
-  const { products, loading } = useGridProducts(s.product_source || 'newest', limit, s.collection || undefined);
+  const source = s.product_source || 'newest';
+  const { products, loading } = useGridProducts(source, limit, s.collection || undefined);
 
   if (!loading && !products.length) return null;
 
@@ -416,9 +422,9 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
     <section className="misk-section" style={wrap(s)}>
       <div className="mx-auto max-w-[1320px] px-4 sm:px-6">
         <SectionHead
-          eyebrow={copy(t, s.eyebrow, 'theme.product_grid.eyebrow')}
-          heading={copy(t, s.heading, 'theme.product_grid.heading')}
-          sub={copy(t, s.subheading, 'theme.product_grid.sub')}
+          eyebrow={copy(t, s.eyebrow, `theme.product_grid.by_source.${source}.eyebrow`, 'theme.product_grid.eyebrow')}
+          heading={copy(t, s.heading, `theme.product_grid.by_source.${source}.heading`, 'theme.product_grid.heading')}
+          sub={copy(t, s.subheading, `theme.product_grid.by_source.${source}.sub`, 'theme.product_grid.sub')}
           rule={s.show_rule !== false}
           align={align}
           action={s.show_view_all !== false && viewAll && align === 'start' ? (

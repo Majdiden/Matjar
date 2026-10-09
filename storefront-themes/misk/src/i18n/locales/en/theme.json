@@ -90,7 +90,24 @@
       "sub": "Selected pieces at this week's prices.",
       "eyebrow": "For a limited time",
       "view_all": "View all",
-      "empty": "There are no products to show here yet."
+      "empty": "There are no products to show here yet.",
+      "by_source": {
+        "newest": {
+          "eyebrow": "Just in",
+          "heading": "New arrivals",
+          "sub": "The latest additions to the store."
+        },
+        "featured": {
+          "eyebrow": "Our picks",
+          "heading": "Featured",
+          "sub": "Pieces we love and recommend."
+        },
+        "sale": {
+          "eyebrow": "For a limited time",
+          "heading": "Flash sale",
+          "sub": "Selected pieces at this week's prices."
+        }
+      }
     },
     "countdown": {
       "eyebrow": "Best deals of the week",

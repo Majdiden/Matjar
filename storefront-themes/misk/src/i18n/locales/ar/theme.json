@@ -90,7 +90,24 @@
       "sub": "قطع مختارة بأسعار هذا الأسبوع.",
       "eyebrow": "لفترة محدودة",
       "view_all": "عرض الكل",
-      "empty": "لا توجد منتجات لعرضها هنا بعد."
+      "empty": "لا توجد منتجات لعرضها هنا بعد.",
+      "by_source": {
+        "newest": {
+          "eyebrow": "جديدنا",
+          "heading": "وصل حديثًا",
+          "sub": "أحدث ما أضفناه إلى المتجر."
+        },
+        "featured": {
+          "eyebrow": "اختياراتنا",
+          "heading": "منتجات مختارة",
+          "sub": "قطع نحبها ونرشحها لك."
+        },
+        "sale": {
+          "eyebrow": "لفترة محدودة",
+          "heading": "عروض سريعة",
+          "sub": "قطع مختارة بأسعار هذا الأسبوع."
+        }
+      }
     },
     "countdown": {
       "eyebrow": "أفضل عروض الأسبوع",
@@ -228,7 +245,7 @@
       "related_eyebrow": "اخترنا لك",
       "choose": "اختر {{name}}",
       "breadcrumb_all": "كل العطور",
-      "sticky_label": "{{name}} — {{price}}",
+      "sticky_label": "{{name}} بسعر {{price}}",
       "only_left_zero": "نفدت الكمية",
       "only_left_one": "بقيت قطعة واحدة",
       "only_left_two": "بقيت قطعتان",

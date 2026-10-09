@@ -17,6 +17,7 @@ import { MobileDrawer } from './MobileDrawer';
 import { Footer } from './Footer';
 import { useHideOnScroll } from '../lib/hooks';
 import { I } from '../lib/icons';
+import { SectionAnchor, TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
 
 const OPEN_DELAY = 150;
 
@@ -36,7 +37,6 @@ const Layout: React.FC = () => {
   const utilityBg = useThemeSetting<string>('utility_background');
   const utilitySocial = useThemeSetting<boolean>('utility_show_social') !== false;
   const utilityLang = useThemeSetting<boolean>('utility_show_language') !== false;
-  const showBar = useThemeSetting<boolean>('show_announcement_bar') !== false;
   const showWishlistIcon = useThemeSetting<boolean>('show_wishlist_icon') !== false;
   const showAccountIcon = useThemeSetting<boolean>('show_account_icon') !== false;
   const floatingWhats = useThemeSetting<boolean>('show_floating_whatsapp') === true;
@@ -47,12 +47,8 @@ const Layout: React.FC = () => {
    *  fresh install reads in the shopper's language instead of English. */
   const msg = (v: string | undefined, key: string) => (v && v.trim()) || t(key, { defaultValue: '' });
 
-  const messages = [
-    msg(useThemeSetting<string>('announcement_text'), 'theme.announcement.1'),
-    msg(useThemeSetting<string>('announcement_text_2'), 'theme.announcement.2'),
-    msg(useThemeSetting<string>('announcement_text_3'), 'theme.announcement.3'),
-  ].filter(Boolean);
-  const announceInterval = Number(useThemeSetting<number>('announcement_interval')) || 5000;
+  // One top strip on every page, with the merchant's own text only.
+  const stripText = useTopStripText();
   const announceBg = useThemeSetting<string>('announcement_background');
   const announceColor = useThemeSetting<string>('announcement_color');
 
@@ -178,8 +174,10 @@ const Layout: React.FC = () => {
         </div>
       )}
 
-      {showBar && messages.length > 0 && (
-        <Announcement messages={messages} interval={announceInterval} background={announceBg} color={announceColor} />
+      {stripText && (
+        <SectionAnchor id={TOP_STRIP_ANCHOR} className="">
+          <Announcement messages={[stripText]} interval={0} background={announceBg} color={announceColor} />
+        </SectionAnchor>
       )}
 
       <header
