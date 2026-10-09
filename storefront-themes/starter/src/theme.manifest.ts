@@ -16,7 +16,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — your store cover photo is used when empty' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
   ],
 });
@@ -147,7 +147,7 @@ const manifest = defineTheme({
   },
 
   settings: [
-    { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: false },
+    { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
     { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: '' },
   ],
 
@@ -160,16 +160,14 @@ const manifest = defineTheme({
   ],
 
   templates: {
+    // Homepage: hero, newest products, featured products. The other
+    // sections stay addable from the advanced editor. `new-arrivals` is the
+    // universal section; its empty heading falls back to the theme's
+    // translated title.
     index: [
       { id: 'hero', type: 'hero', settings: {} },
-      { id: 'categories', type: 'categories', settings: {} },
+      { id: 'new-arrivals', type: 'new-arrivals', settings: { heading: '' } },
       { id: 'featured-products', type: 'featured-products', settings: {} },
-      { id: 'trust-badges', type: 'trust-badges', settings: {}, blocks: [
-        { id: 'badge-1', type: 'badge', settings: { title: 'Free Shipping', description: 'On orders over $50' } },
-        { id: 'badge-2', type: 'badge', settings: { title: 'Easy Returns', description: '30-day return policy' } },
-        { id: 'badge-3', type: 'badge', settings: { title: 'Secure Checkout', description: 'Safe & encrypted' } },
-      ]},
-      { id: 'newsletter', type: 'newsletter', settings: {} },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard

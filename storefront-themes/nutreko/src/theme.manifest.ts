@@ -36,7 +36,7 @@ export const nutrekoHeroSection: SectionDefinition = defineSection({
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
     { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', level: 'basic', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'secondary_cta_text', type: 'text', label: 'Secondary CTA', default: '' },
     { id: 'image', type: 'image', label: 'Hero Image', level: 'basic' },
@@ -137,15 +137,9 @@ export const nutrekoBannerSection: SectionDefinition = defineSection({
 // ─── Template ────────────────────────────────────────────────────
 
 const indexTemplate: SectionInstance[] = [
-  { id: 'nutreko-strip', type: 'nutreko-top-strip', settings: {} },
   { id: 'nutreko-hero', type: 'nutreko-hero', settings: {} },
-  { id: 'nutreko-guarantee', type: 'nutreko-guarantee', settings: {} },
-  { id: 'nutreko-categories', type: 'nutreko-category-strip', settings: {} },
-  { id: 'nutreko-topsellers', type: 'nutreko-product-grid', settings: { heading: 'TOP SELLERS', source: 'featured' } },
-  { id: 'nutreko-banner', type: 'nutreko-banner', settings: {} },
   { id: 'nutreko-trending', type: 'nutreko-product-grid', settings: { heading: 'TRENDING NOW', source: 'newest' } },
-  { id: 'nutreko-fuel', type: 'nutreko-product-grid', settings: { heading: 'FUEL YOUR WORKOUT', source: 'popular' } },
-  { id: 'nutreko-newsletter', type: 'newsletter', settings: {} },
+  { id: 'nutreko-topsellers', type: 'nutreko-product-grid', settings: { heading: 'TOP SELLERS', source: 'featured' } },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

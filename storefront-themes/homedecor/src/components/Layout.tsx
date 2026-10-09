@@ -13,9 +13,13 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
+  const topStripText = useTopStripText();
+  const stripBg = useThemeSetting<string>('announcement_bg');
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -32,6 +36,17 @@ const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f9f7f4]">
+      {/* Top strip — the merchant's announcement text (My Store), on every page */}
+      {topStripText && (
+        <div
+          data-section-id={TOP_STRIP_ANCHOR}
+          className="min-h-9 px-6 py-2 flex items-center justify-center text-center text-xs tracking-[0.2em] text-[#d4a76a]"
+          style={{ backgroundColor: stripBg || '#2d2d2d' }}
+        >
+          {topStripText}
+        </div>
+      )}
+
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6">

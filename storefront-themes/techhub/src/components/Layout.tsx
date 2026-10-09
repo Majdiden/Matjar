@@ -5,7 +5,7 @@ import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
-import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
+import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
@@ -53,9 +53,7 @@ const Layout: React.FC = () => {
   const [collectionOpen, setCollectionOpen] = useState(false);
   const { t } = useTranslation(['theme']);
 
-  const showAnnouncement = useThemeSetting<boolean>('show_announcement_bar') !== false;
-  const announcementText = useThemeSetting<string>('announcement_text') ||
-    t('theme.banner.announcement.text');
+  const announcementText = useTopStripText();
 
   const isActive = (path: string) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
@@ -131,16 +129,15 @@ const Layout: React.FC = () => {
       className="min-h-screen flex flex-col"
       style={{ backgroundColor: 'var(--color-background)', color: 'var(--color-foreground)' }}
     >
-      {showAnnouncement && (
-        <AnnouncementBar
-          message={announcementText}
-          linkText={t('theme.banner.announcement.cta')}
-          href="/products"
-          bgColor="var(--color-secondary)"
-          textColor="var(--color-background)"
-          dismissible
-          storageKey="techhub_announce"
-        />
+      {announcementText && (
+        <div data-section-id={TOP_STRIP_ANCHOR}>
+          <AnnouncementBar
+            message={announcementText}
+            bgColor="var(--color-secondary)"
+            textColor="var(--color-background)"
+            dismissible={false}
+          />
+        </div>
       )}
 
       {/* ═══ HEADER — Row 1: navy nav bar ═════════════════════════ */}

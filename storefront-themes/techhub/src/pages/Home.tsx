@@ -1,10 +1,9 @@
 /**
  * TechHub Home — fully data-driven. The homepage is composed entirely
- * from sections declared in the manifest's `homeVariants` (selected via
- * the `home_variant` theme setting) and resolved against the techhub
- * section registry. No hardcoded section JSX lives here anymore; to
- * change the layout, edit the manifest or pick a different variant in
- * the dashboard.
+ * from the sections of the manifest's `templates.index` (or the store's
+ * customised list) resolved against the techhub section registry. No
+ * hardcoded section JSX lives here; to change the layout, edit the
+ * manifest or the homepage in the dashboard.
  */
 import React, { useState } from 'react';
 import { SectionRenderer } from '@matjar/theme-shared/theme/SectionRenderer';

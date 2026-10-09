@@ -411,6 +411,10 @@
             "text": "Real people, seven days a week."
           }
         ]
+      },
+      "featured": {
+        "eyebrow": "Featured",
+        "heading": "Our most-loved picks"
       }
     },
     "global": {

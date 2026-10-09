@@ -37,7 +37,7 @@ export const glowingHeroSection: SectionDefinition = defineSection({
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
     { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', level: 'basic', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'image', type: 'image', label: 'Hero Image', level: 'basic' },
   ],
@@ -141,14 +141,9 @@ export const glowingInstagramSection: SectionDefinition = defineSection({
 // ─── Templates ───────────────────────────────────────────────────
 
 const indexTemplate: SectionInstance[] = [
-  { id: 'glowing-strip', type: 'glowing-top-strip', settings: {} },
   { id: 'glowing-hero', type: 'glowing-hero', settings: {} },
-  { id: 'glowing-promos', type: 'glowing-promo-cards', settings: {} },
-  { id: 'glowing-bestsellers', type: 'glowing-product-grid', settings: { heading: 'BEST SELLERS', source: 'featured' } },
-  { id: 'glowing-quote', type: 'glowing-quote', settings: {} },
   { id: 'glowing-newarrivals', type: 'glowing-product-grid', settings: { heading: 'NEW ARRIVALS', source: 'newest' } },
-  { id: 'glowing-insta', type: 'glowing-instagram', settings: {} },
-  { id: 'glowing-newsletter', type: 'newsletter', settings: {} },
+  { id: 'glowing-bestsellers', type: 'glowing-product-grid', settings: { heading: 'BEST SELLERS', source: 'featured' } },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

@@ -7,6 +7,7 @@ import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useLayoutSetting } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useTopStripText, SectionAnchor, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
@@ -17,6 +18,7 @@ import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
+  const topStripText = useTopStripText();
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -425,12 +427,12 @@ const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col pb-16 md:pb-0">
-      {/* Announcement Bar */}
-      <AnnouncementBar
-        message={t('theme.announcement.bar_text')}
-        href="/products"
-        linkText={t('theme.announcement.bar_cta')}
-      />
+      {/* Top strip — the merchant's announcement text (My Store), on every page */}
+      {topStripText && (
+        <SectionAnchor id={TOP_STRIP_ANCHOR} className="">
+          <AnnouncementBar message={topStripText} dismissible={false} />
+        </SectionAnchor>
+      )}
 
       {/* Header — variant controlled by the `headerStyle` layout setting */}
       {header}

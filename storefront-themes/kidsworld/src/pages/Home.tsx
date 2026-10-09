@@ -1,18 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionEnabled, useSectionBlocks } from '@matjar/theme-shared/theme/ThemeProvider';
-import { useFeaturedProducts, useCategories } from '@matjar/theme-shared/hooks/useProducts';
+import { useThemeSettings, useSectionBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
+import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
-import { MerchantSections } from '@matjar/theme-shared/theme/SectionRenderer';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import type { Product } from '@matjar/theme-shared/types/commerce';
-
-const HARDCODED_IDS = ['hero', 'categories', 'shop-by-age', 'trust-badges', 'featured-products', 'new-arrivals', 'newsletter'];
 
 // Niche default hero image — a bright, playful toys scene — so the hero is
 // never empty even before the merchant sets one.
@@ -72,297 +70,339 @@ function renderKidsBadgeIcon(icon: string): React.ReactNode {
   }
 }
 
-const Home: React.FC = () => {
+type SectionProps = { id: string; onQuickView: (product: Product) => void };
+
+// Each bespoke section reads its settings / blocks by its own INSTANCE id, so
+// a copy added from the advanced editor keeps its own values.
+
+/** Hero — bespoke playful toy-store hero; the featured toy image fills the bubble. */
+function HeroBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
-
-  // Section settings from manifest + tenant overrides
-  const hero = useThemeSettings('hero');
-  const cats = useThemeSettings('categories');
-  const trust = useThemeSettings('trust-badges');
-  const trustBlocks = useSectionBlocks('trust-badges');
-  const age = useThemeSettings('shop-by-age');
-  const ageBlocks = useSectionBlocks('shop-by-age');
-  const catBlocks = useSectionBlocks('categories');
-  const feat = useThemeSettings('featured-products');
-  const arrivals = useThemeSettings('new-arrivals');
-  const newsletter = useThemeSettings('newsletter');
-
-  // Section visibility
-  const heroEnabled = useSectionEnabled('hero');
-  const catsEnabled = useSectionEnabled('categories');
-  const ageEnabled = useSectionEnabled('shop-by-age');
-  const trustEnabled = useSectionEnabled('trust-badges');
-  const featEnabled = useSectionEnabled('featured-products');
-  const arrivalsEnabled = useSectionEnabled('new-arrivals');
-  const newsletterEnabled = useSectionEnabled('newsletter');
-
-  const { products: featured, loading } = useFeaturedProducts(feat.product_limit || 8);
-  const { categories } = useCategories();
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-
-  const categoriesRef = useRef<HTMLDivElement>(null);
-  const trustRef = useRef<HTMLDivElement>(null);
-  const featuredRef = useRef<HTMLDivElement>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-
-  const categoriesVisible = useIntersectionObserver(categoriesRef, { threshold: 0.1 });
-  const trustVisible = useIntersectionObserver(trustRef, { threshold: 0.1 });
-  const featuredVisible = useIntersectionObserver(featuredRef, { threshold: 0.1 });
-  const carouselVisible = useIntersectionObserver(carouselRef, { threshold: 0.1 });
-  const ctaVisible = useIntersectionObserver(ctaRef, { threshold: 0.2 });
+  const hero = useThemeSettings(id);
+  const { products: featured } = useFeaturedProducts(4);
 
   return (
-    <div>
-      {/* Hero — bespoke playful toy-store hero (reads the same hero.* settings
-          + i18n keys internally; we pass the featured toy image for the bubble,
-          gated on a merchant background image exactly as before). */}
-      {heroEnabled && (
-        <Hero
-          variant="split"
-          tone="dark"
-          title={`${hero.heading_line1 || t('theme.hero.heading_line1')} ${hero.heading_line2 || t('theme.hero.heading_line2')}`}
-          subtitle={hero.subheading || t('theme.hero.subheading')}
-          primaryCta={{ label: hero.button_text || t('theme.hero.cta'), href: hero.button_url || '/products' }}
-          backgroundImage={hero.background_image || undefined}
-          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
-          defaultImage={HERO_DEFAULT_IMAGE}
-        />
-      )}
+    <Hero
+      variant="split"
+      tone="dark"
+      title={`${hero.heading_line1 || t('theme.hero.heading_line1')} ${hero.heading_line2 || t('theme.hero.heading_line2')}`}
+      subtitle={hero.subheading || t('theme.hero.subheading')}
+      primaryCta={{ label: hero.button_text || t('theme.hero.cta'), href: hero.button_url || '/products' }}
+      backgroundImage={hero.background_image || undefined}
+      media={featured?.find((p) => p.images?.[0])?.images?.[0]}
+      defaultImage={HERO_DEFAULT_IMAGE}
+    />
+  );
+}
 
-      {/* Colorful Category Bubbles */}
-      {catsEnabled && (
-      <section
-        ref={categoriesRef}
-        className={`max-w-7xl mx-auto px-4 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
-          categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}
-      >
-        <h2 className="text-2xl font-extrabold text-center mb-2">
-          <span className="text-[#ec4899]">{cats.heading_highlight || t('theme.section.categories.heading_highlight')}</span>{' '}
-          {(cats.heading || t('theme.section.categories.title')).replace(cats.heading_highlight || t('theme.section.categories.heading_highlight'), '').trim() || t('theme.section.categories.heading_suffix')}
-        </h2>
-        <p className="text-gray-500 text-center mb-10 text-sm">
-          {cats.subheading || t('theme.section.categories.subtitle')}
-        </p>
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-          {(categories.length > 0
-            ? categories.slice(0, cats.max_categories || 6).map((c, i) => ({
-                key: c._id,
-                href: `/categories/${c.slug}`,
-                name: c.name,
-                letter: (c.name?.[0] || '?').toUpperCase(),
-                ...CATEGORY_BUBBLE_COLORS[i % CATEGORY_BUBBLE_COLORS.length],
-              }))
-            : catBlocks.slice(0, cats.max_categories || 6).map((b, i) => ({
-                key: b.id,
-                href: '/products',
-                name: b.settings.name as string,
-                letter: String(b.settings.letter || 'A').toUpperCase(),
-                ...CATEGORY_BUBBLE_COLORS[i % CATEGORY_BUBBLE_COLORS.length],
-              }))
-          ).map((bubble) => (
+/** Colorful Category Bubbles */
+function CategoriesBlock({ id }: SectionProps) {
+  const { t } = useTranslation(['theme', 'common']);
+  const cats = useThemeSettings(id);
+  const catBlocks = useSectionBlocks(id);
+  const { categories } = useCategories();
+  const { ref: categoriesRef, isIntersecting: categoriesVisible } = useIntersectionObserver({ threshold: 0.1 });
+
+  return (
+    <section
+      ref={categoriesRef as React.RefObject<HTMLElement>}
+      className={`max-w-7xl mx-auto px-4 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
+        categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+    >
+      <h2 className="text-2xl font-extrabold text-center mb-2">
+        <span className="text-[#ec4899]">{cats.heading_highlight || t('theme.section.categories.heading_highlight')}</span>{' '}
+        {(cats.heading || t('theme.section.categories.title')).replace(cats.heading_highlight || t('theme.section.categories.heading_highlight'), '').trim() || t('theme.section.categories.heading_suffix')}
+      </h2>
+      <p className="text-gray-500 text-center mb-10 text-sm">
+        {cats.subheading || t('theme.section.categories.subtitle')}
+      </p>
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+        {(categories.length > 0
+          ? categories.slice(0, cats.max_categories || 6).map((c, i) => ({
+              key: c._id,
+              href: `/categories/${c.slug}`,
+              name: c.name,
+              letter: (c.name?.[0] || '?').toUpperCase(),
+              ...CATEGORY_BUBBLE_COLORS[i % CATEGORY_BUBBLE_COLORS.length],
+            }))
+          : catBlocks.slice(0, cats.max_categories || 6).map((b, i) => ({
+              key: b.id,
+              href: '/products',
+              name: b.settings.name as string,
+              letter: String(b.settings.letter || 'A').toUpperCase(),
+              ...CATEGORY_BUBBLE_COLORS[i % CATEGORY_BUBBLE_COLORS.length],
+            }))
+        ).map((bubble) => (
+          <Link
+            key={bubble.key}
+            to={bubble.href}
+            className={`group flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-300 hover:scale-105 ${bubble.bg}`}
+          >
+            <span className={`w-12 h-12 flex items-center justify-center rounded-full bg-white/60 text-xl font-extrabold ${bubble.letterColor}`}>
+              {bubble.letter}
+            </span>
+            <span className="text-xs font-bold text-gray-700 text-center">
+              {bubble.name}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** Shop by Age — toy-store-specific category-by-age picker */
+function ShopByAgeBlock({ id }: SectionProps) {
+  const { t } = useTranslation(['theme', 'common']);
+  const age = useThemeSettings(id);
+  const ageBlocks = useSectionBlocks(id);
+
+  return (
+    <section className="max-w-7xl mx-auto px-4 pb-8">
+      <h2 className="text-2xl font-extrabold text-center mb-2">
+        {(age.heading || t('theme.section.shop_by_age.title')).replace(age.heading_highlight || t('theme.section.shop_by_age.heading_highlight'), '').trim() || t('theme.section.shop_by_age.heading_prefix')}{' '}
+        <span className="text-[#8b5cf6]">{age.heading_highlight || t('theme.section.shop_by_age.heading_highlight')}</span>
+      </h2>
+      <p className="text-gray-500 text-center mb-8 text-sm">{age.subheading || t('theme.section.shop_by_age.subtitle')}</p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        {ageBlocks.map((block, i) => {
+          const palette = AGE_COLORS[i % AGE_COLORS.length];
+          const label = String(block.settings.label || '');
+          return (
             <Link
-              key={bubble.key}
-              to={bubble.href}
-              className={`group flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-300 hover:scale-105 ${bubble.bg}`}
+              key={block.id}
+              to={`/products?age=${encodeURIComponent(label)}`}
+              className={`group flex flex-col items-center justify-center gap-2 p-5 rounded-3xl bg-gradient-to-br ${palette.color} hover:scale-105 transition-transform shadow-sm hover:shadow-md`}
             >
-              <span className={`w-12 h-12 flex items-center justify-center rounded-full bg-white/60 text-xl font-extrabold ${bubble.letterColor}`}>
-                {bubble.letter}
-              </span>
-              <span className="text-xs font-bold text-gray-700 text-center">
-                {bubble.name}
-              </span>
+              <span className={`w-16 h-16 flex items-center justify-center rounded-full bg-white/70 text-2xl font-extrabold group-hover:scale-110 transition-transform ${palette.text}`}>{label}</span>
+              <span className="text-xs font-bold text-gray-700 text-center">{block.settings.name}</span>
             </Link>
-          ))}
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/** Trust Badges */
+function TrustBadgesBlock({ id }: SectionProps) {
+  const trust = useThemeSettings(id);
+  const trustBlocks = useSectionBlocks(id);
+  const { ref: trustRef, isIntersecting: trustVisible } = useIntersectionObserver({ threshold: 0.1 });
+  if (trust.show_section === false) return null;
+
+  return (
+    <section
+      ref={trustRef as React.RefObject<HTMLElement>}
+      className={`max-w-7xl mx-auto px-4 pb-12 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
+        trustVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+    >
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        {trustBlocks.map((block) => (
+          <div
+            key={block.id}
+            className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border-2 border-transparent"
+            style={{ ['--hover-border' as string]: trust.highlight_color || '#fbbf24' }}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = trust.highlight_color || '#fbbf24')}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'transparent')}
+          >
+            <div className="text-[#8b5cf6] mb-2">{renderKidsBadgeIcon(block.settings.icon)}</div>
+            <h3 className="font-bold text-sm">{block.settings.title}</h3>
+            <p className="text-xs text-gray-500 mt-1">{block.settings.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** Featured Toys Grid */
+function FeaturedBlock({ id, onQuickView }: SectionProps) {
+  const { t } = useTranslation(['theme', 'common']);
+  const feat = useThemeSettings(id);
+  const { products: featured, loading } = useFeaturedProducts(feat.product_limit || 8);
+  const { ref: featuredRef, isIntersecting: featuredVisible } = useIntersectionObserver({ threshold: 0.1 });
+
+  return (
+    <section
+      ref={featuredRef as React.RefObject<HTMLElement>}
+      className={`bg-white py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
+        featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h2 className="text-2xl font-extrabold">
+              <span className="text-[#fbbf24] inline-block align-middle me-1"><svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span> {feat.heading || t('theme.section.featured_products.title')}
+            </h2>
+            <p className="text-gray-500 text-sm mt-1">
+              {feat.subheading || t('theme.section.featured_products.subtitle')}
+            </p>
+          </div>
+          <Link
+            to={feat.view_all_url || '/products'}
+            className="text-[#8b5cf6] font-bold text-sm hover:underline"
+          >
+            {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
+          </Link>
         </div>
-      </section>
-      )}
-
-      {/* Shop by Age — toy-store-specific category-by-age picker */}
-      {ageEnabled !== false && (
-        <section className="max-w-7xl mx-auto px-4 pb-8">
-          <h2 className="text-2xl font-extrabold text-center mb-2">
-            {(age.heading || t('theme.section.shop_by_age.title')).replace(age.heading_highlight || t('theme.section.shop_by_age.heading_highlight'), '').trim() || t('theme.section.shop_by_age.heading_prefix')}{' '}
-            <span className="text-[#8b5cf6]">{age.heading_highlight || t('theme.section.shop_by_age.heading_highlight')}</span>
-          </h2>
-          <p className="text-gray-500 text-center mb-8 text-sm">{age.subheading || t('theme.section.shop_by_age.subtitle')}</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {ageBlocks.map((block, i) => {
-              const palette = AGE_COLORS[i % AGE_COLORS.length];
-              const label = String(block.settings.label || '');
-              return (
-                <Link
-                  key={block.id}
-                  to={`/products?age=${encodeURIComponent(label)}`}
-                  className={`group flex flex-col items-center justify-center gap-2 p-5 rounded-3xl bg-gradient-to-br ${palette.color} hover:scale-105 transition-transform shadow-sm hover:shadow-md`}
-                >
-                  <span className={`w-16 h-16 flex items-center justify-center rounded-full bg-white/70 text-2xl font-extrabold group-hover:scale-110 transition-transform ${palette.text}`}>{label}</span>
-                  <span className="text-xs font-bold text-gray-700 text-center">{block.settings.name}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* Trust Badges */}
-      {trustEnabled && trust.show_section !== false && (
-        <section
-          ref={trustRef}
-          className={`max-w-7xl mx-auto px-4 pb-12 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
-            trustVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            {trustBlocks.map((block) => (
-              <div
-                key={block.id}
-                className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border-2 border-transparent"
-                style={{ ['--hover-border' as string]: trust.highlight_color || '#fbbf24' }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = trust.highlight_color || '#fbbf24')}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'transparent')}
-              >
-                <div className="text-[#8b5cf6] mb-2">{renderKidsBadgeIcon(block.settings.icon)}</div>
-                <h3 className="font-bold text-sm">{block.settings.title}</h3>
-                <p className="text-xs text-gray-500 mt-1">{block.settings.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Featured Toys Grid */}
-      {featEnabled && (
-      <section
-        ref={featuredRef}
-        className={`bg-white py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
-          featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h2 className="text-2xl font-extrabold">
-                <span className="text-[#fbbf24] inline-block align-middle me-1"><svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span> {feat.heading || t('theme.section.featured_products.title')}
-              </h2>
-              <p className="text-gray-500 text-sm mt-1">
-                {feat.subheading || t('theme.section.featured_products.subtitle')}
-              </p>
-            </div>
-            <Link
-              to={feat.view_all_url || '/products'}
-              className="text-[#8b5cf6] font-bold text-sm hover:underline"
-            >
-              {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
-            </Link>
-          </div>
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {Array.from({ length: feat.product_limit || 8 }).map((_, i) => (
-                <Skeleton key={i} className="h-72 rounded-2xl" />
-              ))}
-            </div>
-          ) : (
-            <ProductRail columns={(Number(feat.columns) || 4) as 2 | 3 | 4 | 5}>
-              {featured.map((p) => (
-                <ProductCard key={p._id} product={p} onQuickView={setQuickViewProduct}>
-                  <ProductCard.Image showBadge showQuickView hoverSwap />
-                  <ProductCard.Body>
-                    <ProductCard.Title />
-                    {feat.show_rating !== false && <ProductCard.Rating />}
-                    <ProductCard.Price showCompareAt showDiscount className="mt-2" />
-                    <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
-                  </ProductCard.Body>
-                </ProductCard>
-              ))}
-            </ProductRail>
-          )}
-        </div>
-      </section>
-      )}
-
-      {/* New Adventures Rail */}
-      {arrivalsEnabled && (
-      <section
-        ref={carouselRef}
-        className={`max-w-7xl mx-auto px-4 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
-          carouselVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}
-      >
-        <h2 className="text-2xl font-extrabold mb-2">
-          <span className="inline-flex items-center gap-2">
-            <svg className="w-7 h-7 text-[#8b5cf6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-            <span className="text-[#8b5cf6]">{arrivals.heading || t('theme.section.new_arrivals.title')}</span>
-          </span>
-        </h2>
-        <p className="text-gray-500 text-sm mb-8">
-          {arrivals.subheading || t('theme.section.new_arrivals.subtitle')}
-        </p>
         {loading ? (
-          <div className="flex gap-4 overflow-hidden">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-72 w-56 rounded-2xl flex-shrink-0" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {Array.from({ length: feat.product_limit || 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-72 rounded-2xl" />
             ))}
           </div>
         ) : (
-          <ProductRail columns={4}>
+          <ProductRail columns={(Number(feat.columns) || 4) as 2 | 3 | 4 | 5}>
             {featured.map((p) => (
-              <ProductCard key={p._id} product={p} onQuickView={setQuickViewProduct}>
+              <ProductCard key={p._id} product={p} onQuickView={onQuickView}>
                 <ProductCard.Image showBadge showQuickView hoverSwap />
                 <ProductCard.Body>
                   <ProductCard.Title />
-                  <ProductCard.Price showCompareAt />
-                  <ProductCard.Actions addToCartText={arrivals.add_to_cart_text || t('theme.section.new_arrivals.add_to_cart')} />
+                  {feat.show_rating !== false && <ProductCard.Rating />}
+                  <ProductCard.Price showCompareAt showDiscount className="mt-2" />
+                  <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
                 </ProductCard.Body>
               </ProductCard>
             ))}
           </ProductRail>
         )}
-      </section>
-      )}
+      </div>
+    </section>
+  );
+}
 
-      {/* Fun CTA Section */}
-      {newsletterEnabled && (
-      <section
-        ref={ctaRef}
-        className={`py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
-          ctaVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}
-        style={{
-          background: `linear-gradient(to right, ${newsletter.gradient_from || '#fbbf24'}, ${newsletter.gradient_via || '#ec4899'}, ${newsletter.gradient_to || '#8b5cf6'})`,
-        }}
-      >
-        <div className="max-w-2xl mx-auto px-4 text-center">
-          <div className="flex justify-center mb-4">
-            <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" /></svg>
-          </div>
-          <h2 className="text-3xl font-extrabold text-white mb-4 [text-shadow:0_1px_4px_rgba(0,0,0,0.35)]">
-            {newsletter.heading || t('theme.section.newsletter.title')}
-          </h2>
-          <p className="text-white/95 mb-8 [text-shadow:0_1px_3px_rgba(0,0,0,0.3)]">
-            {newsletter.subheading || t('theme.section.newsletter.subtitle')}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder={newsletter.placeholder || t('theme.section.newsletter.placeholder')}
-              className="flex-1 px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white/30"
-            />
-            <button
-              className="px-6 py-3 rounded-full font-extrabold hover:opacity-90 transition shadow-lg"
-              style={{ backgroundColor: '#ffffff', color: newsletter.button_text_color || '#ec4899' }}
-            >
-              {newsletter.button_text || t('theme.section.newsletter.button')}
-            </button>
-          </div>
+/** New Adventures Rail — the newest products */
+function NewArrivalsBlock({ id, onQuickView }: SectionProps) {
+  const { t } = useTranslation(['theme', 'common']);
+  const arrivals = useThemeSettings(id);
+  const { products: newArrivals, loading: newLoading } = useProducts({ sort: 'newest', limit: arrivals.product_limit || 8 });
+  const { ref: carouselRef, isIntersecting: carouselVisible } = useIntersectionObserver({ threshold: 0.1 });
+
+  return (
+    <section
+      ref={carouselRef as React.RefObject<HTMLElement>}
+      className={`max-w-7xl mx-auto px-4 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
+        carouselVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+    >
+      <h2 className="text-2xl font-extrabold mb-2">
+        <span className="inline-flex items-center gap-2">
+          <svg className="w-7 h-7 text-[#8b5cf6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          <span className="text-[#8b5cf6]">{arrivals.heading || t('theme.section.new_arrivals.title')}</span>
+        </span>
+      </h2>
+      <p className="text-gray-500 text-sm mb-8">
+        {arrivals.subheading || t('theme.section.new_arrivals.subtitle')}
+      </p>
+      {newLoading ? (
+        <div className="flex gap-4 overflow-hidden">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-72 w-56 rounded-2xl flex-shrink-0" />
+          ))}
         </div>
-      </section>
+      ) : (
+        <ProductRail columns={4}>
+          {newArrivals.map((p) => (
+            <ProductCard key={p._id} product={p} onQuickView={onQuickView}>
+              <ProductCard.Image showBadge showQuickView hoverSwap />
+              <ProductCard.Body>
+                <ProductCard.Title />
+                <ProductCard.Price showCompareAt />
+                <ProductCard.Actions addToCartText={arrivals.add_to_cart_text || t('theme.section.new_arrivals.add_to_cart')} />
+              </ProductCard.Body>
+            </ProductCard>
+          ))}
+        </ProductRail>
       )}
+    </section>
+  );
+}
+
+/** Fun CTA Section */
+function NewsletterBlock({ id }: SectionProps) {
+  const { t } = useTranslation(['theme', 'common']);
+  const newsletter = useThemeSettings(id);
+  const { ref: ctaRef, isIntersecting: ctaVisible } = useIntersectionObserver({ threshold: 0.2 });
+
+  return (
+    <section
+      ref={ctaRef as React.RefObject<HTMLElement>}
+      className={`py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${
+        ctaVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+      style={{
+        background: `linear-gradient(to right, ${newsletter.gradient_from || '#fbbf24'}, ${newsletter.gradient_via || '#ec4899'}, ${newsletter.gradient_to || '#8b5cf6'})`,
+      }}
+    >
+      <div className="max-w-2xl mx-auto px-4 text-center">
+        <div className="flex justify-center mb-4">
+          <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" /></svg>
+        </div>
+        <h2 className="text-3xl font-extrabold text-white mb-4 [text-shadow:0_1px_4px_rgba(0,0,0,0.35)]">
+          {newsletter.heading || t('theme.section.newsletter.title')}
+        </h2>
+        <p className="text-white/95 mb-8 [text-shadow:0_1px_3px_rgba(0,0,0,0.3)]">
+          {newsletter.subheading || t('theme.section.newsletter.subtitle')}
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <input
+            type="email"
+            placeholder={newsletter.placeholder || t('theme.section.newsletter.placeholder')}
+            className="flex-1 px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white/30"
+          />
+          <button
+            className="px-6 py-3 rounded-full font-extrabold hover:opacity-90 transition shadow-lg"
+            style={{ backgroundColor: '#ffffff', color: newsletter.button_text_color || '#ec4899' }}
+          >
+            {newsletter.button_text || t('theme.section.newsletter.button')}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Bespoke components keyed by section TYPE, in this theme's own look.
+const SECTION_COMPONENTS: Record<string, React.FC<SectionProps>> = {
+  'hero': HeroBlock,
+  'categories': CategoriesBlock,
+  'shop-by-age': ShopByAgeBlock,
+  'trust-badges': TrustBadgesBlock,
+  'featured-products': FeaturedBlock,
+  'new-arrivals': NewArrivalsBlock,
+  'newsletter': NewsletterBlock,
+};
+
+const Home: React.FC = () => {
+  // The merchant's composed homepage — ORDERED and enabled-filtered (falls
+  // back to the manifest's templates.index). Rendering in THIS order is what
+  // makes reordering in the editor work and keeps removed sections away.
+  const orderedSections = useTemplateSections('index');
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+
+  return (
+    <div>
+      {/* Every section in the merchant's composed order — bespoke components for
+          this theme's own types, the shared registry for any other section
+          added from the editor — so added sections land where they were placed. */}
+      {orderedSections.map((s) => {
+        const Bespoke = SECTION_COMPONENTS[s.type];
+        const Shared = DEFAULT_SECTION_REGISTRY[s.type];
+        if (!Bespoke && !Shared) return null; // unknown type — silently skipped for shoppers
+        return (
+          <div key={s.id} data-section-id={s.id} className="scroll-mt-20">
+            {Bespoke
+              ? <Bespoke id={s.id} onQuickView={setQuickViewProduct} />
+              : <Shared id={s.id} section={s} onQuickView={setQuickViewProduct} />}
+          </div>
+        );
+      })}
 
       {/* QuickView Modal */}
-      <MerchantSections template="index" excludeIds={HARDCODED_IDS} onQuickView={setQuickViewProduct} />
-
       <QuickView product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </div>
   );

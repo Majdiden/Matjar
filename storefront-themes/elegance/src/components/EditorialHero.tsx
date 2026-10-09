@@ -8,6 +8,8 @@ interface EditorialHeroProps {
   /** Featured-product photo used as the full-bleed image when the merchant
    *  hasn't set a background image (mirrors the old shared-Hero `media` prop). */
   media?: string;
+  /** Section instance id whose settings drive the hero (default `hero`). */
+  sectionId?: string;
 }
 
 /**
@@ -23,10 +25,10 @@ interface EditorialHeroProps {
  * working. Fully token-driven and RTL-safe; if the photo 404s/CSP-blocks it
  * drops to the brand gradient instead of a broken band.
  */
-export default function EditorialHero({ media }: EditorialHeroProps) {
+export default function EditorialHero({ media, sectionId = 'hero' }: EditorialHeroProps) {
   const { t } = useTranslation(['theme']);
   const { store } = useStore();
-  const hero = useThemeSettings('hero') as Record<string, any>;
+  const hero = useThemeSettings(sectionId) as Record<string, any>;
   const [imageOk, setImageOk] = useState(true);
 
   const eyebrow = hero.season_label || t('theme.section.hero.season_label');

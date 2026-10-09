@@ -6,7 +6,7 @@ import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
-import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
+import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
@@ -63,8 +63,7 @@ const Layout: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const showBar = useThemeSetting<boolean>('show_announcement_bar') !== false;
-  const barText = useThemeSetting<string>('announcement_text') || t('theme.announcement.default_text');
+  const barText = useTopStripText();
 
   const brand = (store?.name || 'AURUM').toUpperCase();
   const socials = Object.entries(store?.socialLinks || {}).filter(
@@ -98,8 +97,8 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-night text-ink">
       {/* ═══ ANNOUNCEMENT BAR ════════════════════════════════════ */}
-      {showBar && (
-        <div className="bg-night text-[10px] tracking-[0.3em] uppercase text-gold py-2.5 text-center px-4">
+      {barText && (
+        <div data-section-id={TOP_STRIP_ANCHOR} className="bg-night text-[10px] tracking-[0.3em] uppercase text-gold py-2.5 text-center px-4">
           {barText}
         </div>
       )}

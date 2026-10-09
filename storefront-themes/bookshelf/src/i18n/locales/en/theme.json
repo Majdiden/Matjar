@@ -27,6 +27,12 @@
         "subheading": "The books everyone is reading right now",
         "add": "Add"
       },
+      "new_arrivals": {
+        "heading": "New Arrivals",
+        "subheading": "Fresh off the press and just added to our shelves",
+        "see_all": "See All",
+        "add": "Add"
+      },
       "newsletter": {
         "heading": "Start Your Reading List",
         "subheading": "Sign up for curated recommendations, exclusive deals, and early access to new arrivals.",

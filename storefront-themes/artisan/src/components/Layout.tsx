@@ -9,6 +9,7 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
+import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
@@ -29,16 +30,20 @@ const Layout: React.FC = () => {
     item.type === 'external' || item.target === '_blank';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useTranslation(['theme']);
+  const stripText = useTopStripText();
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--color-background)] pb-16 md:pb-0">
-      {/* Announcement Bar */}
-      <AnnouncementBar
-        message={t('theme.layout.announcement')}
-        href="/products"
-        linkText={t('theme.layout.announcement_link')}
-        className="bg-[var(--color-primary)] text-[var(--color-border)]"
-      />
+      {/* Top strip — the merchant's text from My Store, on every page */}
+      {stripText && (
+        <div data-section-id={TOP_STRIP_ANCHOR}>
+          <AnnouncementBar
+            message={stripText}
+            dismissible={false}
+            className="bg-[var(--color-primary)] text-[var(--color-border)]"
+          />
+        </div>
+      )}
 
       {/* Header */}
       <header className="sticky top-0 z-30 bg-[var(--color-background)]/95 backdrop-blur-md border-b border-[var(--color-border)]">

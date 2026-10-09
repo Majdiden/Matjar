@@ -64,6 +64,12 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
+    // Simple-editor (My Store) settings: when filled they override the FIRST
+    // slide's heading / text / image / button; the other slides are untouched.
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
+    { id: 'image', type: 'image', label: 'Image', level: 'basic', bind: 'brand.coverImage', default: '' },
+    { id: 'cta_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'autoplay', type: 'checkbox', label: 'Auto-play', default: true },
     { id: 'autoplay_interval', type: 'range', label: 'Auto-play Interval', min: 3000, max: 9000, step: 500, default: 4000, unit: 'ms' },
     { id: 'pause_on_hover', type: 'checkbox', label: 'Pause on Hover', default: false },
@@ -452,8 +458,7 @@ const manifest = defineTheme({
 
   settings: [
     { id: 'show_announcement_bar', type: 'checkbox', label: 'Show Announcement Bar', default: true },
-    { id: 'announcement_text', type: 'textarea', label: 'Announcement messages (one per line)', default: '' },
-    { id: 'autoplay_interval', type: 'range', label: 'Announcement rotation', min: 2000, max: 10000, step: 500, default: 4000, unit: 'ms' },
+    { id: 'announcement_text', type: 'text', label: 'Announcement Text', default: '' },
     { id: 'free_shipping_threshold', type: 'number', label: 'Free shipping threshold', default: 500, min: 0, max: 100000 },
     { id: 'show_top_strip', type: 'checkbox', label: 'Show Top Strip', default: true },
     { id: 'header_transparent_home', type: 'checkbox', label: 'Transparent header on home', default: true },
@@ -500,23 +505,8 @@ const manifest = defineTheme({
   templates: {
     index: withDefaultBlocks([
       { id: 'hero', type: 'atelier-hero', settings: {} },
-      { id: 'marquee', type: 'atelier-marquee', settings: {} },
-      { id: 'about', type: 'atelier-icon-row', settings: { cta_url: '/pages/about' } },
-      { id: 'why', type: 'atelier-feature-grid', settings: {} },
-      { id: 'band', type: 'atelier-image-band', settings: {} },
-      { id: 'categories', type: 'atelier-category-tiles', settings: {} },
       { id: 'new-arrivals', type: 'atelier-product-grid', settings: { product_source: 'newest', product_limit: 8 } },
-      { id: 'split', type: 'atelier-split-banner', settings: { cta_url: '/products' } },
-      { id: 'video', type: 'atelier-video-block', settings: { cta_url: '/products' } },
-      { id: 'deals', type: 'atelier-deals-banner', settings: { cta_url: '/products?sort=popular' } },
-      { id: 'stats', type: 'atelier-stats', settings: { cta_url: '/products' } },
-      { id: 'sale', type: 'atelier-product-grid', settings: { product_source: 'sale', product_limit: 8 } },
-      { id: 'kind', type: 'atelier-icon-row', settings: {} },
-      { id: 'lookbook', type: 'atelier-lookbook', settings: {} },
-      { id: 'usp', type: 'atelier-usp-strip', settings: {} },
-      { id: 'testimonials', type: 'atelier-testimonials', settings: {} },
-      { id: 'before-after', type: 'atelier-before-after', settings: { cta_url: '/products' } },
-      { id: 'stories', type: 'atelier-stories', settings: {} },
+      { id: 'featured', type: 'atelier-product-grid', settings: { product_source: 'featured', product_limit: 8 } },
     ]),
     product: [
       { id: 'product-details', type: 'product-details', settings: {} },

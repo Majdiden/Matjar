@@ -6,7 +6,7 @@ import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
-import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
+import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
@@ -40,8 +40,7 @@ const Layout: React.FC = () => {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const showStrip = useThemeSetting<boolean>('show_announcement_bar') !== false;
-  const stripText = useThemeSetting<string>('announcement_text') || t('theme.announcement.default_text');
+  const stripText = useTopStripText();
 
   const brand = (store?.name || 'GLOWING').toUpperCase();
   const isActive = (path: string) =>
@@ -50,8 +49,8 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white text-neutral-900">
       {/* ═══ TOP STRIP ═══════════════════════════════════════════ */}
-      {showStrip && (
-        <div className="bg-black text-white text-[11px] tracking-[0.18em] font-medium py-2.5 text-center">
+      {stripText && (
+        <div data-section-id={TOP_STRIP_ANCHOR} className="bg-black text-white text-[11px] tracking-[0.18em] font-medium py-2.5 text-center">
           {stripText}
         </div>
       )}

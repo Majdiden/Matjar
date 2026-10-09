@@ -11,12 +11,14 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
+import { useTopStripText, SectionAnchor, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
+  const topStripText = useTopStripText();
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -33,11 +35,16 @@ const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fffbf0]">
-      <AnnouncementBar
-        message={t('theme.announcement.message')}
-        linkText={t('theme.announcement.link_text')}
-        className="bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-900 text-xs text-center py-1.5 font-bold"
-      />
+      {/* Top strip — the merchant's announcement text (My Store), on every page */}
+      {topStripText && (
+        <SectionAnchor id={TOP_STRIP_ANCHOR} className="">
+          <AnnouncementBar
+            message={topStripText}
+            dismissible={false}
+            className="bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-gray-900 text-xs text-center py-1.5 font-bold"
+          />
+        </SectionAnchor>
+      )}
 
       <header className="sticky top-0 z-50 bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4">

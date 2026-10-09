@@ -17,7 +17,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — your store cover photo is used when empty' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
     { id: 'gradient_from', type: 'color', label: 'Gradient From', default: '#ec4899' },
     { id: 'gradient_via', type: 'color', label: 'Gradient Via', default: '#8b5cf6' },
@@ -257,32 +257,12 @@ const manifest = defineTheme({
   ],
 
   templates: {
+    // Homepage: hero, newest products, featured products. The other
+    // sections stay addable from the advanced editor.
     index: [
       { id: 'hero', type: 'hero', settings: {} },
-      { id: 'categories', type: 'categories', settings: {}, blocks: [
-        { id: 'bubble-1', type: 'category-bubble', settings: { name: 'Action Figures', letter: 'A' } },
-        { id: 'bubble-2', type: 'category-bubble', settings: { name: 'Building Sets', letter: 'B' } },
-        { id: 'bubble-3', type: 'category-bubble', settings: { name: 'Dolls', letter: 'D' } },
-        { id: 'bubble-4', type: 'category-bubble', settings: { name: 'Board Games', letter: 'B' } },
-        { id: 'bubble-5', type: 'category-bubble', settings: { name: 'Vehicles', letter: 'V' } },
-        { id: 'bubble-6', type: 'category-bubble', settings: { name: 'Arts & Crafts', letter: 'A' } },
-      ]},
-      { id: 'shop-by-age', type: 'shop-by-age', settings: {}, blocks: [
-        { id: 'age-1', type: 'age-group', settings: { label: '0–2', name: 'Babies & Toddlers' } },
-        { id: 'age-2', type: 'age-group', settings: { label: '3–5', name: 'Preschool' } },
-        { id: 'age-3', type: 'age-group', settings: { label: '6–8', name: 'Little Kids' } },
-        { id: 'age-4', type: 'age-group', settings: { label: '9–11', name: 'Big Kids' } },
-        { id: 'age-5', type: 'age-group', settings: { label: '12+', name: 'Tweens & Teens' } },
-      ]},
-      { id: 'trust-badges', type: 'trust-badges', settings: {}, blocks: [
-        { id: 'badge-1', type: 'badge', settings: { icon: 'shield', title: 'Safe & Certified', description: 'All toys tested & approved' } },
-        { id: 'badge-2', type: 'badge', settings: { icon: 'star', title: 'Fun Guaranteed', description: 'Or your money back' } },
-        { id: 'badge-3', type: 'badge', settings: { icon: 'book', title: 'Educational', description: 'Learn through play' } },
-        { id: 'badge-4', type: 'badge', settings: { icon: 'truck', title: 'Fast Shipping', description: 'Free over $40' } },
-      ]},
-      { id: 'featured-products', type: 'featured-products', settings: {} },
       { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
-      { id: 'newsletter', type: 'newsletter', settings: {} },
+      { id: 'featured-products', type: 'featured-products', settings: {} },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard
