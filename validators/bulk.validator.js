@@ -45,3 +45,35 @@ export const bulkTenantsSchema = z.object({
       }
     }),
 });
+
+// ─── Permanent deletion (bulk) ─────────────────────────────────────
+// Kept OUT of BULK_ACTIONS: those are reversible and run under re-auth;
+// permanent deletion has its own route, scope (tenant.delete) and a
+// password confirmation. A smaller cap keeps one request well inside HTTP
+// timeouts (each store wipes many collections and its files).
+export const BULK_DELETE_MAX_TENANTS = 20;
+
+/** Phrase the operator must type, e.g. "delete 3 stores". Mirrored in platform-admin. */
+export const bulkDeleteConfirmationPhrase = (count) => `delete ${count} ${count === 1 ? "store" : "stores"}`;
+
+export const bulkDeleteTenantsSchema = z.object({
+  body: z
+    .object({
+      tenantIds: z.array(objectId).min(1).max(BULK_DELETE_MAX_TENANTS),
+      reason,
+      confirmation: z.string().trim().toLowerCase().max(100),
+      password: z.string().min(1).max(1024),
+    })
+    .superRefine((b, ctx) => {
+      if (new Set(b.tenantIds).size !== b.tenantIds.length) {
+        ctx.addIssue({ code: "custom", path: ["tenantIds"], message: "Duplicate tenant ids" });
+      }
+      if (b.confirmation !== bulkDeleteConfirmationPhrase(b.tenantIds.length)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["confirmation"],
+          message: `Type "${bulkDeleteConfirmationPhrase(b.tenantIds.length)}" to confirm`,
+        });
+      }
+    }),
+});

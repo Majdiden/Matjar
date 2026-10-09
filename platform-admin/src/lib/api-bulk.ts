@@ -66,7 +66,15 @@ export interface BulkResponse {
   summary: { total: number; ok: number; failed: number };
 }
 
+// Permanent deletion — NOT one of the reversible BULK_ACTIONS. Own route,
+// scope (tenant.delete), typed phrase and password. Mirrors
+// validators/bulk.validator.js.
+export const BULK_DELETE_MAX_TENANTS = 20;
+export const bulkDeleteConfirmationPhrase = (count: number) => `delete ${count} ${count === 1 ? 'store' : 'stores'}`;
+
 export const bulkApi = {
   tenants: (body: { action: BulkAction; tenantIds: string[]; reason: string; params?: BulkParams }) =>
     d<BulkResponse>(http.post('/bulk/tenants', body)),
+  deletePermanently: (body: { tenantIds: string[]; reason: string; confirmation: string; password: string }) =>
+    d<BulkResponse>(http.post('/bulk/tenants/delete-permanently', body)),
 };

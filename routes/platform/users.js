@@ -9,6 +9,7 @@ import {
   changeOwnPasswordSchema,
   reasonRequiredSchema,
   setNotificationsSchema,
+  setStoreDeletionPermissionSchema,
 } from "../../validators/platform.validator.js";
 import * as c from "../../controllers/platform/users.js";
 import { findPlatformUserBrief } from "../../services/platform/users.js";
@@ -65,6 +66,16 @@ router.delete("/invites/:id", manage, validateObjectId("id"), c.revokeInvite);
 router.patch("/:id/role", manage, validateObjectId("id"), validate(changeRoleSchema), reauthForOwnerRole, c.changeRole);
 // Email alerts are the owner's call (self-subscription allowed).
 router.patch("/:id/notifications", manage, requireRole("owner"), validateObjectId("id"), validate(setNotificationsSchema), c.setNotifications);
+// Who may permanently delete stores is the owner's call, with a fresh re-auth.
+router.patch(
+  "/:id/store-deletion",
+  manage,
+  requireRole("owner"),
+  validateObjectId("id"),
+  validate(setStoreDeletionPermissionSchema),
+  requireRecentReauth,
+  c.setStoreDeletionPermission
+);
 router.post("/:id/suspend", manage, validateObjectId("id"), validate(suspendUserSchema), c.suspendUser);
 router.post("/:id/reactivate", manage, validateObjectId("id"), validate(reasonOptionalSchema), c.reactivateUser);
 router.post("/:id/revoke-sessions", manage, validateObjectId("id"), validate(reasonOptionalSchema), c.revokeSessions);

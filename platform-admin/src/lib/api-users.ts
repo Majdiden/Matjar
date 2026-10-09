@@ -96,6 +96,11 @@ export const usersApi = {
     const res = await http.get('/users');
     return res.data.data as { users: PlatformStaffUser[]; roles: PlatformRoleDef[]; notificationEvents: NotificationEventDef[] };
   },
+  /** Owner-only, needs a fresh re-auth: allow/stop this person permanently deleting stores. */
+  setStoreDeletion: async (id: string, allowed: boolean, reason?: string) => {
+    const res = await http.patch(`/users/${id}/store-deletion`, { allowed, ...(reason ? { reason } : {}) });
+    return res.data.data as PlatformStaffUser;
+  },
   setNotifications: async (id: string, events: string[]) => {
     const res = await http.patch(`/users/${id}/notifications`, { events });
     return res.data.data as PlatformStaffUser;

@@ -21,9 +21,12 @@ import { DataList, type DataListColumn } from '../../components/ui/DataList';
 import { PageSpinner, ErrorState, EmptyState } from '../../components/ui/Spinner';
 import { useToast } from '../../components/ui/toast-context';
 import { formatDate, formatRelative } from '../../lib/utils';
-import { Users, UserPlus, RefreshCw, Mail, Ban, Play, KeyRound, LogOut, ShieldCheck, ShieldOff, X, MonitorSmartphone, BellRing } from 'lucide-react';
+import { Users, UserPlus, RefreshCw, Mail, Ban, Play, KeyRound, LogOut, ShieldCheck, ShieldOff, X, MonitorSmartphone, BellRing, Skull } from 'lucide-react';
 
-type Action = 'role' | 'suspend' | 'reactivate' | 'revoke' | 'force-reset' | 'reset-mfa';
+type Action = 'role' | 'suspend' | 'reactivate' | 'revoke' | 'force-reset' | 'reset-mfa' | 'store-deletion';
+
+/** Non-owners who were granted permanent store deletion by an owner. */
+const canDeleteStores = (u: PlatformStaffUser) => u.scopes.includes(PLATFORM_SCOPES.TENANT_DELETE);
 
 const ROLE_TONE: Record<string, React.ComponentProps<typeof Badge>['variant']> = {
   owner: 'default',
@@ -148,7 +151,12 @@ export default function PlatformUsers() {
       header: 'Role',
       cell: (u) =>
         u.role ? (
-          <Badge variant={ROLE_TONE[u.role] || 'outline'} className="capitalize">{u.role}</Badge>
+          <div className="flex flex-wrap items-center gap-1">
+            <Badge variant={ROLE_TONE[u.role] || 'outline'} className="capitalize">{u.role}</Badge>
+            {u.role !== 'owner' && canDeleteStores(u) && (
+              <Badge variant="destructive" className="text-[10px]" title="Granted by an owner">can delete stores</Badge>
+            )}
+          </div>
         ) : (
           <span className="text-xs text-muted-foreground" title={u.explicitScopes.join(', ')}>
             legacy · {u.explicitScopes.length} scope(s)
@@ -198,6 +206,17 @@ export default function PlatformUsers() {
             {isOwner && (
               <Button variant="ghost" size="sm" title="Email alerts" onClick={() => { setAlertChoice(u.notifications ?? []); setAlertsFor(u); }}>
                 <BellRing className={`h-3.5 w-3.5 ${u.notifications?.length ? 'text-primary' : ''}`} />
+              </Button>
+            )}
+            {/* Owners hold store deletion by role; for everyone else it's an owner's grant. */}
+            {isOwner && u.role !== 'owner' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                title={canDeleteStores(u) ? 'Stop allowing permanent store deletion' : 'Allow permanent store deletion'}
+                onClick={() => setPending({ action: 'store-deletion', user: u })}
+              >
+                <Skull className={`h-3.5 w-3.5 ${canDeleteStores(u) ? 'text-destructive' : ''}`} />
               </Button>
             )}
         {canActOn(u) && (<>
@@ -427,6 +446,34 @@ export default function PlatformUsers() {
         confirmLabel="Suspend"
         confirmVariant="destructive"
         onConfirm={async (v) => { await run('suspend', () => usersApi.suspend(pending!.user.id, v.reason), 'User suspended'); }}
+      />
+      <ConfirmModal
+        open={pending?.action === 'store-deletion'}
+        onClose={() => setPending(null)}
+        title={
+          pending && canDeleteStores(pending.user)
+            ? `Stop ${pending.user.name} deleting stores`
+            : `Allow ${pending?.user.name ?? ''} to delete stores`
+        }
+        description={
+          pending && canDeleteStores(pending.user)
+            ? 'They will no longer see or be able to use “Delete permanently”. Takes effect on their next action.'
+            : 'They will be able to permanently delete any store and all of its data, after re-entering their own password each time. Owners are emailed whenever a store is deleted. You will be asked to confirm your identity.'
+        }
+        fields={[{ name: 'reason', label: 'Reason (optional)', type: 'text' }]}
+        confirmLabel={pending && canDeleteStores(pending.user) ? 'Stop allowing' : 'Allow'}
+        confirmVariant={pending && canDeleteStores(pending.user) ? 'default' : 'destructive'}
+        onConfirm={async (v) => {
+          const u = pending!.user;
+          const allow = !canDeleteStores(u);
+          // A cancelled re-auth is not an error: keep the confirm open quietly.
+          try { await reauth.ensure(); } catch { throw new Error('Confirm your identity to continue.'); }
+          await run(
+            'store-deletion',
+            () => usersApi.setStoreDeletion(u.id, allow, v.reason || undefined),
+            allow ? `${u.name} can now delete stores` : `${u.name} can no longer delete stores`,
+          );
+        }}
       />
       <ConfirmModal
         open={pending?.action === 'reactivate'}

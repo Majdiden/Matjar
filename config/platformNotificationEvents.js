@@ -51,6 +51,13 @@ export const PLATFORM_NOTIFICATION_EVENTS = Object.freeze([
     description: "Failed sign-in or re-auth attempts on the platform console (one email per 15 minutes).",
     throttleMs: 15 * 60 * 1000,
   },
+  {
+    key: "tenant.deleted_permanently",
+    label: "Store permanently deleted",
+    description: "A platform user permanently deleted one or more stores. Owners always receive this.",
+    throttleMs: 0,
+    alwaysRoles: ["owner"],
+  },
 ]);
 
 export const PLATFORM_NOTIFICATION_KEYS = Object.freeze(PLATFORM_NOTIFICATION_EVENTS.map((e) => e.key));
