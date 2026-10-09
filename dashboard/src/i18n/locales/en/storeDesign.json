@@ -160,7 +160,8 @@
     "subtitle": "Tap a part of your page to change its words and photos. Each change shows on your store right away.",
     "preview": {
       "show": "See my store",
-      "hide": "Hide"
+      "hide": "Hide",
+      "tap_hint": "Tap any part to edit it"
     },
     "list_title": "What's on your homepage",
     "shown_count": "{{shown}} of {{total}} shown to customers",
@@ -208,7 +209,16 @@
       "gallery": "Photo gallery",
       "features": "What makes you special",
       "video": "Video",
-      "brands": "Brands you sell"
+      "brands": "Brands you sell",
+      "atelier-hero": "Big photo at the top",
+      "aurum-split-hero": "Big photo at the top",
+      "beauxe-hero": "Big photo at the top",
+      "glowing-hero": "Big photo at the top",
+      "hero-showcase": "Big photo at the top",
+      "linen-hero": "Big photo at the top",
+      "milmaa-hero": "Big photo at the top",
+      "nutreko-hero": "Big photo at the top",
+      "staff-picks": "Featured products"
     },
     "unnamed_part": "Part of your page",
     "fields": {
@@ -223,7 +233,25 @@
       "image": "Photo",
       "body": "Text",
       "message": "Message",
-      "link_text": "Link words"
+      "link_text": "Link words",
+      "cta_text": "Button words",
+      "primary_button_text": "Button words",
+      "heading_line1": "Title",
+      "image_left": "Photo"
+    },
+    "top_strip": {
+      "name": "Top strip",
+      "everywhere": "Shows at the top of every page",
+      "help": "A short line at the top of your store, like an offer or delivery info.",
+      "text_label": "Text",
+      "text_help": "Leave it empty if you don't want a strip.",
+      "placeholder": "e.g. Free delivery in Khartoum"
+    },
+    "parts_by_source": {
+      "newest": "New arrivals",
+      "featured": "Featured products",
+      "sale": "On sale",
+      "popular": "Most popular"
     }
   }
 }

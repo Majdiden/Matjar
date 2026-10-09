@@ -75,6 +75,8 @@ import { ImpersonationProvider } from '../../contexts/ImpersonationContext';
 import { ImpersonationConsentModal } from '../impersonation/ImpersonationConsentModal';
 import { ActiveImpersonationOverlay } from '../impersonation/ActiveImpersonationOverlay';
 import { ImpersonationBanner } from '../impersonation/ImpersonationBanner';
+import { SetupGuideBar } from '../SetupGuideBar';
+import { SetupGuideProvider } from '../../contexts/SetupGuideContext';
 
 // ---------------------------------------------------------------------------
 // Pending-orders badge (audit 4.2.4)
@@ -132,6 +134,40 @@ function NavLink({
 }) {
   const { href } = item;
   if (!href) return null; // link-less toggle parents never reach NavLink
+  if (item.featured) {
+    // Main entry point: same shape, colours and icon as the other rows,
+    // one size up, tinted and with a second line, so it stands out.
+    return (
+      <Link
+        to={href}
+        onClick={onClick}
+        aria-current={isActive ? 'page' : undefined}
+        className={cn(
+          'mb-2 flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-all',
+          isActive
+            ? 'border-primary bg-primary text-primary-foreground'
+            : 'border-primary/30 bg-primary/5 text-foreground hover:bg-primary/10'
+        )}
+      >
+        <span
+          className={cn(
+            'flex h-9 w-9 shrink-0 items-center justify-center rounded-md',
+            isActive ? 'bg-primary-foreground/15' : 'bg-primary/10 text-primary'
+          )}
+        >
+          <item.icon className="h-5 w-5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-semibold">{item.name}</span>
+          {item.description && (
+            <span className={cn('block truncate text-xs', isActive ? 'text-primary-foreground/80' : 'text-muted-foreground')}>
+              {item.description}
+            </span>
+          )}
+        </span>
+      </Link>
+    );
+  }
   return (
     <Link
       to={href}
@@ -836,6 +872,8 @@ const DashboardLayoutInner: React.FC = () => {
             <PwaManager />
             {/* Boundary for the code-split page chunks (audit 3.6) — the
                 spinner shows here so the sidebar/topbar stay put. */}
+            {/* Guided setup (PBI 10-28): until the essentials are done. */}
+            <SetupGuideBar />
             <Suspense fallback={<PageLoader />}>
               <Outlet />
             </Suspense>
@@ -868,7 +906,9 @@ export const DashboardLayout: React.FC = () => (
   <BreadcrumbProvider>
     <NotificationsProvider>
       <ImpersonationProvider>
-        <DashboardLayoutInner />
+        <SetupGuideProvider>
+          <DashboardLayoutInner />
+        </SetupGuideProvider>
       </ImpersonationProvider>
     </NotificationsProvider>
   </BreadcrumbProvider>

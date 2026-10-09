@@ -8,6 +8,7 @@ import { Separator } from '../../components/ui/separator';
 import { Truck, Package, Plus, Loader2, Check, X } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import type { Order, OrderItem } from '../../types';
 
 /** Response envelope for /orders/:id/fulfillments. The backend wraps it
@@ -122,6 +123,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
       .map(([orderLineId, quantity]) => ({ orderLineId, quantity }));
     if (items.length === 0) {
       toast.error(t('orders:fulfillment.card.form.error_no_items'));
+      focusFieldById('fulfillment-lines');
       return;
     }
     try {
@@ -230,7 +232,7 @@ export const OrderFulfillments: React.FC<Props> = ({ order, onChange }) => {
             {showForm && (
               <div className="border rounded-lg p-3 space-y-3 bg-muted/30">
                 <p className="text-sm font-medium">{t('orders:fulfillment.card.form.title')}</p>
-                <div className="space-y-2">
+                <div id="fulfillment-lines" className="space-y-2">
                   {order.products.map((line: OrderItem) => {
                     const id = String(line._id);
                     const max = remaining(id);

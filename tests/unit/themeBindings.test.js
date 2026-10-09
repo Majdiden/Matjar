@@ -203,10 +203,15 @@ describe("manifest validator: level / bind / presets", () => {
     assert.ok(errors.some((e) => /sections\[0\] \(hero\): level must be/.test(e)), errors.join("\n"));
     assert.ok(errors.some((e) => /settings\[0\] \(heading\): level must be/.test(e)), errors.join("\n"));
 
-    const four = baseManifest();
-    four.sections[0].settings.forEach((s) => (s.level = "basic"));
-    assert.equal(four.sections[0].settings.length, MAX_BASIC_SETTINGS_PER_SECTION + 1);
-    assert.ok(validateManifestExtensions(four).some((e) => /4 basic settings — at most 3/.test(e)));
+    // A hero fits heading, text, photo and button; a fifth basic setting doesn't.
+    const tooMany = baseManifest();
+    tooMany.sections[0].settings.push({ id: "extra_text", type: "text", default: "" });
+    tooMany.sections[0].settings.forEach((s) => (s.level = "basic"));
+    assert.equal(tooMany.sections[0].settings.length, MAX_BASIC_SETTINGS_PER_SECTION + 1);
+    assert.ok(validateManifestExtensions(tooMany).some((e) => /5 basic settings — at most 4/.test(e)));
+    const fits = baseManifest();
+    fits.sections[0].settings.forEach((s) => (s.level = "basic"));
+    assert.ok(!validateManifestExtensions(fits).some((e) => /basic settings — at most/.test(e)));
   });
 
   it("rejects unknown bindings, incompatible setting types and bound block settings", () => {

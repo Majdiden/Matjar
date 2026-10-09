@@ -12,6 +12,7 @@ import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
 import { useTranslation } from 'react-i18next';
+import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -26,6 +27,7 @@ const Layout: React.FC = () => {
   const isExternal = (item: MenuItem) =>
     item.type === 'external' || item.target === '_blank';
   const { t } = useTranslation(['theme']);
+  const topStripText = useTopStripText();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -37,6 +39,17 @@ const Layout: React.FC = () => {
         fontFamily: 'var(--font-family)',
       }}
     >
+      {/* Top strip — the merchant's announcement text (My Store), on every page */}
+      {topStripText && (
+        <div
+          data-section-id={TOP_STRIP_ANCHOR}
+          className="min-h-9 px-4 py-2 flex items-center justify-center text-center text-xs font-medium"
+          style={{ backgroundColor: 'var(--color-primary)', color: '#ffffff' }}
+        >
+          {topStripText}
+        </div>
+      )}
+
       {/* Ultra-clean sticky header */}
       <header
         className="sticky top-0 z-50 border-b"

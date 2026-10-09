@@ -22,6 +22,7 @@ import {
   Globe,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../../lib/focusFirstInvalid';
 import { api } from '../../../lib/api-client';
 import { errMsg } from '../../../lib/errors';
 import { ltrIsolate } from '../../../lib/utils';
@@ -111,6 +112,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
   const submitAdd = async () => {
     if (!isValidLookingHostname) {
       toast.error(t('domains:add.field.hostname.hint'));
+      focusFieldById('domain-hostname');
       return;
     }
     try {

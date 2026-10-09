@@ -51,7 +51,9 @@ export function LinkSlugField({
   const base = `${host ? storefrontUrl(host) : ''}${pathPrefix}`;
 
   return (
-    <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
+    // data-field-error: focusFirstInvalid finds the field even when the
+    // input is closed (the "Edit link" button takes focus then).
+    <div className="space-y-2 rounded-lg border bg-muted/40 p-3" data-field-error={error && !editing ? true : undefined}>
       <div className="flex items-center justify-between gap-2">
         <Label htmlFor={editing ? inputId : undefined}>{label}</Label>
         {editing ? (
@@ -85,6 +87,7 @@ export function LinkSlugField({
             placeholder={placeholder}
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            aria-invalid={error ? true : undefined}
           />
           <p className="text-xs text-muted-foreground">{editHelp}</p>
           {note && <p className="text-xs text-amber-700 dark:text-amber-400">{note}</p>}

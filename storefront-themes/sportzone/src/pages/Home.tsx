@@ -1,45 +1,190 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionEnabled } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useThemeSettings, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
 import SportzoneHero from '../components/SportzoneHero';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
-import { MerchantSections } from '@matjar/theme-shared/theme/SectionRenderer';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
-const HARDCODED_IDS = ['hero', 'categories', 'featured-products', 'cta-banner', 'performance-gear', 'trust-badges'];
+type SectionProps = { id: string; onQuickView: (product: Product) => void };
 
-const Home: React.FC = () => {
+// Each bespoke section reads its settings / blocks by its own INSTANCE id, so
+// a copy added from the advanced editor keeps its own values.
+
+/** Hero — bespoke high-energy athletic hero */
+function HeroBlock({ id }: SectionProps) {
+  const { products: featured } = useFeaturedProducts(4);
+
+  return (
+    <SportzoneHero sectionId={id} media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
+  );
+}
+
+/** Categories with action-shot overlays */
+function CategoriesBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
-
-  // Read section settings from the manifest + tenant overrides
-  const cats = useThemeSettings('categories');
-  const feat = useThemeSettings('featured-products');
-  const cta = useThemeSettings('cta-banner');
-  const perfGear = useThemeSettings('performance-gear');
-  const trust = useThemeSettings('trust-badges');
-
-  // Section visibility
-  const heroEnabled = useSectionEnabled('hero');
-  const catsEnabled = useSectionEnabled('categories');
-  const featEnabled = useSectionEnabled('featured-products');
-  const ctaEnabled = useSectionEnabled('cta-banner');
-  const perfGearEnabled = useSectionEnabled('performance-gear');
-  const trustEnabled = useSectionEnabled('trust-badges');
-
-  const { products: featured, loading: featuredLoading } = useFeaturedProducts(feat.product_limit || 8);
-  const { products: perfProducts, loading: arrivalsLoading } = useProducts({ sort: 'newest', limit: perfGear.product_limit || 8 });
+  const cats = useThemeSettings(id);
   const { categories } = useCategories();
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-
   const categoriesObserver = useIntersectionObserver({ threshold: 0.1 });
+  if (categories.length === 0) return null;
+
+  return (
+    <section
+      ref={categoriesObserver.ref as React.RefObject<HTMLElement>}
+      className={`max-w-7xl mx-auto px-4 py-14 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${categoriesObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+    >
+      <h2 className="text-2xl font-black uppercase mb-8">{cats.heading || t('theme.section.categories.title')}</h2>
+      <div className={`grid grid-cols-2 md:grid-cols-${cats.columns || '4'} gap-4`}>
+        {categories.slice(0, cats.max_categories || 4).map((cat) => (
+          <Link
+            key={cat._id}
+            to={`/categories/${cat.slug}`}
+            className="group relative bg-gray-900 rounded overflow-hidden"
+            style={{ height: `${cats.card_height || 192}px` }}
+          >
+            {cat.image && <img src={cat.image} alt={cat.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-500" />}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+            <div className="absolute inset-0 border-2 border-transparent group-hover:border-[#dc2626] transition-all duration-300 rounded" />
+            <div className="absolute bottom-0 start-0 p-4">
+              <span className="text-white font-black uppercase text-sm tracking-wider">{cat.name}</span>
+              {cats.show_shop_now_label !== false && (
+                <span className="block text-red-400 text-xs font-bold uppercase mt-1 opacity-0 group-hover:opacity-100 transition">
+                  {cats.shop_now_text || t('theme.section.categories.shop_now')} <span className="inline-block rtl:rotate-180">&rarr;</span>
+                </span>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** Featured Products - bold grid */
+function FeaturedBlock({ id, onQuickView }: SectionProps) {
+  const { t } = useTranslation(['theme', 'common']);
+  const feat = useThemeSettings(id);
+  const { products: featured, loading: featuredLoading } = useFeaturedProducts(feat.product_limit || 8);
   const productsObserver = useIntersectionObserver({ threshold: 0.1 });
+
+  return (
+    <section
+      ref={productsObserver.ref as React.RefObject<HTMLElement>}
+      className={`bg-gray-50 py-14 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${productsObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+    >
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-black uppercase">{feat.heading || t('theme.section.featured_products.title')}</h2>
+          <Link to={feat.view_all_url || '/products'} className="text-[#dc2626] font-bold text-sm uppercase hover:underline">
+            {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
+          </Link>
+        </div>
+        {featuredLoading ? (
+          <div className={`grid grid-cols-2 md:grid-cols-${feat.columns || '4'} gap-6`}>
+            {Array.from({ length: parseInt(feat.columns) || 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-72 rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <ProductRail columns={4}>
+            {featured.map((p) => (
+              <ProductCard
+                key={p._id}
+                product={p}
+                onQuickView={feat.show_quick_view !== false ? onQuickView : undefined}
+                className="border-gray-200 hover:border-[#dc2626]/40"
+              >
+                <ProductCard.Image showBadge showQuickView={feat.show_quick_view !== false} hoverSwap />
+                <ProductCard.Body>
+                  <ProductCard.Title />
+                  {feat.show_rating !== false && <ProductCard.Rating />}
+                  <ProductCard.Price showCompareAt showDiscount className="mt-2" />
+                  {feat.show_add_to_cart !== false && (
+                    <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
+                  )}
+                </ProductCard.Body>
+              </ProductCard>
+            ))}
+          </ProductRail>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** CTA Banner */
+function CtaBannerBlock({ id }: SectionProps) {
+  const { t } = useTranslation(['theme', 'common']);
+  const cta = useThemeSettings(id);
+  const ctaBgColor = cta.background_color || '#dc2626';
+  const ctaBtnBg = cta.button_bg_color || '#ffffff';
+  const ctaBtnTextColor = cta.button_text_color || '#dc2626';
+
+  return (
+    <section className="py-16 text-center px-4" style={{ backgroundColor: ctaBgColor }}>
+      <h2 className="text-3xl md:text-4xl font-black uppercase text-white mb-4">
+        {cta.heading || t('theme.section.cta_banner.title')}
+      </h2>
+      <p className="text-white mb-8 max-w-md mx-auto">
+        {cta.subheading || t('theme.section.cta_banner.subtitle')}
+      </p>
+      <Link
+        to={cta.button_url || '/products'}
+        className="inline-block px-10 py-4 font-black uppercase tracking-wider hover:opacity-90 transition"
+        style={{ backgroundColor: ctaBtnBg, color: ctaBtnTextColor }}
+      >
+        {cta.button_text || t('theme.section.cta_banner.cta')}
+      </Link>
+    </section>
+  );
+}
+
+/** Performance Gear Carousel — the newest products */
+function PerformanceGearBlock({ id, onQuickView }: SectionProps) {
+  const { t } = useTranslation(['theme', 'common']);
+  const perfGear = useThemeSettings(id);
+  const { products: perfProducts, loading: arrivalsLoading } = useProducts({ sort: 'newest', limit: perfGear.product_limit || 8 });
   const carouselObserver = useIntersectionObserver({ threshold: 0.1 });
+
+  return (
+    <section
+      ref={carouselObserver.ref as React.RefObject<HTMLElement>}
+      className={`py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${carouselObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+    >
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-2xl font-black uppercase mb-8">{perfGear.heading || t('theme.section.performance_gear.title')}</h2>
+        {arrivalsLoading ? (
+          <Skeleton className="h-72 rounded-lg" />
+        ) : (
+          <ProductRail columns={4}>
+            {perfProducts.map((p) => (
+              <ProductCard key={p._id} product={p} onQuickView={onQuickView} className="border-gray-200 hover:border-[#dc2626]/40">
+                <ProductCard.Image showBadge showQuickView hoverSwap />
+                <ProductCard.Body>
+                  <ProductCard.Title />
+                  <ProductCard.Rating />
+                  <ProductCard.Price showCompareAt />
+                  <ProductCard.Actions fullWidth className="mt-3" />
+                </ProductCard.Body>
+              </ProductCard>
+            ))}
+          </ProductRail>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** Trust Badges */
+function TrustBadgesBlock({ id }: SectionProps) {
+  const { t } = useTranslation(['theme', 'common']);
+  const trust = useThemeSettings(id);
   const trustObserver = useIntersectionObserver({ threshold: 0.1 });
 
   // Default trust badge blocks — overridden by manifest blocks when available
@@ -72,165 +217,62 @@ const Home: React.FC = () => {
         }))
       : defaultBadges;
 
-  const ctaBgColor = cta.background_color || '#dc2626';
-  const ctaBtnBg = cta.button_bg_color || '#ffffff';
-  const ctaBtnTextColor = cta.button_text_color || '#dc2626';
+  return (
+    <section
+      ref={trustObserver.ref as React.RefObject<HTMLElement>}
+      className={`max-w-7xl mx-auto px-4 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${trustObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {trustBlocks.map((f) => (
+          <div key={f.title} className="bg-white rounded-lg p-6 border-2 border-gray-100 hover:border-[#dc2626]/30 flex items-start gap-4 transition">
+            <div className="text-[#dc2626] flex-shrink-0">{f.icon}</div>
+            <div>
+              <h3 className="font-black uppercase mb-1">{f.title}</h3>
+              <p className="text-sm text-gray-500">{f.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// Bespoke components keyed by section TYPE, in this theme's own look.
+const SECTION_COMPONENTS: Record<string, React.FC<SectionProps>> = {
+  'hero': HeroBlock,
+  'categories': CategoriesBlock,
+  'featured-products': FeaturedBlock,
+  'cta-banner': CtaBannerBlock,
+  'performance-gear': PerformanceGearBlock,
+  'trust-badges': TrustBadgesBlock,
+};
+
+const Home: React.FC = () => {
+  // The merchant's composed homepage — ORDERED and enabled-filtered (falls
+  // back to the manifest's templates.index). Rendering in THIS order is what
+  // makes reordering in the editor work and keeps removed sections away.
+  const orderedSections = useTemplateSections('index');
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   return (
     <div>
-      {/* Hero — bespoke high-energy athletic hero */}
-      {heroEnabled && (
-        <SportzoneHero media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
-      )}
-
-      {/* Categories with action-shot overlays */}
-      {catsEnabled && categories.length > 0 && (
-        <section
-          ref={categoriesObserver.ref as React.RefObject<HTMLElement>}
-          className={`max-w-7xl mx-auto px-4 py-14 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${categoriesObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-        >
-          <h2 className="text-2xl font-black uppercase mb-8">{cats.heading || t('theme.section.categories.title')}</h2>
-          <div className={`grid grid-cols-2 md:grid-cols-${cats.columns || '4'} gap-4`}>
-            {categories.slice(0, cats.max_categories || 4).map((cat) => (
-              <Link
-                key={cat._id}
-                to={`/categories/${cat.slug}`}
-                className="group relative bg-gray-900 rounded overflow-hidden"
-                style={{ height: `${cats.card_height || 192}px` }}
-              >
-                {cat.image && <img src={cat.image} alt={cat.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-500" />}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                <div className="absolute inset-0 border-2 border-transparent group-hover:border-[#dc2626] transition-all duration-300 rounded" />
-                <div className="absolute bottom-0 start-0 p-4">
-                  <span className="text-white font-black uppercase text-sm tracking-wider">{cat.name}</span>
-                  {cats.show_shop_now_label !== false && (
-                    <span className="block text-red-400 text-xs font-bold uppercase mt-1 opacity-0 group-hover:opacity-100 transition">
-                      {cats.shop_now_text || t('theme.section.categories.shop_now')} <span className="inline-block rtl:rotate-180">&rarr;</span>
-                    </span>
-                  )}
-                </div>
-              </Link>
-            ))}
+      {/* Every section in the merchant's composed order — bespoke components for
+          this theme's own types, the shared registry for any other section
+          added from the editor — so added sections land where they were placed. */}
+      {orderedSections.map((s) => {
+        const Bespoke = SECTION_COMPONENTS[s.type];
+        const Shared = DEFAULT_SECTION_REGISTRY[s.type];
+        if (!Bespoke && !Shared) return null; // unknown type — silently skipped for shoppers
+        return (
+          <div key={s.id} data-section-id={s.id} className="scroll-mt-20">
+            {Bespoke
+              ? <Bespoke id={s.id} onQuickView={setQuickViewProduct} />
+              : <Shared id={s.id} section={s} onQuickView={setQuickViewProduct} />}
           </div>
-        </section>
-      )}
-
-      {/* Featured Products - bold grid */}
-      {featEnabled && (
-      <section
-        ref={productsObserver.ref as React.RefObject<HTMLElement>}
-        className={`bg-gray-50 py-14 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${productsObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-black uppercase">{feat.heading || t('theme.section.featured_products.title')}</h2>
-            <Link to={feat.view_all_url || '/products'} className="text-[#dc2626] font-bold text-sm uppercase hover:underline">
-              {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
-            </Link>
-          </div>
-          {featuredLoading ? (
-            <div className={`grid grid-cols-2 md:grid-cols-${feat.columns || '4'} gap-6`}>
-              {Array.from({ length: parseInt(feat.columns) || 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-72 rounded-lg" />
-              ))}
-            </div>
-          ) : (
-            <ProductRail columns={4}>
-              {featured.map((p) => (
-                <ProductCard
-                  key={p._id}
-                  product={p}
-                  onQuickView={feat.show_quick_view !== false ? setQuickViewProduct : undefined}
-                  className="border-gray-200 hover:border-[#dc2626]/40"
-                >
-                  <ProductCard.Image showBadge showQuickView={feat.show_quick_view !== false} hoverSwap />
-                  <ProductCard.Body>
-                    <ProductCard.Title />
-                    {feat.show_rating !== false && <ProductCard.Rating />}
-                    <ProductCard.Price showCompareAt showDiscount className="mt-2" />
-                    {feat.show_add_to_cart !== false && (
-                      <ProductCard.Actions fullWidth className="mt-3" addToCartText={feat.add_to_cart_text || t('theme.section.featured_products.add_to_cart')} />
-                    )}
-                  </ProductCard.Body>
-                </ProductCard>
-              ))}
-            </ProductRail>
-          )}
-        </div>
-      </section>
-      )}
-
-      {/* CTA Banner */}
-      {ctaEnabled && (
-      <section className="py-16 text-center px-4" style={{ backgroundColor: ctaBgColor }}>
-        <h2 className="text-3xl md:text-4xl font-black uppercase text-white mb-4">
-          {cta.heading || t('theme.section.cta_banner.title')}
-        </h2>
-        <p className="text-white mb-8 max-w-md mx-auto">
-          {cta.subheading || t('theme.section.cta_banner.subtitle')}
-        </p>
-        <Link
-          to={cta.button_url || '/products'}
-          className="inline-block px-10 py-4 font-black uppercase tracking-wider hover:opacity-90 transition"
-          style={{ backgroundColor: ctaBtnBg, color: ctaBtnTextColor }}
-        >
-          {cta.button_text || t('theme.section.cta_banner.cta')}
-        </Link>
-      </section>
-      )}
-
-      {/* Performance Gear Carousel */}
-      {perfGearEnabled && (
-      <section
-        ref={carouselObserver.ref as React.RefObject<HTMLElement>}
-        className={`py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${carouselObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      >
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-black uppercase mb-8">{perfGear.heading || t('theme.section.performance_gear.title')}</h2>
-          {arrivalsLoading ? (
-            <Skeleton className="h-72 rounded-lg" />
-          ) : (
-            <ProductRail columns={4}>
-              {(perfProducts.length > 0 ? perfProducts : featured).map((p) => (
-                <ProductCard key={p._id} product={p} onQuickView={setQuickViewProduct} className="border-gray-200 hover:border-[#dc2626]/40">
-                  <ProductCard.Image showBadge showQuickView hoverSwap />
-                  <ProductCard.Body>
-                    <ProductCard.Title />
-                    <ProductCard.Rating />
-                    <ProductCard.Price showCompareAt />
-                    <ProductCard.Actions fullWidth className="mt-3" />
-                  </ProductCard.Body>
-                </ProductCard>
-              ))}
-            </ProductRail>
-          )}
-        </div>
-      </section>
-      )}
-
-      {/* Trust Badges */}
-      {trustEnabled && (
-      <section
-        ref={trustObserver.ref as React.RefObject<HTMLElement>}
-        className={`max-w-7xl mx-auto px-4 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${trustObserver.isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {trustBlocks.map((f) => (
-            <div key={f.title} className="bg-white rounded-lg p-6 border-2 border-gray-100 hover:border-[#dc2626]/30 flex items-start gap-4 transition">
-              <div className="text-[#dc2626] flex-shrink-0">{f.icon}</div>
-              <div>
-                <h3 className="font-black uppercase mb-1">{f.title}</h3>
-                <p className="text-sm text-gray-500">{f.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-      )}
+        );
+      })}
 
       {/* QuickView Modal */}
-      <MerchantSections template="index" excludeIds={HARDCODED_IDS} onQuickView={setQuickViewProduct} />
-
       <QuickView product={quickViewProduct} isOpen={!!quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </div>
   );

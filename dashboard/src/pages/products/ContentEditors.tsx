@@ -126,6 +126,7 @@ export function ContentSectionsEditor({ rows, onChange }: { rows: ContentSection
                     className="font-mono text-xs"
                     value={row.key}
                     onChange={(e) => update(i, { key: e.target.value.toLowerCase(), autoKey: false })}
+                    aria-invalid={keyInvalid || keyDup ? true : undefined}
                   />
                   {(keyInvalid || keyDup) && (
                     <p className="text-xs text-destructive">

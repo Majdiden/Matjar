@@ -216,7 +216,9 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
       <div className="text-center mb-12">
         <h2 className="font-serif text-4xl md:text-5xl font-semibold" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
-          {s.heading || t('theme.section.milmaa-product-grid.heading', { defaultValue: 'Shop Our Milks' })}
+          {s.heading || (source === 'newest'
+            ? t('theme.section.milmaa-product-grid.newest_heading', { defaultValue: 'New Arrivals' })
+            : t('theme.section.milmaa-product-grid.heading', { defaultValue: 'Shop Our Milks' }))}
         </h2>
         {s.subheading && <p className="mt-3 text-base opacity-70">{s.subheading}</p>}
       </div>

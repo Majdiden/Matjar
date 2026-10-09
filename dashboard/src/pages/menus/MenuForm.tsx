@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errMsg } from '../../lib/errors';
 
@@ -236,6 +237,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
         <div className="flex-1 min-w-0 space-y-1">
           <Label className="text-xs text-muted-foreground">{t('menus:form.item.field.label')}</Label>
           <Input
+            id={`menu-item-label-${index}`}
             className="h-9 w-full text-sm"
             placeholder={t('menus:form.item.label_placeholder')}
             value={item.label}
@@ -276,6 +278,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
                   : t('menus:form.item.field.url')}
               </Label>
               <Input
+                id={`menu-item-url-${index}`}
                 className="h-9 w-full text-sm"
                 placeholder={item.type === 'external' ? 'https://example.com' : '/path-or-url'}
                 value={item.url}
@@ -285,7 +288,9 @@ const ItemRow: React.FC<ItemRowProps> = ({
           ) : (
             <>
               <Label className="text-xs text-muted-foreground">{t('menus:form.item.field.resource')}</Label>
-              <ResourcePicker type={item.type} value={item.resourceId} onChange={id => onChange(index, { resourceId: id })} />
+              <div id={`menu-item-resource-${index}`}>
+                <ResourcePicker type={item.type} value={item.resourceId} onChange={id => onChange(index, { resourceId: id })} />
+              </div>
             </>
           )}
         </div>
@@ -513,31 +518,43 @@ export const MenuForm: React.FC = () => {
    * Catch the common menu-item mistakes (empty name, a link with no URL,
    * a resource type with nothing selected) before the round-trip, and
    * point at the offending row by name — the backend rejects these too,
-   * but a merchant should never see the raw API message.
+   * but a merchant should never see the raw API message. `fieldId` is the
+   * offending row's input so the save handler can scroll to it.
    */
-  const validateItems = (items: FlatItem[]): string | null => {
-    for (const item of items) {
+  const validateItems = (items: FlatItem[]): { message: string; fieldId: string } | null => {
+    for (const [i, item] of items.entries()) {
       if (!item.label.trim()) {
-        return t('menus:form.validate.item_name_required');
+        return { message: t('menus:form.validate.item_name_required'), fieldId: `menu-item-label-${i}` };
       }
       const name = item.label.trim();
       if (['link', 'external'].includes(item.type) && !item.url.trim()) {
-        return t('menus:form.validate.item_url_required', { name });
+        return { message: t('menus:form.validate.item_url_required', { name }), fieldId: `menu-item-url-${i}` };
       }
       if (['collection', 'product', 'category', 'page'].includes(item.type) && !item.resourceId) {
-        return t('menus:form.validate.item_resource_required', {
-          name,
-          type: t(`menus:form.item.type.${item.type}`),
-        });
+        return {
+          message: t('menus:form.validate.item_resource_required', {
+            name,
+            type: t(`menus:form.item.type.${item.type}`),
+          }),
+          fieldId: `menu-item-resource-${i}`,
+        };
       }
     }
     return null;
   };
 
   const handleSave = async () => {
-    if (!title.trim()) { toast.error(t('menus:form.toast.title_required')); return; }
+    if (!title.trim()) {
+      toast.error(t('menus:form.toast.title_required'));
+      focusFieldById('menu-title');
+      return;
+    }
     const itemError = validateItems(flatItems);
-    if (itemError) { toast.error(itemError); return; }
+    if (itemError) {
+      toast.error(itemError.message);
+      focusFieldById(itemError.fieldId);
+      return;
+    }
     setSaving(true);
     const payload = {
       title: title.trim(),
@@ -623,6 +640,7 @@ export const MenuForm: React.FC = () => {
               <div className="space-y-1.5">
                 <Label>{t('menus:form.field.title.label')}</Label>
                 <Input
+                  id="menu-title"
                   placeholder={t('menus:form.field.title.placeholder')}
                   value={title}
                   onChange={e => setTitle(e.target.value)}

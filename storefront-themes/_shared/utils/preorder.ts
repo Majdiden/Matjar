@@ -29,6 +29,7 @@
  */
 
 import i18n from '../i18n';
+import { storefrontLocale } from './locale';
 
 export type PreorderMode = 'buy' | 'preorder' | 'soldOut';
 
@@ -114,8 +115,8 @@ const t = (key: string, opts?: Record<string, unknown>): string =>
  * ar-SD with Western digits — `ar-SD` alone renders Arabic-Indic digits in
  * Chromium/Node, so the numbering system is pinned to latn.
  */
-export const preorderDateLocale = (): string =>
-  (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SD-u-nu-latn' : 'en-US';
+/** @deprecated name kept for existing callers; see utils/locale.ts. */
+export const preorderDateLocale = storefrontLocale;
 
 /** Format a pre-order ship date in the storefront's language, or null. */
 export const formatPreorderDate = (

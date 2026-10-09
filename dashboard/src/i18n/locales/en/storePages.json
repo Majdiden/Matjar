@@ -58,13 +58,10 @@
     "language_note_ar": "The pages are written in Arabic, your store's language.",
     "language_note_en": "The pages are written in English, your store's language.",
     "delivery_title": "Delivery",
-    "zones_hint": "We'll list the delivery areas you already added:",
     "zone_free": "Free",
     "areas_label": "Where do you deliver?",
     "areas_extra_label": "Anything to add about delivery areas? (optional)",
     "areas_placeholder": "e.g. Khartoum, Omdurman and Bahri",
-    "fee_label": "How much does delivery cost? (optional)",
-    "fee_placeholder": "e.g. 2,000 SDG inside Khartoum",
     "time_label": "How long does delivery take?",
     "time_placeholder": "e.g. 2 to 3 days",
     "returns_title": "Returns",
@@ -94,6 +91,18 @@
     "error_areas": "Write where you deliver.",
     "error_time": "Write how long delivery takes.",
     "error_accepted": "Choose yes or no.",
-    "error_days": "Write a number of days from 1 to 90."
+    "error_days": "Write a number of days from 1 to 90.",
+    "prices": {
+      "title": "Delivery prices",
+      "hint": "Prices come from your delivery settings — the same amounts customers pay at checkout:",
+      "unset": "You haven't set delivery prices yet. Add them in the delivery settings and they'll show here and on your delivery page automatically.",
+      "set": "Add delivery prices",
+      "edit": "Edit delivery prices",
+      "flat": "All orders",
+      "all_orders": "All orders",
+      "weight_base": "Base price",
+      "weight_per_kg": "Per kilogram",
+      "free_over": "Free on orders from"
+    }
   }
 }

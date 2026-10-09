@@ -1,6 +1,7 @@
 import * as PageService from "../services/page.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
+import { GENERATOR_KIND } from "../services/generatedPages.js";
 
 // ─── Admin controllers ───────────────────────────────────────────────────────
 
@@ -63,6 +64,7 @@ export const remove = asyncHandler(async (req, res) => {
  */
 function publicPage(page) {
   if (!page) return null;
+  const generated = publicAboutFacts(page);
   return {
     _id: page._id,
     slug: page.slug,
@@ -72,7 +74,37 @@ function publicPage(page) {
     metaDescription: page.metaDescription || "",
     locale: page.locale,
     publishedAt: page.publishedAt,
+    ...(generated && { generated }),
   };
+}
+
+const pickText = (text) => {
+  if (!text || typeof text !== "object") return null;
+  const out = {};
+  for (const lang of ["ar", "en"]) {
+    if (typeof text[lang] === "string" && text[lang].trim()) out[lang] = text[lang].trim();
+  }
+  return Object.keys(out).length ? out : null;
+};
+
+/**
+ * Structured facts of an About page written from the merchant's answers
+ * (PBI 10-9), so the storefront can show them as cards next to the text:
+ * `{ kind: "about", since?, city?: {ar,en}, photo? }`. Only while the page
+ * is still the generated text — once the merchant edits it by hand the
+ * answers may no longer match what the page says, so nothing is exposed.
+ * Never exposes any other generator field.
+ */
+function publicAboutFacts(page) {
+  const gen = page.generator;
+  if (!gen || gen.kind !== GENERATOR_KIND.about || gen.edited === true) return null;
+  const answers = gen.answers || {};
+  const out = { kind: GENERATOR_KIND.about };
+  if (Number.isInteger(answers.since)) out.since = answers.since;
+  const city = pickText(answers.city);
+  if (city) out.city = city;
+  if (typeof answers.photo === "string" && answers.photo) out.photo = answers.photo;
+  return out;
 }
 
 export const storefrontListPages = asyncHandler(async (req, res) => {

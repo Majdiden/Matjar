@@ -21,7 +21,7 @@ export const DEFAULT_SETTING_LEVEL: SettingLevel = 'advanced';
 export const DEFAULT_SECTION_LEVEL: SettingLevel = 'basic';
 
 /** Most `basic` settings a section may declare (enforced by the validator). */
-export const MAX_BASIC_SETTINGS_PER_SECTION = 3;
+export const MAX_BASIC_SETTINGS_PER_SECTION = 4;
 
 /** True when the setting is editable in the simple editor. */
 export function isBasicSetting(setting: { level?: SettingLevel | string } | null | undefined): boolean {

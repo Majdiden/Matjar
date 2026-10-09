@@ -7,6 +7,7 @@ import { useConfirm } from '../components/primitives/ConfirmDialog';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { COUNTRIES, getCitiesForCountry, optionsWithCurrent, locationLabel } from '../data/locations';
+import { storefrontLocale } from '../utils/locale';
 
 /**
  * Customer account page (/account).
@@ -164,7 +165,7 @@ const Account: React.FC<AccountProps> = ({ className = '', accentColor }) => {
 
   const lifetimeSpent = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
   const memberSince = user.createdAt
-    ? new Date(user.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+    ? new Date(user.createdAt).toLocaleDateString(storefrontLocale(), { month: 'long', year: 'numeric' })
     : null;
 
   return (
@@ -507,7 +508,7 @@ const OrdersTab: React.FC<{
                 </span>
               </div>
               <p className="text-xs text-gray-500">
-                {new Date(order.createdAt).toLocaleDateString(undefined, {
+                {new Date(order.createdAt).toLocaleDateString(storefrontLocale(), {
                   month: 'short', day: 'numeric', year: 'numeric',
                 })}{' '}
                 · {t(`account.order.item_count_${itemCount === 1 ? 'one' : 'other'}`, { count: itemCount })}
@@ -1131,7 +1132,7 @@ const ReviewsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string)
                   {product.name || 'Product'}
                 </Link>
                 <span className="text-xs text-gray-400 flex-shrink-0">
-                  {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ''}
+                  {r.createdAt ? new Date(r.createdAt).toLocaleDateString(storefrontLocale()) : ''}
                 </span>
               </div>
               <div className="mt-1">
@@ -1209,7 +1210,7 @@ const GiftCardsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: strin
             </div>
             <div className="text-xs text-gray-500 mt-0.5">
               {t('account.giftcards.balance', { balance: formatPrice(c.balance), initial: formatPrice(c.initialAmount) })}
-              {c.expiresAt && ` ${t('account.giftcards.expires', { date: new Date(c.expiresAt).toLocaleDateString() })}`}
+              {c.expiresAt && ` ${t('account.giftcards.expires', { date: new Date(c.expiresAt).toLocaleDateString(storefrontLocale()) })}`}
             </div>
           </div>
           <span

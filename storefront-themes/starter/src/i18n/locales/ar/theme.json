@@ -11,6 +11,10 @@
       "categories": {
         "title": "الفئات"
       },
+      "new_arrivals": {
+        "title": "وصل حديثاً",
+        "view_all": "عرض الكل"
+      },
       "featured_products": {
         "title": "المنتجات المميّزة",
         "view_all": "عرض الكل",

@@ -24,6 +24,7 @@ import {
 import { Globe2, Plus, Pencil, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errorMessage, type CurrencyConfig } from './shared';
 
@@ -104,15 +105,28 @@ export const MarketsSettings: React.FC = () => {
 
   const handleSave = async () => {
     const code = form.code.trim().toLowerCase();
-    if (!/^[a-z0-9-]{2,32}$/.test(code)) return toast.error(t('settings.validation.market_code_invalid'));
-    if (!form.name.trim()) return toast.error(t('settings.validation.market_name_required'));
-    if (!/^[A-Z]{3}$/.test(form.currency)) return toast.error(t('settings.validation.market_currency_invalid'));
+    if (!/^[a-z0-9-]{2,32}$/.test(code)) {
+      focusFieldById('market-code');
+      return toast.error(t('settings.validation.market_code_invalid'));
+    }
+    if (!form.name.trim()) {
+      focusFieldById('market-name');
+      return toast.error(t('settings.validation.market_name_required'));
+    }
+    if (!/^[A-Z]{3}$/.test(form.currency)) {
+      focusFieldById('market-currency');
+      return toast.error(t('settings.validation.market_currency_invalid'));
+    }
     const countries = form.countries.map(c => c.toUpperCase()).filter(Boolean);
-    for (const c of countries) {
-      if (!/^[A-Z]{2}$/.test(c)) return toast.error(t('settings.validation.market_country_invalid', { code: c }));
+    // Index into form.countries (not the filtered list) so we focus the right row.
+    const badCountryIndex = form.countries.findIndex(c => c && !/^[A-Z]{2}$/.test(c.toUpperCase()));
+    if (badCountryIndex !== -1) {
+      focusFieldById(`market-country-${badCountryIndex}`);
+      return toast.error(t('settings.validation.market_country_invalid', { code: form.countries[badCountryIndex].toUpperCase() }));
     }
     const pct = parseFloat(form.priceAdjustmentPct || '0');
     if (isNaN(pct) || pct < -95 || pct > 500) {
+      focusFieldById('market-price-adjustment');
       return toast.error(t('settings.validation.market_price_adjustment_range'));
     }
     const payload = {
@@ -250,6 +264,7 @@ export const MarketsSettings: React.FC = () => {
               <div className="space-y-2">
                 <Label>{t('settings.field.markets.code.label')}</Label>
                 <Input
+                  id="market-code"
                   value={form.code}
                   onChange={e => setForm(f => ({ ...f, code: e.target.value }))}
                   placeholder={t('settings.field.markets.code.placeholder')}
@@ -259,6 +274,7 @@ export const MarketsSettings: React.FC = () => {
               <div className="space-y-2">
                 <Label>{t('settings.field.markets.name.label')}</Label>
                 <Input
+                  id="market-name"
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                   placeholder={t('settings.field.markets.name.placeholder')}
@@ -269,10 +285,12 @@ export const MarketsSettings: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('settings.field.markets.currency.label')}</Label>
-                <CurrencyPicker
-                  value={form.currency}
-                  onChange={v => setForm(f => ({ ...f, currency: v }))}
-                />
+                <div id="market-currency">
+                  <CurrencyPicker
+                    value={form.currency}
+                    onChange={v => setForm(f => ({ ...f, currency: v }))}
+                  />
+                </div>
                 {missingFxWarning(form.currency) && (
                   <p className="text-xs text-amber-600 dark:text-amber-500 flex items-start gap-1">
                     <AlertCircle className="h-3 w-3 shrink-0 mt-0.5" />{missingFxWarning(form.currency)}
@@ -303,7 +321,7 @@ export const MarketsSettings: React.FC = () => {
                 <div className="space-y-2">
                   {form.countries.map((c, i) => (
                     <div key={i} className="flex gap-2 items-center">
-                      <div className="flex-1">
+                      <div id={`market-country-${i}`} className="flex-1">
                         <CountryPicker
                           value={c}
                           onChange={v => updateCountryRow(i, v)}
@@ -321,6 +339,7 @@ export const MarketsSettings: React.FC = () => {
             <div className="space-y-2">
               <Label>{t('settings.field.markets.price_adjustment.label')}</Label>
               <Input
+                id="market-price-adjustment"
                 type="number"
                 step="0.1"
                 min="-95"

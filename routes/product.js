@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createProductController,
+  createQuickProductController,
   getProductController,
   getProductsController,
   updateProductController,
@@ -13,6 +14,7 @@ import { validate } from "../middlewares/validate.js";
 import { checkPlanLimit } from "../middlewares/planLimits.js";
 import {
   createProductSchema,
+  createQuickProductSchema,
   getProductSchema,
   getProductsSchema,
   updateProductSchema,
@@ -32,6 +34,8 @@ productRoutes.get("/:id", optionalAuth, requireTenant, validate(getProductSchema
 
 // Protected routes (only admin and manager can modify products)
 productRoutes.post("/", authenticate, requirePermission("products.write"), checkPlanLimit("products"), validate(createProductSchema), createProductController);
+// Quick add (PBI 10): photo, name, price, quantity; published at once.
+productRoutes.post("/quick", authenticate, requirePermission("products.write"), checkPlanLimit("products"), validate(createQuickProductSchema), createQuickProductController);
 productRoutes.put("/:id", authenticate, requirePermission("products.write"), validate(updateProductSchema), updateProductController);
 productRoutes.delete("/:id", authenticate, requirePermission("products.write"), validate(getProductSchema), deleteProductController);
 

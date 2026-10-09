@@ -17,7 +17,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'heading_line1', type: 'text', label: 'Heading Line 1', level: 'basic', default: '' },
     { id: 'heading_line2', type: 'text', label: 'Heading Line 2 (accented)', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
-    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
+    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', level: 'basic', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
     { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: '' },
     { id: 'secondary_button_url', type: 'url', label: 'Secondary Button URL', default: '/products' },
@@ -98,7 +98,7 @@ export const performanceGearCarouselSection: SectionDefinition = defineSection({
   name: 'Performance Gear Carousel',
   icon: 'Zap',
   category: 'commerce',
-  description: 'Horizontal carousel showcasing performance-focused products',
+  description: 'Horizontal carousel of the newest products',
   target: 'body',
   limit: 1,
   settings: [
@@ -216,17 +216,13 @@ const manifest = defineTheme({
   ],
 
   templates: {
+    // Homepage: hero, newest products (the performance-gear carousel),
+    // featured products. The other sections stay addable from the advanced
+    // editor.
     index: [
       { id: 'hero', type: 'hero', settings: {} },
-      { id: 'categories', type: 'categories', settings: {} },
-      { id: 'featured-products', type: 'featured-products', settings: {} },
-      { id: 'cta-banner', type: 'cta-banner', settings: {} },
       { id: 'performance-gear', type: 'performance-gear', settings: {} },
-      { id: 'trust-badges', type: 'trust-badges', settings: {}, blocks: [
-        { id: 'badge-1', type: 'badge', settings: { title: 'Free Returns', description: '30-day no-questions-asked returns', icon: 'returns' } },
-        { id: 'badge-2', type: 'badge', settings: { title: 'Pro Gear', description: 'Used by professional athletes worldwide', icon: 'pro' } },
-        { id: 'badge-3', type: 'badge', settings: { title: 'Fast Delivery', description: 'Express shipping on all orders', icon: 'lightning' } },
-      ]},
+      { id: 'featured-products', type: 'featured-products', settings: {} },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard

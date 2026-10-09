@@ -279,7 +279,7 @@ const ProductRailSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
     <section className="max-w-[1440px] mx-auto px-4 sm:px-8 py-20 md:py-28">
       <div className="flex items-end justify-between mb-12">
         <h2 className="text-3xl md:text-5xl" style={serif}>
-          {s.heading || t('theme.section.product_rail.heading')}
+          {s.heading || t(source === 'featured' ? 'theme.section.product_rail.featured_heading' : 'theme.section.product_rail.heading')}
         </h2>
         <Link
           to="/products"

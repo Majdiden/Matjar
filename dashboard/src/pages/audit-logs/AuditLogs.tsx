@@ -22,6 +22,7 @@ import {
 import { Shield, ChevronRight } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { getTenantLocale } from '../../lib/format';
 
 interface AuditLog {
   _id: string;
@@ -176,7 +177,7 @@ export const AuditLogs: React.FC = () => {
                 {logs.map(log => (
                   <TableRow key={log._id} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelectedLog(log)}>
                     <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                      {new Date(log.createdAt).toLocaleString()}
+                      {new Date(log.createdAt).toLocaleString(getTenantLocale())}
                     </TableCell>
                     <TableCell className="text-sm">
                       <div className="flex flex-col">
@@ -247,7 +248,7 @@ export const AuditLogs: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-muted-foreground">{t('audit.detail.field.time')}</p>
-                  <p>{new Date(selectedLog.createdAt).toLocaleString()}</p>
+                  <p>{new Date(selectedLog.createdAt).toLocaleString(getTenantLocale())}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">{t('audit.detail.field.ip_address')}</p>

@@ -99,6 +99,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             )}
             ref={ref}
             onChange={handleChange}
+            aria-invalid={error ? true : undefined}
             {...props}
           >
             {derivedPlaceholder && (

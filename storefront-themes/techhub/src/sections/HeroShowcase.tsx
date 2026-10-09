@@ -88,10 +88,11 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
     : deals[0];
 
   // Top strip (hotline · shipping · flash-deal label) — hideable from the
-  // dashboard via `show_top_strip` (default on). Its text fields
-  // (`hotline_label`, `hotline_phone`, `shipping_strip`, `flash_deal_label`)
-  // are editable in the same section settings.
-  const showTopStrip = s.show_top_strip !== false;
+  // dashboard via `show_top_strip` (default off: the store's one top strip
+  // is the layout bar above the header). Its text fields (`hotline_label`,
+  // `hotline_phone`, `shipping_strip`, `flash_deal_label`) are editable in
+  // the same section settings.
+  const showTopStrip = s.show_top_strip === true;
 
   return (
     <section className="relative" style={{ backgroundColor: 'var(--color-background)' }}>

@@ -13,6 +13,7 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { PaymentFieldDisplay } from '../../components/payments/PaymentFieldDisplay';
+import { getTenantLocale, formatDate } from '../../lib/format';
 
 // Local view-model for the transaction-detail endpoint. These schemas are
 // much richer server-side (see schemas/store/payment.js), but the detail
@@ -130,7 +131,7 @@ export const TransactionDetail: React.FC = () => {
   }, [id, t]);
 
   const formatCurrency = (amount: number, currency = 'USD') =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount || 0);
+    new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency }).format(amount || 0);
 
   // Semantic status colours (audit 3.8.3).
   const statusVariant = (status: string): 'success' | 'warning' | 'destructive' | 'info' | 'outline' => {
@@ -274,12 +275,12 @@ export const TransactionDetail: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-base font-semibold">
-              {new Date(payment.createdAt).toLocaleString()}
+              {new Date(payment.createdAt).toLocaleString(getTenantLocale())}
             </div>
             {payment.refundedAt && (
               <p className="text-xs text-muted-foreground mt-1">
                 {t('payments:transaction.detail.field.refunded_at', {
-                  date: new Date(payment.refundedAt).toLocaleString(),
+                  date: new Date(payment.refundedAt).toLocaleString(getTenantLocale()),
                 })}
               </p>
             )}
@@ -418,7 +419,7 @@ export const TransactionDetail: React.FC = () => {
                             {statusLabel(r.status)}
                           </Badge>
                           <span className="text-muted-foreground">
-                            {new Date(r.createdAt).toLocaleDateString()}
+                            {formatDate(r.createdAt)}
                           </span>
                         </div>
                       </Link>

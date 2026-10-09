@@ -21,7 +21,9 @@ import {
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { Link, useNavigate } from 'react-router-dom';
+import { getTenantLocale, formatDate } from '../../lib/format';
 
 interface Payment {
   _id: string;
@@ -97,8 +99,16 @@ export const Payments: React.FC = () => {
   const handleRefund = async () => {
     if (!refundDialog.payment) return;
     const amount = refundAmount ? parseFloat(refundAmount) : undefined;
-    if (amount && amount <= 0) { toast.error(t('payments:refund.form.toast.amount_positive')); return; }
-    if (amount && amount > refundDialog.payment.amount) { toast.error(t('payments:refund.form.toast.exceeds_payment')); return; }
+    if (amount && amount <= 0) {
+      toast.error(t('payments:refund.form.toast.amount_positive'));
+      focusFieldById('payment-refund-amount');
+      return;
+    }
+    if (amount && amount > refundDialog.payment.amount) {
+      toast.error(t('payments:refund.form.toast.exceeds_payment'));
+      focusFieldById('payment-refund-amount');
+      return;
+    }
 
     try {
       setRefunding(true);
@@ -129,7 +139,7 @@ export const Payments: React.FC = () => {
   };
 
   const formatCurrency = (amount: number, currency = 'USD') =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+    new Intl.NumberFormat(getTenantLocale(), { style: 'currency', currency }).format(amount);
 
   if (loading) {
     return (
@@ -272,7 +282,7 @@ export const Payments: React.FC = () => {
                     </TableCell>
                     <TableCell>{getStatusBadge(payment.status)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {new Date(payment.createdAt).toLocaleDateString()}
+                      {formatDate(payment.createdAt)}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
@@ -333,6 +343,7 @@ export const Payments: React.FC = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('payments:refund.form.field.refund_amount.label')}</label>
               <Input
+                id="payment-refund-amount"
                 type="number"
                 step="0.01"
                 min="0"

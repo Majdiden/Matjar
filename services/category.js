@@ -26,12 +26,52 @@ const categorySlugTaken = (models, excludeId = null) => async (candidate) => {
   return Boolean(await getCategoryRepo(models, "_id", filter));
 };
 
+/** systemKey of the category that holds quick-add products. */
+export const QUICK_ADD_CATEGORY_KEY = "quick-add";
+/** Its name in each store language; the store language picks the primary one. */
+const QUICK_ADD_CATEGORY_NAMES = Object.freeze({ ar: "منتجاتنا", en: "Our products" });
+const DUPLICATE_KEY_ERROR = 11000;
+
+/**
+ * The category quick-add products go into, created on first use. Found by
+ * `systemKey`, so renaming it or changing its link doesn't create another.
+ * Two first products saved at once race on the unique (tenantId, systemKey)
+ * index; the loser reads the winner's category.
+ */
+export async function ensureQuickAddCategory(models, language = "ar") {
+  const filter = { systemKey: QUICK_ADD_CATEGORY_KEY };
+  const existing = await getCategoryRepo(models, "_id", filter);
+  if (existing) return existing._id;
+
+  const primary = QUICK_ADD_CATEGORY_NAMES[language] || QUICK_ADD_CATEGORY_NAMES.ar;
+  const slug = await ensureUniqueSlug(
+    categorySlugTaken(models),
+    slugify(QUICK_ADD_CATEGORY_NAMES.en),
+    { fallback: CATEGORY_SLUG_FALLBACK }
+  );
+  try {
+    const created = await addCategoryRepo(models, {
+      name: primary,
+      translations: { ar: { name: QUICK_ADD_CATEGORY_NAMES.ar }, en: { name: QUICK_ADD_CATEGORY_NAMES.en } },
+      slug,
+      systemKey: QUICK_ADD_CATEGORY_KEY,
+    });
+    return created._id;
+  } catch (error) {
+    if (error?.code !== DUPLICATE_KEY_ERROR) throw error;
+    const winner = await getCategoryRepo(models, "_id", filter);
+    if (!winner) throw error; // the clash was on the slug, not the key
+    return winner._id;
+  }
+}
+
 export const addCategory = async (req, res) => {
   try {
     // The merchant never has to invent a slug: derive it from the name
     // (Arabic transliterated), or normalise the one they typed; dedupe
     // within the tenant (`-2`, `-3`, …).
-    const body = { ...req.body };
+    // systemKey marks platform-created categories; clients never set it.
+    const { systemKey: _systemKey, ...body } = req.body || {};
     const typedSlug = typeof body.slug === "string" ? slugify(body.slug) : "";
     body.slug = await ensureUniqueSlug(
       categorySlugTaken(req.models),
@@ -78,7 +118,7 @@ export const getCategories = async (req, res) => {
 
 export const updateCategory = async (req, res) => {
   try {
-    const { _id, tenantId, createdAt, ...body } = req.body || {};
+    const { _id, tenantId, createdAt, systemKey: _systemKey, ...body } = req.body || {};
     const current = await getCategoryRepo(req.models, "slug status", { _id: req.params.id });
     if (!current) {
       return { success: false, statusCode: 404, message: "Category not found", responseObject: null };

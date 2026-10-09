@@ -15,6 +15,7 @@ import { FileText, Plus, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
+import { formatDate } from '../../lib/format';
 
 interface PageRow {
   _id: string;
@@ -136,7 +137,7 @@ export const Pages: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      {new Date(p.updatedAt).toLocaleDateString()}
+                      {formatDate(p.updatedAt)}
                     </TableCell>
                     <TableCell onClick={e => e.stopPropagation()}>
                       <DropdownMenu>

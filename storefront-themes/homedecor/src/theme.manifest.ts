@@ -18,7 +18,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: '' },
     { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — your store cover photo is used when empty' },
-    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
+    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', level: 'basic', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
     { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: '' },
     { id: 'secondary_button_url', type: 'url', label: 'Secondary Button URL', default: '/categories' },
@@ -202,17 +202,14 @@ const manifest = defineTheme({
   ],
 
   templates: {
+    // Homepage: hero, newest products, featured products. The other
+    // sections stay addable from the advanced editor. `new-arrivals` is the
+    // universal section; its empty heading falls back to the theme's
+    // translated title.
     index: [
       { id: 'hero', type: 'hero', settings: {} },
-      { id: 'categories', type: 'categories', settings: {} },
+      { id: 'new-arrivals', type: 'new-arrivals', settings: { heading: '' } },
       { id: 'featured-products', type: 'featured-products', settings: {} },
-      { id: 'philosophy', type: 'philosophy', settings: {}, blocks: [
-        { id: 'pillar-1', type: 'pillar', settings: { title: 'Sustainably Sourced', description: 'Responsibly harvested materials from certified suppliers.' } },
-        { id: 'pillar-2', type: 'pillar', settings: { title: 'Built to Endure', description: 'Rigorous quality testing ensures lasting beauty and function.' } },
-        { id: 'pillar-3', type: 'pillar', settings: { title: 'Thoughtful Design', description: 'Each piece balances form, function, and timeless aesthetics.' } },
-      ]},
-      { id: 'trending-carousel', type: 'trending-carousel', settings: {} },
-      { id: 'newsletter', type: 'newsletter', settings: {} },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard

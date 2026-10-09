@@ -11,15 +11,37 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AnySectionSetting, SectionDefinition } from '@matjar/theme-shared/types/theme';
 
+/** Setting ids themes use for "which products this grid shows". */
+const PRODUCT_SOURCE_KEYS = ['source', 'product_source'] as const;
+/** Sources with their own plain name ("New arrivals", "Featured products"…). */
+const NAMED_SOURCES = new Set(['newest', 'featured', 'sale', 'popular']);
+
+/** The product source a section shows: its own value, else the theme default. */
+function productSourceOf(def: Pick<SectionDefinition, 'settings'> | undefined, settings?: Record<string, unknown>) {
+  for (const key of PRODUCT_SOURCE_KEYS) {
+    const value = settings?.[key] ?? def?.settings?.find((s) => s.id === key)?.default;
+    if (typeof value === 'string' && NAMED_SOURCES.has(value)) return value;
+  }
+  return null;
+}
+
+/**
+ * A part's plain name. Themes reuse one product-grid type for both "new
+ * arrivals" and "featured products", so a grid is named by what it shows
+ * when it has a product source setting.
+ */
 export function usePartName() {
   const { t } = useTranslation(['storeDesign', 'themes']);
   return useCallback(
-    (type: string, def?: Pick<SectionDefinition, 'name'>) =>
-      t(`storeDesign:homepage.parts.${type}`, {
+    (type: string, def?: Pick<SectionDefinition, 'name' | 'settings'>, settings?: Record<string, unknown>) => {
+      const source = productSourceOf(def, settings);
+      if (source) return t(`storeDesign:homepage.parts_by_source.${source}`);
+      return t(`storeDesign:homepage.parts.${type}`, {
         defaultValue: t(`themes:sections.${type}.name`, {
           defaultValue: def?.name || t('storeDesign:homepage.unnamed_part'),
         }),
-      }),
+      });
+    },
     [t],
   );
 }

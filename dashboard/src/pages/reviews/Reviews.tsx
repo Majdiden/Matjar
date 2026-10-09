@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { useViewMode, ViewToggle } from '../../components/ui/view-toggle';
 import { errMsg } from '../../lib/errors';
+import { formatDate } from '../../lib/format';
 
 interface Review {
   _id: string;
@@ -273,7 +274,7 @@ export default function Reviews() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                      {new Date(review.createdAt).toLocaleDateString()}
+                      {formatDate(review.createdAt)}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1 justify-end">
@@ -334,7 +335,7 @@ export default function Reviews() {
                     <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
                       <span>{t('reviews.meta.by', { author: review.user ? `${review.user.firstName} ${review.user.lastName}` : t('reviews.meta.anonymous') })}</span>
                       <span>{t('reviews.meta.on_product', { product: review.product?.name || t('reviews.meta.unknown_product') })}</span>
-                      <span>{new Date(review.createdAt).toLocaleDateString()}</span>
+                      <span>{formatDate(review.createdAt)}</span>
                     </div>
                   </div>
                   <div className="flex gap-1.5 ms-4">

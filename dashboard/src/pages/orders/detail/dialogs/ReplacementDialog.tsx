@@ -10,6 +10,7 @@ import { Textarea } from '../../../../components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import { api } from '../../../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../../../lib/focusFirstInvalid';
 import type { OrderItem } from '../../../../types';
 import { useOrderDetail } from '../context';
 import { LinePicker } from './LinePicker';
@@ -49,6 +50,7 @@ export const ReplacementDialog: React.FC<{
       .map(([orderLineId, quantity]) => ({ orderLineId, quantity }));
     if (items.length === 0) {
       toast.error(t('orders:dialog.replacement.error_no_items'));
+      focusFieldById('replacement-lines');
       return;
     }
     try {
@@ -83,13 +85,15 @@ export const ReplacementDialog: React.FC<{
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
-          <LinePicker
-            order={order}
-            picks={replacementPicks}
-            onChange={setReplacementPicks}
-            maxOf={(line: OrderItem) => Number(line.quantity) || 0}
-            labelMax={t('orders:detail.line_picker.label_max_ordered')}
-          />
+          <div id="replacement-lines">
+            <LinePicker
+              order={order}
+              picks={replacementPicks}
+              onChange={setReplacementPicks}
+              maxOf={(line: OrderItem) => Number(line.quantity) || 0}
+              labelMax={t('orders:detail.line_picker.label_max_ordered')}
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="replacement-reason">{t('orders:dialog.replacement.reason_label')}</Label>
             <Textarea

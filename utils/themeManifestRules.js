@@ -481,7 +481,7 @@ export function validateSettingsBag(settings, defs, prefix) {
 // tests/unit/themeBindingsParity.test.js).
 
 export const SETTING_LEVELS = Object.freeze(["basic", "advanced"]);
-export const MAX_BASIC_SETTINGS_PER_SECTION = 3;
+export const MAX_BASIC_SETTINGS_PER_SECTION = 4;
 
 function checkSettingExtensions(setting, where, errors, { allowBind }) {
   if (!setting || typeof setting !== "object") return;

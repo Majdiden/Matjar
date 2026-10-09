@@ -16,7 +16,7 @@
     "customers": "العملاء",
     "customers_description": "العملاء المسجّلون",
     "sales_trend": "حركة المبيعات",
-    "sales_trend_description": "الإيرادات اليومية · آخر ١٤ يومًا"
+    "sales_trend_description": "الإيرادات اليومية · آخر 14 يومًا"
   },
   "setup": {
     "title": "أعدّ متجرك",

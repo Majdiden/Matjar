@@ -5,7 +5,7 @@ import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
-import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
+import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
@@ -44,8 +44,7 @@ const Layout: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useTranslation(['theme']);
 
-  const showBar = useThemeSetting<boolean>('show_announcement_bar') !== false;
-  const barText = useThemeSetting<string>('announcement_text') || t('theme.layout.announcement');
+  const barText = useTopStripText();
 
   const brand = (store?.name || 'BEAUXE').toUpperCase();
   const isActive = (path: string) =>
@@ -54,8 +53,8 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: CREAM, color: NAVY, fontFamily: 'var(--font-family)' }}>
       {/* ═══ TOP BAR (navy) ══════════════════════════════════════ */}
-      {showBar && (
-        <div className="text-white text-[11px] tracking-[0.2em] font-medium py-2.5" style={{ backgroundColor: NAVY }}>
+      {barText && (
+        <div data-section-id={TOP_STRIP_ANCHOR} className="text-white text-[11px] tracking-[0.2em] font-medium py-2.5" style={{ backgroundColor: NAVY }}>
           <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
             {/* Left slot kept empty (mirrors the right links) so the text stays centred. */}
             <div className="hidden md:block flex-1" aria-hidden />

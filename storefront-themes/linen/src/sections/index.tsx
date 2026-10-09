@@ -69,6 +69,12 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 
   if (!slides.length) return null;
   const pauseOnHover = s.pause_on_hover === true;
+  const filled = (v: unknown) => typeof v === 'string' && v.trim() !== '';
+  const firstSlide = Object.fromEntries(
+    ([['heading', 'heading'], ['subheading', 'body'], ['image', 'image'], ['cta_text', 'cta_text']] as const)
+      .filter(([from]) => filled(s[from]))
+      .map(([from, to]) => [to, s[from]]),
+  );
 
   return (
     <section
@@ -80,7 +86,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
     >
       <div className="relative mx-auto grid max-w-[1280px] md:min-h-[720px]">
         {slides.map((slide, i) => {
-          const b = slide.settings || {};
+          // The section-level (My Store) settings override the first slide.
+          const b = i === 0 ? { ...slide.settings, ...firstSlide } : slide.settings || {};
           const active = i === idx;
           return (
             <div

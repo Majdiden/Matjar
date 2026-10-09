@@ -304,12 +304,65 @@ interface ThemeProviderProps {
  * Messages the dashboard editor can send via postMessage to apply live changes.
  */
 interface ThemeUpdateMessage {
-  type: 'THEME_UPDATE' | 'SECTION_UPDATE' | 'SECTION_TOGGLE' | 'SECTION_REORDER' | 'SETTINGS_UPDATE';
+  type:
+    | 'THEME_UPDATE'
+    | 'SECTION_UPDATE'
+    | 'SECTION_TOGGLE'
+    | 'SECTION_REORDER'
+    | 'SETTINGS_UPDATE'
+    | 'SCROLL_TO_SECTION'
+    | 'PICK_MODE'
+    | 'HIGHLIGHT_SECTION';
   settings?: any;
-  sectionId?: string;
+  sectionId?: string | null;
   enabled?: boolean;
   sectionIds?: string[];
   category?: string;
+}
+
+/**
+ * Tap-to-edit in the simple homepage editor (PBI 10). After PICK_MODE
+ * {enabled: true}, a tap on anything inside a `[data-section-id]` element is
+ * swallowed (no navigation, no add-to-cart) and reported to the editor as
+ * SECTION_PICKED {sectionId}. HIGHLIGHT_SECTION outlines the part being
+ * edited. Only ever active inside the editor's iframe.
+ */
+const PICK_STYLE_ID = 'matjar-pick-mode';
+const PICK_SELECTED_ATTR = 'data-matjar-picked';
+const PICK_CSS = `
+[data-section-id] { cursor: pointer; }
+@media (hover: hover) { [data-section-id]:hover { outline: 2px dashed rgba(37, 99, 235, 0.7); outline-offset: -2px; } }
+[${PICK_SELECTED_ATTR}] { outline: 3px solid rgb(37, 99, 235) !important; outline-offset: -3px; }
+`;
+
+function setPickMode(enabled: boolean, onPick: ((sectionId: string) => void) | null): () => void {
+  if (!enabled || !onPick) return () => {};
+  const style = document.createElement('style');
+  style.id = PICK_STYLE_ID;
+  style.textContent = PICK_CSS;
+  document.head.appendChild(style);
+  const handleClick = (e: MouseEvent) => {
+    const target = e.target instanceof Element ? e.target.closest('[data-section-id]') : null;
+    const sectionId = target?.getAttribute('data-section-id');
+    if (!sectionId) return;
+    e.preventDefault();
+    e.stopPropagation();
+    onPick(sectionId);
+  };
+  // Capture phase: runs before links, buttons and carousels see the tap.
+  document.addEventListener('click', handleClick, true);
+  return () => {
+    document.removeEventListener('click', handleClick, true);
+    style.remove();
+  };
+}
+
+function highlightSection(sectionId: string | null | undefined) {
+  document.querySelectorAll(`[${PICK_SELECTED_ATTR}]`).forEach((el) => el.removeAttribute(PICK_SELECTED_ATTR));
+  if (!sectionId) return;
+  document.querySelectorAll(`[data-section-id]`).forEach((el) => {
+    if (el.getAttribute('data-section-id') === sectionId) el.setAttribute(PICK_SELECTED_ATTR, '');
+  });
 }
 
 export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
@@ -318,6 +371,20 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
 
   // Live preview overrides from dashboard postMessage
   const [liveOverrides, setLiveOverrides] = useState<any>(null);
+  // Tap-to-edit: the editor origin to report picks to, or null when off.
+  const [pickOrigin, setPickOrigin] = useState<string | null>(null);
+
+  useEffect(
+    () =>
+      setPickMode(Boolean(pickOrigin), (sectionId) => {
+        try {
+          window.parent.postMessage({ type: 'SECTION_PICKED', sectionId }, pickOrigin as string);
+        } catch {
+          /* editor went away */
+        }
+      }),
+    [pickOrigin],
+  );
 
   // Listen for postMessage from dashboard editor iframe parent.
   //
@@ -406,6 +473,13 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
             }
             return { ...prev, sections };
           });
+          break;
+        case 'PICK_MODE':
+          // Only inside an embedded preview; report picks back to this sender.
+          setPickOrigin(data.enabled && window.parent !== window ? event.origin : null);
+          break;
+        case 'HIGHLIGHT_SECTION':
+          highlightSection(data.sectionId);
           break;
         case 'SCROLL_TO_SECTION': {
           // Editor asked us to reveal a section it just added/edited. The node

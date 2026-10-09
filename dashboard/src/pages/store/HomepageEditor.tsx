@@ -9,9 +9,16 @@
  * basic settings only (HomepageSectionSheet).
  *
  * There is no draft for the merchant: every change is saved and published
- * at once (useHomepageEditor), with "Saved — live on your store" and Undo.
- * The preview follows each change immediately through the full editor's
- * postMessage protocol (SECTION_UPDATE / SECTION_TOGGLE / SECTION_REORDER).
+ * at once (useHomepageEditor), with a short "Saved — live on your store"
+ * message and Undo floating above the bottom bar. The preview follows each
+ * change, and each keystroke, through the full editor's postMessage
+ * protocol (SECTION_UPDATE / SECTION_TOGGLE / SECTION_REORDER /
+ * SETTINGS_UPDATE). Tapping a part in the preview opens its sheet
+ * (PICK_MODE → SECTION_PICKED, see the storefront ThemeProvider).
+ *
+ * On phones the preview is pinned at the top of the page at full width, so
+ * it stays in view above the list and above an open sheet. The store's top
+ * strip (a theme-level setting, shown on every page) is the first row.
  * Everything else stays in the full editor, linked as "Advanced options".
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -42,23 +49,25 @@ import { listedSections, useHomepageEditor, type HomepageSaveState } from '../..
 import { readJson, writeJson } from '../../hooks/useStoreProfile';
 import {
   isShown,
+  isTopStripShown,
   liveSettings,
   moveAmong,
   sortSections,
+  TOP_STRIP_ID,
+  TOP_STRIP_KEYS,
   type HomeSection,
   type HomepageOp,
 } from '../../lib/homepageEditor';
 import { cn } from '../../lib/utils';
 import PhonePreview from './PhonePreview';
 import HomepageSectionSheet from './HomepageSectionSheet';
+import TopStripSheet from './TopStripSheet';
 import { usePartName } from './homepageNames';
 
 const PREVIEW_HIDDEN_KEY = 'matjar.homepagePreviewHidden';
-/** Phone screen shown above the list on phones: part of the screen height. */
-const PHONE_PREVIEW_SHARE = 0.36;
-const PHONE_PREVIEW_MIN_PX = 240;
-const PHONE_PREVIEW_MAX_PX = 380;
 const DESKTOP_QUERY = '(min-width: 1024px)';
+/** How long "Saved" stays on screen. Saving, retrying and errors stay until resolved. */
+const SAVED_MESSAGE_MS = 3500;
 
 function useIsDesktop() {
   const [desktop, setDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia(DESKTOP_QUERY).matches);
@@ -107,24 +116,38 @@ export default function HomepageEditor() {
     }
   }, []);
 
+  /** Unsaved section settings (typing) → preview. */
+  const previewSection = useCallback(
+    (sectionId: string, settings: Record<string, unknown>, before?: HomeSection[]) => {
+      const prev = (before ?? sectionsRef.current).find((s) => s.id === sectionId);
+      const def = prev ? definitionsRef.current.get(prev.type) : undefined;
+      postToPreview({
+        type: 'SECTION_UPDATE',
+        sectionId,
+        settings: liveSettings(prev?.settings ?? {}, settings, defaultsOf(def)),
+      });
+    },
+    [postToPreview],
+  );
+  /** Theme-level values (the top strip) → preview. */
+  const previewTheme = useCallback(
+    (theme: Record<string, unknown>) => postToPreview({ type: 'SETTINGS_UPDATE', settings: { theme } }),
+    [postToPreview],
+  );
+
   const onLive = useCallback(
-    (op: HomepageOp, before: HomeSection[]) => {
-      if (op.kind === 'visible') {
+    (op: HomepageOp, before: HomeSection[], theme: Record<string, unknown>) => {
+      if (op.kind === 'theme') {
+        previewTheme(theme);
+      } else if (op.kind === 'visible') {
         postToPreview({ type: 'SECTION_TOGGLE', sectionId: op.sectionId, enabled: op.visible });
       } else if (op.kind === 'order') {
         postToPreview({ type: 'SECTION_REORDER', sectionIds: op.sectionIds });
       } else {
-        const prev = before.find((s) => s.id === op.sectionId);
-        const def = prev ? definitionsRef.current.get(prev.type) : undefined;
-        postToPreview({
-          type: 'SECTION_UPDATE',
-          sectionId: op.sectionId,
-          settings: liveSettings(prev?.settings ?? {}, op.settings, defaultsOf(def)),
-        });
-        postToPreview({ type: 'SCROLL_TO_SECTION', sectionId: op.sectionId });
+        previewSection(op.sectionId, op.settings, before);
       }
     },
-    [postToPreview],
+    [postToPreview, previewSection, previewTheme],
   );
 
   const { data, loading, loadFailed, reload, change, undo, canUndo, retry, saveState, lastWasUndo } =
@@ -137,6 +160,10 @@ export default function HomepageEditor() {
   useEffect(() => {
     definitionsRef.current = definitions;
   }, [definitions]);
+  const sectionsRef = useRef<HomeSection[]>([]);
+  useEffect(() => {
+    sectionsRef.current = data?.sections ?? [];
+  }, [data?.sections]);
 
   const [previewHidden, setPreviewHidden] = useState(() => readJson<boolean>(PREVIEW_HIDDEN_KEY) === true);
   const togglePreview = () => {
@@ -145,11 +172,6 @@ export default function HomepageEditor() {
       return !hidden;
     });
   };
-  const [phoneScreen] = useState(() =>
-    Math.round(
-      Math.min(PHONE_PREVIEW_MAX_PX, Math.max(PHONE_PREVIEW_MIN_PX, (typeof window !== 'undefined' ? window.innerHeight : 800) * PHONE_PREVIEW_SHARE)),
-    ),
-  );
 
   // ---- editing -------------------------------------------------------------
 
@@ -158,13 +180,35 @@ export default function HomepageEditor() {
   const allIds = data ? sortSections(data.sections).map((s) => s.id) : [];
   const listedIds = listed.map((s) => s.id);
   const openSection = listed.find((s) => s.id === openId) ?? null;
+  const hasTopStrip = !!data?.hasTopStrip;
+  const topStripOpen = hasTopStrip && openId === TOP_STRIP_ID;
+  const theme = data?.theme ?? {};
 
-  const openSheet = (section: HomeSection) => {
-    setOpenId(section.id);
-    // Phones: bring the preview into view above the sheet, at this part.
-    if (!isDesktop && !previewHidden) previewBoxRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
-    postToPreview({ type: 'SCROLL_TO_SECTION', sectionId: section.id });
+  // The part being edited is outlined and scrolled to in the preview.
+  useEffect(() => {
+    postToPreview({ type: 'HIGHLIGHT_SECTION', sectionId: openId });
+    if (openId) postToPreview({ type: 'SCROLL_TO_SECTION', sectionId: openId });
+  }, [openId, postToPreview]);
+
+  // Tap a part in the preview → open its sheet (listed parts and the strip only).
+  const pickableRef = useRef<Set<string>>(new Set());
+  pickableRef.current = new Set([...listedIds, ...(hasTopStrip ? [TOP_STRIP_ID] : [])]);
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (!iframeRef.current || event.source !== iframeRef.current.contentWindow) return;
+      const msg = event.data as { type?: string; sectionId?: unknown } | null;
+      if (msg?.type !== 'SECTION_PICKED' || typeof msg.sectionId !== 'string') return;
+      if (pickableRef.current.has(msg.sectionId)) setOpenId(msg.sectionId);
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+  const onPreviewLoad = () => {
+    postToPreview({ type: 'PICK_MODE', enabled: true });
+    if (openId) postToPreview({ type: 'HIGHLIGHT_SECTION', sectionId: openId });
   };
+
+  const openSheet = (section: HomeSection) => setOpenId(section.id);
 
   const move = (id: string, delta: -1 | 1) => {
     const next = moveAmong(allIds, listedIds, id, delta);
@@ -220,22 +264,28 @@ export default function HomepageEditor() {
       )}
 
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-8">
-        {/* Preview: first on phones (above the list), beside it on desktop. */}
-        <div ref={previewBoxRef} className="scroll-mt-2 space-y-2 lg:sticky lg:top-4 lg:order-last">
+        {/* Preview: pinned at the top on phones (full width, above the list
+            and any open sheet), beside the list on desktop. */}
+        <div
+          ref={previewBoxRef}
+          className="sticky top-0 z-20 -mx-4 space-y-1 bg-background/95 px-4 pb-3 pt-1 backdrop-blur lg:static lg:top-4 lg:order-last lg:mx-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none lg:sticky"
+        >
           <div className="flex items-center justify-between gap-2 lg:hidden">
-            <p className="text-sm font-medium text-muted-foreground">{t('storeDesign:preview.heading')}</p>
-            <Button variant="ghost" className="h-11 px-3" onClick={togglePreview} aria-expanded={!previewHidden}>
+            <p className="text-sm font-medium text-muted-foreground">{t('storeDesign:homepage.preview.tap_hint')}</p>
+            <Button variant="ghost" className="h-10 px-3" onClick={togglePreview} aria-expanded={!previewHidden}>
               {previewHidden ? <Eye className="h-4 w-4 me-2" /> : <EyeOff className="h-4 w-4 me-2" />}
               {previewHidden ? t('storeDesign:homepage.preview.show') : t('storeDesign:homepage.preview.hide')}
             </Button>
           </div>
           <p className="hidden text-center text-sm font-medium text-muted-foreground lg:block">
-            {t('storeDesign:preview.heading')}
+            {t('storeDesign:homepage.preview.tap_hint')}
           </p>
           {(isDesktop || !previewHidden) && (
             <PhonePreview
               iframeRef={iframeRef}
-              screenHeight={isDesktop ? undefined : phoneScreen}
+              fill={!isDesktop}
+              className={isDesktop ? undefined : 'h-[38dvh]'}
+              onLoad={onPreviewLoad}
               onUrl={(url) => {
                 try {
                   previewOriginRef.current = url ? new URL(url, window.location.origin).origin : null;
@@ -257,6 +307,18 @@ export default function HomepageEditor() {
             )}
           </div>
 
+          {hasTopStrip && (
+            <ol className="space-y-2">
+              <SectionRow
+                name={t('storeDesign:homepage.top_strip.name')}
+                detail={t('storeDesign:homepage.top_strip.everywhere')}
+                shown={isTopStripShown(theme)}
+                onOpen={() => setOpenId(TOP_STRIP_ID)}
+                onToggle={(visible) => change({ kind: 'theme', settings: { [TOP_STRIP_KEYS.show]: visible } })}
+              />
+            </ol>
+          )}
+
           {listed.length === 0 ? (
             <Card className="p-4 text-sm text-muted-foreground shadow-sm">{t('storeDesign:homepage.empty')}</Card>
           ) : (
@@ -264,7 +326,7 @@ export default function HomepageEditor() {
               {listed.map((section, i) => (
                 <SectionRow
                   key={section.id}
-                  name={partName(section.type, definitions.get(section.type))}
+                  name={partName(section.type, definitions.get(section.type), section.settings)}
                   shown={isShown(section)}
                   first={i === 0}
                   last={i === listed.length - 1}
@@ -295,7 +357,7 @@ export default function HomepageEditor() {
         </div>
       </div>
 
-      {!openSection && (
+      {!openSection && !topStripOpen && (
         <SaveBar state={saveState} undone={lastWasUndo} canUndo={canUndo} onUndo={undo} onRetry={retry} />
       )}
 
@@ -304,6 +366,16 @@ export default function HomepageEditor() {
         definition={openSection ? definitions.get(openSection.type) : undefined}
         onClose={() => setOpenId(null)}
         onChange={change}
+        onPreview={(sectionId, settings) => previewSection(sectionId, settings)}
+        status={<SaveBar state={saveState} undone={lastWasUndo} canUndo={canUndo} onUndo={undo} onRetry={retry} inline />}
+      />
+
+      <TopStripSheet
+        open={topStripOpen}
+        values={theme}
+        onClose={() => setOpenId(null)}
+        onChange={change}
+        onPreview={(settings) => previewTheme({ ...theme, ...settings })}
         status={<SaveBar state={saveState} undone={lastWasUndo} canUndo={canUndo} onUndo={undo} onRetry={retry} inline />}
       />
     </div>
@@ -314,15 +386,18 @@ export default function HomepageEditor() {
 
 interface SectionRowProps {
   name: string;
+  /** Second line instead of "Edit" (e.g. "On every page"). */
+  detail?: string;
   shown: boolean;
-  first: boolean;
-  last: boolean;
+  first?: boolean;
+  last?: boolean;
   onOpen: () => void;
   onToggle: (visible: boolean) => void;
-  onMove: (delta: -1 | 1) => void;
+  /** Omitted for rows that can't move (the top strip). */
+  onMove?: (delta: -1 | 1) => void;
 }
 
-function SectionRow({ name, shown, first, last, onOpen, onToggle, onMove }: SectionRowProps) {
+function SectionRow({ name, detail, shown, first, last, onOpen, onToggle, onMove }: SectionRowProps) {
   const { t } = useTranslation('storeDesign');
   return (
     <li className={cn('flex items-stretch rounded-xl border bg-card shadow-sm', !shown && 'bg-muted/40')}>
@@ -333,7 +408,7 @@ function SectionRow({ name, shown, first, last, onOpen, onToggle, onMove }: Sect
       >
         <span className={cn('block text-base font-semibold', !shown && 'text-muted-foreground')}>{name}</span>
         <span className="mt-0.5 block text-sm text-muted-foreground">
-          {shown ? t('homepage.edit') : t('homepage.hidden')}
+          {shown ? detail ?? t('homepage.edit') : t('homepage.hidden')}
         </span>
       </button>
       <div className="flex shrink-0 items-center">
@@ -343,6 +418,7 @@ function SectionRow({ name, shown, first, last, onOpen, onToggle, onMove }: Sect
           </span>
           <Switch checked={shown} onCheckedChange={onToggle} className="scale-125" />
         </label>
+        {onMove && (
         <div className="flex flex-col border-s">
           <button
             type="button"
@@ -363,6 +439,7 @@ function SectionRow({ name, shown, first, last, onOpen, onToggle, onMove }: Sect
             <ArrowDown className="h-5 w-5" />
           </button>
         </div>
+        )}
       </div>
     </li>
   );
@@ -380,10 +457,22 @@ interface SaveBarProps {
   inline?: boolean;
 }
 
-/** "Saved — live on your store" + Undo, kept in view above the phone's bottom bar. */
+/**
+ * "Saved — live on your store" + Undo. On the page it floats above the
+ * phone's bottom bar (never over the list) and "Saved" fades after a few
+ * seconds; saving, retrying and errors stay until they resolve. Inside a
+ * sheet it sits in the sheet's footer.
+ */
 function SaveBar({ state, undone, canUndo, onUndo, onRetry, inline }: SaveBarProps) {
   const { t } = useTranslation('storeDesign');
-  if (state === 'idle') return null;
+  const [savedVisible, setSavedVisible] = useState(true);
+  useEffect(() => {
+    setSavedVisible(true);
+    if (state !== 'saved' || inline) return;
+    const timer = setTimeout(() => setSavedVisible(false), SAVED_MESSAGE_MS);
+    return () => clearTimeout(timer);
+  }, [state, undone, inline]);
+  if (state === 'idle' || (state === 'saved' && !savedVisible)) return null;
   const tone =
     state === 'saved'
       ? 'border-green-300 bg-green-50 text-green-900 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-100'
@@ -398,8 +487,9 @@ function SaveBar({ state, undone, canUndo, onUndo, onRetry, inline }: SaveBarPro
   return (
     <div
       className={cn(
-        'flex min-h-[56px] items-center gap-2 rounded-xl border p-2 ps-3',
-        !inline && 'sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 shadow-lg lg:bottom-4',
+        'flex min-h-[52px] items-center gap-2 rounded-xl border p-1.5 ps-3',
+        !inline &&
+          'fixed inset-x-4 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-md shadow-lg animate-in fade-in slide-in-from-bottom-2 lg:bottom-6',
         tone,
       )}
       role="status"

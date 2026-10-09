@@ -17,6 +17,7 @@ import { useAnnouncementMessages } from '../components/chrome/AnnouncementBar';
 import { useAtelierUI } from '../contexts/AtelierUI';
 import { BeforeAfter, CountUp, Icon, Marquee, Reveal, prefersReducedMotion } from '../lib/motion';
 import manifest from '../theme.manifest';
+import { storefrontLocale } from '@matjar/theme-shared/utils/locale';
 
 /** Resolved blocks, falling back to the manifest definition's defaults when a store instance carries none. */
 function useBlocks(id: string, section?: { type: string }) {
@@ -80,6 +81,10 @@ const IconItem: React.FC<{ icon: string; title: string; text?: string; center?: 
 
 // ─── 1. Fade slideshow ────────────────────────────────────────────
 
+/** The non-empty values of `keys` in `s` (blank settings do not override). */
+const pick = (s: Record<string, any>, keys: string[]) =>
+  Object.fromEntries(keys.filter((k) => typeof s[k] === 'string' && s[k].trim()).map((k) => [k, s[k]]));
+
 const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
@@ -105,9 +110,11 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
     <section className={`relative w-full overflow-hidden bg-[#1c1c1c] ${h}`} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} aria-roledescription="carousel">
       {slides.map((sl, i) => {
         const active = i === idx;
-        const st = sl.settings || {};
+        // The section-level (My Store) settings override the first slide.
+        const st = i === 0 ? { ...sl.settings, ...pick(s, ['heading', 'image', 'cta_text']) } : sl.settings || {};
         const eyebrow = bt('hero', i, 'eyebrow', st.eyebrow);
         const heading = bt('hero', i, 'heading', st.heading);
+        const sub = i === 0 ? s.subheading : '';
         const cta = st.cta_text || t('theme.section.hero.cta');
         return (
           <div key={sl.id} className={`absolute inset-0 transition-opacity duration-[600ms] ease-hero ${active ? 'opacity-100' : 'opacity-0'}`} aria-hidden={!active} {...(!active ? { inert: '' as any } : {})} aria-roledescription="slide" aria-label={`${i + 1} / ${slides.length}`}>
@@ -120,6 +127,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 <div key={cycle} className="max-w-2xl">
                   {eyebrow && <p className="at-eyebrow !text-[color:var(--atelier-bronze)] opacity-0" style={{ animation: 'at-caption .6s ease-out forwards', animationDelay: '0ms' }}>{eyebrow}</p>}
                   {heading && <h1 className="mt-4 font-display text-[40px] font-medium leading-[1.05] text-white opacity-0 sm:text-[56px] lg:text-[72px]" style={{ animation: 'at-caption .6s ease-out forwards', animationDelay: '120ms' }}>{heading}</h1>}
+                  {sub && <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-white/85 opacity-0 sm:text-[18px]" style={{ animation: 'at-caption .6s ease-out forwards', animationDelay: '180ms' }}>{sub}</p>}
                   {cta && <div className="mt-8 opacity-0" style={{ animation: 'at-caption .6s ease-out forwards', animationDelay: '240ms' }}><Link to={st.cta_url || '/products'} className="at-btn at-btn-light">{cta}</Link></div>}
                 </div>
               )}
@@ -564,9 +572,9 @@ const StoriesSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const bt = useBlockT();
   const blocks = useBlocks(id, section).filter((b, i) => bt('stories', i, 'title', b.settings.title));
-  const { t, i18n } = useTranslation(['theme']);
+  const { t } = useTranslation(['theme']);
   if (!blocks.length) return null;
-  const fmt = (d: string) => { const dt = d ? new Date(d) : null; return dt && !Number.isNaN(dt.getTime()) ? dt.toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' }) : d; };
+  const fmt = (d: string) => { const dt = d ? new Date(d) : null; return dt && !Number.isNaN(dt.getTime()) ? dt.toLocaleDateString(storefrontLocale(), { month: 'short', day: 'numeric', year: 'numeric' }) : d; };
   return (
     <Shell s={s}>
       <Heading s={s} fallbackKey="stories" />

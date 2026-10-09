@@ -8,6 +8,8 @@ interface SportzoneHeroProps {
   /** Featured-product image used full-bleed when the merchant hasn't set a
    *  background image. Passed from Home where featured products are fetched. */
   media?: string;
+  /** Section instance id whose settings to read (default: 'hero'). */
+  sectionId?: string;
 }
 
 /**
@@ -20,13 +22,13 @@ interface SportzoneHeroProps {
  * gradient so the copy stays legible; a broken URL degrades to the dark
  * gradient + colour blocks (never a blank band).
  *
- * Self-contained + customizer-aware: reads the same `useThemeSettings('hero')`
- * values and i18n fallback keys Home fed the shared Hero.
+ * Self-contained + customizer-aware: reads the same hero settings (by its
+ * section instance id) and i18n fallback keys Home fed the shared Hero.
  */
-const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media }) => {
+const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero' }) => {
   const { t } = useTranslation('theme');
   const { store } = useStore();
-  const hero = useThemeSettings('hero');
+  const hero = useThemeSettings(sectionId);
 
   const eyebrow = hero.eyebrow_text || t('theme.hero.main.eyebrow');
   const line1 = hero.heading_line1 || t('theme.hero.main.headline_line1');

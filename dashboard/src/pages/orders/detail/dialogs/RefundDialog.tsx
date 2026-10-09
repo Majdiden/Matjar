@@ -9,6 +9,7 @@ import { Label } from '../../../../components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { api } from '../../../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../../../lib/focusFirstInvalid';
 import type { PaymentMethodField, PaymentFieldValue } from '../../../../types';
 import { useOrderDetail } from '../context';
 import { PaymentFieldInput } from './PaymentFieldInput';
@@ -50,10 +51,12 @@ export const RefundDialog: React.FC<{
     const amt = Number(refundAmount);
     if (!amt || amt <= 0) {
       toast.error(t('orders:validation.refund_amount_invalid'));
+      focusFieldById('refund-amount');
       return;
     }
     if (amt > maxRefundable) {
       toast.error(t('orders:dialog.refund.error_exceeds', { max: formatPrice(maxRefundable) }));
+      focusFieldById('refund-amount');
       return;
     }
     try {

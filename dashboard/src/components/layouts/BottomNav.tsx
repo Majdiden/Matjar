@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LayoutDashboard, ShoppingCart, Package, Menu, Plus, ClipboardList, PackagePlus, Store } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Menu, Plus, ClipboardList, PackagePlus } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../contexts/auth-context';
 import { useFeatures } from '../../contexts/features-context';
+import { useNewProductRoute } from '../../hooks/useNewProductRoute';
 import type { FeatureKey } from '../../lib/features';
 import {
   DropdownMenu,
@@ -20,31 +21,24 @@ interface BottomNavProps {
 }
 
 interface Dest {
-  key: 'home' | 'orders' | 'products' | 'store';
+  key: 'home' | 'orders' | 'products';
   href: string;
   icon: React.ElementType;
   permission?: string | string[];
-  // Platform feature gate (e.g. "My store" only shows with design.simpleMode).
+  // Platform feature gate: the tab shows only when the flag is on.
   feature?: FeatureKey;
   badge?: boolean;
 }
 
-// Home and Orders sit before the centre quick-action button; Products (plus
-// "My store" when simple mode is on) and the More sheet trigger after it.
+// Home and Orders sit before the centre quick-action button; Products and the
+// More sheet trigger after it. Two tabs a side keeps the bar balanced around
+// the raised button; everything else (including "My store") is under More.
 const LEFT_DESTS: Dest[] = [
   { key: 'home', href: '/dashboard', icon: LayoutDashboard, permission: 'dashboard.read' },
   { key: 'orders', href: '/dashboard/orders', icon: ShoppingCart, permission: 'orders.read', badge: true },
 ];
 const RIGHT_DESTS: Dest[] = [
   { key: 'products', href: '/dashboard/products', icon: Package, permission: 'products.read' },
-  // "My store" (PBI 10-12) — the phone-first way to set up how the store looks.
-  {
-    key: 'store',
-    href: '/dashboard/store',
-    icon: Store,
-    permission: ['settings.read', 'settings.write', 'themes.read', 'themes.write'],
-    feature: 'design.simpleMode',
-  },
 ];
 
 /**
@@ -75,10 +69,12 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
   };
   const left = LEFT_DESTS.filter(allowed);
   const right = RIGHT_DESTS.filter(allowed);
+  const moreActive = ![...left, ...right].some((d) => isActive(d.href));
 
   // Quick-create actions the merchant is permitted to perform.
   const canCreateOrder = can('orders.write');
   const canCreateProduct = can('products.write');
+  const newProductRoute = useNewProductRoute();
   const showAction = canCreateOrder || canCreateProduct;
 
   const itemClass = (active: boolean) =>
@@ -159,7 +155,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
                 {canCreateProduct && (
                   <button
                     type="button"
-                    onClick={() => { setActionOpen(false); navigate('/dashboard/products/new'); }}
+                    onClick={() => { setActionOpen(false); navigate(newProductRoute); }}
                     className="flex w-full items-center gap-3 rounded-xl p-3 text-start transition-colors hover:bg-accent focus:bg-accent focus:outline-none"
                   >
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -177,8 +173,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
         )}
 
         {right.map(renderDest)}
-        <button type="button" onClick={onMore} className={itemClass(false)}>
-          <Menu className="h-6 w-6" strokeWidth={2} />
+        {/* "More" reads as current on any page that has no tab of its own
+            (e.g. My store), so the bar always shows where you are. */}
+        <button type="button" onClick={onMore} className={itemClass(moreActive)} aria-current={moreActive ? 'page' : undefined}>
+          <Menu className="h-6 w-6" strokeWidth={moreActive ? 2.4 : 2} />
           <span className="truncate max-w-full">{t('bottom_nav.more')}</span>
         </button>
       </div>

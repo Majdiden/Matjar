@@ -24,6 +24,7 @@ import {
   publicTrust,
   summarizePaymentMethods,
   summarizeZones,
+  summarizeShipping,
 } from "../../services/generatedPages.js";
 import { buildStoreInfo } from "../../services/storefrontStoreInfo.js";
 
@@ -133,10 +134,11 @@ describe("policy generator", () => {
   });
 
   it("writes Arabic delivery, returns and payment policies", () => {
-    const p = buildPolicies(answers, { lang: "ar", payment, currency: "SDG" });
+    const p = buildPolicies(answers, { lang: "ar", payment, currency: "SDG", shipping: { mode: "flat", price: 2000 } });
     assert.equal(p.delivery.title, "التوصيل");
     assert.match(p.delivery.body, /نوصل إلى: الخرطوم./);
-    assert.match(p.delivery.body, /رسوم التوصيل: مجانًا فوق ١٠ آلاف./);
+    assert.match(p.delivery.body, /رسوم التوصيل: 2,000 SDG./);
+    assert.doesNotMatch(p.delivery.body, /١٠ آلاف/, "a typed fee answer is ignored: prices come from the shipping settings");
     assert.match(p.delivery.body, /يصلك طلبك عادةً خلال يومين./);
     assert.match(p.returns.body, /خلال 14 يومًا من استلامه/);
     assert.match(p.returns.body, /<h2>الشروط<\/h2><p>المنتج بحالته الأصلية<\/p>/);
@@ -165,12 +167,30 @@ describe("policy generator", () => {
     ]);
     const p = buildPolicies(normalizePolicyAnswers({ delivery: { time: "يوم" }, returns: { accepted: false } }, { hasZones: true }), {
       lang: "ar",
-      zones,
+      shipping: { mode: "zones", zones },
       currency: "SDG",
     });
     assert.match(p.delivery.body, /<li>بحري: 2,000 SDG، خلال يومين<\/li><li>المدينة: مجانًا<\/li>/);
     assert.match(p.returns.body, /لا نقبل إرجاع المنتجات/);
     assert.equal(p.cod, undefined, "no payment policy without payment methods");
+  });
+
+  it("reads delivery prices from the shipping settings like checkout does", () => {
+    assert.deepEqual(summarizeShipping(undefined), { mode: "unset" });
+    assert.deepEqual(summarizeShipping({ type: "flat", rate: 0 }), { mode: "unset" }, "the default flat 0 means not set");
+    assert.deepEqual(summarizeShipping({ type: "flat", rate: 2000, freeShippingThreshold: 50000 }), { mode: "flat", price: 2000, freeOver: 50000 });
+    assert.deepEqual(summarizeShipping({ type: "free", rate: 9 }), { mode: "free" });
+    assert.deepEqual(summarizeShipping({ type: "weight", baseRate: 1000, perKgRate: 200 }), { mode: "weight", base: 1000, perKg: 200 });
+    assert.deepEqual(summarizeShipping({ type: "zone", rate: 1500, zones: [] }), { mode: "flat", price: 1500 }, "zone shipping without zones charges the flat rate");
+    assert.deepEqual(summarizeShipping({ type: "flat", rate: 1000, zones: [{ name: "بحري", rates: [{ price: 1 }] }] }), { mode: "flat", price: 1000 }, "zones are ignored unless zone shipping is on");
+    assert.equal(summarizeShipping({ type: "zone", zones: [{ name: "بحري", rates: [{ price: 3000 }] }] }).mode, "zones");
+
+    const base = normalizePolicyAnswers({ delivery: { areas: "x", time: "يوم" }, returns: { accepted: false } });
+    const body = (shipping, lang = "ar") => buildPolicies(base, { lang, shipping, currency: "SDG" }).delivery.body;
+    assert.match(body({ mode: "free" }), /التوصيل مجاني./);
+    assert.match(body({ mode: "flat", price: 2000, freeOver: 50000 }), /رسوم التوصيل: 2,000 SDG.<\/p><p>التوصيل مجاني للطلبات من 50,000 SDG فأكثر./);
+    assert.match(body({ mode: "weight", base: 1000, perKg: 200 }, "en"), /Delivery costs 1,000 SDG, plus 200 SDG per kilogram./);
+    assert.doesNotMatch(body({ mode: "unset" }), /رسوم|مجاني/, "nothing about price until it is set");
   });
 
   it("escapes merchant input in every policy", () => {
@@ -180,7 +200,7 @@ describe("policy generator", () => {
     });
     const p = buildPolicies(evil, {
       lang: "ar",
-      zones: summarizeZones([{ name: XSS, rates: [{ price: 5, estimatedDays: XSS }] }]),
+      shipping: { mode: "zones", zones: summarizeZones([{ name: XSS, rates: [{ price: 5, estimatedDays: XSS }] }]) },
       payment: { cod: false, transfers: [{ code: "x", label: XSS }] },
       currency: `<b>SDG</b>`,
     });

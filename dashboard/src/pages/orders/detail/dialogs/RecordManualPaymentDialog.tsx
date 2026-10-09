@@ -9,6 +9,7 @@ import { Label } from '../../../../components/ui/label';
 import { Textarea } from '../../../../components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../../../lib/focusFirstInvalid';
 import { useOrderDetail } from '../context';
 
 // Record-manual-payment dialog — captures amount + reference + note
@@ -40,6 +41,7 @@ export const RecordManualPaymentDialog: React.FC = () => {
     const amt = Number(recordManualAmount);
     if (!amt || amt <= 0) {
       toast.error(t('orders:validation.refund_amount_positive'));
+      focusFieldById('record-manual-amount');
       return;
     }
     await runPaymentAction('record_manual', 'Record manual payment', {

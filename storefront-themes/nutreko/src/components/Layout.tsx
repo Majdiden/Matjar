@@ -6,7 +6,7 @@ import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
-import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
+import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
@@ -42,8 +42,7 @@ const Layout: React.FC = () => {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const showBar = useThemeSetting<boolean>('show_announcement_bar') !== false;
-  const barText = useThemeSetting<string>('announcement_text') || t('theme.announcement.default', { defaultValue: 'FREE SHIPPING ON ORDERS OVER $75' });
+  const barText = useTopStripText();
 
   const brand = (store?.name || 'NUTREKO').toUpperCase();
   const isActive = (path: string) =>
@@ -52,8 +51,8 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white" style={{ color: DARK }}>
       {/* ═══ TOP STRIP (lime) ══════════════════════════════════════ */}
-      {showBar && (
-        <div className="text-[11px] tracking-[0.2em] font-bold py-2.5" style={{ backgroundColor: LIME, color: DARK }}>
+      {barText && (
+        <div data-section-id={TOP_STRIP_ANCHOR} className="text-[11px] tracking-[0.2em] font-bold py-2.5" style={{ backgroundColor: LIME, color: DARK }}>
           <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-8">
             <span className="flex items-center gap-2"><svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg>{barText}</span>
           </div>

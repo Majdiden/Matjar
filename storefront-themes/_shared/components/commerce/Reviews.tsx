@@ -4,6 +4,7 @@ import { cn } from '../../utils/cn';
 import { RatingStars } from './RatingStars';
 import { useSubmitReview } from '../../hooks/useReviews';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
+import { storefrontLocale } from '../../utils/locale';
 
 export const SLOT_KEY = 'reviews';
 
@@ -145,7 +146,7 @@ export function Reviews(props: ReviewsProps) {
                   {r.title && <h4 className="font-semibold mt-1">{r.title}</h4>}
                 </div>
                 <p className="text-xs text-gray-400 shrink-0">
-                  {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ''}
+                  {r.createdAt ? new Date(r.createdAt).toLocaleDateString(storefrontLocale()) : ''}
                 </p>
               </div>
               <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{r.comment}</p>

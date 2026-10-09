@@ -15,6 +15,7 @@ import {
 import { ArrowLeft, Gift, Loader2, Copy, AlertCircle, Search, X } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { focusFieldById } from '../../lib/focusFirstInvalid';
 
 interface IssueForm {
   initialAmount: string;
@@ -234,6 +235,7 @@ const GiftCardNew: React.FC = () => {
   const handleIssue = async () => {
     if (!form.initialAmount || isNaN(Number(form.initialAmount))) {
       toast.error(t('marketing.gift_card.toast.amount_invalid'));
+      focusFieldById('gift-card-initial-amount');
       return;
     }
     try {
@@ -308,6 +310,7 @@ const GiftCardNew: React.FC = () => {
             <div className="space-y-1">
               <Label>{t('marketing.gift_card.issue_dialog.field.amount.label')}</Label>
               <Input
+                id="gift-card-initial-amount"
                 type="number"
                 min="0"
                 step="0.01"

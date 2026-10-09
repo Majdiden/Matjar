@@ -121,9 +121,9 @@ export default function Analytics() {
   // colouring (audit 3.8.7).
   const statCards = [
     { label: t('analytics.metric.total_revenue'), value: formatCurrency(stats?.totalRevenue || 0), icon: DollarSign },
-    { label: t('analytics.metric.total_orders'), value: (stats?.totalOrders || 0).toLocaleString(), icon: ShoppingCart },
+    { label: t('analytics.metric.total_orders'), value: (stats?.totalOrders || 0).toLocaleString(getTenantLocale()), icon: ShoppingCart },
     { label: t('analytics.metric.avg_order_value'), value: formatCurrency(stats?.averageOrderValue || 0), icon: TrendingUp },
-    { label: t('analytics.metric.total_products'), value: (stats?.totalProducts || 0).toLocaleString(), icon: Package },
+    { label: t('analytics.metric.total_products'), value: (stats?.totalProducts || 0).toLocaleString(getTenantLocale()), icon: Package },
   ];
 
   if (loading) {

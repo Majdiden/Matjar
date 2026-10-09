@@ -5,6 +5,7 @@ import { LifeBuoy, ShieldCheck } from 'lucide-react';
 import { Button } from '../ui/button';
 import { api } from '../../lib/api-client';
 import { useImpersonation } from '../../contexts/ImpersonationContext';
+import { getTenantLocale } from '../../lib/format';
 
 /**
  * Owner-facing freeze. While a support session is ACTIVE the whole dashboard
@@ -37,7 +38,7 @@ export const ActiveImpersonationOverlay: React.FC = () => {
   };
 
   const endsAt = active.sessionExpiresAt
-    ? new Date(active.sessionExpiresAt).toLocaleTimeString([], {
+    ? new Date(active.sessionExpiresAt).toLocaleTimeString(getTenantLocale(), {
         hour: '2-digit',
         minute: '2-digit',
       })

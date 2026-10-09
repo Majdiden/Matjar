@@ -41,10 +41,12 @@ import {
   normalizeAboutAnswers,
   normalizePolicyAnswers,
   summarizePaymentMethods,
-  summarizeZones,
+  summarizeShipping,
 } from "./generatedPages.js";
 
 export const ABOUT_SLUG = "about";
+
+const zonesOf = (shipping) => (shipping.mode === "zones" ? shipping.zones : []);
 
 /** Error code on the 409 returned when saving would replace the merchant's own edits. */
 export const EDITED_CONFLICT_CODE = "GENERATED_PAGE_EDITED";
@@ -229,7 +231,7 @@ export async function setContactService(tenantId, enabled) {
 const POLICY_SELECT = {
   "settings.policies": 1,
   "settings.policyAnswers": 1,
-  "settings.shipping.zones": 1,
+  "settings.shipping": 1,
   "settings.language": 1,
   "settings.currency": 1,
 };
@@ -300,7 +302,10 @@ export async function getPoliciesService(models, tenantId) {
     // Prefill for a first visit: the delivery areas given at signup (10-16).
     suggestions: { areas: s.policyAnswers?.deliveryAreas?.ar ? s.policyAnswers.deliveryAreas : null },
     language: policyLanguage(tenant),
-    zones: summarizeZones(s.shipping?.zones),
+    // Delivery prices come from the shipping settings (shown read-only with
+    // a link to edit them); `zones` is kept for older dashboards.
+    shipping: summarizeShipping(s.shipping),
+    zones: zonesOf(summarizeShipping(s.shipping)),
     currency: s.currency || null,
     payment,
     policies: Object.fromEntries(
@@ -331,17 +336,17 @@ export async function savePoliciesService(models, tenantId, input = {}) {
   ]);
   if (!tenant) throw new APIError("Tenant not found", 404);
   const s = tenant.settings || {};
-  const zones = summarizeZones(s.shipping?.zones);
+  const shipping = summarizeShipping(s.shipping);
 
   let answers;
   try {
-    answers = normalizePolicyAnswers(input.answers || {}, { hasZones: zones.length > 0 });
+    answers = normalizePolicyAnswers(input.answers || {}, { hasZones: zonesOf(shipping).length > 0 });
   } catch (err) {
     throw toBadRequest(err);
   }
 
   const lang = policyLanguage(tenant);
-  const generated = buildPolicies(answers, { lang, zones, payment, currency: s.currency || "" });
+  const generated = buildPolicies(answers, { lang, shipping, payment, currency: s.currency || "" });
   const keys = Object.keys(generated);
 
   const blocked = keys.filter((key) => isPolicyEdited(tenant, key));

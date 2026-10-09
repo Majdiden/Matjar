@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import { useConfirm } from "../../components/ui/use-confirm";
 import { useViewMode, ViewToggle } from "../../components/ui/view-toggle";
+import { formatDate } from '../../lib/format';
 
 type DiscountMethod =
   | "amount_off_products"
@@ -322,7 +323,7 @@ export default function Discounts() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {d.expiresAt ? t('marketing.discount.list.expires_on', { date: new Date(d.expiresAt).toLocaleDateString() }) : t('marketing.discount.list.expires_never')}
+                        {d.expiresAt ? t('marketing.discount.list.expires_on', { date: formatDate(d.expiresAt) }) : t('marketing.discount.list.expires_never')}
                       </TableCell>
                       <TableCell className="text-end">
                         <div className="flex justify-end gap-1">
@@ -401,7 +402,7 @@ export default function Discounts() {
                       <div className="pt-2 border-t flex items-center justify-between text-xs text-muted-foreground">
                         <span>
                           {d.expiresAt
-                            ? t('marketing.discount.list.expires_on', { date: new Date(d.expiresAt).toLocaleDateString() })
+                            ? t('marketing.discount.list.expires_on', { date: formatDate(d.expiresAt) })
                             : t('marketing.discount.list.expires_never')}
                         </span>
                         <div className="flex gap-1">

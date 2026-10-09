@@ -7,7 +7,9 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
-  COD_METHOD_CODE,
+  FIRST_SALE_STEP_ROUTES,
+  firstSaleSteps,
+  isBrandReady,
   FIRST_SALE_STEPS,
   SIGNUP_V2_THEME_LIMIT,
   firstSaleProgress,
@@ -75,57 +77,61 @@ describe("themesForNiche", () => {
 });
 
 describe("firstSaleProgress", () => {
-  const base = { productCount: 0, enabledPaymentCodes: [COD_METHOD_CODE], paymentsReviewedAt: null, sharedAt: null };
+  const base = { productCount: 0, brandReady: false, policiesReady: false, sharedAt: null };
   const at = "2026-10-09T12:00:00.000Z";
 
-  it("starts at 0 of 3 with the first product as the current step", () => {
+  it("starts at 0 of 4 with the first product as the current step", () => {
     const p = firstSaleProgress(base);
-    assert.deepEqual(p.done, { product: false, payments: false, share: false });
+    assert.deepEqual(p.done, { product: false, brand: false, policies: false, share: false });
     assert.equal(p.doneCount, 0);
-    assert.equal(p.total, 3);
+    assert.equal(p.total, 4);
     assert.equal(p.complete, false);
     assert.equal(p.current, "product");
-    assert.deepEqual([...FIRST_SALE_STEPS], ["product", "payments", "share"]);
+    assert.deepEqual([...FIRST_SALE_STEPS], ["product", "brand", "policies", "share"]);
   });
 
-  it("product: done with at least one product", () => {
-    const p = firstSaleProgress({ ...base, productCount: 1 });
-    assert.equal(p.done.product, true);
-    assert.equal(p.doneCount, 1);
-    assert.equal(p.current, "payments");
+  it("has no payment step (cash on delivery is on by default)", () => {
+    assert.ok(!FIRST_SALE_STEPS.includes("payments"));
   });
 
-  it("payments: COD alone is not done until the merchant has reviewed it", () => {
-    assert.equal(firstSaleProgress(base).done.payments, false);
-    assert.equal(firstSaleProgress({ ...base, paymentsReviewedAt: at }).done.payments, true);
-  });
-
-  it("payments: switching on another method (e.g. Bankak transfer) counts as set up", () => {
-    const p = firstSaleProgress({ ...base, enabledPaymentCodes: ["cod", "manual-transfer"] });
-    assert.equal(p.done.payments, true);
-    assert.equal(firstSaleProgress({ ...base, enabledPaymentCodes: ["manual-transfer"] }).done.payments, true);
-  });
-
-  it("payments: never done when every method is switched off, even if reviewed", () => {
-    assert.equal(firstSaleProgress({ ...base, enabledPaymentCodes: [], paymentsReviewedAt: at }).done.payments, false);
-  });
-
-  it("payments: with the methods unknown (feature off) COD is assumed on, so reviewing is enough", () => {
-    assert.equal(firstSaleProgress({ ...base, enabledPaymentCodes: null }).done.payments, false);
-    assert.equal(firstSaleProgress({ ...base, enabledPaymentCodes: null, paymentsReviewedAt: at }).done.payments, true);
-  });
-
-  it("share: done once the merchant has tapped Share; all three → complete", () => {
-    const p = firstSaleProgress({ productCount: 4, enabledPaymentCodes: ["cod"], paymentsReviewedAt: at, sharedAt: at });
-    assert.equal(p.done.share, true);
-    assert.equal(p.doneCount, 3);
+  it("product, then logo and cover, then delivery and returns, then share", () => {
+    assert.equal(firstSaleProgress({ ...base, productCount: 1 }).current, "brand");
+    assert.equal(firstSaleProgress({ ...base, productCount: 1, brandReady: true }).current, "policies");
+    assert.equal(firstSaleProgress({ ...base, productCount: 1, brandReady: true, policiesReady: true }).current, "share");
+    const p = firstSaleProgress({ productCount: 4, brandReady: true, policiesReady: true, sharedAt: at });
     assert.equal(p.complete, true);
     assert.equal(p.current, null);
   });
 
+  it("leaves out the My Store steps for stores without the My Store screens", () => {
+    const steps = firstSaleSteps({ myStore: false });
+    assert.deepEqual(steps, ["product", "share"]);
+    const p = firstSaleProgress({ ...base, productCount: 1 }, steps);
+    assert.equal(p.total, 2);
+    assert.equal(p.current, "share");
+    assert.equal(firstSaleProgress({ ...base, productCount: 1, sharedAt: at }, steps).complete, true);
+  });
+
   it("the current step skips steps already done out of order", () => {
     const p = firstSaleProgress({ ...base, sharedAt: at, productCount: 2 });
-    assert.equal(p.current, "payments");
+    assert.equal(p.current, "brand");
     assert.equal(p.doneCount, 2);
+  });
+
+  it("logo and cover needs the logo, the cover photo and the Arabic tagline", () => {
+    const full = { logo: "/uploads/l.png", brand: { coverImage: "/uploads/c.jpg", tagline: { ar: "عطور أصلية" } } };
+    assert.equal(isBrandReady(full), true);
+    assert.equal(isBrandReady(null), false);
+    assert.equal(isBrandReady({ ...full, logo: null }), false);
+    assert.equal(isBrandReady({ ...full, brand: { ...full.brand, coverImage: null } }), false);
+    assert.equal(isBrandReady({ ...full, brand: { ...full.brand, tagline: { ar: "  " } } }), false);
+    assert.equal(isBrandReady({ ...full, brand: { ...full.brand, tagline: null } }), false);
+  });
+
+  it("every step that opens a page has a route", () => {
+    assert.equal(FIRST_SALE_STEP_ROUTES.product, "/dashboard/products/quick");
+    assert.equal(FIRST_SALE_STEP_ROUTES.brand, "/dashboard/store/brand");
+    assert.equal(FIRST_SALE_STEP_ROUTES.policies, "/dashboard/store/policies");
+    assert.equal(FIRST_SALE_STEP_ROUTES.share, null);
   });
 });

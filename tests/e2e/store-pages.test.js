@@ -96,6 +96,7 @@ describe("E2E generated store pages", () => {
     const plain = await request(app).get("/storefront/pages/shipping").set("Host", "plain.localhost").expect(200);
     const pref = await request(app).get("/storefront/pages/shipping?lang=ar").set("Host", "plain.localhost").expect(200);
     assert.deepEqual(pref.body.data, plain.body.data);
+    assert.equal("generated" in plain.body.data, false, "hand-made pages carry no generated facts");
   });
 
   it("writes the About page from answers, escapes input, and protects hand edits", async () => {
@@ -126,6 +127,14 @@ describe("E2E generated store pages", () => {
     const sfEn = await request(app).get("/storefront/pages/about?lang=en").set("Host", "nile.localhost").expect(200);
     assert.equal(sfEn.body.data.title, "About us");
     assert.match(sfEn.body.data.content, /We sell Genuine perfumes/);
+    // Structured About facts for the storefront's fact cards — exactly these
+    // keys, never the rest of the generator (answers, edited, generatedAt).
+    assert.deepEqual(sfAr.body.data.generated, {
+      kind: "about",
+      since: 2019,
+      city: { ar: "الخرطوم", en: "Khartoum" },
+    });
+    assert.deepEqual(sfEn.body.data.generated, sfAr.body.data.generated);
 
     // Regenerating untouched pages needs no confirmation; dropping English
     // removes the generated English page.
@@ -143,6 +152,9 @@ describe("E2E generated store pages", () => {
       .expect(200);
     const afterEdit = await call(app, "get", "nile", token, "about").expect(200);
     assert.equal(afterEdit.body.data.edited, true);
+    // An edited page no longer matches its answers: no facts on the storefront.
+    const sfEdited = await request(app).get("/storefront/pages/about?lang=ar").set("Host", "nile.localhost").expect(200);
+    assert.equal("generated" in sfEdited.body.data, false);
 
     // …so regenerating is refused until the merchant confirms.
     const conflict = await call(app, "put", "nile", token, "about", { answers: ABOUT_ANSWERS }).expect(409);
@@ -315,7 +327,7 @@ describe("E2E generated store pages", () => {
     const token = await login(app, "acme");
     await mongoose.model("Tenant").updateOne(
       { _id: tenantId },
-      { $set: { "settings.shipping.zones": [{ name: "Khartoum <b>", countries: ["SD"], rates: [{ name: "Std", price: 2000, estimatedDays: "1-2 days" }] }] } }
+      { $set: { "settings.shipping.type": "zone", "settings.shipping.zones": [{ name: "Khartoum <b>", countries: ["SD"], rates: [{ name: "Std", price: 2000, estimatedDays: "1-2 days" }] }] } }
     );
     const models = createScopedModels(mongoose.connection, tenantId);
     await models.PaymentMethod.deleteMany({});

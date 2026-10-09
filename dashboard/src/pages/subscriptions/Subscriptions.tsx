@@ -20,7 +20,7 @@ import {
 } from '../../components/ui/dialog';
 import { Crown, Check, Loader2, Percent, CreditCard, CalendarClock, Receipt, Info } from 'lucide-react';
 import { api, type BillingAvailablePlan, type BillingCommission, type BillingSummary } from '../../lib/api-client';
-import { formatPrice, formatDate } from '../../lib/format';
+import { formatPrice, formatDate, getTenantLocale } from '../../lib/format';
 import { useAuth } from '../../contexts/auth-context';
 import { toast } from 'sonner';
 
@@ -31,7 +31,7 @@ function tierText(c: BillingCommission | null, t: (k: string, o?: Record<string,
   return t('subscriptions.pricing.percent_of_sales', { tiers: c.tiers.map((x) => pct(effectiveRate(x.percent, c))).join(' → ') });
 }
 
-const pct = (p: number) => `${Number(p).toLocaleString(undefined, { maximumFractionDigits: 2 })}%`;
+const pct = (p: number) => `${Number(p).toLocaleString(getTenantLocale(), { maximumFractionDigits: 2 })}%`;
 /** Tier rate after the store's percent delta, never below zero. */
 const effectiveRate = (percent: number, c: BillingCommission) => Math.max(0, percent + (c.percentDelta || 0));
 
