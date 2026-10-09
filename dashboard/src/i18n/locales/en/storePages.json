@@ -1,9 +1,6 @@
 {
   "common": {
     "back": "My store",
-    "add_english": "+ English (optional)",
-    "remove_english": "Remove English",
-    "english_label": "In English",
     "optional": "optional",
     "view_on_store": "View on your store",
     "error_load": "We couldn't load this page. Check your connection and try again.",
