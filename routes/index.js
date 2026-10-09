@@ -12,6 +12,7 @@ import discountRoutes from "../routes/discount.js";
 import settingsRoutes from "../routes/settings.js";
 import storeProfileRoutes from "../routes/storeProfile.js";
 import storeSetupRoutes from "../routes/storeSetup.js";
+import onboardingRoutes from "../routes/onboarding.js";
 import uploadRoutes from "../routes/upload.js";
 import wishlistRoutes from "../routes/wishlist.js";
 import analyticsRoutes from "../routes/analytics.js";
@@ -61,6 +62,7 @@ router.use("/wishlist", wishlistRoutes); // Wishlist routes
 router.use("/discounts", discountRoutes); // Discount routes
 router.use("/store-settings", settingsRoutes); // Store settings routes
 router.use("/store-profile", storeProfileRoutes); // Store profile / brand kit (PBI 10)
+router.use("/onboarding", onboardingRoutes); // First-sale checklist state (PBI 10-17)
 router.use("/analytics", analyticsRoutes); // Analytics routes
 router.use("/customers", customerRoutes); // Customer management routes
 router.use("/reviews", reviewRoutes); // Review management routes

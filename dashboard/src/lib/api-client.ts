@@ -3,6 +3,21 @@ import { loginUrl, isOnLoginPage } from './authHandoff';
 import { localizeApiError } from './api-errors';
 import type { SocialLinks } from './storeLink';
 
+// Signup v2 answers (PBI 10-16); the server ignores them unless
+// `onboardingFlow` is 'v2'.
+interface SignupV2Fields {
+  onboardingFlow?: 'v1' | 'v2';
+  city?: string;
+  deliveryAreas?: string;
+}
+
+// GET /onboarding (PBI 10-17); timestamps are ISO strings or null.
+export interface OnboardingState {
+  flow: 'v2' | null;
+  sharedAt: string | null;
+  paymentsReviewedAt: string | null;
+}
+
 // API Base URL — always same-origin `/api`.
 //
 // On the app host (`app.<platformDomain>`) the backend resolves the tenant
@@ -212,7 +227,11 @@ export const api = {
       socialLinks?: SocialLinks;
       // Store language ('ar' default server-side).
       language?: 'ar' | 'en';
-    }) => api.post('/auth/register', data),
+    } & SignupV2Fields) => api.post('/auth/register', data),
+
+    // Which signup flow to run (global `onboarding.v2` flag). Public.
+    onboardingConfig: () =>
+      api.get<{ responseObject?: { v2?: boolean } }>('/auth/onboarding-config'),
 
     // Enabled phone dial codes (+ default) for the signup / profile phone
     // field. Public — cached client-side by hooks/usePhoneCountries.
@@ -296,7 +315,7 @@ export const api = {
       niche?: string;
       language?: 'ar' | 'en';
       socialLinks?: SocialLinks;
-    }) => api.post('/auth/stores', data),
+    } & SignupV2Fields) => api.post('/auth/stores', data),
 
     // In-app store switcher. `myStores` lists every store the signed-in
     // email can access; `switchStore` re-issues a session bound to the chosen
@@ -978,6 +997,13 @@ export const api = {
   // customerFields schema for the order's selected method.
   paymentMethods: {
     list: () => api.get('/payment-methods'),
+  },
+
+  // "First sale" checklist state (PBI 10-17): first share / payments review.
+  onboarding: {
+    get: () => api.get<{ data?: OnboardingState }>('/onboarding'),
+    record: (event: 'shared' | 'payments_reviewed') =>
+      api.post<{ data?: OnboardingState }>('/onboarding/events', { event }),
   },
 
   // Discount endpoints

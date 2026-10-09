@@ -18,6 +18,7 @@ import {
   confirmEmailVerificationController,
   updateCurrentUserController,
   phoneCountriesController,
+  onboardingConfigController,
 } from "../controllers/auth.js";
 import {
   registrationOptionsController,
@@ -78,6 +79,8 @@ authRoutes.get("/check-email", checkEmailController);
 // Enabled phone dial codes (+ default) for the signup / profile phone field.
 // Public: the signup form needs it before any account exists.
 authRoutes.get("/phone-countries", phoneCountriesController);
+// Which signup flow to run (PBI 10-16). Public for the same reason.
+authRoutes.get("/onboarding-config", onboardingConfigController);
 authRoutes.post("/login", validate(loginSchema), loginController);
 authRoutes.post("/refresh", validate(refreshTokenSchema), refreshTokenController);
 

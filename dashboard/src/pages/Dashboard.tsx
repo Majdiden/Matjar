@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { StatCard, type StatCardDelta } from '../components/StatCard';
 import { PageHeader } from '../components/PageHeader';
 import { LiveStoreBanner, storefrontUrl } from '../components/LiveStoreBanner';
+import { FirstSaleChecklist } from '../components/FirstSaleChecklist';
+import { useFeatures } from '../contexts/features-context';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
@@ -50,8 +52,8 @@ interface DomainInfoResponse {
 }
 
 interface PaymentMethodsResponse {
-  data?: { methods?: Array<{ enabled?: boolean }> };
-  responseObject?: { methods?: Array<{ enabled?: boolean }> };
+  data?: { methods?: Array<{ enabled?: boolean; code?: string }> };
+  responseObject?: { methods?: Array<{ enabled?: boolean; code?: string }> };
 }
 
 interface ThemeCustomizationResponse {
@@ -194,6 +196,10 @@ interface SetupSignals {
 
 export const Dashboard: React.FC = () => {
   const { t } = useTranslation(['dashboard', 'common']);
+  const { hasFeature } = useFeatures();
+  // PBI 10-17: the "first sale" checklist replaces the setup checklist for
+  // stores with `onboarding.v2` (per-store overrides apply here).
+  const firstSaleChecklist = hasFeature('onboarding.v2');
   const [totals, setTotals] = useState({ products: 0, customers: 0, orders: 0 });
   const [orderStats, setOrderStats] = useState<OrderStats>(EMPTY_ORDER_STATS);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -202,6 +208,9 @@ export const Dashboard: React.FC = () => {
   const [signals, setSignals] = useState<SetupSignals>({
     hasProduct: false, paymentsEnabled: false, themePublished: false, hasOrder: false, hasCustomDomain: false,
   });
+  // Codes of the enabled payment methods for the first-sale checklist; null
+  // when the list is unavailable (payments.methods off → COD only).
+  const [enabledPaymentCodes, setEnabledPaymentCodes] = useState<string[] | null>(null);
   const [starter, setStarter] = useState<{ hasDraftStarter?: boolean; previewUrl?: string } | null>(null);
   // Dense daily trends for the stat-card sparklines over the last TREND_DAYS:
   // sales (revenue + orders) and new customers/products, one value per day.
@@ -325,6 +334,9 @@ export const Dashboard: React.FC = () => {
         ? ((paymentsRes.value as PaymentMethodsResponse)?.data?.methods
           || (paymentsRes.value as PaymentMethodsResponse)?.responseObject?.methods || [])
         : [];
+      setEnabledPaymentCodes(paymentsRes.status === 'fulfilled'
+        ? methods.filter((m) => m?.enabled === true).map((m) => m?.code || '')
+        : null);
       const themeCustomization = themeRes.status === 'fulfilled'
         ? (themeRes.value as ThemeCustomizationResponse)?.responseObject
         : null;
@@ -388,6 +400,7 @@ export const Dashboard: React.FC = () => {
 
   const doneCount = setupSteps.filter((s) => s.done).length;
   const setupComplete = doneCount === setupSteps.length;
+  const quickActionsStatic = setupComplete || firstSaleChecklist;
   const hasOrders = signals.hasOrder;
 
   const dismissSetup = () => {
@@ -502,10 +515,20 @@ export const Dashboard: React.FC = () => {
         />
       )}
 
+      {firstSaleChecklist && (
+        <FirstSaleChecklist
+          productCount={totals.products}
+          enabledPaymentCodes={enabledPaymentCodes}
+          storeUrl={storeUrl}
+          canManagePayments={hasFeature('payments.methods')}
+          showBrandLink={hasFeature('design.simpleMode')}
+        />
+      )}
+
       {/* Setup checklist (audit 3.7.1) — dominant card until the first
           order, then a slim expandable bar; hidden once complete or
-          dismissed. */}
-      {!setupComplete && !hasOrders && (
+          dismissed. Replaced by the first-sale checklist under onboarding.v2. */}
+      {!firstSaleChecklist && !setupComplete && !hasOrders && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between gap-4">
@@ -531,7 +554,7 @@ export const Dashboard: React.FC = () => {
         </Card>
       )}
 
-      {!setupComplete && hasOrders && !setupDismissed && (
+      {!firstSaleChecklist && !setupComplete && hasOrders && !setupDismissed && (
         <Card>
           <CardContent className="py-3">
             <div className="flex items-center gap-3">
@@ -734,23 +757,24 @@ export const Dashboard: React.FC = () => {
           </Card>
 
           {/* Quick actions (audit 3.7.4): top incomplete setup actions
-              while the checklist is unfinished, static links after. Icons
+              while the checklist is unfinished, static links after (and
+              always under the first-sale checklist, which has its own). Icons
               match each destination's sidebar icon. */}
           <Card className="md:col-span-3">
             <CardHeader>
               <CardTitle className="text-base">
-                {setupComplete
+                {quickActionsStatic
                   ? t('dashboard:section.quick_actions.title')
                   : t('dashboard:setup.next_steps')}
               </CardTitle>
               <CardDescription>
-                {setupComplete
+                {quickActionsStatic
                   ? t('dashboard:section.quick_actions.description')
                   : t('dashboard:setup.next_steps_description')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              {setupComplete ? (
+              {quickActionsStatic ? (
                 [
                   { label: t('dashboard:section.quick_actions.add_product'), icon: Package, href: '/dashboard/products/new' },
                   { label: t('dashboard:section.quick_actions.view_orders'), icon: ShoppingCart, href: '/dashboard/orders' },

@@ -23,8 +23,8 @@ This document lists all tasks associated with PBI 10.
 | 10-13 | Homepage simple editor | Proposed | Phone preview, tap a section → bottom sheet with basic settings, show/hide/move, save-and-publish with undo |
 | 10-14 | Arabic-first bilingual field | Proposed | Arabic input with "+ English (optional)"; used everywhere in simple mode |
 | 10-15 | Theme switch keeps brand kit and content | Proposed | Verification + regression test |
-| 10-16 | Signup reorder (onboarding v2) | Proposed | Behind `onboarding.v2`; store-name preview on theme cards |
-| 10-17 | "First sale" checklist | Proposed | First product → payment → share; replaces the current setup checklist |
+| 10-16 | [Signup reorder (onboarding v2)](./10-16.md) | Review | Behind `onboarding.v2` (global; `?flow=v2` override); account → store name → what you sell → city + delivery areas → 3 looks with the store name; WhatsApp defaults to the account phone |
+| 10-17 | ["First sale" checklist](./10-17.md) | Review | First product → payment → share (+ "Make it yours"); replaces the setup checklist under `onboarding.v2` per store; share/payments-review stamped via `/api/onboarding` |
 | 10-18 | Merchant validation rounds | Proposed | 3–5 merchants after 10-1, after 10-13 and after 10-17; track product-in-24h, time-to-share and time-to-first-order |
 | 10-19 | Natural-Arabic copy pass on merchant-facing screens | Proposed | Rewrite literal or stiff Arabic in signup, home and setup screens per the PRD copy guideline |
 | 10-20 | [Automatic product & category links](./10-20.md) | Review | Arabic names → readable transliterated slugs (one backend `utils/slugify.js`, parity-tested against the dashboard); rename keeps the link; explicit change of a published item's link leaves a 301; read-only link preview with "Edit link" in the product/category forms |
