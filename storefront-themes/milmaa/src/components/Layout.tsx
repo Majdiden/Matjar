@@ -10,7 +10,8 @@ import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/to
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
@@ -44,6 +45,7 @@ const Layout: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const barText = useTopStripText();
+  const footer = useStoreFooter();
 
   const brand = (store?.name || 'Milmaa');
   const isActive = (path: string) =>
@@ -153,60 +155,57 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {/* ═══ FOOTER ══════════════════════════════════════════════ */}
+      {/* ═══ FOOTER — content from the store's own data ═════════ */}
       <footer className="mt-20 pt-16 pb-6" style={{ backgroundColor: DARK_TEAL, color: CREAM }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
             <div className="md:col-span-2">
-              <div className="font-serif text-4xl font-bold mb-4" style={{ fontFamily: HEADING_FONT }}>
-                {brand.toLowerCase()}
-              </div>
-              <p className="text-sm mb-5 max-w-xs opacity-80">
-                {t('theme.footer.tagline')}
-              </p>
-              <div className="flex gap-3">
-                {['f', 'i', 'p', 't'].map((s) => (
-                  <a
-                    key={s}
-                    href="#"
-                    className="w-9 h-9 rounded-full border border-current/30 flex items-center justify-center text-xs hover:bg-white/10 transition"
-                  >
-                    {s}
-                  </a>
-                ))}
-              </div>
+              {footer.logo ? (
+                <img src={footer.logo} alt={footer.storeName} className="h-12 w-auto mb-4 object-contain" />
+              ) : (
+                <div className="font-serif text-4xl font-bold mb-4" style={{ fontFamily: HEADING_FONT }}>
+                  {brand.toLowerCase()}
+                </div>
+              )}
+              {footer.description && (
+                <p className="text-sm mb-5 max-w-xs opacity-80">{footer.description}</p>
+              )}
+              {footer.social.length > 0 && (
+                <div className="flex gap-3">
+                  {footer.social.map((s) => (
+                    <a
+                      key={s.platform}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.name}
+                      className="w-9 h-9 rounded-full border border-current/30 flex items-center justify-center hover:bg-white/10 transition"
+                    >
+                      <SocialIcon platform={s.platform} className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
-            <div>
-              <h4 className="text-sm font-bold mb-5">{t('theme.footer.col_shop')}</h4>
-              <div className="space-y-3 text-sm opacity-80">
-                <Link to="/products" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_all_milks')}</Link>
-                <Link to="/products" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_banana')}</Link>
-                <Link to="/products" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_badam')}</Link>
-                <Link to="/products" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_cashewnut')}</Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-bold mb-5">{t('theme.footer.col_company')}</h4>
-              <div className="space-y-3 text-sm opacity-80">
-                <Link to="/about" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_about_us')}</Link>
-                <Link to="/about" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_our_farmers')}</Link>
-                <Link to="/about" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_sustainability')}</Link>
-                <Link to="/about" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_blog')}</Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-bold mb-5">{t('theme.footer.col_help')}</h4>
-              <div className="space-y-3 text-sm opacity-80">
-                <Link to="/policies/delivery" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_shipping')}</Link>
-                <Link to="/policies/returns" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_returns')}</Link>
-                <Link to="/contact" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_faqs')}</Link>
-                <Link to="/contact" className="block hover:opacity-100 hover:underline">{t('theme.footer.item_contact')}</Link>
-                <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:opacity-100 hover:underline" />
-              </div>
-            </div>
+            {[
+              { title: footer.titles.shop, links: footer.shop },
+              { title: footer.titles.help, links: footer.help },
+              { title: footer.titles.policies, links: footer.policies },
+            ]
+              .filter((col) => col.links.length > 0)
+              .map((col) => (
+                <div key={col.title}>
+                  <h4 className="text-sm font-bold mb-5">{col.title}</h4>
+                  <div className="space-y-3 text-sm opacity-80">
+                    {col.links.map((l) => (
+                      <Link key={l.to} to={l.to} className="block hover:opacity-100 hover:underline">{l.label}</Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
           </div>
           <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs opacity-70">
-            <span>{t('theme.footer.copyright_html', { year: new Date().getFullYear(), brand })}</span>
+            <span>{footer.copyright}</span>
             <FooterPaymentBadges size="sm" />
           </div>
         </div>

@@ -69,6 +69,9 @@ function editedConflict(what, fields) {
   return err;
 }
 
+/** Storefront languages every generated policy is written in. */
+const POLICY_LANGS = Object.freeze(["ar", "en"]);
+
 const storeNameOf = (tenant) => tenant?.settings?.storeName || tenant?.name || "";
 
 // ─── About (10-9) ────────────────────────────────────────────────────────────
@@ -181,6 +184,22 @@ export async function saveAboutService(models, tenantId, input = {}) {
   return getAboutService(models, tenantId);
 }
 
+/**
+ * Rewrite the generated About page(s) from their stored answers, e.g. after
+ * the store name changed (the welcome line names the store). Pages the
+ * merchant rewrote by hand are left alone, as are stores without a
+ * generated About page. Returns whether anything was rewritten.
+ */
+export async function refreshGeneratedAboutService(models, tenantId) {
+  const pages = await listPagesBySlugRepo(models, ABOUT_SLUG);
+  const generated = pages.filter((p) => p.generator?.kind === GENERATOR_KIND.about);
+  if (!generated.length || pages.some(isProtectedPage)) return false;
+  const source = generated.find((p) => p.locale === PRIMARY_LANG) || generated[0];
+  if (!source.generator?.answers) return false;
+  await saveAboutService(models, tenantId, { answers: source.generator.answers });
+  return true;
+}
+
 // ─── Contact (10-10) ─────────────────────────────────────────────────────────
 
 /**
@@ -255,7 +274,7 @@ async function loadPaymentSummary(models, tenantId) {
 }
 
 /** True when a stored policy has text that is not the text we generated. */
-function isPolicyEdited(tenant, key) {
+export function isPolicyEdited(tenant, key) {
   const body = tenant?.settings?.policies?.[key]?.body;
   if (!body) return false;
   const hash = tenant?.settings?.policyAnswers?.generatedHash?.[key];
@@ -346,7 +365,12 @@ export async function savePoliciesService(models, tenantId, input = {}) {
   }
 
   const lang = policyLanguage(tenant);
-  const generated = buildPolicies(answers, { lang, shipping, payment, currency: s.currency || "" });
+  const context = { shipping, payment, currency: s.currency || "" };
+  // One copy per storefront language; the store's language is the main one
+  // (title/body, what the merchant edits). Untranslated answers fall back to
+  // the Arabic text inside the English copy.
+  const byLang = Object.fromEntries(POLICY_LANGS.map((l) => [l, buildPolicies(answers, { ...context, lang: l })]));
+  const generated = byLang[lang];
   const keys = Object.keys(generated);
 
   const blocked = keys.filter((key) => isPolicyEdited(tenant, key));
@@ -359,6 +383,9 @@ export async function savePoliciesService(models, tenantId, input = {}) {
   for (const key of keys) {
     $set[`settings.policies.${key}.title`] = generated[key].title;
     $set[`settings.policies.${key}.body`] = generated[key].body;
+    $set[`settings.policies.${key}.translations`] = Object.fromEntries(
+      POLICY_LANGS.filter((l) => byLang[l][key]).map((l) => [l, { title: byLang[l][key].title, body: byLang[l][key].body }])
+    );
     generatedHash[key] = contentHash(generated[key].body);
   }
   for (const key of GENERATED_POLICY_KEYS) {
@@ -367,6 +394,7 @@ export async function savePoliciesService(models, tenantId, input = {}) {
     if (body && !isPolicyEdited(tenant, key)) {
       $set[`settings.policies.${key}.title`] = null;
       $set[`settings.policies.${key}.body`] = null;
+      $set[`settings.policies.${key}.translations`] = null;
     }
   }
   // Areas are written back to the path signup v2 shares (deliveryAreas).

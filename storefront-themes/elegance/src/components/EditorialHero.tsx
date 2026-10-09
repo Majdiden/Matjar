@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 interface EditorialHeroProps {
   /** Featured-product photo used as the full-bleed image when the merchant
@@ -10,6 +11,8 @@ interface EditorialHeroProps {
   media?: string;
   /** Section instance id whose settings drive the hero (default `hero`). */
   sectionId?: string;
+  /** True while the products feeding `media` are still loading. */
+  mediaLoading?: boolean;
 }
 
 /**
@@ -25,20 +28,26 @@ interface EditorialHeroProps {
  * working. Fully token-driven and RTL-safe; if the photo 404s/CSP-blocks it
  * drops to the brand gradient instead of a broken band.
  */
-export default function EditorialHero({ media, sectionId = 'hero' }: EditorialHeroProps) {
+export default function EditorialHero({ media, sectionId = 'hero', mediaLoading = false }: EditorialHeroProps) {
   const { t } = useTranslation(['theme']);
   const { store } = useStore();
   const hero = useThemeSettings(sectionId) as Record<string, any>;
   const [imageOk, setImageOk] = useState(true);
 
-  const eyebrow = hero.season_label || t('theme.section.hero.season_label');
-  const title = hero.heading || store?.name || t('theme.section.hero.heading');
-  const subtitle = hero.subheading || store?.description || t('theme.section.hero.subheading');
+  // Only the merchant's own content: the title falls back to the store name;
+  // the eyebrow and subtitle show only when set (no demo copy).
+  const eyebrow = merchantText(hero.eyebrow_text) || merchantText(hero.season_label);
+  const title = merchantText(hero.heading) || store?.name || '';
+  const subtitle = merchantText(hero.subheading);
   const ctaLabel = hero.button_text || t('theme.section.hero.cta');
   const ctaHref = hero.button_url || '/products';
   const overlayOpacity = hero.overlay_opacity || 0;
-  // Background image wins; otherwise fall back to a featured-product photo.
-  const image = hero.background_image || media;
+  // The merchant's photo wins; otherwise a featured-product photo. The
+  // theme's stock default only shows for a brand-new store with no products.
+  const image =
+    merchantImage(hero.background_image, store?.brand?.coverImage) ||
+    merchantImage(media) ||
+    (mediaLoading ? null : hero.background_image || null);
 
   return (
     <section

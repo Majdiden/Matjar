@@ -10,6 +10,7 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import EditorialHero from '../components/EditorialHero';
+import { merchantImage } from '@matjar/theme-shared/theme/heroContent';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 /** Props every bespoke section gets: its instance id (settings/blocks key) and the Quick View opener. */
@@ -23,12 +24,12 @@ const HEADING_FONT = { fontFamily: 'var(--font-family-heading, "Playfair Display
 // Hero — bespoke editorial full-bleed hero (reads the same hero settings +
 // i18n keys this theme always fed the shared Hero)
 const EleganceHero: React.FC<EleganceSectionProps> = ({ id }) => {
-  const hero = useThemeSettings(id);
-  const { products: featured } = useFeaturedProducts(8);
+  const { products: featured, loading } = useFeaturedProducts(8);
   return (
     <EditorialHero
       sectionId={id}
-      media={!hero.background_image ? featured?.find((p) => p.images?.[0])?.images?.[0] : undefined}
+      mediaLoading={loading}
+      media={merchantImage(...(featured || []).map((p) => p.images?.[0])) || undefined}
     />
   );
 };

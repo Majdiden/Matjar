@@ -13,11 +13,13 @@ import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/Annou
 import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
   const stripText = useTopStripText();
+  const footer = useStoreFooter();
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -156,66 +158,79 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {/* Footer */}
+      {/* Footer — content from the store's own data (useStoreFooter) */}
       <footer className="bg-[#166534] text-green-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-8 2C14 2 17 0 17 0c-3 0-7 4-7 4s-2-2-5-2c0 0 4 4 4 8C9 14.57 7.89 17.31 7 20H9c1-3 3.64-6 8-6 0 0-4.07 4-4 9h2c0-5 3-9 3-9S19 18 19 20h2C21 7 17 8 17 8z"/>
-                </svg>
-                {store?.name || 'FreshMart'}
+                {footer.logo ? (
+                  <img src={footer.logo} alt={footer.storeName} className="h-8 w-auto object-contain" />
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 text-green-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-8 2C14 2 17 0 17 0c-3 0-7 4-7 4s-2-2-5-2c0 0 4 4 4 8C9 14.57 7.89 17.31 7 20H9c1-3 3.64-6 8-6 0 0-4.07 4-4 9h2c0-5 3-9 3-9S19 18 19 20h2C21 7 17 8 17 8z"/>
+                    </svg>
+                    {footer.storeName}
+                  </>
+                )}
               </h3>
-              <p className="text-sm text-green-200 leading-relaxed">
-                {t('theme.footer.tagline')}
-              </p>
+              {footer.description && (
+                <p className="text-sm text-green-200 leading-relaxed">{footer.description}</p>
+              )}
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_shop')}</h4>
+              <h4 className="text-white font-semibold mb-3">{footer.titles.shop}</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/products" className="hover:text-white transition">{t('theme.footer.all_products')}</Link></li>
-                {categories.slice(0, 4).map(cat => (
-                  <li key={cat._id}>
-                    <Link to={`/categories/${cat.slug}`} className="hover:text-white transition">{cat.name}</Link>
-                  </li>
+                {footer.shop.map((l) => (
+                  <li key={l.to}><Link to={l.to} className="hover:text-white transition">{l.label}</Link></li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_help')}</h4>
+              <h4 className="text-white font-semibold mb-3">{footer.titles.help}</h4>
               <ul className="space-y-2 text-sm">
-                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.delivery_info')}</span></li>
-                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.freshness_guarantee')}</span></li>
-                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.returns')}</span></li>
-                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.faq')}</span></li>
+                {footer.help.map((l) => (
+                  <li key={l.to}><Link to={l.to} className="hover:text-white transition">{l.label}</Link></li>
+                ))}
               </ul>
-              <PolicyLinks className="mt-4" heading={false} linkClassName="hover:text-white transition" />
             </div>
-            <div>
-              <h4 className="text-white font-semibold mb-3">{t('theme.footer.col_stay_fresh')}</h4>
-              <p className="text-sm text-green-200 mb-3">{t('theme.footer.stay_fresh_subtitle')}</p>
-              <form onSubmit={e => e.preventDefault()} className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder={t('theme.footer.email_placeholder')}
-                  className="flex-1 px-3 py-2 bg-green-900 border border-green-700 rounded-lg text-sm text-white placeholder-green-400 focus:outline-none focus:border-green-500"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg text-sm font-medium transition"
-                >
-                  {t('theme.footer.join_btn')}
-                </button>
-              </form>
-            </div>
+            {(footer.policies.length > 0 || footer.social.length > 0) && (
+              <div>
+                {footer.policies.length > 0 && (
+                  <>
+                    <h4 className="text-white font-semibold mb-3">{footer.titles.policies}</h4>
+                    <ul className="space-y-2 text-sm mb-6">
+                      {footer.policies.map((l) => (
+                        <li key={l.to}><Link to={l.to} className="hover:text-white transition">{l.label}</Link></li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {footer.social.length > 0 && (
+                  <>
+                    <h4 className="text-white font-semibold mb-3">{footer.titles.follow}</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {footer.social.map((s) => (
+                        <a
+                          key={s.platform}
+                          href={s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={s.name}
+                          className="w-9 h-9 rounded-full bg-green-900 hover:bg-[#f59e0b] text-white flex items-center justify-center transition"
+                        >
+                          <SocialIcon platform={s.platform} className="w-4 h-4" />
+                        </a>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
-          <div className="border-t border-green-800 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-green-300">
-            <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'FreshMart' })}</span>
-            <div className="flex gap-4">
-              <span className="hover:text-white cursor-pointer">{t('theme.footer.privacy_policy')}</span>
-              <span className="hover:text-white cursor-pointer">{t('theme.footer.terms_of_service')}</span>
-            </div>
+          <div className="border-t border-green-800 mt-8 pt-8 text-center text-sm text-green-300">
+            <span>{footer.copyright}</span>
           </div>
         </div>
       </footer>

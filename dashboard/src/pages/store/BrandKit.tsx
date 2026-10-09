@@ -11,7 +11,7 @@
 import React, { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Eye, Loader2, RotateCw } from 'lucide-react';
+import { ArrowRight, Check, Eye, Loader2, RotateCw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
@@ -48,6 +48,8 @@ import {
 import { useFieldValue } from '../../hooks/useFieldValue';
 import PhonePreview from './PhonePreview';
 import { notifySetupChanged } from '../../contexts/setup-guide-context';
+import { toast } from 'sonner';
+import { focusFirstInvalid } from '../../lib/focusFirstInvalid';
 
 /** Wait for a burst of saves to settle before reloading the preview. */
 const PREVIEW_RELOAD_DELAY_MS = 1200;
@@ -85,7 +87,25 @@ export default function BrandKit() {
     },
     [setProfile, refreshPreview],
   );
-  const { save, retry, discard, statuses, drafts } = useProfileAutosave(onSaved);
+  const { save, retry, discard, flush, statuses, drafts } = useProfileAutosave(onSaved);
+  const [savingAll, setSavingAll] = useState(false);
+
+  // Fields save by themselves when the merchant leaves them; the button is
+  // for peace of mind: it commits the field being typed in, sends anything
+  // still waiting and says so.
+  const saveAll = async () => {
+    setSavingAll(true);
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const ok = await flush();
+    setSavingAll(false);
+    if (ok) {
+      toast.success(t('storeDesign:brand.save_all.done'));
+    } else {
+      toast.error(t('storeDesign:brand.save_all.failed'));
+      focusFirstInvalid();
+    }
+  };
 
   useSetBreadcrumbs([
     { label: t('nav:sidebar.storefront.my_store'), href: '/dashboard/store' },
@@ -206,6 +226,8 @@ export default function BrandKit() {
 
           <BrandTextCard fieldKey="hours" multiline {...field('hours')} error={errorOf('hours')} />
 
+          <ContactCard field={field} errorOf={errorOf} />
+
           <FieldCard title={t('storeDesign:brand.social.title')} help={t('storeDesign:brand.social.help')}>
             <div className="space-y-4">
               {BRAND_SOCIAL_PLATFORMS.map((platform) => (
@@ -218,6 +240,13 @@ export default function BrandKit() {
               ))}
             </div>
           </FieldCard>
+
+          {canEdit && (
+            <Button className="h-12 w-full text-base" onClick={() => void saveAll()} disabled={savingAll}>
+              {savingAll ? <Loader2 className="h-5 w-5 me-2 animate-spin" /> : <Check className="h-5 w-5 me-2" />}
+              {t('storeDesign:brand.save_all.button')}
+            </Button>
+          )}
         </div>
 
         {/* Desktop: the phone preview stays in view beside the form. */}
@@ -441,6 +470,102 @@ function SocialInput({
         aria-invalid={!!error || undefined}
         className={`${fieldInputClass} text-start`}
       />
+      <FieldError message={error} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+
+const CONTACT_FIELDS = ['phone', 'email', 'address'] as const;
+type ContactField = (typeof CONTACT_FIELDS)[number];
+
+/**
+ * The store's public phone, email and address (`settings.contact`), shown on
+ * the contact page, in the footer and on the policy pages. A new store has
+ * none, so the merchant's own account phone and email are offered with one
+ * tap.
+ */
+function ContactCard({ field, errorOf }: { field: (key: string) => FieldProps; errorOf: (key: string) => string | null }) {
+  const { t } = useTranslation('storeDesign');
+  return (
+    <FieldCard title={t('brand.contact.title')} help={t('brand.contact.help')}>
+      <div className="space-y-4">
+        {CONTACT_FIELDS.map((key) => (
+          <ContactInput key={key} contactKey={key} {...field(`contact.${key}`)} error={errorOf(`contact.${key}`)} />
+        ))}
+      </div>
+    </FieldCard>
+  );
+}
+
+function ContactInput({
+  contactKey,
+  profile,
+  status,
+  draft,
+  disabled,
+  save,
+  discard,
+  retry,
+  error,
+}: FieldProps & { contactKey: ContactField; error: string | null }) {
+  const { t } = useTranslation('storeDesign');
+  const { user } = useAuth();
+  const saved = profile.contact[contactKey] || '';
+  const [value, setValue] = useFieldValue<string>(saved, draft as string | undefined);
+  const id = `brand-contact-${contactKey}`;
+  const suggestion = contactKey === 'phone' ? user?.phone || '' : contactKey === 'email' ? user?.email || '' : '';
+  const ltr = contactKey !== 'address';
+
+  const commit = (next = value) => {
+    const clean = next.trim();
+    if (clean === saved.trim()) return discard();
+    save({ contact: { [contactKey]: clean || null } }, next);
+  };
+
+  const input = {
+    id,
+    value,
+    disabled,
+    dir: ltr ? 'ltr' : undefined,
+    placeholder: t(`brand.contact.${contactKey}_placeholder`),
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setValue(e.target.value),
+    onBlur: () => commit(),
+    'aria-invalid': error ? true : undefined,
+    className: `${fieldInputClass} ${ltr ? 'text-start' : ''}`,
+  } as const;
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <label htmlFor={id} className="text-sm font-medium">
+          {t(`brand.contact.${contactKey}`)}
+        </label>
+        <SaveIndicator status={status} onRetry={retry} />
+      </div>
+      {contactKey === 'address' ? (
+        <textarea rows={2} {...input} />
+      ) : (
+        <input
+          type={contactKey === 'email' ? 'email' : 'tel'}
+          inputMode={contactKey === 'email' ? 'email' : 'tel'}
+          autoCapitalize="none"
+          {...input}
+        />
+      )}
+      {!value.trim() && suggestion && !disabled && (
+        <button
+          type="button"
+          className="inline-flex min-h-[40px] items-center text-sm font-medium text-primary hover:underline"
+          onClick={() => {
+            setValue(suggestion);
+            commit(suggestion);
+          }}
+        >
+          {t('brand.contact.use_account', { value: suggestion })}
+        </button>
+      )}
       <FieldError message={error} />
     </div>
   );

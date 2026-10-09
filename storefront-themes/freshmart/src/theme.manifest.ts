@@ -50,7 +50,7 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   description: 'Showcase featured products in a grid with quick-view support',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: "Today's Picks" },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 2, max: 16 },
     { id: 'show_rating', type: 'checkbox', label: 'Show Rating', default: true },

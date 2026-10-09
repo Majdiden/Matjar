@@ -199,8 +199,8 @@ export const categorySidebarSection: SectionDefinition = defineSection({
 
 const indexTemplate: SectionInstance[] = [
   { id: 'home-showcase-hero', type: 'hero-showcase', settings: {} },
-  { id: 'home-new-arrivals', type: 'new-arrivals', settings: {} },
-  { id: 'home-featured', type: 'featured-products', settings: {} },
+  { id: 'home-new-arrivals', type: 'new-arrivals', settings: { heading: '' } },
+  { id: 'home-featured', type: 'featured-products', settings: { heading: '' } },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

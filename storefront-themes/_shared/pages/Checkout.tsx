@@ -5,6 +5,7 @@ import { useStore } from '../contexts/StoreContext';
 import { ordersApi, authApi, checkoutApi, giftCardApi, paymentMethodsApi, PaymentMethodPublic, isPreviewMode, notifyPreviewDisabled } from '../api/client';
 import PaymentMethodPicker from '../components/commerce/PaymentMethodPicker';
 import { useTranslation } from 'react-i18next';
+import { publishedPolicies } from '../lib/policies';
 import { localizedPaymentMethodLabel } from '../lib/paymentLabel';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { COUNTRIES, getCitiesForCountry, optionsWithCurrent, locationLabel } from '../data/locations';
@@ -63,6 +64,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   const { cart, loading: cartLoading, clearCart } = useCart();
   const { formatPrice, store } = useStore();
   const { t } = useTranslation(['checkout']);
+  const { t: tAll } = useTranslation();
+  // Policies in the shopper's language (generated ones carry one copy per language).
+  const policies = publishedPolicies(store, tAll).filter((p) => String(p.body).trim());
   const { lang } = useLanguage();
   const giftCardsEnabled = store?.giftCards?.enabled !== false;
 
@@ -969,13 +973,11 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
               {/* Store policy links — open the modal (no navigation) so reading
                   a policy never discards the in-progress checkout. */}
-              {Object.values(store?.policies || {}).some((p) => p && p.body) && (
+              {policies.length > 0 && (
                 <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs opacity-70">
-                  {Object.entries(store?.policies || {})
-                    .filter(([, p]) => p && p.body)
-                    .map(([key, p]) => (
-                      <button key={key} type="button" onClick={() => setPolicyModalOpen(true)} className="hover:underline">
-                        {p.title || key}
+                  {policies.map((p) => (
+                      <button key={p.key} type="button" onClick={() => setPolicyModalOpen(true)} className="hover:underline">
+                        {p.title}
                       </button>
                     ))}
                 </div>
@@ -1208,15 +1210,13 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
               </button>
             </div>
             <div className="px-5 py-4 space-y-6">
-              {Object.entries(store?.policies || {})
-                .filter(([, p]) => p && p.body)
-                .map(([key, p]) => (
-                  <section key={key}>
-                    <h3 className="font-semibold mb-2">{p.title || key}</h3>
+              {policies.map((p) => (
+                  <section key={p.key}>
+                    <h3 className="font-semibold mb-2">{p.title}</h3>
                     <div className="text-sm leading-relaxed [&_p]:mb-2" dangerouslySetInnerHTML={{ __html: p.body }} />
                   </section>
                 ))}
-              {!Object.values(store?.policies || {}).some((p) => p && p.body) && (
+              {policies.length === 0 && (
                 <p className="text-sm text-gray-500">{t('checkout.policies.empty', { defaultValue: 'No policies published yet.' })}</p>
               )}
             </div>

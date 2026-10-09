@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
-import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
-import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { useSectionBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
 import { Icon } from '../../lib/motion';
@@ -17,8 +14,15 @@ const SOCIAL_PATHS: Record<string, string> = {
   tiktok: 'M14 3v10a3 3 0 11-3-3M14 3a4 4 0 004 4',
   whatsapp: 'M4 20l1.5-4A8 8 0 1112 20a8 8 0 01-4-1zM9 9c0 4 2 6 6 6',
   youtube: 'M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2zM10 9l5 3-5 3z',
+  telegram: 'M21 4L3 11l6 2 2 6 3-4 5 4zM9 13l12-9',
   snapchat: 'M12 3a5 5 0 015 5v3c2 0 2 1 0 2 1 2 3 3 4 3-1 2-3 2-4 3-1 1-3 2-5 2s-4-1-5-2c-1-1-3-1-4-3 1 0 3-1 4-3-2-1-2-2 0-2V8a5 5 0 015-5z',
 };
+
+const SocialLink: React.FC<{ platform: string; name: string; url: string; light?: boolean }> = ({ platform, name, url, light }) => (
+  <a href={url} target="_blank" rel="noopener noreferrer" aria-label={name} className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors duration-300 ${light ? 'border-white/25 text-white hover:bg-white hover:text-[#1c1c1c]' : 'border-[#e5e5e5] text-[#1c1c1c] hover:bg-[#1c1c1c] hover:text-white'}`}>
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={SOCIAL_PATHS[platform.toLowerCase()] || SOCIAL_PATHS.instagram} /></svg>
+  </a>
+);
 
 export const SocialIcons: React.FC<{ className?: string; light?: boolean }> = ({ className = '', light }) => {
   const { store } = useStore();
@@ -27,11 +31,7 @@ export const SocialIcons: React.FC<{ className?: string; light?: boolean }> = ({
   return (
     <ul className={`flex flex-wrap gap-2 ${className}`}>
       {links.map(([k, v]) => (
-        <li key={k}>
-          <a href={v} target="_blank" rel="noopener noreferrer" aria-label={k} className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors duration-300 ${light ? 'border-white/25 text-white hover:bg-white hover:text-[#1c1c1c]' : 'border-[#e5e5e5] text-[#1c1c1c] hover:bg-[#1c1c1c] hover:text-white'}`}>
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={SOCIAL_PATHS[k.toLowerCase()] || SOCIAL_PATHS.instagram} /></svg>
-          </a>
-        </li>
+        <li key={k}><SocialLink platform={k} name={k} url={String(v)} light={light} /></li>
       ))}
     </ul>
   );
@@ -63,21 +63,18 @@ const Col: React.FC<{ title: string; children: React.ReactNode }> = ({ title, ch
 };
 
 const Footer: React.FC = () => {
-  const { t } = useTranslation(['theme']);
-  const { store } = useStore();
-  const { items: footerMenu } = useMenu('footer');
-  const { categories } = useCategories();
-  const phone = store?.contact?.phone || store?.contactInfo?.phone;
-  const email = store?.contact?.email || store?.contactInfo?.email;
-  const address = store?.contact?.address || store?.contactInfo?.address;
-  const hours = store?.contactInfo?.hours;
-  const links: MenuItem[] = footerMenu.length ? footerMenu : [{ label: t('theme.layout.nav.shop'), url: '/products' }, ...categories.slice(0, 5).map((c: any) => ({ label: c.name, url: `/categories/${c.slug}` }))];
+  const footer = useStoreFooter();
+  const { whatsapp, phone, email, address } = footer.contact;
   // Sitewide USP strip: mirrors the home "usp" section's blocks when present.
   const home = useTemplateSections('index');
   const usp = home.find((s) => s.type === 'atelier-usp-strip');
   const uspBlocks = useSectionBlocks(usp?.id || '__none__');
   const uspItems = uspBlocks.map((b) => ({ icon: b.settings.icon || 'check', title: b.settings.title, text: b.settings.text })).filter((b) => b.title);
   const linkCls = 'text-[14px] text-white/75 transition-colors duration-300 hover:text-[color:var(--atelier-bronze-light)]';
+  const linkList = (links: { label: string; to: string }[]) => (
+    <ul className="space-y-2">{links.map((l) => <li key={l.to}><Link to={l.to} className={linkCls}>{l.label}</Link></li>)}</ul>
+  );
+  const hasPolicies = footer.policies.length > 0;
 
   return (
     <footer className="mt-10">
@@ -88,41 +85,38 @@ const Footer: React.FC = () => {
         <div className="mx-auto grid max-w-[1320px] gap-8 px-4 py-14 sm:px-6 md:grid-cols-12">
           <div className="md:col-span-4">
             <Link to="/" className="inline-block">
-              {store?.logo ? <img src={store.logo} alt={store.name} className="h-9 w-auto brightness-0 invert" /> : <span className="font-display text-3xl">{store?.name}</span>}
+              {footer.logo ? <img src={footer.logo} alt={footer.storeName} className="h-9 w-auto brightness-0 invert" /> : <span className="font-display text-3xl">{footer.storeName}</span>}
             </Link>
-            {store?.description && <p className="mt-4 max-w-sm text-[14px] text-white/70">{store.description}</p>}
+            {footer.description && <p className="mt-4 max-w-sm text-[14px] text-white/70">{footer.description}</p>}
             <ul className="mt-5 space-y-2 text-[14px] text-white/85">
               {address && <li className="flex gap-3"><Icon name="check" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" /><span>{address}</span></li>}
-              {phone && <li className="flex gap-3"><Icon name="headset" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" /><a href={`tel:${phone}`} dir="ltr" className="at-link-hover-light">{phone}</a></li>}
+              {phone && <li className="flex gap-3"><Icon name="headset" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" />{phone.href ? <a href={phone.href} dir="ltr" className="at-link-hover-light">{phone.text}</a> : <span dir="ltr">{phone.text}</span>}</li>}
+              {whatsapp && <li className="flex gap-3"><Icon name="headset" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" /><a href={whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="at-link-hover-light">{whatsapp.display}</a></li>}
               {email && <li className="flex gap-3"><Icon name="sparkle" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" /><a href={`mailto:${email}`} className="at-link-hover-light">{email}</a></li>}
-              {hours && <li className="flex gap-3"><Icon name="sun" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" /><span>{hours}</span></li>}
             </ul>
-            <SocialIcons className="mt-6" light />
-          </div>
-          <div className="md:col-span-3">
-            <Col title={t('theme.footer.shop')}>
-              <ul className="space-y-2">{links.map((l) => <li key={l._id || l.label}><Link to={l.resolvedUrl || l.url || '/'} className={linkCls}>{l.label}</Link></li>)}</ul>
-            </Col>
-          </div>
-          <div className="md:col-span-2">
-            <Col title={t('theme.footer.policies')}>
-              <PolicyLinks heading={false} className="space-y-2" linkClassName={linkCls} />
-            </Col>
-          </div>
-          <div className="md:col-span-3">
-            <Col title={t('theme.footer.help')}>
-              <ul className="space-y-2">
-                <li><Link to="/contact" className={linkCls}>{t('theme.footer.contact')}</Link></li>
-                <li><Link to="/orders" className={linkCls}>{t('theme.footer.track')}</Link></li>
-                <li><Link to="/account" className={linkCls}>{t('theme.footer.account')}</Link></li>
-                <li><Link to="/wishlist" className={linkCls}>{t('theme.layout.wishlist')}</Link></li>
+            {footer.social.length > 0 && (
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {footer.social.map((l) => (
+                  <li key={l.platform}><SocialLink platform={l.platform} name={l.name} url={l.url} light /></li>
+                ))}
               </ul>
-            </Col>
+            )}
+          </div>
+          <div className={hasPolicies ? 'md:col-span-3' : 'md:col-span-4'}>
+            <Col title={footer.titles.shop}>{linkList(footer.shop)}</Col>
+          </div>
+          {hasPolicies && (
+            <div className="md:col-span-2">
+              <Col title={footer.titles.policies}>{linkList(footer.policies)}</Col>
+            </div>
+          )}
+          <div className={hasPolicies ? 'md:col-span-3' : 'md:col-span-4'}>
+            <Col title={footer.titles.help}>{linkList(footer.help)}</Col>
           </div>
         </div>
         <div className="border-t border-white/10">
           <div className="mx-auto flex max-w-[1320px] flex-col items-center justify-between gap-4 px-4 py-5 text-[12px] text-white/60 sm:px-6 md:flex-row">
-            <p>{t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || '' })}</p>
+            <p>{footer.copyright}</p>
             <FooterPaymentBadges size="sm" className="opacity-90" />
           </div>
         </div>

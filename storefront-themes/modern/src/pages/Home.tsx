@@ -12,6 +12,8 @@ import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { CountdownTimer } from '@matjar/theme-shared/components/marketing/CountdownTimer';
 import { ImageCarousel } from '@matjar/theme-shared/components/marketing/ImageCarousel';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 // Niche default hero image — a clean tech/gadget lifestyle shot — so the
@@ -33,6 +35,7 @@ const HARDCODED_TYPES = ['hero', 'categories', 'featured-products', 'trust-badge
 
 const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
+  const { store } = useStore();
 
   // Read section settings from the manifest + tenant overrides
   const hero = useThemeSettings('hero');
@@ -115,22 +118,31 @@ const Home: React.FC = () => {
   // Bespoke renderers keyed by section TYPE. `orderedSections` is already
   // enabled-filtered, so these only need their extra content conditions.
   const blockRenderers: Record<string, () => React.ReactNode> = {
-    'hero': () => (
-      <Carousel autoPlay={5000} showDots loop className="relative">
-        {/* Slide 1 — premium shared hero. */}
+    'hero': () => {
+      // Slide 1 — premium shared hero with the merchant's own copy (title
+      // falls back to the store name; the second button only when set).
+      const secondaryText = merchantText(hero.secondary_button_text);
+      const mainSlide = (
         <Hero
           variant="spotlight"
           tone="light"
-          title={hero.heading || t('theme.section.hero.headline')}
-          subtitle={hero.subheading || t('theme.section.hero.subheadline')}
-          primaryCta={{ label: hero.primary_button_text || t('theme.section.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
-          secondaryCta={{ label: hero.secondary_button_text || t('theme.section.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
-          backgroundImage={hero.background_image || undefined}
+          title={merchantText(hero.heading) || store?.name || ''}
+          subtitle={merchantText(hero.subheading) || undefined}
+          primaryCta={{ label: merchantText(hero.primary_button_text) || t('theme.section.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
+          secondaryCta={secondaryText ? { label: secondaryText, href: hero.secondary_button_url || '/categories' } : undefined}
+          backgroundImage={merchantImage(hero.background_image) || undefined}
           media={featured?.find((p) => p.images?.[0])?.images?.[0]}
           defaultImage={HERO_DEFAULT_IMAGE}
         />
-        {/* Slide 2 — Sale (optional). */}
-        {hero.show_sale_slide !== false && (
+      );
+      // Slide 2 — Sale, only when the merchant wrote one (no demo sale copy
+      // or countdown). Without it the hero is a single slide, no dots.
+      const saleHeading = merchantText(hero.sale_heading);
+      if (hero.show_sale_slide === false || !saleHeading) return mainSlide;
+      const saleSubheading = merchantText(hero.sale_subheading);
+      return (
+        <Carousel autoPlay={5000} showDots loop className="relative">
+          {mainSlide}
           <div
             className="relative isolate overflow-hidden py-16 sm:py-20 lg:py-28"
             style={{ background: 'linear-gradient(135deg, var(--color-accent, #f59e0b) 0%, color-mix(in srgb, var(--color-accent, #f59e0b) 55%, #111) 100%)' }}
@@ -140,11 +152,8 @@ const Home: React.FC = () => {
               style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.7) 1px, transparent 0)', backgroundSize: '22px 22px' }}
             />
             <div className="max-w-[var(--layout-max-width,1280px)] mx-auto px-4 sm:px-6 lg:px-8 text-center text-white relative z-10">
-              <span className="inline-flex items-center rounded-[var(--radius-pill,9999px)] bg-white/15 ring-1 ring-white/20 backdrop-blur-sm px-3.5 py-1.5 text-xs sm:text-sm font-semibold mb-4">
-                {t('theme.section.hero.sale_badge')}
-              </span>
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>{hero.sale_heading || t('theme.section.hero.sale_heading')}</h2>
-              <p className="text-lg sm:text-xl text-white/90 mb-6">{hero.sale_subheading || t('theme.section.hero.sale_subheading')}</p>
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>{saleHeading}</h2>
+              {saleSubheading && <p className="text-lg sm:text-xl text-white/90 mb-6">{saleSubheading}</p>}
               {hero.show_countdown !== false && (
                 <CountdownTimer
                   endDate={new Date(Date.now() + (hero.countdown_days || 3) * 24 * 60 * 60 * 1000).toISOString()}
@@ -157,13 +166,13 @@ const Home: React.FC = () => {
                 className="inline-flex items-center justify-center bg-white font-semibold px-7 py-3.5 rounded-[var(--radius,12px)] shadow-[var(--shadow-lg)] hover:-translate-y-0.5 hover:brightness-105 transition-[transform,filter] duration-[var(--duration-fast,150ms)]"
                 style={{ color: 'var(--color-accent, #d97706)' }}
               >
-                {hero.sale_button_text || t('theme.section.hero.sale_cta')}
+                {merchantText(hero.sale_button_text) || t('theme.section.hero.sale_cta')}
               </Link>
             </div>
           </div>
-        )}
-      </Carousel>
-    ),
+        </Carousel>
+      );
+    },
 
     'categories': () => (customCategoryTiles.length > 0 || categories.length > 0) && (
       <CategoryShowcase

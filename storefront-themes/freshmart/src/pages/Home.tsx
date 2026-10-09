@@ -11,6 +11,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import { CountdownTimer } from '@matjar/theme-shared/components/marketing/CountdownTimer';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 // Niche default hero image — a bright fresh-produce shot — so the hero is
@@ -75,21 +77,26 @@ interface FreshmartSectionProps {
 const ENTRANCE = 'transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))]';
 const reveal = (visible: boolean) => (visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8');
 
-// Hero — shared imagery-forward hero (green copy panel + produce image)
+// Hero — shared imagery-forward hero (green copy panel + produce image).
+// Only the merchant's own copy: title falls back to the store name, extras
+// (badge, second heading line, second button) show only when set.
 const FreshmartHero: React.FC<FreshmartSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
+  const { store } = useStore();
   const { products: featured } = useFeaturedProducts(8);
+  const title = [merchantText(hero.heading_line1) || store?.name || '', merchantText(hero.heading_line2)].filter(Boolean).join(' ');
+  const secondaryText = merchantText(hero.secondary_button_text);
   return (
     <Hero
       variant="split"
       tone="dark"
-      title={`${hero.heading_line1 || t('theme.hero.heading_line1')} ${hero.heading_line2 || t('theme.hero.heading_line2')}`}
-      subtitle={hero.subheading || t('theme.hero.subheading')}
-      primaryCta={{ label: hero.primary_button_text || t('theme.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
-      secondaryCta={{ label: hero.secondary_button_text || t('theme.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
-      saleText={hero.badge_text || t('theme.hero.badge_text')}
-      backgroundImage={hero.background_image || undefined}
+      title={title}
+      subtitle={merchantText(hero.subheading) || undefined}
+      primaryCta={{ label: merchantText(hero.primary_button_text) || t('theme.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
+      secondaryCta={secondaryText ? { label: secondaryText, href: hero.secondary_button_url || '/categories' } : undefined}
+      saleText={merchantText(hero.badge_text) || undefined}
+      backgroundImage={merchantImage(hero.background_image) || undefined}
       media={featured?.find((p) => p.images?.[0])?.images?.[0]}
       defaultImage={HERO_DEFAULT_IMAGE}
     />

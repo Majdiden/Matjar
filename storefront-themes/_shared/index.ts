@@ -68,6 +68,8 @@ export {
   basicSettingsOf,
 } from './theme/settingLevels';
 export { TOP_STRIP_ANCHOR, TOP_STRIP_SETTINGS, useTopStripText, SectionAnchor } from './theme/topStrip';
+export { isStockImage, merchantImage, merchantText } from './theme/heroContent';
+export { useStoreFooter, FOOTER_MAX_CATEGORIES, type StoreFooter, type FooterLink } from './hooks/useStoreFooter';
 export {
   BRAND_BINDINGS,
   BILINGUAL_BRAND_BINDINGS,

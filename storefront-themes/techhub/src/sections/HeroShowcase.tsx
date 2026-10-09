@@ -25,10 +25,20 @@ import { useCollections } from '@matjar/theme-shared/hooks/useCollections';
 import { PriceDisplay } from '@matjar/theme-shared/components/commerce/PriceDisplay';
 import type { SectionComponentProps } from '@matjar/theme-shared/components/sections';
 import { useTranslation } from 'react-i18next';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
+  const { store } = useStore();
+  // Only the merchant's own copy: the heading falls back to the store name;
+  // the eyebrow, second heading line and strip texts show only when set.
+  const eyebrow = merchantText(s.eyebrow);
+  const headingLine1 = merchantText(s.heading_line1) || store?.name || '';
+  const headingLine2 = merchantText(s.heading_line2);
+  const hotlinePhone = merchantText(s.hotline_phone);
+  const shippingStrip = merchantText(s.shipping_strip);
 
   const maxCategories = Math.max(4, Math.min(14, Number(s.max_categories) || 10));
   const { categories, loading: catLoading } = useCategories();
@@ -106,6 +116,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
         }}
       >
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-11">
+          {hotlinePhone ? (
           <div className="flex items-center gap-2">
             <span
               className="inline-flex items-center justify-center h-6 w-6 rounded-full"
@@ -117,12 +128,15 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               </svg>
             </span>
             <span>{s.hotline_label || t('theme.hero.showcase.hotline_label')}</span>
-            <span style={{ color: 'var(--color-foreground)' }}>{s.hotline_phone || t('theme.contact.phone', { defaultValue: '+1 (555) 456-7890' })}</span>
+            <span dir="ltr" style={{ color: 'var(--color-foreground)' }}>{hotlinePhone}</span>
           </div>
+          ) : <div />}
           <div className="hidden md:block text-center">
-            <Link to="/products" className="hover:opacity-80 transition">
-              {s.shipping_strip || t('theme.hero.showcase.shipping_strip')}
-            </Link>
+            {shippingStrip && (
+              <Link to="/products" className="hover:opacity-80 transition">
+                {shippingStrip}
+              </Link>
+            )}
           </div>
           {flashEnabled && (
             <div className="flex items-center gap-2" style={{ color: 'var(--color-primary)' }}>
@@ -186,23 +200,23 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
         >
           <div className="relative grid md:grid-cols-2 gap-6 px-8 md:px-12 py-12 md:py-16 items-center min-h-[360px]">
             <div>
-              {s.eyebrow && (
+              {eyebrow && (
                 <div
                   className="text-[11px] font-bold uppercase tracking-[0.25em] mb-3"
                   style={{ color: 'var(--color-primary)' }}
                 >
-                  {s.eyebrow}
+                  {eyebrow}
                 </div>
               )}
               <h1
                 className="text-4xl md:text-5xl font-black leading-none tracking-tight mb-6"
                 style={{ color: 'var(--color-foreground)', fontFamily: 'var(--font-family-heading)' }}
               >
-                {s.heading_line1 || t('theme.hero.showcase.headline_line1')}
-                {s.heading_line2 && (
+                {headingLine1}
+                {headingLine2 && (
                   <>
                     <br />
-                    {s.heading_line2}
+                    {headingLine2}
                   </>
                 )}
               </h1>

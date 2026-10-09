@@ -10,6 +10,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import { Hero } from '@matjar/theme-shared/components/sections/Hero';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 // Niche default hero image — a calm, styled interior — so the hero is never
@@ -38,17 +40,22 @@ type SectionProps = { id: string; onQuickView: (product: Product) => void };
 function HeroBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
+  const { store } = useStore();
   const { products: featured } = useFeaturedProducts(4);
+  // Only the merchant's own copy: the title falls back to the store name, and
+  // the second heading line / second button show only when set.
+  const title = [merchantText(hero.heading_line1) || store?.name || '', merchantText(hero.heading_line2)].filter(Boolean).join(' ');
+  const secondaryText = merchantText(hero.secondary_button_text);
 
   return (
     <Hero
       variant="editorial"
       align="start"
-      title={`${hero.heading_line1 || t('theme.hero.heading_line1')} ${hero.heading_line2 || t('theme.hero.heading_line2')}`}
-      subtitle={hero.subheading || t('theme.hero.subheading')}
-      primaryCta={{ label: hero.primary_button_text || t('theme.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
-      secondaryCta={{ label: hero.secondary_button_text || t('theme.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
-      backgroundImage={hero.background_image || undefined}
+      title={title}
+      subtitle={merchantText(hero.subheading) || undefined}
+      primaryCta={{ label: merchantText(hero.primary_button_text) || t('theme.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
+      secondaryCta={secondaryText ? { label: secondaryText, href: hero.secondary_button_url || '/categories' } : undefined}
+      backgroundImage={merchantImage(hero.background_image) || undefined}
       media={featured?.find((p) => p.images?.[0])?.images?.[0]}
       defaultImage={HERO_DEFAULT_IMAGE}
       overlayOpacity={hero.overlay_opacity || 0}

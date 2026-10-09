@@ -267,7 +267,7 @@ export const universalSections: SectionDefinition[] = [
     description: 'Grid of featured products',
     target: 'body',
     settings: [
-      { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: 'Featured Products' },
+      { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
       { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
       { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 2, max: 16 },
       { id: 'columns', type: 'select', label: 'Columns', default: '4', options: [
@@ -290,7 +290,7 @@ export const universalSections: SectionDefinition[] = [
     description: 'Carousel of recently added products',
     target: 'body',
     settings: [
-      { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: 'New Arrivals' },
+      { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
       { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
       { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 4, max: 16 },
       { id: 'autoplay', type: 'checkbox', label: 'Auto-play', default: false },

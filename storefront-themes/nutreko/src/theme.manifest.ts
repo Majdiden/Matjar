@@ -138,8 +138,8 @@ export const nutrekoBannerSection: SectionDefinition = defineSection({
 
 const indexTemplate: SectionInstance[] = [
   { id: 'nutreko-hero', type: 'nutreko-hero', settings: {} },
-  { id: 'nutreko-trending', type: 'nutreko-product-grid', settings: { heading: 'TRENDING NOW', source: 'newest' } },
-  { id: 'nutreko-topsellers', type: 'nutreko-product-grid', settings: { heading: 'TOP SELLERS', source: 'featured' } },
+  { id: 'nutreko-trending', type: 'nutreko-product-grid', settings: { source: 'newest' } },
+  { id: 'nutreko-topsellers', type: 'nutreko-product-grid', settings: { source: 'featured' } },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

@@ -12,6 +12,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { LinenProductCard } from '../components/LinenProductCard';
 import { Reveal } from '../lib/Reveal';
 import { I } from '../lib/icons';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // Section rhythm: the customizer value applies from `md`; phones clamp to
 // 40px (see .linen-section in index.css) so the vertical rhythm stays even.
@@ -52,7 +54,13 @@ const SectionHead: React.FC<{ eyebrow?: string; heading?: string; action?: React
 const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const slides = blocksOf(section).filter((b) => b.type === 'slide');
+  const storeName = useStore().store?.name || '';
+  // Once the merchant has their own photo, extra slides still carrying a
+  // theme stock photo are dropped; slides they filled themselves stay.
+  const hasOwnPhoto = !!merchantImage(s.image);
+  const slides = blocksOf(section)
+    .filter((b) => b.type === 'slide')
+    .filter((b, i) => !hasOwnPhoto || i === 0 || !isStockImage(b.settings?.image));
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const autoplay = s.autoplay !== false && slides.length > 1;
@@ -66,6 +74,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
     const id2 = window.setTimeout(() => go(idx + 1), interval);
     return () => window.clearTimeout(id2);
   }, [autoplay, paused, idx, interval, go]);
+
+  useEffect(() => { if (idx >= slides.length) setIdx(0); }, [idx, slides.length]);
 
   if (!slides.length) return null;
   const pauseOnHover = s.pause_on_hover === true;
@@ -107,11 +117,12 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 {active && (
                   <div key={`cap-${idx}`} className="linen-caption max-w-lg">
                     {(() => {
-                      const k = `theme.section.hero.${slide.id}`;
-                      const eyebrow = copy(t, b.eyebrow, `${k}.eyebrow`);
-                      const heading = copy(t, b.heading, `${k}.heading`);
-                      const body = copy(t, b.body, `${k}.body`);
-                      const cta = copy(t, b.cta_text, `${k}.cta_text`, 'theme.section.hero.cta');
+                      // Merchant copy only: extras (eyebrow, body) show when typed,
+                      // the title falls back to the store name.
+                      const eyebrow = merchantText(b.eyebrow);
+                      const heading = merchantText(b.heading) || storeName;
+                      const body = merchantText(b.body);
+                      const cta = copy(t, b.cta_text, 'theme.section.hero.cta');
                       return (
                         <>
                           {eyebrow && <p className="linen-eyebrow text-clay">{eyebrow}</p>}

@@ -14,6 +14,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { MiskProductCard } from '../components/MiskProductCard';
 import { Reveal } from '../lib/Reveal';
 import { I, iconFor } from '../lib/icons';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // ─── helpers ──────────────────────────────────────────────────────
 
@@ -100,7 +102,13 @@ const Cta: React.FC<{ to?: string; className?: string; children: React.ReactNode
 const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const slides = blocksOf(section).filter((b) => b.type === 'slide');
+  const storeName = useStore().store?.name || '';
+  // Once the merchant has their own photo, extra slides still carrying a
+  // theme stock photo are dropped; slides they filled themselves stay.
+  const hasOwnPhoto = !!merchantImage(s.image);
+  const slides = blocksOf(section)
+    .filter((b) => b.type === 'slide')
+    .filter((b, i) => !hasOwnPhoto || i === 0 || !isStockImage(b.settings?.image));
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -114,6 +122,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
     const id2 = window.setTimeout(() => go(idx + 1), interval);
     return () => window.clearTimeout(id2);
   }, [autoplay, paused, idx, interval, go]);
+  useEffect(() => { if (idx >= slides.length) setIdx(0); }, [idx, slides.length]);
 
   if (!slides.length) return null;
 
@@ -127,7 +136,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
       className={`relative overflow-hidden ${height}`}
       style={{ background: s.band_color || 'var(--misk-midnight, #191528)', '--misk-hero-duration': `${interval}ms` } as React.CSSProperties}
       aria-roledescription="carousel"
-      aria-label={t('theme.hero.eyebrow')}
+      aria-label={storeName || undefined}
       onMouseEnter={() => pauseOnHover && setPaused(true)}
       onMouseLeave={() => pauseOnHover && setPaused(false)}
     >
@@ -136,10 +145,11 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
           // The section-level (My Store) settings override the first slide.
           const b = i === 0 ? { ...(slide.settings || {}), ...filled(s, ['heading', 'subheading', 'image', 'cta_text']) } : slide.settings || {};
           const active = i === idx;
-          const n = (i % 3) + 1;
-          const heading = copy(t, b.heading, `theme.hero.heading_${n}`);
-          const sub = copy(t, b.subheading, `theme.hero.sub_${n}`);
-          const eyebrow = copy(t, b.eyebrow, 'theme.hero.eyebrow');
+          // Merchant copy only: extras (eyebrow, short line) show when typed,
+          // the title falls back to the store name.
+          const heading = merchantText(b.heading) || storeName;
+          const sub = merchantText(b.subheading);
+          const eyebrow = merchantText(b.eyebrow);
           const cta = copy(t, b.cta_text, 'theme.hero.cta');
           return (
             <div

@@ -52,7 +52,7 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow Label', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: "Editor's Picks" },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
     { id: 'view_all_url', type: 'url', label: 'View All URL', default: '/products' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 9, min: 3, max: 18 },

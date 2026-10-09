@@ -21,6 +21,9 @@ const PROFILE_CACHE_PREFIX = 'matjar.storeProfile.v1:';
 const DRAFTS_PREFIX = 'matjar.storeProfileDrafts.v1:';
 /** Seconds between automatic retries; the last one repeats. */
 export const RETRY_DELAYS_S = [3, 6, 12, 24, 30];
+/** How long Save waits for in-flight edits, and how often it checks. */
+const FLUSH_TIMEOUT_MS = 15000;
+const FLUSH_POLL_MS = 150;
 
 export function readJson<T>(key: string): T | null {
   try {
@@ -223,5 +226,24 @@ export function useProfileAutosave(onSaved: (profile: StoreProfile) => void) {
   /** "Try now" — skip the backoff wait for a field that is retrying. */
   const retry = useCallback((field: string) => void send(field), [send]);
 
-  return { save, retry, discard, statuses, drafts };
+  /**
+   * The page's Save button: send everything still waiting now (skipping any
+   * retry wait) and resolve once nothing is in flight. True when every edit
+   * reached the server; false when some are still waiting (offline) or were
+   * refused.
+   */
+  const flush = useCallback(async (): Promise<boolean> => {
+    for (const field of pendingRef.current.keys()) {
+      attemptsRef.current.delete(field);
+      clearTimeout(timersRef.current.get(field));
+      void send(field);
+    }
+    const deadline = Date.now() + FLUSH_TIMEOUT_MS;
+    while (inflightRef.current.size && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, FLUSH_POLL_MS));
+    }
+    return pendingRef.current.size === 0;
+  }, [send]);
+
+  return { save, retry, discard, flush, statuses, drafts };
 }

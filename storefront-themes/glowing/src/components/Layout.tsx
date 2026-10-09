@@ -10,7 +10,8 @@ import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/to
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { FooterPaymentBadges } from '@matjar/theme-shared/components/commerce/FooterPaymentBadges';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
@@ -43,6 +44,8 @@ const Layout: React.FC = () => {
   const stripText = useTopStripText();
 
   const brand = (store?.name || 'GLOWING').toUpperCase();
+  const footer = useStoreFooter();
+  const contact = footer.contact;
   const isActive = (path: string) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
 
@@ -161,47 +164,58 @@ const Layout: React.FC = () => {
       <footer className="mt-24 bg-white border-t border-neutral-100 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
-            <div className="font-display text-4xl tracking-tight mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>
-              {brand}
-            </div>
-            <p className="text-sm text-neutral-500 max-w-md mx-auto">
-              {t('theme.footer.tagline')}
-            </p>
+            {footer.logo ? (
+              <img src={footer.logo} alt={footer.storeName} className="h-12 w-auto max-w-[200px] object-contain mx-auto mb-4" />
+            ) : (
+              <div className="font-display text-4xl tracking-tight mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>
+                {footer.storeName.toUpperCase()}
+              </div>
+            )}
+            {footer.description && (
+              <p className="text-sm text-neutral-500 max-w-md mx-auto">
+                {footer.description}
+              </p>
+            )}
+            {(contact.address || contact.phone || contact.whatsapp || contact.email) && (
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-neutral-600">
+                {contact.address && <span>{contact.address}</span>}
+                {contact.phone && (contact.phone.href
+                  ? <a href={contact.phone.href} dir="ltr" className="hover:text-black">{contact.phone.text}</a>
+                  : <span dir="ltr">{contact.phone.text}</span>)}
+                {contact.whatsapp && <a href={contact.whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="hover:text-black">{contact.whatsapp.display}</a>}
+                {contact.email && <a href={`mailto:${contact.email}`} className="hover:text-black">{contact.email}</a>}
+              </div>
+            )}
+            {footer.social.length > 0 && (
+              <div className="mt-5 flex items-center justify-center gap-4 text-neutral-500">
+                {footer.social.map((l) => (
+                  <a key={l.platform} href={l.url} target="_blank" rel="noopener noreferrer" aria-label={l.name} className="hover:text-black transition-colors">
+                    <SocialIcon platform={l.platform} className="w-4 h-4" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-10 mb-12">
-            <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_shop')}</h4>
-              <div className="space-y-3 text-sm text-neutral-600">
-                <Link to="/products" className="block hover:text-black">{t('theme.footer.all_products')}</Link>
-                <Link to="/products" className="block hover:text-black">{t('theme.footer.best_sellers')}</Link>
-                <Link to="/products" className="block hover:text-black">{t('theme.footer.new_arrivals')}</Link>
-                <Link to="/products" className="block hover:text-black">{t('theme.footer.gift_cards')}</Link>
+          <div className={`grid grid-cols-2 ${footer.policies.length > 0 ? 'md:grid-cols-3' : 'md:grid-cols-2 max-w-2xl mx-auto'} gap-10 mb-12`}>
+            {[
+              { h: footer.titles.shop, items: footer.shop },
+              { h: footer.titles.help, items: footer.help },
+              { h: footer.titles.policies, items: footer.policies },
+            ].filter((col) => col.items.length > 0).map((col) => (
+              <div key={col.h}>
+                <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{col.h}</h4>
+                <div className="space-y-3 text-sm text-neutral-600">
+                  {col.items.map((l) => (
+                    <Link key={l.to} to={l.to} className="block hover:text-black">{l.label}</Link>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_help')}</h4>
-              <div className="space-y-3 text-sm text-neutral-600">
-                <Link to="/policies/delivery" className="block hover:text-black">{t('theme.footer.shipping')}</Link>
-                <Link to="/policies/returns" className="block hover:text-black">{t('theme.footer.returns')}</Link>
-                <Link to="/contact" className="block hover:text-black">{t('theme.footer.faq')}</Link>
-                <Link to="/contact" className="block hover:text-black">{t('theme.footer.contact')}</Link>
-                <PolicyLinks className="mt-3" heading={false} linkClassName="block hover:text-black" />
-              </div>
-            </div>
-            <div>
-              <h4 className="text-[11px] tracking-[0.22em] uppercase text-black font-semibold mb-5">{t('theme.footer.col_company')}</h4>
-              <div className="space-y-3 text-sm text-neutral-600">
-                <Link to="/about" className="block hover:text-black">{t('theme.footer.about_us')}</Link>
-                <Link to="/about" className="block hover:text-black">{t('theme.footer.ingredients')}</Link>
-                <Link to="/about" className="block hover:text-black">{t('theme.footer.sustainability')}</Link>
-                <Link to="/about" className="block hover:text-black">{t('theme.footer.journal')}</Link>
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="border-t border-neutral-100 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] tracking-wide text-neutral-500">
-            <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), name: brand })}</span>
+            <span>{footer.copyright}</span>
             <FooterPaymentBadges size="sm" />
           </div>
         </div>

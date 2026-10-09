@@ -4,6 +4,7 @@ import { useThemeSettings } from '../../theme/ThemeProvider';
 import { useProductContext } from '../../contexts/ProductContext';
 import { productContentSections } from '../../hooks/useProducts';
 import { useStore } from '../../contexts/StoreContext';
+import { publishedPolicies } from '../../lib/policies';
 import type { SectionComponentProps } from './index';
 
 /**
@@ -133,14 +134,15 @@ export const ProductDetailsSection: React.FC<SectionComponentProps> = ({ id }) =
 // ─── Store policies: shipping / returns / COD accordion ──────────
 export const ProductPoliciesSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('product');
+  const { t: tAll } = useTranslation();
   const s = useThemeSettings(id);
   const { store } = useStore();
   const [open, setOpen] = useState<string | null>(null);
 
-  const policies = store?.policies || {};
-  const entries = Object.entries(policies).filter(
-    ([, p]: any) => p && p.body && String(p.body).trim()
-  );
+  // In the shopper's language (generated policies carry one copy per language).
+  const entries = publishedPolicies(store, tAll)
+    .filter((p) => String(p.body).trim())
+    .map((p) => [p.key, { title: p.title, body: p.body }] as const);
   if (entries.length === 0) return null;
 
   const heading = s.heading || t('detail.policies_heading', { defaultValue: 'Shipping & Returns' });

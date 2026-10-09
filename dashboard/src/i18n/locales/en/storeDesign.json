@@ -101,6 +101,22 @@
       "facebook_placeholder": "Paste your page link",
       "instagram_placeholder": "Paste the link or type your account name",
       "tiktok_placeholder": "Paste the link or type your account name"
+    },
+    "save_all": {
+      "button": "Save",
+      "done": "Your store info is saved",
+      "failed": "We couldn't save everything. Check your connection and try again."
+    },
+    "contact": {
+      "title": "Contact details",
+      "help": "Shown on your Contact page and at the bottom of every page of your store.",
+      "phone": "Phone number",
+      "email": "Email",
+      "address": "Address",
+      "phone_placeholder": "0912 345 678",
+      "email_placeholder": "store@example.com",
+      "address_placeholder": "e.g. Al Jamhuriya Street, Khartoum",
+      "use_account": "Use {{value}}"
     }
   },
   "preview": {

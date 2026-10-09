@@ -175,7 +175,7 @@ const SalesSparkline: React.FC<{ points: number[] }> = ({ points }) => {
 
 // Setup-checklist dismissal (collapsed-bar state only). Same key style
 // as Orders.tsx's 'orders.viewMode'.
-/** Session flag: the current setup step was already opened once. */
+/** Session flag per step: that setup step was already opened once. */
 const GUIDE_OPENED_KEY = 'matjar.setupGuide.opened';
 const SETUP_DISMISSED_KEY = 'dashboard.setupDismissed';
 
@@ -208,10 +208,12 @@ export const Dashboard: React.FC = () => {
   // stores with `onboarding.v2` (per-store overrides apply here).
   const firstSaleChecklist = hasFeature('onboarding.v2');
 
-  // Guided setup (PBI 10-28): on the first visit to home in a session, open
-  // the current essential step full-page (e.g. the quick product form), so
-  // the merchant can act at once. Coming back to home later shows the
-  // checklist; the guide bar follows them on every other page.
+  // Guided setup (PBI 10-28): landing on home opens the current essential
+  // step full-page (the quick product form, then the logo and cover form,
+  // then the delivery questions), so the merchant can act at once. Each step
+  // opens by itself once per session; coming back to home again during the
+  // same step shows the checklist, so home stays reachable. The guide bar
+  // follows them on every other page.
   const guide = useSetupGuide();
   const navigate = useNavigate();
   const storeKey = useStoreKey();
@@ -219,7 +221,7 @@ export const Dashboard: React.FC = () => {
     const step = guide.active ? guide.progress?.current : null;
     const route = step ? FIRST_SALE_STEP_ROUTES[step] : null;
     if (!route) return;
-    const key = `${GUIDE_OPENED_KEY}:${storeKey}`;
+    const key = `${GUIDE_OPENED_KEY}:${storeKey}:${step}`;
     try {
       if (sessionStorage.getItem(key)) return;
       sessionStorage.setItem(key, '1');

@@ -142,8 +142,8 @@ export const glowingInstagramSection: SectionDefinition = defineSection({
 
 const indexTemplate: SectionInstance[] = [
   { id: 'glowing-hero', type: 'glowing-hero', settings: {} },
-  { id: 'glowing-newarrivals', type: 'glowing-product-grid', settings: { heading: 'NEW ARRIVALS', source: 'newest' } },
-  { id: 'glowing-bestsellers', type: 'glowing-product-grid', settings: { heading: 'BEST SELLERS', source: 'featured' } },
+  { id: 'glowing-newarrivals', type: 'glowing-product-grid', settings: { source: 'newest' } },
+  { id: 'glowing-bestsellers', type: 'glowing-product-grid', settings: { source: 'featured' } },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

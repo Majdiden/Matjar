@@ -173,8 +173,8 @@ export const beauxeTestimonialsSection: SectionDefinition = defineSection({
 
 const indexTemplate: SectionInstance[] = [
   { id: 'beauxe-hero', type: 'beauxe-hero', settings: {} },
-  { id: 'beauxe-newarrivals', type: 'beauxe-product-grid', settings: { heading: 'NEW ARRIVALS', source: 'newest' } },
-  { id: 'beauxe-bestsellers', type: 'beauxe-product-grid', settings: { heading: 'BEST SELLERS' } },
+  { id: 'beauxe-newarrivals', type: 'beauxe-product-grid', settings: { source: 'newest' } },
+  { id: 'beauxe-bestsellers', type: 'beauxe-product-grid', settings: {} },
 ];
 
 // ─── Theme Manifest ──────────────────────────────────────────────

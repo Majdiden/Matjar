@@ -3,7 +3,7 @@
  *
  * Pastel teal/cream/pink plant-based milk sections.
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@matjar/theme-shared/components/sections';
@@ -13,6 +13,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
 import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import MilmaaProductCard from '../components/MilmaaProductCard';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // Niche default hero image (organic/wellness) so the editorial hero is never empty.
 const HERO_DEFAULT_IMAGE =
@@ -25,6 +27,16 @@ const YELLOW = 'var(--color-secondary)';
 const CREAM = 'var(--color-background)';
 const MUTED = 'var(--color-muted)';
 const HEADING_FONT = 'var(--font-family-heading)';
+
+/** First photos of the store's own products (newest first) for hero image slots — never stock. */
+function useStoreProductPhotos(count: number) {
+  const { products, loading } = useProducts({ sort: 'newest', limit: 8 });
+  const photos = useMemo(
+    () => products.map((p: any) => p?.images?.[0]).filter((u: unknown) => !isStockImage(u)).slice(0, count) as string[],
+    [products, count],
+  );
+  return { photos, loading };
+}
 
 /** Pastel tint rotation used behind imagery so photos sit inside the palette. */
 const TINTS = [YELLOW, PINK, TEAL];
@@ -54,17 +66,24 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
 const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
+  const { store } = useStore();
+  // Only the merchant's own content: title falls back to the store name,
+  // the eyebrow shows only when set, no demo second button.
+  // Photo: the merchant's own, else a product photo, else (a brand-new
+  // store with no products) the theme's default.
+  const own = merchantImage(s.image, store?.brand?.coverImage);
+  const { photos, loading } = useStoreProductPhotos(1);
+  const showDefault = !own && !loading && photos.length === 0;
   return (
     <Hero
       variant="editorial"
       align="start"
-      title={s.heading || t('theme.section.milmaa-hero.heading')}
-      subtitle={s.subheading || t('theme.section.milmaa-hero.subheading')}
+      title={merchantText(s.heading) || store?.name || ''}
+      subtitle={merchantText(s.subheading) || undefined}
       primaryCta={{ label: s.cta_text || t('theme.section.milmaa-hero.cta'), href: (s.cta_url as string) || '/products' }}
-      secondaryCta={{ label: t('theme.section.milmaa-hero.watch_story'), href: '/about' }}
-      saleText={s.eyebrow || t('theme.section.milmaa-hero.eyebrow')}
-      backgroundImage={(s.image as string) || undefined}
-      defaultImage={HERO_DEFAULT_IMAGE}
+      saleText={merchantText(s.eyebrow) || undefined}
+      backgroundImage={own || photos[0] || undefined}
+      defaultImage={showDefault ? HERO_DEFAULT_IMAGE : undefined}
     />
   );
 };
@@ -218,7 +237,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
         <h2 className="font-serif text-4xl md:text-5xl font-semibold" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
           {s.heading || (source === 'newest'
             ? t('theme.section.milmaa-product-grid.newest_heading', { defaultValue: 'New Arrivals' })
-            : t('theme.section.milmaa-product-grid.heading', { defaultValue: 'Shop Our Milks' }))}
+            : t('theme.section.milmaa-product-grid.heading', { defaultValue: 'Shop our products' }))}
         </h2>
         {s.subheading && <p className="mt-3 text-base opacity-70">{s.subheading}</p>}
       </div>

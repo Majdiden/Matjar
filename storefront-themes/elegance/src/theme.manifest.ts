@@ -225,7 +225,7 @@ const manifest = defineTheme({
     index: [
       { id: 'hero', type: 'hero', settings: {} },
       { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
-      { id: 'featured-products', type: 'featured-products', settings: {} },
+      { id: 'featured-products', type: 'featured-products', settings: { heading: '' } },
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard

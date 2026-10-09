@@ -22,7 +22,7 @@ export const WhatsAppButton: React.FC<{ className?: string; label?: string }> = 
       href={whatsapp.href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`flex items-center justify-center gap-3 w-full min-h-[3.5rem] py-3.5 px-6 text-lg font-bold shadow-sm transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${className}`}
+      className={`flex items-center justify-center gap-3 w-full whitespace-nowrap min-h-[3.5rem] py-3.5 px-6 text-lg font-bold shadow-sm transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${className}`}
       style={{ ...tk.button, backgroundColor: WHATSAPP_GREEN, color: WHATSAPP_TEXT }}
     >
       <WhatsAppIcon className="w-7 h-7 shrink-0" />
@@ -67,12 +67,12 @@ export const ContactCta: React.FC<{
           <p className="mt-2 mb-6 max-w-md mx-auto leading-relaxed" style={{ color: MUTED }}>
             {text || t('pages.cta.text')}
           </p>
-          <div className="flex flex-col sm:flex-row sm:justify-center gap-3 max-w-md mx-auto">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-3 mx-auto">
             {whatsapp ? (
-              <WhatsAppButton className="sm:flex-1" />
+              <WhatsAppButton className="sm:w-auto" />
             ) : (
               !hideContactLink && (
-                <Link to="/contact" className="flex-1 inline-flex items-center justify-center gap-2 min-h-[3rem] px-6 font-semibold transition hover:opacity-90" style={primary}>
+                <Link to="/contact" className="inline-flex items-center justify-center gap-2 whitespace-nowrap min-h-[3rem] px-6 font-semibold transition hover:opacity-90" style={primary}>
                   <PageIcon name="chat" className="w-5 h-5" />
                   <span>{t('contact.title')}</span>
                 </Link>
@@ -80,7 +80,7 @@ export const ContactCta: React.FC<{
             )}
             <Link
               to="/products"
-              className="sm:flex-1 inline-flex items-center justify-center gap-2 min-h-[3rem] px-6 font-semibold transition hover:opacity-80"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap min-h-[3rem] px-6 font-semibold transition hover:opacity-80"
               style={!whatsapp && hideContactLink ? primary : secondary}
             >
               <PageIcon name="bag" className="w-5 h-5" />

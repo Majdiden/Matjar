@@ -45,6 +45,7 @@ export interface StoreProfilePatch {
     whatsappCountry?: string;
   };
   socialLinks?: Partial<Record<SocialPlatform, string | null>>;
+  contact?: { phone?: string | null; email?: string | null; address?: string | null };
 }
 
 export const STORE_NAME_MIN_LENGTH = 2;

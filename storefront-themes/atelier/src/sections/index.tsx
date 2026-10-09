@@ -18,6 +18,7 @@ import { useAtelierUI } from '../contexts/AtelierUI';
 import { BeforeAfter, CountUp, Icon, Marquee, Reveal, prefersReducedMotion } from '../lib/motion';
 import manifest from '../theme.manifest';
 import { storefrontLocale } from '@matjar/theme-shared/utils/locale';
+import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 /** Resolved blocks, falling back to the manifest definition's defaults when a store instance carries none. */
 function useBlocks(id: string, section?: { type: string }) {
@@ -89,8 +90,12 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
   const { t } = useTranslation(['theme']);
-  const bt = useBlockT();
-  const slides = blocks.length ? blocks : [{ id: 'fallback', type: 'slide', settings: {} }];
+  const storeName = useStore().store?.name || '';
+  // Once the merchant has their own photo, extra slides still carrying a
+  // theme stock photo are dropped; slides they filled themselves stay.
+  const hasOwnPhoto = !!merchantImage(s.image);
+  const all = blocks.length ? blocks : [{ id: 'fallback', type: 'slide', settings: {} }];
+  const slides = hasOwnPhoto ? all.filter((sl, i) => i === 0 || !isStockImage(sl.settings?.image)) : all;
   const [idx, setIdx] = useState(0);
   const [cycle, setCycle] = useState(0);
   const [hover, setHover] = useState(false);
@@ -98,6 +103,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const autoplay = s.autoplay !== false && slides.length > 1 && !(s.pause_on_hover && hover);
   const reduced = prefersReducedMotion();
   const go = (n: number) => { setIdx(((n % slides.length) + slides.length) % slides.length); setCycle((c) => c + 1); };
+  useEffect(() => { if (idx >= slides.length) setIdx(0); }, [idx, slides.length]);
   useEffect(() => {
     if (!autoplay) return;
     const t0 = setInterval(() => go(idx + 1), interval);
@@ -112,8 +118,9 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
         const active = i === idx;
         // The section-level (My Store) settings override the first slide.
         const st = i === 0 ? { ...sl.settings, ...pick(s, ['heading', 'image', 'cta_text']) } : sl.settings || {};
-        const eyebrow = bt('hero', i, 'eyebrow', st.eyebrow);
-        const heading = bt('hero', i, 'heading', st.heading);
+        // Extras (eyebrow) only when the merchant typed them; title falls back to the store name.
+        const eyebrow = merchantText(st.eyebrow);
+        const heading = merchantText(st.heading) || storeName;
         const sub = i === 0 ? s.subheading : '';
         const cta = st.cta_text || t('theme.section.hero.cta');
         return (

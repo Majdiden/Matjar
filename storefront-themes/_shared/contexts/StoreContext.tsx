@@ -28,7 +28,15 @@ export interface StoreInfo {
   } | null;
   /** Merchant-authored store policies keyed by slug (privacy/returns/delivery/
    *  cod). Only policies with a body are present. Body is server-sanitised HTML. */
-  policies?: Record<string, { title?: string | null; body: string }> | null;
+  policies?: Record<
+    string,
+    {
+      title?: string | null;
+      body: string;
+      /** Generated policies: one copy per language while the text is untouched. */
+      translations?: Record<string, { title?: string | null; body?: string | null }> | null;
+    }
+  > | null;
   giftCards?: {
     enabled: boolean;
   };

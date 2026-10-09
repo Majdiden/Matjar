@@ -11,6 +11,8 @@ import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import type { Product } from '@matjar/theme-shared/types/commerce';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
 // Niche default hero image — a warm artisan craft / maker's table shot — so
 // the hero is never empty even before the merchant sets one.
@@ -29,19 +31,28 @@ const reveal = (visible: boolean) => (visible ? 'opacity-100 translate-y-0' : 'o
 const ArtisanHero: React.FC<ArtisanSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
-  const { products: featured } = useFeaturedProducts(6);
+  const { store } = useStore();
+  const { products: featured, loading } = useFeaturedProducts(6);
+  // Only the merchant's own content: the title falls back to the store name;
+  // the second heading line, eyebrow and second button show only when set.
+  const title = [merchantText(hero.heading_line1) || store?.name || '', merchantText(hero.heading_line2)].filter(Boolean).join(' ');
+  const secondaryLabel = merchantText(hero.secondary_button_text);
+  // Photo: the merchant's own, else a product photo; the theme's stock photo
+  // only for a brand-new store with no products yet.
+  const own = merchantImage(hero.background_image, store?.brand?.coverImage);
+  const productPhoto = merchantImage(...(featured || []).map((p) => p.images?.[0]));
   return (
     <Hero
       variant="split"
       tone="light"
-      title={`${hero.heading_line1 || t('theme.section.hero.heading_line1')} ${hero.heading_line2 || t('theme.section.hero.heading_line2')}`}
-      subtitle={hero.subheading || t('theme.section.hero.subheading')}
+      title={title}
+      subtitle={merchantText(hero.subheading) || undefined}
       primaryCta={{ label: hero.primary_button_text || t('theme.section.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
-      secondaryCta={{ label: hero.secondary_button_text || t('theme.section.hero.secondary_cta'), href: hero.secondary_button_url || '/categories' }}
-      saleText={hero.eyebrow_text || t('theme.section.hero.eyebrow')}
-      backgroundImage={hero.background_image || undefined}
-      media={featured?.find((p) => p.images?.[0])?.images?.[0]}
-      defaultImage={HERO_DEFAULT_IMAGE}
+      secondaryCta={secondaryLabel ? { label: secondaryLabel, href: hero.secondary_button_url || '/categories' } : undefined}
+      saleText={merchantText(hero.eyebrow_text) || undefined}
+      backgroundImage={own || undefined}
+      media={productPhoto || undefined}
+      defaultImage={!own && !productPhoto && !loading ? HERO_DEFAULT_IMAGE : undefined}
     />
   );
 };

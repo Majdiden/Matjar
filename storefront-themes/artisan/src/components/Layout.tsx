@@ -13,7 +13,8 @@ import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/to
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
-import { PolicyLinks } from '@matjar/theme-shared/components/PolicyLinks';
+import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
+import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -31,6 +32,7 @@ const Layout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useTranslation(['theme']);
   const stripText = useTopStripText();
+  const footer = useStoreFooter();
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--color-background)] pb-16 md:pb-0">
@@ -157,61 +159,55 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {/* Footer */}
+      {/* Footer — content from the store's own data */}
       <footer className="bg-[var(--color-primary)] text-[var(--color-border)]">
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-white text-xl italic mb-4">{store?.name || 'Artisan'}</h3>
-              <p className="text-sm text-[var(--color-border)] leading-relaxed">
-                {t('theme.footer.tagline')}
-              </p>
+              {footer.logo ? (
+                <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto mb-4 object-contain" />
+              ) : (
+                <h3 className="text-white text-xl italic mb-4">{footer.storeName}</h3>
+              )}
+              {footer.description && (
+                <p className="text-sm text-[var(--color-border)] leading-relaxed">{footer.description}</p>
+              )}
+              {footer.social.length > 0 && (
+                <div className="flex gap-3 mt-4">
+                  {footer.social.map((s) => (
+                    <a
+                      key={s.platform}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.name}
+                      className="hover:text-white transition"
+                    >
+                      <SocialIcon platform={s.platform} className="w-5 h-5" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
-            <div>
-              <h4 className="text-white font-semibold mb-3">{t('theme.footer.shop_heading')}</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/products" className="hover:text-white transition">{t('theme.footer.shop_all')}</Link></li>
-                {categories.slice(0, 4).map(cat => (
-                  <li key={cat._id}>
-                    <Link to={`/categories/${cat.slug}`} className="hover:text-white transition">{cat.name}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-3">{t('theme.footer.about_heading')}</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/about" className="hover:text-white transition">{t('theme.footer.our_story')}</Link></li>
-                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.meet_makers')}</span></li>
-                <li><span className="hover:text-white cursor-pointer">{t('theme.footer.sustainability')}</span></li>
-                <li><Link to="/contact" className="hover:text-white transition">{t('theme.footer.contact')}</Link></li>
-              </ul>
-              <PolicyLinks className="mt-4" heading={false} linkClassName="hover:text-white transition" />
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-3">{t('theme.footer.circle_heading')}</h4>
-              <p className="text-sm text-[var(--color-border)] mb-3">{t('theme.footer.circle_subtext')}</p>
-              <form onSubmit={e => e.preventDefault()} className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder={t('theme.footer.email_placeholder')}
-                  className="flex-1 px-3 py-2 bg-[var(--color-secondary)] border border-[var(--color-border)] rounded text-sm text-white placeholder-[var(--color-muted)] focus:outline-none focus:border-[var(--color-accent)]"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[var(--color-accent)] hover:bg-[color-mix(in_srgb,var(--color-accent)_80%,black_20%)] text-white rounded text-sm font-medium transition"
-                >
-                  {t('theme.footer.join_button')}
-                </button>
-              </form>
-            </div>
+            {[
+              { title: footer.titles.shop, links: footer.shop },
+              { title: footer.titles.help, links: footer.help },
+              { title: footer.titles.policies, links: footer.policies },
+            ]
+              .filter((col) => col.links.length > 0)
+              .map((col) => (
+                <div key={col.title}>
+                  <h4 className="text-white font-semibold mb-3">{col.title}</h4>
+                  <ul className="space-y-2 text-sm">
+                    {col.links.map((l) => (
+                      <li key={l.to}><Link to={l.to} className="hover:text-white transition">{l.label}</Link></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
           </div>
           <div className="border-t border-[var(--color-border)] mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[var(--color-border)]">
-            <span>{t('theme.footer.copyright', { year: new Date().getFullYear(), name: store?.name || 'Artisan' })}</span>
-            <div className="flex gap-4">
-              <span className="hover:text-white cursor-pointer">{t('theme.footer.privacy')}</span>
-              <span className="hover:text-white cursor-pointer">{t('theme.footer.terms')}</span>
-            </div>
+            <span>{footer.copyright}</span>
           </div>
         </div>
       </footer>

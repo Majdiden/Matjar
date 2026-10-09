@@ -10,6 +10,8 @@ import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 // Niche default hero image — a bright, playful toys scene — so the hero is
@@ -79,16 +81,20 @@ type SectionProps = { id: string; onQuickView: (product: Product) => void };
 function HeroBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
+  const { store } = useStore();
   const { products: featured } = useFeaturedProducts(4);
+  // Only the merchant's own copy: the title falls back to the store name and
+  // the second heading line shows only when set.
+  const title = [merchantText(hero.heading_line1) || store?.name || '', merchantText(hero.heading_line2)].filter(Boolean).join(' ');
 
   return (
     <Hero
       variant="split"
       tone="dark"
-      title={`${hero.heading_line1 || t('theme.hero.heading_line1')} ${hero.heading_line2 || t('theme.hero.heading_line2')}`}
-      subtitle={hero.subheading || t('theme.hero.subheading')}
-      primaryCta={{ label: hero.button_text || t('theme.hero.cta'), href: hero.button_url || '/products' }}
-      backgroundImage={hero.background_image || undefined}
+      title={title}
+      subtitle={merchantText(hero.subheading) || undefined}
+      primaryCta={{ label: merchantText(hero.button_text) || t('common:storefront.shop_now'), href: hero.button_url || '/products' }}
+      backgroundImage={merchantImage(hero.background_image) || undefined}
       media={featured?.find((p) => p.images?.[0])?.images?.[0]}
       defaultImage={HERO_DEFAULT_IMAGE}
     />
@@ -238,9 +244,9 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
             <h2 className="text-2xl font-extrabold">
               <span className="text-[#fbbf24] inline-block align-middle me-1"><svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span> {feat.heading || t('theme.section.featured_products.title')}
             </h2>
-            <p className="text-gray-500 text-sm mt-1">
-              {feat.subheading || t('theme.section.featured_products.subtitle')}
-            </p>
+            {merchantText(feat.subheading) && (
+              <p className="text-gray-500 text-sm mt-1">{merchantText(feat.subheading)}</p>
+            )}
           </div>
           <Link
             to={feat.view_all_url || '/products'}
@@ -295,9 +301,11 @@ function NewArrivalsBlock({ id, onQuickView }: SectionProps) {
           <span className="text-[#8b5cf6]">{arrivals.heading || t('theme.section.new_arrivals.title')}</span>
         </span>
       </h2>
-      <p className="text-gray-500 text-sm mb-8">
-        {arrivals.subheading || t('theme.section.new_arrivals.subtitle')}
-      </p>
+      {merchantText(arrivals.subheading) ? (
+        <p className="text-gray-500 text-sm mb-8">{merchantText(arrivals.subheading)}</p>
+      ) : (
+        <div className="mb-6" />
+      )}
       {newLoading ? (
         <div className="flex gap-4 overflow-hidden">
           {Array.from({ length: 4 }).map((_, i) => (

@@ -37,3 +37,8 @@ This document lists all tasks associated with PBI 10.
 | 10-27 | [Delivery prices from the shipping settings](./10-27.md) | Review | The delivery questions asked for a free-text price that could disagree with checkout |
 | 10-28 | [Guided setup: open the current step, guide until done](./10-28.md) | Review | On login the dashboard opens the current essential step full-page (first product → logo, cover photo and tagline → delivery and returns policy → share) |
 | 10-29 | [My store as the main menu entry](./10-29.md) | Review | "My store" leads the top menu section (above dashboard, analytics and wishlists), drawn one size up, tinted, with a second line, in the same style as the other rows; removed from the Storefront section |
+| 10-30 | [My store fixes: store info, contact details, About follows the name](./10-30.md) | Review | Feedback from the test store: English fields read right to left, no Save button on site identity, contact page empty, About kept the old name, guide opened only the first step |
+| 10-31 | [Generated policies in both languages](./10-31.md) | Review | Returns and delivery policies showed only in the store language |
+| 10-32 | [Theme footers and heroes show only the store's content](./10-32.md) | Review | Footers mixed English and theme demo links; hero extras and slides showed theme demo copy and photos |
+| 10-33 | [Theme switch carries the homepage words and photo](./10-33.md) | Review | Switching theme lost the hero title, button text, photo and top strip |
+| 10-35 | [Platform admin quick search (Ctrl/Cmd+K)](./10-35.md) | Review | Platform owner wanted search to navigate quickly: pages, tabs and stores from the top bar or Ctrl/Cmd+K |

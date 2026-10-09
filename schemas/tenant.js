@@ -158,10 +158,14 @@ const tenantSchema = new Schema({
     // body, surfaced in the storefront footer, on dedicated policy pages, and
     // in checkout. Bodies are sanitised on write (controllers/settings.js).
     policies: {
+    // Generated policies (PBI 10-11) also keep a copy per storefront
+    // language in `translations` (title + body); the storefront shows the
+    // shopper's language while the generated text is untouched, and the
+    // merchant's own edited body (title/body) in every language after.
       privacy: { title: { type: String, default: null }, body: { type: String, default: null } },
-      returns: { title: { type: String, default: null }, body: { type: String, default: null } },
-      delivery: { title: { type: String, default: null }, body: { type: String, default: null } },
-      cod: { title: { type: String, default: null }, body: { type: String, default: null } },
+      returns: { title: { type: String, default: null }, body: { type: String, default: null }, translations: { type: Schema.Types.Mixed, default: undefined } },
+      delivery: { title: { type: String, default: null }, body: { type: String, default: null }, translations: { type: Schema.Types.Mixed, default: undefined } },
+      cod: { title: { type: String, default: null }, body: { type: String, default: null }, translations: { type: Schema.Types.Mixed, default: undefined } },
     },
     // Answers behind the generated delivery / returns / payment policies
     // (PBI 10-11, services/storePages.js), kept so the text can be rebuilt.

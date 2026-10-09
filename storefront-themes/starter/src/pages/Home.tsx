@@ -10,6 +10,8 @@ import { Hero } from '@matjar/theme-shared/components/sections/Hero';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
+import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 // Niche default hero image — a clean minimal retail shot — so the hero is
@@ -25,6 +27,7 @@ type SectionProps = { id: string; onQuickView: (product: Product) => void };
 function HeroBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
+  const { store } = useStore();
   const { products: featured } = useFeaturedProducts(4);
 
   return (
@@ -32,10 +35,10 @@ function HeroBlock({ id }: SectionProps) {
       className="mb-16"
       variant="spotlight"
       tone="light"
-      title={hero.heading || t('theme.hero.main.headline')}
-      subtitle={hero.subheading || t('theme.hero.main.subheadline')}
-      primaryCta={{ label: hero.button_text || t('theme.hero.main.cta'), href: hero.button_url || '/products' }}
-      backgroundImage={hero.background_image || undefined}
+      title={merchantText(hero.heading) || store?.name || ''}
+      subtitle={merchantText(hero.subheading) || undefined}
+      primaryCta={{ label: merchantText(hero.button_text) || t('theme.hero.main.cta'), href: hero.button_url || '/products' }}
+      backgroundImage={merchantImage(hero.background_image) || undefined}
       media={featured?.find((p) => p.images?.[0])?.images?.[0]}
       defaultImage={HERO_DEFAULT_IMAGE}
     />

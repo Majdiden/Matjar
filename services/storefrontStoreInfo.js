@@ -1,7 +1,7 @@
 import { isValidEditorPreviewToken } from "./themeCustomization.js";
 import { publicSocialLinks } from "../utils/socialLinks.js";
 import { publicBrand } from "../utils/brandKit.js";
-import { publicTrust } from "./generatedPages.js";
+import { contentHash, publicTrust } from "./generatedPages.js";
 
 /**
  * Build the public store payload — the exact object returned as
@@ -144,9 +144,17 @@ export function buildStoreInfo(tenant, options = {}) {
     policies: (() => {
       const src = tenant.settings?.policies || {};
       const out = {};
+      const hashes = tenant.settings?.policyAnswers?.generatedHash || {};
       for (const key of ["privacy", "returns", "delivery", "cod"]) {
         const p = src[key];
-        if (p && p.body) out[key] = { title: p.title || null, body: p.body };
+        if (!p || !p.body) continue;
+        out[key] = { title: p.title || null, body: p.body };
+        // Generated policies carry one copy per language; once the merchant
+        // edited the text, their own words win in every language.
+        const untouched = hashes[key] && hashes[key] === contentHash(p.body);
+        if (untouched && p.translations && typeof p.translations === "object") {
+          out[key].translations = p.translations;
+        }
       }
       return Object.keys(out).length ? out : null;
     })(),
