@@ -29,15 +29,13 @@ import { PageSpinner, ErrorState, EmptyState } from '../../components/ui/Spinner
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { useToast } from '../../components/ui/toast-context';
 import { formatDate } from '../../lib/utils';
+import { BILLING_TABS } from '../../components/nav';
 import { StatementStatusBadge, StatementModal, PolicyFormModal, Field } from './shared';
 import { Receipt, RefreshCw, Plus, Pencil, Trash2, Play, ChevronLeft, ChevronRight, Save } from 'lucide-react';
 
-type Tab = 'statements' | 'policies' | 'settings';
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'statements', label: 'Statements' },
-  { id: 'policies', label: 'Commission policies' },
-  { id: 'settings', label: 'Settings' },
-];
+// Tab list lives in components/nav.ts so the quick navigator can deep-link it.
+const TABS = BILLING_TABS;
+type Tab = (typeof TABS)[number]['id'];
 const TAB_IDS: Tab[] = TABS.map((t) => t.id);
 const STATUSES: StatementStatus[] = ['draft', 'issued', 'partially_paid', 'overdue', 'paid', 'waived', 'void'];
 const PERIOD_RE = /^\d{4}-(0[1-9]|1[0-2])$/;

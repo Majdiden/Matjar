@@ -77,7 +77,18 @@ export const listTenants = asyncHandler(async (req, res) => {
     const term = String(q).trim().slice(0, 100);
     if (term) {
       const rx = new RegExp(escapeRegExp(term), "i");
-      filter.$or = [{ name: rx }, { email: rx }, { slug: rx }, { domain: rx }, { phone: rx }];
+      filter.$or = [
+        { name: rx },
+        { email: rx },
+        { slug: rx },
+        { domain: rx },
+        { phone: rx },
+        // Hostnames as operators actually type them (subdomain / full host /
+        // custom domain) — used by the console's quick navigator.
+        { "domains.subdomain.name": rx },
+        { "domains.subdomain.fullDomain": rx },
+        { "domains.customDomain.name": rx },
+      ];
     }
   }
   const skip = (page - 1) * limit;
