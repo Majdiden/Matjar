@@ -50,7 +50,10 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   return (
     <div className={cn('space-y-2', className)}>
       {label && <Label htmlFor={id}>{label}</Label>}
+      {/* Phone numbers read left to right in every language (like the store
+          link): country code on the left, digits typed from the left. */}
       <div
+        dir="ltr"
         className={cn(
           'flex items-stretch rounded-md border bg-background shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0',
           error && 'border-destructive',

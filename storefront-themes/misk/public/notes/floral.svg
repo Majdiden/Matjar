@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Floral">
+  <path d="M60 112V62" stroke="#8FA86B" stroke-width="5" stroke-linecap="round"/>
+  <path d="M60 92c-11 0-18-6-19-15 11-1 18 5 19 15z" fill="#8FA86B"/>
+  <g fill="#F3D9E2" stroke="#E3BECB" stroke-width="2">
+    <ellipse cx="60" cy="30" rx="13" ry="26"/>
+    <ellipse cx="84" cy="48" rx="13" ry="26" transform="rotate(55 84 48)"/>
+    <ellipse cx="36" cy="48" rx="13" ry="26" transform="rotate(-55 36 48)"/>
+  </g>
+  <ellipse cx="60" cy="58" rx="9" ry="9" fill="#E8C877"/>
+  <path d="M60 58v-9M55 57l-4-7M65 57l4-7" stroke="#D4A84E" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWishlist } from '../hooks/useWishlist';
+import { storefrontApi } from '../api/client';
 import { useCart } from '../contexts/CartContext';
 import { useThemeCard } from '../theme/ThemeCardProvider';
 import { useTranslation } from 'react-i18next';
@@ -27,6 +28,34 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
   const { items, loading, error, toggle } = useWishlist();
   const { addItem } = useCart();
   const [busy, setBusy] = useState<string | null>(null);
+
+  // A guest wishlist entry is a SNAPSHOT taken when the heart was clicked
+  // ({_id, name, slug, price, images}) — it carries no `stock`, so a card
+  // reading `product.stock ?? 0` concluded every saved item was sold out.
+  // Price can be just as stale. Re-read the live products in one request and
+  // merge them over the snapshots; the snapshot stays as the fallback so the
+  // page still renders if the fetch fails.
+  const [live, setLive] = useState<Record<string, any>>({});
+  const idKey = useMemo(
+    () => items.map((it: any) => (it.product?._id || it.productId || it._id)).filter(Boolean).join(','),
+    [items]
+  );
+
+  useEffect(() => {
+    if (!idKey) { setLive({}); return; }
+    let alive = true;
+    storefrontApi
+      .getProducts({ ids: idKey, limit: 100 })
+      .then((res: any) => {
+        if (!alive) return;
+        const list = (res?.data || res)?.products || [];
+        const byId: Record<string, any> = {};
+        for (const p of list) byId[String(p._id)] = p;
+        setLive(byId);
+      })
+      .catch(() => { /* keep the snapshots */ });
+    return () => { alive = false; };
+  }, [idKey]);
 
   // Guests keep a local wishlist; signed-in customers keep a server one.
   // We no longer gate the page behind login — instead we show a gentle
@@ -117,8 +146,12 @@ const Wishlist: React.FC<WishlistProps> = ({ renderCard: propRenderCard }) => {
       {!loading && !error && items.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {items.map((it: any) => {
-            const product = it.product || it;
-            const productId = product._id || it.productId || it._id;
+            const snapshot = it.product || it;
+            const productId = snapshot._id || it.productId || it._id;
+            // Live data wins for stock/price; the snapshot fills any gap.
+            const product = live[String(productId)]
+              ? { ...snapshot, ...live[String(productId)] }
+              : snapshot;
             if (renderCard) {
               return (
                 <div key={productId} className="relative">

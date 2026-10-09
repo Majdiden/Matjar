@@ -19,6 +19,7 @@ export const DEFAULT_PAGE_STYLE: PageStyle = 'clean';
 /** Theme slug → page style. Unknown themes get DEFAULT_PAGE_STYLE. */
 export const PAGE_STYLE_BY_THEME: Readonly<Record<string, PageStyle>> = Object.freeze({
   aurum: 'editorial',
+  misk: 'editorial',
   atelier: 'editorial',
   elegance: 'editorial',
   beauxe: 'editorial',

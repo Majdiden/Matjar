@@ -5,6 +5,7 @@ import { useStore } from '../contexts/StoreContext';
 import { ordersApi, authApi, checkoutApi, giftCardApi, paymentMethodsApi, PaymentMethodPublic, isPreviewMode, notifyPreviewDisabled } from '../api/client';
 import PaymentMethodPicker from '../components/commerce/PaymentMethodPicker';
 import { useTranslation } from 'react-i18next';
+import { localizedPaymentMethodLabel } from '../lib/paymentLabel';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { COUNTRIES, getCitiesForCountry, optionsWithCurrent, locationLabel } from '../data/locations';
 // Dates follow the storefront language (ar → ar-SD), not the browser locale.
@@ -651,7 +652,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
               <div>
                 <label className="block text-sm font-medium mb-1">{t('checkout.field.contact.email.label')}</label>
                 <input
-                  type="email"
+                  type="email" dir="ltr"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -749,7 +750,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.phone.label')}</label>
-                <input type="tel" required value={shipping.phone} onChange={setShippingField('phone')} className={inputClass} style={inputStyle} />
+                <input type="tel" inputMode="tel" dir="ltr" required value={shipping.phone} onChange={setShippingField('phone')} className={inputClass} style={inputStyle} />
               </div>
 
               <div>
@@ -913,7 +914,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   <p className="font-semibold uppercase text-xs text-gray-500">{t('checkout.field.review.payment_label')}</p>
                   <button onClick={() => setStep(3)} className="text-xs underline" style={{ color: accent }}>{t('checkout.action.edit')}</button>
                 </div>
-                <p>{isZeroTotal ? t('checkout.summary.gift_card') : (availablePaymentMethods.find((m) => m.code === paymentMethodCode)?.label || paymentMethodCode || '—')}</p>
+                <p>{isZeroTotal ? t('checkout.summary.gift_card') : (localizedPaymentMethodLabel(availablePaymentMethods.find((m) => m.code === paymentMethodCode) || paymentMethodCode, t) || '—')}</p>
                 {notes && <p className="text-gray-600 mt-2 text-xs italic">"{notes}"</p>}
               </div>
 

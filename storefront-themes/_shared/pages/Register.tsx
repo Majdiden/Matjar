@@ -94,7 +94,7 @@ const Register: React.FC<RegisterProps> = ({
         <div>
           <label className="block text-sm font-medium mb-1">{t('register.field.email.label')}</label>
           <input
-            type="email"
+            type="email" dir="ltr"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}

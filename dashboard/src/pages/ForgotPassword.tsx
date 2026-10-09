@@ -107,7 +107,7 @@ export const ForgotPassword: React.FC = () => {
                 <Label htmlFor="email">{t('auth.field.email.label')}</Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="email" dir="ltr"
                   placeholder={t('auth.field.email.placeholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

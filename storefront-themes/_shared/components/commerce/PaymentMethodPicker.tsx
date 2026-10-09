@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { localizedPaymentMethodLabel, localizedPaymentMethodDescription } from '../../lib/paymentLabel';
 import { paymentMethodsApi, PaymentMethodPublic, PaymentMethodField } from '../../api/client';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 import PaymentLogo from './PaymentLogo';
@@ -18,58 +19,8 @@ interface Props {
 
 const DEFAULT_MAX = 5 * 1024 * 1024;
 
-// Standard payment-method codes → i18n key. Merchant `label`s are stored in a
-// single language (usually the English default set when the method is enabled),
-// so a standard method shows untranslated on an Arabic storefront. For KNOWN
-// system codes we render the localized label; anything else falls back to the
-// merchant's own label. (Full per-merchant bilingual labels are a separate
-// data-model feature.)
-const KNOWN_METHOD_KEYS: Record<string, string> = {
-  cod: 'cod',
-  cash_on_delivery: 'cod',
-  cashondelivery: 'cod',
-  cash: 'cash',
-  bank: 'bank_transfer',
-  bank_transfer: 'bank_transfer',
-  banktransfer: 'bank_transfer',
-  wire: 'bank_transfer',
-  wire_transfer: 'bank_transfer',
-  card: 'card',
-  credit_card: 'card',
-  debit_card: 'card',
-  wallet: 'wallet',
-  mobile_wallet: 'wallet',
-};
-
-function localizedMethodLabel(
-  method: { code?: string; label: string },
-  t: (key: string, opts?: Record<string, unknown>) => string,
-): string {
-  const norm = String(method.code || '').toLowerCase().replace(/[\s-]+/g, '_');
-  const key = KNOWN_METHOD_KEYS[norm];
-  if (key) {
-    const translated = t(`payment.method.${key}`, { defaultValue: '' });
-    if (translated) return translated;
-  }
-  return method.label;
-}
-
-// Localize the description of a KNOWN method (COD, bank transfer, …) so it isn't
-// stuck in English on an Arabic storefront. Only replaces an existing merchant
-// description — never invents one for methods that had none.
-function localizedMethodDescription(
-  method: { code?: string; description?: string },
-  t: (key: string, opts?: Record<string, unknown>) => string,
-): string | undefined {
-  if (!method.description) return method.description;
-  const norm = String(method.code || '').toLowerCase().replace(/[\s-]+/g, '_');
-  const key = KNOWN_METHOD_KEYS[norm];
-  if (key) {
-    const translated = t(`payment.method_desc.${key}`, { defaultValue: '' });
-    if (translated) return translated;
-  }
-  return method.description;
-}
+// Label and description resolution live in ../../lib/paymentLabel so the
+// checkout review line, the order-success page and this picker all agree.
 
 function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
@@ -223,11 +174,11 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm" style={{ color: 'var(--color-text, #111827)' }}>
-                  {localizedMethodLabel(method, t)}
+                  {localizedPaymentMethodLabel(method, t)}
                 </p>
                 {method.description && (
                   <p className="text-xs" style={{ color: 'var(--color-muted, #6b7280)' }}>
-                    {localizedMethodDescription(method, t)}
+                    {localizedPaymentMethodDescription(method, t)}
                   </p>
                 )}
               </div>

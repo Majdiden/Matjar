@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Warm and spicy">
+  <g transform="rotate(-18 60 64)">
+    <rect x="34" y="34" width="18" height="60" rx="9" fill="#A2662F"/>
+    <rect x="52" y="30" width="18" height="64" rx="9" fill="#B9793C"/>
+    <rect x="70" y="36" width="16" height="58" rx="8" fill="#8E5526"/>
+    <path d="M43 34v60M61 30v64M78 36v58" stroke="#7A481F" stroke-width="2" opacity=".55"/>
+  </g>
+  <g fill="#6E4420" transform="translate(60 30)">
+    <path d="M0-16 4-5l11 1-8 7 3 11L0 8l-10 6 3-11-8-7 11-1z"/>
+  </g>
+</svg>

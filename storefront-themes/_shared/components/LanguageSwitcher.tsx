@@ -88,10 +88,14 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
         <span className="uppercase">{lang === 'ar' ? 'AR' : 'EN'}</span>
       </button>
       {open && (
+        // z-[200]: theme headers are sticky at z-50, which creates a stacking
+        // context that paints over a z-50 panel anchored in the (static)
+        // utility bar above them. The panel is a transient popover and
+        // belongs above all chrome.
         <div
           ref={menuRef}
           role="menu"
-          className={`absolute end-0 ${openUp ? 'bottom-full mb-2' : 'top-full mt-2'} min-w-[11rem] max-w-[calc(100vw-1rem)] rounded-2xl border shadow-xl z-50 p-1.5 text-sm overflow-hidden`}
+          className={`absolute end-0 ${openUp ? 'bottom-full mb-2' : 'top-full mt-2'} min-w-[11rem] max-w-[calc(100vw-1rem)] rounded-2xl border shadow-xl z-[200] p-1.5 text-sm overflow-hidden`}
           style={{
             backgroundColor: 'var(--color-background, #ffffff)',
             borderColor: 'var(--color-border, #e5e7eb)',

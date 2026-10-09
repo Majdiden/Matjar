@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Citrus">
+  <circle cx="60" cy="60" r="44" fill="#F6E9C9"/>
+  <circle cx="60" cy="60" r="38" fill="#FBF4E2"/>
+  <g fill="#E8C877">
+    <path d="M60 60 60 25a35 35 0 0 1 24 10z"/><path d="M60 60 87 38a35 35 0 0 1 8 25z"/>
+    <path d="M60 60h35a35 35 0 0 1-10 24z"/><path d="M60 60 84 85a35 35 0 0 1-24 10z"/>
+    <path d="M60 60v35a35 35 0 0 1-24-10z"/><path d="M60 60 35 84a35 35 0 0 1-10-24z"/>
+    <path d="M60 60H25a35 35 0 0 1 10-25z"/><path d="M60 60 36 35a35 35 0 0 1 24-10z"/>
+  </g>
+  <circle cx="60" cy="60" r="5" fill="#FBF4E2"/>
+  <path d="M60 16c6-8 16-10 22-7-3 7-12 11-22 7z" fill="#8FA86B"/>
+</svg>

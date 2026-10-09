@@ -26,6 +26,7 @@ import {
 import { APIError } from "../middlewares/errorHandler.js";
 import { getThemeManifest, getBuiltInThemeSlugs } from "./themeManifestRegistry.js";
 import { seedThemeDemoData } from "./themeDemoData.js";
+import { ensureEssentialPages } from "./themeEssentialPages.js";
 import { getAllowedThemeSlugs, isFeatureEnabledFor } from "./featureFlags.js";
 import { normalizeStoreNiche } from "../config/storeNiches.js";
 import { validateCustomization } from "./themeValidator.js";
@@ -387,7 +388,14 @@ export const installThemeService = async (themeId, tenantId) => {
   if (!currentTenant) throw new APIError("Tenant not found", 404);
 
   const previousThemeId = currentTenant.themeCustomization?.themeId;
-  if (previousThemeId && previousThemeId.toString() === themeId.toString()) return theme;
+  if (previousThemeId && previousThemeId.toString() === themeId.toString()) {
+    // Already on this theme: nothing to re-seed, but still make sure the
+    // pages the storefront chrome links to exist. A store can reach this
+    // branch on its very first install (signup assigns the theme before
+    // this runs), and skipping it left About/Contact/FAQ missing.
+    await ensureEssentialPages(tenantId);
+    return theme;
+  }
 
   if (previousThemeId) await decrementThemeInstallsRepo(previousThemeId);
 
@@ -443,6 +451,13 @@ export const installThemeService = async (themeId, tenantId) => {
   });
 
   await incrementThemeInstallsRepo(themeId);
+
+  // Every theme's footer and drawer link to About / Contact / FAQ, so make
+  // sure those pages exist before the storefront renders those links. This
+  // only ever CREATES what is missing, in both locales — a merchant's own
+  // page content is never touched — and it never throws, so a content
+  // failure cannot fail the install the merchant actually asked for.
+  await ensureEssentialPages(tenantId);
 
   // NOTE: activating a theme intentionally does NOT seed demo data. The
   // merchant's real products / categories / collections must be preserved

@@ -125,7 +125,7 @@ export const PoliciesSettings: React.FC = () => {
             <div className="space-y-2">
               <Label>{t('settings.field.contact.email.label', { defaultValue: 'Store email' })}</Label>
               <Input
-                type="email"
+                type="email" dir="ltr"
                 placeholder={t('settings.field.contact.email.placeholder', { defaultValue: 'store@example.com' })}
                 value={contact.email}
                 onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))}

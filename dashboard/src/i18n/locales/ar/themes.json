@@ -812,6 +812,54 @@
     "atelier-stories": {
       "name": "قصص",
       "description": "عرض دوّار لبطاقات تحريرية"
+    },
+    "misk-hero": {
+      "name": "عرض الشرائح الرئيسي",
+      "description": "شريط كامل العرض بصورة مؤطّرة بجانب نص، مع تلاشٍ متبادل بين الشرائح وشريط تقدّم متزامن"
+    },
+    "misk-notes": {
+      "name": "التسوّق حسب النفحة",
+      "description": "صفّ من بطاقات النفحات العطرية يربط بالأقسام، ويتحوّل إلى شريط قابل للتمرير على الهاتف"
+    },
+    "misk-scent-cards": {
+      "name": "بطاقات المجموعات",
+      "description": "مقدّمة نصّية بجانب بطاقات صور تحمل عناوين داخل أقراص في المنتصف"
+    },
+    "misk-concept": {
+      "name": "كولاج الفكرة",
+      "description": "شريط ملوّن يضمّ نصًّا تعريفيًا بجانب كولاج صور غير متماثل"
+    },
+    "misk-product-grid": {
+      "name": "شبكة المنتجات",
+      "description": "شبكة منتجات من مصدر تختاره، مع خطّ اختياري تحت العنوان"
+    },
+    "misk-countdown": {
+      "name": "بانر العدّ التنازلي",
+      "description": "بانر كامل العرض يعدّ تنازليًا حتى تاريخ تحدّده. يبقى مخفيًا حتى تضبط التاريخ."
+    },
+    "misk-usp-strip": {
+      "name": "شريط الوعود",
+      "description": "شريط من الوعود بأيقونات — التوصيل والإرجاع والدفع والدعم"
+    },
+    "misk-split-banner": {
+      "name": "بانر مقسوم",
+      "description": "صورة بجانب نصّ مع زرّ إجراء"
+    },
+    "misk-category-tiles": {
+      "name": "بطاقات الأقسام",
+      "description": "شبكة من بطاقات صور الأقسام مع تكبير بطيء عند المرور"
+    },
+    "misk-testimonials": {
+      "name": "آراء العملاء",
+      "description": "اقتباسات من العملاء في شريط قابل للتمرير"
+    },
+    "misk-stories": {
+      "name": "المقالات",
+      "description": "شريط من بطاقات تحريرية تربط بصفحاتك"
+    },
+    "misk-marquee": {
+      "name": "الشريط المتحرّك",
+      "description": "شريط متواصل الحركة يعرض رسائل قصيرة"
     }
   },
   "settings": {
@@ -1468,6 +1516,171 @@
     },
     "shipping_note": {
       "label": "ملاحظة الشحن"
+    },
+    "show_utility_bar": {
+      "label": "إظهار الشريط العلوي"
+    },
+    "utility_phone": {
+      "label": "هاتف الشريط العلوي"
+    },
+    "utility_email": {
+      "label": "بريد الشريط العلوي"
+    },
+    "utility_show_social": {
+      "label": "إظهار روابط التواصل في الشريط العلوي"
+    },
+    "utility_show_language": {
+      "label": "إظهار مبدّل اللغة في الشريط العلوي"
+    },
+    "utility_background": {
+      "label": "خلفية الشريط العلوي"
+    },
+    "announcement_interval": {
+      "label": "مدّة تبديل الإعلانات"
+    },
+    "announcement_background": {
+      "label": "خلفية شريط الإعلانات"
+    },
+    "announcement_color": {
+      "label": "لون نصّ الإعلانات"
+    },
+    "header_layout": {
+      "label": "تخطيط الترويسة"
+    },
+    "show_wishlist_icon": {
+      "label": "إظهار أيقونة المفضّلة"
+    },
+    "show_account_icon": {
+      "label": "إظهار أيقونة الحساب"
+    },
+    "mega_show_promo": {
+      "label": "إظهار اللوحة الترويجية في القائمة الكبيرة"
+    },
+    "collection_banner_height": {
+      "label": "ارتفاع بانر القسم"
+    },
+    "collection_show_chips": {
+      "label": "إظهار أقراص الأقسام على بانر القسم"
+    },
+    "mobile_columns": {
+      "label": "عدد الأعمدة على الهاتف"
+    },
+    "show_grid_toggle": {
+      "label": "إظهار مبدّل الشبكة والقائمة"
+    },
+    "card_show_ribbon": {
+      "label": "إظهار شريط التخفيض على البطاقات"
+    },
+    "card_text_align": {
+      "label": "محاذاة نصّ البطاقة"
+    },
+    "card_show_quick_add": {
+      "label": "إظهار شريط الإضافة السريعة عند المرور"
+    },
+    "card_second_image": {
+      "label": "تبديل الصورة عند المرور"
+    },
+    "show_save_badge": {
+      "label": "إظهار شارة نسبة التوفير"
+    },
+    "show_buy_now": {
+      "label": "إظهار زرّ الشراء الفوري"
+    },
+    "show_delivery_note": {
+      "label": "إظهار ملاحظات التوصيل والإرجاع"
+    },
+    "delivery_note": {
+      "label": "ملاحظة التوصيل"
+    },
+    "returns_note": {
+      "label": "ملاحظة الإرجاع"
+    },
+    "show_related": {
+      "label": "إظهار المنتجات المشابهة"
+    },
+    "show_recently_viewed": {
+      "label": "إظهار ما شُوهد مؤخرًا"
+    },
+    "footer_show_contact": {
+      "label": "إظهار عمود التواصل في التذييل"
+    },
+    "footer_show_menu": {
+      "label": "إظهار عمود القائمة في التذييل"
+    },
+    "footer_show_social": {
+      "label": "إظهار روابط التواصل في التذييل"
+    },
+    "footer_show_payment": {
+      "label": "إظهار شارات الدفع"
+    },
+    "footer_background": {
+      "label": "خلفية التذييل"
+    },
+    "show_whatsapp_block": {
+      "label": "إظهار قسم واتساب"
+    },
+    "whatsapp_number": {
+      "label": "رقم واتساب (بالصيغة الدولية)"
+    },
+    "whatsapp_heading": {
+      "label": "عنوان قسم واتساب"
+    },
+    "whatsapp_text": {
+      "label": "نصّ قسم واتساب"
+    },
+    "show_floating_whatsapp": {
+      "label": "إظهار زرّ واتساب العائم"
+    },
+    "band_color": {
+      "label": "لون الشريط"
+    },
+    "show_progress": {
+      "label": "إظهار شريط التقدّم"
+    },
+    "zoom_effect": {
+      "label": "تكبير بطيء للصورة"
+    },
+    "image_radius": {
+      "label": "استدارة زوايا الصورة"
+    },
+    "max_items": {
+      "label": "أقصى عدد للبطاقات"
+    },
+    "image_shape": {
+      "label": "شكل البطاقة"
+    },
+    "card_radius": {
+      "label": "استدارة زوايا البطاقة"
+    },
+    "aspect": {
+      "label": "نسبة أبعاد البطاقة"
+    },
+    "image_main": {
+      "label": "الصورة الطويلة"
+    },
+    "image_5": {
+      "label": "الصورة 5"
+    },
+    "show_rule": {
+      "label": "إظهار خطّ تحت العنوان"
+    },
+    "collection": {
+      "label": "المجموعة (تتجاوز المصدر)"
+    },
+    "mobile_layout": {
+      "label": "التخطيط على الهاتف"
+    },
+    "end_at": {
+      "label": "ينتهي العدّ التنازلي في"
+    },
+    "repeat_daily": {
+      "label": "التكرار يوميًا"
+    },
+    "hide_when_expired": {
+      "label": "إخفاؤه بعد الانتهاء"
+    },
+    "separator": {
+      "label": "الفاصل"
     }
   },
   "blocks": {
@@ -1545,6 +1758,9 @@
     },
     "hotspot": {
       "name": "نقطة منتج"
+    },
+    "note": {
+      "name": "نفحة"
     }
   },
   "options": {
@@ -1629,6 +1845,47 @@
     "image_swatches": "عينات صور",
     "colour_swatches": "عينات ألوان",
     "tabs": "تبويبات",
-    "accordion": "قائمة قابلة للطي"
+    "accordion": "قائمة قابلة للطي",
+    "logo_start": "الشعار في البداية والقائمة في المنتصف",
+    "logo_center": "الشعار في المنتصف والقائمة في البداية",
+    "top": "شريط فوق الشبكة",
+    "drawer": "لوح جانبي",
+    "1": "1",
+    "2": "2",
+    "5": "5",
+    "6": "6",
+    "8": "8",
+    "load-more": "زرّ عرض المزيد",
+    "numbered": "صفحات مرقّمة",
+    "thumbs-below": "مصغّرات بالأسفل",
+    "thumbs-start": "مصغّرات في البداية",
+    "stacked": "صور متتابعة (تفاصيل ثابتة)",
+    "slider-dots": "شريط بنقاط",
+    "color-swatch": "عيّنات ألوان",
+    "image_start": "الصورة في البداية",
+    "image_end": "الصورة في النهاية",
+    "medium": "متوسط",
+    "tall": "مرتفع",
+    "full": "ملء الشاشة",
+    "blocks": "العناصر أدناه",
+    "categories": "أقسام المتجر",
+    "free": "صورة مقصوصة (بلا إطار)",
+    "circle": "دائرة",
+    "rounded": "مربّع بزوايا دائرية",
+    "text_start": "النصّ في البداية",
+    "text_end": "النصّ في النهاية",
+    "text_above": "النصّ بالأعلى",
+    "square": "مربّع",
+    "portrait": "طولي",
+    "landscape": "عرضي",
+    "sale": "المخفّض",
+    "grid-2": "شبكة من عمودين",
+    "grid-1": "شبكة من عمود واحد",
+    "rail": "شريط قابل للتمرير",
+    "gift": "هدية",
+    "diamond": "معيّن",
+    "dot": "نقطة",
+    "slash": "شرطة مائلة",
+    "none": "بلا فاصل"
   }
 }

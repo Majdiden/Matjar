@@ -103,7 +103,7 @@ export const EmailTemplates: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label>{t('settings.field.notifications.from_email.label')}</Label>
-              <Input type="email" value={config.fromEmail || ''} onChange={e => setConfig(c => ({ ...c, fromEmail: e.target.value }))} placeholder={t('settings.field.notifications.from_email.placeholder')} />
+              <Input type="email" dir="ltr" value={config.fromEmail || ''} onChange={e => setConfig(c => ({ ...c, fromEmail: e.target.value }))} placeholder={t('settings.field.notifications.from_email.placeholder')} />
             </div>
           </div>
         </CardContent>

@@ -49,6 +49,7 @@ const STORES = [
   { theme: "nutreko",   subdomain: "supplements", en: "Nutreko Supplements",  ar: "نوتريكو للمكملات" },
   { theme: "sportzone", subdomain: "sports",      en: "SportZone",            ar: "سبورت زون للرياضة" },
   { theme: "milmaa",    subdomain: "beverages",   en: "Milmaa Beverages",     ar: "ملماء للمشروبات" },
+  { theme: "misk",      subdomain: "perfume",     en: "Misk Perfumes",        ar: "مسك للعطور" },
   { theme: "starter",   subdomain: "shop",        en: "Matjar Demo Shop",     ar: "متجر — متجر تجريبي" },
 ];
 
@@ -56,33 +57,40 @@ const LANG = "ar";
 const CURRENCY = "SDG";
 
 // ─── Store policies (bilingual: EN + AR in one body) ────────────────────
+//
+// Titles are left empty on purpose. `publishedPolicies` falls back to the
+// localized `common:storefront.policies.<key>` label when a merchant has not
+// written their own, so the footer link reads "سياسة الدفع عند الاستلام" in
+// Arabic and "Cash on Delivery Policy" in English, switching with the
+// shopper's language. A stored title is a single string and would be stuck in
+// one language whichever way it was written.
 const policyBody = (en, ar) =>
   `<div dir="ltr">${en}</div><hr/><div dir="rtl">${ar}</div>`;
 
 const POLICIES = {
   privacy: {
-    title: "Privacy Policy / سياسة الخصوصية",
+    title: "",
     body: policyBody(
       "<p>We respect your privacy. We collect only the information needed to process your orders and improve your experience, and we never sell your data. Your details are stored securely and shared only with the couriers and payment partners required to fulfil your order.</p>",
       "<p>نحترم خصوصيتك. نجمع فقط المعلومات اللازمة لمعالجة طلباتك وتحسين تجربتك، ولا نبيع بياناتك أبداً. تُحفظ بياناتك بشكل آمن ولا تُشارك إلا مع شركات التوصيل وشركاء الدفع اللازمين لإتمام طلبك.</p>"
     ),
   },
   returns: {
-    title: "Returns & Refunds / الإرجاع والاسترداد",
+    title: "",
     body: policyBody(
       "<p>Changed your mind? You can return most items within 14 days of delivery in their original condition. Once we receive and inspect the item, your refund is issued to the original payment method or as store credit.</p>",
       "<p>غيّرت رأيك؟ يمكنك إرجاع معظم المنتجات خلال 14 يوماً من الاستلام بحالتها الأصلية. بعد استلام المنتج وفحصه، يُصرف المبلغ إلى وسيلة الدفع الأصلية أو كرصيد في المتجر.</p>"
     ),
   },
   delivery: {
-    title: "Delivery / التوصيل",
+    title: "",
     body: policyBody(
       "<p>We deliver across the city within 1–3 business days, and to other states within 3–7 days. You'll get an order confirmation and can reach us any time on WhatsApp to track your delivery.</p>",
       "<p>نوصّل داخل المدينة خلال 1–3 أيام عمل، وإلى بقية الولايات خلال 3–7 أيام. ستصلك رسالة تأكيد بالطلب، ويمكنك التواصل معنا في أي وقت عبر واتساب لتتبّع طلبك.</p>"
     ),
   },
   cod: {
-    title: "Cash on Delivery / الدفع عند الاستلام",
+    title: "",
     body: policyBody(
       "<p>Pay with cash when your order arrives — no card needed. Please have the exact amount ready for the courier. Cash on delivery is available on all orders within our delivery zones.</p>",
       "<p>ادفع نقداً عند وصول طلبك — دون الحاجة لبطاقة. يُرجى تجهيز المبلغ بالضبط لمندوب التوصيل. الدفع عند الاستلام متاح لجميع الطلبات داخل مناطق التوصيل لدينا.</p>"
