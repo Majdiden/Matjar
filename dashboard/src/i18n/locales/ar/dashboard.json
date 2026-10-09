@@ -3,7 +3,7 @@
   "subtitle": "نظرة عامة على أداء متجرك",
   "stats": {
     "last_30_days": "آخر 30 يومًا",
-    "all_time": "كل الفترات",
+    "all_time": "منذ البداية",
     "vs_prev_30d": "مقارنة بالثلاثين يومًا السابقة"
   },
   "metric": {
@@ -14,8 +14,8 @@
     "products": "المنتجات",
     "products_description": "المنتجات النشطة",
     "customers": "العملاء",
-    "customers_description": "المستخدمون المسجّلون",
-    "sales_trend": "اتجاه المبيعات",
+    "customers_description": "العملاء المسجّلون",
+    "sales_trend": "حركة المبيعات",
     "sales_trend_description": "الإيرادات اليومية · آخر ١٤ يومًا"
   },
   "setup": {
@@ -38,15 +38,15 @@
       },
       "theme": {
         "title": "خصّص قالبك",
-        "desc": "انشر مظهر واجهة متجرك"
+        "desc": "اختر شكل متجرك وانشره"
       },
       "test_order": {
         "title": "نفّذ طلبًا تجريبيًا",
         "desc": "زر متجرك وأتمم عملية شراء كما يفعل العميل"
       },
       "domain": {
-        "title": "اربط نطاقًا",
-        "desc": "استخدم نطاقك الخاص لعلامة تجارية أفضل"
+        "title": "اربط نطاقك الخاص",
+        "desc": "استخدم عنوانًا خاصًا بك ليظهر متجرك باسم علامتك"
       }
     }
   },
@@ -57,12 +57,12 @@
       "view_all": "عرض الكل",
       "empty": "لا توجد طلبات بعد",
       "guest": "ضيف",
-      "item_count_zero": "لا عناصر",
-      "item_count_one": "عنصر واحد",
-      "item_count_two": "عنصران",
-      "item_count_few": "{{count}} عناصر",
-      "item_count_many": "{{count}} عنصرًا",
-      "item_count_other": "{{count}} عنصر"
+      "item_count_zero": "لا منتجات",
+      "item_count_one": "منتج واحد",
+      "item_count_two": "منتجان",
+      "item_count_few": "{{count}} منتجات",
+      "item_count_many": "{{count}} منتجًا",
+      "item_count_other": "{{count}} منتج"
     },
     "quick_actions": {
       "title": "إجراءات سريعة",
@@ -77,13 +77,13 @@
   },
   "add_product": "إضافة منتج",
   "toast": {
-    "load_failed": "فشل تحميل بيانات لوحة التحكم",
+    "load_failed": "تعذّر تحميل بيانات لوحة التحكم",
     "link_copied": "تم نسخ رابط المتجر"
   },
   "starter": {
-    "title": "متجرك يحتوي على محتوى مبدئي كمسودة",
+    "title": "في متجرك محتوى تجريبي لم يُنشر بعد",
     "description": "عاين متجرك ممتلئًا بمنتجات وصفحات تجريبية، ثم انشره ليصبح متاحًا لعملائك.",
-    "preview": "معاينة متجر المسودة",
+    "preview": "معاينة المتجر قبل النشر",
     "publish": "نشر المتجر",
     "publishing": "جارٍ النشر…",
     "published": "متجرك متاح الآن لعملائك!"
