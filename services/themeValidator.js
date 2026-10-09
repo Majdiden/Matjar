@@ -58,6 +58,7 @@ import {
   validateSettingValue,
   validateSettingsBag,
   resolveI18nTwin,
+  validateManifestExtensions,
 } from "../utils/themeManifestRules.js";
 
 // ─── Template allow-list (re-exported) ───────────────────────────
@@ -420,6 +421,26 @@ export function validateGlobalSettings(themeSlug, settings) {
   validateTypographyBucket(settings.typography, errors);
   validateLayoutBucket(settings.layout, errors);
   validateThemeBucket(settings.theme, manifest.settings, errors);
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validate a theme manifest's PBI 10 extensions — `level` / `bind` on
+ * settings and sections, per-niche `presets` (rules in
+ * utils/themeManifestRules.js → validateManifestExtensions; the same check
+ * fails a theme build in scripts/validate-theme.js). Accepts a slug (looked
+ * up in the registry) or a manifest object.
+ *
+ * @param {string|object} themeSlugOrManifest
+ * @returns {{ valid: boolean, errors: string[] }}
+ */
+export function validateThemeManifest(themeSlugOrManifest) {
+  const manifest =
+    typeof themeSlugOrManifest === "string" ? getThemeManifest(themeSlugOrManifest) : themeSlugOrManifest;
+  if (!manifest || typeof manifest !== "object") {
+    return { valid: false, errors: [`Unknown theme: ${themeSlugOrManifest}`] };
+  }
+  const errors = validateManifestExtensions(manifest);
   return { valid: errors.length === 0, errors };
 }
 

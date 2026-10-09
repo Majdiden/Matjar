@@ -900,7 +900,7 @@ export const Orders: React.FC = () => {
                         <span className="font-medium text-foreground/80">{order.user?.name || t('orders:list.guest')}</span>
                         {order.user?.email && <span className="hidden md:inline">{order.user.email}</span>}
                         <span>•</span>
-                        <span>{order.products.length === 1 ? t('orders:list.item_count_one', { count: 1 }) : t('orders:list.item_count_other', { count: order.products.length })}</span>
+                        <span>{t('orders:list.item_count', { count: order.products.length })}</span>
                         <span>•</span>
                         <span>{formatDate(order.createdAt)}</span>
                       </div>

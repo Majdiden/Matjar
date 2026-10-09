@@ -29,6 +29,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateManifestExtensions } from "../../utils/themeManifestRules.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -309,6 +310,25 @@ describe("Theme manifest contract", () => {
           offenders,
           [],
           `Theme "${slug}" has invalid block definitions:\n  - ${offenders.join("\n  - ")}`
+        );
+      });
+
+      // PBI 10: the phone-first simple editor lists sections and edits their
+      // `basic` settings (at most 3 each); `bind` settings fall back to the
+      // brand kit; `presets` give new stores a per-niche homepage.
+      it("simple-mode levels, brand bindings and niche presets follow the rules", () => {
+        const errors = validateManifestExtensions(manifest);
+        assert.deepEqual(errors, [], `Theme "${slug}" PBI 10 annotations invalid:\n  - ${errors.join("\n  - ")}`);
+      });
+
+      it("the home page offers something to edit in simple mode", () => {
+        const defsByType = new Map(manifest.sections.map((d) => [d.type, d]));
+        const editable = (manifest.templates.index || []).filter((inst) =>
+          (defsByType.get(inst.type)?.settings || []).some((s) => s.level === "basic")
+        );
+        assert.ok(
+          editable.length > 0,
+          `Theme "${slug}" has no home section with a basic setting — annotate it (see docs/delivery/10/10-8.md)`
         );
       });
 

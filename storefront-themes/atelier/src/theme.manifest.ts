@@ -22,10 +22,12 @@ const spacing = (top = 30, bottom = 30): SectionSetting[] => [
   { id: 'background_color', type: 'color', label: 'Background', default: '#ffffff' },
 ];
 
+// Heading and subheading are the simple-editor (basic) settings of every
+// section built from this group; sections add at most one basic image.
 const headingGroup = (opts: { eyebrow?: boolean; sub?: boolean; cta?: boolean } = {}): SectionSetting[] => [
   ...(opts.eyebrow ? [{ id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' } as SectionSetting] : []),
-  { id: 'heading', type: 'text', label: 'Heading', default: '' },
-  ...(opts.sub ? [{ id: 'subheading', type: 'textarea', label: 'Subheading', default: '' } as SectionSetting] : []),
+  { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+  ...(opts.sub ? [{ id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', default: '' } as SectionSetting] : []),
   ...(opts.cta
     ? ([
         { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
@@ -219,7 +221,7 @@ export const splitBannerSection: SectionDefinition = defineSection({
   description: 'Image beside a block of text with a call to action',
   target: 'body',
   settings: [
-    { id: 'image', type: 'image', label: 'Image', default: U('1616394584738-fc6e612e71b9') },
+    { id: 'image', type: 'image', label: 'Image', level: 'basic', default: U('1616394584738-fc6e612e71b9') },
     { id: 'layout', type: 'select', label: 'Layout', default: 'image_start', options: [{ label: 'Image Left', value: 'image_start' }, { label: 'Image Right', value: 'image_end' }] },
     ...headingGroup({ eyebrow: true, sub: true, cta: true }),
     ...spacing(),
@@ -234,7 +236,7 @@ export const videoBlockSection: SectionDefinition = defineSection({
   description: 'Poster with a play button that opens the video inline',
   target: 'body',
   settings: [
-    { id: 'image', type: 'image', label: 'Image', default: U('1512496015851-a90fb38ba796') },
+    { id: 'image', type: 'image', label: 'Image', level: 'basic', default: U('1512496015851-a90fb38ba796') },
     { id: 'video_url', type: 'url', label: 'Video URL', default: '' },
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
     { id: 'heading', type: 'text', label: 'Heading', default: '' },
@@ -252,7 +254,7 @@ export const dealsBannerSection: SectionDefinition = defineSection({
   description: 'Static full-width promotional banner',
   target: 'body',
   settings: [
-    { id: 'background_image', type: 'image', label: 'Background Image', default: U('1526947425960-945c6e72858f') },
+    { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', default: U('1526947425960-945c6e72858f') },
     { id: 'overlay_opacity', type: 'range', label: 'Overlay Opacity', min: 0, max: 80, step: 5, default: 30, unit: '%' },
     ...headingGroup({ eyebrow: true, sub: true, cta: true }),
     { id: 'min_height', type: 'range', label: 'Minimum Height (px)', min: 240, max: 720, step: 20, default: 420, unit: 'px' },
@@ -291,7 +293,7 @@ export const lookbookSection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     ...headingGroup({ eyebrow: true, sub: true }),
-    { id: 'image', type: 'image', label: 'Image', default: 'https://images.unsplash.com/photo-1522337094846-8a818192de1f?w=1600&h=1000&q=80&auto=format&fit=crop' },
+    { id: 'image', type: 'image', label: 'Image', level: 'basic', default: 'https://images.unsplash.com/photo-1522337094846-8a818192de1f?w=1600&h=1000&q=80&auto=format&fit=crop' },
     { id: 'show_add_all', type: 'checkbox', label: 'Show "Add all to cart"', default: true },
     ...spacing(),
   ],
@@ -354,7 +356,7 @@ export const beforeAfterSection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     ...headingGroup({ eyebrow: true, cta: true }),
-    { id: 'image_1', type: 'image', label: 'First Image', default: U('1594125311687-3b1b3eafa9f4', 1200) },
+    { id: 'image_1', type: 'image', label: 'First Image', level: 'basic', default: U('1594125311687-3b1b3eafa9f4', 1200) },
     { id: 'image_2', type: 'image', label: 'Second Image', default: U('1616683693504-3ea7e9ad6fec', 1200) },
     { id: 'label_1', type: 'text', label: 'First Label', default: '' },
     { id: 'label_2', type: 'text', label: 'Second Label', default: '' },

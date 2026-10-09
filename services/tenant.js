@@ -16,6 +16,45 @@ import { resolveMerchantPhone } from "./phoneCountries.js";
 import { resolveSignupPlan } from "./platform/billing/signupPlan.js";
 import { APIError } from "../middlewares/errorHandler.js";
 import { normalizeSocialLinks } from "../utils/socialLinks.js";
+import { validateSubdomain } from "../utils/subdomain.js";
+import { normalizeBilingualText } from "../utils/brandKit.js";
+import { normalizeDeliveryAreas } from "../utils/policyAnswers.js";
+import { normalizeStoreNiche } from "../config/storeNiches.js";
+
+// New stores speak Arabic unless the merchant signed up in another
+// supported language: the platform's market is Sudan. Drives order emails,
+// seeded menus/payment methods and starter content.
+export const DEFAULT_STORE_LANGUAGE = "ar";
+export const STORE_LANGUAGES = Object.freeze(["ar", "en"]);
+
+// Signup flows the dashboard can run (PBI 10-16). v2 asks for the city and
+// delivery areas and fills the brand kit from the signup; v1 is the original
+// order and must keep producing exactly the stores it always did.
+export const ONBOARDING_FLOWS = Object.freeze(["v1", "v2"]);
+export const ONBOARDING_FLOW_V2 = "v2";
+
+/**
+ * Brand-kit and policy facts collected by signup v2, validated before any
+ * write (400 on bad input). Returns `{}` for v1 so v1 stores are unchanged.
+ * The store's WhatsApp defaults to the account phone — `phone` is already
+ * E.164 here (resolveMerchantPhone), so it is a valid WhatsApp number.
+ */
+export function buildSignupV2Settings({ flow, city, deliveryAreas, phone }) {
+  if (flow !== ONBOARDING_FLOW_V2) return {};
+  const brand = {};
+  if (phone) brand.whatsapp = phone;
+  if (city != null) {
+    const { value, invalid } = normalizeBilingualText("city", { ar: city });
+    if (invalid.length) throw new APIError("Invalid city", 400);
+    if (value) brand.city = value;
+  }
+  const areas = normalizeDeliveryAreas(deliveryAreas);
+  if (areas.invalid) throw new APIError("Invalid delivery areas", 400);
+  return {
+    ...(Object.keys(brand).length ? { brand } : {}),
+    ...(areas.value ? { policyAnswers: { deliveryAreas: areas.value } } : {}),
+  };
+}
 
 const addATenantService = async (tenantData) => {
   const session = await mongoose.startSession();
@@ -32,6 +71,11 @@ const addATenantService = async (tenantData) => {
     // didn't send storeName.
     const storeName = tenantData.storeName || tenantData.name;
     const slug = tenantData.subdomain || storeName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    // Same rules as the availability check (shape, reserved names, pasted
+    // web addresses) — without this, signup could claim "app"/"api" or a
+    // stripped Facebook URL that the check endpoint would have refused.
+    const subdomainCheck = validateSubdomain(slug);
+    if (!subdomainCheck.valid) throw new APIError(subdomainCheck.error, 400);
 
     const Tenant = mongoose.model("Tenant");
     const isSubdomainAvailable = await Tenant.isSubdomainAvailable(slug);
@@ -63,6 +107,14 @@ const addATenantService = async (tenantData) => {
     if (invalidSocial.length) {
       throw new APIError(`Invalid social link for: ${invalidSocial.join(", ")}`, 400);
     }
+
+    const onboardingFlow = ONBOARDING_FLOWS.includes(tenantData.onboardingFlow) ? tenantData.onboardingFlow : null;
+    const v2Settings = buildSignupV2Settings({
+      flow: onboardingFlow,
+      city: tenantData.city,
+      deliveryAreas: tenantData.deliveryAreas,
+      phone,
+    });
 
     const signupPlan = await resolveSignupPlan(tenantData.subscriptionPlan);
 
@@ -111,6 +163,8 @@ const addATenantService = async (tenantData) => {
       // step (the default theme is still applied by installDefaultTheme during
       // setup). Legacy callers that omit the flag default to `true`.
       themeSelected: tenantData.themeSelected !== false,
+      // Only v2 signups are marked, so v1 stores stay exactly as before.
+      ...(onboardingFlow === ONBOARDING_FLOW_V2 ? { onboarding: { flow: onboardingFlow } } : {}),
       setupStatus: {
         status: "pending",
         setupToken,
@@ -136,13 +190,15 @@ const addATenantService = async (tenantData) => {
       settings: {
         storeName,
         ...(Object.keys(socialLinks).length ? { socialLinks } : {}),
+        ...v2Settings,
         // Stable per-store secret for the owner draft-preview link
         // (?preview=<token> reveals unpublished/draft content on the storefront).
         previewToken: crypto.randomBytes(16).toString("hex"),
         currency: tenantData.currency || "SDG",
         timezone: tenantData.timezone || "Africa/Khartoum",
-        language: tenantData.language || "en",
+        language: tenantData.language || DEFAULT_STORE_LANGUAGE,
         activeTheme: themeSlug,
+        niche: normalizeStoreNiche(tenantData.niche),
         // Order-email sender defaults (requirement): display name = store name,
         // address = no-reply@<platform root domain> (e.g. no-reply@matjar.to).
         // Per-store subdomains (mystore.matjar.to) are NOT individually verified
@@ -332,6 +388,9 @@ const addStoreForExistingUserService = (existingUser, storeData = {}) =>
     language: storeData.language,
     subscriptionPlan: storeData.subscriptionPlan,
     socialLinks: storeData.socialLinks,
+    onboardingFlow: storeData.onboardingFlow,
+    city: storeData.city,
+    deliveryAreas: storeData.deliveryAreas,
     skipAutoSetup: storeData.skipAutoSetup,
   });
 

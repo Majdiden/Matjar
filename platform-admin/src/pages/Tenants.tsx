@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { api, LIFECYCLE_STATES, type Pagination, type TenantListRow } from '../lib/api';
+import { api, hasScope, LIFECYCLE_STATES, PLATFORM_SCOPES, type Pagination, type TenantListRow } from '../lib/api';
 import { useAuth } from '../contexts/auth-context';
 import { useReauth } from '../components/useReauth';
 import { TenantsBulkBar } from './TenantsBulkBar';
@@ -54,7 +54,9 @@ export default function Tenants() {
   // operator can pick from several pages; the bar caps at 50.
   const { user } = useAuth();
   const reauth = useReauth();
-  const canBulk = allowedBulkActions(user).length > 0;
+  // Row selection is offered when the operator can run any bulk action,
+  // including permanent deletion (its own scope).
+  const canBulk = allowedBulkActions(user).length > 0 || hasScope(user, PLATFORM_SCOPES.TENANT_DELETE);
   const [selected, setSelected] = useState<Map<string, TenantListRow>>(new Map());
   const toggleSelected = (row: TenantListRow) =>
     setSelected((prev) => {

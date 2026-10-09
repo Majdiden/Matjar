@@ -20,6 +20,14 @@ import {
 } from "./themeValidator.js";
 import { validateCustomCSS } from "./cssPolicy.js";
 import { sanitizePageHtml } from "../utils/sanitizePageHtml.js";
+import { publicBrand } from "../utils/brandKit.js";
+import {
+  BRAND_COLOR_TOKEN,
+  brandBindingSourceFor,
+  manifestInstanceDefaults,
+  resolveBoundSettings,
+  resolvePrimaryColor,
+} from "../utils/themeBindings.js";
 import { APIError } from "../middlewares/errorHandler.js";
 
 /**
@@ -429,6 +437,9 @@ export const getThemeCustomizationService = async (tenantId) => {
     // dashboard consumes the same JSON for rendering controls.
     themeSettingsSchema: Array.isArray(manifest?.settings) ? manifest.settings : [],
   };
+  // Other themes' saved customizations (theme switch, PBI 10-15) are
+  // server-side state, not part of the editor payload.
+  delete merged.savedByTheme;
 
   // Annotate every returned section instance with `known` — whether its
   // `type` is still declared by the active theme's manifest (audit 1.7b).
@@ -448,14 +459,68 @@ export const getThemeCustomizationService = async (tenantId) => {
         )
       : list;
 
-  merged.sections = annotateKnown(merged.sections);
+  // Where each setting's value comes from (PBI 10): the merchant's own
+  // value ("override"), the brand kit ("brand", for `bind` settings the
+  // merchant has not changed) or the theme ("default"). The storefront
+  // renders the same resolution (ThemeProvider); `brandValues` carries the
+  // brand-kit values it shows, including `<id>__ar` twins. Read-time only:
+  // `settings` stay the stored draft values, so saving them back never
+  // copies brand-kit values into the customization.
+  const bindingSource = brandBindingSourceFor(tenant, publicBrand);
+  const instanceDefaults = manifestInstanceDefaults(manifest);
+  const sectionDefsByType = new Map(
+    (Array.isArray(manifest?.sections) ? manifest.sections : []).map((d) => [d?.type, d])
+  );
+  const annotateSources = (list) =>
+    Array.isArray(list)
+      ? list.map((s) => {
+          const def = s && typeof s === "object" ? sectionDefsByType.get(s.type) : null;
+          if (!def) return s;
+          const defaults = instanceDefaults.forInstance(s.id, s.type);
+          const { sources, brandValues } = resolveBoundSettings(
+            def.settings,
+            { ...defaults, ...(s.settings || {}) },
+            defaults,
+            bindingSource
+          );
+          return { ...s, settingSources: sources, brandValues };
+        })
+      : list;
+
+  merged.sections = annotateSources(annotateKnown(merged.sections));
   if (merged.sectionsByTemplate && typeof merged.sectionsByTemplate === "object") {
     const annotatedByTpl = {};
     for (const [tpl, list] of Object.entries(merged.sectionsByTemplate)) {
-      annotatedByTpl[tpl] = annotateKnown(list);
+      annotatedByTpl[tpl] = annotateSources(annotateKnown(list));
     }
     merged.sectionsByTemplate = annotatedByTpl;
   }
+
+  const theme = resolveBoundSettings(
+    manifest?.settings,
+    merged.settings.theme,
+    manifestThemeDefaults,
+    bindingSource
+  );
+  const storedColors = tenant.themeCustomization?.settings?.colors || {};
+  const colorSources = {};
+  const colorBrandValues = {};
+  for (const key of Object.keys(manifestColors)) {
+    if (key === BRAND_COLOR_TOKEN) {
+      const primary = resolvePrimaryColor(manifestColors[key], storedColors[key], bindingSource);
+      colorSources[key] = primary.source;
+      if (primary.source === "brand") colorBrandValues[key] = primary.color;
+      continue;
+    }
+    const stored = storedColors[key];
+    colorSources[key] =
+      typeof stored === "string" && stored.trim() &&
+      stored.trim().toLowerCase() !== String(manifestColors[key]).trim().toLowerCase()
+        ? "override"
+        : "default";
+  }
+  merged.settingSources = { theme: theme.sources, colors: colorSources };
+  merged.brandValues = { theme: theme.brandValues, colors: colorBrandValues };
 
   return merged;
 };
@@ -607,7 +672,9 @@ export const updateThemeSectionsService = async (
 
   // Sanitize richtext settings on this bulk write path too (audit 6.8.1)
   // before persisting — the values render as raw HTML on the storefront.
-  const sanitizedSections = sections.map((sec) => ({
+  // The read-time binding annotations (see getThemeCustomizationService) are
+  // never stored, even when an editor sends the GET payload straight back.
+  const sanitizedSections = sections.map(({ settingSources: _sources, brandValues: _brand, ...sec }) => ({
     ...sec,
     settings: sanitizeSectionRichTextSettings(themeSlug, sec.type, sec.settings),
   }));

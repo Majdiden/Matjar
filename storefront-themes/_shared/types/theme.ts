@@ -6,6 +6,60 @@
  * which produce objects conforming to these types.
  */
 
+// ─── Simple mode & brand kit (PBI 10) ────────────────────────────
+
+/**
+ * Who sees a setting or section in the dashboard.
+ *
+ *   - `basic`: shown in the phone-first simple editor (and the full editor).
+ *   - `advanced`: shown only in the full editor ("advanced options").
+ *
+ * A SETTING without `level` is `advanced`; a SECTION without `level` is
+ * `basic` (it is listed in simple mode, where only its basic settings are
+ * editable). See theme/settingLevels.ts for the helpers.
+ */
+export type SettingLevel = 'basic' | 'advanced';
+
+/**
+ * A brand-kit fact a setting can take its value from when the merchant has
+ * not changed it (see theme/brandBindings.ts for the full rule):
+ *
+ *   effective value = merchant override → brand-kit value (only when the
+ *   merchant set it) → manifest default.
+ *
+ * Bilingual brand texts (`brand.tagline`, `brand.city`, `brand.hours`) fill
+ * the base key with the English text — or the Arabic one when there is no
+ * English — and the `<id>__ar` twin with the Arabic text, so Arabic visitors
+ * read Arabic and English visitors read English (Arabic when none is given).
+ * The store language plays no part.
+ */
+export type BrandBinding =
+  | 'store.name'
+  | 'store.logo'
+  | 'brand.tagline'
+  | 'brand.coverImage'
+  | 'brand.color'
+  | 'brand.whatsapp'
+  | 'brand.city'
+  | 'brand.hours';
+
+/** Store niches picked at signup (dashboard Register.tsx). */
+export type NicheId =
+  | 'fashion'
+  | 'electronics'
+  | 'food'
+  | 'sports'
+  | 'books'
+  | 'toys'
+  | 'home'
+  | 'general';
+
+/**
+ * Where a setting's effective value comes from, as reported per setting by
+ * `GET /theme-customization` (`settingSources`).
+ */
+export type SettingSource = 'override' | 'brand' | 'default';
+
 // ─── Section System ──────────────────────────────────────────────
 
 export interface SectionSettingBase {
@@ -13,6 +67,13 @@ export interface SectionSettingBase {
   label: string;
   /** Help text shown below the setting in the editor */
   info?: string;
+  /** Simple-mode visibility. Absent means `advanced`. */
+  level?: SettingLevel;
+  /**
+   * Brand-kit fact this setting falls back to when the merchant has not
+   * changed it. Allowed setting types per binding: BRAND_BINDING_SETTING_TYPES.
+   */
+  bind?: BrandBinding;
 }
 
 export interface TextSetting extends SectionSettingBase {
@@ -125,6 +186,8 @@ export interface AnySectionSetting {
   step?: number;
   unit?: string;
   options?: Array<{ value: string; label: string }>;
+  level?: SettingLevel;
+  bind?: BrandBinding;
 }
 
 // ─── Block System ────────────────────────────────────────────────
@@ -168,6 +231,12 @@ export interface SectionDefinition {
   icon?: string;
   /** Editor library category this section is filed under */
   category?: SectionCategory;
+  /**
+   * Simple-mode visibility. Absent means `basic`: the section is listed in
+   * the simple editor (show/hide/move) and its `basic` settings — at most
+   * MAX_BASIC_SETTINGS_PER_SECTION — are editable there.
+   */
+  level?: SettingLevel;
   /** Where this section can be placed */
   target?: 'header' | 'footer' | 'body';
   /** Max instances of this section per page */
@@ -396,6 +465,19 @@ export interface ThemeManifest {
    * is unknown.
    */
   homeVariants?: Record<string, SectionInstance[]>;
+  /**
+   * Per-niche starting homepage. When a NEW store is created for a niche
+   * listed here, `index` replaces `templates.index` in its first
+   * customization; every other store keeps `templates.index`. A preset
+   * holds the same section ids as `templates.index` (reordered, hidden
+   * with `disabled: true`, or with different settings) and never sets a
+   * setting that has a `bind`, so the brand kit still fills it.
+   */
+  presets?: Partial<Record<NicheId, ThemeNichePreset>>;
+}
+
+export interface ThemeNichePreset {
+  index: SectionInstance[];
 }
 
 // ─── Editor Schema (dashboard) ───────────────────────────────────

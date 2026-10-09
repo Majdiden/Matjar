@@ -122,8 +122,7 @@ export default function TenantDetailPage() {
   const tab = (searchParams.get('tab') as Tab) || 'overview';
   const toast = useToast();
   const { user } = useAuth();
-  // Purge is irreversible: the server requires a fresh re-authentication
-  // (X-Reauth) on top of the owner role, so prompt before calling it.
+  // Re-authentication for the privacy card's sensitive actions.
   const reauth = useReauth();
   // Scope flags — used to hide buttons and tabs the operator can't use
   // so they don't get a 403 surprise. The server still enforces.
@@ -131,8 +130,8 @@ export default function TenantDetailPage() {
   const canImpersonate = hasScope(user, PLATFORM_SCOPES.SUPPORT_IMPERSONATE);
   const canExport = hasScope(user, PLATFORM_SCOPES.TENANT_EXPORT);
   const canReadBilling = hasScope(user, PLATFORM_SCOPES.BILLING_READ);
-  // Purge is owner-only server-side (requireRole("owner")); hide it otherwise.
-  const canPurge = canLifecycle && user?.role === 'owner';
+  // Permanent deletion: owners by role, other staff only if an owner granted it.
+  const canDeletePermanently = hasScope(user, PLATFORM_SCOPES.TENANT_DELETE);
 
   const [tenant, setTenant] = useState<TenantDetail | null>(null);
   const [stats, setStats] = useState<{
@@ -158,7 +157,7 @@ export default function TenantDetailPage() {
     | null
     | 'suspend'
     | 'schedule-deletion'
-    | 'purge'
+    | 'delete-permanently'
     | 'impersonate'
     | 'cancel-deletion'
     | 'retry-setup'
@@ -423,14 +422,15 @@ export default function TenantDetailPage() {
                 <Trash2 className="h-3.5 w-3.5" /> Schedule deletion
               </Button>
             ))}
-            {canPurge && (
+            {/* Available for archived stores too — that is exactly when an
+                operator wants the leftover record gone. */}
+            {canDeletePermanently && (
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => setModal('purge')}
-                disabled={isDeleted}
+                onClick={() => setModal('delete-permanently')}
               >
-                <Skull className="h-3.5 w-3.5" /> Purge
+                <Skull className="h-3.5 w-3.5" /> Delete permanently
               </Button>
             )}
           </div>
@@ -788,26 +788,46 @@ export default function TenantDetailPage() {
       />
 
       <ConfirmModal
-        open={modal === 'purge'}
+        open={modal === 'delete-permanently'}
         onClose={() => setModal(null)}
-        title="Purge tenant immediately"
-        description="This wipes every row in the tenant's database and marks the record deleted. Irreversible. Normally you should schedule deletion and let the grace period run. Use 'force' if the scheduled deletion hasn't matured yet."
+        title="Delete store permanently"
+        description={
+          <div className="space-y-2">
+            {!isDeleted && (
+              <p className="font-medium text-destructive">
+                This store is still {lifecycleState || 'live'}. Customers lose access immediately.
+              </p>
+            )}
+            <p>
+              Deletes the store and everything in it: products, customers, pages, settings, staff
+              logins, uploaded images and its web address. This cannot be undone.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Kept as financial records: the store's orders and payments (labelled with the store's
+              name), plus the platform audit log and billing records.
+            </p>
+          </div>
+        }
         confirmPhrase={tenant.slug}
         fields={[
-          {
-            name: 'force',
-            label: "Type 'force' to bypass grace period check",
-            placeholder: 'leave blank to purge only if grace expired',
-            help: "If blank, the server refuses unless deletion has already matured.",
-          },
+          { name: 'reason', label: 'Reason', type: 'textarea', required: true, minLength: 4, placeholder: 'Why (audit log)' },
+          { name: 'password', label: 'Your password', type: 'password', required: true, help: 'Re-enter your platform password to confirm.' },
         ]}
-        confirmLabel="Purge tenant"
+        confirmLabel="Delete permanently"
         confirmVariant="destructive"
         onConfirm={async (v) => {
-          const force = v.force?.trim().toLowerCase() === 'force';
-          // A cancelled re-auth is not an error: keep the confirm open quietly.
-          try { await reauth.ensure(); } catch { throw new Error('Confirm your identity to continue.'); }
-          await wrap('purge', () => api.tenants.purge(tenantId, force), 'Tenant purged');
+          setActionLoading('delete-permanently');
+          try {
+            await api.tenants.deletePermanently(tenantId, {
+              confirmSlug: tenant.slug,
+              reason: v.reason.trim(),
+              password: v.password,
+            });
+          } finally {
+            setActionLoading(null);
+          }
+          toast.success(`${tenant.name} was permanently deleted`);
+          navigate('/tenants', { replace: true });
         }}
       />
 

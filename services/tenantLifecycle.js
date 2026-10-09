@@ -23,7 +23,7 @@
 
 import mongoose from "mongoose";
 import logger from "../utils/logger.js";
-import { createScopedModels } from "../utils/scopedModel.js";
+import { wipeTenantScopedData } from "./tenantDeletion.js";
 import { recordPlatformAudit } from "./platform/audit.js";
 
 const DELETION_GRACE_DAYS = 30;
@@ -257,8 +257,8 @@ export async function cancelScheduledDeletion({ tenantId, platformUserEmail }) {
 }
 
 /**
- * Hard-delete every tenant-scoped document. Keeps the Tenant row itself
- * as a tombstone so cross-references (e.g. in past audit dumps) still
+ * Wipe every tenant-scoped document (all of TENANT_SCOPED_MODELS). Keeps the
+ * Tenant row itself as a tombstone so cross-references (e.g. in past audit dumps) still
  * resolve to a name/email rather than a dangling ObjectId.
  *
  * SAFETY:
@@ -296,26 +296,9 @@ export async function purgeTenant({ tenantId, force = false, platformUserEmail, 
     changedBy: platformUserEmail || "system",
   });
 
-  const models = createScopedModels(mongoose.connection, tenant._id);
-  const collections = [
-    "Product", "Category", "Order", "Cart", "User", "Review", "Wishlist",
-    "Discount", "Payment", "Fulfillment", "Return", "Inventory",
-    "Analytics", "SupportTicket", "CustomerSegment", "CustomField",
-    "Company", "AuditLog", "Webhook", "WebhookDelivery",
-  ];
-  const counts = {};
-  const failed = [];
-  for (const name of collections) {
-    const Model = models[name];
-    if (!Model) continue;
-    try {
-      const r = await Model.deleteMany({});
-      counts[name] = r.deletedCount || 0;
-    } catch (err) {
-      failed.push(name);
-      logger.warn("purgeTenant: collection wipe failed", { tenantId: String(tenantId), name, error: err.message });
-    }
-  }
+  // Same collection list as request scoping, so no store data is left
+  // behind when a model is added (permanent deletion: services/tenantDeletion.js).
+  const { counts, failed } = await wipeTenantScopedData(tenant._id);
   logger.warn("Tenant purged", { tenantId: String(tenantId), counts, failed, via });
   if (via !== "console") {
     await recordPlatformAudit(null, {

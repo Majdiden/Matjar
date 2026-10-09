@@ -76,6 +76,8 @@ export const PLATFORM_SCOPES = {
   PAYMENTS_WRITE: 'payments.write',
   TENANT_USERS: 'tenant.users',
   FLAGS_WRITE: 'flags.write',
+  // Permanently delete stores: owners by role, others only by an owner's grant.
+  TENANT_DELETE: 'tenant.delete',
 } as const;
 export type PlatformScope = (typeof PLATFORM_SCOPES)[keyof typeof PLATFORM_SCOPES];
 
@@ -362,9 +364,10 @@ export const api = {
       const res = await http.post(`/tenants/${tenantId}/cancel-deletion`);
       return res.data.data;
     },
-    purge: async (tenantId: string, force?: boolean) => {
-      const res = await http.post(`/tenants/${tenantId}/purge`, { force });
-      return res.data.data;
+    // Irreversible. The password is sent once, in the body, and never stored.
+    deletePermanently: async (tenantId: string, body: { confirmSlug: string; reason: string; password: string }) => {
+      const res = await http.post(`/tenants/${tenantId}/delete-permanently`, body);
+      return res.data.data as { tenantId: string; ok: boolean; files?: { deleted: number; failed: string[] } };
     },
     syncExport: async (tenantId: string) => {
       const res = await http.get(`/tenants/${tenantId}/export`);

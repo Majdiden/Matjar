@@ -1,0 +1,27 @@
+{
+  "contact": {
+    "title": "تواصل معنا",
+    "subtitle": "يسعدنا مساعدتك. راسلنا وسنرد عليك في أقرب وقت.",
+    "whatsapp_button": "راسلنا على واتساب",
+    "whatsapp_message": "مرحبًا، لدي سؤال عن {{name}}",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "address": "العنوان",
+    "city": "المدينة",
+    "hours": "مواعيد العمل",
+    "follow": "تابعنا"
+  },
+  "trust": {
+    "heading": "تسوّق وأنت مطمئن",
+    "cod": "الدفع عند الاستلام",
+    "transfer": "تحويل عبر {{name}}",
+    "delivery_to": "التوصيل إلى: {{areas}}",
+    "delivery_time": "يصلك خلال {{time}}",
+    "returns_zero": "إرجاع خلال {{count}} يوم",
+    "returns_one": "إرجاع خلال يوم واحد",
+    "returns_two": "إرجاع خلال يومين",
+    "returns_few": "إرجاع خلال {{count}} أيام",
+    "returns_many": "إرجاع خلال {{count}} يومًا",
+    "returns_other": "إرجاع خلال {{count}} يوم"
+  }
+}

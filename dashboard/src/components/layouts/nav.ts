@@ -37,6 +37,7 @@ import {
   Settings,
   Shield,
   ShoppingCart,
+  Store,
   Tag,
   Truck,
   UserCog,
@@ -150,6 +151,8 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
     label: t('nav:sidebar.storefront.title'),
     groupKey: 'storefront',
     items: [
+      // Simple, phone-first entry to the store's look and pages (PBI 10-12).
+      { name: t('nav:sidebar.storefront.my_store'), href: '/dashboard/store', icon: Store, permission: ['settings.read', 'settings.write', 'themes.read', 'themes.write'], feature: 'design.simpleMode' },
       {
         name: t('nav:sidebar.storefront.themes'),
         icon: Palette,

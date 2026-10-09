@@ -26,7 +26,10 @@ import {
 import { APIError } from "../middlewares/errorHandler.js";
 import { getThemeManifest, getBuiltInThemeSlugs } from "./themeManifestRegistry.js";
 import { seedThemeDemoData } from "./themeDemoData.js";
-import { getAllowedThemeSlugs } from "./featureFlags.js";
+import { getAllowedThemeSlugs, isFeatureEnabledFor } from "./featureFlags.js";
+import { normalizeStoreNiche } from "../config/storeNiches.js";
+import { validateCustomization } from "./themeValidator.js";
+import { validateCustomCSS } from "./cssPolicy.js";
 
 /**
  * Append an audit row to ThemeCustomizationVersion for a
@@ -75,6 +78,21 @@ async function recordThemeAuditEvent(tenantId, source, payload) {
   }
 }
 
+/** Feature flag gating the PBI 10 simple-design work (config/featureFlags.js). */
+export const SIMPLE_DESIGN_FLAG = "design.simpleMode";
+
+/**
+ * The homepage section list a new store starts from: the theme's preset for
+ * the store's niche when it ships one (`manifest.presets[niche].index`),
+ * else `templates.index`. Unknown or missing niches get `templates.index`.
+ */
+export function selectIndexTemplate(manifest, niche) {
+  const key = normalizeStoreNiche(niche);
+  const preset = key ? manifest?.presets?.[key]?.index : null;
+  if (Array.isArray(preset) && preset.length > 0) return preset;
+  return manifest?.templates?.index || [];
+}
+
 /**
  * Build the tenant-shaped customization payload from a theme's bundled
  * manifest. Ensures that activating/reactivating a theme immediately renders
@@ -87,8 +105,13 @@ async function recordThemeAuditEvent(tenantId, source, payload) {
  * (index, product, collection, cart, search, page, ...) — not just the
  * homepage — so multi-template themes render their curated defaults on
  * all routes immediately after install.
+ *
+ * `options.niche` (store creation only) picks the theme's per-niche starting
+ * homepage, `manifest.presets[niche].index`, in place of `templates.index`
+ * (PBI 10). Theme switches and every existing store pass no niche, so they
+ * keep `templates.index`.
  */
-export const buildCustomizationFromManifest = (themeSlug) => {
+export const buildCustomizationFromManifest = (themeSlug, options = {}) => {
   const manifest = getThemeManifest(themeSlug);
 
   const mapTemplateSections = (templateSections) =>
@@ -109,7 +132,9 @@ export const buildCustomizationFromManifest = (themeSlug) => {
       ? manifest.templates
       : {};
   for (const [templateId, templateSections] of Object.entries(manifestTemplates)) {
-    sectionsByTemplate[templateId] = mapTemplateSections(templateSections);
+    sectionsByTemplate[templateId] = mapTemplateSections(
+      templateId === "index" ? selectIndexTemplate(manifest, options.niche) : templateSections
+    );
   }
   if (!Array.isArray(sectionsByTemplate.index)) sectionsByTemplate.index = [];
 
@@ -286,6 +311,71 @@ export const setDefaultThemeService = async (themeId) => {
   return await setDefaultThemeRepo(themeId);
 };
 
+/** Theme slugs are used as object keys in a dotted update path. */
+const STASHABLE_SLUG_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
+const isStashableSlug = (slug) => typeof slug === "string" && STASHABLE_SLUG_RE.test(slug);
+
+const cloneJson = (value) => JSON.parse(JSON.stringify(value ?? null));
+
+/**
+ * The customization a merchant leaves behind when switching away from
+ * `themeSlug`: the draft and the published snapshot, as plain JSON. The
+ * published part is only kept when it belongs to that theme.
+ */
+function snapshotCustomization(tc, themeSlug) {
+  const settingsOf = (src) => ({
+    colors: src?.colors || {},
+    typography: src?.typography || {},
+    layout: src?.layout || {},
+    theme: src?.theme || {},
+  });
+  const published = tc.published?.themeSlug === themeSlug && tc.published?.publishedAt ? tc.published : null;
+  return cloneJson({
+    savedAt: new Date(),
+    isDraft: !!tc.isDraft,
+    draft: {
+      settings: settingsOf(tc.settings),
+      sectionsByTemplate: tc.sectionsByTemplate || {},
+      customCSS: tc.customCSS || "",
+    },
+    published: published
+      ? {
+          settings: settingsOf(published.settings),
+          sectionsByTemplate: published.sectionsByTemplate || {},
+          customCSS: published.customCSS || "",
+        }
+      : null,
+  });
+}
+
+/**
+ * A saved customization for `themeSlug` that still validates against the
+ * theme's CURRENT manifest and CSS policy, or null. A part that no longer
+ * validates (the theme dropped a section type, the CSS policy tightened) is
+ * replaced by the manifest defaults rather than restored broken: a missing
+ * published part falls back to the defaults, a missing draft to the
+ * published part.
+ */
+function restoreSavedCustomization(themeSlug, saved) {
+  if (!saved || typeof saved !== "object") return null;
+  const usable = (part) => {
+    if (!part || typeof part !== "object") return null;
+    if (!validateCustomization(themeSlug, cloneJson(part)).valid) return null;
+    if (part.customCSS && !validateCustomCSS(part.customCSS).valid) return null;
+    return cloneJson(part);
+  };
+  const published = usable(saved.published);
+  const draft = usable(saved.draft);
+  if (!published && !draft) return null;
+  const base = published || buildCustomizationFromManifest(themeSlug);
+  return {
+    published: { ...base, customCSS: base.customCSS || "" },
+    draft: draft || { ...base, customCSS: base.customCSS || "" },
+    // A restored draft over fallback defaults differs from what is live.
+    isDraft: !!draft && (!!saved.isDraft || !published),
+  };
+}
+
 export const installThemeService = async (themeId, tenantId) => {
   const theme = await getThemeByIdRepo(themeId);
   if (!theme) throw new APIError("Theme not found", 404);
@@ -301,21 +391,36 @@ export const installThemeService = async (themeId, tenantId) => {
 
   if (previousThemeId) await decrementThemeInstallsRepo(previousThemeId);
 
-  const { sectionsByTemplate, settings } = buildCustomizationFromManifest(theme.slug);
+  // Each theme keeps its own customization (PBI 10-15): the outgoing
+  // theme's draft + published state is put aside under its slug, and a
+  // theme the merchant used before comes back as they left it. The brand
+  // kit lives on `settings.brand`, outside the customization, so every theme
+  // reads the same one.
+  const currentTc = currentTenant.toObject().themeCustomization || {};
+  const previousSlug = currentTenant.settings?.activeTheme;
+  const restored = restoreSavedCustomization(theme.slug, currentTc.savedByTheme?.[theme.slug]);
+  const { sectionsByTemplate, settings } = restored?.published || buildCustomizationFromManifest(theme.slug);
+  const customCSS = restored?.published?.customCSS || "";
+  const draft = restored?.draft || { settings, sectionsByTemplate, customCSS };
   const now = new Date();
+
+  const stash = {};
+  if (isStashableSlug(previousSlug) && previousSlug !== theme.slug) {
+    stash[`themeCustomization.savedByTheme.${previousSlug}`] = snapshotCustomization(currentTc, previousSlug);
+  }
 
   await Tenant.findByIdAndUpdate(tenantId, {
     $set: {
       "settings.activeTheme": theme.slug,
       "themeCustomization.themeId": theme._id,
-      "themeCustomization.isDraft": false,
-      "themeCustomization.settings": settings,
-      "themeCustomization.sectionsByTemplate": sectionsByTemplate,
-      "themeCustomization.customCSS": "",
+      "themeCustomization.isDraft": !!restored?.isDraft,
+      "themeCustomization.settings": draft.settings,
+      "themeCustomization.sectionsByTemplate": draft.sectionsByTemplate,
+      "themeCustomization.customCSS": draft.customCSS,
       "themeCustomization.published.themeSlug": theme.slug,
       "themeCustomization.published.settings": settings,
       "themeCustomization.published.sectionsByTemplate": sectionsByTemplate,
-      "themeCustomization.published.customCSS": "",
+      "themeCustomization.published.customCSS": customCSS,
       "themeCustomization.published.publishedAt": now,
       "themeCustomization.lastPublishedAt": now,
       "themeCustomization.updatedAt": now,
@@ -324,12 +429,15 @@ export const installThemeService = async (themeId, tenantId) => {
       // either 404 or render garbage against the new theme's manifest.
       "themeCustomization.previewToken": null,
       "themeCustomization.previewTokenExpiry": null,
+      ...stash,
     },
     // Deprecated flat mirrors — clear residue from the previous theme so
     // nothing stale can surface; no code path writes these any more.
     $unset: {
       "themeCustomization.sections": "",
       "themeCustomization.published.sections": "",
+      // The incoming theme's saved state is live again.
+      ...(isStashableSlug(theme.slug) ? { [`themeCustomization.savedByTheme.${theme.slug}`]: "" } : {}),
     },
     $inc: { "themeCustomization.published.version": 1 },
   });
@@ -356,7 +464,7 @@ export const installThemeService = async (themeId, tenantId) => {
       theme: settings.theme || {},
     },
     sectionsByTemplate,
-    customCSS: "",
+    customCSS,
     label: previousThemeId ? `Switched to ${theme.name}` : `Installed ${theme.name}`,
   });
 
@@ -538,7 +646,13 @@ export async function installDefaultTheme(tenant) {
     }
 
     const Tenant = mongoose.model("Tenant");
-    const { sectionsByTemplate, settings } = buildCustomizationFromManifest(defaultTheme.slug);
+    // Per-niche starting homepage (PBI 10) ships behind the simple-design
+    // flag like the rest of the brand-kit work; without it every new store
+    // starts from `templates.index` as before.
+    const useNichePreset = await isFeatureEnabledFor(tenant, SIMPLE_DESIGN_FLAG);
+    const { sectionsByTemplate, settings } = buildCustomizationFromManifest(defaultTheme.slug, {
+      niche: useNichePreset ? tenant?.settings?.niche : null,
+    });
     const now = new Date();
 
     await Tenant.findByIdAndUpdate(tenant._id, {

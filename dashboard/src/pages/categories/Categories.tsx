@@ -20,6 +20,9 @@ import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import type { Category, CategoryFormData } from '../../types';
 import { useConfirm } from '../../components/ui/use-confirm';
+import { LinkSlugField } from '../../components/LinkSlugField';
+import { useStorefrontHost } from '../../hooks/useStorefrontHost';
+import { slugifyLink } from '../../lib/storeLink';
 
 // Shape of the `GET /categories` list response as returned by the backend.
 // The server wraps the payload in `responseObject.data`; the optional
@@ -42,6 +45,10 @@ export const Categories: React.FC = () => {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  // Category link: derived from the name; the slug is only sent when the
+  // merchant opened "Edit link" (the server derives/keeps it otherwise).
+  const [slugEditing, setSlugEditing] = useState(false);
+  const storeHost = useStorefrontHost();
   const confirm = useConfirm();
 
   const toggleSelect = (id: string) => {
@@ -113,6 +120,7 @@ export const Categories: React.FC = () => {
     setEditingCategory(null);
     setFormData({ name: '', description: '', slug: '', nameAr: '' });
     setFormErrors({});
+    setSlugEditing(false);
     setDialogOpen(true);
   };
 
@@ -125,6 +133,7 @@ export const Categories: React.FC = () => {
       nameAr: (category as any).translations?.ar?.name || '',
     });
     setFormErrors({});
+    setSlugEditing(false);
     setDialogOpen(true);
   };
 
@@ -151,8 +160,13 @@ export const Categories: React.FC = () => {
       setError('');
       // Flat `nameAr` in the form → nested `translations.ar.name` the storefront
       // reads for an Arabic-language store. Empty stays empty (falls back to name).
-      const { nameAr, ...base } = formData;
-      const payload = { ...base, translations: { ar: { name: (nameAr || '').trim() } } } as any;
+      const { nameAr, slug, ...base } = formData;
+      const payload = {
+        ...base,
+        // Omitted unless edited: the server derives it (new) or keeps it (edit).
+        ...(slugEditing && slug?.trim() ? { slug } : {}),
+        translations: { ar: { name: (nameAr || '').trim() } },
+      } as any;
       if (editingCategory) {
         await api.categories.update(editingCategory._id, payload);
         toast.success(t('products.categories.toast.updated'));
@@ -191,10 +205,6 @@ export const Categories: React.FC = () => {
 
   const handleChange = (field: keyof CategoryFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    if (field === 'name' && !editingCategory) {
-      const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      setFormData((prev) => ({ ...prev, slug }));
-    }
     if (formErrors[field]) {
       setFormErrors((prev) => {
         const newErrors = { ...prev };
@@ -203,6 +213,12 @@ export const Categories: React.FC = () => {
       });
     }
   };
+
+  // The link shown when not editing: stored (edit) or derived from the name (new).
+  const autoSlug = editingCategory ? editingCategory.slug : slugifyLink(formData.name || formData.nameAr);
+  // Server leaves a 301 from the old URL when a live category's link changes.
+  const editedSlug = slugEditing ? slugifyLink(formData.slug || '') : '';
+  const willRedirect = Boolean(editingCategory && (editingCategory.status ?? 'active') === 'active' &&editedSlug && editedSlug !== editingCategory.slug);
 
   return (
     <div className="space-y-6">
@@ -401,18 +417,27 @@ export const Categories: React.FC = () => {
                 onChange={(e) => setFormData((prev) => ({ ...prev, nameAr: e.target.value }))}
                 dir="rtl"
               />
-              <div>
-                <Input
-                  label={t('products.categories.form.field.slug.label')}
-                  placeholder={t('products.categories.form.field.slug.placeholder')}
-                  value={formData.slug}
-                  onChange={(e) => handleChange('slug', e.target.value)}
-                  disabled={!!editingCategory}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {editingCategory ? t('products.categories.form.field.slug.help_edit') : t('products.categories.form.field.slug.help_create')}
-                </p>
-              </div>
+              <LinkSlugField
+                label={t('products.categories.form.field.slug.label')}
+                host={storeHost}
+                pathPrefix="/categories/"
+                autoSlug={autoSlug}
+                value={formData.slug || ''}
+                editing={slugEditing}
+                onEditingChange={(editing) => {
+                  setSlugEditing(editing);
+                  // Start from the link shown; cancelling drops the edit.
+                  handleChange('slug', editing ? autoSlug : '');
+                }}
+                onChange={(value) => handleChange('slug', value)}
+                emptyText={t('products.categories.form.field.slug.empty')}
+                helpText={editingCategory ? t('products.categories.form.field.slug.help_edit') : t('products.categories.form.field.slug.help_create')}
+                editLabel={t('products.categories.form.field.slug.edit')}
+                resetLabel={editingCategory ? t('common:action.cancel') : t('products.categories.form.field.slug.reset')}
+                editHelp={t('products.categories.form.field.slug.edit_help')}
+                placeholder={t('products.categories.form.field.slug.placeholder')}
+                note={willRedirect ? t('products.categories.form.field.slug.redirect_note') : undefined}
+              />
               <Textarea
                 label={t('products.categories.form.field.description.label')}
                 placeholder={t('products.categories.form.field.description.placeholder')}

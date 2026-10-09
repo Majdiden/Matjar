@@ -149,13 +149,20 @@ export const storefrontApi = {
    *  Editor preview (audit 6.4): when the URL carries `?preview=<token>`
    *  (the dashboard "Preview" button opens the page with the editor token),
    *  forward it so the backend serves an unpublished/scheduled page. Same
-   *  mechanism getStoreInfo uses for draft theme customization. */
-  getPage: (slug: string) => {
-    let url = `${STOREFRONT_BASE}/pages/${encodeURIComponent(slug)}`;
+   *  mechanism getStoreInfo uses for draft theme customization.
+   *
+   *  `lang` (PBI 10-9) asks for that language's page when the slug exists
+   *  in several (e.g. Arabic and English About pages); the server falls
+   *  back to the old lookup when it has none. */
+  getPage: (slug: string, lang?: string) => {
+    const params = new URLSearchParams();
     if (typeof window !== 'undefined') {
       const preview = new URLSearchParams(window.location.search).get('preview');
-      if (preview) url += `?preview=${encodeURIComponent(preview)}`;
+      if (preview) params.set('preview', preview);
     }
+    if (lang) params.set('lang', lang);
+    const qs = params.toString();
+    const url = `${STOREFRONT_BASE}/pages/${encodeURIComponent(slug)}${qs ? `?${qs}` : ''}`;
     return request<any>(withPreview(url));
   },
 

@@ -6,6 +6,7 @@
 import { addCategoryRepo, getCategoriesRepo } from "../repositories/category.js";
 import { addAProductRepo, getProductsRepo } from "../repositories/product.js";
 import logger from "../utils/logger.js";
+import { slugify } from "../utils/slugify.js";
 
 const SAMPLE_CATEGORIES = [
   { name: "Electronics", description: "Electronic devices and accessories", slug: "electronics" },
@@ -21,20 +22,9 @@ const SAMPLE_PRODUCTS = [
   { name: "Denim Jacket", slug: "denim-jacket", description: "Classic blue denim jacket with modern fit.", price: 89.99, sku: "DJ-001", categorySlug: "clothing", stock: 40, status: "active", tags: ["clothing", "jacket", "denim"], images: [] },
 ];
 
-/**
- * Defensive slug generator used when a seed row somehow lacks one.
- * Matches the storefront's URL conventions: lowercase, hyphenated,
- * ASCII-only, no leading/trailing dashes. Bounded to 80 chars so it
- * fits well under the schema's string limits.
- */
-const slugify = (s) =>
-  String(s || "")
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
+// Defensive slug cap for seed rows that somehow lack a slug (utils/slugify.js
+// does the rest) — well under the schema's string limits.
+const SEED_SLUG_MAX_LENGTH = 80;
 
 async function seedCategories(models) {
   const existingCategories = await getCategoriesRepo(models);
@@ -71,7 +61,7 @@ async function seedProducts(models, categories) {
     // Final defensive fallback: every seed row declares a slug but if a
     // contributor ever adds one without, don't let the whole setup fail —
     // the schema requires `slug` so we must emit something valid.
-    if (!productData.slug) productData.slug = slugify(productData.name);
+    if (!productData.slug) productData.slug = slugify(productData.name, { maxLength: SEED_SLUG_MAX_LENGTH });
     try {
       const product = await addAProductRepo(models, productData);
       products.push(product);

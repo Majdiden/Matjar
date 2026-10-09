@@ -29,6 +29,7 @@ import {
   resolveEffectiveScopes,
 } from "../../config/platformRoles.js";
 import { revokeAllSessions } from "./sessions.js";
+import { PLATFORM_SCOPES } from "../../config/platformScopes.js";
 
 const INVITE_TTL_MS = 72 * 60 * 60 * 1000;
 const RESET_TTL_MS = 60 * 60 * 1000;
@@ -182,6 +183,29 @@ export async function setNotifications(actor, id, events) {
   target.platformNotifications = next;
   await target.save();
   return { user: publicUser(target), before, after: { events: next } };
+}
+
+/**
+ * Owner-only: allow or stop a platform user permanently deleting stores
+ * (scope `tenant.delete`, an explicit grant on top of their role). Owners
+ * hold it through their role, so they can't be targeted.
+ */
+export async function setStoreDeletionPermission(actor, id, allowed) {
+  if (String(actor.role || "").toLowerCase() !== PLATFORM_ROLES.OWNER) {
+    throw new APIError("Only a platform owner can change who may delete stores", 403);
+  }
+  const target = await loadTarget(id);
+  if (target.platformRole === PLATFORM_ROLES.OWNER) {
+    throw new APIError("Owners can always delete stores", 400);
+  }
+  const scope = PLATFORM_SCOPES.TENANT_DELETE;
+  const current = Array.isArray(target.platformScopes) ? target.platformScopes : [];
+  const before = { canDeleteStores: current.includes(scope) };
+  target.platformScopes = allowed
+    ? [...new Set([...current, scope])]
+    : current.filter((s) => s !== scope);
+  await target.save();
+  return { user: publicUser(target), before, after: { canDeleteStores: !!allowed } };
 }
 
 export async function suspendUser(actor, id, reason) {

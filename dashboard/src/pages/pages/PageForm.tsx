@@ -20,6 +20,7 @@ import { Save, Trash2, Loader2, ChevronDown, ChevronUp, MoreVertical, Eye } from
 import { Checkbox } from '../../components/ui/checkbox';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { api } from '../../lib/api-client';
+import { slugifyLink } from '../../lib/storeLink';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
 
@@ -60,14 +61,9 @@ function toDatetimeLocal(iso?: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function slugify(s: string): string {
-  return s
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/-{2,}/g, '-')
-    .replace(/^-|-$/g, '');
-}
+// Must equal the server's default (services/page.js → utils/slugify.js) so
+// the preview is what gets stored: Arabic titles are transliterated.
+const slugify = (s: string): string => slugifyLink(s);
 
 export const PageForm: React.FC = () => {
   const navigate = useNavigate();

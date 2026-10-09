@@ -2,7 +2,8 @@
  * Bulk tenant operations.
  *
  * Deliberately narrow: a fixed allow-list of reversible actions (never purge,
- * never delete — schedule_deletion only closes the store and starts the
+ * never delete; permanent deletion has its own route — routes/platform/bulk.js
+ * → controllers/platform/tenantDeletion.js — schedule_deletion only closes the store and starts the
  * grace window, which cancel_deletion undoes), at most BULK_MAX_TENANTS ids per call, run SEQUENTIALLY
  * through the same single-tenant services the console uses — so every
  * lifecycle guard, program rule and plan rule applies per tenant, and each

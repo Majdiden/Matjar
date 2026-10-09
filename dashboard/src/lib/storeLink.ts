@@ -9,6 +9,10 @@
 //
 // Pure + dependency-free on purpose: unit-tested directly by node --test
 // (tests/unit/storeLink.test.js).
+//
+// The transliteration is also the server's slug rule: utils/slugify.js ports
+// it for product/category/collection/page links. KEEP THE TWO IN SYNC —
+// tests/unit/slugifyParity.test.js fails when they drift.
 // =============================================================================
 
 /** DNS label limits; must match the backend subdomain validator. */
@@ -71,6 +75,16 @@ const ARABIC_DIACRITICS = /[ؐ-ًؚ-ٰٟۖ-ۭـ]/g;
 const ARABIC_INDIC_DIGIT = /[٠-٩۰-۹]/g;
 const ARABIC_CHAR = /[؀-ۿ]/;
 
+// Invisible formatting characters (Unicode "Cf": bidi marks/embeddings/
+// isolates, zero-width joiners, BOM). Apps with an Arabic interface wrap
+// copied links in these, which defeats URL detection if left in.
+const INVISIBLE_FORMAT_CHARS = /\p{Cf}/gu;
+const UNICODE_SPACES = /[\s\u00a0\u2000-\u200a\u202f\u205f\u3000]+/g;
+
+/** Strip invisible formatting characters and normalise spaces. */
+export const cleanInput = (text: string): string =>
+  String(text ?? '').replace(INVISIBLE_FORMAT_CHARS, '').replace(UNICODE_SPACES, ' ').trim();
+
 /** True when the text contains Arabic script. */
 export const hasArabic = (text: string): boolean => ARABIC_CHAR.test(text);
 
@@ -101,13 +115,26 @@ const trimHyphens = (s: string) => s.replace(/^-+|-+$/g, '');
 
 /** Full store name (any script) → finished subdomain suggestion. */
 export function slugifyStoreName(name: string): string {
-  const latin = transliterateArabic(name.toLowerCase())
+  return slugifyLink(name, SUBDOMAIN_MAX_LENGTH);
+}
+
+/** Default link-slug cap; matches utils/slugify.js SLUG_MAX_LENGTH. */
+export const LINK_SLUG_MAX_LENGTH = 100;
+
+/**
+ * Product/category name (any script) → URL slug, as utils/slugify.js
+ * `slugify()` stores it when the merchant leaves the link alone. Used for the
+ * dashboard's live "Product link" preview. Same pipeline as slugifyStoreName
+ * plus invisible-character stripping, with a configurable length.
+ */
+export function slugifyLink(name: string, maxLength: number = LINK_SLUG_MAX_LENGTH): string {
+  const latin = transliterateArabic(cleanInput(name).toLowerCase())
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/['’]/g, '')
     .replace(/&/g, ' and ')
     .replace(/[^a-z0-9]+/g, '-');
-  return trimHyphens(trimHyphens(latin).slice(0, SUBDOMAIN_MAX_LENGTH));
+  return trimHyphens(trimHyphens(latin).slice(0, maxLength));
 }
 
 /**
@@ -116,9 +143,9 @@ export function slugifyStoreName(name: string): string {
  * tidies up when the field loses focus.
  */
 export function sanitizeSubdomainTyping(value: string): string {
-  return transliterateArabic(value.toLowerCase())
+  return transliterateArabic(value.replace(INVISIBLE_FORMAT_CHARS, '').toLowerCase())
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[\s._/]+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
     .replace(/-{2,}/g, '-')
@@ -140,10 +167,32 @@ export function finalizeSubdomain(value: string, platformDomain: string): string
 
 /** Does this pasted/typed text look like a URL rather than a name? */
 export function looksLikeLink(text: string): boolean {
-  const t = text.trim();
+  const t = cleanInput(text);
   if (!t || /\s/.test(t)) return false;
   return /^[a-z][a-z0-9+.-]*:\/\//i.test(t) || /^www\./i.test(t) || /^[^/]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(t);
 }
+
+/**
+ * The first web address in the text, or null. Handles a link pasted with
+ * words around it ("صفحتي: https://facebook.com/nile") and trailing
+ * punctuation.
+ */
+export function extractLink(text: string): string | null {
+  const t = cleanInput(text);
+  if (looksLikeLink(t)) return t;
+  for (const token of t.split(' ')) {
+    const candidate = token.replace(/^[(<«"'“]+|[)>»"'”.,،؛!?]+$/g, '');
+    if (looksLikeLink(candidate)) return candidate;
+  }
+  return null;
+}
+
+// A subdomain that is a web address with its punctuation stripped
+// ("httpswwwfacebookcom…", "facebook-com-nile"). Mirrors utils/subdomain.js
+// on the backend — keep the two patterns in sync.
+const LINK_LIKE_SUBDOMAIN = /^(https?(-|www)|www-)|(facebook|fb|instagram|tiktok|twitter|youtube)-?com|(^|-)wa-me(-|$)|whatsapp|(^|-)t-me-/;
+
+export const slugLooksLikeLink = (slug: string): boolean => LINK_LIKE_SUBDOMAIN.test(slug);
 
 const hostIn = (host: string, list: readonly string[]) =>
   list.some((h) => host === h || host.endsWith(`.${h}`));
@@ -201,13 +250,14 @@ export type LinkInterpretation =
  * store name.
  */
 export function interpretLinkInput(text: string, platformDomain: string): LinkInterpretation {
-  if (!looksLikeLink(text)) {
-    const slug = finalizeSubdomain(sanitizeSubdomainTyping(text), platformDomain);
+  const link = extractLink(text);
+  if (!link) {
+    const slug = finalizeSubdomain(sanitizeSubdomainTyping(cleanInput(text)), platformDomain);
     return EXAMPLE_SLUGS.has(slug) ? { kind: 'example', slug: '' } : { kind: 'text', slug };
   }
-  const url = parseUrl(text);
+  const url = parseUrl(link);
   if (!url || (url.protocol !== 'https:' && url.protocol !== 'http:')) {
-    return { kind: 'text', slug: finalizeSubdomain(sanitizeSubdomainTyping(text), platformDomain) };
+    return { kind: 'text', slug: finalizeSubdomain(sanitizeSubdomainTyping(cleanInput(text)), platformDomain) };
   }
   const host = url.hostname.toLowerCase().replace(/^www\./, '');
   const domain = platformDomain.toLowerCase();

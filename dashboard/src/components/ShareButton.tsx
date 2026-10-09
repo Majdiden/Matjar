@@ -26,6 +26,11 @@ export interface ShareButtonProps extends Omit<ButtonProps, 'onClick' | 'asChild
   message?: string;
   /** Title for the native share sheet. */
   title?: string;
+  /**
+   * Called once the link actually went somewhere: the share sheet completed,
+   * a fallback app was picked, or the link was copied (not on dismiss).
+   */
+  onShared?: () => void;
 }
 
 // Lucide dropped brand icons; WhatsApp is the main sales channel in our
@@ -49,6 +54,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
   url,
   message = '',
   title,
+  onShared,
   children,
   ...buttonProps
 }) => {
@@ -58,6 +64,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
     try {
       await navigator.clipboard.writeText(url);
       toast.success(t('share.copied'));
+      onShared?.();
     } catch {
       // Clipboard can be blocked (insecure context, permissions) — show the
       // link so it can still be copied by hand.
@@ -76,6 +83,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
     const shareNatively = async () => {
       try {
         await navigator.share({ title, text: message || undefined, url });
+        onShared?.();
       } catch (err) {
         // Dismissing the sheet is not an error; anything else (unsupported
         // payload, permission) falls back to copying.
@@ -101,7 +109,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
           const Icon = TARGET_ICONS[target];
           return (
             <DropdownMenuItem key={target} asChild>
-              <a href={shareIntentUrl(target, url, message)} target="_blank" rel="noopener noreferrer">
+              <a href={shareIntentUrl(target, url, message)} target="_blank" rel="noopener noreferrer" onClick={() => onShared?.()}>
                 <Icon className="h-4 w-4" />
                 {t(`share.targets.${target}`)}
               </a>

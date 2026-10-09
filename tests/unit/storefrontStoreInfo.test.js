@@ -76,6 +76,35 @@ describe("buildStoreInfo", () => {
     assert.deepEqual(buildStoreInfo(t).socialLinks, { facebook: "https://facebook.com/beauxe" });
   });
 
+  it("reports no brand kit when the merchant has set none (themes keep their defaults)", () => {
+    assert.equal(buildStoreInfo(tenant()).brand, null);
+    const t = tenant();
+    t.settings.brand = { tagline: { ar: "", en: "" }, color: "" };
+    assert.equal(buildStoreInfo(t).brand, null);
+    assert.equal(buildStoreInfo({ name: "Bare" }).brand, null);
+  });
+
+  it("exposes only the non-empty, valid public brand fields", () => {
+    const t = tenant();
+    t.settings.brand = {
+      tagline: { ar: "عناية صادقة", en: "" },
+      coverImage: "javascript:alert(1)",
+      color: "#AA00CC",
+      whatsapp: "+249912345678",
+      city: { ar: "الخرطوم", en: "Khartoum" },
+      hours: { ar: "  " },
+      internalNote: "never exposed",
+    };
+    assert.deepEqual(buildStoreInfo(t).brand, {
+      tagline: { ar: "عناية صادقة" },
+      color: "#aa00cc",
+      whatsapp: "+249912345678",
+      city: { ar: "الخرطوم", en: "Khartoum" },
+    });
+    // Same object for the fetched and the embedded payload (both call this).
+    assert.deepEqual(JSON.parse(JSON.stringify(buildStoreInfo(t))).brand, buildStoreInfo(t).brand);
+  });
+
   it("serves the DRAFT snapshot for a valid editor preview token", () => {
     const t = tenant();
     t.themeCustomization.previewToken = "a".repeat(64);

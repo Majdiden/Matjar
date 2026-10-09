@@ -18,6 +18,7 @@ import {
   Save, Trash2, Loader2, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
+import { slugifyLink } from '../../lib/storeLink';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
 import {
@@ -102,15 +103,9 @@ const DEFAULT_FORM: CollectionFormData = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function slugify(str: string): string {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-{2,}/g, '-')
-    .replace(/^-|-$/g, '');
-}
+// Same rule the server stores (utils/slugify.js): Arabic titles are
+// transliterated instead of producing an empty handle.
+const slugify = (str: string): string => slugifyLink(str);
 
 // ─── Component ────────────────────────────────────────────────────────────────
 

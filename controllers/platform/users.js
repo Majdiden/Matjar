@@ -32,6 +32,21 @@ export const setNotifications = asyncHandler(async (req, res) => {
   res.json({ success: true, data: result.user });
 });
 
+export const setStoreDeletionPermission = asyncHandler(async (req, res) => {
+  const { allowed, reason } = req.body;
+  const result = await users.setStoreDeletionPermission(req.platformUser, req.params.id, allowed);
+  await recordPlatformAudit(req, {
+    action: "platform.user.store_deletion_permission_changed",
+    resourceType: "PlatformUser",
+    resourceId: req.params.id,
+    reason,
+    before: result.before,
+    after: result.after,
+    metadata: { email: result.user.email },
+  });
+  res.json({ success: true, data: result.user });
+});
+
 export const changeRole = asyncHandler(async (req, res) => {
   const { role, reason } = req.body;
   const result = await users.changeRole(req.platformUser, req.params.id, role);

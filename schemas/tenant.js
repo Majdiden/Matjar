@@ -114,6 +114,10 @@ const tenantSchema = new Schema({
     language: { type: String, default: "en" },
     taxIncluded: { type: Boolean, default: false },
     activeTheme: { type: String, default: null }, // Theme slug
+    // What the store sells, picked at signup (config/storeNiches.js). Picks
+    // the theme's per-niche starting homepage at store creation (PBI 10).
+    // null for stores created before it was recorded or without a pick.
+    niche: { type: String, default: null },
     storeName: { type: String, default: null },
     storeDescription: { type: String, default: null },
     logo: { type: String, default: null },
@@ -136,6 +140,20 @@ const tenantSchema = new Schema({
       telegram: { type: String },
       x: { type: String },
     },
+    // Brand kit (PBI 10) — facts about the business the merchant fills in
+    // once, independent of the active theme, so switching theme keeps them.
+    // Written only through services/storeProfile.js (utils/brandKit.js rules:
+    // https/"/uploads/" images, "#rrggbb" colour, E.164 WhatsApp). Bilingual
+    // text is `{ ar, en }` with Arabic primary and English optional. No
+    // defaults on purpose: absent stays absent so themes can tell "not set".
+    brand: {
+      tagline: { ar: { type: String }, en: { type: String } },
+      coverImage: { type: String },
+      color: { type: String },
+      whatsapp: { type: String },
+      city: { ar: { type: String }, en: { type: String } },
+      hours: { ar: { type: String }, en: { type: String } },
+    },
     // Store policies. Each has a merchant-authored title + a rich-text (HTML)
     // body, surfaced in the storefront footer, on dedicated policy pages, and
     // in checkout. Bodies are sanitised on write (controllers/settings.js).
@@ -144,6 +162,40 @@ const tenantSchema = new Schema({
       returns: { title: { type: String, default: null }, body: { type: String, default: null } },
       delivery: { title: { type: String, default: null }, body: { type: String, default: null } },
       cod: { title: { type: String, default: null }, body: { type: String, default: null } },
+    },
+    // Answers behind the generated delivery / returns / payment policies
+    // (PBI 10-11, services/storePages.js), kept so the text can be rebuilt.
+    // `generatedHash.<key>` fingerprints the body we wrote: when the stored
+    // body no longer matches, the merchant edited it and we ask before
+    // overwriting. Also drives the storefront trust badges. No defaults:
+    // absent means the merchant never used the questions.
+    // `deliveryAreas` is shared with signup v2 (PBI 10-16), which collects
+    // the free-text delivery areas first; the policies questionnaire
+    // prefills from it and writes it back.
+    policyAnswers: {
+      deliveryAreas: { ar: { type: String }, en: { type: String } },
+      delivery: {
+        fee: { ar: { type: String }, en: { type: String } },
+        time: { ar: { type: String }, en: { type: String } },
+      },
+      returns: {
+        accepted: { type: Boolean },
+        days: { type: Number },
+        conditions: { ar: { type: String }, en: { type: String } },
+      },
+      language: { type: String },
+      generatedAt: { type: Date },
+      generatedHash: {
+        delivery: { type: String },
+        returns: { type: String },
+        cod: { type: String },
+      },
+    },
+    // Pages the storefront builds from store data instead of Page content
+    // (PBI 10-10). `contact: true` renders /contact and /pages/contact from
+    // the brand kit. No default: absent keeps the page as it is today.
+    generatedPages: {
+      contact: { type: Boolean },
     },
     // Stable per-store secret for the owner draft-preview link.
     previewToken: { type: String, default: null },
@@ -311,6 +363,14 @@ const tenantSchema = new Schema({
     // Custom CSS (tenant-specific styling)
     customCSS: { type: String, default: "" },
 
+    // Customization of themes the store used before, keyed by theme slug:
+    // `{ savedAt, isDraft, draft: { settings, sectionsByTemplate, customCSS },
+    // published: {...} | null }`. Written when the merchant switches away
+    // from a theme and restored (if it still validates) when they switch
+    // back — services/theme.js → installThemeService (PBI 10-15). Never sent
+    // to the storefront or the editor.
+    savedByTheme: { type: Schema.Types.Mixed, default: undefined },
+
     // Preview token for draft changes
     previewToken: { type: String, default: null },
     previewTokenExpiry: { type: Date, default: null },
@@ -398,6 +458,17 @@ const tenantSchema = new Schema({
   // true so pre-existing stores (and API callers that don't send the flag)
   // aren't shown as incomplete.
   themeSelected: { type: Boolean, default: true },
+
+  // Guided onboarding (PBI 10-16/10-17). `flow` is "v2" for stores created
+  // through the new signup (absent for every other store). The timestamps
+  // record the first time the merchant did a "first sale" checklist step the
+  // server can't infer from other data; written only through
+  // services/onboarding.js and never cleared. No defaults: absent = not yet.
+  onboarding: {
+    flow: { type: String },
+    sharedAt: { type: Date },
+    paymentsReviewedAt: { type: Date },
+  },
 
   // Publish lifecycle. `draft` until the merchant takes the store live
   // (publishStarterContent flips it to `live`). A DRAFT store is visible

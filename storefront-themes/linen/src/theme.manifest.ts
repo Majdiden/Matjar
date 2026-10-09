@@ -99,7 +99,7 @@ export const productGridSection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'product_source', type: 'select', label: 'Spotlight Source', default: 'featured', options: [
       { label: 'Featured products', value: 'featured' }, { label: 'Newest arrivals', value: 'newest' }, { label: 'Popular', value: 'popular' },
     ] },
@@ -122,9 +122,9 @@ export const promoBannerSection: SectionDefinition = defineSection({
   description: 'Full-bleed image with a centred cream card',
   target: 'body',
   settings: [
-    { id: 'image', type: 'image', label: 'Image', default: U('1571781926291-c477ebfd024b', 2000) },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'body', type: 'textarea', label: 'Body', default: '' },
+    { id: 'image', type: 'image', label: 'Image', level: 'basic', default: U('1571781926291-c477ebfd024b', 2000) },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'body', type: 'textarea', label: 'Body', level: 'basic', default: '' },
     { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'min_height', type: 'range', label: 'Minimum Height (px)', min: 360, max: 720, step: 20, default: 520, unit: 'px' },
@@ -142,9 +142,9 @@ export const categoryMasonrySection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
-    { id: 'tall_image', type: 'image', label: 'Fallback Image 3', default: U('1596462502278-27bfdc403348', 1200) },
+    { id: 'tall_image', type: 'image', label: 'Fallback Image 3', level: 'basic', default: U('1596462502278-27bfdc403348', 1200) },
     ...pad(),
   ],
 });
@@ -157,11 +157,11 @@ export const editorialSplitSection: SectionDefinition = defineSection({
   description: 'Image beside a short story with an eyebrow, heading and call to action',
   target: 'body',
   settings: [
-    { id: 'image', type: 'image', label: 'Image', default: U('1612817288484-6f916006741a', 1400) },
+    { id: 'image', type: 'image', label: 'Image', level: 'basic', default: U('1612817288484-6f916006741a', 1400) },
     { id: 'layout', type: 'select', label: 'Layout', default: 'image-left', options: [{ label: 'Image Left', value: 'image-left' }, { label: 'Image Right', value: 'image-right' }] },
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'body', type: 'textarea', label: 'Body', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'body', type: 'textarea', label: 'Body', level: 'basic', default: '' },
     { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     ...pad(),
@@ -178,7 +178,7 @@ export const testimonialsSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     ...pad(),
   ],
   blocks: [
@@ -210,7 +210,7 @@ export const storiesSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     ...pad(),
   ],
   blocks: [
@@ -320,7 +320,7 @@ const manifest = defineTheme({
     { id: 'plp_banner_image', type: 'image', label: 'Collection Banner Image', default: U('1556228453-efd6c1ff04f6', 2000) },
     { id: 'pdp_banner_image', type: 'image', label: 'Product Banner Image', default: U('1556228578-8c89e6adf883', 2000) },
     { id: 'footer_about', type: 'textarea', label: 'Footer About Text', default: '' },
-    { id: 'opening_hours', type: 'text', label: 'Opening hours', default: '' },
+    { id: 'opening_hours', type: 'text', label: 'Opening hours', bind: 'brand.hours', default: '' },
   ],
 
   sections: [

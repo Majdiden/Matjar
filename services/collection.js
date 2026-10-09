@@ -10,40 +10,32 @@ import {
   reorderProductsRepo,
 } from "../repositories/collection.js";
 import { APIError } from "../middlewares/errorHandler.js";
+import { redirectRenamedPath } from "./redirect.js";
+import { slugify, ensureUniqueSlug } from "../utils/slugify.js";
+import logger from "../utils/logger.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/**
- * Convert a string to a URL-safe slug.
- * e.g. "My Best Collection!" → "my-best-collection"
- */
-export function slugify(str) {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/[\s]+/g, "-")
-    .replace(/-{2,}/g, "-")
-    .replace(/^-|-$/g, "");
-}
+// Fallback prefix when a title yields no handle ("collection-3f9a1c").
+const COLLECTION_HANDLE_FALLBACK = "collection";
+// Storefront collection URL (storefront-themes/_shared/app/createThemeApp.tsx).
+const collectionPath = (handle) => `/collections/${handle}`;
 
 /**
- * Ensure the desired handle is unique within the tenant.
- * If there is a conflict, append -2, -3, … until a free slot is found.
- * Optionally pass `excludeId` when updating an existing collection (so we
- * don't conflict with ourselves).
+ * Ensure the desired handle is unique within the tenant: -2, -3, … until a
+ * free slot is found (see utils/slugify.js). Pass `excludeId` when updating
+ * an existing collection so it doesn't conflict with itself.
  */
-async function uniqueHandle(models, base, excludeId = null) {
-  let candidate = base;
-  let suffix = 1;
-  for (;;) {
-    const filter = { handle: candidate };
-    if (excludeId) filter._id = { $ne: excludeId };
-    const existing = await models.Collection.findOne(filter).lean();
-    if (!existing) return candidate;
-    suffix += 1;
-    candidate = `${base}-${suffix}`;
-  }
+function uniqueHandle(models, base, excludeId = null) {
+  return ensureUniqueSlug(
+    async (candidate) => {
+      const filter = { handle: candidate };
+      if (excludeId) filter._id = { $ne: excludeId };
+      return Boolean(await models.Collection.findOne(filter).lean());
+    },
+    base,
+    { fallback: COLLECTION_HANDLE_FALLBACK }
+  );
 }
 
 /**
@@ -168,10 +160,9 @@ export const createCollection = async (models, tenantId, data) => {
     throw new APIError("title is required", 400);
   }
 
-  // Generate handle
-  let baseHandle = data.handle ? slugify(data.handle) : slugify(title);
-  if (!baseHandle) throw new APIError("Could not generate a valid handle from title", 400);
-  const handle = await uniqueHandle(models, baseHandle);
+  // Generate handle — from the title (Arabic transliterated) unless the
+  // merchant typed one. Never fails: an unusable title gets a fallback.
+  const handle = await uniqueHandle(models, slugify(data.handle || "") || slugify(title));
 
   // Validate rules for smart collections
   if (type === "smart" && rules && rules.length > 0) {
@@ -208,13 +199,15 @@ export const updateCollection = async (models, id, patch) => {
     if (!patch.title || !patch.title.trim()) throw new APIError("title cannot be empty", 400);
     allowed.title = patch.title.trim();
   }
+  // A title change never re-slugs (keeps shared URLs working); only an
+  // explicit handle edit does, and a published collection's old URL then
+  // 301-redirects to the new one (after the update, below).
   if (patch.handle !== undefined) {
     const baseHandle = slugify(patch.handle);
     if (!baseHandle) throw new APIError("Invalid handle", 400);
-    allowed.handle = await uniqueHandle(models, baseHandle, id);
-  } else if (patch.title !== undefined && !patch.handle) {
-    // Auto-re-slug only if explicitly changing title and no handle provided
-    // (keep existing handle by default to avoid breaking URLs)
+    if (baseHandle !== existing.handle) {
+      allowed.handle = await uniqueHandle(models, baseHandle, id);
+    }
   }
   if (patch.description !== undefined) allowed.description = patch.description;
   if (patch.descriptionHtml !== undefined) allowed.descriptionHtml = patch.descriptionHtml;
@@ -234,6 +227,18 @@ export const updateCollection = async (models, id, patch) => {
 
   const updated = await updateCollectionRepo(models, id, allowed);
   if (!updated) throw new APIError("Collection not found", 404);
+  if (allowed.handle && existing.isPublished) {
+    // Best-effort — the handle change already succeeded.
+    try {
+      await redirectRenamedPath(models, collectionPath(existing.handle), collectionPath(allowed.handle));
+    } catch (err) {
+      logger.warn("Collection handle redirect failed", {
+        from: existing.handle,
+        to: allowed.handle,
+        error: err.message,
+      });
+    }
+  }
   return updated;
 };
 

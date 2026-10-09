@@ -28,6 +28,8 @@
  *   5. Bundle sanity: exactly one JS + one CSS entry in dist/assets/,
  *      dist/index.html present, total dist under 5 MB (warn only).
  *   6. minPlatformVersion (if declared) is satisfiable by this platform.
+ *   7. PBI 10 extensions: `level` / `bind` on settings and sections (at most
+ *      3 basic settings per section) and per-niche `presets`.
  *
  * This script imports ONLY dependency-free modules (the rule tables and
  * the platform-version helper) so it never boots Mongo/Redis/config.
@@ -41,6 +43,7 @@ import {
   ALLOWED_TEMPLATE_SET,
   ALLOWED_TEMPLATE_IDS,
   validateSettingValue,
+  validateManifestExtensions,
 } from "../utils/themeManifestRules.js";
 import { PLATFORM_VERSION, platformSatisfies } from "../utils/platformVersion.js";
 
@@ -233,6 +236,9 @@ if (manifest) {
   if (templates) {
     for (const [tid, list] of Object.entries(templates)) checkLimits(list, `templates.${tid}`);
   }
+
+  // ─── 7. simple-mode levels, brand bindings, niche presets ───────
+  for (const e of validateManifestExtensions(manifest)) err(e);
 
   // ─── 6. minPlatformVersion satisfiable ─────────────────────────
   const minVer =

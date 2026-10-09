@@ -179,6 +179,55 @@ export interface Address {
   phone?: string;
 }
 
+/** Arabic-first bilingual text from the brand kit; English is optional. */
+export interface BrandText {
+  ar?: string;
+  en?: string;
+}
+
+/**
+ * Brand kit (PBI 10) — facts the merchant gave about their business, the
+ * same on every theme (`store.brand`, built by services/storefrontStoreInfo.js).
+ * Only keys the merchant set are present; the whole object is null when
+ * nothing is set, so a theme falls back to its own defaults.
+ */
+export interface BrandKit {
+  tagline?: BrandText;
+  /** Absolute https URL or a root-relative "/uploads/..." path. */
+  coverImage?: string;
+  /** "#rrggbb", lowercase. */
+  color?: string;
+  /** E.164, e.g. "+249912345678". */
+  whatsapp?: string;
+  city?: BrandText;
+  hours?: BrandText;
+}
+
+/**
+ * Pages the store builds from its data instead of Page content (PBI 10-10).
+ * Absent unless the merchant switched one on.
+ */
+export interface GeneratedPages {
+  /** /contact and /pages/contact render the brand-kit ContactPage. */
+  contact?: boolean;
+}
+
+/**
+ * Trust-badge facts from the merchant's policy answers (PBI 10-11). Absent
+ * unless the merchant answered the policy questions; payment badges come
+ * from the store's live payment methods when `payments` is true.
+ */
+export interface StoreTrust {
+  payments?: boolean;
+  delivery?: {
+    /** Shipping-zone names. */
+    zones?: string[];
+    areas?: BrandText;
+    time?: BrandText;
+  };
+  returns?: { days: number };
+}
+
 export interface StoreInfo {
   name: string;
   description?: string;
@@ -202,6 +251,9 @@ export interface StoreInfo {
   };
   socialLinks?: Record<string, string>;
   contactInfo?: Record<string, string>;
+  brand?: BrandKit | null;
+  generatedPages?: GeneratedPages;
+  trust?: StoreTrust;
 }
 
 export interface Pagination {

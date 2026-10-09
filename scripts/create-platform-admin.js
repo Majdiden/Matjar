@@ -26,7 +26,7 @@ import mongoose from "mongoose";
 import { connectDb } from "../utils/connectionManager.js";
 import { generateHash } from "../utils/misc.js";
 import { ALL_PLATFORM_SCOPES } from "../middlewares/platformAdmin.js";
-import { PLATFORM_ROLES, isValidRole } from "../config/platformRoles.js";
+import { PLATFORM_ROLES, OWNER_ONLY_GRANTS, isValidRole } from "../config/platformRoles.js";
 
 function parseArgs(argv) {
   const out = {};
@@ -88,6 +88,11 @@ async function main() {
   if (role && !isValidRole(role)) {
     console.error(`Unknown role: ${role}. Valid roles: ${Object.values(PLATFORM_ROLES).join(", ")}`);
     process.exit(1);
+  }
+  // `all` means "all ordinary scopes" for anyone but an owner: owner-only
+  // powers (e.g. permanently deleting stores) must be granted by name.
+  if (fullAccess && role !== PLATFORM_ROLES.OWNER) {
+    scopes = scopes.filter((s) => !OWNER_ONLY_GRANTS.includes(s));
   }
 
   await connectDb();

@@ -1,0 +1,60 @@
+{
+  "signup": {
+    "account_title": "Let's start with you.",
+    "account_subtitle": "Your name and phone, plus the email and password you'll sign in with.",
+    "phone_help": "We'll also use this number as your store's WhatsApp, so customers can reach you. You can change it later.",
+    "store_title": "What's your store called?",
+    "store_subtitle": "Customers will see this name, and we'll make your store link from it.",
+    "niche_title": "What do you sell?",
+    "niche_subtitle": "Pick the closest one, so we can suggest a look that suits it.",
+    "location_title": "Where are you, and where do you deliver?",
+    "location_subtitle": "Customers will see this on your store.",
+    "city_label": "Your city",
+    "city_placeholder": "e.g. Khartoum",
+    "city_error_required": "Write the city your store is in.",
+    "city_error_too_short": "The city name looks too short.",
+    "areas_label": "Where do you deliver? (optional)",
+    "areas_placeholder": "e.g. Khartoum, Bahri and Omdurman",
+    "areas_help": "Write the cities or neighbourhoods you deliver to. You can change this later.",
+    "theme_title": "Pick a look for your store.",
+    "theme_subtitle": "This is how {{store}} could look. You can change it any time.",
+    "theme_store_fallback": "Your store",
+    "theme_skip": "I'll choose later",
+    "launch": "Open my store"
+  },
+  "checklist": {
+    "title": "3 steps to your first sale",
+    "progress": "{{done}} of {{total}}",
+    "dismiss": "Hide this list",
+    "done": "Done",
+    "step": {
+      "product": {
+        "title": "Add your first product",
+        "desc": "A photo, a name and a price are enough.",
+        "action": "Add a product"
+      },
+      "payments": {
+        "title": "How customers pay",
+        "desc": "Cash on delivery is on: customers pay when the order arrives.",
+        "desc_more": "Cash on delivery is on. You can also add Bankak or another bank transfer.",
+        "desc_none": "No way to pay is switched on. Turn one on so customers can order.",
+        "action_ok": "OK, that works for me",
+        "action_choose": "Choose how you get paid"
+      },
+      "share": {
+        "title": "Share your store",
+        "desc": "Send your store link to your customers on WhatsApp, Facebook or any app.",
+        "desc_waiting": "Your store link will be ready in a moment.",
+        "action": "Share my store",
+        "message": "Our store is now online! Browse our products and order here:"
+      }
+    },
+    "make_it_yours": {
+      "title": "Make it yours",
+      "desc": "Add your logo, colour and cover photo.",
+      "logo": "Logo",
+      "color": "Colour",
+      "cover": "Cover photo"
+    }
+  }
+}

@@ -14,9 +14,9 @@ export const heroSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '', info: 'Small uppercase label above the heading' },
-    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', default: '' },
+    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', level: 'basic', default: '' },
     { id: 'heading_line2', type: 'text', label: 'Heading Line 2 (accented)', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
     { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: '' },
@@ -24,7 +24,7 @@ export const heroSection: SectionDefinition = defineSection({
     { id: 'background_color', type: 'color', label: 'Background Color', default: '#111827' },
     { id: 'show_diagonal_accent', type: 'checkbox', label: 'Show Diagonal Accent', default: true },
     { id: 'show_bottom_bar', type: 'checkbox', label: 'Show Bottom Red Bar', default: true },
-    { id: 'background_image', type: 'image', label: 'Background Image', info: 'Optional — dark color is used if empty' },
+    { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — dark color is used if empty' },
   ],
 });
 
@@ -37,7 +37,7 @@ export const categoriesSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 4, min: 2, max: 8 },
     { id: 'card_height', type: 'number', label: 'Card Height (px)', default: 192, min: 120, max: 320 },
     { id: 'columns', type: 'select', label: 'Columns', default: '4', options: [
@@ -58,7 +58,7 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   description: 'Featured products grid on a light background with red accent hover',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 2, max: 16 },
     { id: 'show_rating', type: 'checkbox', label: 'Show Rating', default: true },
     { id: 'show_quick_view', type: 'checkbox', label: 'Show Quick View', default: true },
@@ -83,9 +83,9 @@ export const ctaBannerSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
     { id: 'background_color', type: 'color', label: 'Background Color', default: '#dc2626' },
     { id: 'button_bg_color', type: 'color', label: 'Button Background Color', default: '#ffffff' },
@@ -102,7 +102,7 @@ export const performanceGearCarouselSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 4, max: 16 },
     { id: 'slides_per_view', type: 'number', label: 'Slides Per View', default: 4, min: 2, max: 6 },
     { id: 'autoplay', type: 'checkbox', label: 'Auto-play', default: true },

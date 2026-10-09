@@ -1,5 +1,7 @@
 import { isValidEditorPreviewToken } from "./themeCustomization.js";
 import { publicSocialLinks } from "../utils/socialLinks.js";
+import { publicBrand } from "../utils/brandKit.js";
+import { publicTrust } from "./generatedPages.js";
 
 /**
  * Build the public store payload — the exact object returned as
@@ -112,6 +114,14 @@ export function buildStoreInfo(tenant, options = {}) {
   // and drop the customization so the preview bundle falls back to its own
   // manifest defaults. Purely read-only; nothing is persisted.
   const effectiveTheme = previewTheme || activeTheme;
+
+  // Generated pages (PBI 10-10, 10-11). Both keys are left out entirely —
+  // not set to null — for a store that never used the questions, so its
+  // payload stays byte-for-byte what it was.
+  const trust = publicTrust(tenant.settings?.policyAnswers, {
+    zones: tenant.settings?.shipping?.zones,
+  });
+  const autoContact = tenant.settings?.generatedPages?.contact === true;
   const effectiveCustomization = previewTheme ? null : themeCustomization;
 
   return {
@@ -123,6 +133,10 @@ export function buildStoreInfo(tenant, options = {}) {
     theme: effectiveTheme,
     themeCustomization: effectiveCustomization,
     socialLinks: publicSocialLinks(tenant.settings?.socialLinks),
+    // Brand kit (PBI 10): only non-empty, still-valid values, or null when
+    // the merchant has set nothing — themes fall back to their own defaults
+    // then, so stores without a brand kit render exactly as before.
+    brand: publicBrand(tenant.settings?.brand),
     contactInfo: tenant.settings?.contactInfo || null,
     contact: tenant.settings?.contact || null,
     // Only expose policies that actually have a body — the storefront
@@ -139,6 +153,11 @@ export function buildStoreInfo(tenant, options = {}) {
     giftCards: {
       enabled: tenant.settings?.giftCards?.enabled !== false,
     },
+    // `contact: true` → themes render /contact and /pages/contact from the
+    // brand kit (_shared ContactPage) instead of the Page content.
+    ...(autoContact && { generatedPages: { contact: true } }),
+    // Trust-badge facts from the policy answers (_shared TrustBadges).
+    ...(trust && { trust }),
   };
 }
 

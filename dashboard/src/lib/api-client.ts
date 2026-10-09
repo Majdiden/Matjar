@@ -2,6 +2,22 @@ import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse 
 import { loginUrl, isOnLoginPage } from './authHandoff';
 import { localizeApiError } from './api-errors';
 import type { SocialLinks } from './storeLink';
+import type { StoreProfile, StoreProfilePatch } from './storeProfile';
+
+// Signup v2 answers (PBI 10-16); the server ignores them unless
+// `onboardingFlow` is 'v2'.
+interface SignupV2Fields {
+  onboardingFlow?: 'v1' | 'v2';
+  city?: string;
+  deliveryAreas?: string;
+}
+
+// GET /onboarding (PBI 10-17); timestamps are ISO strings or null.
+export interface OnboardingState {
+  flow: 'v2' | null;
+  sharedAt: string | null;
+  paymentsReviewedAt: string | null;
+}
 
 // API Base URL — always same-origin `/api`.
 //
@@ -164,6 +180,56 @@ export interface FeedbackItem {
   updatedAt: string;
 }
 
+// ─── Generated store pages (PBI 10 — /store-pages) ─────────────────
+/** Arabic-first answer; English is optional. */
+export interface AnswerText {
+  ar?: string;
+  en?: string;
+}
+export interface AboutAnswers {
+  products?: AnswerText | null;
+  since?: number | null;
+  city?: AnswerText | null;
+  different?: AnswerText | null;
+  photo?: string | null;
+}
+export interface StoreAboutState {
+  answers: AboutAnswers | null;
+  generatedAt: string | null;
+  /** Saving would replace text the merchant wrote by hand. */
+  edited: boolean;
+  pages: Array<{ id: string; locale: string; title: string; isPublished: boolean; generated: boolean; edited: boolean }>;
+  suggestions: { city: AnswerText | null };
+}
+export interface StoreContactState {
+  enabled: boolean;
+  preview: {
+    storeName: string;
+    whatsapp: string | null;
+    city: AnswerText | null;
+    hours: AnswerText | null;
+    email: string | null;
+    phone: string | null;
+    address: string | null;
+    socialLinks: Record<string, string>;
+  };
+}
+export interface PolicyAnswers {
+  delivery: { areas?: AnswerText | null; fee?: AnswerText | null; time?: AnswerText | null };
+  returns: { accepted: boolean; days?: number | null; conditions?: AnswerText | null };
+}
+export interface StorePoliciesState {
+  answers: PolicyAnswers | null;
+  generatedAt: string | null;
+  /** Delivery areas given at signup, to prefill a first visit. */
+  suggestions: { areas: AnswerText | null };
+  language: 'ar' | 'en';
+  zones: Array<{ name: string; price: number | null; days: string | null }>;
+  currency: string | null;
+  payment: { cod: boolean; transfers: Array<{ code: string; label: string }> };
+  policies: Record<'delivery' | 'returns' | 'cod', { title: string | null; exists: boolean; edited: boolean }>;
+}
+
 export const api = {
   // Generic methods
   get: <T = unknown>(url: string, config?: AxiosRequestConfig) =>
@@ -210,7 +276,13 @@ export const api = {
       // Social pages recognised in the signup form (e.g. a pasted Facebook
       // URL). The server re-validates hosts and normalises to https.
       socialLinks?: SocialLinks;
-    }) => api.post('/auth/register', data),
+      // Store language ('ar' default server-side).
+      language?: 'ar' | 'en';
+    } & SignupV2Fields) => api.post('/auth/register', data),
+
+    // Which signup flow to run (global `onboarding.v2` flag). Public.
+    onboardingConfig: () =>
+      api.get<{ responseObject?: { v2?: boolean } }>('/auth/onboarding-config'),
 
     // Enabled phone dial codes (+ default) for the signup / profile phone
     // field. Public — cached client-side by hooks/usePhoneCountries.
@@ -292,8 +364,9 @@ export const api = {
       themeSlug?: string;
       themeSelected?: boolean;
       niche?: string;
+      language?: 'ar' | 'en';
       socialLinks?: SocialLinks;
-    }) => api.post('/auth/stores', data),
+    } & SignupV2Fields) => api.post('/auth/stores', data),
 
     // In-app store switcher. `myStores` lists every store the signed-in
     // email can access; `switchStore` re-issues a session bound to the chosen
@@ -977,6 +1050,13 @@ export const api = {
     list: () => api.get('/payment-methods'),
   },
 
+  // "First sale" checklist state (PBI 10-17): first share / payments review.
+  onboarding: {
+    get: () => api.get<{ data?: OnboardingState }>('/onboarding'),
+    record: (event: 'shared' | 'payments_reviewed') =>
+      api.post<{ data?: OnboardingState }>('/onboarding/events', { event }),
+  },
+
   // Discount endpoints
   discounts: {
     getAll: (params?: { page?: number; limit?: number; search?: string; status?: string }) =>
@@ -1145,6 +1225,22 @@ export const api = {
     delete: (id: string) => api.delete(`/pages/${id}`),
   },
 
+  // Pages written for the merchant from short questions (PBI 10 — About,
+  // Contact, policies). A save that would replace the merchant's own edits
+  // fails with 409 `code: 'GENERATED_PAGE_EDITED'` until resent with
+  // `overwrite: true`.
+  storePages: {
+    getAbout: () => api.get<{ data: StoreAboutState }>('/store-pages/about'),
+    saveAbout: (answers: AboutAnswers, overwrite = false) =>
+      api.put<{ data: StoreAboutState }>('/store-pages/about', { answers, ...(overwrite && { overwrite }) }),
+    getContact: () => api.get<{ data: StoreContactState }>('/store-pages/contact'),
+    setContact: (enabled: boolean) =>
+      api.put<{ data: StoreContactState }>('/store-pages/contact', { enabled }),
+    getPolicies: () => api.get<{ data: StorePoliciesState }>('/store-pages/policies'),
+    savePolicies: (answers: PolicyAnswers, overwrite = false) =>
+      api.put<{ data: StorePoliciesState }>('/store-pages/policies', { answers, ...(overwrite && { overwrite }) }),
+  },
+
   // Media library (audit 6.6). Browse/reuse uploaded assets. Uploads go
   // through api.upload.contentImage; deletion reuses api.upload.deleteImage.
   assets: {
@@ -1155,6 +1251,15 @@ export const api = {
       search?: string;
     }) => api.get('/assets', { params }),
     updateAlt: (id: string, alt: string) => api.patch(`/assets/${id}`, { alt }),
+  },
+
+  // Store profile / brand kit (PBI 10): name, logo, tagline, cover photo,
+  // colour, WhatsApp, city, hours, social pages. PUT is a partial update —
+  // only the keys sent change; null clears a field.
+  storeProfile: {
+    get: () => api.get<{ success?: boolean; data?: StoreProfile }>('/store-profile'),
+    update: (patch: StoreProfilePatch) =>
+      api.put<{ success?: boolean; data?: StoreProfile }>('/store-profile', patch),
   },
 
   // Platform feature flags (effective, for the current session). Auth-only;

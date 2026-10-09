@@ -20,7 +20,7 @@ export const milmaaTopStripSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'text', type: 'text', label: 'Text', default: '' },
+    { id: 'text', type: 'text', label: 'Text', level: 'basic', default: '' },
   ],
 });
 
@@ -34,11 +34,11 @@ export const milmaaHeroSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
-    { id: 'image', type: 'image', label: 'Hero Image' },
+    { id: 'image', type: 'image', label: 'Hero Image', level: 'basic' },
   ],
 });
 
@@ -50,8 +50,8 @@ export const milmaaFlavorsSection: SectionDefinition = defineSection({
   description: '3 colorful flavor panels (Banana, Badam, Cashewnut)',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
   ],
   blocks: [
     {
@@ -80,8 +80,8 @@ export const milmaaProductGridSection: SectionDefinition = defineSection({
   category: 'commerce',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'source', type: 'select', label: 'Source', default: 'featured', options: [
       { value: 'featured', label: 'Featured' },
       { value: 'newest', label: 'Newest' },
@@ -100,8 +100,8 @@ export const milmaaBenefitsSection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'image', type: 'image', label: 'Image' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'image', type: 'image', label: 'Image', level: 'basic' },
   ],
   blocks: [
     {
@@ -127,8 +127,8 @@ export const milmaaBlogSection: SectionDefinition = defineSection({
   category: 'content',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
   ],
   blocks: [
     {
@@ -157,8 +157,8 @@ export const milmaaTestimonialsSection: SectionDefinition = defineSection({
   category: 'marketing',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
   ],
   blocks: [
     {
@@ -185,8 +185,8 @@ export const milmaaInstagramSection: SectionDefinition = defineSection({
   category: 'media',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
   ],
 });
 

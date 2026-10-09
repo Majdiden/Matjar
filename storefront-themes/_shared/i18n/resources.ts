@@ -22,6 +22,8 @@ import enFooter from './locales/en/footer.json'
 import arFooter from './locales/ar/footer.json'
 import enErrors from './locales/en/errors.json'
 import arErrors from './locales/ar/errors.json'
+import enGenerated from './locales/en/generated.json'
+import arGenerated from './locales/ar/generated.json'
 
 export const sharedResources = {
   en: {
@@ -37,6 +39,7 @@ export const sharedResources = {
     discovery: enDiscovery,
     footer: enFooter,
     errors: enErrors,
+    generated: enGenerated,
   },
   ar: {
     common: arCommon,
@@ -51,5 +54,6 @@ export const sharedResources = {
     discovery: arDiscovery,
     footer: arFooter,
     errors: arErrors,
+    generated: arGenerated,
   },
 }

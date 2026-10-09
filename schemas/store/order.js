@@ -9,6 +9,16 @@ const orderSchema = new Schema({
     index: true,
   },
   orderNumber: { type: String, sparse: true },
+  // Set only when the store was permanently deleted: orders/payments are kept
+  // as financial records (services/tenantDeletion.js), so they carry the
+  // store's identity once the Tenant row is gone.
+  deletedStore: {
+    name: { type: String },
+    slug: { type: String },
+    domain: { type: String },
+    currency: { type: String },
+    deletedAt: { type: Date },
+  },
   // Server-issued idempotency key bound to the checkout session. Prevents
   // double-click, network retry, and page-reload from creating duplicate
   // orders. Unique per tenant so collisions across tenants are harmless.

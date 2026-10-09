@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckSquare, Download, X } from 'lucide-react';
+import { CheckSquare, Download, Skull, X } from 'lucide-react';
 import {
   bulkApi,
   allowedBulkActions,
@@ -12,7 +12,8 @@ import {
   type BulkParams,
   type BulkResponse,
 } from '../lib/api-bulk';
-import { api, type SubscriptionPlan, type TenantListRow } from '../lib/api';
+import { api, hasScope, PLATFORM_SCOPES, type SubscriptionPlan, type TenantListRow } from '../lib/api';
+import { TenantsBulkDeleteModal } from './TenantsBulkDeleteModal';
 import { programsApi, type AccessProgram } from '../lib/api-programs';
 import { Button } from '../components/ui/Button';
 import { Input, Label, Select, Textarea } from '../components/ui/Input';
@@ -62,6 +63,9 @@ export function TenantsBulkBar({ selected, onClear, ensureReauth, onDone }: {
   const { user } = useAuth();
   // Only the actions this operator's scopes allow (server enforces the same map).
   const actions = allowedBulkActions(user);
+  // Permanent deletion is separate from the reversible actions (own scope + modal).
+  const canDeletePermanently = hasScope(user, PLATFORM_SCOPES.TENANT_DELETE);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState<BulkAction>(actions[0] ?? 'suspend');
   const [reason, setReason] = useState('');
@@ -151,12 +155,28 @@ export function TenantsBulkBar({ selected, onClear, ensureReauth, onDone }: {
               <span className="hidden sm:inline">Export CSV</span>
             </Button>
             <Button size="sm" onClick={() => setOpen(true)} disabled={tooMany || actions.length === 0}>Bulk action…</Button>
+            {canDeletePermanently && (
+              <Button size="sm" variant="destructive" onClick={() => setDeleteOpen(true)} title="Delete permanently">
+                <Skull className="h-4 w-4" />
+                <span className="hidden sm:inline">Delete…</span>
+              </Button>
+            )}
             <Button size="sm" variant="ghost" onClick={onClear} aria-label="Clear selection">
               <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
+
+      <TenantsBulkDeleteModal
+        open={deleteOpen}
+        selected={selected}
+        onClose={() => setDeleteOpen(false)}
+        onDone={() => {
+          onClear();
+          onDone();
+        }}
+      />
 
       <Modal
         open={open}

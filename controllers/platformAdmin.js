@@ -14,7 +14,6 @@ import {
   unsuspendTenant,
   scheduleTenantDeletion,
   cancelScheduledDeletion,
-  purgeTenant,
 } from "../services/tenantLifecycle.js";
 import { retrySetup, seedStarterContentForTenant } from "../services/storeSetup.js";
 import { getPhoneCountryConfig, setPhoneCountryConfig } from "../services/phoneCountries.js";
@@ -285,38 +284,6 @@ export const cancelDeletion = asyncHandler(async (req, res) => {
     after: lifecycleSnapshot(t),
   });
   res.json({ success: true, data: { tenantId: String(t._id), lifecycle: t.lifecycle?.state } });
-});
-
-export const purge = asyncHandler(async (req, res) => {
-  const force = req.body?.force === true;
-  const before = await tenantSnapshot(req.params.tenantId);
-  let result;
-  try {
-    result = await purgeTenant({ tenantId: req.params.tenantId, force, platformUserEmail: req.platformUser.email, via: "console" });
-  } catch (err) {
-    await recordPlatformAudit(req, {
-      action: "tenant.purge",
-      resourceType: "Tenant",
-      resourceId: req.params.tenantId,
-      tenantId: req.params.tenantId,
-      before,
-      metadata: { force, error: err.message },
-      outcome: "failure",
-    });
-    const status = err?.message === "Tenant not found" ? 404 : err?.statusCode === 409 ? 409 : 500;
-    return res.status(status).json({ success: false, message: status === 500 ? "Purge failed." : err.message });
-  }
-  await recordPlatformAudit(req, {
-    action: "tenant.purge",
-    resourceType: "Tenant",
-    resourceId: req.params.tenantId,
-    tenantId: req.params.tenantId,
-    before,
-    after: await tenantSnapshot(req.params.tenantId),
-    metadata: { force, counts: result.counts },
-  });
-  logger.warn("Platform: tenant purged", { tenantId: req.params.tenantId, by: req.platformUser.email, force });
-  res.json({ success: true, data: result });
 });
 
 // --- Export ----------------------------------------------------------

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useParams } from 'react-router-dom';
 
 // Shared default pages — a theme only overrides the ones it re-implements.
 import CollectionsIndex from '../pages/CollectionsIndex';
@@ -19,6 +19,8 @@ import Account from '../pages/Account';
 import Checkout from '../pages/Checkout';
 import OrderSuccess from '../pages/OrderSuccess';
 import OrderTracking from '../pages/OrderTracking';
+import ContactPage from '../pages/ContactPage';
+import { useAutoContactEnabled } from '../hooks/useContactInfo';
 
 import ScrollToTop from '../components/navigation/ScrollToTop';
 import { ThemeCardProvider, type ThemeCardRenderer } from '../theme/ThemeCardProvider';
@@ -121,6 +123,17 @@ export function createThemeApp(options: CreateThemeAppOptions): ThemeAppComponen
     ...pages,
   };
 
+  // Automatic contact page (PBI 10-10): when the merchant switched it on,
+  // /contact and /pages/contact render the brand-kit ContactPage for every
+  // theme; otherwise each route renders exactly what it did before.
+  const ContactRoute: React.FC = () =>
+    useAutoContactEnabled() ? <ContactPage /> : <P.Contact />;
+  const PageRoute: React.FC = () => {
+    const { slug } = useParams<{ slug: string }>();
+    const autoContact = useAutoContactEnabled();
+    return autoContact && slug === 'contact' ? <ContactPage /> : <P.PageView />;
+  };
+
   const App: React.FC = () => {
     let tree: React.ReactElement = (
       <>
@@ -145,9 +158,9 @@ export function createThemeApp(options: CreateThemeAppOptions): ThemeAppComponen
             <Route path="/reset-password" element={<P.ResetPassword />} />
             <Route path="/account" element={<P.Account />} />
             <Route path="/wishlist" element={<P.Wishlist />} />
-            <Route path="/contact" element={<P.Contact />} />
+            <Route path="/contact" element={<ContactRoute />} />
             <Route path="/about" element={<P.About />} />
-            <Route path="/pages/:slug" element={<P.PageView />} />
+            <Route path="/pages/:slug" element={<PageRoute />} />
             <Route path="/policies/:key" element={<P.PolicyPage />} />
             {routes.map((r) => (
               <Route key={r.path} path={r.path} element={r.element} />

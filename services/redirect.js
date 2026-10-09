@@ -13,6 +13,8 @@ import {
   createRedirectRepo,
   updateRedirectRepo,
   deleteRedirectRepo,
+  deleteRedirectByFromPathRepo,
+  retargetRedirectsRepo,
 } from "../repositories/redirect.js";
 import { APIError } from "../middlewares/errorHandler.js";
 
@@ -125,6 +127,28 @@ export const updateRedirect = async (models, id, patch = {}) => {
   const updated = await updateRedirectRepo(models, id, allowed);
   if (!updated) throw new APIError("Redirect not found", 404);
   return updated;
+};
+
+/**
+ * Keep shared links working after a storefront URL changes (a product's or
+ * collection's slug edited): 301 `oldPath` → `newPath`.
+ *   - An existing redirect from `oldPath` is repointed rather than 409ing.
+ *   - Older redirects that landed on `oldPath` are repointed to `newPath`,
+ *     so renaming twice never builds a redirect chain.
+ *   - A redirect FROM `newPath` (left by an earlier rename, now being
+ *     undone) is dropped — otherwise the item's own URL would bounce away.
+ */
+export const redirectRenamedPath = async (models, oldPath, newPath) => {
+  const fromPath = normaliseFromPath(oldPath);
+  const toPath = normaliseToPath(newPath);
+  if (fromPath === toPath) return null;
+  await deleteRedirectByFromPathRepo(models, toPath);
+  await retargetRedirectsRepo(models, fromPath, toPath);
+  const existing = await findRedirectByFromPathRepo(models, fromPath);
+  if (existing) {
+    return updateRedirectRepo(models, existing._id, { toPath, statusCode: 301 });
+  }
+  return createRedirect(models, { fromPath, toPath, statusCode: 301 });
 };
 
 export const deleteRedirect = async (models, id) => {

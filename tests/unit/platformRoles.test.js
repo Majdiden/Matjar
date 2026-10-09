@@ -10,6 +10,7 @@ import {
   canAssignRole,
   canActOnRole,
   isValidRole,
+  OWNER_ONLY_GRANTS,
 } from "../../config/platformRoles.js";
 import { PLATFORM_SCOPES } from "../../middlewares/platformAdmin.js";
 
@@ -21,6 +22,19 @@ describe("platform roles", () => {
     }
     const owner = PLATFORM_ROLE_DEFS.find((r) => r.key === PLATFORM_ROLES.OWNER);
     assert.equal(owner.scopes.length, known.size);
+  });
+
+  it("permanent store deletion is owner-only by role and grantable per person", () => {
+    assert.deepEqual(OWNER_ONLY_GRANTS, [PLATFORM_SCOPES.TENANT_DELETE]);
+    for (const def of PLATFORM_ROLE_DEFS) {
+      const has = def.scopes.includes(PLATFORM_SCOPES.TENANT_DELETE);
+      assert.equal(has, def.key === PLATFORM_ROLES.OWNER, `${def.key} tenant.delete`);
+    }
+    // Admin keeps everything else.
+    const admin = PLATFORM_ROLE_DEFS.find((r) => r.key === PLATFORM_ROLES.ADMIN);
+    assert.equal(admin.scopes.length, Object.keys(PLATFORM_SCOPES).length - OWNER_ONLY_GRANTS.length);
+    // An explicit grant adds it to any role.
+    assert.ok(resolveEffectiveScopes(PLATFORM_ROLES.OPERATIONS, ["tenant.delete"]).includes("tenant.delete"));
   });
 
   it("resolves effective scopes = role ∪ explicit grants, ignoring unknown grants", () => {

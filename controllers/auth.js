@@ -13,7 +13,7 @@ import {
   confirmPasswordReset,
 } from "../services/auth.js";
 import { getEffectivePermissions } from "../middlewares/authorize.js";
-import { addATenantService, addStoreForExistingUserService } from "../services/tenant.js";
+import { addATenantService, addStoreForExistingUserService, STORE_LANGUAGES } from "../services/tenant.js";
 import { requestEmailOtp, verifyEmailOtp, verifyEmailVerificationToken } from "../services/otp.js";
 import { signJWT } from "../utils/misc.js";
 import { asyncHandler, APIError } from "../middlewares/errorHandler.js";
@@ -21,6 +21,7 @@ import { createScopedModels } from "../utils/scopedModel.js";
 import { logAudit } from "../utils/audit.js";
 import logger from "../utils/logger.js";
 import { getEnabledPhoneCountries, resolveMerchantPhone } from "../services/phoneCountries.js";
+import { isFeatureEnabled } from "../services/featureFlags.js";
 
 export const registerTenantController = asyncHandler(async (req, res) => {
   // Email-OTP gate. When the client supplies an `emailVerificationToken`
@@ -154,8 +155,13 @@ export const addStoreController = asyncHandler(async (req, res) => {
     themeSelected: req.body.themeSelected,
     niche: req.body.niche,
     currency: req.body.currency,
-    language: req.body.language,
+    // Unvalidated route: only pass a supported language through.
+    language: STORE_LANGUAGES.includes(req.body.language) ? req.body.language : undefined,
     socialLinks: req.body.socialLinks,
+    // Signup v2 answers; type/length are checked in the service.
+    onboardingFlow: req.body.onboardingFlow,
+    city: req.body.city,
+    deliveryAreas: req.body.deliveryAreas,
   });
 
   // Sign a JWT for the NEW store's admin user so the dashboard can hop to the
@@ -539,6 +545,19 @@ export const updateCurrentUserController = asyncHandler(async (req, res) => {
  * GET /auth/phone-countries — public. The enabled dial codes (+ the default)
  * the signup and profile phone fields offer. Cache-friendly and tiny.
  */
+/**
+ * GET /auth/onboarding-config — which signup flow the register page runs.
+ * Public: signup happens before any store exists, so only the GLOBAL
+ * `onboarding.v2` value applies (per-store overrides can't). The dashboard
+ * also honours a `?flow=v2|v1` URL override so the operator can try v2 on
+ * prod while the flag is off.
+ */
+export const onboardingConfigController = asyncHandler(async (_req, res) => {
+  const v2 = await isFeatureEnabled("onboarding.v2");
+  res.set("Cache-Control", "public, max-age=60");
+  res.json({ success: true, responseObject: { v2 } });
+});
+
 export const phoneCountriesController = asyncHandler(async (_req, res) => {
   const data = await getEnabledPhoneCountries();
   res.set("Cache-Control", "public, max-age=60");
