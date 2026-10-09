@@ -78,14 +78,17 @@ describe("normalizeBilingualText", () => {
     }
   });
 
-  it("keeps English without Arabic (English is optional, not forbidden)", () => {
-    assert.deepEqual(normalizeBilingualText("city", { en: "Khartoum" }).value, { en: "Khartoum" });
+  it("requires Arabic whenever a text is set; English stays optional", () => {
+    assert.deepEqual(normalizeBilingualText("city", { en: "Khartoum" }).invalid, ["ar"]);
+    assert.deepEqual(normalizeBilingualText("city", { ar: "", en: "Khartoum" }).invalid, ["ar"]);
+    assert.deepEqual(normalizeBilingualText("city", { ar: "الخرطوم" }), { value: { ar: "الخرطوم" }, invalid: [] });
+    assert.deepEqual(normalizeBilingualText("city", { ar: "الخرطوم", en: "Khartoum" }).invalid, []);
   });
 
   it("flags over-long or non-string languages and non-object input", () => {
     const long = "ب".repeat(BRAND_TEXT_MAX_LENGTH.tagline + 1);
     assert.deepEqual(normalizeBilingualText("tagline", { ar: long }).invalid, ["ar"]);
-    assert.deepEqual(normalizeBilingualText("hours", { en: 5 }).invalid, ["en"]);
+    assert.deepEqual(normalizeBilingualText("hours", { ar: "٩ص–٩م", en: 5 }).invalid, ["en"]);
     assert.deepEqual(normalizeBilingualText("city", "Khartoum").invalid, ["city"]);
     // Exactly at the cap is fine.
     const exact = "ب".repeat(BRAND_TEXT_MAX_LENGTH.tagline);

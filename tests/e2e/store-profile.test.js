@@ -151,6 +151,8 @@ describe("E2E store profile (brand kit)", () => {
       { logo: "http://insecure.example/logo.png" },
       { brand: { whatsapp: "12" } },
       { brand: { tagline: { ar: "ب".repeat(141) } } },
+      // Arabic is required; English alone is rejected.
+      { brand: { city: { en: "Khartoum" } } },
       { brand: { unknown: "x" } },
       { socialLinks: { facebook: "https://evil.example/page" } },
       { storeName: "x" },

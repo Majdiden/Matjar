@@ -130,7 +130,13 @@ export async function buildStoreProfileUpdate(input = {}) {
       if (brand[field] === undefined) continue;
       const { value, invalid } = normalizeBilingualText(field, brand[field]);
       if (invalid.length) {
-        throw new APIError(`Invalid brand ${field} (${invalid.join(", ")})`, 400);
+        const arabicMissing = invalid.includes("ar") && !value?.ar && typeof brand[field]?.ar !== "string";
+        throw new APIError(
+          arabicMissing
+            ? `Brand ${field} needs an Arabic text (English is optional)`
+            : `Invalid brand ${field} (${invalid.join(", ")})`,
+          400
+        );
       }
       clearOrSet(`settings.brand.${field}`, value);
     }

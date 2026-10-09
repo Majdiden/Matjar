@@ -24,6 +24,8 @@ import { isE164 } from "./phone.js";
 
 /** Languages of a bilingual brand text. Arabic first: it is the primary one. */
 export const BRAND_TEXT_LANGS = Object.freeze(["ar", "en"]);
+/** Arabic is required whenever a bilingual text is set; English is optional. */
+export const BRAND_TEXT_REQUIRED_LANG = "ar";
 
 /** Bilingual brand fields → max length per language (after trimming). */
 export const BRAND_TEXT_MAX_LENGTH = Object.freeze({
@@ -96,8 +98,9 @@ export function normalizeBrandImageUrl(raw) {
  * Normalise a `{ ar, en }` text for one brand field. Each language is
  * trimmed; an empty one is dropped. Returns `{ value, invalid }` — `value` is
  * null when nothing is left (null/"" input clears), `invalid` lists the
- * languages that were not strings or exceeded the field's max length (or the
- * field itself when the input is not a `{ ar, en }` object).
+ * languages that were not strings or exceeded the field's max length, plus
+ * "ar" when only English was given (Arabic is required, English optional) —
+ * or the field itself when the input is not a `{ ar, en }` object.
  */
 export function normalizeBilingualText(field, input) {
   const max = BRAND_TEXT_MAX_LENGTH[field];
@@ -114,6 +117,9 @@ export function normalizeBilingualText(field, input) {
       continue;
     }
     value[lang] = raw.trim();
+  }
+  if (Object.keys(value).length && !value[BRAND_TEXT_REQUIRED_LANG] && !invalid.includes(BRAND_TEXT_REQUIRED_LANG)) {
+    invalid.push(BRAND_TEXT_REQUIRED_LANG);
   }
   return { value: Object.keys(value).length ? value : null, invalid };
 }
