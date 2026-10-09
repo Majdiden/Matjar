@@ -20,7 +20,7 @@ This document lists all tasks associated with PBI 10.
 | 10-10 | [Contact page from the brand kit](./10-10.md) | Review | Theme-rendered system page: WhatsApp button, phone, city, hours, social links |
 | 10-11 | [Policies from questions + trust badges](./10-11.md) | Review | Delivery/returns/payment answers → `settings.policies.*`; shared trust-badge component on product pages |
 | 10-12 | ["متجري" (My store) hub + brand kit form](./10-12.md) | Review | Phone-first dashboard route behind `design.simpleMode` |
-| 10-13 | Homepage simple editor | Proposed | Phone preview, tap a section → bottom sheet with basic settings, show/hide/move, save-and-publish with undo |
+| 10-13 | [Homepage simple editor](./10-13.md) | Review | Phone preview + plain-words list of basic sections (show/hide, move up/down); tap → bottom sheet with basic settings (Arabic-first text, photo, colour, switch, options) and brand-kit hints; every change saves and goes live at once with Undo; offline-safe queue |
 | 10-14 | [Arabic-first bilingual field](./10-14.md) | Review | Arabic input with "+ English (optional)"; used everywhere in simple mode |
 | 10-15 | [Theme switch keeps brand kit and content](./10-15.md) | Review | Brand kit was already kept; each theme's customization is now kept aside on switch and restored (if still valid) on switching back; regression test |
 | 10-16 | [Signup reorder (onboarding v2)](./10-16.md) | Review | Behind `onboarding.v2` (global; `?flow=v2` override); account → store name → what you sell → city + delivery areas → 3 looks with the store name; WhatsApp defaults to the account phone |

@@ -20,9 +20,9 @@ import { toStoreProfile, type StoreProfile, type StoreProfilePatch } from '../li
 const PROFILE_CACHE_PREFIX = 'matjar.storeProfile.v1:';
 const DRAFTS_PREFIX = 'matjar.storeProfileDrafts.v1:';
 /** Seconds between automatic retries; the last one repeats. */
-const RETRY_DELAYS_S = [3, 6, 12, 24, 30];
+export const RETRY_DELAYS_S = [3, 6, 12, 24, 30];
 
-function readJson<T>(key: string): T | null {
+export function readJson<T>(key: string): T | null {
   try {
     const raw = localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T) : null;
@@ -31,7 +31,7 @@ function readJson<T>(key: string): T | null {
   }
 }
 
-function writeJson(key: string, value: unknown) {
+export function writeJson(key: string, value: unknown) {
   try {
     if (value == null) localStorage.removeItem(key);
     else localStorage.setItem(key, JSON.stringify(value));
@@ -40,7 +40,8 @@ function writeJson(key: string, value: unknown) {
   }
 }
 
-const useStoreKey = () => useAuth().user?.tenantId || 'current';
+/** Per-store key for the phone-side caches (one dashboard may run several stores). */
+export const useStoreKey = () => useAuth().user?.tenantId || 'current';
 
 /**
  * GET /api/store-profile, rendered instantly from the per-store cache.

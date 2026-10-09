@@ -66,9 +66,7 @@ const VisualEditor = lazyWithRetry(() => import('./pages/themes/VisualEditor'));
 // under /dashboard/store/* are registered by their own tasks (10-9..10-11).
 const StoreHub = lazyWithRetry(() => import('./pages/store/StoreHub'));
 const BrandKit = lazyWithRetry(() => import('./pages/store/BrandKit'));
-// PLACEHOLDER until PBI 10-13 ships the homepage simple editor — replace this
-// import and its route below.
-const HomepagePlaceholder = lazyWithRetry(() => import('./pages/store/HomepagePlaceholder'));
+const HomepageEditor = lazyWithRetry(() => import('./pages/store/HomepageEditor'));
 const Settings = lazyWithRetry(() => import('./pages/settings').then(m => ({ default: m.Settings })));
 const Security = lazyWithRetry(() => import('./pages/security/Security').then(m => ({ default: m.Security })));
 const Companies = lazyWithRetry(() => import('./pages/companies/Companies').then(m => ({ default: m.Companies })));
@@ -167,8 +165,7 @@ function App() {
             <Route path="themes/customize" element={<Navigate to="/dashboard/themes/editor" replace />} />
             <Route path="store" element={<RequireFeature feature="design.simpleMode"><StoreHub /></RequireFeature>} />
             <Route path="store/brand" element={<RequireFeature feature="design.simpleMode"><RequirePermission permission={['settings.read', 'settings.write']}><BrandKit /></RequirePermission></RequireFeature>} />
-            {/* PLACEHOLDER (10-12) — 10-13 replaces with the homepage simple editor. */}
-            <Route path="store/homepage" element={<RequireFeature feature="design.simpleMode"><RequirePermission permission="themes.write"><HomepagePlaceholder /></RequirePermission></RequireFeature>} />
+            <Route path="store/homepage" element={<RequireFeature feature="design.simpleMode"><RequirePermission permission="themes.write"><HomepageEditor /></RequirePermission></RequireFeature>} />
             <Route path="settings" element={<RequirePermission permission={['settings.read', 'settings.write']}><Settings /></RequirePermission>} />
             {/* Security is per-account (passkeys + email verification), not a
                 tenant setting — any authenticated user reaches it, no
