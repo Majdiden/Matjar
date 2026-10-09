@@ -215,9 +215,15 @@ export interface StoreContactState {
   };
 }
 export interface PolicyAnswers {
-  delivery: { areas?: AnswerText | null; fee?: AnswerText | null; time?: AnswerText | null };
+  delivery: { areas?: AnswerText | null; time?: AnswerText | null };
   returns: { accepted: boolean; days?: number | null; conditions?: AnswerText | null };
 }
+export type ShippingSummary =
+  | { mode: 'zones'; zones: Array<{ name: string; price: number | null; days: string | null }>; freeOver?: number }
+  | { mode: 'flat'; price: number; freeOver?: number }
+  | { mode: 'weight'; base: number; perKg: number; freeOver?: number }
+  | { mode: 'free' }
+  | { mode: 'unset' };
 export interface StorePoliciesState {
   answers: PolicyAnswers | null;
   generatedAt: string | null;
@@ -225,6 +231,8 @@ export interface StorePoliciesState {
   suggestions: { areas: AnswerText | null };
   language: 'ar' | 'en';
   zones: Array<{ name: string; price: number | null; days: string | null }>;
+  /** Delivery prices from the shipping settings (services/generatedPages.js summarizeShipping). */
+  shipping?: ShippingSummary;
   currency: string | null;
   payment: { cod: boolean; transfers: Array<{ code: string; label: string }> };
   policies: Record<'delivery' | 'returns' | 'cod', { title: string | null; exists: boolean; edited: boolean }>;

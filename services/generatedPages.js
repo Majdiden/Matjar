@@ -94,6 +94,9 @@ export const POLICY_TEMPLATES = Object.freeze({
       free: "مجانًا",
       areas: "<p>نوصل إلى: {areas}.</p>",
       fee: "<p>رسوم التوصيل: {fee}.</p>",
+      freeAll: "<p>التوصيل مجاني.</p>",
+      freeOver: "<p>التوصيل مجاني للطلبات من {amount} فأكثر.</p>",
+      weight: "<p>رسوم التوصيل {base}، وتزيد {perKg} لكل كيلوغرام.</p>",
       time: "<p>يصلك طلبك عادةً خلال {time}.</p>",
       closing: "<p>إذا كان لديك سؤال عن التوصيل، تواصل معنا ويسعدنا مساعدتك.</p>",
     }),
@@ -124,6 +127,9 @@ export const POLICY_TEMPLATES = Object.freeze({
       free: "free",
       areas: "<p>We deliver to: {areas}.</p>",
       fee: "<p>Delivery fee: {fee}.</p>",
+      freeAll: "<p>Delivery is free.</p>",
+      freeOver: "<p>Delivery is free on orders of {amount} or more.</p>",
+      weight: "<p>Delivery costs {base}, plus {perKg} per kilogram.</p>",
       time: "<p>Your order usually arrives within {time}.</p>",
       closing: "<p>If you have a question about delivery, contact us and we will be glad to help.</p>",
     }),
@@ -330,8 +336,8 @@ export function normalizePolicyAnswers(input = {}, { hasZones = false } = {}) {
 
   const areas = answerText("delivery.areas", delivery.areas, POLICY_TEXT_MAX_LENGTH.areas, { required: !hasZones });
   if (areas) out.delivery.areas = areas;
-  const fee = answerText("delivery.fee", delivery.fee, POLICY_TEXT_MAX_LENGTH.fee);
-  if (fee) out.delivery.fee = fee;
+  // Delivery prices are not asked: they come from the shipping settings
+  // (summarizeShipping), the same numbers checkout charges.
   out.delivery.time = answerText("delivery.time", delivery.time, POLICY_TEXT_MAX_LENGTH.time, { required: true });
 
   if (typeof returns.accepted !== "boolean") throw new AnswerError("returns.accepted", "must be yes or no");
@@ -346,6 +352,46 @@ export function normalizePolicyAnswers(input = {}, { hasZones = false } = {}) {
     if (conditions) out.returns.conditions = conditions;
   }
   return out;
+}
+
+const positiveNumber = (v) => {
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+/**
+ * What the delivery policy says about prices, read from the store's shipping
+ * settings with the same rules as checkout (services/shipping.js):
+ *   - `zones`: zone shipping with named zones (each zone's cheapest rate);
+ *   - `flat`: one price for every order (also zone shipping without zones,
+ *     which charges the flat rate);
+ *   - `weight`: a base price plus a price per kilogram;
+ *   - `free`: free delivery;
+ *   - `unset`: nothing set yet (flat at 0, the default). The policy then
+ *     says nothing about price and the dashboard points to the settings.
+ * `freeOver` is the free-delivery threshold when one is set.
+ */
+export function summarizeShipping(shipping) {
+  const s = shipping && typeof shipping === "object" ? shipping : {};
+  const freeOver = positiveNumber(s.freeShippingThreshold);
+  const flat = positiveNumber(s.rate);
+  const withFree = (out) => (freeOver ? { ...out, freeOver } : out);
+  switch (s.type) {
+    case "free":
+      return { mode: "free" };
+    case "zone": {
+      const zones = summarizeZones(s.zones);
+      if (zones.length) return withFree({ mode: "zones", zones });
+      return flat ? withFree({ mode: "flat", price: flat }) : { mode: "unset" };
+    }
+    case "weight": {
+      const base = positiveNumber(s.baseRate);
+      const perKg = positiveNumber(s.perKgRate);
+      return base || perKg ? withFree({ mode: "weight", base: base || 0, perKg: perKg || 0 }) : { mode: "unset" };
+    }
+    default:
+      return flat ? withFree({ mode: "flat", price: flat }) : { mode: "unset" };
+  }
 }
 
 /**
@@ -401,10 +447,15 @@ const providerName = (provider, lang) =>
  * @param {object} ctx      { lang, zones (summarizeZones), payment (summarizePaymentMethods), currency }
  * @returns {{ delivery: {title, body}, returns: {title, body}, cod?: {title, body} }}
  */
-export function buildPolicies(answers, { lang = PRIMARY_LANG, zones = [], payment = null, currency = "" } = {}) {
+export function buildPolicies(
+  answers,
+  { lang = PRIMARY_LANG, shipping = { mode: "unset" }, payment = null, currency = "" } = {}
+) {
   const tpl = POLICY_TEMPLATES[lang] || POLICY_TEMPLATES[PRIMARY_LANG];
   const text = (v) => pick(v, lang, { fallback: true });
   const out = {};
+  const price = (n) => formatPrice(n, currency, lang);
+  const zones = shipping.mode === "zones" ? shipping.zones : [];
 
   // Delivery
   const d = [];
@@ -426,8 +477,11 @@ export function buildPolicies(answers, { lang = PRIMARY_LANG, zones = [], paymen
   }
   const areas = text(answers.delivery?.areas);
   if (areas) d.push(fill(tpl.delivery.areas, { areas: escapeHtml(areas) }));
-  const fee = text(answers.delivery?.fee);
-  if (fee) d.push(fill(tpl.delivery.fee, { fee: escapeHtml(fee) }));
+  // Prices: from the shipping settings only (summarizeShipping).
+  if (shipping.mode === "free") d.push(tpl.delivery.freeAll);
+  if (shipping.mode === "flat") d.push(fill(tpl.delivery.fee, { fee: price(shipping.price) }));
+  if (shipping.mode === "weight") d.push(fill(tpl.delivery.weight, { base: price(shipping.base), perKg: price(shipping.perKg) }));
+  if (shipping.freeOver) d.push(fill(tpl.delivery.freeOver, { amount: price(shipping.freeOver) }));
   const time = text(answers.delivery?.time);
   if (time) d.push(fill(tpl.delivery.time, { time: escapeHtml(time) }));
   d.push(tpl.delivery.closing);
