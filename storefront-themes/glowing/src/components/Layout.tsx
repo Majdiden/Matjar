@@ -19,7 +19,7 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
 /**
  * Glowing Layout — ultra minimalist cosmetics chrome.
  *
- *   ─ Top strip: black announcement with centered shipping message
+ *   ─ Top strip: black announcement with the merchant's message
  *   ─ Utility row: search / centered serif wordmark / account + wishlist + cart
  *   ─ Nav row: centered thin nav links (HOME • SHOP • COLLECTIONS • ABOUT • CONTACT)
  *   ─ Footer: 4-col link grid on white, centered wordmark above

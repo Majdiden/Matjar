@@ -114,9 +114,10 @@ export const milmaaBenefitsSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'b-1', type: 'benefit', settings: { title: 'Rich in calcium & vitamin D', description: 'Each serving delivers your daily dose of essential minerals.' } },
-    { id: 'b-2', type: 'benefit', settings: { title: '100% plant-based', description: 'No dairy, no lactose, no compromise on creaminess.' } },
-    { id: 'b-3', type: 'benefit', settings: { title: 'Zero added sugar', description: 'Naturally sweetened — the way nature intended.' } },
+    // Empty benefits for the merchant to fill: claims about their products are theirs to make.
+    { id: 'b-1', type: 'benefit', settings: {} },
+    { id: 'b-2', type: 'benefit', settings: {} },
+    { id: 'b-3', type: 'benefit', settings: {} },
   ],
 });
 
@@ -172,9 +173,10 @@ export const milmaaTestimonialsSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'tm-1', type: 'testimonial', settings: { quote: 'The creamiest plant milk I have ever tasted! My kids love it and I feel good giving it to them.', author: 'Sarah M.', role: 'Busy Mom' } },
-    { id: 'tm-2', type: 'testimonial', settings: { quote: 'Perfect for my morning oats. Clean ingredients and amazing flavor — truly a game changer.', author: 'David L.', role: 'Yoga Instructor' } },
-    { id: 'tm-3', type: 'testimonial', settings: { quote: 'Finally a non-dairy milk that actually tastes like milk. The badam flavor is to die for!', author: 'Priya K.', role: 'Foodie' } },
+    // Empty quotes for the merchant's real customers — never invented reviews.
+    { id: 'tm-1', type: 'testimonial', settings: {} },
+    { id: 'tm-2', type: 'testimonial', settings: {} },
+    { id: 'tm-3', type: 'testimonial', settings: {} },
   ],
 });
 

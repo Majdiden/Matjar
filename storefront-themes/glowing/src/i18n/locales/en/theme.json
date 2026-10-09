@@ -27,8 +27,8 @@
         "card2_eyebrow": "JUST DROPPED",
         "card2_title": "What's New?",
         "card2_cta": "DISCOVER",
-        "card3_eyebrow": "LIMITED OFFER",
-        "card3_title": "Buy 1 Get 1",
+        "card3_eyebrow": "THE COLLECTION",
+        "card3_title": "All Products",
         "card3_cta": "SHOP NOW"
       }
     },
@@ -66,7 +66,7 @@
     },
     "products": {
       "title": "All Products",
-      "subtitle": "Discover our complete collection of clean, vegan beauty essentials",
+      "subtitle": "Discover our complete collection of beauty essentials",
       "breadcrumb_home": "Home",
       "breadcrumb_shop": "Shop",
       "sidebar_categories": "Categories",

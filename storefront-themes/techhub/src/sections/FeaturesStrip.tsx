@@ -1,12 +1,14 @@
 /**
  * FeaturesStrip — TONMART-style 3-icon service-promise bar.
- * Pulls block data from section settings (icon type + title + subtitle)
- * and renders them in an equal-width row with minimal dividers.
+ * Renders the merchant's own blocks (icon type + title + subtitle); with
+ * none typed, the store's delivery / returns / payment facts
+ * (useTrustLines). Never demo promises — hidden when there is nothing.
  */
 import React from 'react';
 import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
 import type { SectionComponentProps } from '@matjar/theme-shared/components/sections';
-import { useTranslation } from 'react-i18next';
+import { merchantText } from '@matjar/theme-shared/theme/heroContent';
+import { useTrustLines, type TrustLine } from '@matjar/theme-shared/components/commerce/TrustBadges';
 
 interface FeatureBlock {
   id: string;
@@ -36,12 +38,43 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
-export const FeaturesStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
-  const { t } = useTranslation(['theme']);
-  useThemeSettings(id);
-  const blocks = (section?.blocks || []) as FeatureBlock[];
+// Demo copy older installs stored as literal block settings — treated as unset.
+const LEGACY_DEMO_TEXT = new Set([
+  'Free US Shipping', 'For US customers on orders above $200',
+  'Secure Payment', 'We accept Visa, AmEx, Paypal and more',
+  '1 Year Warranty', 'All of our products are made with care',
+]);
+const blockText = (value: unknown): string => {
+  const text = merchantText(value) || '';
+  return LEGACY_DEMO_TEXT.has(text) ? '' : text;
+};
 
-  if (blocks.length === 0) return null;
+// Techhub icon for each store trust line.
+const TRUST_LINE_ICON: Record<TrustLine['icon'], string> = {
+  cash: 'card',
+  transfer: 'card',
+  truck: 'truck',
+  clock: 'truck',
+  return: 'refresh',
+};
+
+export const FeaturesStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
+  useThemeSettings(id);
+  const trustLines = useTrustLines();
+  const blocks = (section?.blocks || []) as FeatureBlock[];
+  const merchantItems = blocks
+    .map((block) => ({
+      id: block.id,
+      icon: (block.settings.icon as string) || 'truck',
+      title: blockText(block.settings.title),
+      subtitle: blockText(block.settings.subtitle),
+    }))
+    .filter((item) => item.title || item.subtitle);
+  const items = merchantItems.length > 0
+    ? merchantItems
+    : trustLines.map((line) => ({ id: line.key, icon: TRUST_LINE_ICON[line.icon], title: line.text, subtitle: '' }));
+
+  if (items.length === 0) return null;
 
   return (
     <section
@@ -52,16 +85,15 @@ export const FeaturesStripSection: React.FC<SectionComponentProps> = ({ id, sect
         <div
           className="grid gap-px"
           style={{
-            gridTemplateColumns: `repeat(${blocks.length}, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))`,
             backgroundColor: 'var(--color-border)',
           }}
         >
-          {blocks.map((block) => {
-            const iconKey = (block.settings.icon as string) || 'truck';
-            const iconPath = ICONS[iconKey] || ICONS.truck;
+          {items.map((item) => {
+            const iconPath = ICONS[item.icon] || ICONS.truck;
             return (
               <div
-                key={block.id}
+                key={item.id}
                 className="flex items-center gap-4 px-6 py-2"
                 style={{ backgroundColor: 'var(--color-background)' }}
               >
@@ -77,15 +109,19 @@ export const FeaturesStripSection: React.FC<SectionComponentProps> = ({ id, sect
                   </svg>
                 </div>
                 <div className="min-w-0">
-                  <h3
-                    className="text-sm font-bold uppercase tracking-wide"
-                    style={{ color: 'var(--color-foreground)' }}
-                  >
-                    {block.settings.title || t('theme.section.features_strip.default_title')}
-                  </h3>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
-                    {block.settings.subtitle || ''}
-                  </p>
+                  {item.title && (
+                    <h3
+                      className="text-sm font-bold uppercase tracking-wide"
+                      style={{ color: 'var(--color-foreground)' }}
+                    >
+                      {item.title}
+                    </h3>
+                  )}
+                  {item.subtitle && (
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--color-muted)' }}>
+                      {item.subtitle}
+                    </p>
+                  )}
                 </div>
               </div>
             );

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useFeaturedProducts } from '@matjar/theme-shared/hooks/useProducts';
-import { FreeShippingBar, LineItem, NOTE_KEY } from '../components/chrome/MiniCart';
+import { LineItem, NOTE_KEY } from '../components/chrome/MiniCart';
 import AtelierProductCard from '../components/AtelierProductCard';
 
 /** Two-column cart: line items on the start side, a grey summary card on the end side. */
@@ -42,7 +42,6 @@ const CartPage: React.FC = () => {
               <div className="mt-4 flex items-baseline justify-between"><span className="text-[14px] font-bold">{t('theme.cart.subtotal')}</span><span className="text-[22px] font-extrabold">{formatPrice(cart?.subtotal || 0)}</span></div>
               {!!cart?.savings && cart.savings > 0 && <p className="mt-1 text-[12px] font-bold text-[#2e8b57]">{t('theme.cart.savings', { amount: formatPrice(cart.savings) })}</p>}
               <p className="mt-2 text-[11px] font-medium text-[#6b6b6b]">{t('theme.cart.shipping_hint')}</p>
-              <FreeShippingBar subtotal={cart?.subtotal || 0} className="mt-5" />
               <label className="mt-6 block text-[12px] font-bold">{t('theme.cart.note_title')}
                 <textarea value={note} onChange={(e) => saveNote(e.target.value)} rows={3} placeholder={t('theme.cart.note_placeholder')} className="mt-2 w-full rounded-[10px] border border-[#e3e0d3] bg-white p-3 text-[13px] font-normal text-[#162950] placeholder:text-[10px] placeholder:text-[#767676]" />
               </label>

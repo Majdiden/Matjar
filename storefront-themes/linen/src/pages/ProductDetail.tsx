@@ -19,6 +19,13 @@ import { LinenProductCard } from '../components/LinenProductCard';
 import { PillVariantPicker } from '../components/PillVariantPicker';
 import { Reveal } from '../lib/Reveal';
 import { I } from '../lib/icons';
+import { useTrustLines, type TrustLineIcon } from '@matjar/theme-shared/components/commerce/TrustBadges';
+import { publishedPolicies } from '@matjar/theme-shared/lib/policies';
+
+/** Linen icon for each kind of store fact. */
+const TRUST_ICON: Record<TrustLineIcon, (p: React.SVGProps<SVGSVGElement>) => React.ReactElement> = {
+  cash: I.wallet, transfer: I.transfer, truck: I.truck, clock: I.clock, return: I.return,
+};
 
 const PLACEHOLDER = 'https://placehold.co/900x900/ecdec1/0f0f0f?text=%20';
 
@@ -44,6 +51,7 @@ const ProductDetail: React.FC = () => {
   const { t, i18n } = useTranslation(['theme']);
   const banner = useThemeSetting<string>('pdp_banner_image');
   const productSections = useTemplateSections('product');
+  const trustLines = useTrustLines();
 
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
@@ -91,8 +99,10 @@ const ProductDetail: React.FC = () => {
   const canAdd = (inStock || !!pre.config) && !adding && !buying && !needsSelection && !pre.ctaDisabled;
   const wishlisted = wishlist.includes(product._id);
   const contentSections = productContentSections(product, i18n.language);
-  const policies = store?.policies || {};
-  const shippingPolicy = policies.delivery || policies.shipping || policies.returns || null;
+  // Published delivery / returns policies in the shopper's language, one
+  // accordion each — unless the product template already shows them.
+  const policiesInTemplate = productSections.some((sec) => sec.type === 'product-policies');
+  const shopPolicies = policiesInTemplate ? [] : publishedPolicies(store, t).filter((p) => p.key === 'delivery' || p.key === 'returns');
 
   const add = async () => {
     if (!canAdd) return;
@@ -190,6 +200,16 @@ const ProductDetail: React.FC = () => {
             </button>
             <button type="button" onClick={buyNow} disabled={!canAdd} className="linen-btn linen-btn-dark mt-3 h-14 w-full">{buying ? t('theme.product_detail.adding') : t('theme.product_detail.buy_now')}</button>
 
+            {/* The store's own delivery, returns and payment facts — nothing when the merchant never answered */}
+            {trustLines.length > 0 && (
+              <ul className="mt-8 space-y-3 text-sm text-dune">
+                {trustLines.map((line) => {
+                  const Icon = TRUST_ICON[line.icon];
+                  return <li key={line.key} className="flex items-start gap-3"><Icon className="mt-0.5 h-5 w-5 shrink-0 text-clay" />{line.text}</li>;
+                })}
+              </ul>
+            )}
+
             <div className="mt-8">
               <Accordion title={t('theme.product_detail.description')} open={openKey === 'description'} onToggle={() => setOpenKey(openKey === 'description' ? null : 'description')}>
                 <ProductDescription product={product} />
@@ -199,11 +219,11 @@ const ProductDetail: React.FC = () => {
                   <p className="whitespace-pre-line">{cs.body}</p>
                 </Accordion>
               ))}
-              {shippingPolicy && (
-                <Accordion title={t('theme.product_detail.shipping_returns')} open={openKey === 'shipping'} onToggle={() => setOpenKey(openKey === 'shipping' ? null : 'shipping')}>
-                  <div className="prose prose-sm max-w-none text-dune" dangerouslySetInnerHTML={{ __html: shippingPolicy.body }} />
+              {shopPolicies.map((p) => (
+                <Accordion key={p.key} title={p.title} open={openKey === p.key} onToggle={() => setOpenKey(openKey === p.key ? null : p.key)}>
+                  <div className="prose prose-sm max-w-none text-dune" dangerouslySetInnerHTML={{ __html: p.body }} />
                 </Accordion>
-              )}
+              ))}
               <div className="border-t border-line pt-4">
                 <button type="button" onClick={share} className="inline-flex items-center gap-2 text-sm text-ink transition-colors hover:text-clay"><I.share className="h-4 w-4" /> {copied ? t('theme.product_detail.link_copied') : t('theme.product_detail.share')}</button>
               </div>

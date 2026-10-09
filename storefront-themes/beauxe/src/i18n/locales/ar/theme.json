@@ -129,7 +129,7 @@
       "reviews_count": "({{count}} تقييم)",
       "preorder_label": "طلب مسبق",
       "only_left": "لم يتبقَّ سوى {{count}}",
-      "in_stock": "متوفر — جاهز للشحن",
+      "in_stock": "متوفر",
       "sold_out": "نفد المخزون",
       "out_of_stock": "غير متوفر",
       "add_to_wishlist": "أضيفي إلى المفضّلة",

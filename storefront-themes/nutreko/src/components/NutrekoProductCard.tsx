@@ -33,7 +33,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
   const pct = onSale ? Math.round(((compareAt - price) / compareAt) * 100) : 0;
   const image = product.images?.[0] || 'https://placehold.co/600x600/f5f5f5/0a0a0a?text=Product';
   const slug = product.slug || product._id;
-  const rating = product.averageRating || 5;
+  const rating = product.averageRating || 0;
   const reviewCount = product.reviewCount || 0;
   const requiresOptions = Boolean(product.hasVariants || product.variants?.length || product.options?.length);
   const preorder = getPreorderState(product, null, { price });
@@ -131,7 +131,8 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
           {product.name}
         </Link>
 
-        {/* Rating */}
+        {/* Rating — only real reviews */}
+        {reviewCount > 0 && (
         <div className="flex items-center gap-1.5 mt-2">
           <div className="flex">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -142,6 +143,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
           </div>
           <span className="text-[10px] font-bold opacity-60">({reviewCount})</span>
         </div>
+        )}
 
         <div className="mt-3 flex items-center justify-between">
           <div className="flex items-baseline gap-2">

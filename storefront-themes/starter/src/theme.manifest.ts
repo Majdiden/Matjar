@@ -59,9 +59,11 @@ export const trustBadgesSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'badge-1', type: 'badge', settings: { title: 'Free Shipping', description: 'On orders over $50' } },
-    { id: 'badge-2', type: 'badge', settings: { title: 'Easy Returns', description: '30-day return policy' } },
-    { id: 'badge-3', type: 'badge', settings: { title: 'Secure Checkout', description: 'Safe & encrypted' } },
+    // Empty until the merchant writes them; meanwhile the strip shows the
+    // store's own delivery / returns / payment facts.
+    { id: 'badge-1', type: 'badge', settings: { title: '', description: '' } },
+    { id: 'badge-2', type: 'badge', settings: { title: '', description: '' } },
+    { id: 'badge-3', type: 'badge', settings: { title: '', description: '' } },
   ],
 });
 

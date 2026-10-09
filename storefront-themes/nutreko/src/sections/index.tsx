@@ -36,11 +36,13 @@ const headingFont = { fontFamily: 'var(--font-family-heading)' } as const;
 // ─── Top info strip ───────────────────────────────────────────────
 
 const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
-  const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
+  // Only the merchant's own text — no demo promise when they left it empty.
+  const text = merchantText(s.text);
+  if (!text) return null;
   return (
     <div className="text-[11px] tracking-[0.2em] font-bold py-2.5 text-center" style={{ backgroundColor: LIME, color: DARK }}>
-      <span className="inline-flex items-center gap-2"><svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg>{s.text || t('theme.announcement.default', { defaultValue: 'FREE SHIPPING ON ORDERS OVER $75' })}</span>
+      <span className="inline-flex items-center gap-2"><svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg>{text}</span>
     </div>
   );
 };
@@ -127,15 +129,21 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 // ─── Guarantee panels ─────────────────────────────────────────────
 
+/**
+ * Demo panel titles older manifests copied into a store's saved blocks
+ * ("100% AUTHENTIC", "FAST SHIPPING"…). They are the theme's claims, not the
+ * merchant's, so they never render.
+ */
+const DEMO_GUARANTEE_TITLES = new Set(['100% AUTHENTIC', 'MAXIMUM POTENCY', 'LAB TESTED', 'FAST SHIPPING']);
+
 const GuaranteeSection: React.FC<SectionComponentProps> = ({ section }) => {
-  const { t } = useTranslation('theme');
   const blocks: any[] = (section as any)?.blocks || [];
-  const items = blocks.length > 0 ? blocks : [
-    { id: 'a', settings: { icon: '100% AUTHENTIC', title: t('theme.section.nutreko-guarantee.authentic_title', { defaultValue: '100% AUTHENTIC' }), subtitle: t('theme.section.nutreko-guarantee.authentic_subtitle', { defaultValue: 'Sourced direct from brands' }) } },
-    { id: 'b', settings: { icon: 'MAXIMUM POTENCY', title: t('theme.section.nutreko-guarantee.potency_title', { defaultValue: 'MAXIMUM POTENCY' }), subtitle: t('theme.section.nutreko-guarantee.potency_subtitle', { defaultValue: 'Premium grade formulas' }) } },
-    { id: 'c', settings: { icon: 'LAB TESTED', title: t('theme.section.nutreko-guarantee.lab_title', { defaultValue: 'LAB TESTED' }), subtitle: t('theme.section.nutreko-guarantee.lab_subtitle', { defaultValue: 'Every batch verified' }) } },
-    { id: 'd', settings: { icon: 'FAST SHIPPING', title: t('theme.section.nutreko-guarantee.shipping_title', { defaultValue: 'FAST SHIPPING' }), subtitle: t('theme.section.nutreko-guarantee.shipping_subtitle', { defaultValue: 'Ships within 24 hours' }) } },
-  ];
+  // Only panels the merchant wrote; the section disappears without any.
+  const items = blocks.filter((b) => {
+    const title = merchantText(b?.settings?.title);
+    return title && !DEMO_GUARANTEE_TITLES.has(title);
+  });
+  if (items.length === 0) return null;
 
   const icons: Record<string, string> = {
     '100% AUTHENTIC': 'M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z',
@@ -150,7 +158,7 @@ const GuaranteeSection: React.FC<SectionComponentProps> = ({ section }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x-2 divide-black border-2 border-black">
           {items.slice(0, 4).map((b, i) => {
             const bs = b.settings || {};
-            const iconPath = icons[(bs.icon || bs.title) as string] || icons['100% AUTHENTIC'];
+            const iconPath = Object.values(icons)[i % 4];
             return (
               <div key={b.id || i} className="p-6 md:p-8 text-center hover:bg-[var(--color-primary)] transition">
                 <svg className="w-10 h-10 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -277,6 +285,9 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
 const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
+  // A promo is the merchant's own offer — nothing to show until they write one.
+  const heading = merchantText(s.heading);
+  if (!heading) return null;
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div className="relative bg-black text-white overflow-hidden border-2 border-black">
@@ -289,7 +300,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
               </div>
             )}
             <h2 className="font-display text-4xl md:text-6xl uppercase leading-[0.95]" style={headingFont}>
-              {s.heading || t('theme.section.nutreko-banner.heading', { defaultValue: 'BUY 2 GET 1 FREE' })}
+              {heading}
             </h2>
             {s.subheading && (
               <p className="mt-4 text-white/70 max-w-md">{s.subheading}</p>

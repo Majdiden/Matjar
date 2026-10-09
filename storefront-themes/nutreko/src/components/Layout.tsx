@@ -19,7 +19,7 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
 /**
  * Nutreko Layout — bold black header with lime accent.
  *
- * ─ Lime info strip with free shipping / authentic guarantee
+ * ─ Lime info strip with the store's own announcement (when set)
  * ─ Black sticky header: chunky wordmark left, uppercase nav center, icons right
  * ─ Black footer with lime highlights
  */

@@ -12,6 +12,7 @@ import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
+import { useTrustLines } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 // Niche default hero image — a clean minimal retail shot — so the hero is
@@ -196,26 +197,47 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
   );
 }
 
-/** Minimal Features */
+// Demo copy older installs stored as literal badge settings — treated as unset.
+const LEGACY_BADGE_TEXT = new Set([
+  'Free Shipping', 'On orders over $50',
+  'Easy Returns', '30-day return policy',
+  'Secure Checkout', 'Safe & encrypted',
+]);
+const badgeText = (value: unknown): string => {
+  const text = merchantText(value) || '';
+  return LEGACY_BADGE_TEXT.has(text) ? '' : text;
+};
+
+/** Minimal Features — the merchant's badges, else the store's own delivery /
+ *  returns / payment facts; hidden when there are neither. */
 function TrustBadgesBlock({ id }: SectionProps) {
   const trustBadgeBlocks = useSectionBlocks(id);
-  if (trustBadgeBlocks.length === 0) return null;
+  const trustLines = useTrustLines();
+  const merchantBadges = trustBadgeBlocks
+    .map((block) => ({ id: block.id, title: badgeText(block.settings.title), description: badgeText(block.settings.description) }))
+    .filter((b) => b.title || b.description);
+  const items = merchantBadges.length > 0
+    ? merchantBadges
+    : trustLines.map((line) => ({ id: line.key, title: line.text, description: '' }));
+  if (items.length === 0) return null;
 
   return (
     <section className="mb-16 py-8 border-t" style={{ borderColor: 'var(--color-border)' }}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-        {trustBadgeBlocks.map((block) => (
-          <div key={block.id}>
-            <h3
-              className="font-medium mb-1"
-              style={{
-                color: 'var(--color-foreground)',
-                fontFamily: 'var(--font-family-heading)',
-              }}
-            >
-              {block.settings.title}
-            </h3>
-            <p className="text-sm" style={{ color: 'var(--color-muted)' }}>{block.settings.description}</p>
+        {items.map((item) => (
+          <div key={item.id}>
+            {item.title && (
+              <h3
+                className="font-medium mb-1"
+                style={{
+                  color: 'var(--color-foreground)',
+                  fontFamily: 'var(--font-family-heading)',
+                }}
+              >
+                {item.title}
+              </h3>
+            )}
+            {item.description && <p className="text-sm" style={{ color: 'var(--color-muted)' }}>{item.description}</p>}
           </div>
         ))}
       </div>

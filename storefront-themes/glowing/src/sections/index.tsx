@@ -32,12 +32,14 @@ const GLOWING_DEFAULTS = {
 
 // ─── Top strip (announcement) ─────────────────────────────────────
 
+// Only the merchant's own message — no demo shipping promise as fallback.
 const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
-  const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
+  const text = merchantText(s.text);
+  if (!text) return null;
   return (
     <div className="bg-black text-white text-[11px] tracking-[0.18em] font-medium py-2.5 text-center">
-      {s.text || t('theme.announcement.default_text')}
+      {text}
     </div>
   );
 };

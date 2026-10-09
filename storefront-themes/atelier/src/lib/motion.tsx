@@ -254,6 +254,8 @@ export const Icon: React.FC<{ name: string; className?: string }> = ({ name, cla
     wallet: <path d="M3 7h16a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7zM3 7a2 2 0 012-2h11v2M16 13h5" />,
     headset: <path d="M4 14v-2a8 8 0 0116 0v2M4 14h3v5H5a1 1 0 01-1-1v-4zM20 14h-3v5h2a1 1 0 001-1v-4zM12 21h3" />,
     check: <path d="M20 6L9 17l-5-5" />,
+    clock: <path d="M12 7v5l3 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />,
+    transfer: <path d="M7 21l-4-4 4-4M3 17h13M17 3l4 4-4 4M21 7H8" />,
     sun: <path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4M12 8a4 4 0 100 8 4 4 0 000-8z" />,
     flask: <path d="M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3M8 15h8" />,
   };

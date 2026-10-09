@@ -140,10 +140,12 @@ export const trustBarSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'trust-1', type: 'trust-item', settings: { title: 'Free Shipping', description: 'On orders over $200' } },
-    { id: 'trust-2', type: 'trust-item', settings: { title: 'Secure Payment', description: 'SSL encrypted' } },
-    { id: 'trust-3', type: 'trust-item', settings: { title: 'Easy Returns', description: '30-day policy' } },
-    { id: 'trust-4', type: 'trust-item', settings: { title: 'Luxury Packaging', description: 'Gift-ready' } },
+    // Empty until the merchant writes them; meanwhile the bar shows the
+    // store's own delivery / returns / payment facts.
+    { id: 'trust-1', type: 'trust-item', settings: { title: '', description: '' } },
+    { id: 'trust-2', type: 'trust-item', settings: { title: '', description: '' } },
+    { id: 'trust-3', type: 'trust-item', settings: { title: '', description: '' } },
+    { id: 'trust-4', type: 'trust-item', settings: { title: '', description: '' } },
   ],
 });
 

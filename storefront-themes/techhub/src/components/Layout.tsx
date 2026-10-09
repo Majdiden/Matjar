@@ -114,14 +114,24 @@ const Layout: React.FC = () => {
               )}
             </nav>
 
-            <div className="hidden md:flex items-center gap-5 text-xs text-white">
-              <span className="flex items-center gap-1.5">
-                <svg className="w-4 h-4" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
-                </svg>
-                <span className="whitespace-nowrap">{t('theme.nav.call_us')} <span style={{ color: 'var(--color-primary)' }}>{t('theme.contact.phone', { defaultValue: '+1 (555) 456-7890' })}</span></span>
-              </span>
-            </div>
+            {/* The store's own phone number only — hidden when it has none. */}
+            {footer.contact.phone && (
+              <div className="hidden md:flex items-center gap-5 text-xs text-white">
+                <span className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
+                  </svg>
+                  <span className="whitespace-nowrap">
+                    {t('theme.nav.call_us')}{' '}
+                    {footer.contact.phone.href ? (
+                      <a href={footer.contact.phone.href} dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</a>
+                    ) : (
+                      <span dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</span>
+                    )}
+                  </span>
+                </span>
+              </div>
+            )}
 
             <button
               onClick={() => setMenuOpen(!menuOpen)}

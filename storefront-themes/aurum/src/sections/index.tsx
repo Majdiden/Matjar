@@ -17,6 +17,7 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import AurumProductCard from '../components/AurumProductCard';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
+import { useTrustLines, TrustLineIconSvg, type TrustLine } from '@matjar/theme-shared/components/commerce/TrustBadges';
 
 const serif = { fontFamily: 'var(--font-family-heading)' } as const;
 
@@ -112,10 +113,15 @@ const SplitHeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 // ─── 2. Press marquee ─────────────────────────────────────────────
 
+const LEGACY_PRESS_ITEMS = 'ELLE, VOGUE, BAZAAR, FORBES, GRAZIA';
+
 const MarqueeSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
-  const raw = (s.items as string) || t('theme.section.marquee.default_items');
+  // Press names only when the merchant typed them (older installs stored the
+  // demo list as a literal setting — treat that as unset).
+  const typed = merchantText(s.items) || '';
+  const raw = typed === LEGACY_PRESS_ITEMS ? '' : typed;
   const items = raw.split(',').map((x: string) => x.trim()).filter(Boolean);
   const speed = Number(s.speed) || 30;
   const label = (s.label as string) || t('theme.section.marquee.label');
@@ -275,9 +281,11 @@ const EditorialSection: React.FC<SectionComponentProps> = ({ id }) => {
       <h2 className={reveal('text-3xl md:text-5xl leading-snug max-w-2xl mx-auto')} style={serif}>
         {s.heading || t('theme.section.editorial.heading')}
       </h2>
-      <p className={reveal('mt-6 text-sm md:text-base text-mute max-w-xl mx-auto leading-relaxed delay-150')}>
-        {s.body || t('theme.section.editorial.body')}
-      </p>
+      {merchantText(s.body) && (
+        <p className={reveal('mt-6 text-sm md:text-base text-mute max-w-xl mx-auto leading-relaxed delay-150')}>
+          {merchantText(s.body)}
+        </p>
+      )}
 
       <div className="mt-16 grid grid-cols-2 gap-6 md:gap-10 items-start">
         <div className={reveal('overflow-hidden delay-200')}>
@@ -357,23 +365,42 @@ const TRUST_ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
+// Aurum's own icon for a store trust line, where it has one.
+const TRUST_LINE_ICON: Partial<Record<TrustLine['icon'], string>> = { truck: 'shipping', return: 'returns' };
+
 const TrustSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
+  const trustLines = useTrustLines();
   const blocks: any[] = (section as any)?.blocks || [];
   const icons = ['returns', 'shipping', 'support'];
-  const items = (blocks.length > 0 ? blocks : icons.map((icon, i) => ({ id: `t${i}`, settings: { icon } })))
-    .slice(0, 3)
+  // Columns the merchant wrote themselves; otherwise the store's own
+  // delivery / returns / payment facts. Never demo promises.
+  const merchantItems = blocks
     .map((b: any, i: number) => {
       const bs = b.settings || {};
-      const icon = bs.icon || icons[i % icons.length];
       return {
         id: b.id || i,
-        icon,
-        title: bs.title || t(`theme.section.trust.${icon}_title`),
-        text: bs.text || t(`theme.section.trust.${icon}_text`),
+        icon: bs.icon || icons[i % icons.length],
+        title: merchantText(bs.title) || '',
+        text: merchantText(bs.text) || '',
+        lineIcon: null as TrustLine['icon'] | null,
       };
-    });
+    })
+    .filter((item) => item.title || item.text)
+    .slice(0, 3);
+  const items = merchantItems.length > 0
+    ? merchantItems
+    : trustLines.map((line) => ({
+        id: line.key,
+        icon: TRUST_LINE_ICON[line.icon] || '',
+        title: line.text,
+        text: '',
+        lineIcon: line.icon,
+      }));
+
+  if (items.length === 0) return null;
+  const gridCols = items.length >= 3 ? 'sm:grid-cols-3' : items.length === 2 ? 'sm:grid-cols-2' : '';
 
   return (
     <section className="border-y border-line py-20 md:py-24">
@@ -381,14 +408,20 @@ const TrustSection: React.FC<SectionComponentProps> = ({ id, section }) => {
         <h2 className="text-center text-3xl md:text-4xl mb-16 max-w-xl mx-auto leading-snug" style={serif}>
           {s.heading || t('theme.section.trust.heading')}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 text-center">
+        <div className={`grid grid-cols-1 ${gridCols} gap-12 text-center`}>
           {items.map((item) => (
             <div key={item.id}>
-              <div className="flex justify-center text-gold mb-5">{TRUST_ICONS[item.icon] || TRUST_ICONS.returns}</div>
-              <h3 className="text-[12px] tracking-[0.22em] uppercase text-ink mb-3 font-medium" style={{ fontFamily: 'var(--font-family)' }}>
-                {item.title}
-              </h3>
-              <p className="text-sm text-mute leading-relaxed max-w-[260px] mx-auto">{item.text}</p>
+              <div className="flex justify-center text-gold mb-5">
+                {TRUST_ICONS[item.icon] || (item.lineIcon
+                  ? <TrustLineIconSvg name={item.lineIcon} className="w-8 h-8" />
+                  : TRUST_ICONS.returns)}
+              </div>
+              {item.title && (
+                <h3 className="text-[12px] tracking-[0.22em] uppercase text-ink mb-3 font-medium" style={{ fontFamily: 'var(--font-family)' }}>
+                  {item.title}
+                </h3>
+              )}
+              {item.text && <p className="text-sm text-mute leading-relaxed max-w-[260px] mx-auto">{item.text}</p>}
             </div>
           ))}
         </div>

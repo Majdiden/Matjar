@@ -143,21 +143,6 @@ const Products: React.FC = () => {
               </div>
             </FilterBlock>
 
-            {/* Deal block */}
-            <div className="bg-black text-white p-6 relative overflow-hidden">
-              <div className="text-[10px] tracking-[0.3em] uppercase font-black mb-3" style={{ color: LIME }}>{t('theme.products.deal_eyebrow')}</div>
-              <h4 className="font-display text-2xl uppercase leading-tight mb-3" style={headingFont}>
-                {t('theme.products.deal_heading')}
-              </h4>
-              <p className="text-xs text-white/60 mb-4">{t('theme.products.deal_body')}</p>
-              <Link
-                to="/products"
-                className="inline-block px-5 py-2.5 text-[10px] tracking-[0.2em] uppercase font-black hover:scale-105 transition"
-                style={{ backgroundColor: LIME, color: '#000' }}
-              >
-                {t('theme.products.deal_cta')}
-              </Link>
-            </div>
           </aside>
 
           <div>

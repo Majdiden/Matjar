@@ -14,6 +14,7 @@ import { ImageCarousel } from '@matjar/theme-shared/components/marketing/ImageCa
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
+import { useTrustLines, TrustLineIconSvg, type TrustLine } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
 // Niche default hero image — a clean tech/gadget lifestyle shot — so the
@@ -33,6 +34,19 @@ const PROMO_DEFAULT_IMAGES = [
 // inline in the SAME position (order) so nothing is stuck at the bottom.
 const HARDCODED_TYPES = ['hero', 'categories', 'featured-products', 'trust-badges', 'promo-banners', 'new-arrivals', 'newsletter'];
 
+
+// Demo copy older installs stored as literal trust-badge settings — treated as unset.
+const LEGACY_TRUST_TEXT = new Set([
+  'Free Shipping', 'On orders over $50',
+  'Secure Payment', '256-bit SSL encryption',
+  'Easy Returns', '30-day money back guarantee',
+]);
+const badgeText = (value: unknown): string => {
+  const text = merchantText(value) || '';
+  return LEGACY_TRUST_TEXT.has(text) ? '' : text;
+};
+// Modern's own badge icon for a store trust line, where it has one.
+const TRUST_LINE_ICON: Partial<Record<TrustLine['icon'], string>> = { truck: 'shipping', return: 'return' };
 const Home: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
   const { store } = useStore();
@@ -46,6 +60,27 @@ const Home: React.FC = () => {
   const arrivals = useThemeSettings('new-arrivals');
   const news = useThemeSettings('newsletter');
   const trustBadgeBlocks = useSectionBlocks('trust-badges');
+  const trustLines = useTrustLines();
+  // Badges the merchant wrote; otherwise the store's own delivery / returns /
+  // payment facts. Never demo promises — the section hides when empty.
+  const merchantBadges = trustBadgeBlocks
+    .map((block) => ({
+      id: block.id,
+      icon: (block.settings.icon as string) || 'shipping',
+      lineIcon: null as TrustLine['icon'] | null,
+      title: badgeText(block.settings.title),
+      description: badgeText(block.settings.description),
+    }))
+    .filter((b) => b.title || b.description);
+  const trustItems = merchantBadges.length > 0
+    ? merchantBadges
+    : trustLines.map((line) => ({
+        id: line.key,
+        icon: TRUST_LINE_ICON[line.icon] || '',
+        lineIcon: line.icon as TrustLine['icon'] | null,
+        title: line.text,
+        description: '',
+      }));
   const promoBlocks = useSectionBlocks('promo-banners');
   const categoryTileBlocks = useSectionBlocks('categories');
 
@@ -216,12 +251,11 @@ const Home: React.FC = () => {
       </section>
     ),
 
-    'trust-badges': () => trust.show_section !== false && (
+    'trust-badges': () => trust.show_section !== false && trustItems.length > 0 && (
       <section style={{ backgroundColor: trust.background_color || 'var(--color-muted-background, #f9fafb)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {trustBadgeBlocks.map((block) => {
-              const { icon, title, description } = block.settings;
+            {trustItems.map((item) => {
               const iconSvgs: Record<string, React.ReactNode> = {
                 shipping: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>,
                 lock: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>,
@@ -229,17 +263,17 @@ const Home: React.FC = () => {
               };
               return (
                 <div
-                  key={block.id}
+                  key={item.id}
                   className="flex items-center gap-4 p-6 rounded-xl shadow-sm border"
                   style={{
                     backgroundColor: 'var(--color-background, #ffffff)',
                     borderColor: 'var(--color-border, #e5e7eb)',
                   }}
                 >
-                  <div className="shrink-0" style={{ color: trust.accent_color || 'var(--color-primary, #2563eb)' }}>{iconSvgs[icon] || iconSvgs.shipping}</div>
+                  <div className="shrink-0" style={{ color: trust.accent_color || 'var(--color-primary, #2563eb)' }}>{iconSvgs[item.icon] || (item.lineIcon ? <TrustLineIconSvg name={item.lineIcon} className="w-8 h-8" /> : iconSvgs.shipping)}</div>
                   <div>
-                    <h3 className="font-semibold" style={{ color: 'var(--color-foreground, #111827)' }}>{title}</h3>
-                    <p className="text-sm" style={{ color: 'var(--color-muted, #6b7280)' }}>{description}</p>
+                    {item.title && <h3 className="font-semibold" style={{ color: 'var(--color-foreground, #111827)' }}>{item.title}</h3>}
+                    {item.description && <p className="text-sm" style={{ color: 'var(--color-muted, #6b7280)' }}>{item.description}</p>}
                   </div>
                 </div>
               );

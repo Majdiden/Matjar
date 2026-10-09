@@ -149,24 +149,6 @@ const Products: React.FC = () => {
               </div>
             </FilterBlock>
 
-            {/* Promo card */}
-            <div className="relative overflow-hidden rounded-[32px] p-7 text-white" style={{ backgroundColor: TEAL }}>
-              <div className="absolute -top-6 -end-6 w-32 h-32 rounded-full opacity-30" style={{ backgroundColor: YELLOW }} />
-              <div className="relative">
-                <div className="text-[10px] tracking-[0.3em] uppercase font-bold mb-3 opacity-90">{t('theme.products.promo_eyebrow')}</div>
-                <h4 className="font-serif text-2xl font-bold leading-tight mb-3" style={{ fontFamily: HEADING_FONT }}>
-                  {t('theme.products.promo_heading')}
-                </h4>
-                <p className="text-xs opacity-80 mb-4">{t('theme.products.promo_body')}</p>
-                <Link
-                  to="/products"
-                  className="inline-block px-5 py-2 rounded-full text-xs font-bold"
-                  style={{ backgroundColor: '#fff', color: DARK_TEAL }}
-                >
-                  {t('theme.products.promo_cta')}
-                </Link>
-              </div>
-            </div>
           </aside>
 
           <div>

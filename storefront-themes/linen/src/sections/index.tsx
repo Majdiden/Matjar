@@ -29,6 +29,12 @@ const blocksOf = (section: any): any[] => (Array.isArray(section?.blocks) ? sect
  * the shopper's language instead of hard-coded English. `keys` are tried in
  * order and an empty result renders nothing.
  */
+/**
+ * Merchant text only — for copy whose shipped demo line would be a claim
+ * about the store (delivery, returns, gifts, customer quotes).
+ */
+const own = (value: unknown): string => merchantText(value) || '';
+
 const copy = (t: (k: string, o?: any) => string, value: unknown, ...keys: string[]): string => {
   const v = typeof value === 'string' ? value.trim() : '';
   if (v) return v;
@@ -170,8 +176,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 
 const SupportStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const { t } = useTranslation(['theme']);
-  const items = blocksOf(section);
+  // Only promises the merchant wrote; the strip disappears without any.
+  const items = blocksOf(section).filter((b) => own(b.settings?.title));
   if (!items.length) return null;
   return (
     <section className="linen-section bg-sand" style={wrap(s)}>
@@ -183,8 +189,8 @@ const SupportStripSection: React.FC<SectionComponentProps> = ({ id, section }) =
             <Reveal key={b.id || i} delay={(i % 4) as 0 | 1 | 2 | 3} className={`flex items-center gap-4 px-4 py-5 sm:px-6 sm:py-6 ${i > 0 ? 'border-t border-black/10 sm:border-t-0 sm:border-s' : ''} ${i === 2 ? 'sm:border-t sm:border-s-0 lg:border-t-0 lg:border-s' : ''} ${i === 3 ? 'sm:border-t lg:border-t-0' : ''}`}>
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-black/15 text-ink"><Icon className="h-5 w-5" /></span>
               <span>
-                <span className="linen-eyebrow block text-ink">{copy(t, v.title, `theme.section.support.${b.id}.title`)}</span>
-                <span className="block text-sm text-dune">{copy(t, v.text, `theme.section.support.${b.id}.text`)}</span>
+                <span className="linen-eyebrow block text-ink">{own(v.title)}</span>
+                {own(v.text) && <span className="block text-sm text-dune">{own(v.text)}</span>}
               </span>
             </Reveal>
           );
@@ -239,9 +245,11 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
 const PromoBannerSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const heading = copy(t, s.heading, 'theme.section.promo.heading');
-  const body = copy(t, s.body, 'theme.section.promo.body');
+  // An offer is the merchant's own — nothing to show until they write one.
+  const heading = own(s.heading);
+  const body = own(s.body);
   const cta = copy(t, s.cta_text, 'theme.section.promo.cta_text');
+  if (!heading && !body) return null;
   return (
     <section className="linen-section relative flex items-center justify-center overflow-hidden" style={{ ...wrap(s), minHeight: `${Number(s.min_height) || 520}px` }}>
       {s.image && <img src={s.image} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />}
@@ -325,7 +333,8 @@ const EditorialSplitSection: React.FC<SectionComponentProps> = ({ id }) => {
 const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const items = blocksOf(section);
+  // Only quotes the merchant added — never invented customers.
+  const items = blocksOf(section).filter((b) => own(b.settings?.quote));
   if (!items.length) return null;
   return (
     <section className="linen-section bg-tint" style={wrap(s)}>
@@ -337,10 +346,10 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
             return (
               <Reveal key={b.id || i} delay={(i % 4) as 0 | 1 | 2 | 3} as="figure" className="flex flex-col bg-cream p-7">
                 <I.quote className="h-8 w-8 text-bronze" />
-                <blockquote className="mt-4 flex-1 text-[0.95rem] text-ink">{copy(t, v.quote, `theme.section.testimonials.${b.id}.quote`)}</blockquote>
+                <blockquote className="mt-4 flex-1 text-[0.95rem] text-ink">{own(v.quote)}</blockquote>
                 <figcaption className="mt-6 border-t border-line pt-4">
-                  <span className="font-heading block text-lg text-ink">{copy(t, v.name, `theme.section.testimonials.${b.id}.name`)}</span>
-                  {copy(t, v.role, `theme.section.testimonials.${b.id}.role`) && <span className="text-sm text-dune">{copy(t, v.role, `theme.section.testimonials.${b.id}.role`)}</span>}
+                  {own(v.name) && <span className="font-heading block text-lg text-ink">{own(v.name)}</span>}
+                  {own(v.role) && <span className="text-sm text-dune">{own(v.role)}</span>}
                 </figcaption>
               </Reveal>
             );

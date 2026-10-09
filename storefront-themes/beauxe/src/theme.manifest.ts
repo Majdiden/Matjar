@@ -50,7 +50,7 @@ export const beauxeFeatureStripSection: SectionDefinition = defineSection({
   name: 'Feature Strip',
   icon: 'Sparkles',
   category: 'marketing',
-  description: '4-icon strip (free shipping, cruelty-free, vegan, secure payment)',
+  description: '4-icon strip with the store\'s own promises',
   target: 'body',
   settings: [],
   blocks: [
@@ -70,10 +70,11 @@ export const beauxeFeatureStripSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'f-1', type: 'feature', settings: { icon: 'truck', title: 'Free Shipping', subtitle: 'On orders over $50' } },
-    { id: 'f-2', type: 'feature', settings: { icon: 'leaf', title: '100% Natural', subtitle: 'Clean ingredients' } },
-    { id: 'f-3', type: 'feature', settings: { icon: 'heart', title: 'Cruelty Free', subtitle: 'Never tested on animals' } },
-    { id: 'f-4', type: 'feature', settings: { icon: 'shield', title: 'Secure Checkout', subtitle: 'SSL encrypted' } },
+    // Icons only — the promises themselves are the merchant's to write.
+    { id: 'f-1', type: 'feature', settings: { icon: 'truck' } },
+    { id: 'f-2', type: 'feature', settings: { icon: 'leaf' } },
+    { id: 'f-3', type: 'feature', settings: { icon: 'heart' } },
+    { id: 'f-4', type: 'feature', settings: { icon: 'shield' } },
   ],
 });
 
@@ -163,9 +164,10 @@ export const beauxeTestimonialsSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 't-1', type: 'quote', settings: { quote: 'Absolutely love this serum! My skin has never felt so hydrated and glowing.', author: 'Emma R.', role: 'Verified Buyer' } },
-    { id: 't-2', type: 'quote', settings: { quote: 'The packaging is beautiful and the products actually work. Highly recommend!', author: 'Sophie L.', role: 'Verified Buyer' } },
-    { id: 't-3', type: 'quote', settings: { quote: 'Clean ingredients, amazing results. This is now a staple in my routine.', author: 'Mia K.', role: 'Verified Buyer' } },
+    // Empty quotes for the merchant's real customers — never invented reviews.
+    { id: 't-1', type: 'quote', settings: {} },
+    { id: 't-2', type: 'quote', settings: {} },
+    { id: 't-3', type: 'quote', settings: {} },
   ],
 });
 

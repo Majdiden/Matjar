@@ -39,6 +39,12 @@ const blocksOf = (section: any): any[] => (Array.isArray(section?.blocks) ? sect
 const filled = (s: Record<string, any>, keys: string[]) =>
   Object.fromEntries(keys.filter((k) => typeof s[k] === 'string' && s[k].trim()).map((k) => [k, s[k]]));
 
+/**
+ * Merchant text only — for copy whose shipped demo line would be a claim
+ * about the store (delivery, returns, payment, gifts, customer quotes).
+ */
+const own = (value: unknown): string => merchantText(value) || '';
+
 const copy = (t: (k: string, o?: any) => string, value: unknown, ...keys: string[]): string => {
   const v = typeof value === 'string' ? value.trim() : '';
   if (v) return v;
@@ -550,8 +556,8 @@ const CountdownSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 const UspStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const { t } = useTranslation(['theme']);
-  const items = blocksOf(section).filter((b) => b.type === 'item');
+  // Only promises the merchant wrote; the strip disappears without any.
+  const items = blocksOf(section).filter((b) => b.type === 'item' && own(b.settings?.title));
   if (!items.length) return null;
   const divide = s.show_dividers !== false;
 
@@ -567,8 +573,8 @@ const UspStripSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                 <Reveal delay={(i % 4) as 0 | 1 | 2 | 3} className="flex items-start gap-4">
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-line text-gold-ink"><Icon className="h-6 w-6" /></span>
                   <span>
-                    <span className="block font-display text-lg text-ink">{copy(t, c.title, `theme.usp.items.${i + 1}.title`)}</span>
-                    <span className="mt-1 block text-sm text-muted">{copy(t, c.text, `theme.usp.items.${i + 1}.text`)}</span>
+                    <span className="block font-display text-lg text-ink">{own(c.title)}</span>
+                    {own(c.text) && <span className="mt-1 block text-sm text-muted">{own(c.text)}</span>}
                   </span>
                 </Reveal>
               </li>
@@ -589,7 +595,7 @@ const SplitBannerSection: React.FC<SectionComponentProps> = ({ id }) => {
   const radius = s.image_radius != null ? `${s.image_radius}px` : '10px';
   const eyebrow = copy(t, s.eyebrow, 'theme.split.eyebrow');
   const heading = copy(t, s.heading, 'theme.split.heading');
-  const sub = copy(t, s.subheading, 'theme.split.sub');
+  const sub = own(s.subheading);
   const cta = copy(t, s.cta_text, 'theme.split.cta');
 
   return (
@@ -658,7 +664,8 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id }) => {
 const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const quotes = blocksOf(section).filter((b) => b.type === 'quote');
+  // Only quotes the merchant added — never invented customers.
+  const quotes = blocksOf(section).filter((b) => b.type === 'quote' && own(b.settings?.quote));
   if (!quotes.length) return null;
 
   return (
@@ -673,8 +680,7 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
         <ul className="misk-rail misk-snap md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:p-0">
           {quotes.map((b, i) => {
             const c = b.settings || {};
-            const quote = copy(t, c.quote, `theme.testimonials.items.${i + 1}.quote`);
-            if (!quote) return null;
+            const quote = own(c.quote);
             return (
               <li key={b.id || i}>
                 <Reveal delay={(i % 4) as 0 | 1 | 2 | 3}>
@@ -682,8 +688,8 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
                     <I.quote className="h-6 w-6 text-gold" />
                     <blockquote className="flex-1 text-base text-ink">{quote}</blockquote>
                     <figcaption className="text-sm">
-                      <span className="block font-bold text-ink">{copy(t, c.name, `theme.testimonials.items.${i + 1}.name`)}</span>
-                      <span className="block text-muted">{copy(t, c.role, `theme.testimonials.items.${i + 1}.role`)}</span>
+                      {own(c.name) && <span className="block font-bold text-ink">{own(c.name)}</span>}
+                      {own(c.role) && <span className="block text-muted">{own(c.role)}</span>}
                     </figcaption>
                   </figure>
                 </Reveal>
@@ -752,10 +758,9 @@ const SEPARATORS: Record<string, string> = { diamond: '◆', dot: '•', slash: 
 
 const MarqueeSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
-  const { t } = useTranslation(['theme']);
   const messages = blocksOf(section)
     .filter((b) => b.type === 'message')
-    .map((b, i) => copy(t, b.settings?.text, `theme.marquee.${i + 1}`))
+    .map((b) => own(b.settings?.text))
     .filter(Boolean);
   if (!messages.length) return null;
 
