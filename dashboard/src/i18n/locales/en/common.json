@@ -293,7 +293,14 @@
     }
   },
   "share": {
-    "whatsapp": "Share on WhatsApp",
-    "whatsapp_message": "Check out my store: {{url}}"
+    "button": "Share",
+    "store_message": "Check out my store:",
+    "copy_link": "Copy link",
+    "copied": "Link copied",
+    "targets": {
+      "whatsapp": "WhatsApp",
+      "facebook": "Facebook",
+      "telegram": "Telegram"
+    }
   }
 }

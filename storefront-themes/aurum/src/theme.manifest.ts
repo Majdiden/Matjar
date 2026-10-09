@@ -26,11 +26,11 @@ export const splitHeroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
-    { id: 'image_left', type: 'image', label: 'Left Image', default: U('1601121141461-9d6647bca1ed', 1400) },
+    { id: 'image_left', type: 'image', label: 'Left Image', level: 'basic', default: U('1601121141461-9d6647bca1ed', 1400) },
     { id: 'image_right', type: 'image', label: 'Right Image', default: U('1603561591411-07134e71a2a9', 1400) },
   ],
 });
@@ -60,8 +60,8 @@ export const spotlightSection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'image', type: 'image', label: 'Editorial Image', default: U('1506630448388-4e683c67ddb0', 1400) },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'image', type: 'image', label: 'Editorial Image', level: 'basic', default: U('1506630448388-4e683c67ddb0', 1400) },
   ],
 });
 
@@ -73,7 +73,7 @@ export const collectionTabsSection: SectionDefinition = defineSection({
   description: 'Underline category tabs over a filtered product grid',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Products per tab', default: 4, min: 4, max: 12 },
   ],
 });
@@ -86,9 +86,9 @@ export const editorialSection: SectionDefinition = defineSection({
   description: 'Centered serif headline with two staggered portrait images',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'body', type: 'textarea', label: 'Body copy', default: '' },
-    { id: 'image_1', type: 'image', label: 'First Image', default: U('1589128777073-263566ae5e4d') },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'body', type: 'textarea', label: 'Body copy', level: 'basic', default: '' },
+    { id: 'image_1', type: 'image', label: 'First Image', level: 'basic', default: U('1589128777073-263566ae5e4d') },
     { id: 'image_2', type: 'image', label: 'Second Image', default: U('1617038220319-276d3cfab638') },
   ],
 });
@@ -101,7 +101,7 @@ export const productRailSection: SectionDefinition = defineSection({
   description: 'Newest products with a view-all link',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'source', type: 'select', label: 'Source', default: 'newest', options: [
       { value: 'newest', label: 'Newest' },
       { value: 'featured', label: 'Featured' },
@@ -119,7 +119,7 @@ export const trustSection: SectionDefinition = defineSection({
   description: 'Statement heading with three service reassurance columns',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
   ],
   blocks: [
     {
@@ -151,8 +151,8 @@ export const collectionsShowcaseSection: SectionDefinition = defineSection({
   description: 'Tall category cards with overlaid labels and shop buttons',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'image_1', type: 'image', label: 'Fallback Image 1', default: U('1573408301185-9146fe634ad0') },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'image_1', type: 'image', label: 'Fallback Image 1', level: 'basic', default: U('1573408301185-9146fe634ad0') },
     { id: 'image_2', type: 'image', label: 'Fallback Image 2', default: U('1602173574767-37ac01994b2a') },
     { id: 'image_3', type: 'image', label: 'Fallback Image 3', default: U('1611591437281-460bfbe1220a') },
     { id: 'image_4', type: 'image', label: 'Fallback Image 4', default: U('1598560917505-59a3ad559071') },
@@ -167,7 +167,7 @@ export const statementSection: SectionDefinition = defineSection({
   description: 'Huge serif statement whose lines brighten as they enter view',
   target: 'body',
   settings: [
-    { id: 'text', type: 'textarea', label: 'Statement (one line per row)', default: '' },
+    { id: 'text', type: 'textarea', label: 'Statement (one line per row)', level: 'basic', default: '' },
   ],
 });
 
@@ -180,7 +180,7 @@ export const gallerySection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'handle', type: 'text', label: 'Handle button text', default: '' },
     { id: 'handle_url', type: 'url', label: 'Handle URL', default: '' },
   ],

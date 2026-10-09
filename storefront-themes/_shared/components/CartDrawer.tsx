@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useCart } from '../contexts/CartContext';
 import { useStore } from '../contexts/StoreContext';
 import { THUMB_PLACEHOLDER } from '../utils/placeholder';
+// Dates follow the storefront language (ar → ar-SD), not the browser locale.
+import { preorderDateLocale } from '../utils/preorder';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -163,7 +165,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                       <p className="text-[11px] font-medium mt-0.5" style={{ color: 'var(--color-accent, #d97706)' }}>
                         {(item as any).preorderExpectedShipDate
                           ? t('item.preorder_ships_by', {
-                              date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+                              date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(preorderDateLocale(), { month: 'short', day: 'numeric' }),
                             })
                           : t('item.preorder_label')}
                       </p>

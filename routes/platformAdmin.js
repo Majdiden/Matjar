@@ -17,10 +17,12 @@ import {
   platformAuthenticate,
   requireScope,
   validateObjectId,
-  requireRole,
-  requireRecentReauth,
   PLATFORM_SCOPES,
 } from "../middlewares/platformAdmin.js";
+import { requirePasswordConfirmation } from "../middlewares/platformPasswordConfirm.js";
+import { validate } from "../middlewares/validate.js";
+import { deleteTenantPermanentlySchema } from "../validators/platform.validator.js";
+import { deleteTenantPermanently } from "../controllers/platform/tenantDeletion.js";
 import {
   listTenants,
   getTenant,
@@ -29,7 +31,6 @@ import {
   unsuspend,
   scheduleDeletion,
   cancelDeletion,
-  purge,
   exportData,
   requestAsyncExport,
   getExportStatus,
@@ -253,16 +254,16 @@ router.post(
   requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
   cancelDeletion
 );
-// Purge is owner-only on top of the lifecycle scope: it is the one
-// irreversible tenant action and ADMIN otherwise holds every scope.
+// Permanent deletion: its own scope (owner by default, grantable by an
+// owner), the store's slug typed back, a reason, and the operator's password
+// re-entered — checked after cheap validation, never logged.
 router.post(
-  "/tenants/:tenantId/purge",
+  "/tenants/:tenantId/delete-permanently",
   validateObjectId("tenantId"),
-  requireScope(PLATFORM_SCOPES.TENANT_LIFECYCLE),
-  requireRole("owner"),
-  // Irreversible: the owner must have re-authenticated within the last 5 min.
-  requireRecentReauth,
-  purge
+  requireScope(PLATFORM_SCOPES.TENANT_DELETE),
+  validate(deleteTenantPermanentlySchema),
+  ...requirePasswordConfirmation,
+  deleteTenantPermanently
 );
 
 // --- Data export (tenant.export) ---

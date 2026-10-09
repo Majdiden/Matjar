@@ -5,6 +5,7 @@ import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import ProductDetailExtras from '@matjar/theme-shared/components/commerce/ProductDetailExtras';
 import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
+import TrustBadges from '@matjar/theme-shared/components/commerce/TrustBadges';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -83,9 +84,7 @@ const ProductDetail: React.FC = () => {
   });
   const isPreorderable = preState.mode === 'preorder';
   const isPreorderSoldOut = preState.mode === 'soldOut';
-  const shipDateLabel = preState.shipByLabel
-    ? preState.shipByLabel.replace(/^Ships by\s+/i, '')
-    : null;
+  const shipDateLabel = preState.shipDate;
   const effectivePrice = preState.effectivePrice;
   const effectiveCompareAt =
     preState.savingsPct > 0 ? preState.originalPrice : displayCompareAt;
@@ -198,7 +197,7 @@ const ProductDetail: React.FC = () => {
           ) : isPreorderable ? (
             <div className="mb-6">
               <p className="text-sm text-amber-600">
-                {t('theme.product_detail.preorder')}{shipDateLabel ? ` — ${t('theme.product_detail.preorder_ships', { date: shipDateLabel })}` : ''}
+                {shipDateLabel ? t('theme.product_detail.preorder_ships', { date: shipDateLabel }) : t('theme.product_detail.preorder')}
               </p>
               {preState.lowRemaining && preState.remaining !== null && (
                 <p className="text-xs font-semibold text-amber-700 mt-1">{t('theme.product_detail.only_left', { count: preState.remaining })}</p>
@@ -248,6 +247,7 @@ const ProductDetail: React.FC = () => {
           )}
 
           <GuaranteedCheckout className="mt-6 mb-6" />
+          <TrustBadges className="-mt-2 mb-6" />
 
           {/* Description */}
           {product.description && (

@@ -221,6 +221,7 @@ export interface Category {
   description?: string;
   parent?: string;
   image?: string;
+  status?: 'active' | 'draft' | 'archived';
   createdAt: string;
   updatedAt: string;
 }

@@ -1,8 +1,24 @@
 import { z } from "zod";
+import { SOCIAL_PLATFORM_KEYS, SOCIAL_LINK_MAX_LENGTH } from "../utils/socialLinks.js";
+import { BRAND_TEXT_MAX_LENGTH } from "../utils/brandKit.js";
+import { DELIVERY_AREAS_MAX_LENGTH } from "../utils/policyAnswers.js";
 
 /**
  * Validation schemas for authentication endpoints
  */
+
+// Optional `{ facebook?, instagram?, … }` captured at signup (the dashboard
+// recognises a social URL pasted into the store-link field). Shape and length
+// are checked here; host/scheme normalisation happens in the service via
+// utils/socialLinks.js so every write path shares one rule set.
+const socialLinksSchema = z
+  .object(
+    Object.fromEntries(
+      SOCIAL_PLATFORM_KEYS.map((key) => [key, z.string().max(SOCIAL_LINK_MAX_LENGTH).optional()])
+    )
+  )
+  .strict()
+  .optional();
 
 export const loginSchema = z.object({
   body: z.object({
@@ -72,6 +88,19 @@ export const registerTenantSchema = z.object({
     // ISO-3166 alpha-2 of the dial code the number was entered for. Defaults
     // to the platform default country (Sudan) when omitted.
     phoneCountry: z.string().length(2).optional(),
+    socialLinks: socialLinksSchema,
+    // The dashboard language the merchant signed up in; becomes the store's
+    // language. Omitted → Arabic (services/tenant.js DEFAULT_STORE_LANGUAGE).
+    language: z.enum(["ar", "en"]).optional(),
+    // Signup v2 (PBI 10-16). `onboardingFlow: "v2"` marks the store, defaults
+    // its WhatsApp to the account phone and stores the answers below; they
+    // are ignored for v1. City → brand kit `city.ar`; delivery areas → policy
+    // answers (services/tenant.js buildSignupV2Settings).
+    onboardingFlow: z.enum(["v1", "v2"]).optional(),
+    city: z.string().trim().max(BRAND_TEXT_MAX_LENGTH.city).optional(),
+    // Raw text: room for the line breaks/spaces the service collapses before
+    // applying DELIVERY_AREAS_MAX_LENGTH.
+    deliveryAreas: z.string().max(DELIVERY_AREAS_MAX_LENGTH * 2).optional(),
   }),
 });
 

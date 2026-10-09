@@ -132,7 +132,7 @@ export const Fulfillments: React.FC = () => {
     const results = await Promise.allSettled(ids.map(id => api.fulfillments.updateStatus(id, status)));
     const ok = results.filter(r => r.status === 'fulfilled').length;
     const failed = results.length - ok;
-    if (ok) toast.success(t('orders:fulfillment.toast.bulk_updated_other', { count: ok, status: t(`common:status.${status}`, { defaultValue: status }) }));
+    if (ok) toast.success(t('orders:fulfillment.toast.bulk_updated', { count: ok, status: t(`common:status.${status}`, { defaultValue: status }) }));
     if (failed) toast.error(t('orders:fulfillment.toast.bulk_failed', { count: failed }));
     setSelected(new Set());
     reload();
@@ -255,9 +255,7 @@ export const Fulfillments: React.FC = () => {
                     <div className="flex items-center gap-1">
                       <Package className="h-4 w-4 text-muted-foreground" />
                       <span>
-                        {f.lineItems.length === 1
-                          ? t('orders:fulfillment.list.item_count_one', { count: f.lineItems.length })
-                          : t('orders:fulfillment.list.item_count_other', { count: f.lineItems.length })}
+                        {t('orders:fulfillment.list.item_count', { count: f.lineItems.length })}
                       </span>
                     </div>
                   </TableCell>
@@ -318,9 +316,7 @@ export const Fulfillments: React.FC = () => {
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                       <Package className="h-3.5 w-3.5" />
                       <span>
-                        {f.lineItems.length === 1
-                          ? t('orders:fulfillment.list.item_count_one', { count: f.lineItems.length })
-                          : t('orders:fulfillment.list.item_count_other', { count: f.lineItems.length })}
+                        {t('orders:fulfillment.list.item_count', { count: f.lineItems.length })}
                       </span>
                     </div>
                   </div>

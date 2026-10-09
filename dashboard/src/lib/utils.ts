@@ -6,6 +6,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Wrap a domain/hostname (always Latin, always read left-to-right) in
+ * Unicode LTR isolate marks before interpolating it into a translated
+ * sentence, so in Arabic ".matjar.to" doesn't render as "matjar.to.".
+ * In JSX, use <bdi dir="ltr"> instead.
+ */
+export function ltrIsolate(text: string): string {
+  return `\u2066${text}\u2069`
+}
+
+/**
  * Escape a single CSV cell. Wraps in quotes when the value contains a
  * comma, quote, or newline. Empty / nullish values become empty strings.
  */

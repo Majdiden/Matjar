@@ -15,6 +15,14 @@ import { PLATFORM_SCOPES } from "./platformScopes.js";
 
 const S = PLATFORM_SCOPES;
 
+/**
+ * Scopes only an OWNER holds by role and only an OWNER may grant to another
+ * platform user (as an explicit `platformScopes` entry). Kept out of every
+ * other role so "admin" never implies irreversible powers.
+ */
+export const OWNER_ONLY_GRANTS = Object.freeze([S.TENANT_DELETE]);
+const withoutOwnerOnly = (scopes) => scopes.filter((s) => !OWNER_ONLY_GRANTS.includes(s));
+
 export const PLATFORM_ROLES = Object.freeze({
   OWNER: "owner",
   ADMIN: "admin",
@@ -28,14 +36,14 @@ export const PLATFORM_ROLE_DEFS = Object.freeze([
   {
     key: PLATFORM_ROLES.OWNER,
     label: "Owner",
-    description: "Full access, including platform staff management and tenant deletion.",
+    description: "Full access, including platform staff management and permanently deleting stores.",
     scopes: Object.values(S),
   },
   {
     key: PLATFORM_ROLES.ADMIN,
     label: "Admin",
-    description: "Everything except purging tenants and promoting owners.",
-    scopes: Object.values(S),
+    description: "Everything except permanently deleting stores and promoting owners.",
+    scopes: withoutOwnerOnly(Object.values(S)),
   },
   {
     key: PLATFORM_ROLES.OPERATIONS,

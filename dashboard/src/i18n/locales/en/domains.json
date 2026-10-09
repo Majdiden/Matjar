@@ -140,7 +140,7 @@
   },
   "subdomain_dialog": {
     "title": "Change your free address",
-    "description": "This will change the slug used for your free .{{suffix}} address. Any bookmarks to your old address will stop working.",
+    "description": "This will change the slug used for your free {{suffix}} address. Any bookmarks to your old address will stop working.",
     "field": {
       "new_address": {
         "label": "New address"

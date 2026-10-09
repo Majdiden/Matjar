@@ -14,9 +14,10 @@ export const heroSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '' },
-    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', default: '' },
+    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', level: 'basic', default: '' },
     { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
+    { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — your store cover photo is used when empty' },
     { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
     { id: 'gradient_from', type: 'color', label: 'Gradient From', default: '#7c3aed' },
@@ -34,8 +35,8 @@ export const genresSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 6, min: 2, max: 12 },
   ],
   blocks: [
@@ -67,8 +68,8 @@ export const staffPicksSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 6, min: 2, max: 12 },
     { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: '' },
     { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
@@ -90,8 +91,8 @@ export const readingQuoteSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'quote_text', type: 'textarea', label: 'Quote Text', default: '' },
-    { id: 'quote_author', type: 'text', label: 'Quote Author', default: '' },
+    { id: 'quote_text', type: 'textarea', label: 'Quote Text', level: 'basic', default: '' },
+    { id: 'quote_author', type: 'text', label: 'Quote Author', level: 'basic', default: '' },
     { id: 'background_color', type: 'color', label: 'Background Color', default: '#ede9fe' },
   ],
 });
@@ -105,8 +106,8 @@ export const bestsellersSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 9, min: 4, max: 16 },
     { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: '' },
     { id: 'autoplay', type: 'checkbox', label: 'Auto-play', default: false },
@@ -124,10 +125,10 @@ export const newsletterSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', default: '' },
     { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: '' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'gradient_from', type: 'color', label: 'Gradient From', default: '#7c3aed' },
     { id: 'gradient_to', type: 'color', label: 'Gradient To', default: '#4c1d95' },
   ],

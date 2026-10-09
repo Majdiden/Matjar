@@ -114,6 +114,42 @@ function captureForTest({ to, subject, html, text, from, attachments }) {
 }
 
 // ---------------------------------------------------------------------------
+// Tags
+// ---------------------------------------------------------------------------
+
+// Resend accepts tags only as `{ name, value }` objects whose name and value
+// use ASCII letters, digits, "_" or "-" (max 256 chars); anything else fails
+// the WHOLE send. Callers pass a simple `{ name: value }` map or a list of
+// labels; normalise here so no caller can break delivery with a "." in an
+// event key (that is exactly what silently dropped every platform alert).
+const RESEND_TAG_MAX_LENGTH = 256;
+const RESEND_TAG_UNSAFE = /[^A-Za-z0-9_-]/g;
+const toTagPart = (v) => String(v ?? "").replace(RESEND_TAG_UNSAFE, "_").slice(0, RESEND_TAG_MAX_LENGTH);
+
+/**
+ * Normalise caller tags to Resend's format.
+ *   { category: "platform-alert" }          → [{ name: "category", value: "platform-alert" }]
+ *   ["platform-alert", "tenant.signup"]       → [{ name: "tag0", value: "platform-alert" }, { name: "tag1", value: "tenant_signup" }]
+ *   [{ name: "event", value: "tenant.signup" }] → [{ name: "event", value: "tenant_signup" }]
+ * Empty names/values are dropped. Returns undefined when nothing is left.
+ */
+export function toResendTags(tags) {
+  if (!tags) return undefined;
+  let pairs;
+  if (Array.isArray(tags)) {
+    pairs = tags.map((t, i) => (t && typeof t === "object" ? [t.name, t.value] : [`tag${i}`, t]));
+  } else if (typeof tags === "object") {
+    pairs = Object.entries(tags);
+  } else {
+    return undefined;
+  }
+  const out = pairs
+    .map(([name, value]) => ({ name: toTagPart(name), value: toTagPart(value) }))
+    .filter((t) => t.name && t.value);
+  return out.length ? out : undefined;
+}
+
+// ---------------------------------------------------------------------------
 // Core send
 // ---------------------------------------------------------------------------
 
@@ -127,7 +163,7 @@ function captureForTest({ to, subject, html, text, from, attachments }) {
  * @param {string}         [opts.text]    Plain-text body.
  * @param {string}         [opts.from]    Override sender. Defaults to EMAIL_FROM.
  * @param {string}         [opts.replyTo] Reply-To header.
- * @param {object}         [opts.tags]    Provider-specific tags.
+ * @param {object|Array}   [opts.tags]    `{ name: value }` map or labels; normalised by toResendTags.
  */
 /**
  * @param {object} p
@@ -167,7 +203,7 @@ export async function sendEmail({ to, subject, html, text, from, replyTo, tags, 
       html,
       text,
       reply_to: replyTo,
-      tags,
+      tags: toResendTags(tags),
       ...(attachments?.length ? { attachments: attachments.map((a) => ({ filename: a.filename, content: a.content })) } : {}),
     });
     if (resp?.error) {

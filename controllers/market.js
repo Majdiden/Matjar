@@ -1,30 +1,23 @@
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import { APIError } from "../middlewares/errorHandler.js";
+import { slugify, ensureUniqueSlug } from "../utils/slugify.js";
 
-// Slugify for the `handle` field — kebab-case, ASCII-only, deduped against
-// the tenant's existing markets so two "North America" entries don't collide.
-const slugifyHandle = (str) =>
-  String(str || "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
+// `handle` is kebab-case ASCII (Arabic names transliterated, utils/slugify.js),
+// deduped against the tenant's existing markets so two "North America"
+// entries don't collide.
+const MARKET_HANDLE_MAX_LENGTH = 60;
+const MARKET_HANDLE_FALLBACK = "market";
 
 export const createMarket = asyncHandler(async (req, res) => {
   const body = { ...req.body };
   // Auto-derive `handle` from name if the dashboard didn't supply one.
   if (!body.handle && body.name) {
-    let base = slugifyHandle(body.name) || "market";
-    let candidate = base;
-    let n = 1;
     // The tenant+handle index is unique — keep bumping until free.
-    // eslint-disable-next-line no-await-in-loop
-    while (await req.models.Market.exists({ handle: candidate })) {
-      n += 1;
-      candidate = `${base}-${n}`;
-    }
-    body.handle = candidate;
+    body.handle = await ensureUniqueSlug(
+      async (candidate) => Boolean(await req.models.Market.exists({ handle: candidate })),
+      slugify(body.name, { maxLength: MARKET_HANDLE_MAX_LENGTH }) || MARKET_HANDLE_FALLBACK,
+      { maxLength: MARKET_HANDLE_MAX_LENGTH }
+    );
   }
   const market = await req.models.Market.create(body);
   res.status(201).json({ success: true, data: market });

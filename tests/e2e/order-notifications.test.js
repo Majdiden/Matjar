@@ -40,6 +40,9 @@ async function provisionTenant(app) {
       email: "owner@acme.test",
       password: "Sup3rSecret!",
       subdomain: "acme",
+      // English store: the assertions check English subjects (new stores
+      // default to Arabic).
+      language: "en",
     })
     .expect(201);
   return res.body.responseObject.tenantId;

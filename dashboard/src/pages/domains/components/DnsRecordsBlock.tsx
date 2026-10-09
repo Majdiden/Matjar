@@ -86,7 +86,7 @@ function DnsField({
     <div className="flex items-center gap-2 text-xs">
       <span className="text-muted-foreground w-12 shrink-0">{label}</span>
       <code className="font-mono bg-background px-2 py-1 rounded border flex-1 truncate">
-        {value}
+        <bdi dir="ltr">{value}</bdi>
       </code>
       <Button
         variant="ghost"

@@ -4,6 +4,8 @@ import { ordersApi } from '../api/client';
 import { useStore } from '../contexts/StoreContext';
 import { useConfirm } from '../components/primitives/ConfirmDialog';
 import { useTranslation } from 'react-i18next';
+// Dates follow the storefront language (ar → ar-SD), not the browser locale.
+import { preorderDateLocale } from '../utils/preorder';
 
 /**
  * Customer-facing order tracking page (/orders/:id).
@@ -117,6 +119,8 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
   };
 
   const [order, setOrder] = useState<TrackedOrder | null>(null);
+  // 'limited' when the guest proved only order # + email: no address/notes.
+  const [access, setAccess] = useState<'full' | 'limited'>('full');
   const [loading, setLoading] = useState(true);
   const [needsEmail, setNeedsEmail] = useState(false);
   const [email, setEmail] = useState(searchParams.get('email') || '');
@@ -160,6 +164,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
         const fetched = res?.data?.order || res?.responseObject?.order;
         if (fetched) {
           setOrder(fetched);
+          setAccess(res?.data?.access === 'limited' ? 'limited' : 'full');
           setNeedsEmail(false);
         } else {
           setError(t('order.tracking.not_found_title'));
@@ -277,7 +282,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
             {order.orderNumber || `#${order._id.slice(-6).toUpperCase()}`}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            {t('order.tracking.placed_on', { date: placedAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) })}
+            {t('order.tracking.placed_on', { date: placedAt.toLocaleDateString(preorderDateLocale(), { month: 'long', day: 'numeric', year: 'numeric' }) })}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -396,7 +401,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                       {(item as any).isPreorder && (
                         <p className="text-xs text-amber-600 font-medium mt-0.5">
                           {(item as any).preorderExpectedShipDate
-                            ? t('order.tracking.preorder_ships', { date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) })
+                            ? t('order.tracking.preorder_ships', { date: new Date((item as any).preorderExpectedShipDate).toLocaleDateString(preorderDateLocale(), { month: 'short', day: 'numeric', year: 'numeric' }) })
                             : t('order.tracking.preorder')}
                         </p>
                       )}
@@ -497,6 +502,10 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                 })}
               </div>
             </div>
+          )}
+
+          {!order.shippingAddress && access === 'limited' && (
+            <p className="text-sm text-gray-600">{t('order.tracking.limited_details')}</p>
           )}
 
           {order.shippingAddress && (

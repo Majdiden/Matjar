@@ -14,6 +14,36 @@ export class APIError extends Error {
   }
 }
 
+// Mongoose validator kind → the zod-style code the dashboard localizes.
+const MONGOOSE_KIND = {
+  required: { code: "invalid_type", missing: true },
+  minlength: { code: "too_small", origin: "string", param: "minimum" },
+  maxlength: { code: "too_big", origin: "string", param: "maximum" },
+  min: { code: "too_small", origin: "number", param: "minimum" },
+  max: { code: "too_big", origin: "number", param: "maximum" },
+  enum: { code: "invalid_value" },
+  regexp: { code: "invalid_format", format: "regex" },
+};
+
+const mongooseValidationEntry = (e) => {
+  const kind = MONGOOSE_KIND[e?.kind];
+  const entry = { field: e?.path || "", message: e?.message, code: kind?.code || "custom" };
+  if (kind?.origin) entry.origin = kind.origin;
+  if (kind?.missing) entry.missing = true;
+  if (kind?.format) entry.format = kind.format;
+  if (kind?.param) {
+    const v = e.properties?.[e.kind];
+    if (typeof v === "number") {
+      entry[kind.param] = v;
+      entry.inclusive = true;
+    }
+  }
+  if (e?.kind === "enum" && Array.isArray(e.properties?.enumValues)) entry.values = e.properties.enumValues;
+  // Schema authors' hand-written messages stay usable verbatim by English clients.
+  entry.custom = !!e?.properties?.message && !/^(Path `|Validator failed|Cast to)|is not a valid enum value/.test(String(e.properties.message));
+  return entry;
+};
+
 /**
  * Not Found Error Handler
  * Catches requests to undefined routes
@@ -37,8 +67,9 @@ export const errorHandler = (err, req, res, next) => {
   if (!(error instanceof APIError)) {
     // Mongoose validation error
     if (error.name === "ValidationError") {
-      const errors = Object.values(error.errors).map((e) => e.message);
+      const errors = Object.values(error.errors).map(mongooseValidationEntry);
       error = new APIError("Validation failed", 400, errors);
+      error.code = "VALIDATION_FAILED";
     }
     // Mongoose duplicate key error
     //
@@ -54,12 +85,15 @@ export const errorHandler = (err, req, res, next) => {
       const value = error.keyValue?.[field];
       error = new APIError(
         `${field}${value !== undefined ? ` "${value}"` : ""} already exists. Please use a different value.`,
-        409
+        409,
+        [{ field, code: "duplicate", ...(value !== undefined && { value: String(value) }) }]
       );
+      error.code = "DUPLICATE";
     }
     // Mongoose cast error
     else if (error.name === "CastError") {
-      error = new APIError(`Invalid ${error.path}: ${error.value}`, 400);
+      error = new APIError(`Invalid ${error.path}: ${error.value}`, 400, [{ field: error.path, code: "invalid_id" }]);
+      error.code = "INVALID_ID";
     }
     // JWT errors
     else if (error.name === "JsonWebTokenError") {
@@ -107,7 +141,7 @@ export const errorHandler = (err, req, res, next) => {
     message: error.message,
     ...(error.errors && { errors: error.errors }),
     ...(err.fieldErrors && { fieldErrors: err.fieldErrors }),
-    ...(err.code && typeof err.code === "string" && { code: err.code }),
+    ...((typeof error.code === "string" && { code: error.code }) || (typeof err.code === "string" && { code: err.code })),
     ...(config.isDevelopment && { stack: error.stack }),
   };
 

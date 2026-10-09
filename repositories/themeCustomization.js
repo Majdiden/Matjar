@@ -12,7 +12,7 @@ const Tenant = () => mongoose.model("Tenant");
 export const getTenantCustomizationRepo = async (tenantId) => {
   const raw = await Tenant()
     .findById(tenantId)
-    .select("themeCustomization domains domain settings")
+    .select("name themeCustomization domains domain settings")
     .lean();
   if (!raw) return raw;
   const tc = raw.themeCustomization;

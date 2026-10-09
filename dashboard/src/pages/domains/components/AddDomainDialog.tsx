@@ -24,6 +24,7 @@ import {
 import { toast } from 'sonner';
 import { api } from '../../../lib/api-client';
 import { errMsg } from '../../../lib/errors';
+import { ltrIsolate } from '../../../lib/utils';
 
 type Step = 'input' | 'verify' | 'done';
 
@@ -248,6 +249,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
               <Label htmlFor="domain-hostname">{t('domains:add.field.hostname.label')}</Label>
               <Input
                 id="domain-hostname"
+                dir="ltr"
                 placeholder={t('domains:add.field.hostname.placeholder')}
                 value={hostname}
                 onChange={(e) => setHostname(e.target.value)}
@@ -262,7 +264,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
               <div className="flex items-center justify-between p-3 rounded-md bg-muted/30 border">
                 <div className="flex items-center gap-2 min-w-0">
                   <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="font-mono text-sm truncate">{normalized}</span>
+                  <span className="font-mono text-sm truncate"><bdi dir="ltr">{normalized}</bdi></span>
                 </div>
                 <Badge variant="outline" className="text-xs shrink-0">
                   {detectedKind === 'custom_apex' ? t('domains:add.kind.apex') : t('domains:add.kind.subdomain')}
@@ -277,7 +279,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
           <div className="space-y-4 py-2">
             <div className="p-3 rounded-md bg-muted/30 border">
               <p className="text-xs text-muted-foreground mb-1">{t('domains:add.field.hostname.label')}</p>
-              <p className="font-mono text-sm">{normalized}</p>
+              <p className="font-mono text-sm"><bdi dir="ltr">{normalized}</bdi></p>
             </div>
 
             <div>
@@ -319,7 +321,7 @@ export function AddDomainDialog({ open, onOpenChange, onComplete }: Props) {
               <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="font-medium">{t('domains:add.verified_message', { hostname: normalized })}</p>
+              <p className="font-medium">{t('domains:add.verified_message', { hostname: ltrIsolate(normalized) })}</p>
               <p className="text-xs text-muted-foreground">
                 {t('domains:add.ssl_progress')}
               </p>
@@ -386,7 +388,7 @@ function RecordRow({
       <div className="flex items-start gap-1 min-w-0 flex-1 justify-end">
         {/* break-all (not truncate) so the full record name/value is visible
             and copyable — a truncated DNS value is useless to paste. */}
-        <span className="font-mono break-all text-end">{value}</span>
+        <span className="font-mono break-all text-end"><bdi dir="ltr">{value}</bdi></span>
         <Button
           variant="ghost"
           size="icon"

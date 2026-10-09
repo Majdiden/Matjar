@@ -1,6 +1,6 @@
 import { defineTheme } from '@matjar/theme-shared/theme/defineTheme';
 import { defineSection } from '@matjar/theme-shared/theme/defineSection';
-import type { SectionDefinition } from '@matjar/theme-shared/types/theme';
+import type { SectionDefinition, SectionInstance, ThemeManifest } from '@matjar/theme-shared/types/theme';
 
 // ─── Section Definitions ─────────────────────────────────────────
 
@@ -13,14 +13,14 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '', info: 'Main headline — falls back to store name if empty' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '', info: 'Main headline — falls back to store name if empty' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'badge_text', type: 'text', label: 'Badge Text', default: '' },
     { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
     { id: 'secondary_button_text', type: 'text', label: 'Secondary Button Text', default: '' },
     { id: 'secondary_button_url', type: 'url', label: 'Secondary Button URL', default: '/categories' },
-    { id: 'background_image', type: 'image', label: 'Background Image', info: 'Optional — gradient is used if empty' },
+    { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — gradient is used if empty' },
     { id: 'overlay_opacity', type: 'range', label: 'Overlay Opacity', min: 0, max: 100, step: 5, default: 0, unit: '%' },
     { id: 'show_sale_slide', type: 'checkbox', label: 'Show Sale Slide', default: true },
     { id: 'sale_heading', type: 'text', label: 'Sale Heading', default: '' },
@@ -41,8 +41,8 @@ export const categoriesSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'layout', type: 'select', label: 'Layout', default: 'bento', options: [
       { value: 'bento', label: 'Editorial (feature tile)' },
       { value: 'grid', label: 'Uniform grid' },
@@ -98,8 +98,8 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   description: 'Showcase hand-picked featured products in a grid',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 2, max: 16 },
     { id: 'show_rating', type: 'checkbox', label: 'Show Rating', default: true },
     { id: 'show_quick_view', type: 'checkbox', label: 'Show Quick View', default: true },
@@ -203,8 +203,8 @@ export const newArrivalsSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 4, max: 16 },
     { id: 'show_add_to_cart', type: 'checkbox', label: 'Show Add to Cart', default: true },
     { id: 'autoplay', type: 'checkbox', label: 'Auto-play', default: false },
@@ -221,15 +221,43 @@ export const newsletterSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: '' },
     { id: 'disclaimer', type: 'text', label: 'Disclaimer Text', default: '' },
     { id: 'use_gradient', type: 'checkbox', label: 'Use Theme Gradient', default: true },
     { id: 'background_color', type: 'color', label: 'Background Color', default: '#2563eb', info: 'Used when gradient is disabled' },
   ],
 });
+
+// ─── Home sections ───────────────────────────────────────────────
+//
+// One definition per home section instance, shared by `templates.index` and
+// the niche presets below so a preset only changes order and visibility.
+
+const HOME = {
+  hero: { id: 'hero', type: 'hero', settings: {} },
+  categories: { id: 'categories', type: 'categories', settings: {}, blocks: [
+    { id: 'tile-1', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
+    { id: 'tile-2', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
+  ]},
+  featuredProducts: { id: 'featured-products', type: 'featured-products', settings: {} },
+  trustBadges: { id: 'trust-badges', type: 'trust-badges', settings: {}, blocks: [
+    { id: 'badge-1', type: 'badge', settings: { icon: 'shipping', title: 'Free Shipping', description: 'On orders over $50' } },
+    { id: 'badge-2', type: 'badge', settings: { icon: 'lock', title: 'Secure Payment', description: '256-bit SSL encryption' } },
+    { id: 'badge-3', type: 'badge', settings: { icon: 'return', title: 'Easy Returns', description: '30-day money back guarantee' } },
+  ]},
+  promoBanners: { id: 'promo-banners', type: 'promo-banners', settings: {}, blocks: [
+    { id: 'promo-slide-1', type: 'slide', settings: { image: '', link: '/products', align: 'start' } },
+    { id: 'promo-slide-2', type: 'slide', settings: { image: '', link: '/products?sort=newest', align: 'start' } },
+  ]},
+  newArrivals: { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
+  newsletter: { id: 'newsletter', type: 'newsletter', settings: {} },
+} satisfies Record<string, SectionInstance>;
+
+/** Hidden until the merchant has banner photos to show. */
+const hidden = (section: SectionInstance): SectionInstance => ({ ...section, disabled: true });
 
 // ─── Theme Manifest ──────────────────────────────────────────────
 
@@ -304,23 +332,13 @@ const manifest: ThemeManifest = defineTheme({
 
   templates: {
     index: [
-      { id: 'hero', type: 'hero', settings: {} },
-      { id: 'categories', type: 'categories', settings: {}, blocks: [
-        { id: 'tile-1', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
-        { id: 'tile-2', type: 'tile', settings: { title: '', subtitle: '', image: '', link: '' } },
-      ]},
-      { id: 'featured-products', type: 'featured-products', settings: {} },
-      { id: 'trust-badges', type: 'trust-badges', settings: {}, blocks: [
-        { id: 'badge-1', type: 'badge', settings: { icon: 'shipping', title: 'Free Shipping', description: 'On orders over $50' } },
-        { id: 'badge-2', type: 'badge', settings: { icon: 'lock', title: 'Secure Payment', description: '256-bit SSL encryption' } },
-        { id: 'badge-3', type: 'badge', settings: { icon: 'return', title: 'Easy Returns', description: '30-day money back guarantee' } },
-      ]},
-      { id: 'promo-banners', type: 'promo-banners', settings: {}, blocks: [
-        { id: 'promo-slide-1', type: 'slide', settings: { image: '', link: '/products', align: 'start' } },
-        { id: 'promo-slide-2', type: 'slide', settings: { image: '', link: '/products?sort=newest', align: 'start' } },
-      ]},
-      { id: 'new-arrivals', type: 'new-arrivals', settings: {} },
-      { id: 'newsletter', type: 'newsletter', settings: {} },
+      HOME.hero,
+      HOME.categories,
+      HOME.featuredProducts,
+      HOME.trustBadges,
+      HOME.promoBanners,
+      HOME.newArrivals,
+      HOME.newsletter,
     ],
     // Finding #5: per-template section buckets. Empty arrays let
     // merchants compose layouts for these templates in the dashboard
@@ -332,6 +350,18 @@ const manifest: ThemeManifest = defineTheme({
     cart: [],
     search: [],
     page: [],
+  },
+
+  // Starting homepages for new stores by signup niche (PBI 10). Same
+  // sections as `templates.index`, reordered; the photo banner slider starts
+  // hidden where a new store rarely has campaign photos yet.
+  presets: {
+    food: {
+      index: [HOME.hero, HOME.featuredProducts, HOME.categories, HOME.newArrivals, HOME.trustBadges, HOME.newsletter, hidden(HOME.promoBanners)],
+    },
+    books: {
+      index: [HOME.hero, HOME.newArrivals, HOME.featuredProducts, HOME.categories, HOME.trustBadges, HOME.newsletter, hidden(HOME.promoBanners)],
+    },
   },
 });
 

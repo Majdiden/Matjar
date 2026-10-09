@@ -12,9 +12,18 @@ const ids = (n) => Array.from({ length: n }, (_, i) => id(i + 1));
 const parse = (body) => bulkTenantsSchema.safeParse({ body });
 
 describe("bulk tenant actions — allow-list", () => {
-  it("exposes exactly the five reversible actions and never purge/delete", () => {
-    assert.deepEqual([...BULK_ACTIONS].sort(), ["add_to_program", "change_plan", "remove_from_program", "suspend", "unsuspend"]);
-    for (const forbidden of ["purge", "delete", "close", "archive", "schedule_deletion"]) {
+  it("exposes exactly the reversible actions and never purge/delete", () => {
+    assert.deepEqual([...BULK_ACTIONS].sort(), [
+      "add_to_program",
+      "cancel_deletion",
+      "cancel_plan_change",
+      "change_plan",
+      "remove_from_program",
+      "schedule_deletion",
+      "suspend",
+      "unsuspend",
+    ]);
+    for (const forbidden of ["purge", "delete", "close", "archive", "force_purge"]) {
       assert.equal(parse({ action: forbidden, tenantIds: ids(1), reason: "cleanup" }).success, false, forbidden);
       assert.match(validateBulkRequest({ action: forbidden, tenantIds: ids(1) }) || "", /Unsupported/);
     }
@@ -27,6 +36,17 @@ describe("bulk tenant actions — allow-list", () => {
     assert.equal(parse({ action: "add_to_program", tenantIds: ids(1), reason: "promo", params: { programId: id(9) } }).success, true);
     assert.equal(parse({ action: "change_plan", tenantIds: ids(1), reason: "promo", params: { planKey: "Growth" } }).success, true);
     assert.equal(parse({ action: "suspend", tenantIds: ids(1), reason: "abuse" }).success, true);
+  });
+
+  it("bounds the schedule_deletion grace window to 1..90 days", () => {
+    const sched = (graceDays) => parse({ action: "schedule_deletion", tenantIds: ids(1), reason: "abandoned", params: { graceDays } });
+    assert.equal(parse({ action: "schedule_deletion", tenantIds: ids(1), reason: "abandoned" }).success, true);
+    assert.equal(sched(1).success, true);
+    assert.equal(sched(90).success, true);
+    assert.equal(sched("30").data.body.params.graceDays, 30);
+    assert.equal(sched(0).success, false);
+    assert.equal(sched(91).success, false);
+    assert.equal(sched(2.5).success, false);
   });
 
   it("requires a meaningful reason", () => {
@@ -73,6 +93,9 @@ describe("bulk tenant actions — per-action scope", () => {
       add_to_program: "flags.write",
       remove_from_program: "flags.write",
       change_plan: "billing.write",
+      cancel_plan_change: "billing.write",
+      schedule_deletion: "tenant.lifecycle",
+      cancel_deletion: "tenant.lifecycle",
     });
     // Every allow-listed action has a scope, and nothing else does.
     assert.deepEqual(Object.keys(BULK_ACTION_SCOPE).sort(), [...BULK_ACTIONS].sort());

@@ -16,6 +16,7 @@ import { SocialShare } from '@matjar/theme-shared/components/marketing/SocialSha
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import ProductDetailExtras from '@matjar/theme-shared/components/commerce/ProductDetailExtras';
 import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
+import TrustBadges from '@matjar/theme-shared/components/commerce/TrustBadges';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -98,9 +99,7 @@ const ProductDetail: React.FC = () => {
   });
   const isPreorderable = preState.mode === 'preorder';
   const isPreorderSoldOut = preState.mode === 'soldOut';
-  const shipDateLabel = preState.shipByLabel
-    ? preState.shipByLabel.replace(/^Ships by\s+/i, '')
-    : null;
+  const shipDateLabel = preState.shipDate;
   // Use the discounted preorder price when applicable
   const effectivePrice = preState.effectivePrice;
   const effectiveCompareAt =
@@ -321,6 +320,7 @@ const ProductDetail: React.FC = () => {
           )}
 
           <GuaranteedCheckout className="mt-6" />
+          <TrustBadges className="mt-4" />
 
           {/* Share */}
           <div className="flex items-center gap-3 pt-4 border-t">

@@ -13,9 +13,10 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', default: '' },
+    { id: 'heading_line1', type: 'text', label: 'Heading Line 1', level: 'basic', default: '' },
     { id: 'heading_line2', type: 'text', label: 'Heading Line 2', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
+    { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — your store cover photo is used when empty' },
     { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
     { id: 'gradient_from', type: 'color', label: 'Gradient From', default: '#ec4899' },
@@ -34,9 +35,9 @@ export const categoriesSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'heading_highlight', type: 'text', label: 'Heading Highlight Word', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 6, min: 2, max: 12 },
   ],
   blocks: [
@@ -68,9 +69,9 @@ export const shopByAgeSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'heading_highlight', type: 'text', label: 'Heading Highlight Word', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
   ],
   blocks: [
     {
@@ -131,8 +132,8 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 2, max: 16 },
     { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: '' },
     { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
@@ -155,8 +156,8 @@ export const newArrivalsSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 4, max: 16 },
     { id: 'add_to_cart_text', type: 'text', label: 'Add to Cart Button Text', default: '' },
     { id: 'autoplay', type: 'checkbox', label: 'Auto-play', default: false },
@@ -174,10 +175,10 @@ export const newsletterSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', default: '' },
     { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: '' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
     { id: 'gradient_from', type: 'color', label: 'Gradient From', default: '#fbbf24' },
     { id: 'gradient_via', type: 'color', label: 'Gradient Via', default: '#ec4899' },
     { id: 'gradient_to', type: 'color', label: 'Gradient To', default: '#8b5cf6' },

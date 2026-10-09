@@ -115,7 +115,7 @@
       "in_stock_many": "متوفر ({{count}} قطعة)",
       "in_stock_other": "متوفر ({{count}} قطعة)",
       "pre_order": "طلب مسبق",
-      "pre_order_ships": "طلب مسبق — الشحن {{date}}",
+      "pre_order_ships": "طلب مسبق — يُشحن {{date}}",
       "only_left_one": "قطعة واحدة فقط متبقية",
       "only_left_two": "قطعتان فقط متبقيتان",
       "only_left_few": "{{count}} قطع فقط متبقية",

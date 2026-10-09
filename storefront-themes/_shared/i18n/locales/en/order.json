@@ -24,6 +24,7 @@
     },
     "tracking": {
       "title": "Track your order",
+      "limited_details": "For your privacy, the delivery address is shown only from the link in your order email or when you're signed in.",
       "gate_subtitle": "Enter the email address you used at checkout to view this order.",
       "field": {
         "email": { "label": "Email", "placeholder": "you@example.com" }

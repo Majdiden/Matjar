@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next';
 import type { NotificationItem } from '../contexts/notifications-context';
+import { ltrIsolate } from './utils';
 
 /**
  * Client-side notification copy.
@@ -64,6 +65,8 @@ function buildParams(data: Record<string, unknown>): Record<string, unknown> {
     amount: currency ? `${amountStr} ${currency}`.trim() : amountStr,
     reasonSuffix: detailSuffix(data.reason),
     errorSuffix: detailSuffix(data.error),
+    // Domains stay left-to-right inside Arabic sentences.
+    ...(typeof data.domain === 'string' && { domain: ltrIsolate(data.domain) }),
   };
 }
 

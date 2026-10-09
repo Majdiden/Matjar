@@ -10,7 +10,7 @@
     "orders": {
       "title": "الطلبات",
       "all_orders": "جميع الطلبات",
-      "fulfillments": "عمليات التنفيذ"
+      "fulfillments": "الشحنات"
     },
     "payments": {
       "title": "المدفوعات",
@@ -19,7 +19,7 @@
       "payment_methods": "طرق الدفع"
     },
     "catalog": {
-      "title": "الكتالوج",
+      "title": "المنتجات",
       "products": "المنتجات",
       "categories": "الفئات",
       "collections": "المجموعات",
@@ -40,10 +40,11 @@
     },
     "storefront": {
       "title": "واجهة المتجر",
+      "my_store": "متجري",
       "themes": "القوالب",
       "theme_library": "مكتبة القوالب",
       "visual_editor": "المحرر المرئي",
-      "navigation": "التنقل",
+      "navigation": "القوائم",
       "pages": "الصفحات",
       "media": "الوسائط",
       "redirects": "إعادة التوجيه",
@@ -60,7 +61,7 @@
       "title": "الفريق والأمان",
       "staff": "الموظفون",
       "permissions": "الصلاحيات",
-      "audit_logs": "سجلات التدقيق"
+      "audit_logs": "سجل النشاط"
     }
   },
   "breadcrumb": {
@@ -81,36 +82,37 @@
     "feedback": "أرسل ملاحظاتك"
   },
   "store_switcher": {
-    "switch": "تبديل المتجر",
+    "switch": "تغيير المتجر",
     "title": "متاجرك",
-    "description": "التبديل بين المتاجر في حسابك.",
+    "description": "انتقل بين المتاجر في حسابك.",
     "current": "الحالي",
     "empty": "لا توجد متاجر أخرى في حسابك."
   },
-  "toggle_menu": "تبديل القائمة",
+  "toggle_menu": "فتح القائمة أو إغلاقها",
   "bottom_nav": {
     "home": "الرئيسية",
     "orders": "الطلبات",
     "products": "المنتجات",
+    "store": "متجري",
     "more": "المزيد",
     "menu_title": "القائمة",
     "create": "إنشاء",
     "new_order": "طلب جديد",
     "new_product": "منتج جديد",
     "new_order_desc": "طلب يدوي أو مسودة",
-    "new_product_desc": "أضف إلى الكتالوج"
+    "new_product_desc": "أضف منتجًا إلى متجرك"
   },
   "browser_notifications": {
     "prompt_title": "تفعيل إشعارات المتصفح؟",
-    "prompt_description": "احصل على تنبيه من نظام التشغيل عند ورود طلب جديد.",
+    "prompt_description": "يصلك تنبيه على جهازك عند وصول طلب جديد.",
     "enable": "تفعيل",
     "not_now": "ليس الآن",
     "enabled_success": "تم تفعيل إشعارات المتصفح",
     "native_title": "تم تفعيل الإشعارات",
-    "native_body": "ستُبلَّغ هنا عند ورود طلب جديد."
+    "native_body": "سيصلك تنبيه هنا عند وصول طلب جديد."
   },
   "passkey_prompt": {
-    "title": "سجّل الدخول بشكل أسرع باستخدام مفتاح المرور",
+    "title": "ادخل أسرع باستخدام مفتاح المرور",
     "description": "أضف بصمتك أو Face ID لتسجيل الدخول دون كتابة كلمة المرور في المرة القادمة. يمكنك إدارة مفاتيح المرور لاحقًا من الإعدادات ← الأمان.",
     "add_cta": "إضافة مفتاح مرور",
     "adding": "جارٍ الإضافة…",

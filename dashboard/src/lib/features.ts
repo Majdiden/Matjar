@@ -10,13 +10,13 @@
 // `themes.allowedSlugs` is intentionally NOT in this type — the dashboard
 // never reads it; theme-catalog filtering is enforced server-side.
 export type FeatureKey =
-  | 'onboarding.starterContent'
+  | 'onboarding.starterContent' | 'onboarding.v2'
   | 'payments.methods' | 'payments.transactions'
   | 'orders.fulfillment' | 'orders.returns' | 'orders.timeline' | 'orders.notes' | 'orders.lifecycle'
   | 'themes.catalogAll'
   | 'webhooks' | 'customFields' | 'team.advancedRoles' | 'auditLogs'
   | 'settings.regional' | 'settings.tax' | 'settings.currencies' | 'settings.markets'
-  | 'domains.custom' | 'redirects' | 'billing.subscription';
+  | 'domains.custom' | 'redirects' | 'design.simpleMode' | 'billing.subscription';
 
 export type FeatureFlags = Record<string, boolean | string[]>;
 
@@ -25,6 +25,8 @@ export const DEFAULT_FEATURES: FeatureFlags = {
   // Server-side only (gates starter-content seeding during store setup);
   // mirrored here to keep the key list in sync with the backend registry.
   'onboarding.starterContent': false,
+  // Signup v2 + "first sale" checklist (PBI 10-16/10-17).
+  'onboarding.v2': false,
   'payments.methods': false,
   'payments.transactions': false,
   'orders.fulfillment': false,
@@ -43,6 +45,7 @@ export const DEFAULT_FEATURES: FeatureFlags = {
   'settings.markets': false,
   'domains.custom': false,
   redirects: false,
+  'design.simpleMode': false,
   'billing.subscription': false,
 };
 

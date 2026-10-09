@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { storefrontApi } from '../api/client';
+import type { BrandKit, GeneratedPages, StoreTrust } from '../types/commerce';
 
 export interface StoreInfo {
   name: string;
@@ -31,6 +32,12 @@ export interface StoreInfo {
   giftCards?: {
     enabled: boolean;
   };
+  /** Brand kit (PBI 10): only what the merchant set; null when nothing is. */
+  brand?: BrandKit | null;
+  /** Pages built from store data (PBI 10-10); absent unless switched on. */
+  generatedPages?: GeneratedPages;
+  /** Trust-badge facts (PBI 10-11); absent unless the policy questions were answered. */
+  trust?: StoreTrust;
 }
 
 interface StoreContextType {
@@ -73,6 +80,14 @@ export const useStore = () => {
   if (!ctx) throw new Error('useStore must be used within StoreProvider');
   return ctx;
 };
+
+/**
+ * The store's brand kit (tagline, cover photo, colour, WhatsApp, city, hours)
+ * or null when the merchant has set none of it — or before the store loads.
+ * Themes must treat null/missing keys as "use your own default" so stores
+ * without a brand kit render unchanged.
+ */
+export const useBrand = (): BrandKit | null => useStore().store?.brand ?? null;
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [store, setStore] = useState<StoreInfo | null>(EMBEDDED_STORE);

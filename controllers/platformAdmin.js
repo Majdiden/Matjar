@@ -14,7 +14,6 @@ import {
   unsuspendTenant,
   scheduleTenantDeletion,
   cancelScheduledDeletion,
-  purgeTenant,
 } from "../services/tenantLifecycle.js";
 import { retrySetup, seedStarterContentForTenant } from "../services/storeSetup.js";
 import { getPhoneCountryConfig, setPhoneCountryConfig } from "../services/phoneCountries.js";
@@ -52,8 +51,17 @@ async function tenantSnapshot(tenantId) {
 
 // --- Tenant listing / inspection -------------------------------------
 
+/** Allowed `?sort=` values for the tenants list. */
+const TENANT_LIST_SORTS = Object.freeze({
+  newest: { createdAt: -1 },
+  // Stores whose merchants signed in most recently first; never-signed-in last.
+  last_login: { lastLoginAt: -1, createdAt: -1 },
+  // Longest-quiet first — who might need a nudge.
+  least_recent_login: { lastLoginAt: 1, createdAt: 1 },
+});
+
 export const listTenants = asyncHandler(async (req, res) => {
-  const { status, q, lifecycle } = req.query;
+  const { status, q, lifecycle, sort } = req.query;
   const page = clampInt(req.query.page, 1, 1, 100000);
   const limit = clampInt(req.query.limit, 25, 1, 100);
   const filter = {};
@@ -76,8 +84,8 @@ export const listTenants = asyncHandler(async (req, res) => {
   const Tenant = mongoose.model("Tenant");
   const [rows, total] = await Promise.all([
     Tenant.find(filter)
-      .select("name slug email phone phoneCountry domains subscriptionPlan subscriptionStatus suspendedAt deletionScheduledAt deletedAt setupStatus.status lifecycle.state lifecycle.reason lifecycle.changedAt createdAt")
-      .sort({ createdAt: -1 })
+      .select("name slug email phone phoneCountry domains subscriptionPlan subscriptionStatus suspendedAt deletionScheduledAt deletedAt setupStatus.status lifecycle.state lifecycle.reason lifecycle.changedAt createdAt lastLoginAt lastLoginBy")
+      .sort(Object.hasOwn(TENANT_LIST_SORTS, sort) ? TENANT_LIST_SORTS[sort] : TENANT_LIST_SORTS.newest)
       .skip(skip)
       .limit(limit)
       .lean(),
@@ -285,38 +293,6 @@ export const cancelDeletion = asyncHandler(async (req, res) => {
     after: lifecycleSnapshot(t),
   });
   res.json({ success: true, data: { tenantId: String(t._id), lifecycle: t.lifecycle?.state } });
-});
-
-export const purge = asyncHandler(async (req, res) => {
-  const force = req.body?.force === true;
-  const before = await tenantSnapshot(req.params.tenantId);
-  let result;
-  try {
-    result = await purgeTenant({ tenantId: req.params.tenantId, force, platformUserEmail: req.platformUser.email, via: "console" });
-  } catch (err) {
-    await recordPlatformAudit(req, {
-      action: "tenant.purge",
-      resourceType: "Tenant",
-      resourceId: req.params.tenantId,
-      tenantId: req.params.tenantId,
-      before,
-      metadata: { force, error: err.message },
-      outcome: "failure",
-    });
-    const status = err?.message === "Tenant not found" ? 404 : err?.statusCode === 409 ? 409 : 500;
-    return res.status(status).json({ success: false, message: status === 500 ? "Purge failed." : err.message });
-  }
-  await recordPlatformAudit(req, {
-    action: "tenant.purge",
-    resourceType: "Tenant",
-    resourceId: req.params.tenantId,
-    tenantId: req.params.tenantId,
-    before,
-    after: await tenantSnapshot(req.params.tenantId),
-    metadata: { force, counts: result.counts },
-  });
-  logger.warn("Platform: tenant purged", { tenantId: req.params.tenantId, by: req.platformUser.email, force });
-  res.json({ success: true, data: result });
 });
 
 // --- Export ----------------------------------------------------------

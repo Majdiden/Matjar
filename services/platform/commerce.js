@@ -42,7 +42,12 @@ async function paginate(Model, matchStages, projectStage, sort, page, limit, agg
 const ORDER_LIST_PROJECT = {
   $project: {
     tenantId: 1,
-    tenant: { name: "$tenant.name", slug: "$tenant.slug" },
+    // A permanently deleted store's orders are kept; fall back to the
+    // identity stamped on them (services/tenantDeletion.js).
+    tenant: {
+      name: { $ifNull: ["$tenant.name", "$deletedStore.name"] },
+      slug: { $ifNull: ["$tenant.slug", "$deletedStore.slug"] },
+    },
     orderNumber: 1,
     status: 1,
     paymentStatus: 1,
@@ -50,7 +55,7 @@ const ORDER_LIST_PROJECT = {
     paymentMethod: 1,
     totalAmount: 1,
     refundedAmount: 1,
-    currency: { $ifNull: ["$baseCurrency", "$tenant.settings.currency"] },
+    currency: { $ifNull: ["$baseCurrency", "$tenant.settings.currency", "$deletedStore.currency"] },
     itemCount: { $size: { $ifNull: ["$products", []] } },
     customer: {
       name: {

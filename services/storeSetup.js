@@ -8,6 +8,8 @@ import { seedThemeDemoData } from "./themeDemoData.js";
 import { isFeatureEnabled } from "./featureFlags.js";
 import { setLifecycleState, currentLifecycleState, LIFECYCLE_STATES } from "./tenantLifecycle.js";
 import logger from "../utils/logger.js";
+import { createScopedModels } from "../utils/scopedModel.js";
+import { issueAuthSession } from "./auth.js";
 
 const SETUP_STEPS = {
   DOMAIN_REGISTRATION: "domain_registration",
@@ -355,6 +357,59 @@ export async function getSetupStatus(tenantId, providedToken) {
   // Strip the token from the response — the client already has it.
   const { setupToken: _drop, ...status } = tenant.setupStatus;
   return { found: true, ...status };
+}
+
+/**
+ * How long after signup the one-time setup token can still be exchanged for
+ * the first dashboard session. Store setup normally takes under a minute;
+ * the margin covers a slow worker queue.
+ */
+export const SETUP_SESSION_TTL_MS = 60 * 60 * 1000;
+
+/**
+ * Exchange the signup's one-time setup token for the merchant's first
+ * dashboard session, so the "setting up your store" screen can sign them in
+ * without the browser ever keeping their password.
+ *
+ * Single use (atomic compare-and-set on `setupStatus.sessionIssuedAt`),
+ * bound to the tenant, only within SETUP_SESSION_TTL_MS of signup, and only
+ * for the store's own admin account. Every failure returns null so callers
+ * answer with one generic response.
+ */
+export async function exchangeSetupTokenForSession(tenantId, providedToken) {
+  if (!mongoose.isValidObjectId(tenantId) || typeof providedToken !== "string" || !providedToken) return null;
+  const Tenant = mongoose.model("Tenant");
+  const tenant = await Tenant.findById(tenantId)
+    .select("+setupStatus.setupToken email createdAt isActive deletedAt domains slug")
+    .lean();
+  const expected = tenant?.setupStatus?.setupToken;
+  if (!expected || !tenant.isActive || tenant.deletedAt) return null;
+  const a = Buffer.from(providedToken);
+  const b = Buffer.from(String(expected));
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  if (!tenant.createdAt || Date.now() - new Date(tenant.createdAt).getTime() > SETUP_SESSION_TTL_MS) return null;
+
+  // Claim and burn the token atomically: two racing requests can't both get
+  // a session, and the token is useless afterwards.
+  const claimed = await Tenant.updateOne(
+    { _id: tenant._id, "setupStatus.setupToken": expected, "setupStatus.sessionIssuedAt": { $exists: false } },
+    { $set: { "setupStatus.sessionIssuedAt": new Date() }, $unset: { "setupStatus.setupToken": 1 } }
+  );
+  if (claimed.modifiedCount !== 1) return null;
+
+  const models = createScopedModels(mongoose.connection, tenant._id);
+  const user = await models.User.findOne({ email: tenant.email, roles: "admin" })
+    .select("email name roles tokenVersion isActive")
+    .lean();
+  if (!user || user.isActive === false) return null;
+
+  const session = await issueAuthSession(models, user, tenant._id);
+  return {
+    ...session,
+    tenantId: String(tenant._id),
+    tenantDomain: tenant.domains?.subdomain?.fullDomain || tenant.domains?.subdomain?.name || tenant.slug || null,
+    tenantSlug: tenant.slug || null,
+  };
 }
 
 export async function clearSetupStatus(tenantId, providedToken) {

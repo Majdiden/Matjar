@@ -50,7 +50,7 @@
     "resume": "استئناف",
     "activate": "تفعيل",
     "deactivate": "إلغاء التفعيل",
-    "enable": "تمكين",
+    "enable": "تفعيل",
     "disable": "تعطيل",
     "approve": "موافقة",
     "reject": "رفض",
@@ -122,7 +122,7 @@
   "status": {
     "draft": "مسودة",
     "pending": "قيد الانتظار",
-    "pending_dns": "انتظار DNS",
+    "pending_dns": "بانتظار ربط النطاق",
     "processing": "قيد المعالجة",
     "confirmed": "مؤكّد",
     "paid": "مدفوع",
@@ -135,7 +135,7 @@
     "captured": "محصّل",
     "failed": "فشل",
     "shipped": "تم الشحن",
-    "out_for_delivery": "في الطريق إليك",
+    "out_for_delivery": "خرج للتوصيل",
     "delivered": "تم التسليم",
     "fulfilled": "تم التنفيذ",
     "unfulfilled": "لم يتم التنفيذ",
@@ -206,15 +206,15 @@
   "image_upload": {
     "empty": "لا توجد صور بعد",
     "uploading": "جارٍ الرفع…",
-    "click_or_drop": "انقر للرفع أو اسحب وأفلِت",
+    "click_or_drop": "اضغط لاختيار ملف أو اسحبه وأفلته هنا",
     "drop_files": "أفلِت الملفات هنا",
     "max_size": "(الحد الأقصى {{size}} ميغابايت)",
-    "maximum_files": "{{count}} ملفات كحد أقصى",
+    "maximum_files": "الحد الأقصى لعدد الملفات: {{count}}",
     "file_too_large_named": "الملف {{name}} كبير جدًا. الحجم الأقصى هو {{size}} ميغابايت",
     "invalid_type": "الملف {{name}} من نوع غير مدعوم. الأنواع المقبولة: {{types}}",
-    "max_files_allowed": "يُسمح بـ {{count}} ملفات كحد أقصى",
-    "upload_failed": "فشل الرفع",
-    "failed": "فشل رفع الصورة"
+    "max_files_allowed": "الحد الأقصى لعدد الملفات هو {{count}}",
+    "upload_failed": "تعذّر الرفع",
+    "failed": "تعذّر رفع الصورة"
   },
   "toast": {
     "copied": "تم نسخ {{label}}",
@@ -254,7 +254,7 @@
     },
     "link_dialog": {
       "title": "إدراج رابط",
-      "url_label": "عنوان الرابط",
+      "url_label": "الرابط",
       "url_placeholder": "https://example.com",
       "apply": "تطبيق",
       "remove": "إزالة الرابط"
@@ -266,7 +266,7 @@
       "insert": "إدراج",
       "upload": "رفع",
       "uploading": "جارٍ الرفع…",
-      "no_url": "لم يُرجِع الرفع رابط صورة",
+      "no_url": "لم نحصل على رابط الصورة بعد الرفع",
       "browse_library": "مكتبة الوسائط"
     }
   },
@@ -293,7 +293,14 @@
     }
   },
   "share": {
-    "whatsapp": "شارك عبر WhatsApp",
-    "whatsapp_message": "تفضّل بزيارة متجري: {{url}}"
+    "button": "مشاركة",
+    "store_message": "تفضّل بزيارة متجري:",
+    "copy_link": "نسخ الرابط",
+    "copied": "تم نسخ الرابط",
+    "targets": {
+      "whatsapp": "واتساب",
+      "facebook": "فيسبوك",
+      "telegram": "تيليجرام"
+    }
   }
 }

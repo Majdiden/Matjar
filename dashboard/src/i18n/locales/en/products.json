@@ -148,18 +148,25 @@
           }
         },
         "slug": {
-          "label": "Slug *",
-          "placeholder": "e.g., wireless-headphones",
-          "error": {
-            "required": "Required"
-          }
+          "label": "Product link",
+          "placeholder": "e.g., rose-perfume",
+          "empty": "Type the product name first",
+          "edit": "Edit link",
+          "reset": "Use automatic link",
+          "help_create": "Made automatically from the product name. You don't need to change it.",
+          "help_edit": "The link stays the same when you rename the product, so links you've already shared keep working.",
+          "edit_help": "Use English letters, numbers and hyphens. Anything else is converted automatically.",
+          "redirect_note": "Anyone who opens the old link will be taken to the new one."
         },
         "category": {
           "label": "Category *",
           "placeholder": "Select category",
           "error": {
             "required": "Required"
-          }
+          },
+          "search_placeholder": "Search or create a category…",
+          "empty": "No categories yet — type a name to create one",
+          "create": "Create \"{{name}}\""
         },
         "regular_price": {
           "label": "Regular Price *",
@@ -323,10 +330,15 @@
             }
           },
           "slug": {
-            "label": "Slug",
-            "placeholder": "e.g., electronics",
-            "help_create": "Auto-generated from name",
-            "help_edit": "Slug cannot be changed after creation"
+            "label": "Category link",
+            "placeholder": "e.g., perfumes",
+            "empty": "Type the category name first",
+            "edit": "Edit link",
+            "reset": "Use automatic link",
+            "help_create": "Made automatically from the category name. You don't need to change it.",
+            "help_edit": "The link stays the same when you rename the category, so links you've already shared keep working.",
+            "edit_help": "Use English letters, numbers and hyphens. Anything else is converted automatically.",
+            "redirect_note": "Anyone who opens the old link will be taken to the new one."
           },
           "description": {
             "label": "Description (Optional)",

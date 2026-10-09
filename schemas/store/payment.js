@@ -8,6 +8,16 @@ const paymentSchema = new Schema({
     required: true,
     index: true,
   },
+  // Set only when the store was permanently deleted: orders/payments are kept
+  // as financial records (services/tenantDeletion.js), so they carry the
+  // store's identity once the Tenant row is gone.
+  deletedStore: {
+    name: { type: String },
+    slug: { type: String },
+    domain: { type: String },
+    currency: { type: String },
+    deletedAt: { type: Date },
+  },
   order: { type: Schema.Types.ObjectId, ref: "Order", required: true },
   provider: {
     type: String,

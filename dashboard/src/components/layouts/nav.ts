@@ -37,6 +37,7 @@ import {
   Settings,
   Shield,
   ShoppingCart,
+  Store,
   Tag,
   Truck,
   UserCog,
@@ -150,6 +151,8 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
     label: t('nav:sidebar.storefront.title'),
     groupKey: 'storefront',
     items: [
+      // Simple, phone-first entry to the store's look and pages (PBI 10-12).
+      { name: t('nav:sidebar.storefront.my_store'), href: '/dashboard/store', icon: Store, permission: ['settings.read', 'settings.write', 'themes.read', 'themes.write'], feature: 'design.simpleMode' },
       {
         name: t('nav:sidebar.storefront.themes'),
         icon: Palette,
@@ -163,7 +166,7 @@ export const buildNavGroups = (t: (key: string) => string): NavGroup[] => [
       { name: t('nav:sidebar.storefront.pages'), href: '/dashboard/pages', icon: FileText, permission: ['themes.read', 'themes.write'] },
       { name: t('nav:sidebar.storefront.media'), href: '/dashboard/media', icon: Image, permission: 'themes.write' },
       { name: t('nav:sidebar.storefront.redirects'), href: '/dashboard/redirects', icon: CornerDownRight, permission: ['themes.read', 'themes.write'], feature: 'redirects' },
-      { name: t('nav:sidebar.storefront.domains'), href: '/dashboard/domains', icon: Globe, permission: ['domains.read', 'domains.write'], feature: 'domains.custom' },
+      { name: t('nav:sidebar.storefront.domains'), href: '/dashboard/domains', icon: Globe, permission: ['domains.read', 'domains.write'] },
     ],
   },
   {

@@ -16,6 +16,8 @@ This backlog contains all Product Backlog Items (PBIs) for implementing the E-co
 | 7 | Merchant | As a merchant, I want a real-time preview system so that I can see changes to my theme immediately before publishing | Proposed | [View Details](./7/prd.md) - Preview renders in real-time, supports all device sizes, shows live data, change history maintained |
 | 8 | Developer/Merchant | As a developer or merchant, I want a theme marketplace so that custom themes can be distributed, discovered, and installed easily | Proposed | [View Details](./8/prd.md) - Theme upload/approval process, search/discovery features, installation workflow, payment processing |
 | 9 | Platform operator/Merchant | As a platform operator and merchant working from a phone, I want starter-content seeding under my control, a phone number on merchant accounts (Sudan dial code by default), and fully responsive admin surfaces | Done | [View Details](./9/prd.md) - Seed flag + on-demand seed, phone capture/validation/profile edit, operator-managed country codes, platform admin and merchant dashboard usable at 390px |
+| 10 | Merchant | As a first-time Sudanese seller working from a phone, I want my store link, store design and pages set up from a few plain questions (with the full editor still available) so that I can start selling without learning web-design concepts | InProgress | [View Details](./10/prd.md) - Forgiving store-link field + general share; brand kit used by every page; phone-first simple editor; generated About/Contact/policy pages; Arabic-first with optional English; flag-gated rollout via the operator's test store |
+| 11 | Platform owner | As the platform owner, I want to permanently delete stores (single and bulk), limited to staff I authorise and confirmed with my password, so that test and abandoned stores and their data are fully removed | InProgress | [View Details](./11/prd.md) - `tenant.delete` scope (owner by default, owner-granted per person); password + typed confirmation; full data/file/domain removal with audit + owner alert; bulk ≤20 |
 
 ## PBI History Log
 
@@ -23,6 +25,8 @@ This backlog contains all Product Backlog Items (PBIs) for implementing the E-co
 |-----------|--------|------------|---------|------|
 | 2024-12-19 14:30:00 | 1-8 | create_pbi | Initial PBIs created from PRD analysis | AI Assistant |
 | 2026-09-19 09:00:00 | 9 | create_pbi | Mobile-first operator & merchant experience (seed control, phone identity, responsive admin surfaces) | AI Assistant |
+| 2026-10-09 15:20:00 | 10 | create_pbi | Store design for first-time sellers (simple mode, brand kit, guided onboarding) | AI Assistant |
+| 2026-10-09 17:30:00 | 11 | create_pbi | Permanent store deletion from the platform console | AI Assistant |
 
 ## Notes
 - PBIs are ordered by technical dependency and implementation priority

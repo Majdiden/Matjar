@@ -151,5 +151,13 @@
     "sold_out": "Sold out",
     "out_of_stock": "Out of stock",
     "reserving": "Reserving…"
+  },
+  "preorder_state": {
+    "ships_by": "Ships by {{date}}",
+    "ships_by_inline": "ships by {{date}}",
+    "deposit": "Reserve with {{pct}}% deposit",
+    "discount": "{{pct}}% pre-order discount",
+    "select_options": "Select options",
+    "adding": "Adding…"
   }
 }

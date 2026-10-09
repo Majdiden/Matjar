@@ -401,9 +401,7 @@ export const OrderStepperSection: React.FC<{
             <span className="font-medium text-foreground">{customerName}</span>
             {city ? ` · ${city}` : ''}
             {' · '}
-            {itemCount === 1
-              ? t('orders:list.item_count_one', { count: 1 })
-              : t('orders:list.item_count_other', { count: itemCount })}
+            {t('orders:list.item_count', { count: itemCount })}
           </p>
           <p className="text-base font-bold tabular-nums">{formatPrice(order.totalAmount)}</p>
         </div>

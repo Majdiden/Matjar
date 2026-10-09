@@ -87,3 +87,20 @@ export const securitySettingsSchema = z.object({
     requireMfaForRoles: z.array(z.string().trim().toLowerCase().min(2).max(32)).max(20),
   }),
 });
+
+// POST /tenants/:tenantId/delete-permanently — type the store's slug, give a
+// reason for the audit ledger, and re-enter the operator password (checked
+// by requirePasswordConfirmation, never logged).
+export const deleteTenantPermanentlySchema = z.object({
+  body: z.object({
+    confirmSlug: z.string().trim().toLowerCase().min(1).max(100),
+    reason,
+    password: z.string().min(1).max(1024),
+  }),
+});
+
+// PATCH /api/platform/users/:id/store-deletion — owner allows/stops a staff
+// member permanently deleting stores.
+export const setStoreDeletionPermissionSchema = z.object({
+  body: z.object({ allowed: z.boolean(), reason: reason.optional() }),
+});

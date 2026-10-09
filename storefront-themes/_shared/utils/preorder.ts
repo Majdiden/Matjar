@@ -23,8 +23,12 @@
  *   - mode is 'preorder' otherwise.
  *
  * Labels are pre-formatted strings so every theme renders the same
- * copy without reimplementing date/percent formatting.
+ * copy without reimplementing date/percent formatting. They are localized
+ * in the storefront's active language (shared `product` namespace), and
+ * dates use that language's formatting.
  */
+
+import i18n from '../i18n';
 
 export type PreorderMode = 'buy' | 'preorder' | 'soldOut';
 
@@ -35,11 +39,15 @@ export interface PreorderState {
   remaining: number | null;
   /** True when remaining is a finite number in (0, 5]. */
   lowRemaining: boolean;
-  /** Preformatted "Ships by <date>" label, or null. */
+  /** Localized "Ships by <date>" label, or null. */
   shipByLabel: string | null;
-  /** Preformatted "Reserve with N% deposit" label, or null. */
+  /** Localized ship date alone (e.g. "October 30, 2026" / "٣٠ أكتوبر ٢٠٢٦"), or null. */
+  shipDate: string | null;
+  /** Localized lower-case "ships by <date>" for use mid-sentence, or null. */
+  shipByInline: string | null;
+  /** Localized "Reserve with N% deposit" label, or null. */
   depositLabel: string | null;
-  /** Preformatted "N% pre-order discount" label, or null. */
+  /** Localized "N% pre-order discount" label, or null. */
   discountLabel: string | null;
   /** Optional merchant policy note, trimmed or null. */
   policyNote: string | null;
@@ -98,15 +106,26 @@ interface Options {
   buyLabel?: string;
 }
 
-const fmtDate = (raw: string | Date | null | undefined): string | null => {
+const t = (key: string, opts?: Record<string, unknown>): string =>
+  i18n.t(`product:${key}`, opts ?? {}) as string;
+
+/**
+ * Intl locale for the storefront's active language. Glossary: Arabic uses
+ * ar-SD with Western digits — `ar-SD` alone renders Arabic-Indic digits in
+ * Chromium/Node, so the numbering system is pinned to latn.
+ */
+export const preorderDateLocale = (): string =>
+  (i18n.resolvedLanguage || i18n.language || 'en').startsWith('ar') ? 'ar-SD-u-nu-latn' : 'en-US';
+
+/** Format a pre-order ship date in the storefront's language, or null. */
+export const formatPreorderDate = (
+  raw: string | Date | null | undefined,
+  options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' },
+): string | null => {
   if (!raw) return null;
   const d = raw instanceof Date ? raw : new Date(raw);
   if (isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(undefined, {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  return d.toLocaleDateString(preorderDateLocale(), options);
 };
 
 const pickConfig = (
@@ -130,7 +149,7 @@ export function getPreorderState(
         ? variant.price
         : (product?.price ?? 0);
 
-  const buyLabel = options.buyLabel || 'Add to Cart';
+  const buyLabel = options.buyLabel || t('add_to_cart');
   const config = pickConfig(product, variant);
 
   if (!config) {
@@ -141,6 +160,8 @@ export function getPreorderState(
       remaining: null,
       lowRemaining: false,
       shipByLabel: null,
+      shipDate: null,
+      shipByInline: null,
       depositLabel: null,
       discountLabel: null,
       policyNote: null,
@@ -148,9 +169,9 @@ export function getPreorderState(
       originalPrice: basePrice,
       savingsPct: 0,
       ctaLabel: options.requiresSelection
-        ? 'Select Options'
+        ? t('preorder_state.select_options')
         : options.adding
-          ? 'Adding…'
+          ? t('preorder_state.adding')
           : buyLabel,
       ctaDisabled: !!options.requiresSelection,
       config: null,
@@ -177,7 +198,7 @@ export function getPreorderState(
   const depositPct =
     depositPctRaw === null ? null : Math.max(0, Math.min(100, depositPctRaw));
 
-  const shipByLabel = fmtDate(config.expectedShipDate ?? config.shipByDate ?? null);
+  const shipDate = formatPreorderDate(config.expectedShipDate ?? config.shipByDate ?? null);
 
   const mode: PreorderMode = options.requiresSelection
     ? 'buy' // user must pick first; hide preorder-specific CTA copy until resolved
@@ -189,15 +210,15 @@ export function getPreorderState(
   let ctaDisabled = false;
 
   if (options.requiresSelection) {
-    ctaLabel = 'Select Options';
+    ctaLabel = t('preorder_state.select_options');
     ctaDisabled = true;
   } else if (mode === 'soldOut') {
-    ctaLabel = 'Sold out';
+    ctaLabel = t('sold_out');
     ctaDisabled = true;
   } else if (options.adding) {
-    ctaLabel = 'Reserving…';
+    ctaLabel = t('card.reserving');
   } else {
-    ctaLabel = 'Pre-order';
+    ctaLabel = t('preorder');
   }
 
   return {
@@ -205,13 +226,15 @@ export function getPreorderState(
     remaining,
     lowRemaining:
       remaining !== null && remaining > 0 && remaining <= 5,
-    shipByLabel: shipByLabel ? `Ships by ${shipByLabel}` : null,
+    shipByLabel: shipDate ? t('preorder_state.ships_by', { date: shipDate }) : null,
+    shipDate,
+    shipByInline: shipDate ? t('preorder_state.ships_by_inline', { date: shipDate }) : null,
     depositLabel:
       depositPct !== null && depositPct > 0
-        ? `Reserve with ${depositPct}% deposit`
+        ? t('preorder_state.deposit', { pct: depositPct })
         : null,
     discountLabel:
-      discountPct > 0 ? `${discountPct}% pre-order discount` : null,
+      discountPct > 0 ? t('preorder_state.discount', { pct: discountPct }) : null,
     policyNote:
       typeof config.policyNote === 'string' && config.policyNote.trim().length > 0
         ? config.policyNote.trim()

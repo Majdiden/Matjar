@@ -51,5 +51,15 @@ export const updateRedirectRepo = async (models, id, patch) =>
     { new: true }
   ).lean();
 
+export const deleteRedirectByFromPathRepo = async (models, fromPath) =>
+  models.Redirect.deleteOne({ fromPath });
+
+/** Point every redirect that lands on `oldToPath` at `newToPath` instead. */
+export const retargetRedirectsRepo = async (models, oldToPath, newToPath) =>
+  models.Redirect.updateMany(
+    { toPath: oldToPath },
+    { $set: { toPath: newToPath, updatedAt: new Date() } }
+  );
+
 export const deleteRedirectRepo = async (models, id) =>
   models.Redirect.findByIdAndDelete(id);

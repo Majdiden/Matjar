@@ -88,9 +88,7 @@ const ProductDetail: React.FC = () => {
   });
   const isPreorderable = preState.mode === 'preorder';
   const isPreorderSoldOut = preState.mode === 'soldOut';
-  const shipDateLabel = preState.shipByLabel
-    ? preState.shipByLabel.replace(/^Ships by\s+/i, '')
-    : null;
+  const shipDateLabel = preState.shipDate;
   const effectivePrice = preState.effectivePrice;
   const effectiveCompareAt =
     preState.savingsPct > 0 ? preState.originalPrice : displayCompareAt;

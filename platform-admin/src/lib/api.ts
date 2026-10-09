@@ -76,6 +76,8 @@ export const PLATFORM_SCOPES = {
   PAYMENTS_WRITE: 'payments.write',
   TENANT_USERS: 'tenant.users',
   FLAGS_WRITE: 'flags.write',
+  // Permanently delete stores: owners by role, others only by an owner's grant.
+  TENANT_DELETE: 'tenant.delete',
 } as const;
 export type PlatformScope = (typeof PLATFORM_SCOPES)[keyof typeof PLATFORM_SCOPES];
 
@@ -168,6 +170,9 @@ export type SubscriptionStatus =
   | 'cancelled'
   | 'deleted';
 
+/** Tenants list orderings — mirrors TENANT_LIST_SORTS in controllers/platformAdmin.js. */
+export type TenantListSort = 'newest' | 'last_login' | 'least_recent_login';
+
 export interface TenantListRow {
   _id: string;
   name: string;
@@ -184,6 +189,9 @@ export interface TenantListRow {
   deletedAt?: string | null;
   setupStatus?: { status?: string };
   lifecycle?: { state?: LifecycleState; reason?: string | null; changedAt?: string | null };
+  // Last merchant dashboard sign-in (any staff) and who it was.
+  lastLoginAt?: string | null;
+  lastLoginBy?: string | null;
   createdAt: string;
 }
 
@@ -299,7 +307,7 @@ export const api = {
     return res.data.data as PlatformUser;
   },
   tenants: {
-    list: async (params: { page?: number; limit?: number; status?: string; q?: string; lifecycle?: string } = {}) => {
+    list: async (params: { page?: number; limit?: number; status?: string; q?: string; lifecycle?: string; sort?: TenantListSort } = {}) => {
       const res = await http.get('/tenants', { params });
       return res.data.data as { tenants: TenantListRow[]; pagination: Pagination };
     },
@@ -362,9 +370,10 @@ export const api = {
       const res = await http.post(`/tenants/${tenantId}/cancel-deletion`);
       return res.data.data;
     },
-    purge: async (tenantId: string, force?: boolean) => {
-      const res = await http.post(`/tenants/${tenantId}/purge`, { force });
-      return res.data.data;
+    // Irreversible. The password is sent once, in the body, and never stored.
+    deletePermanently: async (tenantId: string, body: { confirmSlug: string; reason: string; password: string }) => {
+      const res = await http.post(`/tenants/${tenantId}/delete-permanently`, body);
+      return res.data.data as { tenantId: string; ok: boolean; files?: { deleted: number; failed: string[] } };
     },
     syncExport: async (tenantId: string) => {
       const res = await http.get(`/tenants/${tenantId}/export`);

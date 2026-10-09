@@ -16,8 +16,9 @@ export const PLATFORM_NOTIFICATION_EVENTS = Object.freeze([
   {
     key: "tenant.signup",
     label: "New store signup",
-    description: "A merchant registered a new store.",
+    description: "A merchant opened a new store. Owners always receive this.",
     throttleMs: 0,
+    alwaysRoles: ["owner"],
   },
   {
     key: "system.request_error",
@@ -50,6 +51,13 @@ export const PLATFORM_NOTIFICATION_EVENTS = Object.freeze([
     label: "Platform login failures",
     description: "Failed sign-in or re-auth attempts on the platform console (one email per 15 minutes).",
     throttleMs: 15 * 60 * 1000,
+  },
+  {
+    key: "tenant.deleted_permanently",
+    label: "Store permanently deleted",
+    description: "A platform user permanently deleted one or more stores. Owners always receive this.",
+    throttleMs: 0,
+    alwaysRoles: ["owner"],
   },
 ]);
 

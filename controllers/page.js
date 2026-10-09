@@ -108,7 +108,24 @@ export const storefrontListPages = asyncHandler(async (req, res) => {
   });
 });
 
+/** Published and not scheduled for later — what a shopper may see. */
+const isVisiblePage = (page) =>
+  !!page && page.isPublished && !(page.publishAt && new Date(page.publishAt) > new Date());
+
 export const storefrontGetPageBySlug = asyncHandler(async (req, res) => {
+  // `?lang=` (sent by the storefront's usePage) PREFERS the visitor's
+  // language among a slug's locales — e.g. the Arabic and English About
+  // pages written by PBI 10-9 — and falls through to the original lookup
+  // when that locale has no visible page. `?locale=` stays a strict filter.
+  const lang = typeof req.query.lang === "string" ? req.query.lang.trim().toLowerCase() : "";
+  if (lang && !req.query.locale) {
+    const preferred = await PageService.getPageBySlug(req.models, req.params.slug, lang).catch((err) => {
+      if (err?.statusCode === 404) return null;
+      throw err;
+    });
+    if (isVisiblePage(preferred)) return res.json({ success: true, data: publicPage(preferred) });
+  }
+
   const page = await PageService.getPageBySlug(
     req.models,
     req.params.slug,
