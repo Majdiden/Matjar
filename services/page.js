@@ -8,6 +8,7 @@ import {
 } from "../repositories/page.js";
 import { APIError } from "../middlewares/errorHandler.js";
 import { sanitizePageHtml } from "../utils/sanitizePageHtml.js";
+import { slugify } from "../utils/slugify.js";
 
 // Hard cap on stored HTML body. Matches the schema `maxlength` so the
 // service layer surfaces a clean 400 before Mongoose throws a cryptic
@@ -41,24 +42,16 @@ export function normaliseSlug(input) {
 }
 
 /**
- * Derive a URL-safe slug from free-form text. Used only as the default
- * when a merchant creates a page without supplying a slug — the explicit
- * `slug` field still goes through `normaliseSlug` (strict) so the validator
- * layer's regex stays the source of truth for user input.
+ * Derive a URL-safe slug from free-form text (Arabic transliterated — see
+ * utils/slugify.js). Used only as the default when a merchant creates a page
+ * without supplying a slug — the explicit `slug` field still goes through
+ * `normaliseSlug` (strict) so the validator layer's regex stays the source
+ * of truth for user input.
  *
- * Must match the dashboard's PageForm.tsx `slugify()` so the client-side
- * preview equals what the server stores. Keep these two in lockstep.
+ * The dashboard's PageForm.tsx previews with `slugifyLink()` from
+ * lib/storeLink.ts, which mirrors utils/slugify.js.
  */
-function slugifyFromText(input) {
-  if (typeof input !== "string") return "";
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/-{2,}/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 100);
-}
+const slugifyFromText = (input) => (typeof input === "string" ? slugify(input) : "");
 
 function assertContentSize(content) {
   if (content == null) return;

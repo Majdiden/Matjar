@@ -22,6 +22,9 @@ import { PreorderEditor } from './PreorderEditor';
 import { CategoryPicker } from './CategoryPicker';
 import { SpecificationsEditor, ContentSectionsEditor } from './ContentEditors';
 import { SECTION_KEY_RE, type SpecRow, type ContentSectionRow } from './contentSections';
+import { LinkSlugField } from '../../components/LinkSlugField';
+import { useStorefrontHost } from '../../hooks/useStorefrontHost';
+import { slugifyLink } from '../../lib/storeLink';
 
 // GET /categories — response shape; server wraps in responseObject.data.
 interface CategoriesGetResponse {
@@ -105,6 +108,14 @@ export const ProductForm: React.FC = () => {
     preorder: { enabled: false },
   });
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({});
+  // Product link: derived from the name (new products) or kept as stored
+  // (existing ones — renaming never changes a shared link). The slug is only
+  // sent when the merchant opened "Edit link"; the server normalises it with
+  // the same rule as the preview (utils/slugify.js ↔ lib/storeLink.ts).
+  const [slugEditing, setSlugEditing] = useState(false);
+  const [savedSlug, setSavedSlug] = useState('');
+  const [savedActive, setSavedActive] = useState(false);
+  const storeHost = useStorefrontHost();
   const [tagInput, setTagInput] = useState('');
   // Optional Arabic translations, kept separate from the strictly-typed
   // ProductFormData. Flat here → nested `translations.ar` on submit (the shape
@@ -145,6 +156,8 @@ export const ProductForm: React.FC = () => {
           variants: product.variants || [],
           preorder: product.preorder || { enabled: false },
         });
+        setSavedSlug(product.slug || '');
+        setSavedActive(product.status === 'active');
         // Product type doesn't model translations — read defensively.
         const ar = (product as any).translations?.ar || {};
         setArData({
@@ -177,7 +190,6 @@ export const ProductForm: React.FC = () => {
     if (formData.price <= 0) errors.price = t('products.form.field.regular_price.error.positive');
     if (formData.salePrice && formData.salePrice >= formData.price) errors.salePrice = t('products.form.field.sale_price.error.less_than_price');
     if (!formData.sku.trim()) errors.sku = t('products.form.field.sku.error.required');
-    if (!formData.slug.trim()) errors.slug = t('products.form.field.slug.error.required');
     if (!formData.category) errors.category = t('products.form.field.category.error.required');
     if (formData.stock < 0) errors.stock = t('products.form.field.stock.error.negative');
 
@@ -208,8 +220,11 @@ export const ProductForm: React.FC = () => {
       setSaving(true);
       // Base (English) fields save as before; only the `ar` side is attached.
       // Cast to any because ProductFormData doesn't model translations.
+      const { slug, ...fields } = formData;
       const payload = {
-        ...formData,
+        ...fields,
+        // Omitted unless edited: the server derives it (new) or keeps it (edit).
+        ...(slugEditing && slug.trim() ? { slug } : {}),
         translations: {
           ar: {
             name: arData.name.trim(),
@@ -263,14 +278,16 @@ export const ProductForm: React.FC = () => {
   // union for every single call-site.
   const handleChange = <K extends keyof ProductFormData>(field: K, value: ProductFormData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (field === 'name' && typeof value === 'string' && !isEditMode && !formData.slug) {
-      const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      setFormData(prev => ({ ...prev, [field]: value, slug }));
-    }
     if (formErrors[field]) {
       setFormErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
     }
   };
+
+  // The link shown when not editing: stored (edit) or derived from the name (new).
+  const autoSlug = isEditMode ? savedSlug : slugifyLink(formData.name || arData.name);
+  // Server leaves a 301 from the old URL when a live product's link changes.
+  const editedSlug = slugEditing ? slugifyLink(formData.slug) : '';
+  const willRedirect = isEditMode && savedActive && Boolean(editedSlug) && editedSlug !== savedSlug;
 
   const addTag = () => {
     const tag = tagInput.trim();
@@ -347,6 +364,29 @@ export const ProductForm: React.FC = () => {
                   />
                 </div>
 
+                <LinkSlugField
+                  label={t('products.form.field.slug.label')}
+                  host={storeHost}
+                  pathPrefix="/products/"
+                  autoSlug={autoSlug}
+                  value={formData.slug}
+                  editing={slugEditing}
+                  onEditingChange={(editing) => {
+                    setSlugEditing(editing);
+                    // Start from the link shown; "automatic" drops the edit.
+                    handleChange('slug', editing ? autoSlug : '');
+                  }}
+                  onChange={value => handleChange('slug', value)}
+                  emptyText={t('products.form.field.slug.empty')}
+                  helpText={t(isEditMode ? 'products.form.field.slug.help_edit' : 'products.form.field.slug.help_create')}
+                  editLabel={t('products.form.field.slug.edit')}
+                  resetLabel={isEditMode ? t('common:action.cancel') : t('products.form.field.slug.reset')}
+                  editHelp={t('products.form.field.slug.edit_help')}
+                  placeholder={t('products.form.field.slug.placeholder')}
+                  note={willRedirect ? t('products.form.field.slug.redirect_note') : undefined}
+                  error={formErrors.slug}
+                />
+
                 {/* Optional Arabic short description. The base form has no English
                     short-description field, so this Arabic variant stands alone. */}
                 <div className="space-y-2">
@@ -383,17 +423,10 @@ export const ProductForm: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>{t('products.form.field.sku.label')}</Label>
-                    <Input placeholder={t('products.form.field.sku.placeholder')} value={formData.sku} onChange={e => handleChange('sku', e.target.value)} />
-                    {formErrors.sku && <p className="text-xs text-destructive">{formErrors.sku}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t('products.form.field.slug.label')}</Label>
-                    <Input placeholder={t('products.form.field.slug.placeholder')} value={formData.slug} onChange={e => handleChange('slug', e.target.value)} />
-                    {formErrors.slug && <p className="text-xs text-destructive">{formErrors.slug}</p>}
-                  </div>
+                <div className="space-y-2">
+                  <Label>{t('products.form.field.sku.label')}</Label>
+                  <Input placeholder={t('products.form.field.sku.placeholder')} value={formData.sku} onChange={e => handleChange('sku', e.target.value)} />
+                  {formErrors.sku && <p className="text-xs text-destructive">{formErrors.sku}</p>}
                 </div>
 
                 <div className="space-y-2">

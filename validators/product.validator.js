@@ -4,6 +4,9 @@ import { z } from "zod";
  * Validation schemas for product endpoints
  */
 
+// Raw slug text the client may send (normalised + capped by the service).
+const SLUG_INPUT_MAX_LENGTH = 200;
+
 // Single option axis (Color, Size, …) with its allowed values.
 const optionSchema = z.object({
   name: z.string().min(1, "Option name is required"),
@@ -44,15 +47,12 @@ const variantSchema = z.object({
   preorder: preorderSchema.optional(),
 });
 
-// Slug accepted from the client when explicitly provided; otherwise the
-// service auto-generates it from the name. Strict alphabet so a hostile
-// client cannot inject query operators or path segments.
-const slugSchema = z
-  .string()
-  .min(1)
-  .max(120)
-  .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, digits, and dashes")
-  .optional();
+// Slug accepted from the client when explicitly provided; empty/omitted →
+// the service auto-generates it from the name. Free text is fine ("عطر
+// الورد", "My Perfume"): the service normalises it with utils/slugify.js,
+// whose output is only `[a-z0-9-]`, so neither query operators (a string,
+// never an object) nor path segments can get through.
+const slugSchema = z.string().max(SLUG_INPUT_MAX_LENGTH).optional();
 
 const optionAxisSchema = z.object({
   name: z.string().min(1, "Option name is required"),
