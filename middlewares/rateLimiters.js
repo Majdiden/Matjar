@@ -347,6 +347,20 @@ export const cartLimiter = createRateLimiter({
 // These were on `express-rate-limit` directly before Redis backing was
 // added. Keeping the exported names lets routes keep importing them.
 
+// Public guest order lookup (`GET /storefront/orders/:id`): order numbers
+// are sequential, so failed lookups are capped per visitor IP and store to
+// stop anyone walking #1001, #1002… with a known email. Successful lookups
+// don't count — a customer re-opening their tracking link is never blocked.
+export const ORDER_LOOKUP_MAX_FAILURES = 10;
+export const guestOrderLookupLimiter = createRateLimiter({
+  prefix: "storefront:order-lookup",
+  windowMs: 15 * MINUTE,
+  max: config.isDevelopment ? 200 : ORDER_LOOKUP_MAX_FAILURES,
+  skipSuccessfulRequests: true,
+  keyGenerator: (req) => `${String(req.tenantId || "-")}:${ipKey(req)}`,
+  message: "Too many order lookups. Try again in 15 minutes.",
+});
+
 export const checkoutLimiter = createRateLimiter({
   prefix: "checkout",
   windowMs: 5 * MINUTE,

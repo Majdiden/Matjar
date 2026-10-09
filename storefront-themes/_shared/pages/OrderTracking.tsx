@@ -119,6 +119,8 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
   };
 
   const [order, setOrder] = useState<TrackedOrder | null>(null);
+  // 'limited' when the guest proved only order # + email: no address/notes.
+  const [access, setAccess] = useState<'full' | 'limited'>('full');
   const [loading, setLoading] = useState(true);
   const [needsEmail, setNeedsEmail] = useState(false);
   const [email, setEmail] = useState(searchParams.get('email') || '');
@@ -162,6 +164,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
         const fetched = res?.data?.order || res?.responseObject?.order;
         if (fetched) {
           setOrder(fetched);
+          setAccess(res?.data?.access === 'limited' ? 'limited' : 'full');
           setNeedsEmail(false);
         } else {
           setError(t('order.tracking.not_found_title'));
@@ -499,6 +502,10 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                 })}
               </div>
             </div>
+          )}
+
+          {!order.shippingAddress && access === 'limited' && (
+            <p className="text-sm text-gray-600">{t('order.tracking.limited_details')}</p>
           )}
 
           {order.shippingAddress && (

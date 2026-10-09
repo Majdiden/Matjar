@@ -870,6 +870,11 @@ export const api = {
     clearStatus: (tenantId: string, token: string) =>
       api.delete(`/store-setup/status/${tenantId}?token=${encodeURIComponent(token)}`),
 
+    // First dashboard session after signup: exchanges the one-time setup
+    // token (single use, short lived) for a login-shaped responseObject.
+    session: (tenantId: string, setupToken: string) =>
+      api.post('/store-setup/session', { tenantId, setupToken }),
+
     // Draft-starter status + owner preview URL (for the publish banner).
     starter: () =>
       api.get<{ responseObject?: { hasDraftStarter?: boolean; previewUrl?: string; themeSelected?: boolean; counts?: { products: number; collections: number; pages: number } } }>(

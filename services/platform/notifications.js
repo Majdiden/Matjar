@@ -78,9 +78,11 @@ export async function notifyPlatform(eventKey, message, { sendEmailFn = sendEmai
     const html = `<p><strong>${escapeHtml(def.label)}</strong></p>${lines.map((l) => `<p>${escapeHtml(l)}</p>`).join("")}<p><a href="${escapeHtml(link)}">Open the console</a></p><p style="color:#666;font-size:12px">${def.alwaysRoles?.length ? "You receive this because of your platform role." : "You receive this because a platform owner subscribed you to this alert."}</p>`;
 
     const results = await Promise.allSettled(
-      recipients.map((r) => sendEmailFn({ to: r.email, subject, text, html, tags: ["platform-alert", eventKey] }))
+      recipients.map((r) => sendEmailFn({ to: r.email, subject, text, html, tags: { category: "platform-alert", event: eventKey } }))
     );
-    const sent = results.filter((r) => r.status === "fulfilled").length;
+    // sendEmail reports provider failures in its return envelope instead of
+    // throwing, so a fulfilled promise is not proof of delivery.
+    const sent = results.filter((r) => r.status === "fulfilled" && r.value?.success !== false).length;
     const failed = results.length - sent;
     if (failed) logger.warn("notifyPlatform: some alert emails failed", { eventKey, sent, failed });
     return { sent, failed };

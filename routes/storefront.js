@@ -10,7 +10,7 @@ import {
 } from "../utils/misc.js";
 import { priceCheckout } from "../services/checkout.js";
 import { lookupByCode as lookupGiftCardByCode, redeemGiftCard } from "../services/giftCard.js";
-import { checkoutLimiter, storefrontApiLimiter } from "../middlewares/rateLimiters.js";
+import { checkoutLimiter, guestOrderLookupLimiter, storefrontApiLimiter } from "../middlewares/rateLimiters.js";
 import config from "../config/index.js";
 import logger from "../utils/logger.js";
 import { tenantPopulate } from "../utils/scopedModel.js";
@@ -951,15 +951,19 @@ router.post(
 /**
  * @route   GET /storefront/orders/:id
  * @desc    Public order lookup for the customer-facing tracking page.
- *          Logged-in customers can view any of their own orders. Guests
- *          can present the order email; newer confirmation links also
- *          include a signed per-order access token (`?token=<hmac>`).
- *          If a token is supplied it must be valid, but exact email +
- *          order id remains supported so older/plain tracking links work.
- * @access  Public (owner cookie/JWT OR matching guest email/token)
+ *          FULL view (incl. shipping address): the signed-in owner, or a
+ *          guest with the signed per-order access token from the
+ *          confirmation link (`?token=<hmac>`). LIMITED view (status,
+ *          items, totals, tracking — no address, no staff notes): a guest
+ *          who knows the order number/id AND the checkout email, which is
+ *          what the "track my order" form has. A supplied token must be
+ *          valid. Failed lookups are rate-limited (guestOrderLookupLimiter)
+ *          because order numbers are sequential.
+ * @access  Public (owner cookie/JWT OR guest token OR order # + email)
  */
 router.get(
   "/orders/:id",
+  guestOrderLookupLimiter,
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { email, token } = req.query;
@@ -1039,7 +1043,15 @@ router.get(
         token: String(token),
       });
 
+    // A token that was supplied but doesn't verify is a forged or
+    // tampered link — reject it even if the email happens to match.
+    if (!isOwner && hasToken && !tokenValid) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
     const isGuestAuthorized = emailMatches || tokenValid;
+    // Only the owner or a signed link sees personal details; order # +
+    // email (guessable: numbers are sequential) gets the limited view.
+    const fullAccess = Boolean(isOwner || tokenValid);
 
     if (!isOwner && !isGuestAuthorized) {
       // Don't leak whether the order exists — same shape as a 404.
@@ -1053,7 +1065,7 @@ router.get(
       event: h.event,
       status: h.status,
       previousStatus: h.previousStatus,
-      note: h.note,
+      ...(fullAccess ? { note: h.note } : {}),
       at: h.at,
     }));
 
@@ -1090,7 +1102,7 @@ router.get(
           tax: order.tax,
           discount: order.discount,
           totalAmount: order.totalAmount,
-          shippingAddress: order.shippingAddress,
+          ...(fullAccess ? { shippingAddress: order.shippingAddress } : {}),
           trackingNumber: order.trackingNumber,
           trackingCarrier: order.trackingCarrier,
           fulfillments: safeFulfillments,
@@ -1098,6 +1110,7 @@ router.get(
           createdAt: order.createdAt,
           updatedAt: order.updatedAt,
         },
+        access: fullAccess ? "full" : "limited",
       },
     });
   })

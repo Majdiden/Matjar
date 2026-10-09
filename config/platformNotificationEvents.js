@@ -16,8 +16,9 @@ export const PLATFORM_NOTIFICATION_EVENTS = Object.freeze([
   {
     key: "tenant.signup",
     label: "New store signup",
-    description: "A merchant registered a new store.",
+    description: "A merchant opened a new store. Owners always receive this.",
     throttleMs: 0,
+    alwaysRoles: ["owner"],
   },
   {
     key: "system.request_error",

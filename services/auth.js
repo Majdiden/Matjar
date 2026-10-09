@@ -92,6 +92,28 @@ const toStoreSummary = (t) => ({
     t.slug,
 });
 
+/**
+ * Record a merchant sign-in: the user's own `lastLoginAt` (shown per staff
+ * member in the platform console) and the store's `lastLoginAt/By` (store
+ * list + detail). Called wherever a merchant dashboard session is issued —
+ * password, passkey, store switch, post-signup exchange — never for
+ * platform impersonation. Best effort: a failed write never blocks login.
+ */
+const recordMerchantLogin = async (models, user, tenantId) => {
+  const at = new Date();
+  try {
+    await Promise.all([
+      models.User.updateOne({ _id: user._id }, { $set: { lastLoginAt: at } }),
+      mongoose.model("Tenant").updateOne(
+        { _id: tenantId },
+        { $set: { lastLoginAt: at, lastLoginBy: user.email || null } }
+      ),
+    ]);
+  } catch (err) {
+    logger.warn("recordMerchantLogin failed", { tenantId: String(tenantId), error: err.message });
+  }
+};
+
 const loginService = async (models, email, password, tenantId) => {
   const user = await getAUserRepo(
     models,
@@ -133,6 +155,7 @@ const loginService = async (models, email, password, tenantId) => {
     family,
     expiresAt: refreshExpiresAt(),
   });
+  await recordMerchantLogin(models, user, tenantId);
 
   return {
     success: true,
@@ -178,6 +201,7 @@ const issueAuthSession = async (models, user, tenantId) => {
     family,
     expiresAt: refreshExpiresAt(),
   });
+  await recordMerchantLogin(models, user, tenantId);
 
   return {
     accessToken,

@@ -19,6 +19,7 @@ import { startTestDb, stopTestDb, clearAllCollections } from "../helpers/db.js";
 import { buildTestApp } from "../helpers/app.js";
 import { createScopedModels } from "../../utils/scopedModel.js";
 import { signOrderAccessToken } from "../../utils/misc.js";
+import { ORDER_LOOKUP_MAX_FAILURES } from "../../middlewares/rateLimiters.js";
 
 const HOST = "acme.localhost";
 
@@ -126,7 +127,7 @@ describe("E2E role boundaries", () => {
 
   // ── 2. Guest order tracking requires signed token ─────────────────
 
-  it("GET /storefront/orders/:id rejects guest access with email only", async () => {
+  it("GET /storefront/orders/:id: email only gets the limited view, a token the full one", async () => {
     const tenantId = await provisionTenant(app);
     const models = createScopedModels(mongoose.connection, tenantId);
     // Seed a guest order directly.
@@ -137,21 +138,32 @@ describe("E2E role boundaries", () => {
       status: "Pending",
       guestCustomer: { email: "guest@buyer.test" },
       shippingAddress: { addressLine1: "1 St", city: "X", postalCode: "0", country: "US" },
+      history: [{ event: "note_added", note: "Customer lives behind the mosque", at: new Date() }],
     });
 
-    // Email-only (old behavior) must now be rejected.
+    // No credentials, or the wrong email → 404 (same as a missing order).
+    await request(app).get(`/storefront/orders/${order._id}`).set("Host", HOST).expect(404);
+    await request(app).get(`/storefront/orders/${order._id}?email=other@buyer.test`).set("Host", HOST).expect(404);
+
+    // Order id/number + email (the "track my order" form) → LIMITED view:
+    // status and totals, but no address and no staff notes. Order numbers
+    // are sequential, so this must never expose personal details.
     const r1 = await request(app)
       .get(`/storefront/orders/${order._id}?email=guest@buyer.test`)
-      .set("Host", HOST);
-    assert.equal(r1.status, 404, "Email without token must 404");
+      .set("Host", HOST)
+      .expect(200);
+    assert.equal(r1.body.data.access, "limited");
+    assert.equal(r1.body.data.order.shippingAddress, undefined, "limited view must not expose the address");
+    assert.ok(r1.body.data.order.history.every((h) => h.note === undefined), "limited view must not expose notes");
+    assert.equal(r1.body.data.order.totalAmount, 10);
 
-    // Wrong token must also be rejected.
+    // A supplied token must be valid — even when the email matches.
     const r2 = await request(app)
       .get(`/storefront/orders/${order._id}?email=guest@buyer.test&token=deadbeef`)
       .set("Host", HOST);
     assert.equal(r2.status, 404, "Wrong token must 404");
 
-    // Valid token succeeds.
+    // Valid signed link → FULL view.
     const token = signOrderAccessToken({
       tenantId,
       orderId: order._id,
@@ -161,7 +173,21 @@ describe("E2E role boundaries", () => {
       .get(`/storefront/orders/${order._id}?email=guest@buyer.test&token=${token}`)
       .set("Host", HOST)
       .expect(200);
+    assert.equal(r3.body.data.access, "full");
+    assert.equal(r3.body.data.order.shippingAddress.addressLine1, "1 St");
+    assert.equal(r3.body.data.order.history[0].note, "Customer lives behind the mosque");
     assert.equal(r3.body.data.order.orderNumber ?? null, order.orderNumber ?? null);
+  });
+
+  it("caps failed guest order lookups per visitor (order numbers are guessable)", async () => {
+    await provisionTenant(app);
+    const statuses = [];
+    for (let i = 0; i < ORDER_LOOKUP_MAX_FAILURES + 2; i++) {
+      const r = await request(app).get(`/storefront/orders/${1001 + i}?email=victim@buyer.test`).set("Host", HOST);
+      statuses.push(r.status);
+    }
+    assert.ok(statuses.slice(0, ORDER_LOOKUP_MAX_FAILURES).every((s) => s === 404));
+    assert.equal(statuses.at(-1), 429, `expected 429 after ${ORDER_LOOKUP_MAX_FAILURES} failures, got ${statuses}`);
   });
 
   it("guest token from Order A does not unlock Order B", async () => {
