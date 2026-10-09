@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Misk tokens ───────────────────────────────────────────────────
+   The customizer feeds --color-* / --font-* through ThemeProvider; the
+   defaults here mirror the manifest so the page never flashes unstyled.
+
+   ARABIC FIRST: the :root scale below IS the Arabic scale. Amiri and
+   Tajawal sit optically smaller than Latin faces at the same px and
+   need more leading, so the Latin branch (html[lang='en']) SUBTRACTS
+   from this base rather than the other way round. */
+:root {
+  --misk-gold: #a87333;
+  --misk-gold-ink: #8a5c25;
+  --misk-sand: #f4efe7;
+  --misk-midnight: #191528;
+  --misk-grove: #33361f;
+  --misk-sale: #c2281f;
+  --misk-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --misk-marquee-duration: 34s;
+
+  --fs-base: 1.0625rem; --lh-base: 1.95rem;
+  --fs-lg: 1.1875rem;   --lh-lg: 2.1rem;
+  --fs-sm: 0.9375rem;   --lh-sm: 1.6rem;
+  --fs-xs: 0.8125rem;   --lh-xs: 1.25rem;
+  --misk-track: 0;      /* eyebrow/button tracking — none for naskh */
+}
+
+html[lang='en'] {
+  --fs-base: 1rem;     --lh-base: 1.7rem;
+  --fs-lg: 1.125rem;   --lh-lg: 1.8rem;
+  --fs-sm: 0.875rem;   --lh-sm: 1.4rem;
+  --fs-xs: 0.75rem;    --lh-xs: 1.1rem;
+  --misk-track: 0.16em;
+}
+
+/* Font branches. Arabic keeps Amiri/Tajawal even when the merchant picks a
+   Latin family in the customizer, because a Latin family cannot render
+   Arabic — the customizer choice still applies to the Latin branch. */
+html[lang='ar'] body { font-family: 'Tajawal', var(--font-family), system-ui, sans-serif; }
+html[lang='ar'] .font-display { font-family: 'Amiri', var(--font-family-heading), Georgia, serif; }
+html[lang='en'] body { font-family: var(--font-family), 'Jost', system-ui, sans-serif; }
+html[lang='en'] .font-display { font-family: var(--font-family-heading), 'Cormorant Garamond', Georgia, serif; }
+
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+:focus-visible { outline: 2px solid var(--misk-gold-ink, #8a5c25); outline-offset: 3px; }
+/* Text fields signal focus with their border alone (outline + border read as a double ring). */
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; border-color: var(--misk-gold-ink, #8a5c25); }
+/* Prices and counters never reflow as digits change. */
+.misk-num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
+
+/* ── Eyebrow ──────────────────────────────────────────────────────
+   Weight + colour carry the eyebrow. Uppercase/tracking apply only to
+   Latin — Arabic has no case, and tracking breaks naskh joins. */
+.misk-eyebrow { font-size: var(--fs-xs, 0.8125rem); font-weight: 700; letter-spacing: var(--misk-track, 0); }
+html[lang='en'] .misk-eyebrow { text-transform: uppercase; }
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.misk-btn { @apply inline-flex min-h-[48px] items-center justify-center gap-2 whitespace-nowrap rounded-full px-8 py-3.5 text-center text-sm font-bold transition-colors duration-300 disabled:cursor-not-allowed; letter-spacing: var(--misk-track, 0); }
+html[lang='en'] .misk-btn { text-transform: uppercase; }
+.misk-btn-solid   { @apply bg-ink text-white hover:bg-gold-ink disabled:bg-line disabled:text-muted; }
+.misk-btn-light   { @apply bg-white text-ink hover:bg-sand disabled:bg-line disabled:text-muted; }
+.misk-btn-gold    { @apply bg-gold-ink text-white hover:bg-ink disabled:bg-line disabled:text-muted; }
+.misk-btn-outline { @apply border border-ink bg-transparent text-ink hover:bg-ink hover:text-white disabled:border-line disabled:text-muted; }
+/* On the dark bands the outline button needs its own light pair. */
+.misk-btn-outline-light { @apply border border-white/70 bg-transparent text-white hover:bg-white hover:text-ink; }
+
+/* ── Section rhythm (customizer value from md; 40px on phones) ────── */
+.misk-section { padding-top: min(var(--misk-pt, 72px), 40px); padding-bottom: min(var(--misk-pb, 72px), 40px); }
+@media (min-width: 768px) { .misk-section { padding-top: var(--misk-pt, 72px); padding-bottom: var(--misk-pb, 72px); } }
+
+/* ── Scroll-snap rails (phones) ──────────────────────────────────── */
+.misk-rail { scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-padding-inline: 1rem; }
+.misk-rail::-webkit-scrollbar { display: none; }
+@media (max-width: 767px) {
+  .misk-rail { mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+  html[dir='rtl'] .misk-rail { mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); }
+}
+
+/* ── Reveal on scroll ────────────────────────────────────────────── */
+.misk-reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.9s var(--misk-ease), transform 0.9s var(--misk-ease); }
+.misk-reveal.is-in { opacity: 1; transform: none; }
+.misk-reveal[data-delay='1'] { transition-delay: 110ms; }
+.misk-reveal[data-delay='2'] { transition-delay: 220ms; }
+.misk-reveal[data-delay='3'] { transition-delay: 330ms; }
+.misk-reveal[data-delay='4'] { transition-delay: 440ms; }
+
+/* ── Hero ────────────────────────────────────────────────────────── */
+@keyframes misk-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.misk-progress { transform-origin: 0 50%; animation: misk-progress var(--misk-hero-duration, 5s) linear forwards; }
+html[dir='rtl'] .misk-progress { transform-origin: 100% 50%; }
+@keyframes misk-caption { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+.misk-caption > * { animation: misk-caption 0.85s var(--misk-ease) both; }
+.misk-caption > *:nth-child(2) { animation-delay: 110ms; }
+.misk-caption > *:nth-child(3) { animation-delay: 220ms; }
+.misk-caption > *:nth-child(4) { animation-delay: 330ms; }
+/* Slow zoom on the active hero frame. */
+@keyframes misk-kenburns { from { transform: scale(1); } to { transform: scale(1.07); } }
+.misk-kenburns { animation: misk-kenburns 9s var(--misk-ease) both; }
+
+/* ── Marquee ─────────────────────────────────────────────────────── */
+@keyframes misk-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.misk-marquee-track { display: flex; width: max-content; animation: misk-marquee var(--misk-marquee-duration) linear infinite; }
+html[dir='rtl'] .misk-marquee-track { animation-direction: reverse; }
+.misk-marquee:hover .misk-marquee-track { animation-play-state: paused; }
+
+/* ── Sale ribbon (corner banner) ─────────────────────────────────
+   Anchored to the INLINE-START corner so it never sits under the
+   wishlist / quick-view rail, which lives at inline-end and is always
+   visible on touch.
+
+   RTL mirrors the whole wedge with scaleX(-1) rather than re-deriving
+   the angle and offsets by hand — the geometry is then provably the
+   same on both sides — and the label un-mirrors itself so the glyphs
+   still read normally. */
+.misk-ribbon { position: absolute; top: 0; left: 0; width: 96px; height: 96px; overflow: hidden; pointer-events: none; z-index: 2; }
+.misk-ribbon span { position: absolute; top: 20px; left: -36px; display: block; width: 150px; padding: 5px 0; text-align: center; font-size: 0.75rem; font-weight: 700; color: #fff; background: var(--misk-sale, #c2281f); transform: rotate(-45deg); }
+html[dir='rtl'] .misk-ribbon { left: auto; right: 0; transform: scaleX(-1); }
+html[dir='rtl'] .misk-ribbon b { display: block; transform: scaleX(-1); }
+
+/* ── Product card ────────────────────────────────────────────────── */
+.misk-card-bar { transform: translateY(100%); transition: transform 320ms var(--misk-ease); }
+.group:hover .misk-card-bar, .group:focus-within .misk-card-bar { transform: translateY(0); }
+@media (hover: none) { .misk-card-bar { transform: translateY(0); } }
+/* The action rail keeps a 44px target on roomy cards and shrinks on the
+   narrow 2-up phone grid so it never dominates the product image. */
+.misk-card-media { container-type: inline-size; container-name: miskcard; }
+.misk-card-action { width: 2.75rem; height: 2.75rem; }
+.misk-card-icon { width: 1rem; height: 1rem; }
+@container miskcard (max-width: 220px) {
+  .misk-card-actions { inset-inline-end: 0.5rem; top: 0.5rem; gap: 0.375rem; }
+  .misk-card-action { width: 2.25rem; height: 2.25rem; }
+  .misk-card-icon { width: 0.875rem; height: 0.875rem; }
+  .misk-ribbon { width: 72px; height: 72px; }
+  .misk-ribbon span { width: 110px; top: 14px; left: -28px; font-size: 0.6875rem; }
+}
+@supports not (container-type: inline-size) {
+  @media (max-width: 639px) { .misk-card-action { width: 2.25rem; height: 2.25rem; } }
+}
+
+/* ── Collection / note tiles ─────────────────────────────────────── */
+.misk-zoom img { transition: transform 700ms var(--misk-ease); }
+.group:hover .misk-zoom img { transform: scale(1.06); }
+
+/* ── Drawers ─────────────────────────────────────────────────────── */
+.misk-drawer { transition: transform 320ms var(--misk-ease), opacity 320ms; }
+.misk-scroll { scrollbar-width: thin; scrollbar-color: var(--color-border, #e6dfd4) transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  .misk-reveal { opacity: 1; transform: none; transition: none; }
+  .misk-marquee-track { animation: none; }
+  .misk-progress, .misk-caption > *, .misk-kenburns { animation: none; }
+  .misk-card-bar { transform: translateY(0); transition: none; }
+  .misk-zoom img { transition: none; }
+  .group:hover .misk-zoom img { transform: none; }
+  * { scroll-behavior: auto !important; }
+}
+
+/* ── Floating bottom nav clearance ───────────────────────────────
+   The shared MobileBottomNav is a fixed pill and reserves no body space,
+   so the footer carries the clearance itself. It hides automatically
+   while any overlay is open (it watches for aria-modal / scroll lock),
+   which is why every drawer and dialog in this theme declares both. */
+@media (max-width: 767px) {
+  .misk-footer { padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ── Horizontal rail on phones (72vw cards, snap to start) ───────────
+   Scoped to phones on purpose. These rules live AFTER `@tailwind
+   utilities`, so an unscoped `display: flex` here outranks the
+   `md:grid` utility on the same element and the desktop grid never
+   applies. The media query keeps the cascade honest. */
+@media (max-width: 767px) {
+  .misk-snap { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; padding-inline: 16px; margin-inline: -16px; }
+  .misk-snap > * { flex: 0 0 72vw; max-width: 320px; scroll-snap-align: start; }
+  /* Note/chip rails show three at a time rather than one giant tile. */
+  .misk-snap-3 > * { flex: 0 0 30%; min-width: 104px; max-width: none; }
+}

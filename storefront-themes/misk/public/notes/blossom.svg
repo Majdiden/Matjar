@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Orange blossom">
+  <g fill="#FFFDF6" stroke="#EADFC6" stroke-width="2">
+    <ellipse cx="60" cy="32" rx="17" ry="22"/><ellipse cx="88" cy="52" rx="17" ry="22" transform="rotate(72 88 52)"/>
+    <ellipse cx="77" cy="86" rx="17" ry="22" transform="rotate(144 77 86)"/><ellipse cx="43" cy="86" rx="17" ry="22" transform="rotate(216 43 86)"/>
+    <ellipse cx="32" cy="52" rx="17" ry="22" transform="rotate(288 32 52)"/>
+  </g>
+  <circle cx="60" cy="60" r="13" fill="#E8C877"/>
+  <g fill="#D4A84E"><circle cx="55" cy="56" r="2.5"/><circle cx="64" cy="55" r="2.5"/><circle cx="60" cy="64" r="2.5"/></g>
+</svg>

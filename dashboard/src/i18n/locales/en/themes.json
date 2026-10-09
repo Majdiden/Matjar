@@ -808,6 +808,54 @@
     "atelier-stories": {
       "name": "Stories",
       "description": "Carousel of editorial cards"
+    },
+    "misk-hero": {
+      "name": "Hero Slideshow",
+      "description": "Full-bleed band with a framed image beside a caption; slides crossfade with a synced progress bar"
+    },
+    "misk-notes": {
+      "name": "Shop By Notes",
+      "description": "A row of fragrance-note tiles that link to categories; becomes a swipeable rail on phones"
+    },
+    "misk-scent-cards": {
+      "name": "Collection Cards",
+      "description": "An intro block beside image cards with centred pill labels"
+    },
+    "misk-concept": {
+      "name": "Concept Collage",
+      "description": "A coloured band with a story block beside an asymmetric image collage"
+    },
+    "misk-product-grid": {
+      "name": "Product Grid",
+      "description": "A grid of products from a chosen source, with an optional underline rule beneath the heading"
+    },
+    "misk-countdown": {
+      "name": "Countdown Banner",
+      "description": "A full-bleed banner with a countdown to a date you set. Hidden until a date is set."
+    },
+    "misk-usp-strip": {
+      "name": "Promise Strip",
+      "description": "A strip of icon promises — delivery, returns, payment, support"
+    },
+    "misk-split-banner": {
+      "name": "Split Banner",
+      "description": "An image beside a block of text with a call to action"
+    },
+    "misk-category-tiles": {
+      "name": "Category Tiles",
+      "description": "A grid of category image tiles with a slow zoom on hover"
+    },
+    "misk-testimonials": {
+      "name": "Testimonials",
+      "description": "Customer quotes in a swipeable carousel"
+    },
+    "misk-stories": {
+      "name": "Stories",
+      "description": "A carousel of editorial cards linking to your pages"
+    },
+    "misk-marquee": {
+      "name": "Ticker",
+      "description": "A continuously scrolling strip of short messages"
     }
   },
   "settings": {
@@ -1464,6 +1512,171 @@
     },
     "shipping_note": {
       "label": "Shipping note"
+    },
+    "show_utility_bar": {
+      "label": "Show Utility Bar"
+    },
+    "utility_phone": {
+      "label": "Utility Bar Phone"
+    },
+    "utility_email": {
+      "label": "Utility Bar Email"
+    },
+    "utility_show_social": {
+      "label": "Show Social Links In Utility Bar"
+    },
+    "utility_show_language": {
+      "label": "Show Language Switcher In Utility Bar"
+    },
+    "utility_background": {
+      "label": "Utility Bar Background"
+    },
+    "announcement_interval": {
+      "label": "Announcement Rotation"
+    },
+    "announcement_background": {
+      "label": "Announcement Background"
+    },
+    "announcement_color": {
+      "label": "Announcement Text Colour"
+    },
+    "header_layout": {
+      "label": "Header Layout"
+    },
+    "show_wishlist_icon": {
+      "label": "Show Wishlist Icon"
+    },
+    "show_account_icon": {
+      "label": "Show Account Icon"
+    },
+    "mega_show_promo": {
+      "label": "Show Promo Panel In Mega Menu"
+    },
+    "collection_banner_height": {
+      "label": "Collection Banner Height"
+    },
+    "collection_show_chips": {
+      "label": "Show Category Chips On Collection Banner"
+    },
+    "mobile_columns": {
+      "label": "Collection Columns On Phones"
+    },
+    "show_grid_toggle": {
+      "label": "Show Grid / List Toggle"
+    },
+    "card_show_ribbon": {
+      "label": "Show Sale Ribbon On Cards"
+    },
+    "card_text_align": {
+      "label": "Card Text Alignment"
+    },
+    "card_show_quick_add": {
+      "label": "Show Quick Add Bar On Hover"
+    },
+    "card_second_image": {
+      "label": "Swap To Second Image On Hover"
+    },
+    "show_save_badge": {
+      "label": "Show \"Save %\" Badge"
+    },
+    "show_buy_now": {
+      "label": "Show Buy-Now Button"
+    },
+    "show_delivery_note": {
+      "label": "Show Delivery / Returns Notes"
+    },
+    "delivery_note": {
+      "label": "Delivery Note"
+    },
+    "returns_note": {
+      "label": "Returns Note"
+    },
+    "show_related": {
+      "label": "Show Related Products"
+    },
+    "show_recently_viewed": {
+      "label": "Show Recently Viewed"
+    },
+    "footer_show_contact": {
+      "label": "Show Footer Contact Column"
+    },
+    "footer_show_menu": {
+      "label": "Show Footer Menu Column"
+    },
+    "footer_show_social": {
+      "label": "Show Footer Social Links"
+    },
+    "footer_show_payment": {
+      "label": "Show Payment Badges"
+    },
+    "footer_background": {
+      "label": "Footer Background"
+    },
+    "show_whatsapp_block": {
+      "label": "Show WhatsApp Block"
+    },
+    "whatsapp_number": {
+      "label": "WhatsApp Number (international format)"
+    },
+    "whatsapp_heading": {
+      "label": "WhatsApp Heading"
+    },
+    "whatsapp_text": {
+      "label": "WhatsApp Text"
+    },
+    "show_floating_whatsapp": {
+      "label": "Show Floating WhatsApp Button"
+    },
+    "band_color": {
+      "label": "Band Colour"
+    },
+    "show_progress": {
+      "label": "Show Progress Bar"
+    },
+    "zoom_effect": {
+      "label": "Slow Zoom On Image"
+    },
+    "image_radius": {
+      "label": "Image Corner Radius"
+    },
+    "max_items": {
+      "label": "Maximum Tiles"
+    },
+    "image_shape": {
+      "label": "Tile Shape"
+    },
+    "card_radius": {
+      "label": "Card Corner Radius"
+    },
+    "aspect": {
+      "label": "Card Shape"
+    },
+    "image_main": {
+      "label": "Tall Image"
+    },
+    "image_5": {
+      "label": "Image 5"
+    },
+    "show_rule": {
+      "label": "Show Rule Under Heading"
+    },
+    "collection": {
+      "label": "Collection (overrides source)"
+    },
+    "mobile_layout": {
+      "label": "Layout On Phones"
+    },
+    "end_at": {
+      "label": "Countdown Ends"
+    },
+    "repeat_daily": {
+      "label": "Repeat Daily"
+    },
+    "hide_when_expired": {
+      "label": "Hide When Finished"
+    },
+    "separator": {
+      "label": "Separator"
     }
   },
   "blocks": {
@@ -1541,6 +1754,9 @@
     },
     "hotspot": {
       "name": "Hotspot"
+    },
+    "note": {
+      "name": "Note"
     }
   },
   "options": {
@@ -1625,6 +1841,47 @@
     "image_swatches": "Image swatches",
     "colour_swatches": "Colour swatches",
     "tabs": "Tabs",
-    "accordion": "Accordion"
+    "accordion": "Accordion",
+    "logo_start": "Logo at start, menu centred",
+    "logo_center": "Logo centred, menu at start",
+    "top": "Bar above the grid",
+    "drawer": "Drawer",
+    "1": "1",
+    "2": "2",
+    "5": "5",
+    "6": "6",
+    "8": "8",
+    "load-more": "Load more button",
+    "numbered": "Numbered pages",
+    "thumbs-below": "Thumbnails below",
+    "thumbs-start": "Thumbnails at start",
+    "stacked": "Stacked images (sticky info)",
+    "slider-dots": "Slider with dots",
+    "color-swatch": "Colour swatches",
+    "image_start": "Image at start",
+    "image_end": "Image at end",
+    "medium": "Medium",
+    "tall": "Tall",
+    "full": "Full screen",
+    "blocks": "The blocks below",
+    "categories": "Store categories",
+    "free": "Cut-out (no frame)",
+    "circle": "Circle",
+    "rounded": "Rounded square",
+    "text_start": "Text at start",
+    "text_end": "Text at end",
+    "text_above": "Text above",
+    "square": "Square",
+    "portrait": "Portrait",
+    "landscape": "Landscape",
+    "sale": "On sale",
+    "grid-2": "2-column grid",
+    "grid-1": "1-column grid",
+    "rail": "Swipeable rail",
+    "gift": "Gift",
+    "diamond": "Diamond",
+    "dot": "Dot",
+    "slash": "Slash",
+    "none": "None"
   }
 }

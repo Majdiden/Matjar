@@ -49,6 +49,7 @@ const STORES = [
   { theme: "nutreko",   subdomain: "supplements", en: "Nutreko Supplements",  ar: "نوتريكو للمكملات" },
   { theme: "sportzone", subdomain: "sports",      en: "SportZone",            ar: "سبورت زون للرياضة" },
   { theme: "milmaa",    subdomain: "beverages",   en: "Milmaa Beverages",     ar: "ملماء للمشروبات" },
+  { theme: "misk",      subdomain: "perfume",     en: "Misk Perfumes",        ar: "مسك للعطور" },
   { theme: "starter",   subdomain: "shop",        en: "Matjar Demo Shop",     ar: "متجر — متجر تجريبي" },
 ];
 

@@ -1,0 +1,318 @@
+{
+  "theme": {
+    "nav": {
+      "skip": "Skip to content",
+      "menu": "Menu",
+      "close_menu": "Close menu",
+      "back": "Back",
+      "home": "Home",
+      "all_products": "All fragrances",
+      "browse": "Browse",
+      "view_all_in": "View all in {{name}}",
+      "wishlist": "Wishlist",
+      "cart": "Cart",
+      "account": "Account",
+      "contact": "Contact",
+      "language": "Language"
+    },
+    "utility": {
+      "call_us": "Call us",
+      "email_us": "Email us"
+    },
+    "announcement": {
+      "1": "Free delivery in Khartoum on orders over 50,000 SDG",
+      "2": "A free sample with every order",
+      "3": "Cash on delivery available in every state"
+    },
+    "search": {
+      "title": "Search",
+      "placeholder": "Which scent are you after?",
+      "submit": "Search",
+      "close": "Close search",
+      "popular": "Most searched",
+      "searching": "Searching…",
+      "none": "No results for “{{term}}”.",
+      "see_all": "See all results ({{count}})",
+      "hint": "Type at least three letters to see suggestions.",
+      "popular_defaults": "Musk, Oud, Rose, Amber, Saffron"
+    },
+    "mega": {
+      "eyebrow": "This season's release",
+      "title": "The Night Musk collection",
+      "cta": "Explore the collection"
+    },
+    "hero": {
+      "eyebrow": "A scent with a story",
+      "heading_1": "A rich scent that holds the room",
+      "sub_1": "It opens on soft black cherry, carried by rare saffron, and settles into a warm musk base.",
+      "heading_2": "From the heart of the East, to your skin",
+      "sub_2": "Aged oud and Taif rose in one blend — mixed in small batches and bottled by hand.",
+      "heading_3": "Light by day, deep by evening",
+      "sub_3": "A blend that shifts with the hours: citrus in the morning, resinous once the night settles.",
+      "cta": "Shop now",
+      "slide_label": "Slide {{current}} of {{total}}",
+      "prev": "Previous slide",
+      "next": "Next slide"
+    },
+    "notes": {
+      "heading": "Shop by note",
+      "sub": "Pick the fragrance family that sounds like you, and we'll suggest what fits it.",
+      "items": {
+        "1": "Fresh",
+        "2": "Rose",
+        "3": "Warm & spicy",
+        "4": "Orange blossom",
+        "5": "Lavender",
+        "6": "Woody",
+        "7": "Vanilla",
+        "8": "Floral"
+      }
+    },
+    "scent_cards": {
+      "eyebrow": "Collections",
+      "heading": "Every note",
+      "sub": "Explore our nature-led collection.",
+      "cta": "Discover now",
+      "items": {
+        "1": "Natural extracts",
+        "2": "Fresh rose",
+        "3": "Mixed notes"
+      }
+    },
+    "concept": {
+      "eyebrow": "The concept",
+      "heading": "The scent we make",
+      "body": "We start at the raw material: aged oud, rose picked at dawn, and musk left to settle for weeks before it is blended. We don't rush the formula, and we only make small batches — because a scent that lasts a full day on skin is never made in a hurry.",
+      "cta": "Our story"
+    },
+    "product_grid": {
+      "heading": "Flash sale",
+      "sub": "Selected pieces at this week's prices.",
+      "eyebrow": "For a limited time",
+      "view_all": "View all",
+      "empty": "There are no products to show here yet."
+    },
+    "countdown": {
+      "eyebrow": "Best deals of the week",
+      "heading": "Time is running out — take it before it's gone",
+      "cta": "Shop now",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Mins",
+      "seconds": "Secs",
+      "ended": "This offer has ended"
+    },
+    "usp": {
+      "items": {
+        "1": {
+          "title": "Fast delivery",
+          "text": "Within 24–72 hours inside your state."
+        },
+        "2": {
+          "title": "Easy returns",
+          "text": "Seven days to swap what doesn't suit you."
+        },
+        "3": {
+          "title": "Cash on delivery",
+          "text": "Pay when the order reaches your hands."
+        },
+        "4": {
+          "title": "We'll help you choose",
+          "text": "Message us on WhatsApp for a recommendation."
+        }
+      }
+    },
+    "split": {
+      "eyebrow": "Gifting",
+      "heading": "A scent that gets remembered",
+      "sub": "Free gift wrapping, with a card you write yourself.",
+      "cta": "Shop gifts"
+    },
+    "categories": {
+      "eyebrow": "Browse",
+      "heading": "Categories",
+      "sub": "Start from the section that suits you.",
+      "count_one": "{{count}} product",
+      "count_other": "{{count}} products"
+    },
+    "testimonials": {
+      "eyebrow": "Reviews",
+      "heading": "What people tell us",
+      "items": {
+        "1": {
+          "quote": "It lasted far longer than I expected — morning to evening, and never heavy.",
+          "name": "Rahaf",
+          "role": "Khartoum"
+        },
+        "2": {
+          "quote": "Ordered Sunday, arrived Tuesday, and the packaging was genuinely elegant.",
+          "name": "Mu'tasim",
+          "role": "Wad Madani"
+        },
+        "3": {
+          "quote": "They helped me on WhatsApp pick a note that holds in the heat. Good call.",
+          "name": "Salma",
+          "role": "Port Sudan"
+        }
+      },
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "stories": {
+      "eyebrow": "From the journal",
+      "heading": "Read about scent",
+      "cta": "All articles",
+      "read": "Read more",
+      "items": {
+        "1": {
+          "title": "Choosing a scent for the weather",
+          "excerpt": "Heat changes how a fragrance opens on skin — here's what works in summer."
+        },
+        "2": {
+          "title": "Parfum or eau de parfum?",
+          "excerpt": "Concentration sets both longevity and price. A short explainer before you buy."
+        },
+        "3": {
+          "title": "Layering: blending two notes",
+          "excerpt": "Two simple rules that make a blend read as deliberate rather than accidental."
+        }
+      }
+    },
+    "marquee": {
+      "1": "Small batches",
+      "2": "Bottled by hand",
+      "3": "A free sample with every order"
+    },
+    "product": {
+      "save": "Save {{percent}}%",
+      "add_to_cart": "Add to cart",
+      "buy_now": "Buy it now",
+      "sold_out": "Sold out",
+      "quantity": "Quantity",
+      "increase": "Increase quantity",
+      "decrease": "Decrease quantity",
+      "description": "Description",
+      "details": "Details",
+      "shipping": "Shipping & returns",
+      "reviews": "Reviews",
+      "delivery_note": "Delivered in 24–72 hours inside your state, 3–7 days elsewhere.",
+      "returns_note": "Return or exchange within 7 days of delivery, sealed and unused.",
+      "related": "You may also like",
+      "recently_viewed": "Recently viewed",
+      "gallery_image": "Image {{index}} of {{total}}",
+      "zoom": "Zoom image",
+      "share": "Share",
+      "in_stock": "In stock",
+      "out_of_stock": "Out of stock",
+      "low_stock_one": "Only {{count}} left",
+      "low_stock_other": "Only {{count}} left",
+      "not_found_heading": "We couldn't find that product",
+      "not_found_body": "It may have been removed, or its link changed.",
+      "back_to_shop": "Back to the shop",
+      "reserving": "Reserving…",
+      "adding": "Adding…",
+      "preorder": "Pre-order",
+      "preorder_note": "Available to pre-order",
+      "wishlisted": "In your wishlist",
+      "add_to_wishlist": "Add to wishlist",
+      "link_copied": "Link copied",
+      "shipping_returns": "Shipping & returns",
+      "related_eyebrow": "Picked for you",
+      "choose": "Choose {{name}}",
+      "breadcrumb_all": "All fragrances",
+      "sticky_label": "{{name}} — {{price}}",
+      "only_left_one": "Only {{count}} left",
+      "only_left_other": "Only {{count}} left"
+    },
+    "collection": {
+      "all_products": "All fragrances",
+      "filters": "Filter",
+      "show_filters": "Show filters",
+      "hide_filters": "Hide filters",
+      "clear": "Clear all",
+      "sort": "Sort",
+      "results_one": "{{count}} result",
+      "results_other": "{{count}} results",
+      "load_more": "Show more",
+      "loading": "Loading…",
+      "empty": "Nothing matches those filters. Try widening them.",
+      "grid_view": "Grid view",
+      "list_view": "List view",
+      "categories": "Categories",
+      "filter": "Filter",
+      "availability": "Availability",
+      "in_stock": "In stock only",
+      "price": "Price",
+      "min": "Min",
+      "max": "Max",
+      "apply": "Apply",
+      "category": "Category",
+      "best_sellers": "Best sellers",
+      "view": "View",
+      "sort_newest": "Newest",
+      "sort_price_asc": "Price: low to high",
+      "sort_price_desc": "Price: high to low",
+      "sort_popular": "Most popular",
+      "results_for": "Results for “{{term}}”",
+      "empty_title": "Nothing found",
+      "empty_body": "Try widening the filters or searching for something else.",
+      "showing": "Showing {{loaded}} of {{total}}",
+      "close": "Close",
+      "show_results": "Show results ({{count}})",
+      "page": "Page {{page}}",
+      "prev_page": "Previous page",
+      "next_page": "Next page"
+    },
+    "card": {
+      "sale": "Sale",
+      "new": "New",
+      "quick_view": "Quick view",
+      "add_to_wishlist": "Add to wishlist",
+      "remove_from_wishlist": "Remove from wishlist",
+      "quick_add": "Quick add",
+      "add": "Add to cart",
+      "adding": "Adding…",
+      "added": "Added",
+      "select_options": "Choose options",
+      "preorder": "Pre-order",
+      "sold_out": "Sold out"
+    },
+    "footer": {
+      "contact": "Contact",
+      "shop": "Shop",
+      "about": "Fragrances blended in small batches and bottled by hand, with notes chosen to hold up in the heat.",
+      "hours": "Saturday – Thursday, 9:00 – 21:00",
+      "copyright": "© {{year}} {{name}}. All rights reserved.",
+      "follow": "Follow us"
+    },
+    "whatsapp": {
+      "heading": "Not sure which to pick?",
+      "text": "Message us on WhatsApp and we'll help you choose the right note, confirm stock and arrange delivery.",
+      "cta": "Chat on WhatsApp",
+      "aria": "Contact us on WhatsApp"
+    },
+    "common": {
+      "close": "Close",
+      "loading": "Loading…",
+      "error": "That didn't load. Please try again."
+    },
+    "cart": {
+      "title": "Your cart",
+      "empty_title": "Your cart is empty",
+      "empty_body": "Browse the fragrances and add what you like.",
+      "continue": "Continue shopping",
+      "product": "Product",
+      "quantity": "Quantity",
+      "total": "Total",
+      "remove": "Remove",
+      "summary": "Order summary",
+      "discount": "Discount",
+      "checkout": "Checkout",
+      "taxes_note": "Tax and shipping are calculated at checkout.",
+      "free_shipping_remaining": "Add {{amount}} more for free delivery.",
+      "free_shipping_unlocked": "Delivery is free on this order.",
+      "subtotal_one": "Subtotal ({{count}} item)",
+      "subtotal_other": "Subtotal ({{count}} items)"
+    }
+  }
+}
