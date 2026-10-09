@@ -2,6 +2,7 @@ import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse 
 import { loginUrl, isOnLoginPage } from './authHandoff';
 import { localizeApiError } from './api-errors';
 import type { SocialLinks } from './storeLink';
+import type { StoreProfile, StoreProfilePatch } from './storeProfile';
 
 // API Base URL — always same-origin `/api`.
 //
@@ -1158,6 +1159,15 @@ export const api = {
       search?: string;
     }) => api.get('/assets', { params }),
     updateAlt: (id: string, alt: string) => api.patch(`/assets/${id}`, { alt }),
+  },
+
+  // Store profile / brand kit (PBI 10): name, logo, tagline, cover photo,
+  // colour, WhatsApp, city, hours, social pages. PUT is a partial update —
+  // only the keys sent change; null clears a field.
+  storeProfile: {
+    get: () => api.get<{ success?: boolean; data?: StoreProfile }>('/store-profile'),
+    update: (patch: StoreProfilePatch) =>
+      api.put<{ success?: boolean; data?: StoreProfile }>('/store-profile', patch),
   },
 
   // Platform feature flags (effective, for the current session). Auth-only;

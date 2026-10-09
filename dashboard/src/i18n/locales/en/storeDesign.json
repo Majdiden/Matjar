@@ -1,0 +1,156 @@
+{
+  "load_failed": "We couldn't open your store info. Check your internet and try again.",
+  "try_again": "Try again",
+  "offline_copy": "You're seeing the last copy saved on this phone. Your changes will be sent when the internet is back.",
+  "save": {
+    "saving": "Saving…",
+    "saved": "Saved",
+    "retrying": "Not saved yet — we'll try again"
+  },
+  "bilingual": {
+    "arabic": "Arabic",
+    "english": "English",
+    "add_english": "English (optional)",
+    "remove_english": "Remove English",
+    "error": {
+      "ar_required": "Please write this in Arabic.",
+      "en_only": "Write it in Arabic first. English is optional."
+    }
+  },
+  "errors": {
+    "generic": "Couldn't save this. Please try again.",
+    "whatsapp": "This doesn't look like a WhatsApp number. Check the number and the country.",
+    "social_facebook": "This isn't a Facebook page link. Open your page in the Facebook app, tap Share, then Copy link, and paste it here.",
+    "social_instagram": "This isn't an Instagram link. Paste the link to your account, or type your account name.",
+    "social_tiktok": "This isn't a TikTok link. Paste the link to your account, or type your account name.",
+    "color": "Please choose one of the colours.",
+    "image": "This photo can't be used. Please choose another one.",
+    "store_name": "The store name needs at least 2 letters."
+  },
+  "image": {
+    "upload_failed": "The photo didn't upload. Check your internet — we'll try again when it's back.",
+    "uploading": "Uploading…",
+    "change": "Change photo",
+    "remove": "Remove",
+    "keep": "Keep it",
+    "try_again": "Try again",
+    "logo": {
+      "add": "Add your logo",
+      "alt": "Store logo",
+      "remove_title": "Remove your logo?"
+    },
+    "cover": {
+      "add": "Add a cover photo",
+      "alt": "Cover photo",
+      "remove_title": "Remove the cover photo?"
+    }
+  },
+  "brand": {
+    "title": "Store info",
+    "subtitle": "Fill these in once and every page of your store uses them. Each answer saves by itself.",
+    "logo": {
+      "title": "Logo",
+      "help": "A square picture looks best."
+    },
+    "name": {
+      "title": "Store name",
+      "help": "The name your customers know you by."
+    },
+    "tagline": {
+      "title": "Slogan",
+      "help": "One short line under your store name.",
+      "placeholder": "For example: Original perfumes, delivered to your door"
+    },
+    "cover": {
+      "title": "Cover photo",
+      "help": "The big photo at the top of your store. A wide photo of your products works well."
+    },
+    "color": {
+      "title": "Main colour",
+      "help": "Used for the buttons and highlights in your store.",
+      "custom": "Other colour",
+      "reset": "Use the look's own colour"
+    },
+    "whatsapp": {
+      "title": "WhatsApp number",
+      "help": "Customers will message you on this number.",
+      "suggested": "This is the phone number on your account. Is it also your WhatsApp number?",
+      "use_this": "Yes, use this number"
+    },
+    "city": {
+      "title": "City",
+      "help": "Where your store is, or the city you deliver from.",
+      "placeholder": "For example: Khartoum North"
+    },
+    "hours": {
+      "title": "Opening hours",
+      "help": "When customers can reach you.",
+      "placeholder": "For example: Every day, 9 am to 9 pm"
+    },
+    "social": {
+      "title": "Your social media pages",
+      "help": "Customers will find these links at the bottom of your store.",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "facebook_placeholder": "Paste your page link",
+      "instagram_placeholder": "Paste the link or type your account name",
+      "tiktok_placeholder": "Paste the link or type your account name"
+    }
+  },
+  "preview": {
+    "title": "Your store",
+    "heading": "How customers see it",
+    "button": "Preview",
+    "loading": "Opening your store…",
+    "unavailable": "The preview needs an internet connection."
+  },
+  "hub": {
+    "title": "My store",
+    "subtitle": "Everything your customers see, in one place.",
+    "done": "Done",
+    "store_card": {
+      "unnamed": "Your store",
+      "view": "View my store"
+    },
+    "brand": {
+      "title": "Store info",
+      "missing": {
+        "logo": "Add your logo",
+        "whatsapp": "Add your WhatsApp number",
+        "tagline": "Add a short line about your store",
+        "color": "Choose your store's colour",
+        "cover": "Add a cover photo"
+      }
+    },
+    "homepage": {
+      "title": "Homepage",
+      "status": "Change the words and photos on your first page"
+    },
+    "about": {
+      "title": "About us",
+      "status": "Answer a few questions and we'll write it for you"
+    },
+    "contact": {
+      "title": "Contact us",
+      "ready": "Ready — shows your WhatsApp number",
+      "needs_whatsapp": "Add your WhatsApp number first"
+    },
+    "policies": {
+      "title": "Delivery & returns",
+      "status": "Tell customers how delivery and returns work"
+    },
+    "look": {
+      "title": "Change the look",
+      "status": "Pick a different look for your store"
+    },
+    "advanced": {
+      "title": "Advanced options",
+      "status": "Change every detail — best on a computer"
+    }
+  },
+  "homepage_placeholder": {
+    "title": "Coming soon",
+    "body": "Soon you'll be able to change your homepage from your phone. Until then, use Advanced options on a computer."
+  }
+}

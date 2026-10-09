@@ -19,9 +19,9 @@ This document lists all tasks associated with PBI 10.
 | 10-9 | About page from questions | Proposed | Answers stored on `Page`; plain-Arabic templates; optional English |
 | 10-10 | Contact page from the brand kit | Proposed | Theme-rendered system page: WhatsApp button, phone, city, hours, social links |
 | 10-11 | Policies from questions + trust badges | Proposed | Delivery/returns/payment answers → `settings.policies.*`; shared trust-badge component on product pages |
-| 10-12 | "متجري" (My store) hub + brand kit form | Proposed | Phone-first dashboard route behind `design.simpleMode` |
+| 10-12 | ["متجري" (My store) hub + brand kit form](./10-12.md) | Review | Phone-first dashboard route behind `design.simpleMode` |
 | 10-13 | Homepage simple editor | Proposed | Phone preview, tap a section → bottom sheet with basic settings, show/hide/move, save-and-publish with undo |
-| 10-14 | Arabic-first bilingual field | Proposed | Arabic input with "+ English (optional)"; used everywhere in simple mode |
+| 10-14 | [Arabic-first bilingual field](./10-14.md) | Review | Arabic input with "+ English (optional)"; used everywhere in simple mode |
 | 10-15 | Theme switch keeps brand kit and content | Proposed | Verification + regression test |
 | 10-16 | Signup reorder (onboarding v2) | Proposed | Behind `onboarding.v2`; store-name preview on theme cards |
 | 10-17 | "First sale" checklist | Proposed | First product → payment → share; replaces the current setup checklist |
