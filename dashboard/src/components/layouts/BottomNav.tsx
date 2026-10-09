@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LayoutDashboard, ShoppingCart, Package, Menu, Plus, ClipboardList, PackagePlus } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { guideAttrs, guideMenuAttrs } from '../../lib/guideTip';
 import { useAuth } from '../../contexts/auth-context';
 import { useFeatures } from '../../contexts/features-context';
 import { useNewProductRoute } from '../../hooks/useNewProductRoute';
@@ -110,6 +111,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
 
   return (
     <nav
+      data-guide-inset="bottom"
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur lg:hidden pb-[env(safe-area-inset-bottom)]"
       aria-label={t('bottom_nav.menu_title')}
     >
@@ -124,6 +126,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
+                  {...guideMenuAttrs('/dashboard/products', 'auto')}
                   aria-label={t('bottom_nav.create')}
                   className="-mt-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform duration-200 active:scale-95"
                   style={{ transform: actionOpen ? 'rotate(45deg)' : 'rotate(0deg)' }}
@@ -156,6 +159,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
                   <button
                     type="button"
                     onClick={() => { setActionOpen(false); navigate(newProductRoute); }}
+                    {...guideAttrs('product', 'entry')}
                     className="flex w-full items-center gap-3 rounded-xl p-3 text-start transition-colors hover:bg-accent focus:bg-accent focus:outline-none"
                   >
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -175,7 +179,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
         {right.map(renderDest)}
         {/* "More" reads as current on any page that has no tab of its own
             (e.g. My store), so the bar always shows where you are. */}
-        <button type="button" onClick={onMore} className={itemClass(moreActive)} aria-current={moreActive ? 'page' : undefined}>
+        <button
+          type="button"
+          onClick={onMore}
+          {...guideMenuAttrs('/dashboard/store', 'auto')}
+          className={itemClass(moreActive)}
+          aria-current={moreActive ? 'page' : undefined}
+        >
           <Menu className="h-6 w-6" strokeWidth={moreActive ? 2.4 : 2} />
           <span className="truncate max-w-full">{t('bottom_nav.more')}</span>
         </button>

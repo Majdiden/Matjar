@@ -8,6 +8,7 @@ import { Badge } from './ui/badge';
 import { ShareButton } from './ShareButton';
 import { useSetupGuide } from '../contexts/setup-guide-context';
 import { FIRST_SALE_STEP_ROUTES, type FirstSaleStepKey } from '../lib/onboarding';
+import { guideAttrs } from '../lib/guideTip';
 
 // =============================================================================
 // "Ready to sell" checklist on the dashboard home (PBI 10-17, 10-28): the
@@ -46,6 +47,7 @@ export const FirstSaleChecklist: React.FC = () => {
           className={actionClass}
           disabled={!storeUrl}
           onShared={recordShared}
+          {...(primary ? guideAttrs('share', 'entry') : {})}
         >
           <Icon className="h-5 w-5 me-2" />
           {t('checklist.step.share.action')}
@@ -54,7 +56,7 @@ export const FirstSaleChecklist: React.FC = () => {
     }
     return (
       <Button asChild size="lg" variant={variant} className={actionClass}>
-        <Link to={FIRST_SALE_STEP_ROUTES[key] as string}>
+        <Link to={FIRST_SALE_STEP_ROUTES[key] as string} {...(primary ? guideAttrs(key, 'entry') : {})}>
           <Icon className="h-5 w-5 me-2" />
           {t(`checklist.step.${key}.action`)}
         </Link>

@@ -33,6 +33,7 @@ import {
   productLink,
   stepQuantity,
 } from '../../lib/quickProduct';
+import { guideAttrs } from '../../lib/guideTip';
 import type { Product } from '../../types';
 import { notifySetupChanged } from '../../contexts/setup-guide-context';
 
@@ -194,7 +195,7 @@ export const QuickProduct: React.FC = () => {
 
       <Card>
         <CardContent className="space-y-5 p-4 sm:p-5">
-          <div className="space-y-2">
+          <div className="space-y-2" {...guideAttrs('product')}>
             <Label className="text-base">{t('products:products.quick.photos.label')}</Label>
             <ImageUpload
               value={form.images}

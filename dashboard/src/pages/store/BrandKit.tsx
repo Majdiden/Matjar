@@ -50,6 +50,7 @@ import PhonePreview from './PhonePreview';
 import { notifySetupChanged } from '../../contexts/setup-guide-context';
 import { toast } from 'sonner';
 import { focusFirstInvalid } from '../../lib/focusFirstInvalid';
+import { guideAttrs } from '../../lib/guideTip';
 
 /** Wait for a burst of saves to settle before reloading the preview. */
 const PREVIEW_RELOAD_DELAY_MS = 1200;
@@ -142,6 +143,16 @@ export default function BrandKit() {
   const errorOf = (key: string) =>
     statuses[key]?.state === 'error' ? profileErrorMessage(statuses[key]?.error, t) : null;
 
+  // First brand item the guided setup still needs (lib/onboarding.ts isBrandReady).
+  const guidePart = !profile.logo
+    ? 'logo'
+    : !profile.brand.tagline?.ar?.trim()
+      ? 'tagline'
+      : !profile.brand.coverImage
+        ? 'cover'
+        : null;
+  const guideSpot = (part: 'logo' | 'tagline' | 'cover') => (guidePart === part ? guideAttrs('brand', 'field', part) : {});
+
   return (
     <div className="mx-auto w-full max-w-5xl space-y-4 pb-24 lg:pb-8">
       <Link
@@ -171,6 +182,10 @@ export default function BrandKit() {
 
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-8">
         <div className="min-w-0 space-y-4">
+          {/* The setup tip points at the first of logo, tagline and cover still
+              missing (the "logo and cover" step). The wrappers always render so
+              a field never remounts while the merchant types. */}
+          <div {...guideSpot('logo')}>
           <FieldCard title={t('storeDesign:brand.logo.title')} help={t('storeDesign:brand.logo.help')} status={statuses.logo} onRetry={() => retry('logo')}>
             <ImageField
               kind="logo"
@@ -190,11 +205,15 @@ export default function BrandKit() {
             />
             <FieldError message={errorOf('logo')} />
           </FieldCard>
+          </div>
 
           <StoreNameField {...field('storeName')} error={errorOf('storeName')} />
 
-          <BrandTextCard fieldKey="tagline" multiline {...field('tagline')} error={errorOf('tagline')} />
+          <div {...guideSpot('tagline')}>
+            <BrandTextCard fieldKey="tagline" multiline {...field('tagline')} error={errorOf('tagline')} />
+          </div>
 
+          <div {...guideSpot('cover')}>
           <FieldCard title={t('storeDesign:brand.cover.title')} help={t('storeDesign:brand.cover.help')} status={statuses.cover} onRetry={() => retry('cover')}>
             <ImageField
               kind="cover"
@@ -210,6 +229,7 @@ export default function BrandKit() {
             />
             <FieldError message={errorOf('cover')} />
           </FieldCard>
+          </div>
 
           <FieldCard title={t('storeDesign:brand.color.title')} help={t('storeDesign:brand.color.help')} status={statuses.color} onRetry={() => retry('color')}>
             <ColorField

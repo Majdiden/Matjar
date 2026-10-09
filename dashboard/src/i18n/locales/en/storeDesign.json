@@ -258,6 +258,7 @@
     },
     "top_strip": {
       "name": "Top strip",
+      "empty_prompt": "Write a message for your customers",
       "everywhere": "Shows at the top of every page",
       "help": "A short line at the top of your store, like an offer or delivery info.",
       "text_label": "Text",
