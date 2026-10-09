@@ -12,6 +12,11 @@ import {
   themeDetailsSchema,
   themeStoresSchema,
   listHealthSchema,
+  themeCategoryCreateSchema,
+  themeCategoryUpdateSchema,
+  themeCategoryOrderSchema,
+  themeCategoryDeleteSchema,
+  themeCategoryAssignSchema,
 } from "../../validators/commerce.validator.js";
 import {
   domains,
@@ -26,6 +31,12 @@ import {
   health,
   tenantHealth,
   runTenantCheck,
+  themeCategories,
+  themeCategoryCreate,
+  themeCategoryUpdate,
+  themeCategoryReorder,
+  themeCategoryDelete,
+  themeCategoryAssign,
 } from "../../controllers/platform/storefront.js";
 
 // Mounted at /api/platform/storefront behind platformAuthenticate.
@@ -56,6 +67,25 @@ router.get("/themes/:slug/stores", read, validate(themeStoresSchema), themeStore
 router.patch("/themes/:id/status", validateObjectId("id"), requireScope(PLATFORM_SCOPES.FLAGS_WRITE), validate(themeStatusSchema), themeStatus);
 router.patch("/themes/:id", validateObjectId("id"), requireScope(PLATFORM_SCOPES.FLAGS_WRITE), validate(themeDetailsSchema), themeDetails);
 router.post("/themes/:id/cover", validateObjectId("id"), requireScope(PLATFORM_SCOPES.FLAGS_WRITE), uploadSingleImage, handleUploadError, validateUploadedFiles, themeCover);
+
+// Theme categories (signup "what do you sell" + merchant theme library).
+// Same split as the catalog: reads on support.read, writes on flags.write.
+// Writes are capped per operator — a mistaken script must not churn the
+// list every merchant's signup reads.
+const themeCategoryWriteLimiter = createRateLimiter({
+  prefix: "platform:theme-categories",
+  windowMs: 60 * 1000,
+  max: 60,
+  keyGenerator: (req) => (req.platformUser?.id ? `u:${req.platformUser.id}` : `ip:${ipKeyGenerator(req.ip)}`),
+  message: "Too many category changes. Try again in a minute.",
+});
+const categoryWrite = [requireScope(PLATFORM_SCOPES.FLAGS_WRITE), themeCategoryWriteLimiter];
+router.get("/theme-categories", read, themeCategories);
+router.post("/theme-categories", ...categoryWrite, validate(themeCategoryCreateSchema), themeCategoryCreate);
+router.put("/theme-categories/order", ...categoryWrite, validate(themeCategoryOrderSchema), themeCategoryReorder);
+router.patch("/theme-categories/:key", ...categoryWrite, validate(themeCategoryUpdateSchema), themeCategoryUpdate);
+router.delete("/theme-categories/:key", ...categoryWrite, validate(themeCategoryDeleteSchema), themeCategoryDelete);
+router.put("/themes/:id/categories", validateObjectId("id"), ...categoryWrite, validate(themeCategoryAssignSchema), themeCategoryAssign);
 
 // Health: on-demand probe is a read-only network check; support.read suffices.
 router.get("/health", read, validate(listHealthSchema), health);

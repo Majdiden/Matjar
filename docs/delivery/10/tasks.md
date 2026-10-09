@@ -41,4 +41,5 @@ This document lists all tasks associated with PBI 10.
 | 10-31 | [Generated policies in both languages](./10-31.md) | Review | Returns and delivery policies showed only in the store language |
 | 10-32 | [Theme footers and heroes show only the store's content](./10-32.md) | Review | Footers mixed English and theme demo links; hero extras and slides showed theme demo copy and photos |
 | 10-33 | [Theme switch carries the homepage words and photo](./10-33.md) | Review | Switching theme lost the hero title, button text, photo and top strip |
+| 10-34 | [Theme categories managed from the platform console](./10-34.md) | Review | Signup offered a fixed niche list that did not match the theme categories; the owner now creates, orders and assigns categories on the console Themes page, and signup and the theme library read them |
 | 10-35 | [Platform admin quick search (Ctrl/Cmd+K)](./10-35.md) | Review | Platform owner wanted search to navigate quickly: pages, tabs and stores from the top bar or Ctrl/Cmd+K |

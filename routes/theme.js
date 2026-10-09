@@ -26,6 +26,7 @@ import {
   searchThemes,
   getThemesByCategory,
   getThemePreviewImage,
+  getThemeCategories,
 } from "../controllers/theme.js";
 
 const router = express.Router();
@@ -45,6 +46,7 @@ router.post(
 // Public routes (viewable by anyone, optional auth for tenant context)
 router.get("/", optionalAuth, getThemes);
 router.get("/active", optionalAuth, getActiveThemes);
+router.get("/categories", getThemeCategories);
 router.get("/popular", optionalAuth, getPopularThemes);
 router.get("/latest", optionalAuth, getLatestThemes);
 router.get("/default", optionalAuth, getDefaultTheme);

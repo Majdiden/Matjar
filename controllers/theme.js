@@ -1,4 +1,4 @@
-import { normaliseThemeCategories, summariseThemeCategories } from "../config/themeCategories.js";
+import { decorateThemesWithCategories, getPublicThemeCategories } from "../services/themeCategories.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import logger from "../utils/logger.js";
 import { reloadAllManifests } from "../services/themeManifestRegistry.js";
@@ -146,19 +146,32 @@ export const getActiveThemes = asyncHandler(async (req, res) => {
     }
   }
 
-  // Curated category keys per theme + the category list (with counts) so
-  // the merchant Themes page can group/filter without knowing manifest keys.
-  const decorated = themes.map((t) => ({ ...t, categoryKeys: normaliseThemeCategories(t.categories) }));
+  // Platform-managed category keys per theme + the active categories that
+  // have themes (with counts, in the owner's order) so the merchant Themes
+  // page and signup can group/filter (services/themeCategories.js).
+  const { themes: decorated, categories } = await decorateThemesWithCategories(themes);
   res.json({
     success: true,
     data: {
       themes: decorated,
-      categories: summariseThemeCategories(themes),
+      categories,
       // Themes from the list are already decorated; a currentTheme fetched
       // directly by slug/id still needs its previewImage overlay.
       currentTheme: withThemePreviewImage(currentTheme),
     },
   });
+});
+
+/**
+ * @route   GET /api/themes/categories
+ * @desc    Active theme categories in the platform owner's order (en/ar
+ *          names, theme counts) + each offered theme's category keys.
+ *          Signup's "what do you sell" step reads this before login.
+ * @access  Public
+ */
+export const getThemeCategories = asyncHandler(async (_req, res) => {
+  const themes = await getActiveThemesService();
+  res.json({ success: true, data: await getPublicThemeCategories(themes) });
 });
 
 /**

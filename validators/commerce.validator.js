@@ -121,6 +121,60 @@ export const themeDetailsSchema = z.object({
   }).refine((b) => Object.keys(b).some((k) => k !== "reason"), { message: "Nothing to update" }),
 });
 
+// --- Platform-managed theme categories (services/themeCategories.js) ---
+// Keys are stable slugs (stored on tenants and theme assignments).
+const categoryKeyParam = z.string().trim().toLowerCase().regex(/^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$/, "Use 1-32 lowercase letters, digits or dashes");
+const categoryName = z.object({
+  en: z.string().trim().min(1, "English name is required").max(60),
+  ar: z.string().trim().min(1, "Arabic name is required").max(60),
+}).strict();
+const categoryAliases = z.array(z.string().trim().toLowerCase().regex(/^[a-z0-9-]{1,32}$/)).max(20);
+const categoryIcon = z.string().trim().max(40).regex(/^[A-Za-z0-9]*$/, "Icon must be a Lucide icon name");
+
+export const themeCategoryCreateSchema = z.object({
+  body: z.object({
+    key: categoryKeyParam,
+    name: categoryName,
+    icon: categoryIcon.optional(),
+    aliases: categoryAliases.optional(),
+    active: z.boolean().optional(),
+    reason: reason.optional(),
+  }).strict(),
+});
+
+export const themeCategoryUpdateSchema = z.object({
+  params: z.object({ key: categoryKeyParam }),
+  body: z.object({
+    name: z.object({ en: categoryName.shape.en.optional(), ar: categoryName.shape.ar.optional() }).strict().optional(),
+    icon: categoryIcon.optional(),
+    aliases: categoryAliases.optional(),
+    active: z.boolean().optional(),
+    order: z.number().int().min(0).max(10000).optional(),
+    reason: reason.optional(),
+  }).strict().refine((b) => Object.keys(b).some((k) => k !== "reason"), { message: "Nothing to update" }),
+});
+
+export const themeCategoryOrderSchema = z.object({
+  body: z.object({
+    keys: z.array(categoryKeyParam).min(1).max(200),
+    reason: reason.optional(),
+  }).strict(),
+});
+
+export const themeCategoryDeleteSchema = z.object({
+  params: z.object({ key: categoryKeyParam }),
+  body: z.object({ reason: reason.optional() }).strict().optional(),
+});
+
+export const themeCategoryAssignSchema = z.object({
+  params: z.object({ id: objectId }),
+  body: z.object({
+    // null = automatic (derived from the theme manifest's categories).
+    categoryKeys: z.array(categoryKeyParam).max(12).nullable(),
+    reason: reason.optional(),
+  }).strict(),
+});
+
 export const themeStoresSchema = z.object({
   params: z.object({ slug: z.string().trim().toLowerCase().min(1).max(64).regex(/^[a-z0-9-]+$/, "Invalid theme slug") }),
   query: z.object({ page, limit }),

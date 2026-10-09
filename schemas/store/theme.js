@@ -119,6 +119,12 @@ const themeSchema = new Schema(
     tags: [String],
     categories: [String],
 
+    // Platform-managed category assignment (ThemeCategory keys, set from
+    // the console's Themes page). null = not assigned yet: the categories
+    // are derived from `categories` above via each ThemeCategory's aliases
+    // (services/themeCategories.js). Never touched by the manifest sync.
+    categoryKeys: { type: [String], default: null },
+
     // Operator edits made in the platform console (name, description,
     // cover, categories, tags). The manifest sync rewrites the live
     // fields from disk on every run, then re-applies whatever is set here

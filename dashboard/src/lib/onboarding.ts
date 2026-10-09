@@ -36,8 +36,13 @@ export function signupSteps(flow: SignupFlow): readonly SignupStep[] {
 }
 
 interface NicheTheme {
+  /** Platform-managed category keys (GET /api/themes/active). */
+  categoryKeys?: string[];
+  /** Raw manifest categories — used only when categoryKeys is absent. */
   categories?: string[];
 }
+
+const inNiche = (th: NicheTheme, niche: string) => (th.categoryKeys ?? th.categories ?? []).includes(niche);
 
 /**
  * Themes for the "pick a look" step: the ones made for the merchant's niche
@@ -49,11 +54,11 @@ export function themesForNiche<T extends NicheTheme>(themes: T[], niche: string,
   if (!niche || niche === 'general') {
     list = themes;
   } else if (limit == null) {
-    const matched = themes.filter((th) => th.categories?.includes(niche));
+    const matched = themes.filter((th) => inNiche(th, niche));
     list = matched.length > 0 ? matched : themes;
   } else {
-    const matched = themes.filter((th) => th.categories?.includes(niche));
-    list = [...matched, ...themes.filter((th) => !th.categories?.includes(niche))];
+    const matched = themes.filter((th) => inNiche(th, niche));
+    list = [...matched, ...themes.filter((th) => !inNiche(th, niche))];
   }
   return limit == null ? list : list.slice(0, limit);
 }

@@ -6,7 +6,15 @@
 import { asyncHandler } from "../../middlewares/errorHandler.js";
 import { recordPlatformAudit } from "../../services/platform/audit.js";
 import { uploadImage } from "../../services/upload.js";
-import { THEME_CATEGORIES } from "../../config/themeCategories.js";
+import {
+  decorateConsoleThemes,
+  listThemeCategoriesForConsole,
+  createThemeCategory,
+  updateThemeCategory,
+  reorderThemeCategories,
+  deleteThemeCategory,
+  setThemeCategories,
+} from "../../services/themeCategories.js";
 import {
   listDomains,
   domainStatusCounts,
@@ -70,10 +78,85 @@ export const domainRemove = asyncHandler(async (req, res) => {
 });
 
 export const themes = asyncHandler(async (_req, res) => {
-  const rows = await listThemes();
-  const categoryOptions = THEME_CATEGORIES.map(({ key, label, labelAr }) => ({ key, label, labelAr }));
+  const { rows, categories } = await decorateConsoleThemes(await listThemes());
+  const categoryOptions = categories.map((c) => ({ key: c.key, label: c.name?.en || c.key, labelAr: c.name?.ar || "", active: c.active }));
   // Array kept for the existing client; options ride along as a property.
   res.json({ success: true, data: rows, meta: { categoryOptions } });
+});
+
+// --- Theme categories (platform-managed; services/themeCategories.js) ---
+
+export const themeCategories = asyncHandler(async (_req, res) => {
+  res.json({ success: true, data: { categories: await listThemeCategoriesForConsole() } });
+});
+
+export const themeCategoryCreate = asyncHandler(async (req, res) => {
+  const { reason, ...input } = req.body;
+  const { after, row } = await createThemeCategory(input, req.platformUser);
+  await recordPlatformAudit(req, {
+    action: "theme_category.create",
+    resourceType: "ThemeCategory",
+    resourceId: row.key,
+    reason,
+    before: null,
+    after,
+  });
+  res.status(201).json({ success: true, data: row });
+});
+
+export const themeCategoryUpdate = asyncHandler(async (req, res) => {
+  const { reason, ...patch } = req.body;
+  const { before, after, row } = await updateThemeCategory(req.params.key, patch, req.platformUser);
+  await recordPlatformAudit(req, {
+    action: "theme_category.update",
+    resourceType: "ThemeCategory",
+    resourceId: req.params.key,
+    reason,
+    before,
+    after,
+    metadata: { fields: Object.keys(patch) },
+  });
+  res.json({ success: true, data: row });
+});
+
+export const themeCategoryReorder = asyncHandler(async (req, res) => {
+  const { before, after } = await reorderThemeCategories(req.body.keys, req.platformUser);
+  await recordPlatformAudit(req, {
+    action: "theme_category.reorder",
+    resourceType: "ThemeCategory",
+    reason: req.body.reason,
+    before: { order: before },
+    after: { order: after },
+  });
+  res.json({ success: true, data: { categories: await listThemeCategoriesForConsole() } });
+});
+
+export const themeCategoryDelete = asyncHandler(async (req, res) => {
+  const { before, themesUpdated } = await deleteThemeCategory(req.params.key);
+  await recordPlatformAudit(req, {
+    action: "theme_category.delete",
+    resourceType: "ThemeCategory",
+    resourceId: req.params.key,
+    reason: req.body?.reason,
+    before,
+    after: null,
+    metadata: { themesUpdated },
+  });
+  res.json({ success: true, data: { key: req.params.key, themesUpdated } });
+});
+
+export const themeCategoryAssign = asyncHandler(async (req, res) => {
+  const { before, after, row } = await setThemeCategories(req.params.id, req.body.categoryKeys);
+  await recordPlatformAudit(req, {
+    action: "theme.categories.update",
+    resourceType: "Theme",
+    resourceId: req.params.id,
+    reason: req.body.reason,
+    before,
+    after,
+    metadata: { slug: row.slug },
+  });
+  res.json({ success: true, data: row });
 });
 
 export const themeStores = asyncHandler(async (req, res) => {

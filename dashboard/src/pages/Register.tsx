@@ -27,6 +27,11 @@ import {
   Baby,
   Home as HomeIcon,
   ShoppingBag,
+  Sparkles,
+  Gem,
+  HeartPulse,
+  Sofa,
+  Tag,
   Mail,
   RefreshCw,
   Info,
@@ -63,6 +68,7 @@ import {
   type SignupFlow,
   type SignupStep,
 } from '../lib/onboarding';
+import { categoryName, nicheChoices, type ThemeCategoryInfo } from '../lib/themeCategories';
 import { toast } from 'sonner';
 import { focusFirstInvalid } from '../lib/focusFirstInvalid';
 
@@ -75,6 +81,8 @@ interface ThemeOption {
   slug: string;
   description: string;
   categories: string[];
+  // Platform-managed category keys (backend services/themeCategories.js).
+  categoryKeys?: string[];
   // Homepage screenshot served at /api/themes/<slug>/preview. May be absent
   // for a theme that hasn't been rebuilt with one — we fall back to the
   // palette block below.
@@ -105,6 +113,9 @@ const DELIVERY_AREAS_MAX_LENGTH = 300;
 // Configurable via VITE_STORE_DOMAIN_SUFFIX; defaults to matjar.to.
 const STORE_DOMAIN_SUFFIX = import.meta.env.VITE_STORE_DOMAIN_SUFFIX || 'matjar.to';
 
+// The niche choices are the platform-managed theme categories (GET
+// /api/themes/categories). This list is only the offline fallback when that
+// request fails; it mirrors config/storeNiches.js (parity test).
 const NICHE_IDS = ['fashion', 'electronics', 'food', 'sports', 'books', 'toys', 'home', 'general'] as const;
 
 const NICHE_ICONS: Record<string, React.ReactNode> = {
@@ -117,6 +128,26 @@ const NICHE_ICONS: Record<string, React.ReactNode> = {
   home: <HomeIcon className="h-5 w-5" />,
   general: <ShoppingBag className="h-5 w-5" />,
 };
+
+// Category icons by the Lucide name the platform owner set on a category.
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  Store: <Store className="h-5 w-5" />,
+  Shirt: <Shirt className="h-5 w-5" />,
+  Sparkles: <Sparkles className="h-5 w-5" />,
+  Gem: <Gem className="h-5 w-5" />,
+  Smartphone: <Smartphone className="h-5 w-5" />,
+  UtensilsCrossed: <UtensilsCrossed className="h-5 w-5" />,
+  HeartPulse: <HeartPulse className="h-5 w-5" />,
+  Sofa: <Sofa className="h-5 w-5" />,
+  Home: <HomeIcon className="h-5 w-5" />,
+  Baby: <Baby className="h-5 w-5" />,
+  Dumbbell: <Dumbbell className="h-5 w-5" />,
+  BookOpen: <BookOpen className="h-5 w-5" />,
+  ShoppingBag: <ShoppingBag className="h-5 w-5" />,
+};
+
+const nicheIcon = (c: ThemeCategoryInfo) =>
+  NICHE_ICONS[c.key] ?? (c.icon && CATEGORY_ICONS[c.icon]) ?? <Tag className="h-5 w-5" />;
 
 /**
  * Theme card preview image with a graceful fallback: if the theme ships no
@@ -291,6 +322,29 @@ export const Register: React.FC = () => {
     }, 500);
     return () => clearTimeout(t);
   }, [form.email]);
+
+  // Niche choices: the platform's active theme categories, loaded once at
+  // the niche step. Null until loaded; the built-in list is the fallback.
+  const [nicheCategories, setNicheCategories] = useState<ThemeCategoryInfo[] | null>(null);
+  useEffect(() => {
+    if ((step !== 'niche' && step !== 'theme') || nicheCategories) return;
+    api.themes.getCategories()
+      .then((res) => {
+        const r = res as { data?: { categories?: ThemeCategoryInfo[] } };
+        setNicheCategories(r.data?.categories?.length ? r.data.categories : []);
+      })
+      .catch(() => setNicheCategories([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+  const niches = useMemo<ThemeCategoryInfo[]>(() => {
+    const fallback = (id: string): ThemeCategoryInfo => ({ key: id, name: { en: t(`auth.niche.${id}.label`), ar: t(`auth.niche.${id}.label`) } });
+    if (!nicheCategories?.length) return NICHE_IDS.map(fallback);
+    return nicheChoices(nicheCategories, fallback('general'));
+  }, [nicheCategories, t]);
+  const nicheLabel = (key: string) => {
+    const c = niches.find((n) => n.key === key);
+    return c ? categoryName(c, i18n.language) : key;
+  };
 
   // Load themes once we reach the theme step
   useEffect(() => {
@@ -1100,8 +1154,10 @@ export const Register: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {NICHE_IDS.map(id => {
+              {niches.map(cat => {
+                const id = cat.key;
                 const selected = form.niche === id;
+                const tagline = t(`auth.niche.${id}.tagline`, { defaultValue: '' });
                 return (
                   <button
                     key={id}
@@ -1116,11 +1172,11 @@ export const Register: React.FC = () => {
                     <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${
                       selected ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
                     }`}>
-                      {NICHE_ICONS[id]}
+                      {nicheIcon(cat)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium">{t(`auth.niche.${id}.label`)}</div>
-                      <div className="text-xs text-muted-foreground">{t(`auth.niche.${id}.tagline`)}</div>
+                      <div className="font-medium">{categoryName(cat, i18n.language)}</div>
+                      {tagline && <div className="text-xs text-muted-foreground">{tagline}</div>}
                     </div>
                     {selected && <Check className="h-4 w-4 shrink-0" />}
                   </button>
@@ -1227,7 +1283,11 @@ export const Register: React.FC = () => {
                           {colors?.primary && <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: colors.primary }} />}
                           {colors?.secondary && <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: colors.secondary }} />}
                           {colors?.accent && <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: colors.accent }} />}
-                          <Badge variant="secondary" className="ms-auto text-[10px]">{theme.categories?.[0] || t('auth.register.category_general')}</Badge>
+                          <Badge variant="secondary" className="ms-auto text-[10px]">{(() => {
+                            const keys = theme.categoryKeys ?? [];
+                            const key = form.niche && keys.includes(form.niche) ? form.niche : keys[0];
+                            return key ? nicheLabel(key) : t('auth.register.category_general');
+                          })()}</Badge>
                         </div>
                       </div>
                     </button>

@@ -24,6 +24,7 @@ import accessProgramSchema from "../schemas/accessProgram.js";
 import featureOverrideSchema from "../schemas/featureOverride.js";
 import tenantUsageSnapshotSchema from "../schemas/tenantUsageSnapshot.js";
 import themeSchema from "../schemas/store/theme.js";
+import themeCategorySchema from "../schemas/themeCategory.js";
 import userSchema from "../schemas/store/user.js";
 import productSchema from "../schemas/store/product.js";
 import categorySchema from "../schemas/store/category.js";
@@ -74,6 +75,7 @@ export function registerAllModels(connection) {
   connection.model("Subscription", subscriptionSchema);
   connection.model("SubscriptionPlan", subscriptionPlanSchema);
   connection.model("Theme", themeSchema);
+  connection.model("ThemeCategory", themeCategorySchema);
   connection.model("Domain", domainSchema);
   connection.model("TenantExport", tenantExportSchema);
   connection.model("PlatformAuditLog", platformAuditLogSchema);

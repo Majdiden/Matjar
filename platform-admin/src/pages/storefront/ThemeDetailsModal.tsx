@@ -36,7 +36,7 @@ export function ThemeDetailsModal({ theme, categoryOptions, onClose, onSaved }: 
     setName(theme.name ?? '');
     setDescription(theme.description ?? '');
     setPreviewImage(theme.previewImage ?? '');
-    setCategories(theme.categories ?? []);
+    setCategories(theme.categoryKeys ?? []);
     setTags((theme.tags ?? []).join(', '));
     setReason('');
   }, [theme]);
@@ -48,10 +48,14 @@ export function ThemeDetailsModal({ theme, categoryOptions, onClose, onSaved }: 
   const toggleCategory = (key: string) =>
     setCategories((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
 
-  const save = async (patch: ThemeDetailsPatch) => {
+  // Category assignment goes through its own endpoint (platform-managed
+  // categories); null = back to automatic (from the theme's manifest).
+  const save = async (patch: ThemeDetailsPatch, categoryKeys?: string[] | null) => {
     setSaving(true);
     try {
-      await storefrontApi.themes.updateDetails(theme._id, { ...patch, reason: reason.trim() || undefined });
+      const why = reason.trim() || undefined;
+      if (categoryKeys !== undefined) await storefrontApi.themes.setCategories(theme._id, categoryKeys, why);
+      if (Object.keys(patch).length) await storefrontApi.themes.updateDetails(theme._id, { ...patch, reason: why });
       toast.success('Theme details saved');
       await onSaved();
     } catch (err) {
@@ -69,13 +73,14 @@ export function ThemeDetailsModal({ theme, categoryOptions, onClose, onSaved }: 
     if (name.trim() !== (theme.name ?? '')) patch.name = name.trim() || null;
     if (description.trim() !== (theme.description ?? '')) patch.description = description.trim() || null;
     if (previewImage.trim() !== (theme.previewImage ?? '')) patch.previewImage = previewImage.trim() || null;
-    if (!same(categories, theme.categories ?? [])) patch.categories = categories.length ? categories : null;
     if (!same(tagList, theme.tags ?? [])) patch.tags = tagList.length ? tagList : null;
-    if (Object.keys(patch).length === 0) { toast.info('Nothing changed'); return; }
-    void save(patch);
+    const ordered = categoryOptions.filter((c) => categories.includes(c.key)).map((c) => c.key);
+    const categoryChange = same(ordered, theme.categoryKeys ?? []) ? undefined : ordered;
+    if (Object.keys(patch).length === 0 && categoryChange === undefined) { toast.info('Nothing changed'); return; }
+    void save(patch, categoryChange);
   };
 
-  const resetAll = () => void save({ name: null, description: null, previewImage: null, categories: null, tags: null });
+  const resetAll = () => void save({ name: null, description: null, previewImage: null, categories: null, tags: null }, null);
 
   const upload = async (file: File) => {
     setUploading(true);
@@ -135,18 +140,30 @@ export function ThemeDetailsModal({ theme, categoryOptions, onClose, onSaved }: 
           <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={1000} />
         </div>
         <div>
-          <Label>Categories<Reset field="categories" /></Label>
+          <Label>
+            Categories
+            <span className="ms-2 text-[11px] font-normal text-muted-foreground">
+              {theme.categoryKeysManaged ? '(assigned by hand)' : '(automatic, from the manifest — picking any chip assigns by hand)'}
+            </span>
+          </Label>
           <div className="mt-1 flex flex-wrap gap-1.5">
             {categoryOptions.map((c) => {
               const on = categories.includes(c.key);
               return (
                 <button key={c.key} type="button" onClick={() => toggleCategory(c.key)} aria-pressed={on}
-                  className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${on ? 'border-primary bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}>
+                  title={c.active === false ? 'Hidden category' : undefined}
+                  className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${on ? 'border-primary bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'} ${c.active === false ? 'opacity-60' : ''}`}>
                   {c.label}
                 </button>
               );
             })}
           </div>
+          {theme.categoryKeysManaged && (
+            <button type="button" className="mt-1 text-xs text-muted-foreground underline-offset-2 hover:underline" disabled={saving}
+              onClick={() => void save({}, null)}>
+              Back to automatic
+            </button>
+          )}
         </div>
         <div>
           <Label>Tags<Reset field="tags" /></Label>

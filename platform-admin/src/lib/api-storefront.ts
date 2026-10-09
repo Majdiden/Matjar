@@ -28,7 +28,29 @@ export interface DomainRow {
   updatedAt?: string;
 }
 
-export interface ThemeCategoryOption { key: string; label: string; labelAr: string }
+export interface ThemeCategoryOption { key: string; label: string; labelAr: string; active?: boolean }
+/** Platform-managed theme category (backend services/themeCategories.js). */
+export interface ThemeCategory {
+  key: string;
+  name: { en: string; ar: string };
+  icon?: string;
+  aliases?: string[];
+  order: number;
+  active: boolean;
+  themeCount: number;
+  /** "general": cannot be deactivated or deleted. */
+  protected?: boolean;
+  updatedBy?: string | null;
+  updatedAt?: string;
+}
+export interface ThemeCategoryInput {
+  key?: string;
+  name?: { en?: string; ar?: string };
+  icon?: string;
+  aliases?: string[];
+  active?: boolean;
+  reason?: string;
+}
 export interface ThemeDetailsPatch {
   name?: string | null;
   description?: string | null;
@@ -49,6 +71,10 @@ export interface ThemeRow {
   isDefault?: boolean;
   previewImage?: string;
   categories?: string[];
+  /** Effective category keys (explicit assignment, or derived from the manifest). */
+  categoryKeys?: string[];
+  /** True when the owner assigned the categories; false = automatic. */
+  categoryKeysManaged?: boolean;
   tags?: string[];
   overrides?: { name?: string | null; description?: string | null; previewImage?: string | null; categories?: string[] | null; tags?: string[] | null; updatedBy?: string | null; updatedAt?: string | null };
   statistics?: { installCount?: number; activeInstalls?: number };
@@ -126,6 +152,33 @@ export const storefrontApi = {
     setStatus: async (id: string, status: ThemeRow['status'], reason?: string) => {
       const res = await http.patch(`/storefront/themes/${id}/status`, clean({ status, reason }));
       return res.data.data as { slug: string; name: string; status: string };
+    },
+    /** null = automatic (derived from the theme's manifest categories). */
+    setCategories: async (id: string, categoryKeys: string[] | null, reason?: string) => {
+      const res = await http.put(`/storefront/themes/${id}/categories`, { categoryKeys, ...(reason ? { reason } : {}) });
+      return res.data.data as ThemeRow;
+    },
+  },
+  themeCategories: {
+    list: async () => {
+      const res = await http.get('/storefront/theme-categories');
+      return res.data.data.categories as ThemeCategory[];
+    },
+    create: async (input: ThemeCategoryInput & { key: string; name: { en: string; ar: string } }) => {
+      const res = await http.post('/storefront/theme-categories', clean(input));
+      return res.data.data as ThemeCategory;
+    },
+    update: async (key: string, patch: ThemeCategoryInput & { order?: number }) => {
+      const res = await http.patch(`/storefront/theme-categories/${encodeURIComponent(key)}`, clean(patch));
+      return res.data.data as ThemeCategory;
+    },
+    reorder: async (keys: string[]) => {
+      const res = await http.put('/storefront/theme-categories/order', { keys });
+      return res.data.data.categories as ThemeCategory[];
+    },
+    remove: async (key: string, reason?: string) => {
+      const res = await http.delete(`/storefront/theme-categories/${encodeURIComponent(key)}`, { data: clean({ reason }) });
+      return res.data.data as { key: string; themesUpdated: number };
     },
   },
   health: {
