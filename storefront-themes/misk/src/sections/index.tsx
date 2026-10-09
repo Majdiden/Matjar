@@ -140,7 +140,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
             <div
               key={slide.id || i}
               aria-hidden={!active}
-              className={`grid items-center gap-8 px-4 pb-20 pt-12 sm:px-6 md:grid-cols-2 md:gap-14 md:py-16 ${height} ${active ? 'relative z-10 opacity-100' : 'pointer-events-none absolute inset-0 z-0 opacity-0'} transition-opacity duration-700`}
+              className={`grid items-center gap-8 px-4 pb-24 pt-12 sm:px-6 md:grid-cols-2 md:gap-14 md:pb-28 md:pt-16 ${height} ${active ? 'relative z-10 opacity-100' : 'pointer-events-none absolute inset-0 z-0 opacity-0'} transition-opacity duration-700`}
             >
               <div className={`overflow-hidden ${imageStart ? 'md:order-1' : 'md:order-2'}`} style={{ borderRadius: radius }}>
                 <Media
@@ -165,7 +165,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
       </div>
 
       {slides.length > 1 && (
-        <div className="absolute inset-x-0 bottom-5 z-20 mx-auto flex max-w-[1320px] items-center justify-center gap-4 px-6 md:justify-start">
+        <div className="absolute inset-x-0 bottom-6 z-20 mx-auto flex max-w-[1320px] items-center justify-center gap-4 px-4 sm:px-6 md:justify-start">
           {s.show_arrows !== false && (
             <div className="flex gap-2">
               <button type="button" onClick={() => go(idx - 1)} aria-label={t('theme.hero.prev')} className="grid h-11 w-11 place-items-center rounded-full border border-white/35 text-white transition-colors duration-300 hover:bg-white hover:text-ink">

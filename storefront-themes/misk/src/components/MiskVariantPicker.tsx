@@ -64,7 +64,7 @@ export const MiskVariantPicker: React.FC<Props> = ({ options, variants, selectio
                 <select
                   value={chosen || ''}
                   onChange={(e) => onSelectionChange(e.target.value ? { ...selection, [opt.name]: e.target.value } : (() => { const n = { ...selection }; delete n[opt.name]; return n; })())}
-                  className="h-12 w-full rounded-full border border-line bg-white pe-10 ps-5 text-base text-ink outline-none focus:border-gold-ink"
+                  className="misk-field h-12 w-full rounded-full border border-line bg-white pe-10 ps-5 text-base text-ink outline-none focus:border-gold-ink"
                 >
                   <option value="">{t('theme.product.choose', { name: opt.name })}</option>
                   {opt.values.map((v) => <option key={v} value={v}>{v}</option>)}

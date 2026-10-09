@@ -57,7 +57,26 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
 html[lang='en'] .misk-eyebrow { text-transform: uppercase; }
 
 /* ── Buttons ─────────────────────────────────────────────────────── */
-.misk-btn { @apply inline-flex min-h-[48px] items-center justify-center gap-2 whitespace-nowrap rounded-full px-8 py-3.5 text-center text-sm font-bold transition-colors duration-300 disabled:cursor-not-allowed; letter-spacing: var(--misk-track, 0); }
+.misk-btn { @apply inline-flex min-h-[48px] items-center justify-center gap-2 whitespace-nowrap rounded-full px-8 text-center text-sm font-bold transition-colors duration-300 disabled:cursor-not-allowed; letter-spacing: var(--misk-track, 0); --misk-btn-py: 0.875rem; padding-block: var(--misk-btn-py); }
+
+/* ── Arabic optical centring ──────────────────────────────────────
+   Tajawal reserves a deep descender (fontBoundingBoxDescent is 5px at
+   15px) while most UI strings carry little ink below the baseline, so a
+   vertically-centred line box leaves the glyphs sitting high. Measured
+   with TextMetrics, the ink centre is ~0.1em above the line-box centre.
+   Nudge the theme's own controls down by that much; the Latin branch
+   measures at 0.01em and needs nothing.
+
+   The offset is split across the two paddings so the control's height
+   never changes, and it is keyed off --misk-btn-py so a compact button
+   that zeroes its padding (`[--misk-btn-py:0px]`) stays correct. */
+html[lang='ar'] .misk-btn {
+  padding-block-start: calc(var(--misk-btn-py) + 0.1em);
+  padding-block-end: calc(var(--misk-btn-py) - 0.1em);
+}
+/* Inputs and selects centre their text inside the CONTENT box, so a given
+   padding moves the text by half of it — hence 0.2em for a 0.1em shift. */
+html[lang='ar'] .misk-field { padding-block-start: 0.2em; padding-block-end: 0; }
 html[lang='en'] .misk-btn { text-transform: uppercase; }
 .misk-btn-solid   { @apply bg-ink text-white hover:bg-gold-ink disabled:bg-line disabled:text-muted; }
 .misk-btn-light   { @apply bg-white text-ink hover:bg-sand disabled:bg-line disabled:text-muted; }

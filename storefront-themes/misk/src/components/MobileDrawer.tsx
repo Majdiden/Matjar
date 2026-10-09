@@ -92,7 +92,7 @@ export const MobileDrawer: React.FC<Props> = ({ open, onClose, items, fallback, 
                 value={term}
                 onChange={(e) => setTerm(e.target.value)}
                 placeholder={t('theme.search.placeholder')}
-                className="h-11 w-full rounded-full border border-line bg-sand pe-11 ps-4 text-base text-ink outline-none focus:border-gold-ink"
+                className="misk-field h-11 w-full rounded-full border border-line bg-sand pe-11 ps-4 text-base text-ink outline-none focus:border-gold-ink"
               />
               <button type="submit" className="absolute end-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center text-ink" aria-label={t('theme.search.submit')}>
                 <I.search className="h-5 w-5" />

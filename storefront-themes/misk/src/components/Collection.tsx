@@ -156,7 +156,7 @@ export const Collection: React.FC<Props> = ({ categorySlug, collectionHandle, ti
   const childrenOf = (id: string) => categories.filter((c: any) => c.parent === id || c.parent?._id === id);
   const toggle = (id: string) => setOpen((o) => ({ ...o, [id]: !o[id] }));
 
-  const fieldCls = 'h-10 w-full min-w-0 rounded-full border border-line bg-white px-4 text-sm text-ink outline-none focus:border-gold-ink';
+  const fieldCls = 'misk-field h-10 w-full min-w-0 rounded-full border border-line bg-white px-4 text-sm text-ink outline-none focus:border-gold-ink';
 
   const filters = (
     <div>
@@ -181,7 +181,7 @@ export const Collection: React.FC<Props> = ({ categorySlug, collectionHandle, ti
           <input inputMode="decimal" aria-label={t('theme.collection.min')} placeholder={t('theme.collection.min')} value={priceDraft.min} onChange={(e) => setPriceDraft((d) => ({ ...d, min: e.target.value }))} className={`misk-num ${fieldCls}`} />
           <span className="text-muted">–</span>
           <input inputMode="decimal" aria-label={t('theme.collection.max')} placeholder={t('theme.collection.max')} value={priceDraft.max} onChange={(e) => setPriceDraft((d) => ({ ...d, max: e.target.value }))} className={`misk-num ${fieldCls}`} />
-          <button type="submit" className="misk-btn misk-btn-solid h-10 min-h-0 shrink-0 whitespace-nowrap px-4 py-0 text-xs">{t('theme.collection.apply')}</button>
+          <button type="submit" className="misk-btn misk-btn-solid h-10 min-h-0 shrink-0 whitespace-nowrap px-4 text-xs [--misk-btn-py:0px]">{t('theme.collection.apply')}</button>
         </form>
       </Group>
 
@@ -294,7 +294,7 @@ export const Collection: React.FC<Props> = ({ categorySlug, collectionHandle, ti
               <button
                 type="button"
                 onClick={() => setFiltersOpen(true)}
-                className={`misk-btn misk-btn-outline h-10 min-h-0 gap-2 px-4 py-0 text-xs ${placement === 'drawer' ? '' : 'lg:hidden'}`}
+                className={`misk-btn misk-btn-outline h-10 min-h-0 gap-2 px-4 text-xs [--misk-btn-py:0px] ${placement === 'drawer' ? '' : 'lg:hidden'}`}
               >
                 <I.filter className="h-4 w-4" /> {t('theme.collection.filter')}{activeCount ? ` (${activeCount})` : ''}
               </button>
@@ -312,7 +312,7 @@ export const Collection: React.FC<Props> = ({ categorySlug, collectionHandle, ti
 
               <label className="flex items-center gap-2 text-sm text-muted">
                 <span className="hidden sm:inline">{t('theme.collection.sort')}</span>
-                <select value={sort} onChange={(e) => set({ sort: e.target.value })} className="h-10 rounded-full border border-line bg-white pe-8 ps-4 text-sm text-ink outline-none focus:border-gold-ink">
+                <select value={sort} onChange={(e) => set({ sort: e.target.value })} className="misk-field h-10 rounded-full border border-line bg-white pe-8 ps-4 text-sm text-ink outline-none focus:border-gold-ink">
                   {SORTS.map((s) => <option key={s} value={s}>{t(`theme.collection.sort_${s}`)}</option>)}
                 </select>
               </label>

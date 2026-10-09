@@ -98,7 +98,7 @@ export const SearchOverlay: React.FC<Props> = ({ open, onClose, popular, image }
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder={t('theme.search.placeholder')}
-                  className="h-14 w-full border-b-2 border-line bg-transparent pe-12 ps-0 font-display text-xl text-ink outline-none transition-colors focus:border-gold-ink sm:text-2xl"
+                  className="misk-field h-14 w-full border-b-2 border-line bg-transparent pe-12 ps-0 font-display text-xl text-ink outline-none transition-colors focus:border-gold-ink sm:text-2xl"
                 />
                 <button type="submit" className="absolute end-0 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center text-ink" aria-label={t('theme.search.submit')}>
                   <I.search className="h-6 w-6" />

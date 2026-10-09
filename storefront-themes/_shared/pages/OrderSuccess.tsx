@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ordersApi } from '../api/client';
 import { useStore } from '../contexts/StoreContext';
 import { useTranslation } from 'react-i18next';
+import { localizedPaymentMethodLabel } from '../lib/paymentLabel';
 
 /**
  * Order Success / Thank-You page
@@ -282,7 +283,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
               <div>
                 <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold mb-2">{t('order.success.payment')}</p>
                 <p className="font-medium capitalize">
-                  {order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod}
+                  {localizedPaymentMethodLabel(order.paymentMethod, t)}
                 </p>
                 {order.paymentStatus && (
                   <p className="text-gray-600 text-xs mt-0.5">{order.paymentStatus}</p>

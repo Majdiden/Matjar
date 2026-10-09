@@ -304,7 +304,7 @@ const ProductDetail: React.FC = () => {
             <div ref={buyRef} className="mt-6 flex flex-wrap gap-3">
               <div className="flex h-14 items-center rounded-full border border-line">
                 <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid h-full w-12 place-items-center rounded-full text-ink hover:bg-sand" aria-label={t('theme.product.decrease')}><I.minus className="h-4 w-4" /></button>
-                <input inputMode="numeric" aria-label={t('theme.product.quantity')} value={qty} onChange={(e) => setQty(Math.max(1, parseInt(e.target.value, 10) || 1))} className="misk-num h-full w-12 bg-transparent text-center text-ink outline-none" />
+                <input inputMode="numeric" aria-label={t('theme.product.quantity')} value={qty} onChange={(e) => setQty(Math.max(1, parseInt(e.target.value, 10) || 1))} className="misk-field misk-num h-full w-12 bg-transparent text-center text-ink outline-none" />
                 <button type="button" onClick={() => setQty((q) => q + 1)} className="grid h-full w-12 place-items-center rounded-full text-ink hover:bg-sand" aria-label={t('theme.product.increase')}><I.plus className="h-4 w-4" /></button>
               </div>
               <button type="button" onClick={add} disabled={!canAdd} className="misk-btn misk-btn-outline h-14 min-w-[200px] flex-1">{ctaLabel}</button>

@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import { authenticate, optionalAuth } from "../middlewares/auth.js";
 import { requireTenant } from "../middlewares/tenantContext.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
@@ -144,8 +145,25 @@ router.get(
       return res.json({ success: true, data: demoProductsList(demoSlug, req.query) });
     }
 
-    const { page = 1, limit = 20, category, sort, search, minPrice, maxPrice } = req.query;
+    const { page = 1, limit = 20, category, sort, search, minPrice, maxPrice, ids } = req.query;
     const filter = productStatusFilter(req);
+
+    // `ids` fetches a specific set in one round trip. The wishlist needs it:
+    // a guest wishlist is a stored snapshot with no stock or current price, so
+    // the page has to re-read the live products rather than trust the snapshot.
+    // Capped, and non-ObjectId values are dropped so a bad id can't throw.
+    let idLimit = null;
+    if (ids) {
+      const list = String(ids)
+        .split(",")
+        .map((v) => v.trim())
+        .filter((v) => mongoose.Types.ObjectId.isValid(v))
+        .slice(0, 100);
+      // An ids query that resolves to nothing must return nothing, not the
+      // whole catalogue.
+      filter._id = { $in: list };
+      idLimit = Math.max(list.length, 1);
+    }
 
     if (category) filter.category = category;
     if (minPrice || maxPrice) {
@@ -169,12 +187,13 @@ router.get(
       default: sortOptions.createdAt = -1;
     }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const effectiveLimit = idLimit ?? parseInt(limit);
+    const skip = idLimit ? 0 : (parseInt(page) - 1) * parseInt(limit);
     const [products, total] = await Promise.all([
       req.models.Product.find(filter)
         .sort(sortOptions)
         .skip(skip)
-        .limit(parseInt(limit))
+        .limit(effectiveLimit)
         .select(productCardSelect),
       req.models.Product.countDocuments(filter),
     ]);
