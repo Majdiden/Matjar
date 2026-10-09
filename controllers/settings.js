@@ -3,6 +3,7 @@ import { APIError } from "../middlewares/errorHandler.js";
 import mongoose from "mongoose";
 import sanitizeHtml from "sanitize-html";
 import { logAudit } from "../utils/audit.js";
+import { STORE_CONTACT_FIELDS, normalizeStoreContactField } from "../utils/storeContact.js";
 
 // The four store policies the merchant can author. Keys map 1:1 to
 // settings.policies.<key> and to the storefront policy routes.
@@ -239,10 +240,11 @@ export const updateSettings = async (req, res, next) => {
 
     // Store contact / company info.
     if (settings.contact !== undefined && settings.contact !== null) {
-      const c = settings.contact;
-      if (c.email !== undefined) updateData["settings.contact.email"] = String(c.email || "").trim().slice(0, 200);
-      if (c.phone !== undefined) updateData["settings.contact.phone"] = String(c.phone || "").trim().slice(0, 60);
-      if (c.address !== undefined) updateData["settings.contact.address"] = String(c.address || "").trim().slice(0, 500);
+      for (const field of STORE_CONTACT_FIELDS) {
+        if (settings.contact[field] !== undefined) {
+          updateData[`settings.contact.${field}`] = normalizeStoreContactField(field, settings.contact[field]);
+        }
+      }
     }
 
     // Store policies — title (plain) + body (sanitised rich-text HTML).

@@ -22,6 +22,8 @@ export type {
   Order,
   Address,
   StoreInfo,
+  BrandKit,
+  BrandText,
   Pagination,
   WishlistItem,
 } from './types/commerce';
@@ -67,7 +69,7 @@ export {
 
 // ─── Contexts ────────────────────────────────────────────────────
 export { CartProvider, useCart } from './contexts/CartContext';
-export { StoreProvider, useStore } from './contexts/StoreContext';
+export { StoreProvider, useStore, useBrand } from './contexts/StoreContext';
 
 // ─── Hooks ───────────────────────────────────────────────────────
 export {

@@ -1,5 +1,6 @@
 import { isValidEditorPreviewToken } from "./themeCustomization.js";
 import { publicSocialLinks } from "../utils/socialLinks.js";
+import { publicBrand } from "../utils/brandKit.js";
 
 /**
  * Build the public store payload — the exact object returned as
@@ -123,6 +124,10 @@ export function buildStoreInfo(tenant, options = {}) {
     theme: effectiveTheme,
     themeCustomization: effectiveCustomization,
     socialLinks: publicSocialLinks(tenant.settings?.socialLinks),
+    // Brand kit (PBI 10): only non-empty, still-valid values, or null when
+    // the merchant has set nothing — themes fall back to their own defaults
+    // then, so stores without a brand kit render exactly as before.
+    brand: publicBrand(tenant.settings?.brand),
     contactInfo: tenant.settings?.contactInfo || null,
     contact: tenant.settings?.contact || null,
     // Only expose policies that actually have a body — the storefront
