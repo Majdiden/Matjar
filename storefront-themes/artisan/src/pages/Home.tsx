@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useThemeSettings, useMerchantBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
@@ -57,11 +57,16 @@ const ArtisanHero: React.FC<ArtisanSectionProps> = ({ id }) => {
   );
 };
 
-// Our Philosophy
+// Our Philosophy — the merchant's own words (section text, else the store
+// description). No demo sourcing claims ("we partner directly with
+// artisans… authentic"); nothing written → no section.
 const ArtisanPhilosophy: React.FC<ArtisanSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const philosophy = useThemeSettings(id);
+  const { store } = useStore();
   const { ref, isIntersecting: visible } = useIntersectionObserver({ threshold: 0.1 });
+  const body = merchantText(philosophy.body_text) || merchantText(store?.description);
+  if (!body) return null;
   return (
     <section ref={ref as React.RefObject<HTMLElement>} className={`max-w-3xl mx-auto px-6 py-20 text-center ${ENTRANCE} ${reveal(visible)}`}>
       {philosophy.show_dividers !== false && <div className="w-16 h-px bg-[var(--color-accent)] mx-auto mb-6" />}
@@ -69,7 +74,7 @@ const ArtisanPhilosophy: React.FC<ArtisanSectionProps> = ({ id }) => {
         {philosophy.heading || t('theme.section.philosophy.heading')}
       </h2>
       <p className="text-gray-600 leading-relaxed text-lg">
-        {philosophy.body_text || t('theme.section.philosophy.body')}
+        {body}
       </p>
       {philosophy.show_dividers !== false && <div className="w-16 h-px bg-[var(--color-accent)] mx-auto mt-6" />}
     </section>
@@ -119,12 +124,21 @@ const ArtisanFeatured: React.FC<ArtisanSectionProps> = ({ id, onQuickView }) => 
   );
 };
 
-// Maker Spotlight
+/** Demo makers this theme used to ship; sections saved back then still carry them. */
+const LEGACY_DEMO_MAKERS = [
+  { name: 'Maria Santos', craft: 'Ceramics', quote: 'Every piece carries the warmth of the kiln and the patience of my hands.' },
+  { name: 'James Okafor', craft: 'Woodworking', quote: 'I let the grain of the wood guide each cut. Nature is my co-designer.' },
+  { name: 'Aiko Tanaka', craft: 'Textiles', quote: 'Weaving connects me to generations of makers before me.' },
+];
+
+// Maker Spotlight — only makers the merchant added. The demo makers and
+// their quotes are invented people, so they never show; no makers → no section.
 const ArtisanSpotlight: React.FC<ArtisanSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const spotlight = useThemeSettings(id);
-  const spotlightBlocks = useSectionBlocks(id);
+  const spotlightBlocks = useMerchantBlocks(id, ['name', 'craft', 'quote'], LEGACY_DEMO_MAKERS);
   const { ref, isIntersecting: visible } = useIntersectionObserver({ threshold: 0.1 });
+  if (spotlightBlocks.length === 0) return null;
   return (
     <section ref={ref as React.RefObject<HTMLElement>} className={`bg-[var(--color-muted)]/20/30 py-16 ${ENTRANCE} ${reveal(visible)}`}>
       <div className="max-w-6xl mx-auto px-6">
@@ -140,9 +154,9 @@ const ArtisanSpotlight: React.FC<ArtisanSectionProps> = ({ id }) => {
                 <div className="w-20 h-20 rounded-full bg-[var(--color-muted)]/20 mx-auto mb-4 flex items-center justify-center text-[var(--color-primary)] text-2xl font-bold italic">
                   {String(name || '?').split(' ').map(n => n[0]).join('')}
                 </div>
-                <h3 className="font-bold text-[var(--color-primary)]">{name}</h3>
-                <p className="text-xs text-[var(--color-accent)] uppercase tracking-wider mb-3">{craft}</p>
-                <p className="text-sm text-gray-500 italic leading-relaxed">"{quote}"</p>
+                {name && <h3 className="font-bold text-[var(--color-primary)]">{name}</h3>}
+                {craft && <p className="text-xs text-[var(--color-accent)] uppercase tracking-wider mb-3">{craft}</p>}
+                {quote && <p className="text-sm text-gray-500 italic leading-relaxed">"{quote}"</p>}
               </div>
             );
           })}

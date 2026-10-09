@@ -53,7 +53,7 @@
       "submit": "Send Message",
       "submitting": "Sending…",
       "success_title": "Message Sent",
-      "success_description": "We'll get back to you within 24 hours.",
+      "success_description": "We'll get back to you as soon as we can.",
       "toast": {
         "success": "Message sent successfully."
       },

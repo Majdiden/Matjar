@@ -84,9 +84,10 @@ export const artisanSpotlightSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'maker-1', type: 'maker', settings: { name: 'Maria Santos', craft: 'Ceramics', quote: 'Every piece carries the warmth of the kiln and the patience of my hands.' } },
-    { id: 'maker-2', type: 'maker', settings: { name: 'James Okafor', craft: 'Woodworking', quote: 'I let the grain of the wood guide each cut. Nature is my co-designer.' } },
-    { id: 'maker-3', type: 'maker', settings: { name: 'Aiko Tanaka', craft: 'Textiles', quote: 'Weaving connects me to generations of makers before me.' } },
+    // Empty until the merchant writes them (no demo claims on a live store).
+    { id: 'maker-1', type: 'maker', settings: { name: '', craft: '', quote: '' } },
+    { id: 'maker-2', type: 'maker', settings: { name: '', craft: '', quote: '' } },
+    { id: 'maker-3', type: 'maker', settings: { name: '', craft: '', quote: '' } },
   ],
 });
 

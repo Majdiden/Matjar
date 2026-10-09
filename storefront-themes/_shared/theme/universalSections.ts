@@ -53,7 +53,8 @@ export const universalSections: SectionDefinition[] = [
     description: 'Slim promotional strip',
     target: 'body',
     settings: [
-      { id: 'message', type: 'text', label: 'Message', level: 'basic', default: 'Free shipping on all orders over $50' },
+      // No demo default: a strip shows only the merchant's own message.
+      { id: 'message', type: 'text', label: 'Message', level: 'basic', default: '' },
       { id: 'link_text', type: 'text', label: 'Link Text', level: 'basic', default: '' },
       { id: 'link_url', type: 'url', label: 'Link URL', default: '' },
       { id: 'background_color', type: 'color', label: 'Background', default: '#2563eb' },
@@ -147,8 +148,9 @@ export const universalSections: SectionDefinition[] = [
       { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: 'Why Shop With Us' },
       ...APPEARANCE_SETTINGS,
     ],
-    // Feature entries are BLOCKS (editable in the dashboard) with placeholder
-    // copy so a freshly added section renders immediately.
+    // Feature entries are BLOCKS (editable in the dashboard), empty until the
+    // merchant writes them; meanwhile the section shows the store's own
+    // delivery / returns / payment facts (useMerchantBlocks + useTrustLines).
     blocks: [
       {
         type: 'feature',
@@ -161,9 +163,9 @@ export const universalSections: SectionDefinition[] = [
       },
     ],
     defaultBlocks: [
-      { id: 'feature-1', type: 'feature', settings: { title: 'Free Shipping', description: 'On all orders over a minimum amount.' } },
-      { id: 'feature-2', type: 'feature', settings: { title: 'Easy Returns', description: 'Simple, hassle-free return policy.' } },
-      { id: 'feature-3', type: 'feature', settings: { title: 'Secure Checkout', description: 'Your payment information is protected.' } },
+      { id: 'feature-1', type: 'feature', settings: { title: '', description: '' } },
+      { id: 'feature-2', type: 'feature', settings: { title: '', description: '' } },
+      { id: 'feature-3', type: 'feature', settings: { title: '', description: '' } },
     ],
   }),
 
@@ -192,8 +194,8 @@ export const universalSections: SectionDefinition[] = [
       { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: 'What Customers Say' },
       ...APPEARANCE_SETTINGS,
     ],
-    // Quotes are BLOCKS (editable in the dashboard) with placeholder copy so
-    // a freshly added section renders immediately.
+    // Quotes are BLOCKS (editable in the dashboard), empty until the merchant
+    // writes them: storefronts never show invented customers.
     blocks: [
       {
         type: 'testimonial',
@@ -207,9 +209,9 @@ export const universalSections: SectionDefinition[] = [
       },
     ],
     defaultBlocks: [
-      { id: 'testimonial-1', type: 'testimonial', settings: { quote: 'Fantastic quality and fast delivery. Will definitely shop here again!', author: 'Sarah A.' } },
-      { id: 'testimonial-2', type: 'testimonial', settings: { quote: 'Great customer service — they answered all my questions right away.', author: 'Mohammed K.' } },
-      { id: 'testimonial-3', type: 'testimonial', settings: { quote: 'Exactly as described. The whole experience was smooth from start to finish.', author: 'Lina H.' } },
+      { id: 'testimonial-1', type: 'testimonial', settings: { quote: '', author: '' } },
+      { id: 'testimonial-2', type: 'testimonial', settings: { quote: '', author: '' } },
+      { id: 'testimonial-3', type: 'testimonial', settings: { quote: '', author: '' } },
     ],
   }),
 

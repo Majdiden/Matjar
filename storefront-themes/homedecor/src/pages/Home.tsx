@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useThemeSettings, useMerchantBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
@@ -208,12 +208,27 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
   );
 }
 
-/** Designed to Last - Philosophy Section */
+/** Demo pillars this theme used to ship; sections saved back then still carry them. */
+const LEGACY_DEMO_PILLARS = [
+  { title: 'Sustainably Sourced', description: 'Responsibly harvested materials from certified suppliers.' },
+  { title: 'Built to Endure', description: 'Rigorous quality testing ensures lasting beauty and function.' },
+  { title: 'Thoughtful Design', description: 'Each piece balances form, function, and timeless aesthetics.' },
+];
+
+/**
+ * Designed to Last - Philosophy Section. The merchant's own words only (body
+ * text, else the store description) and the pillars they wrote — the demo
+ * copy claims sourcing and quality testing the store never stated
+ * ("sustainably sourced… certified suppliers"). Nothing written → no section.
+ */
 function PhilosophyBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const philosophy = useThemeSettings(id);
-  const pillarBlocks = useSectionBlocks(id);
+  const { store } = useStore();
+  const pillarBlocks = useMerchantBlocks(id, ['title', 'description'], LEGACY_DEMO_PILLARS);
   const { ref: philosophyRef, isIntersecting: philosophyVisible } = useIntersectionObserver({ threshold: 0.1 });
+  const body = merchantText(philosophy.body_text) || merchantText(store?.description);
+  if (!body && pillarBlocks.length === 0) return null;
 
   return (
     <section
@@ -226,20 +241,24 @@ function PhilosophyBlock({ id }: SectionProps) {
           {philosophy.eyebrow || t('theme.section.philosophy.eyebrow')}
         </p>
         <h2 className="text-3xl font-semibold mb-6">{philosophy.heading || t('theme.section.philosophy.title')}</h2>
-        <p className="text-gray-500 leading-relaxed max-w-2xl mx-auto mb-10">
-          {philosophy.body_text || t('theme.section.philosophy.body')}
-        </p>
+        {body && (
+          <p className="text-gray-500 leading-relaxed max-w-2xl mx-auto mb-10">
+            {body}
+          </p>
+        )}
+        {pillarBlocks.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
           {pillarBlocks.map((block) => (
             <div key={block.id} className="text-center">
               <div className="w-12 h-12 bg-[#d4a76a]/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <div className="w-3 h-3 bg-[#d4a76a] rounded-full" />
               </div>
-              <h3 className="font-medium text-gray-800 mb-2">{block.settings.title}</h3>
-              <p className="text-sm text-gray-500">{block.settings.description}</p>
+              {merchantText(block.settings.title) && <h3 className="font-medium text-gray-800 mb-2">{block.settings.title}</h3>}
+              {merchantText(block.settings.description) && <p className="text-sm text-gray-500">{block.settings.description}</p>}
             </div>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

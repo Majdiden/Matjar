@@ -13,7 +13,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionBlocks } from '../../theme/ThemeProvider';
+import { useThemeSettings, useSectionBlocks, useMerchantBlocks } from '../../theme/ThemeProvider';
+import { merchantText } from '../../theme/heroContent';
+import { useTrustLines, TrustLineIconSvg } from '../commerce/TrustBadges';
 import { useFeaturedProducts, useProducts, useCategories } from '../../hooks/useProducts';
 import { ProductCard } from '../commerce/ProductCard';
 import { Carousel } from '../primitives/Carousel';
@@ -111,9 +113,19 @@ export const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 // ─── Banner (promo strip) ────────────────────────────────────────
 
+/**
+ * Demo copy the promo strip used to ship as its default message. A section
+ * added before the default was cleared still carries it in its saved
+ * settings; it is a claim the store never made, so it counts as unset.
+ */
+const DEMO_BANNER_MESSAGES = new Set(['Free shipping on all orders over $50']);
+
 export const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
-  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
+  // The merchant's own message only — no demo fallback ("Free shipping over
+  // $50"); an empty strip renders nothing.
+  const message = merchantText(s.message);
+  if (!message || DEMO_BANNER_MESSAGES.has(message)) return null;
   return (
     <section
       className="py-3 px-4 text-center text-sm font-medium"
@@ -122,7 +134,7 @@ export const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
         color: s.text_color || '#ffffff',
       }}
     >
-      <span>{s.message || t('section.banner.default_message')}</span>
+      <span>{message}</span>
       {s.link_url && s.link_text && (
         <Link to={s.link_url} className="ms-2 underline hover:no-underline">
           {s.link_text}
@@ -234,17 +246,40 @@ export const GallerySection: React.FC<SectionComponentProps> = ({ id }) => {
 
 // ─── Features (icon + text grid) ─────────────────────────────────
 
+/** Demo features / quotes the universal sections used to ship; saved copies don't count as the merchant's. */
+const LEGACY_DEMO_FEATURES = [
+  { title: 'Free Shipping', description: 'On all orders over a minimum amount.' },
+  { title: 'Easy Returns', description: 'Simple, hassle-free return policy.' },
+  { title: 'Secure Checkout', description: 'Your payment information is protected.' },
+];
+const LEGACY_DEMO_TESTIMONIALS = [
+  { quote: 'Fantastic quality and fast delivery. Will definitely shop here again!', author: 'Sarah A.' },
+  { quote: 'Great customer service — they answered all my questions right away.', author: 'Mohammed K.' },
+  { quote: 'Exactly as described. The whole experience was smooth from start to finish.', author: 'Lina H.' },
+];
+
 export const FeaturesSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
-  const blocks = useSectionBlocks(id);
-  // Feature entries come from editable BLOCKS (with placeholder defaults so a
-  // freshly added section renders); legacy `features` JSON setting kept as a
-  // fallback for old data.
-  const features: Array<{ icon?: string; title: string; description: string }> = blocks.length
+  const blocks = useMerchantBlocks(id, ['title', 'description'], LEGACY_DEMO_FEATURES);
+  const trustLines = useTrustLines();
+  // Feature entries the merchant wrote (editable BLOCKS; the demo defaults —
+  // "Free Shipping", "Easy Returns" — don't count), then the legacy
+  // `features` JSON setting, then the store's own delivery / returns /
+  // payment facts. Nothing to say → nothing rendered.
+  const legacy: Array<{ icon?: string; title: string; description: string }> = Array.isArray(s.features)
+    ? s.features.filter((f: any) => merchantText(f?.title) || merchantText(f?.description))
+    : [];
+  const features: Array<{ icon?: React.ReactNode; title: string; description: string }> = blocks.length
     ? blocks
-        .filter((b) => b.type === 'feature' && (b.settings?.title || b.settings?.description))
+        .filter((b) => b.type === 'feature')
         .map((b) => ({ icon: b.settings.icon, title: b.settings.title, description: b.settings.description }))
-    : Array.isArray(s.features) ? s.features : [];
+    : legacy.length
+      ? legacy
+      : trustLines.map((line) => ({
+          icon: <TrustLineIconSvg name={line.icon} className="w-9 h-9 mx-auto" />,
+          title: line.text,
+          description: '',
+        }));
   if (features.length === 0) return null;
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16" style={appearanceStyle(s)}>
@@ -253,8 +288,8 @@ export const FeaturesSection: React.FC<SectionComponentProps> = ({ id }) => {
         {features.map((f, i) => (
           <div key={i} className="text-center p-6">
             {f.icon && <div className="text-4xl mb-3">{f.icon}</div>}
-            <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
-            <p className="text-sm text-gray-500 leading-relaxed">{f.description}</p>
+            {f.title && <h3 className="font-semibold text-lg mb-2">{f.title}</h3>}
+            {f.description && <p className="text-sm text-gray-500 leading-relaxed">{f.description}</p>}
           </div>
         ))}
       </div>
@@ -297,15 +332,15 @@ export const VideoSection: React.FC<SectionComponentProps> = ({ id }) => {
 
 export const TestimonialsSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
-  const blocks = useSectionBlocks(id);
-  // Quotes come from editable BLOCKS (with placeholder defaults so a freshly
-  // added section renders); legacy `testimonials` JSON setting kept as a
-  // fallback for old data.
+  const blocks = useMerchantBlocks(id, ['quote', 'author'], LEGACY_DEMO_TESTIMONIALS);
+  // Quotes the merchant wrote (editable BLOCKS — the demo quotes from
+  // invented customers don't count); legacy `testimonials` JSON setting
+  // kept as a fallback for old data.
   const items: Array<{ quote: string; author: string; role?: string; avatar?: string }> = blocks.length
     ? blocks
-        .filter((b) => b.type === 'testimonial' && b.settings?.quote)
+        .filter((b) => b.type === 'testimonial' && merchantText(b.settings?.quote))
         .map((b) => ({ quote: b.settings.quote, author: b.settings.author, role: b.settings.role, avatar: b.settings.avatar }))
-    : Array.isArray(s.testimonials) ? s.testimonials : [];
+    : Array.isArray(s.testimonials) ? s.testimonials.filter((q: any) => merchantText(q?.quote)) : [];
   if (items.length === 0) return null;
   return (
     <section className="bg-gray-50 py-16" style={appearanceStyle(s)}>
@@ -501,34 +536,35 @@ export const CategoriesSection: React.FC<SectionComponentProps> = ({ id }) => {
 // ─── Trust Badges ────────────────────────────────────────────────
 
 export const TrustBadgesSection: React.FC<SectionComponentProps> = ({ id }) => {
-  const { t } = useTranslation('common');
   const s = useThemeSettings(id);
-  const badges = Array.isArray(s.badges) && s.badges.length > 0
+  const trustLines = useTrustLines();
+  // Badges the merchant set (`badges` JSON list of {icon, title,
+  // description}); otherwise the store's own delivery / returns / payment
+  // facts. No demo fallback ("Free shipping over $50", "30-day money
+  // back") — a store with nothing to say renders nothing.
+  const custom: Array<{ icon: React.ReactNode; title: string; description: string }> = Array.isArray(s.badges)
     ? s.badges
-    : [
-        {
-          title: t('section.trust.free_shipping_title'),
-          description: t('section.trust.free_shipping_desc'),
-        },
-        {
-          title: t('section.trust.secure_payment_title'),
-          description: t('section.trust.secure_payment_desc'),
-        },
-        {
-          title: t('section.trust.easy_returns_title'),
-          description: t('section.trust.easy_returns_desc'),
-        },
-      ];
+        .filter((b: any) => merchantText(b?.title) || merchantText(b?.description))
+        .map((b: any) => ({ icon: merchantText(b.icon) || '✓', title: merchantText(b.title) || '', description: merchantText(b.description) || '' }))
+    : [];
+  const badges = custom.length
+    ? custom
+    : trustLines.map((line) => ({
+        icon: <TrustLineIconSvg name={line.icon} className="w-7 h-7" />,
+        title: line.text,
+        description: '',
+      }));
+  if (badges.length === 0) return null;
   return (
     <section style={{ backgroundColor: s.background_color || '#f9fafb' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {badges.map((b: any, i: number) => (
+          {badges.map((b, i) => (
             <div key={i} className="flex items-center gap-4 p-5 bg-white rounded-xl shadow-sm">
-              <div className="text-2xl">{b.icon || '✓'}</div>
+              <div className="text-2xl" style={{ color: 'var(--color-primary, #2563eb)' }}>{b.icon}</div>
               <div>
-                <h3 className="font-semibold">{b.title}</h3>
-                <p className="text-sm text-gray-500">{b.description}</p>
+                {b.title && <h3 className="font-semibold">{b.title}</h3>}
+                {b.description && <p className="text-sm text-gray-500">{b.description}</p>}
               </div>
             </div>
           ))}

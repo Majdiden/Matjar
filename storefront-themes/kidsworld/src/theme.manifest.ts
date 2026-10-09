@@ -116,10 +116,11 @@ export const trustBadgesSection: SectionDefinition = defineSection({
     },
   ],
   defaultBlocks: [
-    { id: 'badge-1', type: 'badge', settings: { icon: 'shield', title: 'Safe & Certified', description: 'All toys tested & approved' } },
-    { id: 'badge-2', type: 'badge', settings: { icon: 'star', title: 'Fun Guaranteed', description: 'Or your money back' } },
-    { id: 'badge-3', type: 'badge', settings: { icon: 'book', title: 'Educational', description: 'Learn through play' } },
-    { id: 'badge-4', type: 'badge', settings: { icon: 'truck', title: 'Fast Shipping', description: 'Free over $40' } },
+    // Empty until the merchant writes them (no demo claims on a live store).
+    { id: 'badge-1', type: 'badge', settings: { icon: 'shield', title: '', description: '' } },
+    { id: 'badge-2', type: 'badge', settings: { icon: 'star', title: '', description: '' } },
+    { id: 'badge-3', type: 'badge', settings: { icon: 'book', title: '', description: '' } },
+    { id: 'badge-4', type: 'badge', settings: { icon: 'truck', title: '', description: '' } },
   ],
 });
 

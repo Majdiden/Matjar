@@ -5,6 +5,7 @@ import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import ProductDetailExtras from '@matjar/theme-shared/components/commerce/ProductDetailExtras';
 import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
+import { useTrustLines, TrustLineIconSvg } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -40,6 +41,9 @@ const ProductDetail: React.FC = () => {
   }, [activeVariant?.image, product?.images]);
 
   const productSections = useTemplateSections('product');
+  // The store's own delivery / returns / payment facts (empty when the
+  // merchant never answered the policy questions — then nothing shows).
+  const trustLines = useTrustLines();
 
   if (loading) {
     return (
@@ -253,6 +257,19 @@ const ProductDetail: React.FC = () => {
                   : (adding ? t('product:card.adding') : t('product:card.add'))}
               </button>
             </div>
+          )}
+
+          {trustLines.length > 0 && (
+            <ul className="mt-6 mb-6 space-y-2 text-sm text-gray-600" aria-label={t('generated:trust.heading')}>
+              {trustLines.map((line) => (
+                <li key={line.key} className="flex items-center gap-2.5">
+                  <span style={{ color: 'var(--color-primary)' }}>
+                    <TrustLineIconSvg name={line.icon} className="w-5 h-5 shrink-0" />
+                  </span>
+                  <span>{line.text}</span>
+                </li>
+              ))}
+            </ul>
           )}
 
           <GuaranteedCheckout className="mt-6 mb-6" />

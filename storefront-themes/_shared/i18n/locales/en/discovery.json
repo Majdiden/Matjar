@@ -18,7 +18,7 @@
   "quickview": {
     "title": "Quick view",
     "close_aria": "Close quick view",
-    "tax_shipping": "Tax included. Shipping calculated at checkout.",
+    "tax_shipping": "Shipping is calculated at checkout.",
     "variant_label": "Variant",
     "quantity_label": "Quantity",
     "out_of_stock": "Out of stock",

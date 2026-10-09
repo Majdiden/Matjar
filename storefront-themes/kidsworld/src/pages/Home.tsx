@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useThemeSettings, useSectionBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useThemeSettings, useSectionBlocks, useMerchantBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { useTrustLines, TrustLineIconSvg } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
@@ -191,12 +192,39 @@ function ShopByAgeBlock({ id }: SectionProps) {
   );
 }
 
-/** Trust Badges */
+/** Demo badges this theme used to ship; sections saved back then still carry them. */
+const LEGACY_DEMO_BADGES = [
+  { title: 'Safe & Certified', description: 'All toys tested & approved' },
+  { title: 'Fun Guaranteed', description: 'Or your money back' },
+  { title: 'Educational', description: 'Learn through play' },
+  { title: 'Fast Shipping', description: 'Free over $40' },
+];
+
+/**
+ * Trust Badges — the merchant's own badges, else the store's real delivery /
+ * returns / payment facts. The demo badges ("Fun Guaranteed — or your money
+ * back", "Free over $40") never show; nothing to say → no section.
+ */
 function TrustBadgesBlock({ id }: SectionProps) {
   const trust = useThemeSettings(id);
-  const trustBlocks = useSectionBlocks(id);
+  const badgeBlocks = useMerchantBlocks(id, ['title', 'description'], LEGACY_DEMO_BADGES);
+  const trustLines = useTrustLines();
   const { ref: trustRef, isIntersecting: trustVisible } = useIntersectionObserver({ threshold: 0.1 });
   if (trust.show_section === false) return null;
+  const badges = badgeBlocks.length > 0
+    ? badgeBlocks.map((block) => ({
+        key: block.id,
+        icon: renderKidsBadgeIcon(block.settings.icon),
+        title: merchantText(block.settings.title),
+        description: merchantText(block.settings.description),
+      }))
+    : trustLines.map((line) => ({
+        key: line.key,
+        icon: <TrustLineIconSvg name={line.icon} className="w-10 h-10 mx-auto" />,
+        title: line.text,
+        description: null,
+      }));
+  if (badges.length === 0) return null;
 
   return (
     <section
@@ -206,17 +234,17 @@ function TrustBadgesBlock({ id }: SectionProps) {
       }`}
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-        {trustBlocks.map((block) => (
+        {badges.map((badge) => (
           <div
-            key={block.id}
+            key={badge.key}
             className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border-2 border-transparent"
             style={{ ['--hover-border' as string]: trust.highlight_color || '#fbbf24' }}
             onMouseEnter={(e) => (e.currentTarget.style.borderColor = trust.highlight_color || '#fbbf24')}
             onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'transparent')}
           >
-            <div className="text-[#8b5cf6] mb-2">{renderKidsBadgeIcon(block.settings.icon)}</div>
-            <h3 className="font-bold text-sm">{block.settings.title}</h3>
-            <p className="text-xs text-gray-500 mt-1">{block.settings.description}</p>
+            <div className="text-[#8b5cf6] mb-2">{badge.icon}</div>
+            {badge.title && <h3 className="font-bold text-sm">{badge.title}</h3>}
+            {badge.description && <p className="text-xs text-gray-500 mt-1">{badge.description}</p>}
           </div>
         ))}
       </div>

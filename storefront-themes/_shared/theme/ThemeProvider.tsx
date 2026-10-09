@@ -3,6 +3,7 @@ import type { ThemeManifest, MergedThemeSettings, SectionInstance, ThemeColors, 
 import { useStore } from '../contexts/StoreContext';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { BRAND_COLOR_TOKEN, resolveBoundSettings, resolvePrimaryColor, type BrandBindingSource } from './brandBindings';
+import { universalSections } from './universalSections';
 
 /**
  * Premium platform defaults for the design-system tokens. A theme that
@@ -281,6 +282,60 @@ export function useTemplateSections(templateId: string): SectionInstance[] {
 export function useSectionBlocks(sectionId: string): Array<{ id: string; type: string; settings: Record<string, any> }> {
   const { getSectionBlocks } = useTheme();
   return getSectionBlocks(sectionId);
+}
+
+type ResolvedBlock = { id: string; type: string; settings: Record<string, any> };
+
+const blockText = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+
+/**
+ * The demo blocks a theme ships for its sections — each section definition's
+ * `defaultBlocks` (the universal catalog's too) and the blocks written into
+ * the manifest's templates. The backend copies `defaultBlocks` onto a newly
+ * added section, so a merchant's saved blocks can still hold this demo copy.
+ */
+function demoBlocksOf(manifest: ThemeManifest): Array<{ type: string; settings: Record<string, any> }> {
+  const out: Array<{ type: string; settings: Record<string, any> }> = [];
+  const add = (list: unknown) => {
+    if (!Array.isArray(list)) return;
+    for (const b of list) if (b && typeof b === 'object' && (b as any).type) out.push({ type: (b as any).type, settings: (b as any).settings || {} });
+  };
+  for (const def of [...(manifest.sections || []), ...universalSections]) add(def.defaultBlocks);
+  for (const instance of [
+    ...Object.values(manifest.templates || {}).flat(),
+    ...Object.values(manifest.homeVariants || {}).flat(),
+  ] as SectionInstance[]) {
+    add(instance?.blocks);
+  }
+  return out;
+}
+
+/**
+ * The blocks the MERCHANT wrote for a section (PBI 10-11): like
+ * useSectionBlocks, minus blocks that are empty in `textKeys` or still carry
+ * demo copy — the same text as one of the theme's demo blocks of that type,
+ * or as one of `legacyDemo` (settings of demo blocks a theme used to ship;
+ * sections added back then saved a copy). Use it for sections whose items
+ * are business claims — trust badges, benefits, testimonials — so "Free
+ * shipping over $40" or "30-day returns" only appear when the merchant typed
+ * them. Empty when nothing is left.
+ */
+export function useMerchantBlocks(
+  sectionId: string,
+  textKeys: string[] = ['title', 'description'],
+  legacyDemo: ReadonlyArray<Record<string, unknown>> = [],
+): ResolvedBlock[] {
+  const { manifest, getSectionBlocks } = useTheme();
+  const blocks = getSectionBlocks(sectionId);
+  const demo = useMemo(() => demoBlocksOf(manifest), [manifest]);
+  const sameText = (a: Record<string, unknown>, b: Record<string, unknown>) =>
+    textKeys.every((k) => blockText(a[k]) === blockText(b[k]));
+  return blocks.filter((b) => {
+    const settings = b.settings || {};
+    if (!textKeys.some((k) => blockText(settings[k]))) return false;
+    if (legacyDemo.some((d) => sameText(d, settings))) return false;
+    return !demo.some((d) => d.type === b.type && sameText(d.settings, settings));
+  });
 }
 
 interface ThemeProviderProps {
