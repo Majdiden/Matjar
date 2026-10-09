@@ -202,6 +202,11 @@ Deploying runs migration 016 automatically: every store's homepage becomes **her
 | 13.11 | Dashboard in Arabic and in English: a customer's page (lifetime spend, last order, customer since), orders list, products list. | All digits are 0-9 (no ٠١٢), in both languages. On the store, order tracking and review dates too. |
 | 13.12 | Any form: leave a required field empty far up the page, tap Save. | The page scrolls to that field and puts the cursor in it. |
 | 13.13 | Phone bottom bar. | Home, Orders, +, Products, More. My store is inside More (More is highlighted while you're in My store). |
+| 13.14 | **Guided setup** (needs `onboarding.v2`; steps 2–3 need `design.simpleMode`). New store with no product: log in. | The dashboard opens **Add a product** straight away, with the guide bar on top ("Set up your store · 0 of 4"). |
+| 13.15 | Publish the product, then go to any other page. | The bar now says step 2 **Add your logo and cover photo** with a button. Next login opens that page directly. |
+| 13.16 | Add the logo, the cover photo and the short line (tagline). | Step 3 **delivery and returns**: answer and save → step 4 **Share**: share from the bar. The bar disappears for good. |
+| 13.17 | Fold the bar (arrow). | It becomes one line on every page; it can't be closed until the steps are done. Home shows the full checklist instead of the bar. |
+| 13.18 | Sidebar (computer) or More (phone). | **My store** is the first entry of the top section, larger, tinted, with "Your store's look and pages" under it. |
 
 ---
 

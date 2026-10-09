@@ -35,3 +35,5 @@ This document lists all tasks associated with PBI 10.
 | 10-25 | [Generated pages designed per theme](./10-25.md) | Review | About, Contact and generated policies were a title and plain text |
 | 10-26 | [Latin digits for prices, numbers and dates](./10-26.md) | Review | Since stores default to Arabic, prices and dates showed Arabic-Indic digits even in the English dashboard |
 | 10-27 | [Delivery prices from the shipping settings](./10-27.md) | Review | The delivery questions asked for a free-text price that could disagree with checkout |
+| 10-28 | [Guided setup: open the current step, guide until done](./10-28.md) | Review | On login the dashboard opens the current essential step full-page (first product → logo, cover photo and tagline → delivery and returns policy → share) |
+| 10-29 | [My store as the main menu entry](./10-29.md) | Review | "My store" leads the top menu section (above dashboard, analytics and wishlists), drawn one size up, tinted, with a second line, in the same style as the other rows; removed from the Storefront section |
