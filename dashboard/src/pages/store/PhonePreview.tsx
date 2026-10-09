@@ -13,6 +13,9 @@
  * The homepage editor (10-13) also passes `iframeRef` + `onUrl` to send the
  * editor's live-preview messages (SECTION_UPDATE, …) into the frame, and
  * `screenHeight` to show a shorter phone screen (the page scrolls inside).
+ * With `fill` there is no phone frame: the page takes the box's full width
+ * (close to real size on a phone) and the box's own height (set by
+ * `className`, e.g. a share of the screen).
  */
 import { useEffect, useRef, useState, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,14 +49,19 @@ interface PhonePreviewProps {
   iframeRef?: Ref<HTMLIFrameElement>;
   /** Called with the preview URL once it is known (null when unavailable). */
   onUrl?: (url: string | null) => void;
+  /** Called each time the page in the frame finishes loading. */
+  onLoad?: () => void;
+  /** No phone frame: full width, height from `className`. */
+  fill?: boolean;
 }
 
-export default function PhonePreview({ reloadKey = 0, className, screenHeight, iframeRef, onUrl }: PhonePreviewProps) {
+export default function PhonePreview({ reloadKey = 0, className, screenHeight, iframeRef, onUrl, onLoad, fill = false }: PhonePreviewProps) {
   const { t } = useTranslation('storeDesign');
   const [url, setUrl] = useState<string | null | undefined>(undefined);
   const [loaded, setLoaded] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.75);
+  const [measuredHeight, setMeasuredHeight] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -73,8 +81,9 @@ export default function PhonePreview({ reloadKey = 0, className, screenHeight, i
     const el = boxRef.current;
     if (!el || typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(([entry]) => {
-      const width = entry.contentRect.width;
+      const { width, height } = entry.contentRect;
       if (width > 0) setScale(width / PHONE_WIDTH_PX);
+      setMeasuredHeight(height);
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -82,14 +91,21 @@ export default function PhonePreview({ reloadKey = 0, className, screenHeight, i
 
   useEffect(() => setLoaded(false), [reloadKey, url]);
 
-  const boxHeight = screenHeight ?? PHONE_HEIGHT_PX * scale;
+  const boxHeight = fill ? measuredHeight : screenHeight ?? PHONE_HEIGHT_PX * scale;
 
   return (
-    <div className={cn('mx-auto w-full max-w-[320px] rounded-[2rem] border-[6px] border-foreground/85 bg-foreground/85 shadow-xl', className)}>
+    <div
+      className={cn(
+        fill
+          ? 'w-full overflow-hidden rounded-xl border shadow-sm'
+          : 'mx-auto w-full max-w-[320px] rounded-[2rem] border-[6px] border-foreground/85 bg-foreground/85 shadow-xl',
+        className,
+      )}
+    >
       <div
         ref={boxRef}
-        className="relative overflow-hidden rounded-[1.6rem] bg-background"
-        style={{ height: boxHeight }}
+        className={cn('relative overflow-hidden bg-background', fill ? 'h-full' : 'rounded-[1.6rem]')}
+        style={fill ? undefined : { height: boxHeight }}
       >
         {url ? (
           <iframe
@@ -97,13 +113,16 @@ export default function PhonePreview({ reloadKey = 0, className, screenHeight, i
             key={`${url}-${reloadKey}`}
             src={url}
             title={t('preview.title')}
-            onLoad={() => setLoaded(true)}
+            onLoad={() => {
+              setLoaded(true);
+              onLoad?.();
+            }}
             className="absolute top-0 border-0 bg-white"
             // Scale from the physical left edge in both directions so the
             // page lines up with the frame under RTL too.
             style={{
               width: PHONE_WIDTH_PX,
-              height: boxHeight / scale,
+              height: boxHeight > 0 ? boxHeight / scale : '100%',
               left: 0,
               transform: `scale(${scale})`,
               transformOrigin: 'top left',

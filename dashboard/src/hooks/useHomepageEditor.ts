@@ -27,7 +27,11 @@ import { api } from '../lib/api-client';
 import {
   applyOp,
   applyOps,
+  applyThemeOp,
+  applyThemeOps,
   inverseOp,
+  inverseThemeOp,
+  TOP_STRIP_KEYS,
   isShown,
   opFits,
   opKey,
@@ -52,6 +56,10 @@ export interface HomepageData {
   sections: HomeSection[];
   /** Section definitions of the active theme (from the manifest schema). */
   definitions: SectionDefinition[];
+  /** Theme-level values the editor shows (the top strip): defaults + saved. */
+  theme?: Record<string, unknown>;
+  /** The theme has a top strip (declares its text setting). */
+  hasTopStrip?: boolean;
 }
 
 interface CachedHomepage extends HomepageData {
@@ -87,7 +95,39 @@ export function readHomepageSummary(storeKey: string) {
 }
 
 interface CustomizationEnvelope {
-  data?: { customization?: { themeSlug?: string; isDraft?: boolean; sectionsByTemplate?: Record<string, HomeSection[]>; sections?: HomeSection[] } };
+  data?: {
+    customization?: {
+      themeSlug?: string;
+      isDraft?: boolean;
+      sectionsByTemplate?: Record<string, HomeSection[]>;
+      sections?: HomeSection[];
+      settings?: Record<string, unknown> & { theme?: Record<string, unknown> };
+    };
+  };
+}
+
+interface GlobalSettingDef {
+  id: string;
+  type?: string;
+  default?: unknown;
+}
+
+/** Settings buckets that are not theme-level values. */
+const STRUCTURAL_BUCKETS = new Set(['colors', 'typography', 'layout', 'theme']);
+const STRIP_KEYS: readonly string[] = [TOP_STRIP_KEYS.show, TOP_STRIP_KEYS.text, `${TOP_STRIP_KEYS.text}__ar`];
+
+/**
+ * The top-strip values customers see: manifest defaults, then the saved
+ * theme settings (loose keys or the `theme` bucket, as the storefront reads
+ * them).
+ */
+function stripValues(defs: GlobalSettingDef[], saved: Record<string, unknown> | undefined): Record<string, unknown> {
+  const bag = (saved || {}) as Record<string, unknown> & { theme?: Record<string, unknown> };
+  const merged: Record<string, unknown> = {};
+  for (const def of defs) if (def.default !== undefined) merged[def.id] = def.default;
+  for (const [key, value] of Object.entries(bag)) if (!STRUCTURAL_BUCKETS.has(key)) merged[key] = value;
+  Object.assign(merged, bag.theme || {});
+  return Object.fromEntries(STRIP_KEYS.map((k) => [k, merged[k] ?? (k === TOP_STRIP_KEYS.show ? true : '')]));
 }
 
 async function fetchHomepage(): Promise<HomepageData> {
@@ -96,14 +136,17 @@ async function fetchHomepage(): Promise<HomepageData> {
   if (!cust) throw new Error('no customization');
   const themeSlug = cust.themeSlug || 'modern';
   const schemaRes = (await api.themeCustomization.getManifestSchema(themeSlug)) as {
-    data?: { schema?: { sections?: SectionDefinition[] } };
+    data?: { schema?: { sections?: SectionDefinition[]; global?: GlobalSettingDef[] } };
   };
   const list = cust.sectionsByTemplate?.index ?? cust.sections ?? [];
+  const globalDefs = schemaRes?.data?.schema?.global ?? [];
   return {
     themeSlug,
     isDraft: !!cust.isDraft,
     sections: list.map((s) => ({ ...s, settings: { ...(s.settings || {}) } })),
     definitions: schemaRes?.data?.schema?.sections ?? [],
+    theme: stripValues(globalDefs, cust.settings),
+    hasTopStrip: globalDefs.some((d) => d.id === TOP_STRIP_KEYS.text),
   };
 }
 
@@ -115,14 +158,25 @@ function sendOp(op: HomepageOp) {
       return api.themeCustomization.toggleSection(op.sectionId, op.visible, TEMPLATE);
     case 'order':
       return api.themeCustomization.reorderSections(op.sectionIds, TEMPLATE);
+    case 'theme':
+      return api.themeCustomization.updateSettings({ theme: op.settings });
   }
 }
+
+/** Pending ops applied to the whole homepage (sections and theme values). */
+const withOps = (data: HomepageData, ops: readonly HomepageOp[]): HomepageData => ({
+  ...data,
+  sections: applyOps(data.sections, ops),
+  theme: applyThemeOps(data.theme || {}, ops),
+});
 
 /**
  * @param onLive  called with every change (and undo) as it is made, to
  *                update the phone preview without waiting for the server.
  */
-export function useHomepageEditor(onLive?: (op: HomepageOp, before: HomeSection[]) => void) {
+export function useHomepageEditor(
+  onLive?: (op: HomepageOp, before: HomeSection[], theme: Record<string, unknown>) => void,
+) {
   const storeKey = useStoreKey();
   const cacheKey = CACHE_PREFIX + storeKey;
   const pendingKey = PENDING_PREFIX + storeKey;
@@ -140,7 +194,7 @@ export function useHomepageEditor(onLive?: (op: HomepageOp, before: HomeSection[
       themeRef.current = pending.themeSlug || null;
     }
     if (!cached?.sections) return null;
-    return { ...cached, sections: applyOps(cached.sections, [...pendingRef.current.values()]) };
+    return withOps(cached, [...pendingRef.current.values()]);
   });
   const dataRef = useRef(data);
   const [loading, setLoading] = useState(true);
@@ -263,7 +317,7 @@ export function useHomepageEditor(onLive?: (op: HomepageOp, before: HomeSection[
         if (!opFits(op, fresh.sections)) pendingRef.current.delete(key);
       }
       persistPending();
-      setData({ ...fresh, sections: applyOps(fresh.sections, [...pendingRef.current.values()]) });
+      setData(withOps(fresh, [...pendingRef.current.values()]));
       setLoadFailed(false);
     } catch {
       setLoadFailed(true);
@@ -304,8 +358,9 @@ export function useHomepageEditor(onLive?: (op: HomepageOp, before: HomeSection[
       const current = dataRef.current;
       if (!current) return;
       const before = current.sections;
-      setData({ ...current, isDraft: false, sections: applyOp(before, op) });
-      onLiveRef.current?.(op, before);
+      const theme = applyThemeOp(current.theme || {}, op);
+      setData({ ...current, isDraft: false, sections: applyOp(before, op), theme });
+      onLiveRef.current?.(op, before, theme);
       const key = opKey(op);
       // Re-insert so the newest change to a key goes after older other ones.
       pendingRef.current.delete(key);
@@ -322,7 +377,7 @@ export function useHomepageEditor(onLive?: (op: HomepageOp, before: HomeSection[
     (op: HomepageOp) => {
       const current = dataRef.current;
       if (!current) return;
-      const inverse = inverseOp(current.sections, op);
+      const inverse = op.kind === 'theme' ? inverseThemeOp(current.theme || {}, op) : inverseOp(current.sections, op);
       if (inverse) {
         undoRef.current = [...undoRef.current.slice(-(MAX_UNDO_STEPS - 1)), inverse];
         setCanUndo(true);

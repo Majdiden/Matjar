@@ -55,13 +55,15 @@ interface SheetProps {
   definition?: SectionDefinition;
   onClose: () => void;
   onChange: (op: HomepageOp) => void;
+  /** Show unsaved settings in the preview while the merchant types. */
+  onPreview?: (sectionId: string, settings: Record<string, unknown>) => void;
   /** Save state + Undo, shown at the bottom of the sheet. */
   status?: React.ReactNode;
 }
 
 const isBlank = (v: unknown) => v == null || (typeof v === 'string' && v.trim() === '');
 
-export default function HomepageSectionSheet({ section, definition, onClose, onChange, status }: SheetProps) {
+export default function HomepageSectionSheet({ section, definition, onClose, onChange, onPreview, status }: SheetProps) {
   const { t } = useTranslation('storeDesign');
   const partName = usePartName();
   const fieldName = useFieldName();
@@ -104,7 +106,7 @@ export default function HomepageSectionSheet({ section, definition, onClose, onC
   return (
     <Dialog open={!!section} onOpenChange={(open) => !open && onClose()} modal={false}>
       <DialogContent
-        className="max-h-[60dvh] gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.18)] sm:!max-h-[85vh] sm:overflow-y-auto"
+        className="max-h-[52dvh] gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.18)] sm:!max-h-[85vh] sm:overflow-y-auto"
         // Don't pop the phone keyboard up over the preview on open, and keep
         // the sheet open while the merchant scrolls or taps the preview.
         onOpenAutoFocus={(e) => e.preventDefault()}
@@ -113,7 +115,7 @@ export default function HomepageSectionSheet({ section, definition, onClose, onC
         {section && (
           <>
             <DialogHeader className="pe-8 text-start">
-              <DialogTitle className="text-lg">{partName(section.type, definition)}</DialogTitle>
+              <DialogTitle className="text-lg">{partName(section.type, definition, section.settings)}</DialogTitle>
               <DialogDescription>{t('homepage.sheet_help')}</DialogDescription>
             </DialogHeader>
 
@@ -136,6 +138,7 @@ export default function HomepageSectionSheet({ section, definition, onClose, onC
                 label={fieldName(def)}
                 brandFill={brandFill(def)}
                 onCommit={(next) => commit(def, next)}
+                onPreview={onPreview ? (next) => onPreview(section.id, next) : undefined}
                 onUseBrand={() => commit(def, withoutOverride(section.settings, def.id), true)}
               />
             ))}
@@ -164,10 +167,11 @@ interface SettingFieldProps {
   label: string;
   brandFill: Record<string, string> | null;
   onCommit: (settings: Record<string, unknown>) => void;
+  onPreview?: (settings: Record<string, unknown>) => void;
   onUseBrand: () => void;
 }
 
-function SettingField({ section, def, label, brandFill, onCommit, onUseBrand }: SettingFieldProps) {
+function SettingField({ section, def, label, brandFill, onCommit, onPreview, onUseBrand }: SettingFieldProps) {
   const source = sourceOf(section, def.id);
   const hint = def.bind ? (
     <BrandHint source={source} canUseBrand={source === 'override' && !!brandFill} onUseBrand={onUseBrand} />
@@ -178,7 +182,7 @@ function SettingField({ section, def, label, brandFill, onCommit, onUseBrand }: 
     case 'text':
     case 'textarea':
     case 'richtext':
-      return <TextField section={section} def={def} label={label} hint={hint} onCommit={onCommit} />;
+      return <TextField section={section} def={def} label={label} hint={hint} onCommit={onCommit} onPreview={onPreview} />;
     case 'image':
       return (
         <FieldBlock label={label} hint={hint}>
@@ -279,12 +283,15 @@ function TextField({
   label,
   hint,
   onCommit,
+  onPreview,
 }: {
   section: HomeSection;
   def: AnySectionSetting;
   label: string;
   hint: React.ReactNode;
   onCommit: (settings: Record<string, unknown>) => void;
+  /** Each keystroke goes to the preview; saving waits until the field is left. */
+  onPreview?: (settings: Record<string, unknown>) => void;
 }) {
   // What customers see now (the brand value when it comes from store info);
   // follows undo and other changes until the merchant types.
@@ -297,7 +304,10 @@ function TextField({
         label={label}
         help={hint}
         value={value}
-        onChange={setValue}
+        onChange={(v) => {
+          setValue(v);
+          onPreview?.(writeBilingual(section.settings, def.id, v));
+        }}
         multiline={def.type !== 'text'}
         rows={def.type === 'text' ? undefined : 3}
         placeholder={def.placeholder ? { en: def.placeholder } : undefined}
