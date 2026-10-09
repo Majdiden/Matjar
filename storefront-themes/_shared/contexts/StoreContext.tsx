@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { storefrontApi } from '../api/client';
-import type { BrandKit } from '../types/commerce';
+import type { BrandKit, GeneratedPages, StoreTrust } from '../types/commerce';
 
 export interface StoreInfo {
   name: string;
@@ -34,6 +34,10 @@ export interface StoreInfo {
   };
   /** Brand kit (PBI 10): only what the merchant set; null when nothing is. */
   brand?: BrandKit | null;
+  /** Pages built from store data (PBI 10-10); absent unless switched on. */
+  generatedPages?: GeneratedPages;
+  /** Trust-badge facts (PBI 10-11); absent unless the policy questions were answered. */
+  trust?: StoreTrust;
 }
 
 interface StoreContextType {

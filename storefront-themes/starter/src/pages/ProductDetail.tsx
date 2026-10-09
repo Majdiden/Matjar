@@ -5,6 +5,7 @@ import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import ProductDetailExtras from '@matjar/theme-shared/components/commerce/ProductDetailExtras';
 import GuaranteedCheckout from '@matjar/theme-shared/components/commerce/GuaranteedCheckout';
+import TrustBadges from '@matjar/theme-shared/components/commerce/TrustBadges';
 import { VariantPicker, type Variant } from '@matjar/theme-shared/components/commerce/VariantPicker';
 import { getPreorderState } from '@matjar/theme-shared/utils/preorder';
 import { useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -246,6 +247,7 @@ const ProductDetail: React.FC = () => {
           )}
 
           <GuaranteedCheckout className="mt-6 mb-6" />
+          <TrustBadges className="-mt-2 mb-6" />
 
           {/* Description */}
           {product.description && (

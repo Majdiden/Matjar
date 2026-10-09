@@ -159,11 +159,39 @@ const tenantSchema = new Schema({
       delivery: { title: { type: String, default: null }, body: { type: String, default: null } },
       cod: { title: { type: String, default: null }, body: { type: String, default: null } },
     },
-    // Raw answers behind generated policy pages (PBI 10-11), kept so the text
-    // can be regenerated. `deliveryAreas` is first asked at signup (10-16) as
-    // free text, `{ ar, en }` like the brand kit. No defaults.
+    // Answers behind the generated delivery / returns / payment policies
+    // (PBI 10-11, services/storePages.js), kept so the text can be rebuilt.
+    // `generatedHash.<key>` fingerprints the body we wrote: when the stored
+    // body no longer matches, the merchant edited it and we ask before
+    // overwriting. Also drives the storefront trust badges. No defaults:
+    // absent means the merchant never used the questions.
+    // `deliveryAreas` is shared with signup v2 (PBI 10-16), which collects
+    // the free-text delivery areas first; the policies questionnaire
+    // prefills from it and writes it back.
     policyAnswers: {
       deliveryAreas: { ar: { type: String }, en: { type: String } },
+      delivery: {
+        fee: { ar: { type: String }, en: { type: String } },
+        time: { ar: { type: String }, en: { type: String } },
+      },
+      returns: {
+        accepted: { type: Boolean },
+        days: { type: Number },
+        conditions: { ar: { type: String }, en: { type: String } },
+      },
+      language: { type: String },
+      generatedAt: { type: Date },
+      generatedHash: {
+        delivery: { type: String },
+        returns: { type: String },
+        cod: { type: String },
+      },
+    },
+    // Pages the storefront builds from store data instead of Page content
+    // (PBI 10-10). `contact: true` renders /contact and /pages/contact from
+    // the brand kit. No default: absent keeps the page as it is today.
+    generatedPages: {
+      contact: { type: Boolean },
     },
     // Stable per-store secret for the owner draft-preview link.
     previewToken: { type: String, default: null },

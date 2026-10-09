@@ -65,6 +65,8 @@ import enOnboarding from './locales/en/onboarding.json'
 import arOnboarding from './locales/ar/onboarding.json'
 import enStoreDesign from './locales/en/storeDesign.json'
 import arStoreDesign from './locales/ar/storeDesign.json'
+import enStorePages from './locales/en/storePages.json'
+import arStorePages from './locales/ar/storePages.json'
 
 export const resources = {
   en: {
@@ -100,6 +102,7 @@ export const resources = {
     wishlists: enWishlists,
     onboarding: enOnboarding,
     storeDesign: enStoreDesign,
+    storePages: enStorePages,
   },
   ar: {
     common: arCommon,
@@ -134,5 +137,6 @@ export const resources = {
     wishlists: arWishlists,
     onboarding: arOnboarding,
     storeDesign: arStoreDesign,
+    storePages: arStorePages,
   },
 } as const

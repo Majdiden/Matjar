@@ -24,6 +24,8 @@ export type {
   StoreInfo,
   BrandKit,
   BrandText,
+  GeneratedPages,
+  StoreTrust,
   Pagination,
   WishlistItem,
 } from './types/commerce';

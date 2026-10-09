@@ -1,0 +1,23 @@
+{
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "We're happy to help. Message us and we'll reply as soon as we can.",
+    "whatsapp_button": "Message us on WhatsApp",
+    "whatsapp_message": "Hello, I have a question about {{name}}",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "city": "City",
+    "hours": "Opening hours",
+    "follow": "Follow us"
+  },
+  "trust": {
+    "heading": "Shop with confidence",
+    "cod": "Cash on delivery",
+    "transfer": "{{name}} transfer",
+    "delivery_to": "Delivery to: {{areas}}",
+    "delivery_time": "Arrives in {{time}}",
+    "returns_one": "Returns within {{count}} day",
+    "returns_other": "Returns within {{count}} days"
+  }
+}
