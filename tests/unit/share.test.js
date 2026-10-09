@@ -11,9 +11,9 @@ const URL_ = "https://nile.matjar.to";
 
 describe("shareIntentUrl", () => {
   it("puts message + url in one WhatsApp text, encoded", () => {
-    const href = shareIntentUrl("whatsapp", URL_, "شوف متجري من هنا:");
+    const href = shareIntentUrl("whatsapp", URL_, "تفضّل بزيارة متجري:");
     assert.ok(href.startsWith("https://wa.me/?text="));
-    assert.equal(new URL(href).searchParams.get("text"), `شوف متجري من هنا: ${URL_}`);
+    assert.equal(new URL(href).searchParams.get("text"), `تفضّل بزيارة متجري: ${URL_}`);
   });
 
   it("shares just the url on Facebook (the sharer ignores text)", () => {

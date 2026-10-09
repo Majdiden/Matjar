@@ -16,7 +16,7 @@ This document lists all tasks associated with PBI 10.
 | 10-6 | Manifest `level` / `bind` / niche presets | Proposed | Schema + `defineSection` + `services/themeValidator.js` support; no change for stores without brand data |
 | 10-7 | Setting value resolution with brand bindings | Proposed | Override → brand → manifest default in `services/themeCustomization.js`, with tests that unconfigured stores render unchanged |
 | 10-8 | Annotate themes (modern, starter first) | Proposed | At most about 3 `basic` settings per section, `bind`s for hero/footer/contact, then the remaining themes |
-| 10-9 | About page from questions | Proposed | Answers stored on `Page`; Sudanese-Arabic templates; optional English |
+| 10-9 | About page from questions | Proposed | Answers stored on `Page`; plain-Arabic templates; optional English |
 | 10-10 | Contact page from the brand kit | Proposed | Theme-rendered system page: WhatsApp button, phone, city, hours, social links |
 | 10-11 | Policies from questions + trust badges | Proposed | Delivery/returns/payment answers → `settings.policies.*`; shared trust-badge component on product pages |
 | 10-12 | "متجري" (My store) hub + brand kit form | Proposed | Phone-first dashboard route behind `design.simpleMode` |
@@ -26,4 +26,4 @@ This document lists all tasks associated with PBI 10.
 | 10-16 | Signup reorder (onboarding v2) | Proposed | Behind `onboarding.v2`; store-name preview on theme cards |
 | 10-17 | "First sale" checklist | Proposed | First product → payment → share; replaces the current setup checklist |
 | 10-18 | Merchant validation rounds | Proposed | 3–5 merchants after 10-1, after 10-13 and after 10-17; track product-in-24h, time-to-share and time-to-first-order |
-| 10-19 | Spoken-Arabic copy pass on merchant-facing screens | Proposed | Rewrite literal/formal Arabic in signup, home and setup screens per the PRD copy guideline |
+| 10-19 | Natural-Arabic copy pass on merchant-facing screens | Proposed | Rewrite literal or stiff Arabic in signup, home and setup screens per the PRD copy guideline |

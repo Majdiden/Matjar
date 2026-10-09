@@ -47,7 +47,7 @@ Three layers, owned by different people:
 
 ### Copy guideline (all Arabic UI text in this PBI)
 
-Arabic copy is written the way a Sudanese merchant speaks: short, friendly, close to everyday Sudanese Arabic. It is never a literal translation of the English. Examples: "ده عنوان متجرك في الإنترنت", "تمام — الرابط ده بقى حقّك", "بنشوف الرابط ده فاضي ولا لا…". English copy is plain and avoids jargon (no "subdomain", "section", "template").
+Arabic copy is plain, natural Modern Standard Arabic as people use it in everyday writing: short sentences, common words, a friendly tone. It is not dialect, and it is never a word-for-word translation of the English; each string is written for its meaning. Examples: "هذا هو عنوان متجرك على الإنترنت", "ممتاز، هذا الرابط متاح لك", "هذا الرابط مستخدم من قبل، جرّب اسمًا آخر". English copy is plain and avoids jargon (no "subdomain", "section", "template").
 
 ### Rollout and testing (no separate staging environment yet)
 
