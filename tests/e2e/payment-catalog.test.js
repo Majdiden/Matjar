@@ -16,7 +16,9 @@ import { setFeatureOverrides, invalidateFeatureFlagCache } from "../../services/
 const HOST = "acme.localhost";
 
 async function provisionTenant(app) {
-  const res = await request(app).post("/api/auth/register").send({ name: "Acme Coffee", email: "owner@acme.test", password: "Sup3rSecret!", subdomain: "acme" }).expect(201);
+  // English store: these assertions check the merchant-facing English labels
+  // (new stores default to Arabic).
+  const res = await request(app).post("/api/auth/register").send({ name: "Acme Coffee", email: "owner@acme.test", password: "Sup3rSecret!", subdomain: "acme", language: "en" }).expect(201);
   return res.body.responseObject.tenantId;
 }
 async function merchantToken(app) {
