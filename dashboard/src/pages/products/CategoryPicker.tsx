@@ -23,15 +23,6 @@ interface ApiErrorLike {
   message?: string;
 }
 
-/** Same slug rule as the Categories page; non-Latin names fall back to a generated slug. */
-function buildSlug(name: string, taken: Set<string>): string {
-  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-    || `category-${Date.now().toString(36)}`;
-  let slug = base;
-  for (let i = 2; taken.has(slug); i++) slug = `${base}-${i}`;
-  return slug;
-}
-
 interface CategoryPickerProps {
   value: string;
   onChange: (id: string) => void;
@@ -71,8 +62,9 @@ export function CategoryPicker({ value, onChange, categories, onCategoryCreated,
     if (!canCreate || creating) return;
     try {
       setCreating(true);
-      const slug = buildSlug(trimmed, new Set(categories.map(c => c.slug)));
-      const res = (await api.categories.create({ name: trimmed, slug })) as CategoryCreateResponse;
+      // No slug: the server derives a unique one from the name (Arabic
+      // transliterated — utils/slugify.js).
+      const res = (await api.categories.create({ name: trimmed })) as CategoryCreateResponse;
       const created = res.responseObject?.data;
       if (!created?._id) throw new Error(t('products.categories.toast.create_failed'));
       onCategoryCreated(created);

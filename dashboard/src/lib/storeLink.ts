@@ -9,6 +9,10 @@
 //
 // Pure + dependency-free on purpose: unit-tested directly by node --test
 // (tests/unit/storeLink.test.js).
+//
+// The transliteration is also the server's slug rule: utils/slugify.js ports
+// it for product/category/collection/page links. KEEP THE TWO IN SYNC —
+// tests/unit/slugifyParity.test.js fails when they drift.
 // =============================================================================
 
 /** DNS label limits; must match the backend subdomain validator. */
@@ -118,6 +122,27 @@ export function slugifyStoreName(name: string): string {
     .replace(/&/g, ' and ')
     .replace(/[^a-z0-9]+/g, '-');
   return trimHyphens(trimHyphens(latin).slice(0, SUBDOMAIN_MAX_LENGTH));
+}
+
+/** Default link-slug cap; matches utils/slugify.js SLUG_MAX_LENGTH. */
+export const LINK_SLUG_MAX_LENGTH = 100;
+
+/**
+ * Product/category name (any script) → URL slug, as utils/slugify.js
+ * `slugify()` stores it when the merchant leaves the link alone. Used for the
+ * dashboard's live "Product link" preview. Same pipeline as slugifyStoreName
+ * plus invisible-character stripping, with a configurable length.
+ */
+export function slugifyLink(name: string, maxLength: number = LINK_SLUG_MAX_LENGTH): string {
+  const latin = transliterateArabic(
+    String(name ?? '').replace(/\p{Cf}/gu, '').replace(/[\s\u00a0\u2000-\u200a\u202f\u205f\u3000]+/g, ' ').trim().toLowerCase(),
+  )
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/['’]/g, '')
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-');
+  return trimHyphens(trimHyphens(latin).slice(0, maxLength));
 }
 
 /**

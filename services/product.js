@@ -5,52 +5,44 @@ import {
   updateAProductRepo,
   deleteAProductRepo,
 } from "../repositories/product.js";
+import { redirectRenamedPath } from "./redirect.js";
+import { slugify, ensureUniqueSlug } from "../utils/slugify.js";
+import logger from "../utils/logger.js";
+
+// Fallback prefix when a name yields no slug at all ("product-3f9a1c").
+const PRODUCT_SLUG_FALLBACK = "product";
+// Only a live product has shared links worth preserving with a redirect.
+const PUBLISHED_STATUS = "active";
+// Storefront product URL (storefront-themes/_shared/app/createThemeApp.tsx).
+const productPath = (slug) => `/products/${slug}`;
 
 /**
- * URL-safe slug derived from a free-form string. Lowercase, dashes for
- * spaces, drops anything outside `[a-z0-9-]`, collapses runs, trims.
- * Capped at 100 chars to keep within the schema's slug allowance.
+ * Name a product's link is derived from: the English name when the merchant
+ * filled it in, else the primary name (often Arabic — transliterated), else
+ * the Arabic translation.
  */
-const slugify = (input) =>
-  String(input || "")
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "") // strip diacritics
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 100);
+const slugSourceName = (body) =>
+  body.translations?.en?.name || body.name || body.translations?.ar?.name || "";
 
 /**
- * Pick a slug that doesn't collide with an existing product in this
- * tenant. We append `-2`, `-3`, … until we find a free one. The
- * compound `(tenantId, slug)` unique index in the schema is the final
- * authority — this is just to avoid the friction of returning a 409.
+ * `exists` predicate for ensureUniqueSlug. The compound `(tenantId, slug)`
+ * unique index is the final authority — this just avoids returning a 409.
  */
-const ensureUniqueSlug = async (models, base) => {
-  const safeBase = base || "product";
-  let candidate = safeBase;
-  let suffix = 2;
-  // Bounded loop — give up after 50 attempts and fall back to a
-  // timestamp suffix to guarantee progress under pathological races.
-  for (let i = 0; i < 50; i++) {
-    const exists = await models.Product.findOne({ slug: candidate }).select("_id");
-    if (!exists) return candidate;
-    candidate = `${safeBase}-${suffix++}`;
-  }
-  return `${safeBase}-${Date.now()}`;
-};
+const productSlugTaken = (models) => async (candidate) =>
+  Boolean(await models.Product.findOne({ slug: candidate }).select("_id"));
 
 export const addProduct = async (req, res) => {
   try {
     // Schema requires `slug` but the client doesn't have to provide one —
-    // we derive it from the product name and dedupe within the tenant.
+    // we derive it from the product name (Arabic transliterated) and dedupe
+    // within the tenant. A merchant-typed slug goes through the same rule.
     const body = { ...req.body };
-    if (!body.slug) {
-      const base = slugify(body.name);
-      body.slug = await ensureUniqueSlug(req.models, base);
-    } else {
-      body.slug = slugify(body.slug);
-    }
+    const typedSlug = typeof body.slug === "string" ? slugify(body.slug) : "";
+    body.slug = await ensureUniqueSlug(
+      productSlugTaken(req.models),
+      typedSlug || slugify(slugSourceName(body)),
+      { fallback: PRODUCT_SLUG_FALLBACK }
+    );
 
     const data = await addAProductRepo(req.models, body);
     return {
@@ -161,8 +153,12 @@ export const updateProduct = async (req, res) => {
     //      duplicate slugs exist in legacy data, that validation fails.
     //   2. If they DID change it, we want a friendly 409 instead of a raw
     //      E11000 leaking out of the driver.
+    // Renaming a product never touches the slug, so shared links keep
+    // working. Only an explicit slug edit changes it — and for a live
+    // product the old URL then 301-redirects to the new one.
+    let redirectFromSlug = null;
     if (typeof body.slug === "string") {
-      const current = await req.models.Product.findById(req.params.id).select("slug");
+      const current = await req.models.Product.findById(req.params.id).select("slug status");
       if (!current) {
         return {
           success: false,
@@ -171,9 +167,10 @@ export const updateProduct = async (req, res) => {
           responseObject: null,
         };
       }
-      const normalized = body.slug.trim().toLowerCase();
-      if (normalized === current.slug) {
+      const normalized = slugify(body.slug);
+      if (!normalized || normalized === current.slug) {
         // No-op — strip from the update so the unique index isn't re-checked.
+        // A blank / unusable slug also keeps the current link.
         delete body.slug;
       } else {
         body.slug = normalized;
@@ -189,6 +186,7 @@ export const updateProduct = async (req, res) => {
             responseObject: null,
           };
         }
+        if (current.status === PUBLISHED_STATUS) redirectFromSlug = current.slug;
       }
     }
 
@@ -225,6 +223,20 @@ export const updateProduct = async (req, res) => {
         message: "Product not found",
         responseObject: null,
       };
+    }
+
+    if (redirectFromSlug) {
+      // Best-effort: the slug change already succeeded, so a redirect
+      // failure is logged rather than failing the save.
+      try {
+        await redirectRenamedPath(req.models, productPath(redirectFromSlug), productPath(body.slug));
+      } catch (err) {
+        logger.warn("Product slug redirect failed", {
+          from: redirectFromSlug,
+          to: body.slug,
+          error: err.message,
+        });
+      }
     }
 
     return {

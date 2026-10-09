@@ -9,17 +9,11 @@ import {
 } from "../repositories/menu.js";
 import { APIError } from "../middlewares/errorHandler.js";
 import logger from "../utils/logger.js";
+import { slugify, randomSlug } from "../utils/slugify.js";
 
-/**
- * Convert a string into a URL-safe handle.
- * "Main Menu" → "main-menu"
- */
-const slugify = (str) =>
-  str
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+// Fallback prefix when a title yields no handle ("menu-3f9a1c"). Handles
+// come from utils/slugify.js: "Main Menu" → "main-menu", "القائمة" → "alqaima".
+const MENU_HANDLE_FALLBACK = "menu";
 
 /**
  * Recursively validate a menu items tree.
@@ -135,8 +129,8 @@ export const createMenu = async (models, tenantId, data) => {
   const { title, location = "custom", items = [], isActive = true } = data;
   if (!title || !title.trim()) throw new APIError("title is required", 400);
 
-  let handle = data.handle ? data.handle : slugify(title);
-  handle = slugify(handle); // normalise whatever was passed
+  // Normalise whatever was passed; derive from the title otherwise.
+  const handle = slugify(data.handle || "") || slugify(title) || randomSlug(MENU_HANDLE_FALLBACK);
 
   // Uniqueness check (repo would throw duplicate key, but we give a nicer message)
   const existing = await getMenuByHandleRepo(models, handle);
@@ -157,7 +151,7 @@ export const updateMenu = async (models, id, patch) => {
   if (typeof patch.title === "string") allowed.title = patch.title.trim();
   if (typeof patch.handle === "string") {
     const newHandle = slugify(patch.handle);
-    if (newHandle !== current.handle) {
+    if (newHandle && newHandle !== current.handle) {
       const conflict = await getMenuByHandleRepo(models, newHandle);
       if (conflict && String(conflict._id) !== String(current._id)) {
         throw new APIError(`A menu with handle "${newHandle}" already exists`, 409);
