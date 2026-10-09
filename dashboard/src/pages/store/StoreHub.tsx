@@ -30,7 +30,8 @@ import { ShareButton } from '../../components/ShareButton';
 import { storefrontUrl } from '../../components/LiveStoreBanner';
 import { useAuth } from '../../contexts/auth-context';
 import { useStorefrontHost } from '../../hooks/useStorefrontHost';
-import { useStoreProfile } from '../../hooks/useStoreProfile';
+import { useStoreKey, useStoreProfile } from '../../hooks/useStoreProfile';
+import { readHomepageSummary } from '../../hooks/useHomepageEditor';
 import { firstMissingBrandItem, type StoreProfile } from '../../lib/storeProfile';
 import { cn } from '../../lib/utils';
 
@@ -50,6 +51,8 @@ export default function StoreHub() {
   const { can } = useAuth();
   const { profile } = useStoreProfile();
   const host = useStorefrontHost();
+  // Last known homepage state from the homepage editor (no extra request).
+  const homepageSummary = readHomepageSummary(useStoreKey());
 
   const neutral = (key: string) => () => ({ text: t(key), tone: 'neutral' as Tone });
 
@@ -72,7 +75,10 @@ export default function StoreHub() {
       href: '/dashboard/store/homepage',
       icon: Home,
       permission: ['themes.write'],
-      status: neutral('hub.homepage.status'),
+      status: () =>
+        homepageSummary && homepageSummary.total > 0
+          ? { text: t('hub.homepage.shown', { shown: homepageSummary.shown, total: homepageSummary.total }), tone: 'neutral' }
+          : { text: t('hub.homepage.status'), tone: 'neutral' },
     },
     { key: 'about', href: '/dashboard/store/about', icon: Info, status: neutral('hub.about.status') },
     {

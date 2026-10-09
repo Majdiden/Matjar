@@ -43,6 +43,11 @@
       "add": "Add a cover photo",
       "alt": "Cover photo",
       "remove_title": "Remove the cover photo?"
+    },
+    "photo": {
+      "add": "Add a photo",
+      "alt": "Photo",
+      "remove_title": "Remove this photo?"
     }
   },
   "brand": {
@@ -125,7 +130,8 @@
     },
     "homepage": {
       "title": "Homepage",
-      "status": "Change the words and photos on your first page"
+      "status": "Change the words and photos on your first page",
+      "shown": "{{shown}} of {{total}} parts shown to customers"
     },
     "about": {
       "title": "About us",
@@ -149,8 +155,75 @@
       "status": "Change every detail — best on a computer"
     }
   },
-  "homepage_placeholder": {
-    "title": "Coming soon",
-    "body": "Soon you'll be able to change your homepage from your phone. Until then, use Advanced options on a computer."
+  "homepage": {
+    "title": "Homepage",
+    "subtitle": "Tap a part of your page to change its words and photos. Each change shows on your store right away.",
+    "preview": {
+      "show": "See my store",
+      "hide": "Hide"
+    },
+    "list_title": "What's on your homepage",
+    "shown_count": "{{shown}} of {{total}} shown to customers",
+    "edit": "Change",
+    "move_up": "Move up",
+    "move_down": "Move down",
+    "show_part": "Show on my store",
+    "hidden": "Hidden from customers",
+    "no_fields": "There's nothing to write here. You can show it, hide it or move it.",
+    "empty": "There's nothing on your homepage to change here. Use Advanced options instead.",
+    "pending_advanced": "Some changes made in Advanced options aren't on your store yet. They'll show together with your next change here.",
+    "done": "Done",
+    "sheet_help": "Your changes show on your store right away.",
+    "from_brand": "From your store info",
+    "edit_brand": "Change it in store info",
+    "use_brand": "Use my store info again",
+    "brand_tip": "Add this to your store info once and it shows here by itself.",
+    "undo": "Undo",
+    "status": {
+      "saving": "Saving…",
+      "saved": "Saved — live on your store",
+      "undone": "Undone — your store is back as it was",
+      "retrying": "Not saved yet — we'll try again when the internet is back",
+      "try_now": "Try now",
+      "error": "This change couldn't be saved. The page now shows what's on your store."
+    },
+    "advanced": {
+      "title": "Advanced options",
+      "help": "Change every detail — best on a computer"
+    },
+    "parts": {
+      "hero": "Big photo at the top",
+      "categories": "Shop by category",
+      "featured-products": "Featured products",
+      "trust-badges": "Why customers trust you",
+      "promo-banners": "Offers photo slider",
+      "new-arrivals": "Newest products",
+      "newsletter": "Join our mailing list",
+      "best-sellers": "Best sellers",
+      "testimonials": "What customers say",
+      "image-with-text": "Photo with text",
+      "rich-text": "Text",
+      "announcement-bar": "Message at the very top",
+      "banner": "Short offer message",
+      "gallery": "Photo gallery",
+      "features": "What makes you special",
+      "video": "Video",
+      "brands": "Brands you sell"
+    },
+    "unnamed_part": "Part of your page",
+    "fields": {
+      "heading": "Title",
+      "subheading": "Short line under the title",
+      "background_image": "Photo",
+      "button_text": "Button words",
+      "title": "Title",
+      "subtitle": "Short line under the title",
+      "description": "Description",
+      "text": "Text",
+      "image": "Photo",
+      "body": "Text",
+      "message": "Message",
+      "link_text": "Link words"
+    }
   }
 }

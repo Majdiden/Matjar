@@ -95,7 +95,8 @@ export const FieldError: React.FC<{ id?: string; message?: string | null }> = ({
 // ---------------------------------------------------------------------------
 
 interface ImageFieldProps {
-  kind: 'logo' | 'cover';
+  /** 'photo': any other picture (homepage editor, 10-13). */
+  kind: 'logo' | 'cover' | 'photo';
   url: string | null | undefined;
   /** Uploads the (already shrunk) file and resolves with its URL. */
   upload: (file: File) => Promise<string>;
