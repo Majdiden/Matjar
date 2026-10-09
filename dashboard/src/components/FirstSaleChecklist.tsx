@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ShareButton } from './ShareButton';
+import { QUICK_PRODUCT_ROUTE } from '../lib/quickProduct';
 import { api, type OnboardingState } from '../lib/api-client';
 import {
   FIRST_SALE_STEPS,
@@ -24,7 +25,8 @@ import {
 const DISMISSED_KEY = 'dashboard.firstSaleDismissed';
 
 // Routes the steps open. The brand form belongs to the "My store" hub (10-12).
-const PRODUCT_FORM_ROUTE = '/dashboard/products/new';
+// Step 1 opens the quick form (photo, name, price, quantity), not the full one.
+const PRODUCT_FORM_ROUTE = QUICK_PRODUCT_ROUTE;
 const PAYMENT_METHODS_ROUTE = '/dashboard/payments/methods';
 const BRAND_FORM_ROUTE = '/dashboard/store/brand';
 

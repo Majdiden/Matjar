@@ -669,6 +669,50 @@
         }
       },
       "add_field": "Add Field"
+    },
+    "quick": {
+      "title": "Add a product",
+      "subtitle": "A photo, a name and a price are all you need to put it in your store.",
+      "back": "Home",
+      "photos": {
+        "label": "Product photos",
+        "help": "Take a photo with your phone or pick one. Products with photos sell more."
+      },
+      "name": {
+        "label": "Product name",
+        "placeholder": "e.g. Sandalwood perfume 100 ml",
+        "required": "Enter the product name"
+      },
+      "price": {
+        "label": "Price",
+        "placeholder": "e.g. 15000",
+        "invalid": "Enter the price in numbers, e.g. 15000"
+      },
+      "quantity": {
+        "label": "How many do you have?",
+        "help": "When it reaches zero, the product shows as \"Out of stock\".",
+        "invalid": "Enter a whole number, e.g. 5",
+        "increase": "Increase quantity",
+        "decrease": "Decrease quantity"
+      },
+      "description": {
+        "add": "Add a description (optional)",
+        "label": "Description",
+        "placeholder": "Size, colour, how to use it… anything a customer would want to know"
+      },
+      "submit": "Publish product",
+      "save_failed": "We couldn't save the product. Check your connection and try again.",
+      "full_form_hint": "Need sizes, colours or more details?",
+      "full_form_link": "Open the full form",
+      "done": {
+        "title": "Your product is in your store",
+        "subtitle": "Customers can see it and order it now. Send them the link.",
+        "share": "Share product",
+        "share_message": "Have a look at {{name}} in my store:",
+        "add_another": "Add another product",
+        "home": "Back to home",
+        "edit_details": "Edit details"
+      }
     }
   }
 }

@@ -516,6 +516,10 @@ export const api = {
 
     create: (data: unknown) => api.post('/products', data),
 
+    // Quick add (PBI 10): published at once; the server fills in the rest.
+    createQuick: (data: { name: string; price: number; stock: number; images: string[]; description?: string }) =>
+      api.post('/products/quick', data),
+
     update: (id: string, data: unknown) => api.put(`/products/${id}`, data),
 
     delete: (id: string) => api.delete(`/products/${id}`),

@@ -82,6 +82,40 @@ const contentSectionsSchema = z
 const productStatusSchema = z.enum(["active", "draft", "archived"]);
 const weightUnitSchema = z.enum(["kg", "lb", "g", "oz"]);
 
+/** Quick add (PBI 10): limits for the four-field product form. */
+export const QUICK_PRODUCT_LIMITS = Object.freeze({
+  nameMax: 200,
+  descriptionMax: 5000,
+  imagesMax: 10,
+  stockMax: 1_000_000,
+  priceMax: 1_000_000_000,
+});
+
+// Product photos are rendered into `src`: web URLs only (zod's url() also
+// accepts "javascript:" and "data:").
+const WEB_URL_PROTOCOLS = new Set(["http:", "https:"]);
+const isWebUrl = (value) => {
+  try {
+    return WEB_URL_PROTOCOLS.has(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+};
+
+// Unknown keys are rejected (strict) so nothing beyond these fields can be
+// set through the quick form.
+export const createQuickProductSchema = z.object({
+  body: z
+    .object({
+      name: z.string({ required_error: "Product name is required" }).trim().min(1, "Product name cannot be empty").max(QUICK_PRODUCT_LIMITS.nameMax),
+      price: z.number({ required_error: "Price is required" }).positive("Price must be a positive number").max(QUICK_PRODUCT_LIMITS.priceMax),
+      stock: z.number({ required_error: "Quantity is required" }).int("Quantity must be a whole number").min(0).max(QUICK_PRODUCT_LIMITS.stockMax),
+      images: z.array(z.string().refine(isWebUrl, "Each image must be a web link")).max(QUICK_PRODUCT_LIMITS.imagesMax).optional(),
+      description: z.string().trim().max(QUICK_PRODUCT_LIMITS.descriptionMax).optional(),
+    })
+    .strict(),
+});
+
 export const createProductSchema = z.object({
   body: z.object({
     // Required — matches schema

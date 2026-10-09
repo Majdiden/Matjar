@@ -62,7 +62,11 @@ On the test store's dashboard home (phone):
 | # | Do | Expect |
 |---|---|---|
 | 3.1 | Look at the card. | "ثلاث خطوات لأول عملية بيع", 0 of 3 (or 1 of 3 if the store has products). |
-| 3.2 | Tap "Add your first product", add one product. | Step 1 shows ✓ "تم". |
+| 3.2 | Tap "Add your first product". | Opens the short form "أضف منتجًا": photos, name, price, "كم قطعة عندك؟". Not the long product form. |
+| 3.2a | Take a photo, type a name, a price **with the Arabic keyboard** (e.g. ١٥٬٠٠٠), tap + once, tap "انشر المنتج". | "منتجك الآن في متجرك" with Share, Add another, Back to home, Edit details. The price shows as 15,000. |
+| 3.2b | Open the store and find the product. | It is live (not a draft), with the photo and price, in a category called "منتجاتنا". Two more quick products land in the same category. |
+| 3.2c | Leave the name empty, or type letters in the price, and tap "انشر المنتج". | Red message under the field; nothing is saved. |
+| 3.2d | Back on home. | Step 1 shows ✓ "تم". With `design.simpleMode` on, the + button in the bottom bar → "New product", and "Add product" on the Products page, also open the short form. |
 | 3.3 | Payment step: tap the button. | Opens payment methods (or "OK, that works for me" if payment methods are off). Step 2 ✓. |
 | 3.4 | Share step: tap Share and **actually send** to someone (or copy the link). | Step 3 ✓. Closing the share sheet without sending must **not** tick it. |
 | 3.5 | All 3 done. | The card disappears. The × dismisses it earlier. |

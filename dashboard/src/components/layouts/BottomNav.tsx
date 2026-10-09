@@ -5,6 +5,7 @@ import { LayoutDashboard, ShoppingCart, Package, Menu, Plus, ClipboardList, Pack
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../contexts/auth-context';
 import { useFeatures } from '../../contexts/features-context';
+import { useNewProductRoute } from '../../hooks/useNewProductRoute';
 import type { FeatureKey } from '../../lib/features';
 import {
   DropdownMenu,
@@ -79,6 +80,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
   // Quick-create actions the merchant is permitted to perform.
   const canCreateOrder = can('orders.write');
   const canCreateProduct = can('products.write');
+  const newProductRoute = useNewProductRoute();
   const showAction = canCreateOrder || canCreateProduct;
 
   const itemClass = (active: boolean) =>
@@ -159,7 +161,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ onMore, pendingOrders = 0 
                 {canCreateProduct && (
                   <button
                     type="button"
-                    onClick={() => { setActionOpen(false); navigate('/dashboard/products/new'); }}
+                    onClick={() => { setActionOpen(false); navigate(newProductRoute); }}
                     className="flex w-full items-center gap-3 rounded-xl p-3 text-start transition-colors hover:bg-accent focus:bg-accent focus:outline-none"
                   >
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">

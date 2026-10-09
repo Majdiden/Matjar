@@ -26,6 +26,7 @@ import {
   TrendingUp, AlertTriangle, Archive, CheckCircle2, Star, Filter, Download,
 } from 'lucide-react';
 import { api } from '../../lib/api-client';
+import { useNewProductRoute } from '../../hooks/useNewProductRoute';
 import { toast } from 'sonner';
 import { toCSV, downloadCSV } from '../../lib/utils';
 import type { Product, Category, PaginatedResponse } from '../../types';
@@ -47,6 +48,7 @@ type StatusTab = 'all' | 'active' | 'draft' | 'archived' | 'low-stock';
 
 export const Products: React.FC = () => {
   const { t } = useTranslation(['products', 'common']);
+  const newProductRoute = useNewProductRoute();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -218,7 +220,7 @@ export const Products: React.FC = () => {
               <Download className="h-4 w-4 me-2" />{t('common:action.export')}
             </Button>
             <Button asChild>
-              <Link to="/dashboard/products/new">
+              <Link to={newProductRoute}>
                 <Plus className="h-4 w-4 me-2" />{t('products.list.new_product')}
               </Link>
             </Button>
@@ -292,7 +294,7 @@ export const Products: React.FC = () => {
             </p>
             {!searchTerm && (
               <Button asChild size="lg">
-                <Link to="/dashboard/products/new">
+                <Link to={newProductRoute}>
                   <Plus className="h-4 w-4 me-2" />{t('products.list.empty.action')}
                 </Link>
               </Button>

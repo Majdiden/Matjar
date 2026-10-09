@@ -7,6 +7,7 @@ import { PageHeader } from '../components/PageHeader';
 import { LiveStoreBanner, storefrontUrl } from '../components/LiveStoreBanner';
 import { FirstSaleChecklist } from '../components/FirstSaleChecklist';
 import { useFeatures } from '../contexts/features-context';
+import { useNewProductRoute } from '../hooks/useNewProductRoute';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
@@ -197,6 +198,7 @@ interface SetupSignals {
 export const Dashboard: React.FC = () => {
   const { t } = useTranslation(['dashboard', 'common']);
   const { hasFeature } = useFeatures();
+  const newProductRoute = useNewProductRoute();
   // PBI 10-17: the "first sale" checklist replaces the setup checklist for
   // stores with `onboarding.v2` (per-store overrides apply here).
   const firstSaleChecklist = hasFeature('onboarding.v2');
@@ -384,7 +386,7 @@ export const Dashboard: React.FC = () => {
   // once a customization is published OR the merchant selected a theme.
   const setupSteps: SetupStepDef[] = useMemo(() => {
     const steps: SetupStepDef[] = [
-      { key: 'add_product', done: signals.hasProduct, icon: Package, href: '/dashboard/products/new' },
+      { key: 'add_product', done: signals.hasProduct, icon: Package, href: newProductRoute },
       { key: 'payments', done: signals.paymentsEnabled, icon: CreditCard, href: '/dashboard/payments/methods' },
       { key: 'theme', done: signals.themePublished || themeSelected === true, icon: Palette, href: '/dashboard/themes/editor' },
       // Test orders are placed on the storefront itself.
@@ -396,7 +398,7 @@ export const Dashboard: React.FC = () => {
     return themeSelected === false
       ? steps
       : steps.filter((s) => s.key !== 'theme');
-  }, [signals, storeUrl, themeSelected]);
+  }, [signals, storeUrl, themeSelected, newProductRoute]);
 
   const doneCount = setupSteps.filter((s) => s.done).length;
   const setupComplete = doneCount === setupSteps.length;
@@ -498,7 +500,7 @@ export const Dashboard: React.FC = () => {
         description={t('dashboard:subtitle')}
         actions={
           <Button asChild>
-            <Link to="/dashboard/products/new">
+            <Link to={newProductRoute}>
               <Plus className="h-4 w-4 me-2" />
               {t('dashboard:add_product')}
             </Link>
@@ -776,7 +778,7 @@ export const Dashboard: React.FC = () => {
             <CardContent className="space-y-2">
               {quickActionsStatic ? (
                 [
-                  { label: t('dashboard:section.quick_actions.add_product'), icon: Package, href: '/dashboard/products/new' },
+                  { label: t('dashboard:section.quick_actions.add_product'), icon: Package, href: newProductRoute },
                   { label: t('dashboard:section.quick_actions.view_orders'), icon: ShoppingCart, href: '/dashboard/orders' },
                   { label: t('dashboard:section.quick_actions.manage_themes'), icon: Palette, href: '/dashboard/themes' },
                   { label: t('dashboard:section.quick_actions.domain_settings'), icon: Globe, href: '/dashboard/domains' },

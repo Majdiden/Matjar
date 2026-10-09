@@ -7,6 +7,8 @@ import {
 } from "../repositories/product.js";
 import { redirectRenamedPath } from "./redirect.js";
 import { slugify, ensureUniqueSlug } from "../utils/slugify.js";
+import { ensureQuickAddCategory } from "./category.js";
+import crypto from "node:crypto";
 import logger from "../utils/logger.js";
 
 // Fallback prefix when a name yields no slug at all ("product-3f9a1c").
@@ -31,29 +33,68 @@ const slugSourceName = (body) =>
 const productSlugTaken = (models) => async (candidate) =>
   Boolean(await models.Product.findOne({ slug: candidate }).select("_id"));
 
-export const addProduct = async (req, res) => {
-  try {
-    // Schema requires `slug` but the client doesn't have to provide one —
-    // we derive it from the product name (Arabic transliterated) and dedupe
-    // within the tenant. A merchant-typed slug goes through the same rule.
-    const body = { ...req.body };
-    const typedSlug = typeof body.slug === "string" ? slugify(body.slug) : "";
-    body.slug = await ensureUniqueSlug(
-      productSlugTaken(req.models),
-      typedSlug || slugify(slugSourceName(body)),
-      { fallback: PRODUCT_SLUG_FALLBACK }
-    );
+/**
+ * Create a product from an already-validated body. The schema requires
+ * `slug` but the client doesn't have to provide one: it is derived from the
+ * product name (Arabic transliterated) and deduped within the tenant. A
+ * merchant-typed slug goes through the same rule.
+ */
+async function createProduct(models, input) {
+  const body = { ...input };
+  const typedSlug = typeof body.slug === "string" ? slugify(body.slug) : "";
+  body.slug = await ensureUniqueSlug(
+    productSlugTaken(models),
+    typedSlug || slugify(slugSourceName(body)),
+    { fallback: PRODUCT_SLUG_FALLBACK }
+  );
+  return addAProductRepo(models, body);
+}
 
-    const data = await addAProductRepo(req.models, body);
-    return {
-      success: true,
-      statusCode: 201,
-      message: "Product added successfully",
-      responseObject: { data },
-    };
-  } catch (error) {
-    throw error;
-  }
+export const addProduct = async (req, res) => {
+  const data = await createProduct(req.models, req.body);
+  return {
+    success: true,
+    statusCode: 201,
+    message: "Product added successfully",
+    responseObject: { data },
+  };
+};
+
+/**
+ * Quick add (PBI 10): photo, name, price and quantity are all a first-time
+ * seller gives us. The rest is filled in so the product can be sold at once:
+ * published, in the store's "Our products" category, and described by its
+ * name until the merchant writes a description in the full form, with a
+ * generated SKU. Only the
+ * listed fields are read; the validator has already checked them.
+ */
+// Quick-add SKUs: "QA-" + 10 hex digits. The (tenantId, sku) index treats a
+// missing SKU as a value, so every product needs its own; the merchant can
+// replace it in the full form.
+const QUICK_SKU_PREFIX = "QA-";
+const QUICK_SKU_RANDOM_BYTES = 5;
+const quickSku = () => `${QUICK_SKU_PREFIX}${crypto.randomBytes(QUICK_SKU_RANDOM_BYTES).toString("hex").toUpperCase()}`;
+
+export const addQuickProduct = async (req) => {
+  const { name, price, stock, images = [], description } = req.body;
+  const language = req.tenant?.settings?.language === "en" ? "en" : "ar";
+  const category = await ensureQuickAddCategory(req.models, language);
+  const data = await createProduct(req.models, {
+    name,
+    price,
+    stock,
+    images,
+    description: description || name,
+    category,
+    sku: quickSku(),
+    status: PUBLISHED_STATUS,
+  });
+  return {
+    success: true,
+    statusCode: 201,
+    message: "Product added successfully",
+    responseObject: { data },
+  };
 };
 
 export const getProduct = async (req, res) => {

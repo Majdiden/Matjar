@@ -51,6 +51,7 @@ const SetupInProgress = lazyWithRetry(() => import('./pages/SetupInProgress'));
 const Dashboard = lazyWithRetry(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
 const Domains = lazyWithRetry(() => import('./pages/domains/Domains').then(m => ({ default: m.Domains })));
 const Products = lazyWithRetry(() => import('./pages/products/Products').then(m => ({ default: m.Products })));
+const QuickProduct = lazyWithRetry(() => import('./pages/products/QuickProduct').then(m => ({ default: m.QuickProduct })));
 const ProductForm = lazyWithRetry(() => import('./pages/products/ProductForm').then(m => ({ default: m.ProductForm })));
 const Categories = lazyWithRetry(() => import('./pages/categories/Categories').then(m => ({ default: m.Categories })));
 const Orders = lazyWithRetry(() => import('./pages/orders/Orders').then(m => ({ default: m.Orders })));
@@ -154,6 +155,7 @@ function App() {
             <Route path="feedback" element={<Feedback />} />
             <Route path="domains" element={<RequirePermission permission={['domains.read', 'domains.write']}><Domains /></RequirePermission>} />
             <Route path="products" element={<RequirePermission permission="products.read"><Products /></RequirePermission>} />
+            <Route path="products/quick" element={<RequirePermission permission="products.write"><QuickProduct /></RequirePermission>} />
             <Route path="products/new" element={<RequirePermission permission="products.write"><ProductForm /></RequirePermission>} />
             <Route path="products/:id/edit" element={<RequirePermission permission="products.write"><ProductForm /></RequirePermission>} />
             <Route path="categories" element={<RequirePermission permission="products.read"><Categories /></RequirePermission>} />
