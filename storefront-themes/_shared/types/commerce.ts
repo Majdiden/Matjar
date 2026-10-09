@@ -179,6 +179,30 @@ export interface Address {
   phone?: string;
 }
 
+/** Arabic-first bilingual text from the brand kit; English is optional. */
+export interface BrandText {
+  ar?: string;
+  en?: string;
+}
+
+/**
+ * Brand kit (PBI 10) — facts the merchant gave about their business, the
+ * same on every theme (`store.brand`, built by services/storefrontStoreInfo.js).
+ * Only keys the merchant set are present; the whole object is null when
+ * nothing is set, so a theme falls back to its own defaults.
+ */
+export interface BrandKit {
+  tagline?: BrandText;
+  /** Absolute https URL or a root-relative "/uploads/..." path. */
+  coverImage?: string;
+  /** "#rrggbb", lowercase. */
+  color?: string;
+  /** E.164, e.g. "+249912345678". */
+  whatsapp?: string;
+  city?: BrandText;
+  hours?: BrandText;
+}
+
 export interface StoreInfo {
   name: string;
   description?: string;
@@ -202,6 +226,7 @@ export interface StoreInfo {
   };
   socialLinks?: Record<string, string>;
   contactInfo?: Record<string, string>;
+  brand?: BrandKit | null;
 }
 
 export interface Pagination {

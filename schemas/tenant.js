@@ -136,6 +136,20 @@ const tenantSchema = new Schema({
       telegram: { type: String },
       x: { type: String },
     },
+    // Brand kit (PBI 10) — facts about the business the merchant fills in
+    // once, independent of the active theme, so switching theme keeps them.
+    // Written only through services/storeProfile.js (utils/brandKit.js rules:
+    // https/"/uploads/" images, "#rrggbb" colour, E.164 WhatsApp). Bilingual
+    // text is `{ ar, en }` with Arabic primary and English optional. No
+    // defaults on purpose: absent stays absent so themes can tell "not set".
+    brand: {
+      tagline: { ar: { type: String }, en: { type: String } },
+      coverImage: { type: String },
+      color: { type: String },
+      whatsapp: { type: String },
+      city: { ar: { type: String }, en: { type: String } },
+      hours: { ar: { type: String }, en: { type: String } },
+    },
     // Store policies. Each has a merchant-authored title + a rich-text (HTML)
     // body, surfaced in the storefront footer, on dedicated policy pages, and
     // in checkout. Bodies are sanitised on write (controllers/settings.js).

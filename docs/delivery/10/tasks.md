@@ -10,9 +10,9 @@ This document lists all tasks associated with PBI 10.
 | :------ | :--- | :----- | :---------- |
 | 10-1 | [Forgiving store-link field + general share button](./10-1.md) | Review | Arabic store names → valid link; pasted store/social/example links understood and explained; social pages saved; native share sheet with fallback menu |
 | 10-2 | [Store language from signup, Arabic by default](./10-2.md) | Review | New stores take the merchant's signup language (`ar`/`en`); Arabic when not sent. Drives order emails, seeded menus/payment methods and starter content |
-| 10-3 | Brand kit data model | Proposed | Additive `tenant.settings` fields (tagline, coverImage, brandColor, whatsapp, city, hours) with `{ ar, en? }` text; idempotent backfill |
-| 10-4 | Brand kit API | Proposed | `GET/PUT /api/store-profile` through repository → service → controller, zod validation, audit log |
-| 10-5 | Brand kit in the storefront | Proposed | Expose via `services/storefrontStoreInfo.js`; `useBrand()` hook in `@matjar/theme-shared`; brand colour feeds the primary token |
+| 10-3 | [Brand kit data model](./10-3.md) | Review | Additive `tenant.settings.brand` fields (tagline, coverImage, color, whatsapp, city, hours) with `{ ar, en? }` text; no defaults, so no backfill is needed |
+| 10-4 | [Brand kit API](./10-4.md) | Review | `GET/PUT /api/store-profile` through repository → service → controller, zod validation, audit log |
+| 10-5 | [Brand kit in the storefront](./10-5.md) | Review | Expose via `services/storefrontStoreInfo.js`; `useBrand()` hook in `@matjar/theme-shared`; `design.simpleMode` flag registered. Brand colour → primary token is left to 10-7 (no theme reads the brand kit yet) |
 | 10-6 | Manifest `level` / `bind` / niche presets | Proposed | Schema + `defineSection` + `services/themeValidator.js` support; no change for stores without brand data |
 | 10-7 | Setting value resolution with brand bindings | Proposed | Override → brand → manifest default in `services/themeCustomization.js`, with tests that unconfigured stores render unchanged |
 | 10-8 | Annotate themes (modern, starter first) | Proposed | At most about 3 `basic` settings per section, `bind`s for hero/footer/contact, then the remaining themes |

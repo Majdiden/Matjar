@@ -16,7 +16,7 @@ export type FeatureKey =
   | 'themes.catalogAll'
   | 'webhooks' | 'customFields' | 'team.advancedRoles' | 'auditLogs'
   | 'settings.regional' | 'settings.tax' | 'settings.currencies' | 'settings.markets'
-  | 'domains.custom' | 'redirects' | 'billing.subscription';
+  | 'domains.custom' | 'redirects' | 'design.simpleMode' | 'billing.subscription';
 
 export type FeatureFlags = Record<string, boolean | string[]>;
 
@@ -43,6 +43,7 @@ export const DEFAULT_FEATURES: FeatureFlags = {
   'settings.markets': false,
   'domains.custom': false,
   redirects: false,
+  'design.simpleMode': false,
   'billing.subscription': false,
 };
 
