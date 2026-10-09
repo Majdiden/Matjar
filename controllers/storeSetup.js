@@ -4,6 +4,7 @@ import {
   getSetupStatus,
   clearSetupStatus,
   publishStarterContent,
+  exchangeSetupTokenForSession,
 } from "../services/storeSetup.js";
 import { asyncHandler, APIError } from "../middlewares/errorHandler.js";
 
@@ -122,4 +123,20 @@ export const publishStarterController = asyncHandler(async (req, res) => {
     message: "Starter content published",
     responseObject: counts,
   });
+});
+
+/**
+ * POST /api/store-setup/session { tenantId, setupToken } — public.
+ * Signs the merchant into their new store right after signup by exchanging
+ * the one-time setup token from the register response (single use, short
+ * lived). Replaces the old client-side auto-login that kept the password in
+ * sessionStorage. One generic 401 for every failure.
+ */
+export const setupSessionController = asyncHandler(async (req, res) => {
+  const { tenantId, setupToken } = req.body || {};
+  const session = await exchangeSetupTokenForSession(tenantId, setupToken);
+  if (!session) {
+    return res.status(401).json({ success: false, message: "Please sign in to continue." });
+  }
+  res.json({ success: true, message: "Logged in successfully", responseObject: session });
 });

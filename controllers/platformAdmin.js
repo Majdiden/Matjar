@@ -51,8 +51,17 @@ async function tenantSnapshot(tenantId) {
 
 // --- Tenant listing / inspection -------------------------------------
 
+/** Allowed `?sort=` values for the tenants list. */
+const TENANT_LIST_SORTS = Object.freeze({
+  newest: { createdAt: -1 },
+  // Stores whose merchants signed in most recently first; never-signed-in last.
+  last_login: { lastLoginAt: -1, createdAt: -1 },
+  // Longest-quiet first — who might need a nudge.
+  least_recent_login: { lastLoginAt: 1, createdAt: 1 },
+});
+
 export const listTenants = asyncHandler(async (req, res) => {
-  const { status, q, lifecycle } = req.query;
+  const { status, q, lifecycle, sort } = req.query;
   const page = clampInt(req.query.page, 1, 1, 100000);
   const limit = clampInt(req.query.limit, 25, 1, 100);
   const filter = {};
@@ -75,8 +84,8 @@ export const listTenants = asyncHandler(async (req, res) => {
   const Tenant = mongoose.model("Tenant");
   const [rows, total] = await Promise.all([
     Tenant.find(filter)
-      .select("name slug email phone phoneCountry domains subscriptionPlan subscriptionStatus suspendedAt deletionScheduledAt deletedAt setupStatus.status lifecycle.state lifecycle.reason lifecycle.changedAt createdAt")
-      .sort({ createdAt: -1 })
+      .select("name slug email phone phoneCountry domains subscriptionPlan subscriptionStatus suspendedAt deletionScheduledAt deletedAt setupStatus.status lifecycle.state lifecycle.reason lifecycle.changedAt createdAt lastLoginAt lastLoginBy")
+      .sort(Object.hasOwn(TENANT_LIST_SORTS, sort) ? TENANT_LIST_SORTS[sort] : TENANT_LIST_SORTS.newest)
       .skip(skip)
       .limit(limit)
       .lean(),

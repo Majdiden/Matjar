@@ -170,6 +170,9 @@ export type SubscriptionStatus =
   | 'cancelled'
   | 'deleted';
 
+/** Tenants list orderings — mirrors TENANT_LIST_SORTS in controllers/platformAdmin.js. */
+export type TenantListSort = 'newest' | 'last_login' | 'least_recent_login';
+
 export interface TenantListRow {
   _id: string;
   name: string;
@@ -186,6 +189,9 @@ export interface TenantListRow {
   deletedAt?: string | null;
   setupStatus?: { status?: string };
   lifecycle?: { state?: LifecycleState; reason?: string | null; changedAt?: string | null };
+  // Last merchant dashboard sign-in (any staff) and who it was.
+  lastLoginAt?: string | null;
+  lastLoginBy?: string | null;
   createdAt: string;
 }
 
@@ -301,7 +307,7 @@ export const api = {
     return res.data.data as PlatformUser;
   },
   tenants: {
-    list: async (params: { page?: number; limit?: number; status?: string; q?: string; lifecycle?: string } = {}) => {
+    list: async (params: { page?: number; limit?: number; status?: string; q?: string; lifecycle?: string; sort?: TenantListSort } = {}) => {
       const res = await http.get('/tenants', { params });
       return res.data.data as { tenants: TenantListRow[]; pagination: Pagination };
     },

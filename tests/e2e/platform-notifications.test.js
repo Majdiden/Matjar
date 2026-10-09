@@ -37,6 +37,31 @@ describe("platform email alerts", () => {
     assert.match(sent[0].text, /\/tenants\/x/);
   });
 
+  it("sends tags in a form the provider accepts and counts provider failures as failed", async () => {
+    await seedOperators();
+    const sent = [];
+    const r = await notifyPlatform("tenant.signup", { subject: "New store signup: Acme", lines: [] }, {
+      sendEmailFn: async (m) => {
+        sent.push(m);
+        // sendEmail returns a failure envelope (it never throws) when Resend rejects.
+        return m.to === "ops@matjar.test" ? { success: false, accepted: false, error: "Resend error" } : { success: true, accepted: true };
+      },
+    });
+    assert.deepEqual(r, { sent: 1, failed: 1 });
+    assert.deepEqual(sent[0].tags, { category: "platform-alert", event: "tenant.signup" });
+  });
+
+  it("always tells owners about a new store, even if they never subscribed", async () => {
+    await mongoose.model("TenantUser").create({
+      tenantId: new mongoose.Types.ObjectId(), name: "Owner", email: "solo-owner@matjar.test",
+      platformAdmin: true, platformRole: "owner", platformNotifications: [],
+    });
+    const sent = [];
+    const r = await notifyPlatform("tenant.signup", { subject: "New store signup: Acme", lines: [] }, { sendEmailFn: async (m) => { sent.push(m); return { success: true }; } });
+    assert.equal(r.sent, 1);
+    assert.equal(sent[0].to, "solo-owner@matjar.test");
+  });
+
   it("throttles bursty events and reports the suppressed count in the next email", async () => {
     await seedOperators();
     const sent = [];

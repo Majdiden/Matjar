@@ -448,9 +448,19 @@ const tenantSchema = new Schema({
     completedAt: Date,
     error: String,
     setupToken: { type: String, select: false },
+    // When the setup token was exchanged for the merchant's first dashboard
+    // session (services/storeSetup.js exchangeSetupTokenForSession). Set
+    // once; a second exchange is refused.
+    sessionIssuedAt: { type: Date },
   },
 
   isActive: { type: Boolean, default: true },
+
+  // Last merchant dashboard sign-in to this store (any staff member) and
+  // who it was — services/auth.js recordMerchantLogin. Platform
+  // impersonation doesn't count. Shown in the platform console.
+  lastLoginAt: { type: Date, default: null, index: true },
+  lastLoginBy: { type: String, default: null },
 
   // Whether the merchant actively PICKED a theme during onboarding (true) or
   // skipped the theme step and got the default look applied (false). Consumed

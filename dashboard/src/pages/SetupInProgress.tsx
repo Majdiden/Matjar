@@ -81,7 +81,7 @@ const AnimatedTitle: React.FC<{ text: string; perLetter?: number; className?: st
 export default function SetupInProgress() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { loginWithResponse } = useAuth();
   const { t } = useTranslation(['errors']);
 
   const [tenantId, setTenantId] = useState<string | null>(null);
@@ -124,23 +124,35 @@ export default function SetupInProgress() {
   const doLoginAndNavigate = async () => {
     if (loginStartedRef.current) return;
     loginStartedRef.current = true;
-    try {
-      const email = sessionStorage.getItem('setupEmail');
-      const password = sessionStorage.getItem('setupPassword');
-      const id = tenantId || searchParams.get('tenantId') || undefined;
-      if (!email || !password) {
-        navigate('/dashboard/login');
-        return;
-      }
+    const email = sessionStorage.getItem('setupEmail');
+    const token = setupToken || sessionStorage.getItem('setupToken');
+    const id = tenantId || searchParams.get('tenantId');
+    const clearSetupStorage = () => {
       sessionStorage.removeItem('setupEmail');
-      sessionStorage.removeItem('setupPassword');
+      sessionStorage.removeItem('setupPassword'); // left by older builds
       sessionStorage.removeItem('setupDomain');
       sessionStorage.removeItem('setupToken');
-      await login({ email, password, tenantId: id });
+    };
+    const toLogin = () => navigate('/dashboard/login', { state: email ? { email } : undefined });
+    if (!id || !token) {
+      clearSetupStorage();
+      toLogin();
+      return;
+    }
+    try {
+      // Exchange the one-time setup token for the first session (the
+      // password never touches browser storage).
+      const res = (await api.storeSetup.session(id, token)) as {
+        responseObject?: Parameters<typeof loginWithResponse>[0];
+      };
+      clearSetupStorage();
+      if (!res.responseObject) throw new Error('No session');
+      await loginWithResponse(res.responseObject);
       navigate('/dashboard', { replace: true });
     } catch (err) {
       console.error('Auto-login failed:', err);
-      navigate('/dashboard/login');
+      clearSetupStorage();
+      toLogin();
     }
   };
 
@@ -182,7 +194,8 @@ export default function SetupInProgress() {
             });
             return next;
           });
-          api.storeSetup.clearStatus(tenantId, setupToken).catch(() => {});
+          // Don't clear the setup status here: its token is exchanged for the
+          // first session below and is deleted by the server on use.
           return; // stop polling
         }
       } catch {

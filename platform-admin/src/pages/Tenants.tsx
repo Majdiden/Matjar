@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { api, hasScope, LIFECYCLE_STATES, PLATFORM_SCOPES, type Pagination, type TenantListRow } from '../lib/api';
+import { api, hasScope, LIFECYCLE_STATES, PLATFORM_SCOPES, type Pagination, type TenantListRow, type TenantListSort } from '../lib/api';
 import { useAuth } from '../contexts/auth-context';
 import { useReauth } from '../components/useReauth';
 import { TenantsBulkBar } from './TenantsBulkBar';
@@ -11,7 +11,7 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { DataList, type DataListColumn } from '../components/ui/DataList';
 import { PageSpinner, ErrorState, EmptyState } from '../components/ui/Spinner';
-import { formatDate, shortId } from '../lib/utils';
+import { formatDate, formatRelative, shortId } from '../lib/utils';
 import {
   Search,
   ChevronLeft,
@@ -43,6 +43,7 @@ export default function Tenants() {
   const page = parseInt(searchParams.get('page') || '1', 10);
   const status = searchParams.get('lifecycle') || '';
   const q = searchParams.get('q') || '';
+  const sort = (searchParams.get('sort') || 'newest') as TenantListSort;
 
   const [qLocal, setQLocal] = useState(q);
   const [rows, setRows] = useState<TenantListRow[]>([]);
@@ -88,6 +89,7 @@ export default function Tenants() {
           limit: 25,
           lifecycle: status || undefined,
           q: q || undefined,
+          sort,
         }),
         api.tenants.stats().catch(() => null),
       ]);
@@ -99,7 +101,7 @@ export default function Tenants() {
     } finally {
       setLoading(false);
     }
-  }, [page, status, q]);
+  }, [page, status, q, sort]);
 
   useEffect(() => {
     load();
@@ -338,6 +340,19 @@ export default function Tenants() {
       ),
     },
     {
+      id: 'lastLogin',
+      header: 'Last login',
+      hideOnMobile: true,
+      cell: (row) =>
+        row.lastLoginAt ? (
+          <span className="text-xs text-muted-foreground" title={`${formatDate(row.lastLoginAt)}${row.lastLoginBy ? ` · ${row.lastLoginBy}` : ''}`}>
+            {formatRelative(row.lastLoginAt)}
+          </span>
+        ) : (
+          <span className="text-xs text-muted-foreground">never</span>
+        ),
+    },
+    {
       id: 'created',
       header: 'Created',
       className: 'text-xs text-muted-foreground',
@@ -397,6 +412,17 @@ export default function Tenants() {
             className="pl-8"
           />
         </form>
+
+        <select
+          aria-label="Sort stores"
+          value={sort}
+          onChange={(e) => updateParam('sort', e.target.value === 'newest' ? null : e.target.value)}
+          className="h-9 rounded-md border bg-card px-2 text-xs text-foreground"
+        >
+          <option value="newest">Newest first</option>
+          <option value="last_login">Recently logged in</option>
+          <option value="least_recent_login">Longest without login</option>
+        </select>
 
         <div className="-mx-4 overflow-x-auto px-4 scrollbar-hide lg:mx-0 lg:overflow-visible lg:px-0">
           <div className="flex w-max items-center gap-1 rounded-md border bg-card p-1">

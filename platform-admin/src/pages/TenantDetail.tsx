@@ -13,7 +13,7 @@ import { useReauth } from '../components/useReauth';
 import { PageSpinner, ErrorState } from '../components/ui/Spinner';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { useToast } from '../components/ui/toast-context';
-import { formatDate, shortId } from '../lib/utils';
+import { formatDate, formatRelative, shortId } from '../lib/utils';
 import {
   ArrowLeft,
   RefreshCw,
@@ -111,6 +111,8 @@ interface TenantDetail {
     changedBy?: string | null;
     history?: Array<{ state: string; reason?: string | null; changedAt?: string; changedBy?: string | null }>;
   };
+  lastLoginAt?: string | null;
+  lastLoginBy?: string | null;
   createdAt: string;
   updatedAt?: string;
 }
@@ -708,6 +710,14 @@ export default function TenantDetailPage() {
               </div>
               <Row label="Active theme" value={tenant.settings?.activeTheme || '—'} />
               <Row label="Niche" value={tenant.settings?.niche || '—'} />
+              <Row
+                label="Last merchant login"
+                value={
+                  tenant.lastLoginAt
+                    ? `${formatRelative(tenant.lastLoginAt)} (${formatDate(tenant.lastLoginAt)})${tenant.lastLoginBy ? ` · ${tenant.lastLoginBy}` : ''}`
+                    : 'never'
+                }
+              />
               <Row label="Created" value={formatDate(tenant.createdAt)} />
               <Row label="Updated" value={formatDate(tenant.updatedAt)} />
             </CardContent>

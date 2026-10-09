@@ -731,8 +731,10 @@ export const Register: React.FC = () => {
         };
       };
 
+      // The setup screen signs the merchant in by exchanging the one-time
+      // setup token (POST /store-setup/session) — the password is never kept
+      // in the browser. The email only pre-fills the login form if that fails.
       sessionStorage.setItem('setupEmail', form.email);
-      sessionStorage.setItem('setupPassword', form.password);
       sessionStorage.setItem('setupDomain', response.responseObject?.subdomain || response.responseObject?.domain || form.subdomain);
       sessionStorage.setItem('setupToken', response.responseObject?.setupToken || '');
 
