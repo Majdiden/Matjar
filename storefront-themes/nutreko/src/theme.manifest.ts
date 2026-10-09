@@ -20,7 +20,7 @@ export const nutrekoTopStripSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'text', type: 'text', label: 'Text', default: '' },
+    { id: 'text', type: 'text', label: 'Text', level: 'basic', default: '' },
   ],
 });
 
@@ -34,12 +34,12 @@ export const nutrekoHeroSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
     { id: 'secondary_cta_text', type: 'text', label: 'Secondary CTA', default: '' },
-    { id: 'image', type: 'image', label: 'Hero Image' },
+    { id: 'image', type: 'image', label: 'Hero Image', level: 'basic' },
   ],
 });
 
@@ -77,8 +77,8 @@ export const nutrekoCategoryStripSection: SectionDefinition = defineSection({
   description: 'Horizontal category pills',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
   ],
   blocks: [
     {
@@ -107,8 +107,8 @@ export const nutrekoProductGridSection: SectionDefinition = defineSection({
   category: 'commerce',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'source', type: 'select', label: 'Source', default: 'featured', options: [
       { value: 'featured', label: 'Featured' },
       { value: 'newest', label: 'Newest' },
@@ -127,9 +127,9 @@ export const nutrekoBannerSection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
-    { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', default: '' },
+    { id: 'cta_text', type: 'text', label: 'CTA Text', level: 'basic', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
   ],
 });

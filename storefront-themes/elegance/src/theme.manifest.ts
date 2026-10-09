@@ -14,11 +14,11 @@ export const heroSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '', info: 'Small uppercase label shown above the headline' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '', info: 'Falls back to store name if empty' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '', info: 'Falls back to store name if empty' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
-    { id: 'background_image', type: 'image', label: 'Background Image', default: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80', info: 'Recommended minimum width: 1600px' },
+    { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', default: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80', info: 'Recommended minimum width: 1600px' },
     { id: 'image_brightness', type: 'range', label: 'Image Brightness', min: 20, max: 100, step: 5, default: 70, unit: '%', info: 'Controls the darkening overlay over the image' },
     { id: 'section_height', type: 'select', label: 'Section Height', default: '70vh', options: [
       { value: '50vh', label: 'Short (50vh)' },
@@ -40,7 +40,7 @@ export const collectionsSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 5, min: 2, max: 6, info: 'First category will span two rows in the asymmetric layout' },
     { id: 'hover_label', type: 'text', label: 'Hover Label', default: '', info: 'Text shown next to the arrow on card hover' },
     { id: 'show_category_names', type: 'checkbox', label: 'Show Category Names', default: true },
@@ -57,7 +57,7 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: "Editor's Picks" },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: "Editor's Picks" },
     { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
     { id: 'view_all_url', type: 'url', label: 'View All URL', default: '/products' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 8, min: 2, max: 16 },
@@ -79,10 +79,10 @@ export const editorialBannerSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
-    { id: 'background_image', type: 'image', label: 'Background Image', default: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80' },
+    { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', default: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80' },
     { id: 'image_opacity', type: 'range', label: 'Image Opacity', min: 10, max: 100, step: 5, default: 60, unit: '%' },
     { id: 'section_height', type: 'select', label: 'Section Height', default: '50vh', options: [
       { value: '40vh', label: 'Short (40vh)' },
@@ -104,7 +104,7 @@ export const newArrivalsSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow_text', type: 'text', label: 'Eyebrow Text', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 6, min: 3, max: 12 },
     { id: 'slides_per_view', type: 'number', label: 'Slides Visible at Once', default: 3, min: 2, max: 4 },
     { id: 'show_arrows', type: 'checkbox', label: 'Show Navigation Arrows', default: true },

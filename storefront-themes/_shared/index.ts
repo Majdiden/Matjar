@@ -9,6 +9,11 @@ export type {
   MergedThemeSettings,
   ThemeColors,
   ThemeTypography,
+  SettingLevel,
+  BrandBinding,
+  NicheId,
+  SettingSource,
+  ThemeNichePreset,
 } from './types/theme';
 
 export type {
@@ -51,6 +56,30 @@ export type {
 // ─── Theme System ────────────────────────────────────────────────
 export { defineTheme } from './theme/defineTheme';
 export { defineSection } from './theme/defineSection';
+export {
+  SETTING_LEVELS,
+  DEFAULT_SETTING_LEVEL,
+  DEFAULT_SECTION_LEVEL,
+  MAX_BASIC_SETTINGS_PER_SECTION,
+  isBasicSetting,
+  isBasicSection,
+  basicSettingsOf,
+} from './theme/settingLevels';
+export {
+  BRAND_BINDINGS,
+  BILINGUAL_BRAND_BINDINGS,
+  BRAND_BINDING_SETTING_TYPES,
+  SETTING_SOURCES,
+  NICHE_IDS,
+  ARABIC_SETTING_SUFFIX,
+  BRAND_COLOR_TOKEN,
+  brandBindingValue,
+  brandSettingValues,
+  isSettingOverridden,
+  resolveBoundSettings,
+  resolvePrimaryColor,
+} from './theme/brandBindings';
+export type { BrandBindingSource, ResolvedSettings } from './theme/brandBindings';
 export { ThemeProvider, useTheme, useThemeSettings, useThemeSetting, useColorMode, useSectionEnabled, useSectionBlocks } from './theme/ThemeProvider';
 
 // ─── API ─────────────────────────────────────────────────────────

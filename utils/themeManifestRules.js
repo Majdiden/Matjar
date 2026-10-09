@@ -17,6 +17,13 @@
  * backend machinery.
  */
 
+import {
+  BRAND_BINDINGS,
+  BRAND_BINDING_SETTING_TYPES,
+  ARABIC_SETTING_SUFFIX,
+} from "./themeBindings.js";
+import { STORE_NICHES } from "../config/storeNiches.js";
+
 // ─── Template allow-list ─────────────────────────────────────────
 //
 // The set of template ids merchants can compose section layouts for.
@@ -464,6 +471,141 @@ export function validateSettingsBag(settings, defs, prefix) {
       continue;
     }
     errors.push(...validateSettingValue(def, value, prefix));
+  }
+  return errors;
+}
+
+// ─── Simple mode, brand bindings and niche presets (PBI 10) ──────
+//
+// Mirrors storefront-themes/_shared/theme/settingLevels.ts (kept in sync by
+// tests/unit/themeBindingsParity.test.js).
+
+export const SETTING_LEVELS = Object.freeze(["basic", "advanced"]);
+export const MAX_BASIC_SETTINGS_PER_SECTION = 3;
+
+function checkSettingExtensions(setting, where, errors, { allowBind }) {
+  if (!setting || typeof setting !== "object") return;
+  if (setting.level !== undefined && !SETTING_LEVELS.includes(setting.level)) {
+    errors.push(`${where}: level must be one of ${SETTING_LEVELS.join(", ")} (got ${JSON.stringify(setting.level)})`);
+  }
+  if (setting.bind === undefined) return;
+  if (!allowBind) {
+    errors.push(`${where}: bind is only supported on section and theme settings, not block settings`);
+    return;
+  }
+  if (!BRAND_BINDINGS.includes(setting.bind)) {
+    errors.push(`${where}: bind must be one of ${BRAND_BINDINGS.join(", ")} (got ${JSON.stringify(setting.bind)})`);
+    return;
+  }
+  const types = BRAND_BINDING_SETTING_TYPES[setting.bind];
+  if (!types.includes(setting.type)) {
+    errors.push(`${where}: bind "${setting.bind}" needs a ${types.join(" or ")} setting (got "${setting.type}")`);
+  }
+}
+
+function checkPreset(niche, preset, manifest, defsByType, errors) {
+  const where = `presets.${niche}`;
+  if (!STORE_NICHES.includes(niche)) {
+    errors.push(`${where}: unknown niche (allowed: ${STORE_NICHES.join(", ")})`);
+    return;
+  }
+  if (!preset || typeof preset !== "object" || !Array.isArray(preset.index)) {
+    errors.push(`${where}: must be { index: SectionInstance[] }`);
+    return;
+  }
+  const ids = new Set();
+  const counts = new Map();
+  preset.index.forEach((inst, i) => {
+    const iWhere = `${where}.index[${i}]`;
+    if (!inst || typeof inst !== "object" || typeof inst.id !== "string" || !inst.id) {
+      errors.push(`${iWhere}: needs a string "id"`);
+      return;
+    }
+    if (ids.has(inst.id)) errors.push(`${iWhere}: duplicate section id "${inst.id}"`);
+    ids.add(inst.id);
+    const def = defsByType.get(inst.type);
+    if (!def) {
+      errors.push(`${iWhere}: section type "${inst.type}" is not declared by the theme`);
+      return;
+    }
+    counts.set(inst.type, (counts.get(inst.type) || 0) + 1);
+    const defs = Array.isArray(def.settings) ? def.settings : [];
+    errors.push(...validateSettingsBag(inst.settings, defs, `${iWhere} (${inst.type})`));
+    // Bound settings are left to the brand kit: a preset value would count
+    // as the merchant's own and hide their brand-kit value.
+    for (const d of defs) {
+      if (!d.bind || !inst.settings) continue;
+      for (const key of [d.id, `${d.id}${ARABIC_SETTING_SUFFIX}`]) {
+        if (inst.settings[key] !== undefined) {
+          errors.push(`${iWhere}: must not set "${key}" — it is bound to ${d.bind}`);
+        }
+      }
+    }
+  });
+  for (const [type, count] of counts) {
+    const limit = defsByType.get(type)?.limit;
+    if (typeof limit === "number" && count > limit) {
+      errors.push(`${where}: section type "${type}" appears ${count} times but its limit is ${limit}`);
+    }
+  }
+  // Same sections as templates.index (reordered, or hidden with
+  // `disabled: true`): the editor re-adds any manifest index section missing
+  // from a store's list, so a dropped section would come back.
+  for (const inst of Array.isArray(manifest.templates?.index) ? manifest.templates.index : []) {
+    if (inst?.id && !ids.has(inst.id)) {
+      errors.push(`${where}: missing section "${inst.id}" from templates.index (hide it with disabled: true instead)`);
+    }
+  }
+}
+
+/**
+ * Check the PBI 10 manifest extensions: `level` on settings and sections
+ * (at most MAX_BASIC_SETTINGS_PER_SECTION basic settings per section),
+ * `bind` on section and theme settings (known binding, compatible setting
+ * type), and per-niche `presets`. Returns a list of error strings; empty
+ * means valid. Manifests without these fields are always valid.
+ */
+export function validateManifestExtensions(manifest) {
+  const errors = [];
+  if (!manifest || typeof manifest !== "object") return errors;
+  const sections = Array.isArray(manifest.sections) ? manifest.sections : [];
+  const defsByType = new Map(sections.filter((d) => d && d.type).map((d) => [d.type, d]));
+
+  (Array.isArray(manifest.settings) ? manifest.settings : []).forEach((s, i) => {
+    checkSettingExtensions(s, `settings[${i}] (${s?.id || "?"})`, errors, { allowBind: true });
+  });
+
+  sections.forEach((def, di) => {
+    if (!def || typeof def !== "object") return;
+    const dWhere = `sections[${di}] (${def.type || "?"})`;
+    if (def.level !== undefined && !SETTING_LEVELS.includes(def.level)) {
+      errors.push(`${dWhere}: level must be one of ${SETTING_LEVELS.join(", ")} (got ${JSON.stringify(def.level)})`);
+    }
+    const settings = Array.isArray(def.settings) ? def.settings : [];
+    settings.forEach((s, si) => {
+      checkSettingExtensions(s, `${dWhere} settings[${si}] (${s?.id || "?"})`, errors, { allowBind: true });
+    });
+    const basic = settings.filter((s) => s?.level === "basic").length;
+    if (basic > MAX_BASIC_SETTINGS_PER_SECTION) {
+      errors.push(`${dWhere}: ${basic} basic settings — at most ${MAX_BASIC_SETTINGS_PER_SECTION} fit the simple editor`);
+    }
+    (Array.isArray(def.blocks) ? def.blocks : []).forEach((b, bi) => {
+      (Array.isArray(b?.settings) ? b.settings : []).forEach((s, si) => {
+        checkSettingExtensions(s, `${dWhere} blocks[${bi}] settings[${si}] (${s?.id || "?"})`, errors, {
+          allowBind: false,
+        });
+      });
+    });
+  });
+
+  if (manifest.presets !== undefined) {
+    if (!manifest.presets || typeof manifest.presets !== "object" || Array.isArray(manifest.presets)) {
+      errors.push("presets must be an object keyed by niche");
+    } else {
+      for (const [niche, preset] of Object.entries(manifest.presets)) {
+        checkPreset(niche, preset, manifest, defsByType, errors);
+      }
+    }
   }
   return errors;
 }

@@ -17,6 +17,7 @@ import { resolveSignupPlan } from "./platform/billing/signupPlan.js";
 import { APIError } from "../middlewares/errorHandler.js";
 import { normalizeSocialLinks } from "../utils/socialLinks.js";
 import { validateSubdomain } from "../utils/subdomain.js";
+import { normalizeStoreNiche } from "../config/storeNiches.js";
 
 // New stores speak Arabic unless the merchant signed up in another
 // supported language: the platform's market is Sudan. Drives order emails,
@@ -155,6 +156,7 @@ const addATenantService = async (tenantData) => {
         timezone: tenantData.timezone || "Africa/Khartoum",
         language: tenantData.language || DEFAULT_STORE_LANGUAGE,
         activeTheme: themeSlug,
+        niche: normalizeStoreNiche(tenantData.niche),
         // Order-email sender defaults (requirement): display name = store name,
         // address = no-reply@<platform root domain> (e.g. no-reply@matjar.to).
         // Per-store subdomains (mystore.matjar.to) are NOT individually verified

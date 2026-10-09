@@ -21,7 +21,7 @@ export const topStripSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'text', type: 'text', label: 'Text', default: '' },
+    { id: 'text', type: 'text', label: 'Text', level: 'basic', default: '' },
   ],
 });
 
@@ -35,11 +35,11 @@ export const glowingHeroSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
     { id: 'cta_text', type: 'text', label: 'CTA Text', default: '' },
     { id: 'cta_url', type: 'url', label: 'CTA URL', default: '/products' },
-    { id: 'image', type: 'image', label: 'Hero Image' },
+    { id: 'image', type: 'image', label: 'Hero Image', level: 'basic' },
   ],
 });
 
@@ -80,8 +80,8 @@ export const glowingProductGridSection: SectionDefinition = defineSection({
   description: 'Clean grid of products with SALE badges',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'source', type: 'select', label: 'Source', default: 'featured', options: [
       { value: 'featured', label: 'Featured' },
       { value: 'newest', label: 'Newest' },
@@ -102,8 +102,8 @@ export const glowingQuoteSection: SectionDefinition = defineSection({
   category: 'content',
   target: 'body',
   settings: [
-    { id: 'quote', type: 'textarea', label: 'Quote', default: '' },
-    { id: 'author', type: 'text', label: 'Author', default: '' },
+    { id: 'quote', type: 'textarea', label: 'Quote', level: 'basic', default: '' },
+    { id: 'author', type: 'text', label: 'Author', level: 'basic', default: '' },
   ],
 });
 
@@ -114,8 +114,8 @@ export const glowingInstagramSection: SectionDefinition = defineSection({
   category: 'media',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
   ],
   blocks: [
     {
