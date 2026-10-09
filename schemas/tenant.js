@@ -114,6 +114,10 @@ const tenantSchema = new Schema({
     language: { type: String, default: "en" },
     taxIncluded: { type: Boolean, default: false },
     activeTheme: { type: String, default: null }, // Theme slug
+    // What the store sells, picked at signup (config/storeNiches.js). Picks
+    // the theme's per-niche starting homepage at store creation (PBI 10).
+    // null for stores created before it was recorded or without a pick.
+    niche: { type: String, default: null },
     storeName: { type: String, default: null },
     storeDescription: { type: String, default: null },
     logo: { type: String, default: null },
@@ -358,6 +362,14 @@ const tenantSchema = new Schema({
 
     // Custom CSS (tenant-specific styling)
     customCSS: { type: String, default: "" },
+
+    // Customization of themes the store used before, keyed by theme slug:
+    // `{ savedAt, isDraft, draft: { settings, sectionsByTemplate, customCSS },
+    // published: {...} | null }`. Written when the merchant switches away
+    // from a theme and restored (if it still validates) when they switch
+    // back — services/theme.js → installThemeService (PBI 10-15). Never sent
+    // to the storefront or the editor.
+    savedByTheme: { type: Schema.Types.Mixed, default: undefined },
 
     // Preview token for draft changes
     previewToken: { type: String, default: null },

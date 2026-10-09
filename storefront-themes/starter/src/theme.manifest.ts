@@ -13,8 +13,9 @@ export const heroSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'textarea', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'textarea', label: 'Subheading', level: 'basic', bind: 'brand.tagline', default: '' },
+    { id: 'background_image', type: 'image', label: 'Background Image', level: 'basic', bind: 'brand.coverImage', info: 'Optional — your store cover photo is used when empty' },
     { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
     { id: 'button_url', type: 'url', label: 'Button URL', default: '/products' },
   ],
@@ -28,7 +29,7 @@ export const featuredProductsSection: SectionDefinition = defineSection({
   description: 'Clean product grid with a view-all link',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'view_all_text', type: 'text', label: 'View All Link Text', default: '' },
     { id: 'view_all_url', type: 'url', label: 'View All URL', default: '/products' },
     { id: 'product_limit', type: 'number', label: 'Number of Products', default: 6, min: 2, max: 12 },
@@ -73,7 +74,7 @@ export const categoriesSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 12, min: 2, max: 30 },
   ],
 });
@@ -87,10 +88,10 @@ export const newsletterSection: SectionDefinition = defineSection({
   target: 'body',
   limit: 1,
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
-    { id: 'subheading', type: 'text', label: 'Subheading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
+    { id: 'subheading', type: 'text', label: 'Subheading', level: 'basic', default: '' },
     { id: 'placeholder', type: 'text', label: 'Input Placeholder', default: '' },
-    { id: 'button_text', type: 'text', label: 'Button Text', default: '' },
+    { id: 'button_text', type: 'text', label: 'Button Text', level: 'basic', default: '' },
   ],
 });
 

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useMemo, useState, useEffect, useLayo
 import type { ThemeManifest, MergedThemeSettings, SectionInstance, ThemeColors, ThemeTypography, ThemeDesignTokens } from '../types/theme';
 import { useStore } from '../contexts/StoreContext';
 import { useLanguage } from '../i18n/LanguageProvider';
+import { BRAND_COLOR_TOKEN, resolveBoundSettings, resolvePrimaryColor, type BrandBindingSource } from './brandBindings';
 
 /**
  * Premium platform defaults for the design-system tokens. A theme that
@@ -154,9 +155,15 @@ export function useThemeSettings(sectionId: string): Record<string, any> {
 /**
  * Shortcut hook: read a single theme-level setting value (from manifest.settings
  * defaults or tenant overrides). Returns `undefined` when the key is unknown.
+ * Like section settings, a text setting's `<key>__<lang>` twin wins when
+ * browsing in that language (brand-kit texts bound to theme-level settings
+ * fill the Arabic twin, PBI 10).
  */
 export function useThemeSetting<T = any>(key: string): T | undefined {
   const { settings } = useTheme();
+  const { lang } = useLanguage();
+  const localized = settings.global?.[`${key}__${lang}`];
+  if (typeof localized === 'string' && localized.trim()) return localized as T;
   return settings.global?.[key] as T | undefined;
 }
 
@@ -473,6 +480,30 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
     };
   }, [baseOverrides, liveOverrides]);
 
+  // Store facts that `bind`-annotated settings fall back to (PBI 10, see
+  // brandBindings.ts). Without brand-kit data nothing below changes.
+  const brandSource = useMemo<BrandBindingSource>(
+    () => ({ name: store?.name ?? null, logo: store?.logo ?? null, brand: store?.brand ?? null }),
+    [store?.name, store?.logo, store?.brand],
+  );
+
+  // Light palette: manifest colours, then the merchant's colours; the brand
+  // colour replaces the primary token only when the merchant has not changed
+  // it. Shared by the merged settings and the CSS variables below.
+  const lightPalette = useMemo<ThemeColors>(() => {
+    const palette: ThemeColors = {
+      ...manifest.colors,
+      ...(overrides?.settings?.colors as Partial<ThemeColors>),
+    };
+    const primary = resolvePrimaryColor(
+      manifest.colors?.[BRAND_COLOR_TOKEN],
+      (overrides?.settings?.colors as any)?.[BRAND_COLOR_TOKEN],
+      brandSource,
+    );
+    if (primary.source === 'brand' && primary.color) palette[BRAND_COLOR_TOKEN] = primary.color;
+    return palette;
+  }, [manifest, overrides, brandSource]);
+
   const merged = useMemo<MergedThemeSettings>(() => {
     // Theme-level settings: manifest defaults, then tenant overrides.
     // Tenant overrides can either sit under `overrides.settings.theme`
@@ -486,25 +517,26 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
     }
     const overrideSettings: Record<string, any> = (overrides?.settings as any) || {};
     const { colors: _oc, typography: _ot, layout: _ol, theme: _ot2, ...looseOverrides } = overrideSettings;
-    const global: Record<string, any> = {
-      ...globalDefaults,
-      ...looseOverrides,
-      ...((overrideSettings as any).theme || {}),
-    };
+    const global: Record<string, any> = resolveBoundSettings(
+      manifest.settings,
+      {
+        ...globalDefaults,
+        ...looseOverrides,
+        ...((overrideSettings as any).theme || {}),
+      },
+      globalDefaults,
+      brandSource,
+    ).settings;
 
     // Resolve color mode. Defaults to light unless the theme setting flips it.
     const colorMode: 'light' | 'dark' = global.color_mode === 'dark' ? 'dark' : 'light';
 
     // Start with the light palette, then layer the dark overrides when in
     // dark mode so themes can ship just the keys that differ.
-    const lightColors: ThemeColors = {
-      ...manifest.colors,
-      ...(overrides?.settings?.colors as Partial<ThemeColors>),
-    };
     const colors: ThemeColors =
       colorMode === 'dark'
-        ? { ...lightColors, ...(manifest.colorsDark || {}) }
-        : lightColors;
+        ? { ...lightPalette, ...(manifest.colorsDark || {}) }
+        : lightPalette;
 
     const typography: ThemeTypography = {
       ...manifest.typography,
@@ -539,10 +571,16 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
       ...Object.values(manifest.templates).flat(),
       ...Object.values(manifest.homeVariants || {}).flat(),
     ];
+    // Manifest default per instance id + the type of every instance, for the
+    // brand-binding pass at the end.
+    const instanceDefaults: Record<string, Record<string, any>> = {};
+    const instanceTypes: Record<string, string> = {};
     for (const instance of allTemplates) {
       if (!instance) continue;
       const typeDefs = sectionDefaults[instance.type] || {};
       sectionSettings[instance.id] = { ...typeDefs, ...instance.settings };
+      instanceDefaults[instance.id] = sectionSettings[instance.id];
+      instanceTypes[instance.id] = instance.type;
     }
 
     // Apply tenant overrides. Two cases:
@@ -562,6 +600,8 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
         } else if (override.type) {
           const typeDefs = sectionDefaults[override.type] || {};
           sectionSettings[override.id] = { ...typeDefs, ...(override.settings || {}) };
+          instanceDefaults[override.id] = typeDefs;
+          instanceTypes[override.id] = override.type;
         }
       }
     }
@@ -584,13 +624,30 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
           } else if (inst.type) {
             const typeDefs = sectionDefaults[inst.type] || {};
             sectionSettings[inst.id] = { ...typeDefs, ...(inst.settings || {}) };
+            instanceDefaults[inst.id] = typeDefs;
+            instanceTypes[inst.id] = inst.type;
           }
         }
       }
     }
 
+    // Brand-kit bindings (PBI 10): a `bind` setting the merchant has not
+    // changed takes the brand-kit value. Sections without bound settings, and
+    // every store without brand-kit data, keep the exact merged object.
+    const sectionDefsByType = new Map(manifest.sections.map((d) => [d.type, d]));
+    for (const id of Object.keys(sectionSettings)) {
+      const def = sectionDefsByType.get(instanceTypes[id]);
+      if (!def || !(Array.isArray(def.settings) && def.settings.some((x) => x.bind))) continue;
+      sectionSettings[id] = resolveBoundSettings(
+        def.settings,
+        sectionSettings[id],
+        instanceDefaults[id],
+        brandSource,
+      ).settings;
+    }
+
     return { colors, typography, layout, sections: sectionSettings, global, colorMode };
-  }, [manifest, overrides]);
+  }, [manifest, overrides, lightPalette, brandSource]);
 
   // Inject CSS custom properties via a <style> tag on :root.
   // When the theme ships a dark palette we emit BOTH palettes — the base
@@ -610,10 +667,7 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
   useLayoutEffect(() => {
     if (typeof document === 'undefined') return;
 
-    const lightColors: ThemeColors = {
-      ...manifest.colors,
-      ...(overrides?.settings?.colors as Partial<ThemeColors>),
-    };
+    const lightColors: ThemeColors = lightPalette;
     const darkColors: ThemeColors = {
       ...lightColors,
       ...(manifest.colorsDark || {}),
@@ -696,7 +750,7 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
       style?.remove();
       document.documentElement.removeAttribute('data-color-mode');
     };
-  }, [manifest, overrides, merged.colors, merged.typography, merged.layout, merged.colorMode]);
+  }, [manifest, overrides, lightPalette, merged.colors, merged.typography, merged.layout, merged.colorMode]);
 
   const getSections = (template: keyof ThemeManifest['templates']): SectionInstance[] => {
     // Allow themes to expose multiple homepage layouts. When a theme setting

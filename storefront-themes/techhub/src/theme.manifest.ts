@@ -25,12 +25,12 @@ export const heroShowcaseSection: SectionDefinition = defineSection({
     // hides the whole row; the text fields override the i18n defaults.
     { id: 'show_top_strip', type: 'checkbox', label: 'Show Top Strip', default: true },
     { id: 'hotline_label', type: 'text', label: 'Hotline Label', default: '' },
-    { id: 'hotline_phone', type: 'text', label: 'Hotline Phone', default: '' },
+    { id: 'hotline_phone', type: 'text', label: 'Hotline Phone', bind: 'brand.whatsapp', default: '' },
     { id: 'shipping_strip', type: 'text', label: 'Shipping Strip', default: '' },
     { id: 'eyebrow', type: 'text', label: 'Spotlight Eyebrow', default: '' },
-    { id: 'heading_line1', type: 'text', label: 'Spotlight Heading Line 1', default: '' },
-    { id: 'heading_line2', type: 'text', label: 'Spotlight Heading Line 2', default: '' },
-    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', default: '' },
+    { id: 'heading_line1', type: 'text', label: 'Spotlight Heading Line 1', level: 'basic', default: '' },
+    { id: 'heading_line2', type: 'text', label: 'Spotlight Heading Line 2', level: 'basic', default: '' },
+    { id: 'primary_button_text', type: 'text', label: 'Primary Button Text', level: 'basic', default: '' },
     { id: 'primary_button_url', type: 'url', label: 'Primary Button URL', default: '/products' },
     { id: 'flash_deal_label', type: 'text', label: 'Flash Deal Label', default: '' },
     { id: 'flash_enabled', type: 'checkbox', label: 'Show Flash Deal', default: true },
@@ -138,7 +138,7 @@ export const tabbedProductGridSection: SectionDefinition = defineSection({
   description: 'Featured products grid with pill-tab filters',
   target: 'body',
   settings: [
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'product_limit', type: 'number', label: 'Products Per Tab', default: 10, min: 4, max: 24 },
     { id: 'columns', type: 'select', label: 'Columns', default: '5', options: [
       { value: '3', label: '3 Columns' },
@@ -167,7 +167,7 @@ export const categoryIconsSection: SectionDefinition = defineSection({
   target: 'body',
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'show_view_all', type: 'checkbox', label: 'Show "View All" Link', default: true },
     { id: 'view_all_text', type: 'text', label: 'View All Text', default: '' },
     { id: 'columns', type: 'number', label: 'Columns', default: 6, min: 4, max: 8 },
@@ -189,7 +189,7 @@ export const categorySidebarSection: SectionDefinition = defineSection({
   limit: 1,
   settings: [
     { id: 'eyebrow', type: 'text', label: 'Eyebrow', default: '' },
-    { id: 'heading', type: 'text', label: 'Heading', default: '' },
+    { id: 'heading', type: 'text', label: 'Heading', level: 'basic', default: '' },
     { id: 'max_categories', type: 'number', label: 'Max Categories', default: 8, min: 3, max: 12 },
     { id: 'view_all_text', type: 'text', label: 'View All Text', default: '' },
   ],
