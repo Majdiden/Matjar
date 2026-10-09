@@ -6,7 +6,7 @@
       "order": "الطلب",
       "customer": "العميل",
       "date": "التاريخ",
-      "items": "العناصر",
+      "items": "المنتجات",
       "status": "الحالة",
       "payment": "الدفع",
       "total": "الإجمالي",
@@ -49,20 +49,20 @@
       "tag": "الوسم",
       "tag_placeholder": "مثال: VIP",
       "any": "الكل",
-      "active_count": "{{count}} نشطة"
+      "active_count": "{{count}} مفعّلة"
     },
     "empty": {
       "title": "لا توجد طلبات بعد",
       "description": "عندما يقدّم العملاء طلباتهم، ستظهر هنا.",
-      "filtered_title": "لا توجد طلبات تطابق عوامل التصفية",
-      "filtered_description": "جرّب مسح عوامل التصفية أو البحث بمصطلح مختلف."
+      "filtered_title": "لا توجد طلبات تطابق التصفية",
+      "filtered_description": "جرّب إلغاء التصفية أو البحث بكلمة أخرى."
     },
     "bulk": {
       "selected": "{{count}} محدد",
       "clear": "مسح",
-      "mark_processing": "تحديد الحالة: قيد المعالجة",
-      "mark_shipped": "تحديد كمشحون",
-      "mark_delivered": "تحديد كمُسلَّم",
+      "mark_processing": "نقل إلى «قيد المعالجة»",
+      "mark_shipped": "تأكيد الشحن",
+      "mark_delivered": "تأكيد التسليم",
       "export_csv": "تصدير CSV"
     },
     "dropdown": {
@@ -72,7 +72,7 @@
     },
     "replacement": {
       "label": "طلب بديل",
-      "view_timeline": "· عرض الجدول الزمني",
+      "view_timeline": "· عرض السجل",
       "has_replacements_zero": "لا بدائل",
       "has_replacements_one": "له بديل واحد",
       "has_replacements_two": "له بديلان",
@@ -85,19 +85,19 @@
     "card": {
       "open_order": "فتح الطلب {{number}}"
     },
-    "item_count_zero": "لا توجد عناصر",
-    "item_count_one": "عنصر واحد",
-    "item_count_two": "عنصران",
-    "item_count_few": "{{count}} عناصر",
-    "item_count_many": "{{count}} عنصرًا",
-    "item_count_other": "{{count}} عنصر"
+    "item_count_zero": "لا منتجات",
+    "item_count_one": "منتج واحد",
+    "item_count_two": "منتجان",
+    "item_count_few": "{{count}} منتجات",
+    "item_count_many": "{{count}} منتجًا",
+    "item_count_other": "{{count}} منتج"
   },
   "detail": {
-    "placed": "تم الطلب {{date}}",
+    "placed": "طُلب في {{date}}",
     "back": "رجوع",
     "section": {
       "items": {
-        "title": "عناصر الطلب"
+        "title": "منتجات الطلب"
       },
       "payments": {
         "title": "المدفوعات والاستردادات"
@@ -106,7 +106,7 @@
         "title": "العميل"
       },
       "timeline": {
-        "title": "الجدول الزمني"
+        "title": "سجل الطلب"
       },
       "tags": {
         "title": "الوسوم"
@@ -124,23 +124,23 @@
     },
     "action": {
       "print": "طباعة",
-      "refund": "إصدار استرداد",
+      "refund": "استرداد المبلغ",
       "record_manual_refund": "تسجيل استرداد يدوي",
-      "mark_paid": "تحديد كمدفوع",
-      "mark_failed": "تحديد كفاشل",
+      "mark_paid": "تأكيد الدفع",
+      "mark_failed": "تسجيل فشل الدفع",
       "capture": "تحصيل الدفعة",
       "void": "إلغاء التفويض",
       "cancel": "إلغاء الطلب",
-      "mark_fulfilled": "تحديد كمنفّذ",
-      "mark_delivered": "تحديد كمُسلَّم",
-      "create_fulfillment": "إنشاء تنفيذ",
+      "mark_fulfilled": "تأكيد التنفيذ",
+      "mark_delivered": "تأكيد التسليم",
+      "create_fulfillment": "إنشاء شحنة",
       "print_packing_slip": "طباعة قسيمة التعبئة",
-      "view_timeline": "عرض الجدول الزمني",
+      "view_timeline": "عرض السجل",
       "view_all_orders": "عرض كل الطلبات",
       "view_profile": "عرض الملف الشخصي",
       "record_manual_payment": "تسجيل دفع يدوي",
       "verify_payment": "التحقق من الدفع",
-      "mark_verified": "تحديد كمُتحقَّق منه",
+      "mark_verified": "تأكيد صحة الدفع",
       "request_return": "طلب إرجاع",
       "create_replacement": "إنشاء طلب بديل",
       "new_return": "إرجاع جديد",
@@ -153,20 +153,20 @@
       "change_status": "تغيير الحالة",
       "no_permission": "لا تملك صلاحية orders.write",
       "fulfill_remaining": "تنفيذ المتبقي",
-      "mark_shipped": "تحديد كمشحون"
+      "mark_shipped": "تأكيد الشحن"
     },
     "item": {
       "sku": "رمز المنتج: {{sku}}",
-      "variant": "المتغيّر: {{label}}",
+      "variant": "النوع: {{label}}",
       "qty": "الكمية: {{count}}",
       "fulfilled": "تم التنفيذ: {{done}}/{{total}}",
       "refunded": "تم الاسترداد: {{done}}/{{total}}",
       "returnable": "قابل للإرجاع: {{count}}",
-      "unit": "الوحدة: {{price}}",
+      "unit": "سعر القطعة: {{price}}",
       "subtotal": "المجموع الفرعي: {{price}}",
       "discount": "الخصم: -{{price}}",
       "tax": "الضريبة: {{price}}",
-      "shipped": "{{done}}/{{total}} مشحون",
+      "shipped": "شُحن {{done}} من {{total}}",
       "pre_order": "طلب مسبق",
       "ships": "· يُشحن {{date}}"
     },
@@ -248,7 +248,7 @@
       "confirm_order": "تأكيد الطلب",
       "delivered_summary": "اكتمل كل شيء — تم تسليم هذا الطلب.",
       "cancelled_title": "تم إلغاء الطلب",
-      "refunded_title": "تم استرداد الطلب",
+      "refunded_title": "تم استرداد مبلغ الطلب",
       "refunded_summary": "أُعيد المبلغ إلى العميل.",
       "draft_hint": "أكمل المسودة أدناه لتحويلها إلى طلب فعلي."
     },
@@ -272,9 +272,9 @@
       "more": "المزيد",
       "more_title": "مزيد من إجراءات الدفع",
       "cancelled_summary": "تم إلغاء الطلب — لا توجد إجراءات إضافية متاحة.",
-      "voided_summary": "تم إلغاء الدفع — أوقف الطلب أو سجّل دفعة جديدة.",
+      "voided_summary": "تم إلغاء الدفع — ألغِ الطلب أو سجّل دفعة جديدة.",
       "no_pending": "لا توجد إجراءات معلّقة.",
-      "retry_mark_paid": "إعادة المحاولة / تحديد كمدفوع",
+      "retry_mark_paid": "إعادة المحاولة / تأكيد الدفع",
       "fulfill_remaining": "تنفيذ المتبقي"
     },
     "documents": {
@@ -284,12 +284,12 @@
       "refund_receipt": "إيصال الاسترداد"
     },
     "timeline": {
-      "state_pending": "الطلب معلّق",
+      "state_pending": "الطلب قيد الانتظار",
       "state_processing": "الطلب قيد المعالجة",
       "state_shipped": "تم شحن الطلب",
       "state_delivered": "تم تسليم الطلب",
       "state_cancelled": "تم إلغاء الطلب",
-      "state_refunded": "تم استرداد الطلب",
+      "state_refunded": "تم استرداد مبلغ الطلب",
       "event_created": "تم تقديم الطلب",
       "event_tracking_updated": "تم تحديث التتبع",
       "event_note_added": "تمت إضافة ملاحظة",
@@ -314,18 +314,18 @@
       "event_discount_adjusted": "تم تعديل الخصم",
       "event_tag_added": "تمت إضافة وسم",
       "event_tag_removed": "تمت إزالة وسم",
-      "shipment_shipped": "تم تحديد الشحنة كمشحونة",
-      "shipment_delivered": "تم تحديد الشحنة كمسلّمة",
+      "shipment_shipped": "تم تأكيد شحن الشحنة",
+      "shipment_delivered": "تم تأكيد تسليم الشحنة",
       "shipment_cancelled": "تم إلغاء الشحنة"
     },
     "returns": {
-      "none": "لا توجد إرجاعات بعد. سجّل إرجاعًا عندما يعيد العميل عناصر.",
+      "none": "لا توجد إرجاعات بعد. سجّل إرجاعًا عندما يعيد العميل منتجات.",
       "return_label": "إرجاع",
       "approve": "موافقة",
       "reject": "رفض",
-      "mark_received": "تحديد كمستلم",
-      "mark_refunded": "تحديد كمسترد",
-      "refund_amount_desc": "أدخل مبلغ الاسترداد لهذا الإرجاع. القيمة المقترحة محسوبة من أسعار العناصر المُرجعة."
+      "mark_received": "تأكيد الاستلام",
+      "mark_refunded": "تأكيد الاسترداد",
+      "refund_amount_desc": "أدخل المبلغ الذي ستعيده للعميل عن هذا الإرجاع. القيمة المقترحة محسوبة من أسعار المنتجات المُرجعة."
     },
     "line_picker": {
       "label_max_ordered": "مطلوب",
@@ -339,7 +339,7 @@
       "delete_draft": "حذف المسودة",
       "edit_draft": "تعديل المسودة",
       "complete_confirm_title": "إكمال طلب المسودة هذا؟",
-      "complete_confirm_description": "سيُخصم المخزون لكل عنصر وسيصل العميل إشعار. ويصبح الطلب طلبًا فعليًا قيد الانتظار.",
+      "complete_confirm_description": "سيُخصم المخزون لكل منتج وسيُرسل إشعار إلى العميل، ويصبح الطلب طلبًا فعليًا قيد الانتظار.",
       "delete_confirm_title": "حذف هذه المسودة؟",
       "delete_confirm_description": "سيتم حذف المسودة نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
       "next_action_summary": "طلب مسودة — أكمله لحجز المخزون وإشعار العميل، أو احذفه."
@@ -350,23 +350,23 @@
       "failed": "تعذّرت إعادة إرسال البريد"
     },
     "edit_items": {
-      "button": "تعديل العناصر",
-      "title": "تعديل عناصر الطلب",
-      "description": "أضف أو احذف العناصر أو غيّر الكميات. تُعاد حسبة الإجماليات والضريبة عند الحفظ.",
-      "empty": "لا توجد عناصر — أضف منتجًا للإبقاء على هذا الطلب.",
-      "error_no_lines": "يجب أن يحتوي الطلب على عنصر واحد على الأقل.",
-      "recompute_hint": "تُعاد حسبة الشحن والخصم والضريبة على الخادم عند الحفظ.",
-      "save": "حفظ العناصر",
-      "success": "تم تحديث عناصر الطلب",
-      "failed": "تعذّر تحديث عناصر الطلب"
+      "button": "تعديل المنتجات",
+      "title": "تعديل منتجات الطلب",
+      "description": "أضف منتجات أو احذفها أو غيّر الكميات. يُعاد حساب الإجماليات والضريبة عند الحفظ.",
+      "empty": "لا توجد منتجات — أضف منتجًا لتُبقي على هذا الطلب.",
+      "error_no_lines": "يجب أن يحتوي الطلب على منتج واحد على الأقل.",
+      "recompute_hint": "يُعاد حساب الشحن والخصم والضريبة تلقائيًا عند الحفظ.",
+      "save": "حفظ المنتجات",
+      "success": "تم تحديث منتجات الطلب",
+      "failed": "تعذّر تحديث منتجات الطلب"
     }
   },
   "dialog": {
     "refund": {
       "title_manual": "تسجيل استرداد يدوي",
-      "title_gateway": "إصدار استرداد",
-      "desc_manual": "تم دفع هذا الطلب عبر {{method}}. سجّله مستردًّا في السجلات — لن يتم تحميل أي مزوّد دفع. استخدم هذا للنقد أو التحويل البنكي أو رصيد المتجر.",
-      "desc_gateway": "استرداد حتى {{max}} إلى طريقة الدفع الأصلية.",
+      "title_gateway": "استرداد المبلغ",
+      "desc_manual": "دُفع هذا الطلب عبر {{method}}. سجّل هنا أنك أعدت المبلغ، ولن يُسحب أي مبلغ عبر شركة الدفع. استخدم هذا للدفع النقدي أو التحويل البنكي أو رصيد المتجر.",
+      "desc_gateway": "أعد للعميل حتى {{max}} بنفس طريقة الدفع التي استخدمها.",
       "order_total": "إجمالي الطلب",
       "already_refunded": "تم استرداده مسبقًا",
       "amount_label": "مبلغ الاسترداد",
@@ -382,32 +382,32 @@
     },
     "replacement": {
       "title": "إنشاء طلب بديل",
-      "description": "ينشئ طلبًا جديدًا بقيمة صفر بالعناصر التي تختارها، مرتبطًا بهذا الطلب. نفّذه كأي طلب عادي — مفيد للعناصر التالفة أو المفقودة.",
+      "description": "ينشئ طلبًا جديدًا بقيمة صفر بالمنتجات التي تختارها، مرتبطًا بهذا الطلب. نفّذه كأي طلب عادي — مفيد عند تلف المنتجات أو ضياعها.",
       "reason_label": "السبب (اختياري)",
-      "reason_placeholder": "مثال: تضرر أثناء النقل — إعادة شحن نفس العناصر",
+      "reason_placeholder": "مثال: تضرر أثناء النقل — إعادة شحن نفس المنتجات",
       "submit": "إنشاء طلب بديل",
-      "error_no_items": "اختر عنصرًا واحدًا على الأقل للاستبدال"
+      "error_no_items": "اختر منتجًا واحدًا على الأقل للاستبدال"
     },
     "return": {
       "title": "طلب إرجاع جديد",
-      "description": "سجّل العناصر التي يريد العميل إرجاعها. يمكنك الموافقة وتحديد الاستلام والاسترداد من قائمة الإرجاعات.",
+      "description": "سجّل المنتجات التي يريد العميل إرجاعها. يمكنك بعد ذلك الموافقة وتأكيد الاستلام والاسترداد من قائمة الإرجاعات.",
       "reason_label": "السبب (اختياري)",
       "reason_placeholder": "مثال: المقاس خاطئ",
       "submit": "طلب إرجاع",
-      "error_no_items": "اختر عنصرًا واحدًا على الأقل للإرجاع"
+      "error_no_items": "اختر منتجًا واحدًا على الأقل للإرجاع"
     },
     "verify": {
       "title": "التحقق من الدفع اليدوي",
-      "description": "راجع تفاصيل الدفع التي أرسلها العميل لـ {{method}}. سيؤدي التحقق إلى تحديد الطلب كمدفوع.",
-      "no_fields": "هذه الطريقة لا تحتوي على حقول مُرسَلة من العميل — تحقق من الدفع خارجيًا ثم أكّد أدناه.",
+      "description": "راجع بيانات الدفع التي أرسلها العميل عبر {{method}}. عند التأكيد يصبح الطلب «مدفوع».",
+      "no_fields": "لم يُرسل العميل أي بيانات لطريقة الدفع هذه — تأكد بنفسك من وصول المبلغ، ثم أكّد أدناه.",
       "note_label": "ملاحظة التحقق (اختياري)",
       "note_placeholder": "مثال: طابقت مبلغ $120.00 المستلم عبر تحويل بنكي، مرجع #8827",
-      "submit": "تحديد كمُتحقَّق منه",
+      "submit": "تأكيد صحة الدفع",
       "provider": "المزوّد"
     },
     "record_manual_payment": {
       "title": "تسجيل دفع يدوي",
-      "description": "سجّل دفعة حُصّلت خارج بوابة الدفع (تحويل بنكي أو نقد أو محفظة). سيُحدَّد الطلب كمدفوع.",
+      "description": "سجّل دفعة استلمتها خارج الدفع الإلكتروني (تحويل بنكي أو نقدًا أو محفظة). سيصبح الطلب «مدفوع».",
       "amount_label": "المبلغ",
       "reference_label": "المرجع (اختياري)",
       "reference_placeholder": "معرّف التحويل، رقم الإيصال، إلخ.",
@@ -428,13 +428,13 @@
     "address_edit": {
       "title_shipping": "تعديل عنوان الشحن",
       "title_billing": "تعديل عنوان الفوترة",
-      "description": "تُكتب التحديثات على الفور في الطلب وتُسجَّل في الجدول الزمني.",
-      "fulfillment_warning": "هذا الطلب {{status}} بالفعل. تغيير العنوان هنا لن يُعيد توجيه الطرود المسلّمة للناقل.",
+      "description": "تُحفظ التعديلات في الطلب فورًا وتُسجَّل في سجل الطلب.",
+      "fulfillment_warning": "حالة هذا الطلب الآن «{{status}}». تغيير العنوان هنا لن يغيّر وجهة الطرود التي سُلّمت لشركة الشحن.",
       "field": {
         "first_name": "الاسم الأول",
         "last_name": "الاسم الأخير",
-        "line1": "العنوان السطر الأول",
-        "line2": "العنوان السطر الثاني",
+        "line1": "العنوان (السطر الأول)",
+        "line2": "العنوان (السطر الثاني)",
         "city": "المدينة",
         "state": "الولاية / المنطقة",
         "postal": "الرمز البريدي",
@@ -463,7 +463,7 @@
     "replacement_failed": "فشل إنشاء الطلب البديل",
     "return_requested": "تم طلب الإرجاع",
     "return_failed": "فشل إنشاء الإرجاع",
-    "return_updated": "تم تحديد الإرجاع كـ {{status}}",
+    "return_updated": "حالة الإرجاع الآن: {{status}}",
     "return_update_failed": "فشل تحديث الإرجاع",
     "note_added": "تمت إضافة الملاحظة",
     "note_add_failed": "فشل إضافة الملاحظة",
@@ -478,7 +478,7 @@
     "export_failed": "فشل التصدير",
     "load_failed": "فشل تحميل الطلبات",
     "bulk_update_failed": "فشل تحديث {{count}}",
-    "lifecycle_load_failed": "فشل تحميل دورة حياة الطلب",
+    "lifecycle_load_failed": "تعذّر تحميل مسار الطلب",
     "payment_action_updated": "{{label}} — تم التحديث",
     "payment_action_failed": "فشل: {{label}}",
     "draft_completed": "اكتملت المسودة — الطلب الآن قيد الانتظار",
@@ -492,12 +492,12 @@
     "export_success_few": "تم تصدير {{count}} طلبات",
     "export_success_many": "تم تصدير {{count}} طلبًا",
     "export_success_other": "تم تصدير {{count}} طلب",
-    "bulk_marked_zero": "لم يتغيّر أي طلب",
-    "bulk_marked_one": "تم تحديد طلب واحد كـ {{status}}",
-    "bulk_marked_two": "تم تحديد طلبين كـ {{status}}",
-    "bulk_marked_few": "تم تحديد {{count}} طلبات كـ {{status}}",
-    "bulk_marked_many": "تم تحديد {{count}} طلبًا كـ {{status}}",
-    "bulk_marked_other": "تم تحديد {{count}} طلب كـ {{status}}"
+    "bulk_marked_zero": "لم تتغيّر حالة أي طلب",
+    "bulk_marked_one": "أصبحت حالة طلب واحد: {{status}}",
+    "bulk_marked_two": "أصبحت حالة طلبين: {{status}}",
+    "bulk_marked_few": "أصبحت حالة {{count}} طلبات: {{status}}",
+    "bulk_marked_many": "أصبحت حالة {{count}} طلبًا: {{status}}",
+    "bulk_marked_other": "أصبحت حالة {{count}} طلب: {{status}}"
   },
   "validation": {
     "note_empty": "لا يمكن أن تكون الملاحظة فارغة",
@@ -506,12 +506,12 @@
     "tag_too_long": "الوسم يتجاوز 32 حرفًا",
     "refund_amount_invalid": "أدخل مبلغ استرداد صالحًا",
     "refund_amount_positive": "أدخل مبلغًا موجبًا",
-    "no_eligible_items": "لا توجد عناصر مؤهلة لهذا الطلب."
+    "no_eligible_items": "لا توجد منتجات يمكن اختيارها هنا."
   },
   "lifecycle": {
-    "title": "الجدول الزمني للطلب",
+    "title": "مسار الطلب",
     "standalone": "طلب مستقل — لا توجد بدائل مرتبطة.",
-    "case_summary": "{{count}} طلبات في هذه الحالة، تبدأ من {{root}}.",
+    "case_summary": "عدد الطلبات المرتبطة: {{count}}، وأولها {{root}}.",
     "state": {
       "Pending": "قيد الانتظار",
       "Confirmed": "مؤكّد",
@@ -526,17 +526,17 @@
       "order_placed": "تم تقديم الطلب",
       "order_replaced": "تم استبدال الطلب",
       "replacement_created": "تم إنشاء بديل من هنا",
-      "view_original_order": "عرض دورة حياة الطلب الأصلي"
+      "view_original_order": "عرض مسار الطلب الأصلي"
     },
-    "could_not_load": "تعذّر تحميل دورة حياة الطلب."
+    "could_not_load": "تعذّر تحميل مسار الطلب."
   },
   "fulfillment": {
     "list": {
-      "title": "عمليات التنفيذ",
-      "description": "تابع عمليات تنفيذ الطلبات وأدِرها",
+      "title": "الشحنات",
+      "description": "تابع شحنات طلباتك وأدِرها",
       "column": {
         "order": "الطلب",
-        "items": "العناصر",
+        "items": "المنتجات",
         "status": "الحالة",
         "tracking": "رقم التتبع",
         "carrier": "شركة الشحن",
@@ -554,14 +554,14 @@
         "placeholder": "ابحث برقم التتبع أو شركة الشحن أو الطلب..."
       },
       "empty": {
-        "title": "لا توجد عمليات تنفيذ",
-        "description": "ستظهر عمليات التنفيذ هنا عند معالجة الطلبات."
+        "title": "لا توجد شحنات بعد",
+        "description": "ستظهر الشحنات هنا عند تجهيز الطلبات."
       },
       "bulk": {
         "selected": "{{count}} محدد",
         "clear": "مسح",
-        "mark_shipped": "تحديد كمشحون",
-        "mark_delivered": "تحديد كمُسلَّم",
+        "mark_shipped": "تأكيد الشحن",
+        "mark_delivered": "تأكيد التسليم",
         "cancel": "إلغاء"
       },
       "card": {
@@ -572,49 +572,49 @@
         "page_of": "صفحة {{page}} من {{pages}}",
         "total": "· {{total}} إجمالًا"
       },
-      "item_count_zero": "لا توجد عناصر",
-      "item_count_one": "عنصر واحد",
-      "item_count_two": "عنصران",
-      "item_count_few": "{{count}} عناصر",
-      "item_count_many": "{{count}} عنصرًا",
-      "item_count_other": "{{count}} عنصر"
+      "item_count_zero": "لا منتجات",
+      "item_count_one": "منتج واحد",
+      "item_count_two": "منتجان",
+      "item_count_few": "{{count}} منتجات",
+      "item_count_many": "{{count}} منتجًا",
+      "item_count_other": "{{count}} منتج"
     },
     "card": {
-      "title": "عمليات التنفيذ",
+      "title": "الشحنات",
       "new_shipment": "شحنة جديدة",
       "loading": "جارٍ التحميل…",
       "no_shipments": "لا توجد شحنات بعد.",
       "create_to_fulfill": "أنشئ واحدة لبدء تنفيذ هذا الطلب.",
       "fully_fulfilled": "تم تنفيذ الطلب بالكامل.",
       "shipment_n": "الشحنة #{{n}}",
-      "mark_shipped": "تحديد كمشحون",
-      "mark_delivered": "تحديد كمُسلَّم",
+      "mark_shipped": "تأكيد الشحن",
+      "mark_delivered": "تأكيد التسليم",
       "cancel": "إلغاء",
       "form": {
         "title": "شحنة جديدة",
         "max": "الحد الأقصى {{max}}",
         "carrier_placeholder": "شركة الشحن (مثال: DHL)",
         "tracking_placeholder": "رقم التتبع",
-        "mark_shipped_label": "تحديد كمشحون فورًا",
+        "mark_shipped_label": "تأكيد الشحن فورًا",
         "create": "إنشاء",
-        "error_no_items": "اختر عنصرًا واحدًا على الأقل للشحن"
+        "error_no_items": "اختر منتجًا واحدًا على الأقل للشحن"
       }
     },
     "toast": {
-      "load_failed": "فشل تحميل عمليات التنفيذ",
+      "load_failed": "تعذّر تحميل الشحنات",
       "shipment_created": "تم إنشاء الشحنة",
       "shipment_failed": "فشل إنشاء الشحنة",
-      "status_updated": "تم تحديث حالة التنفيذ",
+      "status_updated": "تم تحديث حالة الشحنة",
       "status_update_failed": "فشل تحديث الحالة",
-      "marked": "تم التحديد كـ {{status}}",
-      "mark_failed": "فشل تحديث التنفيذ",
+      "marked": "الحالة الآن: {{status}}",
+      "mark_failed": "تعذّر تحديث الشحنة",
       "bulk_failed": "فشل {{count}}",
-      "bulk_updated_zero": "لم يتم تحديث أي عملية تنفيذ",
-      "bulk_updated_one": "تم تحديث عملية تنفيذ واحدة إلى {{status}}",
-      "bulk_updated_two": "تم تحديث عمليتَي تنفيذ إلى {{status}}",
-      "bulk_updated_few": "تم تحديث {{count}} عمليات تنفيذ إلى {{status}}",
-      "bulk_updated_many": "تم تحديث {{count}} عملية تنفيذ إلى {{status}}",
-      "bulk_updated_other": "تم تحديث {{count}} عملية تنفيذ إلى {{status}}"
+      "bulk_updated_zero": "لم تتغيّر حالة أي شحنة",
+      "bulk_updated_one": "أصبحت حالة شحنة واحدة: {{status}}",
+      "bulk_updated_two": "أصبحت حالة شحنتين: {{status}}",
+      "bulk_updated_few": "أصبحت حالة {{count}} شحنات: {{status}}",
+      "bulk_updated_many": "أصبحت حالة {{count}} شحنةً: {{status}}",
+      "bulk_updated_other": "أصبحت حالة {{count}} شحنة: {{status}}"
     }
   },
   "shipping_zone": {
@@ -687,14 +687,14 @@
     },
     "invoice": {
       "title": "فاتورة",
-      "bill_to": "فاتورة إلى",
+      "bill_to": "الفاتورة باسم",
       "ship_to": "الشحن إلى",
       "column": {
-        "item": "العنصر",
+        "item": "المنتج",
         "sku": "رمز المنتج",
         "qty": "الكمية",
         "price": "السعر",
-        "line_total": "إجمالي السطر"
+        "line_total": "الإجمالي"
       },
       "totals": {
         "subtotal": "المجموع الفرعي",
@@ -709,16 +709,16 @@
     },
     "packing_slip": {
       "title": "قسيمة التعبئة",
-      "bill_to": "فاتورة إلى",
+      "bill_to": "الفاتورة باسم",
       "ship_to": "الشحن إلى",
       "no_shipping_address": "لا يوجد عنوان شحن",
       "shipment_section": "الشحنة",
       "carrier": "شركة الشحن",
       "tracking": "رقم التتبع",
       "method": "الطريقة",
-      "omits_prices": "لا تتضمن قسيمة التعبئة هذه أسعارًا بشكل مقصود.",
+      "omits_prices": "لا تظهر الأسعار في قسيمة التعبئة عمدًا.",
       "column": {
-        "item": "العنصر",
+        "item": "المنتج",
         "sku": "رمز المنتج",
         "qty": "الكمية"
       },
@@ -741,7 +741,7 @@
       "refund_not_found_for_order": "الاسترداد غير موجود لهذا الطلب",
       "load_refund_failed": "تعذّر تحميل الاسترداد",
       "column": {
-        "item": "العنصر",
+        "item": "المنتج",
         "sku": "رمز المنتج",
         "qty_refunded": "الكمية المستردّة",
         "unit_price": "سعر الوحدة",
@@ -771,9 +771,9 @@
     },
     "product_search_placeholder": "ابحث عن المنتجات…",
     "no_products_found": "لم يتم العثور على منتجات",
-    "no_lines": "لا توجد عناصر بعد — ابحث عن منتج أعلاه لإضافته.",
+    "no_lines": "لا توجد منتجات بعد — ابحث عن منتج في الأعلى لإضافته.",
     "line": {
-      "variant": "المتغيّر",
+      "variant": "النوع",
       "qty": "الكمية",
       "unit_price": "سعر الوحدة",
       "total": "الإجمالي",
@@ -807,7 +807,7 @@
     },
     "note": "ملاحظة الطلب",
     "tags": "الوسوم",
-    "tags_placeholder": "مفصولة بفواصل، مثل: جملة، طلب-هاتفي",
+    "tags_placeholder": "افصل بينها بفواصل، مثل: جملة، طلب بالهاتف",
     "summary": {
       "subtotal": "المجموع الفرعي",
       "discount": "الخصم",
@@ -818,7 +818,7 @@
     "save_draft": "حفظ المسودة",
     "save_changes": "حفظ التغييرات",
     "toast": {
-      "no_lines": "أضف عنصرًا واحدًا على الأقل",
+      "no_lines": "أضف منتجًا واحدًا على الأقل",
       "no_customer": "اختر عميلًا أو انتقل إلى إدخال بيانات ضيف",
       "guest_email_required": "البريد الإلكتروني للضيف مطلوب",
       "custom_shipping_name_required": "الشحن المخصص يحتاج إلى اسم",
