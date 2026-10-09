@@ -61,6 +61,8 @@ import enImpersonation from './locales/en/impersonation.json'
 import arImpersonation from './locales/ar/impersonation.json'
 import enWishlists from './locales/en/wishlists.json'
 import arWishlists from './locales/ar/wishlists.json'
+import enOnboarding from './locales/en/onboarding.json'
+import arOnboarding from './locales/ar/onboarding.json'
 
 export const resources = {
   en: {
@@ -94,6 +96,7 @@ export const resources = {
     security: enSecurity,
     impersonation: enImpersonation,
     wishlists: enWishlists,
+    onboarding: enOnboarding,
   },
   ar: {
     common: arCommon,
@@ -126,5 +129,6 @@ export const resources = {
     security: arSecurity,
     impersonation: arImpersonation,
     wishlists: arWishlists,
+    onboarding: arOnboarding,
   },
 } as const

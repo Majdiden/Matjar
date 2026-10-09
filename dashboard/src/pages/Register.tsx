@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/auth-context';
 import { encodeAuthPayload, appHost, isAppHost } from '../lib/authHandoff';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Badge } from '../components/ui/badge';
@@ -29,6 +30,7 @@ import {
   Mail,
   RefreshCw,
   Info,
+  MapPin,
 } from 'lucide-react';
 import { api } from '../lib/api-client';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
@@ -52,6 +54,15 @@ import {
   type SocialLinks,
   type SocialPlatform,
 } from '../lib/storeLink';
+import {
+  SIGNUP_FLOW_PARAM,
+  SIGNUP_V2_THEME_LIMIT,
+  resolveSignupFlow,
+  signupSteps,
+  themesForNiche,
+  type SignupFlow,
+  type SignupStep,
+} from '../lib/onboarding';
 import { toast } from 'sonner';
 
 // Signup email-OTP length. Must match the backend (services/otp.js).
@@ -73,7 +84,7 @@ interface ThemeOption {
   statistics?: { rating: number; installCount: number };
 }
 
-type Step = 'welcome' | 'account' | 'otp' | 'store' | 'niche' | 'theme';
+type Step = SignupStep;
 
 // A plain-words explanation shown under a store-step field after we
 // reinterpret what the merchant pasted (see lib/storeLink.ts).
@@ -83,7 +94,11 @@ interface LinkNotice {
   platform?: SocialPlatform;
 }
 
-const STEPS: Step[] = ['welcome', 'account', 'otp', 'store', 'niche', 'theme'];
+// Signup v2 "where are you" answers (mirror backend utils/brandKit.js city
+// limit and utils/policyAnswers.js DELIVERY_AREAS_MAX_LENGTH).
+const CITY_MIN_LENGTH = 2;
+const CITY_MAX_LENGTH = 80;
+const DELIVERY_AREAS_MAX_LENGTH = 300;
 
 // Public storefront domain suffix shown next to the subdomain field.
 // Configurable via VITE_STORE_DOMAIN_SUFFIX; defaults to matjar.to.
@@ -130,7 +145,7 @@ const ThemeCardPreview: React.FC<{ src?: string; alt: string; fallbackColor: str
 export const Register: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t, i18n } = useTranslation(['auth', 'common']);
+  const { t, i18n } = useTranslation(['auth', 'common', 'onboarding']);
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
 
   // "Add a store" mode: an already-signed-in user creates an ADDITIONAL store
@@ -145,6 +160,29 @@ export const Register: React.FC = () => {
     }
   }, [addMode, authLoading, isAuthenticated, navigate]);
 
+  // Signup flow (PBI 10-16): v2 behind the GLOBAL `onboarding.v2` flag (no
+  // store exists yet, so per-store overrides can't apply), with a
+  // `?flow=v2|v1` override so the operator can try v2 on prod. The flow is
+  // locked on the first step change so a late config response can't
+  // reshuffle the steps under the merchant. No answer → v1.
+  const [globalV2, setGlobalV2] = useState<boolean | null>(null);
+  const [lockedFlow, setLockedFlow] = useState<SignupFlow | null>(null);
+  const hasFlowOverride = new URLSearchParams(location.search).has(SIGNUP_FLOW_PARAM);
+  useEffect(() => {
+    if (hasFlowOverride) return;
+    let active = true;
+    api.auth.onboardingConfig()
+      .then((r) => { if (active) setGlobalV2(r.responseObject?.v2 === true); })
+      .catch(() => { /* v1 */ });
+    return () => { active = false; };
+  }, [hasFlowOverride]);
+  const flow = lockedFlow ?? resolveSignupFlow(location.search, globalV2);
+  const isV2 = flow === 'v2';
+  const STEPS = signupSteps(flow);
+  // v2 rewrites some headings; everything else is shared with v1.
+  const v2Copy = (v1Key: string, v2Key: string) =>
+    isV2 ? t(`onboarding:signup.${v2Key}`) : t(v1Key);
+
   const [step, setStep] = useState<Step>(addMode ? 'store' : 'welcome');
   const [transitionDir, setTransitionDir] = useState<'in' | 'out'>('in');
   const [form, setForm] = useState({
@@ -155,6 +193,9 @@ export const Register: React.FC = () => {
     subdomain: '',
     niche: '',
     themeSlug: '',
+    // Signup v2 only.
+    city: '',
+    deliveryAreas: '',
   });
 
   // Merchant contact phone — country (ISO2) + national digits. The enabled
@@ -267,12 +308,11 @@ export const Register: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
-  // Pre-filter themes by niche
-  const relevantThemes = useMemo(() => {
-    if (!form.niche || form.niche === 'general') return themes;
-    const matched = themes.filter(th => th.categories?.includes(form.niche));
-    return matched.length > 0 ? matched : themes;
-  }, [themes, form.niche]);
+  // Pre-filter themes by niche. v2 offers at most three, niche ones first.
+  const relevantThemes = useMemo(
+    () => themesForNiche(themes, form.niche, isV2 ? SIGNUP_V2_THEME_LIMIT : undefined),
+    [themes, form.niche, isV2],
+  );
 
   // Auto-pick first theme when list resolves. We intentionally depend only
   // on the resolved list — reading form.themeSlug here would re-run every
@@ -432,6 +472,7 @@ export const Register: React.FC = () => {
 
   const goTo = (target: Step) => {
     if (target === step) return;
+    if (!lockedFlow) setLockedFlow(flow);
     setError('');
     setTransitionDir('out');
     window.setTimeout(() => {
@@ -511,6 +552,11 @@ export const Register: React.FC = () => {
       else if (subdomainAvailable === false) errs.subdomain = t('auth.field.subdomain.error.taken');
       else if (subdomainAvailable !== true) errs.subdomain = t('auth.field.subdomain.error.waiting');
     }
+    if (s === 'location') {
+      const city = form.city.trim();
+      if (!city) errs.city = t('onboarding:signup.city_error_required');
+      else if (city.length < CITY_MIN_LENGTH) errs.city = t('onboarding:signup.city_error_too_short');
+    }
     if (s === 'niche' && !form.niche) errs.niche = t('auth.register.pick_niche_error');
     if (s === 'theme' && !form.themeSlug) errs.themeSlug = t('auth.register.pick_theme_error');
     return errs;
@@ -526,6 +572,7 @@ export const Register: React.FC = () => {
     account: ['name', 'email', 'phone', 'password'],
     store: ['storeName', 'subdomain'],
     niche: ['niche'],
+    location: ['city'],
     theme: ['themeSlug'],
   };
 
@@ -575,9 +622,12 @@ export const Register: React.FC = () => {
     // Re-run prior-step validations as a final guard so nothing slipped in
     // via direct URL / back button after clearing an error. Add-mode has no
     // account step (the user is already signed in).
-    const priorErrs = addMode
-      ? { ...validateStep('store'), ...validateStep('niche') }
-      : { ...validateStep('account'), ...validateStep('store'), ...validateStep('niche') };
+    const priorErrs = {
+      ...(addMode ? {} : validateStep('account')),
+      ...validateStep('store'),
+      ...validateStep('niche'),
+      ...(isV2 ? validateStep('location') : {}),
+    };
     if (Object.keys(priorErrs).length > 0) {
       setError(t('auth.register.general_error'));
       return;
@@ -590,6 +640,15 @@ export const Register: React.FC = () => {
     }
     setError('');
     setSubmitting(true);
+    // v2 answers; the server fills the brand kit (city, WhatsApp from the
+    // account phone) and the delivery areas from them.
+    const v2Fields = isV2
+      ? {
+          onboardingFlow: 'v2' as const,
+          city: form.city.trim(),
+          ...(form.deliveryAreas.trim() ? { deliveryAreas: form.deliveryAreas.trim() } : {}),
+        }
+      : {};
 
     // ── Add-a-store: authenticated user creating an ADDITIONAL store ──
     if (addMode) {
@@ -602,6 +661,7 @@ export const Register: React.FC = () => {
           niche: form.niche,
           language: storeLanguage,
           ...(Object.keys(socialLinks).length ? { socialLinks } : {}),
+          ...v2Fields,
         })) as {
           responseObject?: {
             accessToken?: string;
@@ -661,6 +721,7 @@ export const Register: React.FC = () => {
         phoneCountry: phone.country || defaultPhoneCountry,
         language: storeLanguage,
         ...(Object.keys(socialLinks).length ? { socialLinks } : {}),
+        ...v2Fields,
       })) as {
         responseObject?: {
           subdomain?: string;
@@ -805,8 +866,8 @@ export const Register: React.FC = () => {
         {step === 'account' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('auth.register.account_title')}</h1>
-              <p className="mt-2 text-muted-foreground">{t('auth.register.account_subtitle')}</p>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{v2Copy('auth.register.account_title', 'account_title')}</h1>
+              <p className="mt-2 text-muted-foreground">{v2Copy('auth.register.account_subtitle', 'account_subtitle')}</p>
             </div>
 
             <div className="space-y-5">
@@ -843,7 +904,7 @@ export const Register: React.FC = () => {
                 countries={phoneCountries}
                 onChange={(v) => { setPhoneTouched(true); setPhone(v); }}
                 error={fieldErrors.phone}
-                help={t('auth.field.phone.help')}
+                help={v2Copy('auth.field.phone.help', 'phone_help')}
               />
 
               <div className="space-y-2">
@@ -952,8 +1013,8 @@ export const Register: React.FC = () => {
         {step === 'store' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('auth.register.store_title')}</h1>
-              <p className="mt-2 text-muted-foreground">{t('auth.register.store_subtitle')}</p>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{v2Copy('auth.register.store_title', 'store_title')}</h1>
+              <p className="mt-2 text-muted-foreground">{v2Copy('auth.register.store_subtitle', 'store_subtitle')}</p>
             </div>
 
             <div className="space-y-5">
@@ -1029,8 +1090,8 @@ export const Register: React.FC = () => {
         {step === 'niche' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('auth.register.niche_title')}</h1>
-              <p className="mt-2 text-muted-foreground">{t('auth.register.niche_subtitle')}</p>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{v2Copy('auth.register.niche_title', 'niche_title')}</h1>
+              <p className="mt-2 text-muted-foreground">{v2Copy('auth.register.niche_subtitle', 'niche_subtitle')}</p>
               {fieldErrors.niche && <p className="mt-2 text-xs text-destructive">{fieldErrors.niche}</p>}
             </div>
 
@@ -1065,17 +1126,58 @@ export const Register: React.FC = () => {
           </div>
         )}
 
+        {step === 'location' && (
+          <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
+            <div>
+              <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+                <MapPin className="h-6 w-6" />
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('onboarding:signup.location_title')}</h1>
+              <p className="mt-2 text-muted-foreground">{t('onboarding:signup.location_subtitle')}</p>
+            </div>
+
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="city">{t('onboarding:signup.city_label')}</Label>
+                <Input id="city" placeholder={t('onboarding:signup.city_placeholder')}
+                  value={form.city} autoFocus autoComplete="address-level2"
+                  maxLength={CITY_MAX_LENGTH}
+                  onChange={e => update('city', e.target.value)}
+                  className="h-12 text-base"
+                  aria-invalid={!!fieldErrors.city} />
+                {fieldErrors.city && <p className="text-xs text-destructive">{fieldErrors.city}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="deliveryAreas">{t('onboarding:signup.areas_label')}</Label>
+                <Textarea id="deliveryAreas" rows={3}
+                  placeholder={t('onboarding:signup.areas_placeholder')}
+                  value={form.deliveryAreas}
+                  maxLength={DELIVERY_AREAS_MAX_LENGTH}
+                  onChange={e => update('deliveryAreas', e.target.value)}
+                  className="text-base"
+                  aria-describedby="deliveryAreas-help" />
+                <p id="deliveryAreas-help" className="text-xs text-muted-foreground">{t('onboarding:signup.areas_help')}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {step === 'theme' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('auth.register.theme_title')}</h1>
-              <p className="mt-2 text-muted-foreground">{t('auth.register.theme_subtitle')}</p>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{v2Copy('auth.register.theme_title', 'theme_title')}</h1>
+              <p className="mt-2 text-muted-foreground">
+                {isV2
+                  ? t('onboarding:signup.theme_subtitle', { store: form.storeName.trim() || t('onboarding:signup.theme_store_fallback') })
+                  : t('auth.register.theme_subtitle')}
+              </p>
               {fieldErrors.themeSlug && <p className="mt-2 text-xs text-destructive">{fieldErrors.themeSlug}</p>}
             </div>
 
             {themesLoading ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {[1, 2, 3, 4, 5, 6].map(i => (
+                {(isV2 ? [1, 2, 3] : [1, 2, 3, 4, 5, 6]).map(i => (
                   <div key={i} className="h-56 rounded-xl bg-muted animate-pulse" />
                 ))}
               </div>
@@ -1107,6 +1209,13 @@ export const Register: React.FC = () => {
                         alt={theme.name}
                         fallbackColor={colors?.primary || '#6366f1'}
                       />
+                      {/* v2: the merchant's own store name on each look, so
+                          the choice reads as "my store", not a demo. */}
+                      {isV2 && form.storeName.trim() && (
+                        <div className="absolute top-2 start-2 max-w-[75%] truncate rounded-md bg-black/75 px-2.5 py-1 text-sm font-semibold text-white shadow">
+                          {form.storeName.trim()}
+                        </div>
+                      )}
                       <div className="p-3 bg-card">
                         <div className="font-medium text-sm">{theme.name}</div>
                         <div className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{theme.description}</div>
@@ -1141,13 +1250,13 @@ export const Register: React.FC = () => {
                   disabled={submitting}
                   className="h-12 w-full sm:w-auto"
                 >
-                  {t('auth.register.theme_skip')}
+                  {v2Copy('auth.register.theme_skip', 'theme_skip')}
                 </Button>
                 <Button size="lg" onClick={() => submit()} disabled={submitting || !canAdvance()} className="h-12 px-8 w-full sm:w-auto">
                   {submitting ? (
                     <><Loader2 className="me-2 h-4 w-4 animate-spin" /> {t('auth.register.creating')}</>
                   ) : (
-                    <>{t('auth.register.launch')}</>
+                    <>{v2Copy('auth.register.launch', 'launch')}</>
                   )}
                 </Button>
               </div>

@@ -159,6 +159,12 @@ const tenantSchema = new Schema({
       delivery: { title: { type: String, default: null }, body: { type: String, default: null } },
       cod: { title: { type: String, default: null }, body: { type: String, default: null } },
     },
+    // Raw answers behind generated policy pages (PBI 10-11), kept so the text
+    // can be regenerated. `deliveryAreas` is first asked at signup (10-16) as
+    // free text, `{ ar, en }` like the brand kit. No defaults.
+    policyAnswers: {
+      deliveryAreas: { ar: { type: String }, en: { type: String } },
+    },
     // Stable per-store secret for the owner draft-preview link.
     previewToken: { type: String, default: null },
     shipping: {
@@ -412,6 +418,17 @@ const tenantSchema = new Schema({
   // true so pre-existing stores (and API callers that don't send the flag)
   // aren't shown as incomplete.
   themeSelected: { type: Boolean, default: true },
+
+  // Guided onboarding (PBI 10-16/10-17). `flow` is "v2" for stores created
+  // through the new signup (absent for every other store). The timestamps
+  // record the first time the merchant did a "first sale" checklist step the
+  // server can't infer from other data; written only through
+  // services/onboarding.js and never cleared. No defaults: absent = not yet.
+  onboarding: {
+    flow: { type: String },
+    sharedAt: { type: Date },
+    paymentsReviewedAt: { type: Date },
+  },
 
   // Publish lifecycle. `draft` until the merchant takes the store live
   // (publishStarterContent flips it to `live`). A DRAFT store is visible
