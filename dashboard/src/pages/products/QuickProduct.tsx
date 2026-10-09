@@ -34,6 +34,7 @@ import {
   stepQuantity,
 } from '../../lib/quickProduct';
 import type { Product } from '../../types';
+import { notifySetupChanged } from '../../contexts/setup-guide-context';
 
 interface QuickProductResponse {
   responseObject?: { data?: Product };
@@ -104,6 +105,7 @@ export const QuickProduct: React.FC = () => {
       const product = res.responseObject?.data;
       if (!product) throw new Error();
       setCreated(product);
+      notifySetupChanged();
       // The dashboard scrolls inside <main>, not the window.
       document.querySelector('main')?.scrollTo({ top: 0 });
     } catch (err) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { StatCard, type StatCardDelta } from '../components/StatCard';
@@ -20,6 +20,9 @@ import { api } from '../lib/api-client';
 import { toast } from 'sonner';
 import type { Order, PaginationMeta } from '../types';
 import { getTenantCurrency, getTenantLocale } from '../lib/format';
+import { useSetupGuide } from '../contexts/setup-guide-context';
+import { FIRST_SALE_STEP_ROUTES } from '../lib/onboarding';
+import { useStoreKey } from '../hooks/useStoreProfile';
 
 interface DashboardDomainInfo {
   activeDomain: string;
@@ -172,6 +175,8 @@ const SalesSparkline: React.FC<{ points: number[] }> = ({ points }) => {
 
 // Setup-checklist dismissal (collapsed-bar state only). Same key style
 // as Orders.tsx's 'orders.viewMode'.
+/** Session flag: the current setup step was already opened once. */
+const GUIDE_OPENED_KEY = 'matjar.setupGuide.opened';
 const SETUP_DISMISSED_KEY = 'dashboard.setupDismissed';
 
 type SetupStepKey = 'add_product' | 'payments' | 'theme' | 'test_order' | 'domain';
@@ -202,6 +207,27 @@ export const Dashboard: React.FC = () => {
   // PBI 10-17: the "first sale" checklist replaces the setup checklist for
   // stores with `onboarding.v2` (per-store overrides apply here).
   const firstSaleChecklist = hasFeature('onboarding.v2');
+
+  // Guided setup (PBI 10-28): on the first visit to home in a session, open
+  // the current essential step full-page (e.g. the quick product form), so
+  // the merchant can act at once. Coming back to home later shows the
+  // checklist; the guide bar follows them on every other page.
+  const guide = useSetupGuide();
+  const navigate = useNavigate();
+  const storeKey = useStoreKey();
+  useEffect(() => {
+    const step = guide.active ? guide.progress?.current : null;
+    const route = step ? FIRST_SALE_STEP_ROUTES[step] : null;
+    if (!route) return;
+    const key = `${GUIDE_OPENED_KEY}:${storeKey}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch {
+      return; // no session storage: never redirect (it could loop)
+    }
+    navigate(route);
+  }, [guide.active, guide.progress, navigate, storeKey]);
   const [totals, setTotals] = useState({ products: 0, customers: 0, orders: 0 });
   const [orderStats, setOrderStats] = useState<OrderStats>(EMPTY_ORDER_STATS);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -210,9 +236,6 @@ export const Dashboard: React.FC = () => {
   const [signals, setSignals] = useState<SetupSignals>({
     hasProduct: false, paymentsEnabled: false, themePublished: false, hasOrder: false, hasCustomDomain: false,
   });
-  // Codes of the enabled payment methods for the first-sale checklist; null
-  // when the list is unavailable (payments.methods off → COD only).
-  const [enabledPaymentCodes, setEnabledPaymentCodes] = useState<string[] | null>(null);
   const [starter, setStarter] = useState<{ hasDraftStarter?: boolean; previewUrl?: string } | null>(null);
   // Dense daily trends for the stat-card sparklines over the last TREND_DAYS:
   // sales (revenue + orders) and new customers/products, one value per day.
@@ -336,9 +359,6 @@ export const Dashboard: React.FC = () => {
         ? ((paymentsRes.value as PaymentMethodsResponse)?.data?.methods
           || (paymentsRes.value as PaymentMethodsResponse)?.responseObject?.methods || [])
         : [];
-      setEnabledPaymentCodes(paymentsRes.status === 'fulfilled'
-        ? methods.filter((m) => m?.enabled === true).map((m) => m?.code || '')
-        : null);
       const themeCustomization = themeRes.status === 'fulfilled'
         ? (themeRes.value as ThemeCustomizationResponse)?.responseObject
         : null;
@@ -518,13 +538,7 @@ export const Dashboard: React.FC = () => {
       )}
 
       {firstSaleChecklist && (
-        <FirstSaleChecklist
-          productCount={totals.products}
-          enabledPaymentCodes={enabledPaymentCodes}
-          storeUrl={storeUrl}
-          canManagePayments={hasFeature('payments.methods')}
-          showBrandLink={hasFeature('design.simpleMode')}
-        />
+        <FirstSaleChecklist />
       )}
 
       {/* Setup checklist (audit 3.7.1) — dominant card until the first

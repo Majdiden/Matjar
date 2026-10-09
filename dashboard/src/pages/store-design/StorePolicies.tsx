@@ -26,6 +26,7 @@ import {
   EMPTY_ANSWER, fromDraft, hasArabic, isEditedConflict, toAsciiDigits, toDraft, type AnswerDraft,
 } from './answers';
 import { getTenantLocale } from '../../lib/format';
+import { notifySetupChanged } from '../../contexts/setup-guide-context';
 
 /** Server-side limits (services/generatedPages.js). */
 const MAX_LENGTH = { areas: 300, time: 100, conditions: 600 } as const;
@@ -140,6 +141,7 @@ export const StorePolicies: React.FC = () => {
       }
       applyState(res.data);
       toast.success(t('storePages:policies.saved'));
+      notifySetupChanged();
     } catch (err) {
       if (!isEditedConflict(err)) toast.error(t('storePages:common.error_save'));
     } finally {

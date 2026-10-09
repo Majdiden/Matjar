@@ -75,6 +75,8 @@ import { ImpersonationProvider } from '../../contexts/ImpersonationContext';
 import { ImpersonationConsentModal } from '../impersonation/ImpersonationConsentModal';
 import { ActiveImpersonationOverlay } from '../impersonation/ActiveImpersonationOverlay';
 import { ImpersonationBanner } from '../impersonation/ImpersonationBanner';
+import { SetupGuideBar } from '../SetupGuideBar';
+import { SetupGuideProvider } from '../../contexts/SetupGuideContext';
 
 // ---------------------------------------------------------------------------
 // Pending-orders badge (audit 4.2.4)
@@ -836,6 +838,8 @@ const DashboardLayoutInner: React.FC = () => {
             <PwaManager />
             {/* Boundary for the code-split page chunks (audit 3.6) — the
                 spinner shows here so the sidebar/topbar stay put. */}
+            {/* Guided setup (PBI 10-28): until the essentials are done. */}
+            <SetupGuideBar />
             <Suspense fallback={<PageLoader />}>
               <Outlet />
             </Suspense>
@@ -868,7 +872,9 @@ export const DashboardLayout: React.FC = () => (
   <BreadcrumbProvider>
     <NotificationsProvider>
       <ImpersonationProvider>
-        <DashboardLayoutInner />
+        <SetupGuideProvider>
+          <DashboardLayoutInner />
+        </SetupGuideProvider>
       </ImpersonationProvider>
     </NotificationsProvider>
   </BreadcrumbProvider>

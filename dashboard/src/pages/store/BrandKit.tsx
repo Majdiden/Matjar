@@ -47,6 +47,7 @@ import {
 } from './brandFields';
 import { useFieldValue } from '../../hooks/useFieldValue';
 import PhonePreview from './PhonePreview';
+import { notifySetupChanged } from '../../contexts/setup-guide-context';
 
 /** Wait for a burst of saves to settle before reloading the preview. */
 const PREVIEW_RELOAD_DELAY_MS = 1200;
@@ -80,6 +81,7 @@ export default function BrandKit() {
     (next: StoreProfile) => {
       setProfile(next);
       refreshPreview();
+      notifySetupChanged();
     },
     [setProfile, refreshPreview],
   );
