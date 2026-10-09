@@ -72,6 +72,11 @@ export interface BilingualFieldProps {
   placeholder?: BilingualValue;
   disabled?: boolean;
   className?: string;
+  /**
+   * Shown under the English box, which then starts open: for text that
+   * English-speaking shoppers read (e.g. generated policies).
+   */
+  englishNote?: React.ReactNode;
 }
 
 const inputClass =
@@ -93,6 +98,7 @@ export const BilingualField: React.FC<BilingualFieldProps> = ({
   placeholder,
   disabled,
   className,
+  englishNote,
 }) => {
   const { t, i18n } = useTranslation('storeDesign');
   const englishFirst = !(i18n.language || 'ar').startsWith('ar');
@@ -102,7 +108,7 @@ export const BilingualField: React.FC<BilingualFieldProps> = ({
   const enId = `${baseId}-en`;
 
   const hasEnglish = !!(value.en && value.en.length);
-  const [englishOpen, setEnglishOpen] = useState(hasEnglish);
+  const [englishOpen, setEnglishOpen] = useState(hasEnglish || !!englishNote);
   const showEnglish = englishOpen || hasEnglish;
   // Validation shows only after the merchant has left the field once, so an
   // empty required field doesn't greet them with an error.
@@ -175,6 +181,7 @@ export const BilingualField: React.FC<BilingualFieldProps> = ({
         {help && <p className="text-sm text-muted-foreground">{help}</p>}
         <p className="text-xs font-medium text-muted-foreground">{t('bilingual.english')}</p>
         {renderInput('en')}
+        {englishNote && <p className="text-xs text-muted-foreground">{englishNote}</p>}
         <label htmlFor={arId} className="block pt-1 text-xs font-medium text-muted-foreground">
           {t('bilingual.arabic')}
         </label>
@@ -221,6 +228,7 @@ export const BilingualField: React.FC<BilingualFieldProps> = ({
             )}
           </div>
           {renderInput('en')}
+          {englishNote && <p className="text-xs text-muted-foreground">{englishNote}</p>}
         </div>
       ) : (
         !disabled && (

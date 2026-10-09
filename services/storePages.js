@@ -367,9 +367,11 @@ export async function savePoliciesService(models, tenantId, input = {}) {
   const lang = policyLanguage(tenant);
   const context = { shipping, payment, currency: s.currency || "" };
   // One copy per storefront language; the store's language is the main one
-  // (title/body, what the merchant edits). Untranslated answers fall back to
-  // the Arabic text inside the English copy.
-  const byLang = Object.fromEntries(POLICY_LANGS.map((l) => [l, buildPolicies(answers, { ...context, lang: l })]));
+  // (title/body, what the merchant edits) and falls back to the Arabic
+  // answers; the other language's copy leaves out answers not written in it.
+  const byLang = Object.fromEntries(
+    POLICY_LANGS.map((l) => [l, buildPolicies(answers, { ...context, lang: l, fallback: l === lang })])
+  );
   const generated = byLang[lang];
   const keys = Object.keys(generated);
 

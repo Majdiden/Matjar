@@ -178,6 +178,7 @@ export const StorePolicies: React.FC = () => {
         <CardContent className="space-y-6">
           <DeliveryPrices shipping={shipping} formatPrice={formatZonePrice} />
           <AnswerField
+            englishNote={t('storePages:policies.english_note')}
             label={hasZones ? t('storePages:policies.areas_extra_label') : t('storePages:policies.areas_label')}
             placeholder={t('storePages:policies.areas_placeholder')}
             value={draft.areas}
@@ -186,6 +187,7 @@ export const StorePolicies: React.FC = () => {
             error={errors.areas}
           />
           <AnswerField
+            englishNote={t('storePages:policies.english_note')}
             label={t('storePages:policies.time_label')}
             placeholder={t('storePages:policies.time_placeholder')}
             value={draft.time}
@@ -247,6 +249,7 @@ export const StorePolicies: React.FC = () => {
                 {errors.days && <p className="text-sm text-destructive">{errors.days}</p>}
               </div>
               <AnswerField
+                englishNote={t('storePages:policies.english_note')}
                 label={t('storePages:policies.conditions_label')}
                 placeholder={t('storePages:policies.conditions_placeholder')}
                 value={draft.conditions}
