@@ -164,6 +164,56 @@ export interface FeedbackItem {
   updatedAt: string;
 }
 
+// ─── Generated store pages (PBI 10 — /store-pages) ─────────────────
+/** Arabic-first answer; English is optional. */
+export interface AnswerText {
+  ar?: string;
+  en?: string;
+}
+export interface AboutAnswers {
+  products?: AnswerText | null;
+  since?: number | null;
+  city?: AnswerText | null;
+  different?: AnswerText | null;
+  photo?: string | null;
+}
+export interface StoreAboutState {
+  answers: AboutAnswers | null;
+  generatedAt: string | null;
+  /** Saving would replace text the merchant wrote by hand. */
+  edited: boolean;
+  pages: Array<{ id: string; locale: string; title: string; isPublished: boolean; generated: boolean; edited: boolean }>;
+  suggestions: { city: AnswerText | null };
+}
+export interface StoreContactState {
+  enabled: boolean;
+  preview: {
+    storeName: string;
+    whatsapp: string | null;
+    city: AnswerText | null;
+    hours: AnswerText | null;
+    email: string | null;
+    phone: string | null;
+    address: string | null;
+    socialLinks: Record<string, string>;
+  };
+}
+export interface PolicyAnswers {
+  delivery: { areas?: AnswerText | null; fee?: AnswerText | null; time?: AnswerText | null };
+  returns: { accepted: boolean; days?: number | null; conditions?: AnswerText | null };
+}
+export interface StorePoliciesState {
+  answers: PolicyAnswers | null;
+  generatedAt: string | null;
+  /** Delivery areas given at signup, to prefill a first visit. */
+  suggestions: { areas: AnswerText | null };
+  language: 'ar' | 'en';
+  zones: Array<{ name: string; price: number | null; days: string | null }>;
+  currency: string | null;
+  payment: { cod: boolean; transfers: Array<{ code: string; label: string }> };
+  policies: Record<'delivery' | 'returns' | 'cod', { title: string | null; exists: boolean; edited: boolean }>;
+}
+
 export const api = {
   // Generic methods
   get: <T = unknown>(url: string, config?: AxiosRequestConfig) =>
@@ -1146,6 +1196,22 @@ export const api = {
       isPublished: boolean;
     }>) => api.put(`/pages/${id}`, data),
     delete: (id: string) => api.delete(`/pages/${id}`),
+  },
+
+  // Pages written for the merchant from short questions (PBI 10 — About,
+  // Contact, policies). A save that would replace the merchant's own edits
+  // fails with 409 `code: 'GENERATED_PAGE_EDITED'` until resent with
+  // `overwrite: true`.
+  storePages: {
+    getAbout: () => api.get<{ data: StoreAboutState }>('/store-pages/about'),
+    saveAbout: (answers: AboutAnswers, overwrite = false) =>
+      api.put<{ data: StoreAboutState }>('/store-pages/about', { answers, ...(overwrite && { overwrite }) }),
+    getContact: () => api.get<{ data: StoreContactState }>('/store-pages/contact'),
+    setContact: (enabled: boolean) =>
+      api.put<{ data: StoreContactState }>('/store-pages/contact', { enabled }),
+    getPolicies: () => api.get<{ data: StorePoliciesState }>('/store-pages/policies'),
+    savePolicies: (answers: PolicyAnswers, overwrite = false) =>
+      api.put<{ data: StorePoliciesState }>('/store-pages/policies', { answers, ...(overwrite && { overwrite }) }),
   },
 
   // Media library (audit 6.6). Browse/reuse uploaded assets. Uploads go

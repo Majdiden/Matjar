@@ -62,3 +62,7 @@ export const updatePageRepo = async (models, id, patch) =>
 
 export const deletePageRepo = async (models, id) =>
   models.Page.findByIdAndDelete(id);
+
+/** Every locale of one slug (e.g. the "ar" and "en" About pages). */
+export const listPagesBySlugRepo = async (models, slug) =>
+  models.Page.find({ slug: String(slug).toLowerCase().trim() }).lean();

@@ -244,6 +244,15 @@ export const updatePage = async (models, id, patch = {}) => {
   const publishAt = parsePublishAt(patch.publishAt);
   if (publishAt !== undefined) allowed.publishAt = publishAt;
 
+  // A generated page (PBI 10-9) that the merchant rewrites by hand is
+  // marked edited, so regenerating it later asks before replacing the edits.
+  const textChanged =
+    (allowed.title !== undefined && allowed.title !== existing.title) ||
+    (allowed.content !== undefined && allowed.content !== existing.content);
+  if (existing.generator && !existing.generator.edited && textChanged) {
+    allowed["generator.edited"] = true;
+  }
+
   const updated = await updatePageRepo(models, id, allowed);
   if (!updated) throw new APIError("Page not found", 404);
   return updated;

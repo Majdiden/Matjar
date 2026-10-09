@@ -58,6 +58,23 @@ const pageSchema = new Schema({
   // `isPublished && (publishAt == null || publishAt <= now)` — no cron; the
   // read-time check suffices. Null = publish immediately when isPublished.
   publishAt: { type: Date, default: null },
+  // Written for the merchant from their answers (PBI 10-9, services/
+  // storePages.js). `answers` are kept so the text can be rebuilt; `edited`
+  // flips to true when the merchant changes the title or content by hand
+  // (services/page.js), after which we never overwrite without asking.
+  // Absent on every hand-made page.
+  generator: {
+    type: new Schema(
+      {
+        kind: { type: String, required: true },
+        answers: { type: Schema.Types.Mixed, default: {} },
+        generatedAt: { type: Date, default: null },
+        edited: { type: Boolean, default: false },
+      },
+      { _id: false }
+    ),
+    default: undefined,
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

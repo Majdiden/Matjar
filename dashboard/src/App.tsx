@@ -94,6 +94,9 @@ const MenuForm = lazyWithRetry(() => import('./pages/menus/MenuForm'));
 const Pages = lazyWithRetry(() => import('./pages/pages/Pages'));
 const PageForm = lazyWithRetry(() => import('./pages/pages/PageForm'));
 const MediaLibrary = lazyWithRetry(() => import('./pages/media/MediaLibrary'));
+const StoreAbout = lazyWithRetry(() => import('./pages/store-design/StoreAbout'));
+const StoreContact = lazyWithRetry(() => import('./pages/store-design/StoreContact'));
+const StorePolicies = lazyWithRetry(() => import('./pages/store-design/StorePolicies'));
 const Redirects = lazyWithRetry(() => import('./pages/redirects/Redirects'));
 const Staff = lazyWithRetry(() => import('./pages/staff/Staff'));
 const AcceptInvite = lazyWithRetry(() => import('./pages/staff/AcceptInvite'));
@@ -196,6 +199,10 @@ function App() {
             <Route path="pages/new" element={<RequirePermission permission="themes.write"><PageForm /></RequirePermission>} />
             <Route path="pages/:id/edit" element={<RequirePermission permission="themes.write"><PageForm /></RequirePermission>} />
             <Route path="media" element={<RequirePermission permission="themes.write"><MediaLibrary /></RequirePermission>} />
+            {/* Pages written for the merchant (PBI 10-9..10-11), linked from the "My store" hub. */}
+            <Route path="store/about" element={<RequireFeature feature="design.simpleMode"><RequirePermission permission="themes.write"><StoreAbout /></RequirePermission></RequireFeature>} />
+            <Route path="store/contact" element={<RequireFeature feature="design.simpleMode"><RequirePermission permission={['settings.read', 'settings.write']}><StoreContact /></RequirePermission></RequireFeature>} />
+            <Route path="store/policies" element={<RequireFeature feature="design.simpleMode"><RequirePermission permission="settings.write"><StorePolicies /></RequirePermission></RequireFeature>} />
             <Route path="redirects" element={<RequireFeature feature="redirects"><RequirePermission permission={['themes.read', 'themes.write']}><Redirects /></RequirePermission></RequireFeature>} />
             <Route path="staff" element={<RequirePermission permission="team.manage"><Staff /></RequirePermission>} />
             {/* Real 404 inside the shell for unknown /dashboard/* paths */}

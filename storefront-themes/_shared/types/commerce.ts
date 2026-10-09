@@ -203,6 +203,31 @@ export interface BrandKit {
   hours?: BrandText;
 }
 
+/**
+ * Pages the store builds from its data instead of Page content (PBI 10-10).
+ * Absent unless the merchant switched one on.
+ */
+export interface GeneratedPages {
+  /** /contact and /pages/contact render the brand-kit ContactPage. */
+  contact?: boolean;
+}
+
+/**
+ * Trust-badge facts from the merchant's policy answers (PBI 10-11). Absent
+ * unless the merchant answered the policy questions; payment badges come
+ * from the store's live payment methods when `payments` is true.
+ */
+export interface StoreTrust {
+  payments?: boolean;
+  delivery?: {
+    /** Shipping-zone names. */
+    zones?: string[];
+    areas?: BrandText;
+    time?: BrandText;
+  };
+  returns?: { days: number };
+}
+
 export interface StoreInfo {
   name: string;
   description?: string;
@@ -227,6 +252,8 @@ export interface StoreInfo {
   socialLinks?: Record<string, string>;
   contactInfo?: Record<string, string>;
   brand?: BrandKit | null;
+  generatedPages?: GeneratedPages;
+  trust?: StoreTrust;
 }
 
 export interface Pagination {

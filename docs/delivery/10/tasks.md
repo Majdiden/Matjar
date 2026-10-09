@@ -16,9 +16,9 @@ This document lists all tasks associated with PBI 10.
 | 10-6 | Manifest `level` / `bind` / niche presets | Proposed | Schema + `defineSection` + `services/themeValidator.js` support; no change for stores without brand data |
 | 10-7 | Setting value resolution with brand bindings | Proposed | Override → brand → manifest default in `services/themeCustomization.js`, with tests that unconfigured stores render unchanged |
 | 10-8 | Annotate themes (modern, starter first) | Proposed | At most about 3 `basic` settings per section, `bind`s for hero/footer/contact, then the remaining themes |
-| 10-9 | About page from questions | Proposed | Answers stored on `Page`; plain-Arabic templates; optional English |
-| 10-10 | Contact page from the brand kit | Proposed | Theme-rendered system page: WhatsApp button, phone, city, hours, social links |
-| 10-11 | Policies from questions + trust badges | Proposed | Delivery/returns/payment answers → `settings.policies.*`; shared trust-badge component on product pages |
+| 10-9 | [About page from questions](./10-9.md) | Review | Answers stored on `Page`; plain-Arabic templates; optional English |
+| 10-10 | [Contact page from the brand kit](./10-10.md) | Review | Theme-rendered system page: WhatsApp button, phone, city, hours, social links |
+| 10-11 | [Policies from questions + trust badges](./10-11.md) | Review | Delivery/returns/payment answers → `settings.policies.*`; shared trust-badge component on product pages |
 | 10-12 | "متجري" (My store) hub + brand kit form | Proposed | Phone-first dashboard route behind `design.simpleMode` |
 | 10-13 | Homepage simple editor | Proposed | Phone preview, tap a section → bottom sheet with basic settings, show/hide/move, save-and-publish with undo |
 | 10-14 | Arabic-first bilingual field | Proposed | Arabic input with "+ English (optional)"; used everywhere in simple mode |
