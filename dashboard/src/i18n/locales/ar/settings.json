@@ -308,8 +308,8 @@
         "description": "فشل خطّاف ويب صادر إلى خدمة خارجية بصورة متكررة."
       },
       "domain_verification_failed": {
-        "label": "فشل التحقق من النطاق",
-        "description": "فشل التحقق من DNS أو SSL للنطاق المخصص."
+        "label": "تعذّر التحقق من الرابط الخاص",
+        "description": "تعذّر التحقق من DNS أو شهادة الأمان لرابطك الخاص."
       },
       "staff_invite_accepted": {
         "label": "قَبِل موظف الدعوة",

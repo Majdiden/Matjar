@@ -45,3 +45,4 @@ This document lists all tasks associated with PBI 10.
 | 10-35 | [Platform admin quick search (Ctrl/Cmd+K)](./10-35.md) | Review | Platform owner wanted search to navigate quickly: pages, tabs and stores from the top bar or Ctrl/Cmd+K |
 | 10-36 | [Guided setup tip next to the current step](./10-36.md) | Review | The guide bar said what to do but nothing pointed at where to tap; homepage editor rows didn't look editable |
 | 10-37 | [No made-up store claims in themes](./10-37.md) | Review | Product pages showed theme demo claims such as free shipping over $50, 3–5 days delivery and 30-day returns |
+| 10-38 | ["Domains" renamed to "Store link"](./10-38.md) | Review | Merchants did not understand "Domains / النطاقات" |

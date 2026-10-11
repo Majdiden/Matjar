@@ -45,8 +45,8 @@
         "desc": "Visit your store and check out like a customer"
       },
       "domain": {
-        "title": "Connect a domain",
-        "desc": "Use your own domain for better branding"
+        "title": "Connect your own link",
+        "desc": "Use a web name you bought (a domain) like mystore.com"
       }
     }
   },
@@ -66,7 +66,7 @@
       "add_product": "Add Product",
       "view_orders": "View Orders",
       "manage_themes": "Manage Themes",
-      "domain_settings": "Domain Settings",
+      "domain_settings": "Store link",
       "discounts": "Discounts",
       "store_settings": "Store Settings"
     }

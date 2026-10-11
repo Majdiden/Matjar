@@ -122,7 +122,7 @@
   "status": {
     "draft": "مسودة",
     "pending": "قيد الانتظار",
-    "pending_dns": "بانتظار ربط النطاق",
+    "pending_dns": "بانتظار ربط الرابط",
     "processing": "قيد المعالجة",
     "confirmed": "مؤكّد",
     "paid": "مدفوع",
