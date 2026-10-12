@@ -245,5 +245,8 @@
       "easy_returns_title": "إرجاع سهل",
       "easy_returns_desc": "استرداد خلال 30 يومًا"
     }
+  },
+  "home": {
+    "no_products": "لا توجد منتجات لعرضها بعد"
   }
 }

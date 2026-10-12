@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { gateHomeSections } from '@matjar/theme-shared/theme/homeSections';
+import { useStoreHasProducts } from '@matjar/theme-shared/hooks/useStoreHasProducts';
+import { NoProductsYet } from '@matjar/theme-shared/components/sections/NoProductsYet';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCarousel } from '@matjar/theme-shared/components/commerce/ProductCarousel';
@@ -87,7 +90,11 @@ const Home: React.FC = () => {
   // The merchant's composed layout for the home template — ORDERED and
   // enabled-filtered. Rendering in THIS order (instead of a fixed JSX order)
   // is what makes reordering sections in the visual editor actually work.
-  const orderedSections = useTemplateSections('index');
+  // No products yet: the hero, then one message (theme/homeSections.ts).
+  const { sections: orderedSections, showEmpty } = gateHomeSections(
+    useTemplateSections('index'),
+    useStoreHasProducts(),
+  );
 
   const { products: featured, loading: featuredLoading } = useFeaturedProducts(feat.product_limit || 8);
   const { products: newArrivals, loading: newLoading } = useProducts({ sort: 'newest', limit: arrivals.product_limit || 8 });
@@ -390,6 +397,7 @@ const Home: React.FC = () => {
           </div>
         );
       })}
+      {showEmpty && <NoProductsYet />}
 
       {/* Quick View Modal */}
       <QuickView

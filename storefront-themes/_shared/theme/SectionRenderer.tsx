@@ -21,6 +21,9 @@ import React from 'react';
 import { useTheme, useTemplateSections } from './ThemeProvider';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent } from '../components/sections';
 import type { ThemeManifest } from '../types/theme';
+import { gateHomeSections } from './homeSections';
+import { useStoreHasProducts } from '../hooks/useStoreHasProducts';
+import { NoProductsYet } from '../components/sections/NoProductsYet';
 
 /**
  * Preview mode = the storefront is embedded in the dashboard editor's
@@ -71,12 +74,18 @@ export const SectionRenderer: React.FC<SectionRendererProps> = ({
   onQuickView,
 }) => {
   const { getSections, isSectionEnabled } = useTheme();
-  const sections = getSections(template);
+  const hasProducts = useStoreHasProducts();
+  const enabled = getSections(template).filter((s) => isSectionEnabled(s.id));
+  // Homepage of a store with no products: the hero, then one message in place
+  // of the product sections (theme/homeSections.ts).
+  const { sections, showEmpty } =
+    template === 'index'
+      ? gateHomeSections(enabled, hasProducts)
+      : { sections: enabled, showEmpty: false };
 
   return (
     <>
       {sections.map((s) => {
-        if (!isSectionEnabled(s.id)) return null;
         const Component = registry[s.type];
         if (!Component) {
           // Silent for shoppers; labelled placeholder in the editor preview.
@@ -92,6 +101,7 @@ export const SectionRenderer: React.FC<SectionRendererProps> = ({
           </div>
         );
       })}
+      {showEmpty && <NoProductsYet />}
     </>
   );
 };
