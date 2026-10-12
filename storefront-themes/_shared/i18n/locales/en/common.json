@@ -239,5 +239,8 @@
       "easy_returns_title": "Easy Returns",
       "easy_returns_desc": "30-day money back"
     }
+  },
+  "home": {
+    "no_products": "No products to show yet"
   }
 }

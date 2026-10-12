@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useTemplateSections, useMerchantBlocks } from '@matjar/theme-shared/theme/ThemeProvider';
+import { gateHomeSections } from '@matjar/theme-shared/theme/homeSections';
+import { useStoreHasProducts } from '@matjar/theme-shared/hooks/useStoreHasProducts';
+import { NoProductsYet } from '@matjar/theme-shared/components/sections/NoProductsYet';
 import { useTrustLines, TrustLineIconSvg } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
@@ -261,7 +264,11 @@ const Home: React.FC = () => {
   // The merchant's composed homepage — ORDERED and enabled-filtered (falls
   // back to the manifest's templates.index). Rendering in THIS order is what
   // makes reordering in the editor work and keeps removed sections away.
-  const orderedSections = useTemplateSections('index');
+  // No products yet: the hero, then one message (theme/homeSections.ts).
+  const { sections: orderedSections, showEmpty } = gateHomeSections(
+    useTemplateSections('index'),
+    useStoreHasProducts(),
+  );
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   return (
@@ -281,6 +288,7 @@ const Home: React.FC = () => {
           </div>
         );
       })}
+      {showEmpty && <NoProductsYet />}
 
       {/* QuickView Modal */}
       <QuickView product={quickViewProduct} isOpen={!!quickViewProduct} onClose={() => setQuickViewProduct(null)} />

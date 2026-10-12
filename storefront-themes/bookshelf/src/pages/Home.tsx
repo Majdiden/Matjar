@@ -2,6 +2,9 @@ import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useSectionBlocks, useTemplateSections } from '@matjar/theme-shared/theme/ThemeProvider';
+import { gateHomeSections } from '@matjar/theme-shared/theme/homeSections';
+import { useStoreHasProducts } from '@matjar/theme-shared/hooks/useStoreHasProducts';
+import { NoProductsYet } from '@matjar/theme-shared/components/sections/NoProductsYet';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
@@ -355,7 +358,11 @@ const Home: React.FC = () => {
   // enabled-filtered (manifest default when the store has none). Rendering in
   // THIS order is what makes reordering in the editor work and keeps removed
   // sections off the page.
-  const orderedSections = useTemplateSections('index');
+  // No products yet: the hero, then one message (theme/homeSections.ts).
+  const { sections: orderedSections, showEmpty } = gateHomeSections(
+    useTemplateSections('index'),
+    useStoreHasProducts(),
+  );
 
   return (
     <div>
@@ -378,6 +385,7 @@ const Home: React.FC = () => {
           </div>
         );
       })}
+      {showEmpty && <NoProductsYet />}
 
       {/* QuickView Modal */}
       <QuickView product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
