@@ -44,6 +44,14 @@ export interface HeroProps {
 }
 
 /**
+ * Store-colour tokens (PBI 10-39): set only when the store has its own
+ * colour, so each falls back to exactly what the hero showed before.
+ */
+const BRAND_BAND = 'linear-gradient(135deg, var(--brand, var(--color-primary, #2563eb)) 0%, var(--brand-strong, var(--color-secondary, #1e40af)) 100%)';
+const ON_BRAND = 'var(--brand-contrast, #fff)';
+const BRAND_INK = 'var(--brand-ink, var(--color-primary, #2563eb))';
+
+/**
  * Shared, imagery-forward e-commerce hero.
  *
  * One shared component, distinct per theme via `variant` + design tokens
@@ -84,7 +92,7 @@ export function Hero({
     return (
       <section
         className={cn('relative isolate overflow-hidden text-white', className)}
-        style={{ background: 'linear-gradient(135deg, var(--color-secondary, #1e293b) 0%, var(--color-primary, #334155) 100%)' }}
+        style={{ background: 'linear-gradient(135deg, var(--brand-strong, var(--color-secondary, #1e293b)) 0%, var(--brand, var(--color-primary, #334155)) 100%)' }}
       >
         {image && (
           <img
@@ -128,19 +136,19 @@ export function Hero({
         <div className="grid lg:grid-cols-2 min-h-[440px] sm:min-h-[520px]">
           {/* Copy panel */}
           <div
-            className={cn('relative flex items-center order-2 lg:order-1', onDark ? 'text-white' : 'text-[var(--color-foreground,#111)]')}
+            className={cn('relative flex items-center order-2 lg:order-1', !onDark && 'text-[var(--color-foreground,#111)]')}
             style={onDark
-              ? { background: 'linear-gradient(135deg, var(--color-primary, #2563eb) 0%, var(--color-secondary, #1e40af) 100%)' }
+              ? { background: BRAND_BAND, color: ON_BRAND }
               : { backgroundColor: 'var(--color-background, #fff)' }}
           >
             <div className="w-full px-6 sm:px-10 lg:px-14 py-12 lg:py-16 lg:ms-auto lg:max-w-[36rem]">
               {saleText && (
-                <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: onDark ? 'rgba(255,255,255,.9)' : 'var(--color-primary,#2563eb)' }}>{saleText}</p>
+                <p className={cn('mb-3 text-sm font-semibold uppercase tracking-[0.18em]', onDark && 'opacity-90')} style={{ color: onDark ? undefined : BRAND_INK }}>{saleText}</p>
               )}
               <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.06] tracking-tight text-balance" style={{ fontFamily: 'var(--font-family-heading)' }}>
                 {title}
               </h1>
-              {subtitle && <p className={cn('mt-4 text-base sm:text-lg leading-relaxed max-w-md', onDark ? 'text-white/85' : 'text-[var(--color-muted,#6b7280)]')}>{subtitle}</p>}
+              {subtitle && <p className={cn('mt-4 text-base sm:text-lg leading-relaxed max-w-md', onDark ? 'opacity-[.85]' : 'text-[var(--color-muted,#6b7280)]')}>{subtitle}</p>}
               <HeroCtas primaryCta={primaryCta} secondaryCta={secondaryCta} arrow={arrow} onDark={onDark} />
             </div>
           </div>
@@ -165,10 +173,10 @@ export function Hero({
   // ── Spotlight (default): product photo dominant + copy beside it ──
   return (
     <section
-      className={cn('relative isolate overflow-hidden', onDark ? 'text-white' : 'text-[var(--color-foreground,#111)]', className)}
+      className={cn('relative isolate overflow-hidden', !onDark && 'text-[var(--color-foreground,#111)]', className)}
       style={onDark
-        ? { background: 'linear-gradient(135deg, var(--color-secondary, #0f172a) 0%, var(--color-primary, #1e293b) 100%)' }
-        : { background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-primary, #2563eb) 7%, #fff) 0%, color-mix(in srgb, var(--color-accent, #f59e0b) 8%, #fff) 100%)' }}
+        ? { background: 'linear-gradient(135deg, var(--brand-strong, var(--color-secondary, #0f172a)) 0%, var(--brand, var(--color-primary, #1e293b)) 100%)', color: ON_BRAND }
+        : { background: 'linear-gradient(135deg, var(--brand-soft, color-mix(in srgb, var(--color-primary, #2563eb) 7%, #fff)) 0%, color-mix(in srgb, var(--color-accent, #f59e0b) 8%, #fff) 100%)' }}
     >
       {/* soft dot texture */}
       <div className="absolute inset-0 -z-10 opacity-[0.5]" style={{
@@ -179,12 +187,12 @@ export function Hero({
         {/* Copy */}
         <div className="relative z-10">
           {saleText && (
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: onDark ? 'rgba(255,255,255,.9)' : 'var(--color-primary,#2563eb)' }}>{saleText}</p>
+            <p className={cn('mb-3 text-sm font-semibold uppercase tracking-[0.18em]', onDark && 'opacity-90')} style={{ color: onDark ? undefined : BRAND_INK }}>{saleText}</p>
           )}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight text-balance" style={{ fontFamily: 'var(--font-family-heading)' }}>
             {title}
           </h1>
-          {subtitle && <p className={cn('mt-4 text-base sm:text-lg lg:text-xl leading-relaxed max-w-lg', onDark ? 'text-white/85' : 'text-[var(--color-muted,#6b7280)]')}>{subtitle}</p>}
+          {subtitle && <p className={cn('mt-4 text-base sm:text-lg lg:text-xl leading-relaxed max-w-lg', onDark ? 'opacity-[.85]' : 'text-[var(--color-muted,#6b7280)]')}>{subtitle}</p>}
           <HeroCtas primaryCta={primaryCta} secondaryCta={secondaryCta} arrow={arrow} onDark={onDark} />
         </div>
         {/* Product showcase */}
@@ -230,13 +238,21 @@ function HeroCtas({
   if (!primaryCta && !secondaryCta) return null;
   // On an image/dark surface the primary button is white with theme-coloured
   // text; on a light surface it's the theme primary with white text.
+  // The store colour (--brand*, PBI 10-39) when it has one; the theme
+  // primary otherwise.
   const primaryStyle: React.CSSProperties =
     overImage || onDark
-      ? { backgroundColor: '#fff', color: 'var(--color-primary, #2563eb)' }
-      : { backgroundColor: 'var(--color-primary, #2563eb)', color: '#fff' };
-  const secondaryCls = overImage || onDark
+      ? { backgroundColor: '#fff', color: BRAND_INK }
+      : { backgroundColor: 'var(--brand, var(--color-primary, #2563eb))', color: 'var(--brand-contrast, #fff)' };
+  // On the store-colour band the outline button follows its readable text
+  // colour (light or dark), so it works for any store colour.
+  const secondaryCls = overImage
     ? 'border-white/40 text-white hover:bg-white/15'
+    : onDark
+    ? 'hover:bg-white/15'
     : 'border-[var(--color-border,#e5e7eb)] text-[var(--color-foreground,#111)] hover:bg-black/[0.04]';
+  const secondaryStyle: React.CSSProperties | undefined =
+    onDark && !overImage ? { color: ON_BRAND, borderColor: 'color-mix(in srgb, currentColor 40%, transparent)' } : undefined;
   return (
     <div className={cn('mt-7 flex flex-col sm:flex-row gap-3', centered && 'sm:justify-center')}>
       {primaryCta && (
@@ -253,6 +269,7 @@ function HeroCtas({
         <Link
           to={secondaryCta.href}
           className={cn('inline-flex items-center justify-center gap-2 rounded-[var(--radius,12px)] border px-7 py-3.5 text-sm sm:text-base font-semibold backdrop-blur-sm transition-colors duration-[var(--duration-fast,150ms)]', secondaryCls)}
+          style={secondaryStyle}
         >
           {secondaryCta.label}
         </Link>

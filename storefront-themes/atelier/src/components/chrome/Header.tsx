@@ -12,6 +12,7 @@ import { CurrencySelector } from '@matjar/theme-shared/components/commerce/Curre
 import { useAtelierUI } from '../../contexts/AtelierUI';
 import { useStickyReveal } from '../../lib/motion';
 import AnnouncementBar from './AnnouncementBar';
+import { WishlistHeaderLink } from '@matjar/theme-shared';
 
 const hrefOf = (item: MenuItem) => item.resolvedUrl || item.url || '/';
 const isExternal = (item: MenuItem) => item.type === 'external' || item.target === '_blank';
@@ -21,7 +22,7 @@ const IconBtn: React.FC<{ label: string; onClick?: () => void; to?: string; badg
     <>
       {children}
       {!!badge && badge > 0 && (
-        <span className="absolute -top-1.5 -end-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[color:var(--atelier-bronze-ink)] px-1 text-[10px] font-bold text-white">{badge}</span>
+        <span className="absolute -top-1.5 -end-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[color:var(--at-on-band,var(--atelier-bronze-ink))] px-1 text-[10px] font-bold text-[color:var(--brand-ink,#fff)]">{badge}</span>
       )}
     </>
   );
@@ -91,7 +92,6 @@ const HeaderRow: React.FC<{ light: boolean; sticky?: boolean }> = ({ light, stic
   const { t } = useTranslation(['theme', 'common']);
   const { store } = useStore();
   const { cart } = useCart();
-  const { count: wishlistCount } = useWishlist();
   const { items } = useMenu('header');
   const { categories } = useCategories();
   const { open } = useAtelierUI();
@@ -125,7 +125,7 @@ const HeaderRow: React.FC<{ light: boolean; sticky?: boolean }> = ({ light, stic
         <Link to="/" className="absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 lg:static lg:translate-x-0 rtl:lg:translate-x-0 shrink-0" aria-label={store?.name || 'Home'}>
           {store?.logo
             ? <img src={store.logo} alt={store.name} className={`h-9 w-auto max-w-[150px] object-contain ${light ? 'brightness-0 invert' : 'brightness-0 invert'}`} />
-            : <span className="font-display text-[26px] font-semibold tracking-tight">{store?.name || 'Store'}</span>}
+            : <span className="block max-w-[44vw] truncate font-display text-[26px] font-semibold tracking-tight lg:max-w-none">{store?.name || 'Store'}</span>}
         </Link>
 
         <nav className="hidden lg:flex h-full items-center" aria-label={t('theme.layout.nav.main')}>
@@ -151,7 +151,12 @@ const HeaderRow: React.FC<{ light: boolean; sticky?: boolean }> = ({ light, stic
         <div className="flex items-center gap-0.5">
           <span className="hidden lg:inline-flex"><IconBtn label={t('theme.layout.search')} onClick={() => open('search')}><SearchIcon /></IconBtn></span>
           <span className="hidden lg:inline-flex"><IconBtn label={t('theme.layout.account')} to="/account"><UserIcon /></IconBtn></span>
-          <span className="hidden md:inline-flex"><IconBtn label={t('theme.layout.wishlist')} to="/wishlist" badge={wishlistCount || 0}><HeartIcon /></IconBtn></span>
+          {/* Wishlist on every width (phones too), the theme's own heart. */}
+          <WishlistHeaderLink
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300 ease-linear hover:bg-white/15"
+            icon={<HeartIcon />}
+            badgeClassName="absolute -top-1.5 -end-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[color:var(--at-on-band,var(--atelier-bronze-ink))] px-1 text-[10px] font-bold text-[color:var(--brand-ink,#fff)]"
+          />
           <IconBtn label={t('theme.layout.cart')} onClick={() => open('minicart')} badge={cart?.itemCount || 0}><BagIcon /></IconBtn>
         </div>
       </div>
@@ -188,7 +193,7 @@ const UtilityBar: React.FC = () => {
   const email = store?.contact?.email || store?.contactInfo?.email;
   if (!show) return null;
   return (
-    <div className="at-util-bar hidden lg:block border-b border-white/10 bg-[#141414] text-white/85">
+    <div className="at-util-bar hidden lg:block border-b border-white/10 bg-[color:var(--at-band-deep,#141414)] text-white/85">
       <div className="mx-auto flex h-9 max-w-[1320px] items-center justify-between px-6 text-[12px]">
         <div className="flex items-center gap-6">
           {phone && <span><span className="font-semibold text-white">{hotlineLabel || t('theme.layout.utility.call')}</span> <a href={`tel:${phone}`} className="at-link-hover-light" dir="ltr">{phone}</a></span>}
@@ -225,13 +230,13 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <div ref={ref} className={`${overlay ? 'absolute inset-x-0 top-0 z-50 bg-gradient-to-b from-black/80 via-black/45 to-transparent' : 'relative z-50 bg-[#1c1c1c]'}`}>
+      <div ref={ref} className={`${overlay ? 'absolute inset-x-0 top-0 z-50 bg-gradient-to-b from-black/80 via-black/45 to-transparent' : 'relative z-50 bg-[color:var(--brand-ink,#1c1c1c)]'}`}>
         <AnnouncementBar dark={!overlay} />
         <UtilityBar />
         <HeaderRow light />
       </div>
       {stickyEnabled && (
-        <div className={`at-sticky bg-[#1c1c1c] shadow-[0_2px_12px_#0000001f] ${shown ? 'is-shown' : ''}`} aria-hidden={!shown}>
+        <div className={`at-sticky bg-[color:var(--brand-ink,#1c1c1c)] shadow-[0_2px_12px_#0000001f] ${shown ? 'is-shown' : ''}`} aria-hidden={!shown}>
           <HeaderRow light sticky />
         </div>
       )}

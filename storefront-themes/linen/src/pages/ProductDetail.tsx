@@ -144,8 +144,8 @@ const ProductDetail: React.FC = () => {
               {onSale && <span className="absolute start-4 top-4 rounded-full bg-ink px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-cream">−{Math.round(((compareAt - price) / compareAt) * 100)}%</span>}
               {images.length > 1 && (
                 <>
-                  <button type="button" onClick={() => setImgIdx((i) => (i - 1 + images.length) % images.length)} className="absolute start-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-cream text-ink transition-colors hover:bg-bronze hover:text-cream" aria-label={t('theme.section.hero.prev')}><I.chevronLeft className="h-5 w-5 rtl:-scale-x-100" /></button>
-                  <button type="button" onClick={() => setImgIdx((i) => (i + 1) % images.length)} className="absolute end-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-cream text-ink transition-colors hover:bg-bronze hover:text-cream" aria-label={t('theme.section.hero.next')}><I.chevronRight className="h-5 w-5 rtl:-scale-x-100" /></button>
+                  <button type="button" onClick={() => setImgIdx((i) => (i - 1 + images.length) % images.length)} className="absolute start-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-cream text-ink transition-colors hover:bg-bronze hover:text-on-bronze" aria-label={t('theme.section.hero.prev')}><I.chevronLeft className="h-5 w-5 rtl:-scale-x-100" /></button>
+                  <button type="button" onClick={() => setImgIdx((i) => (i + 1) % images.length)} className="absolute end-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-cream text-ink transition-colors hover:bg-bronze hover:text-on-bronze" aria-label={t('theme.section.hero.next')}><I.chevronRight className="h-5 w-5 rtl:-scale-x-100" /></button>
                 </>
               )}
             </div>

@@ -11,10 +11,14 @@
    need more leading, so the Latin branch (html[lang='en']) SUBTRACTS
    from this base rather than the other way round. */
 :root {
-  --misk-gold: #a87333;
-  --misk-gold-ink: #8a5c25;
-  --misk-sand: #f4efe7;
-  --misk-midnight: #191528;
+  /* Store colour (PBI 10-39): the gold accent, its readable ink and the sand
+     panels follow the store's own colour when it has one (the --brand*
+     tokens are unset otherwise, so these stay gold and sand). */
+  --misk-gold: var(--brand, #a87333);
+  --misk-gold-ink: var(--brand-ink, #8a5c25);
+  --misk-sand: var(--brand-soft, #f4efe7);
+  /* Hero band: the store colour deep enough for the white copy. */
+  --misk-midnight: var(--brand-ink, #191528);
   --misk-grove: #33361f;
   --misk-sale: #c2281f;
   --misk-ease: cubic-bezier(0.2, 0.8, 0.2, 1);

@@ -31,6 +31,11 @@ const GENRE_COLORS = [
   'bg-stone-100 text-stone-700',
 ];
 
+/** True when a colour setting still holds its manifest default (the merchant did not pick one). */
+const isDefaultColor = (value: unknown, def: string) => !value || String(value).trim().toLowerCase() === def.toLowerCase();
+/** The merchant's own colour pick, else the store colour token (PBI 10-39) over the theme default. */
+const brandOr = (value: unknown, def: string, token: string) => (isDefaultColor(value, def) ? `var(${token}, ${def})` : String(value));
+
 /** Props every bespoke section gets: its instance id (settings/blocks key) and the Quick View opener. */
 interface BookshelfSectionProps {
   id: string;
@@ -53,7 +58,9 @@ const BookshelfHero: React.FC<BookshelfSectionProps> = ({ id }) => {
   // Photo: the merchant's own, else a book cover from the store; the theme's
   // stock photo only for a brand-new store with no products yet.
   const own = merchantImage(hero.background_image, store?.brand?.coverImage);
-  const productPhoto = merchantImage(...(featured || []).map((p) => p.images?.[0]));
+  // Store photos: featured products first, else the newest ones.
+  const { products: newest, loading: newestLoading } = useProducts({ sort: 'newest', limit: 4 });
+  const productPhoto = merchantImage(...[...(featured || []), ...(newest || [])].map((p) => p.images?.[0]));
   return (
     <Hero
       variant="spotlight"
@@ -64,7 +71,7 @@ const BookshelfHero: React.FC<BookshelfSectionProps> = ({ id }) => {
       saleText={merchantText(hero.eyebrow_text) || undefined}
       backgroundImage={own || undefined}
       media={productPhoto || undefined}
-      defaultImage={!own && !productPhoto && !loading ? HERO_DEFAULT_IMAGE : undefined}
+      defaultImage={!own && !productPhoto && !loading && !newestLoading ? HERO_DEFAULT_IMAGE : undefined}
     />
   );
 };
@@ -74,9 +81,10 @@ const BookshelfGenres: React.FC<BookshelfSectionProps> = ({ id }) => {
   const { t } = useTranslation(['theme', 'common']);
   const genres = useThemeSettings(id);
   const genreBlocks = useSectionBlocks(id);
-  const { categories } = useCategories();
+  const { categories, loading } = useCategories();
   const ref = useRef<HTMLDivElement>(null);
   const visible = useIntersectionObserver(ref, { threshold: 0.1 });
+  const max = genres.max_categories || 6;
   return (
     <section ref={ref} className={`max-w-6xl mx-auto px-6 py-16 ${ENTRANCE} ${reveal(visible)}`}>
       <h2 className="text-2xl font-bold text-center mb-2">
@@ -86,15 +94,23 @@ const BookshelfGenres: React.FC<BookshelfSectionProps> = ({ id }) => {
         {genres.subheading || t('theme.section.genres.subheading')}
       </p>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {(categories.length > 0
-          ? categories.slice(0, genres.max_categories || 6).map((c, i) => ({
+        {/* While the store's categories load: same-size blank cards, never
+            the demo genres (they would flash before the real ones). */}
+        {loading && Array.from({ length: max }).map((_, i) => (
+          <div key={i} aria-hidden="true" className="rounded-xl p-5 border border-violet-100 bg-[var(--brand-soft,#f5f3ff)]">
+            <span className="block w-10 h-10 mb-2 mx-auto" />
+            <span className="block h-5" />
+          </div>
+        ))}
+        {!loading && (categories.length > 0
+          ? categories.slice(0, max).map((c, i) => ({
               key: c._id,
               href: `/categories/${c.slug}`,
               name: c.name,
               icon: (c.name || '?').charAt(0).toUpperCase(),
               color: GENRE_COLORS[i % GENRE_COLORS.length],
             }))
-          : genreBlocks.slice(0, genres.max_categories || 6).map((b, i) => ({
+          : genreBlocks.slice(0, max).map((b, i) => ({
               key: b.id,
               href: '/products',
               name: b.settings.name as string,
@@ -105,10 +121,10 @@ const BookshelfGenres: React.FC<BookshelfSectionProps> = ({ id }) => {
           <Link
             key={g.key}
             to={g.href}
-            className={`group rounded-xl p-5 text-center border border-violet-100 hover:border-[#7c3aed] hover:shadow-lg transition-all duration-300 ${g.color}`}
+            className={`group rounded-xl p-5 text-center border border-violet-100 hover:border-[var(--brand,#7c3aed)] hover:shadow-lg transition-all duration-300 ${g.color}`}
           >
             <span className="text-xl font-bold block mb-2 w-10 h-10 rounded-full flex items-center justify-center mx-auto border-2 border-current opacity-60">{g.icon}</span>
-            <h3 className="font-semibold text-sm group-hover:text-[#7c3aed] transition">
+            <h3 className="font-semibold text-sm group-hover:text-[var(--brand-ink,#7c3aed)] transition">
               {g.name}
             </h3>
           </Link>
@@ -125,6 +141,8 @@ const BookshelfStaffPicks: React.FC<BookshelfSectionProps> = ({ id, onQuickView 
   const { products, loading } = useFeaturedProducts(staffPicks.product_limit || 6);
   const ref = useRef<HTMLDivElement>(null);
   const visible = useIntersectionObserver(ref, { threshold: 0.1 });
+  // Hand-picked products only: nothing while loading or when none are featured.
+  if (loading || products.length === 0) return null;
   return (
     <section ref={ref} className={`bg-white py-16 ${ENTRANCE} ${reveal(visible)}`}>
       <div className="max-w-6xl mx-auto px-6">
@@ -137,20 +155,13 @@ const BookshelfStaffPicks: React.FC<BookshelfSectionProps> = ({ id, onQuickView 
           </div>
           <Link
             to={staffPicks.view_all_url || '/products'}
-            className="text-[#7c3aed] font-semibold text-sm hover:underline"
+            className="text-[var(--brand-ink,#7c3aed)] font-semibold text-sm hover:underline"
           >
             {staffPicks.view_all_text || t('theme.section.staff_picks.see_all')}{' '}
             <span className="inline-block rtl:rotate-180">&rarr;</span>
           </Link>
         </div>
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {Array.from({ length: staffPicks.product_limit || 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-72 rounded-xl" />
-            ))}
-          </div>
-        ) : (
-          <ProductRail columns={(Number(staffPicks.columns) || 3) as 2 | 3 | 4 | 5}>
+        <ProductRail columns={(Number(staffPicks.columns) || 3) as 2 | 3 | 4 | 5}>
             {products.map((p) => (
               <ProductCard key={p._id} product={p} onQuickView={onQuickView}>
                 <ProductCard.Image showBadge showQuickView hoverSwap />
@@ -162,8 +173,7 @@ const BookshelfStaffPicks: React.FC<BookshelfSectionProps> = ({ id, onQuickView 
                 </ProductCard.Body>
               </ProductCard>
             ))}
-          </ProductRail>
-        )}
+        </ProductRail>
       </div>
     </section>
   );
@@ -179,7 +189,7 @@ const BookshelfQuote: React.FC<BookshelfSectionProps> = ({ id }) => {
     <section
       ref={ref}
       className={`py-16 ${ENTRANCE} ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-      style={{ backgroundColor: quote.background_color || '#ede9fe' }}
+      style={{ backgroundColor: brandOr(quote.background_color, '#ede9fe', '--brand-soft') }}
     >
       <div className="max-w-2xl mx-auto px-6 text-center">
         <svg className="w-10 h-10 mx-auto mb-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -218,7 +228,7 @@ const BookRail: React.FC<{
           {subheading && <p className="text-gray-500 text-sm">{subheading}</p>}
         </div>
         {viewAll && (
-          <Link to={viewAll.href} className="text-[#7c3aed] font-semibold text-sm hover:underline shrink-0">
+          <Link to={viewAll.href} className="text-[var(--brand-ink,#7c3aed)] font-semibold text-sm hover:underline shrink-0">
             {viewAll.label}{' '}
             <span className="inline-block rtl:rotate-180">&rarr;</span>
           </Link>
@@ -253,6 +263,8 @@ const BookshelfBestsellers: React.FC<BookshelfSectionProps> = ({ id, onQuickView
   const { t } = useTranslation(['theme', 'common']);
   const bestsellers = useThemeSettings(id);
   const { products, loading } = useFeaturedProducts(bestsellers.product_limit || 9);
+  // Featured products only: nothing while loading or when none are featured.
+  if (loading || products.length === 0) return null;
   return (
     <BookRail
       heading={bestsellers.heading || t('theme.section.bestsellers.heading')}
@@ -289,19 +301,22 @@ const BookshelfNewsletter: React.FC<BookshelfSectionProps> = ({ id }) => {
   const newsletter = useThemeSettings(id);
   const ref = useRef<HTMLDivElement>(null);
   const visible = useIntersectionObserver(ref, { threshold: 0.2 });
+  // The band takes the store colour unless the merchant picked its colours;
+  // its text then follows the colour's readable text colour.
+  const onBrand = isDefaultColor(newsletter.gradient_from, '#7c3aed') && isDefaultColor(newsletter.gradient_to, '#4c1d95');
   return (
     <section
       ref={ref}
       className={`py-16 ${ENTRANCE} ${reveal(visible)}`}
       style={{
-        background: `linear-gradient(to right, ${newsletter.gradient_from || '#7c3aed'}, ${newsletter.gradient_to || '#4c1d95'})`,
+        background: `linear-gradient(to right, ${brandOr(newsletter.gradient_from, '#7c3aed', '--brand')}, ${brandOr(newsletter.gradient_to, '#4c1d95', '--brand-strong')})`,
       }}
     >
       <div className="max-w-2xl mx-auto px-6 text-center">
-        <h2 className="text-3xl font-bold text-white mb-4">
+        <h2 className="text-3xl font-bold mb-4" style={{ color: onBrand ? 'var(--brand-contrast, #fff)' : '#fff' }}>
           {newsletter.heading || t('theme.section.newsletter.heading')}
         </h2>
-        <p className="text-violet-200 mb-8">
+        <p className="mb-8" style={{ color: onBrand ? 'var(--brand-contrast, #ddd6fe)' : '#ddd6fe' }}>
           {newsletter.subheading || t('theme.section.newsletter.subheading')}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -310,7 +325,7 @@ const BookshelfNewsletter: React.FC<BookshelfSectionProps> = ({ id }) => {
             placeholder={newsletter.placeholder || t('theme.section.newsletter.placeholder')}
             className="flex-1 px-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-white/30"
           />
-          <button className="bg-white text-[#7c3aed] px-6 py-3 rounded-lg font-semibold hover:bg-violet-50 transition">
+          <button className="bg-white text-[var(--brand-ink,#7c3aed)] px-6 py-3 rounded-lg font-semibold hover:bg-violet-50 transition">
             {newsletter.button_text || t('theme.section.newsletter.button')}
           </button>
         </div>

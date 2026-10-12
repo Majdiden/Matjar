@@ -11,6 +11,10 @@ body { font-family: var(--font-app); }
   --color-accent: #ff6a13;
   --color-lime: #a3e635;
   --color-dark: #0a0a0a;
+  /* Store colour as text on the black bands, lifted toward white so dark
+     colours stay readable (PBI 10-39). Unset without a store colour (the
+     var() is then invalid), so call sites fall back to the lime. */
+  --nk-brand-on-dark: color-mix(in srgb, var(--brand) 70%, #fff);
 }
 
 body {

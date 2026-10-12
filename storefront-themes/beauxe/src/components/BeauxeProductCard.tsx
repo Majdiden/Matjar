@@ -80,14 +80,14 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
           )}
           {pre.mode === 'preorder' && !onSale && pre.savingsPct === 0 && (
             <div className="absolute top-4 start-4">
-              <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white rounded-full" style={{ backgroundColor: 'var(--color-primary)' }}>
+              <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase rounded-full" style={{ backgroundColor: 'var(--brand, var(--color-primary))', color: 'var(--brand-contrast, #fff)' }}>
                 {t('theme.product_card.preorder')}
               </span>
             </div>
           )}
           {!onSale && pre.mode === 'buy' && product.isNew && (
             <div className="absolute top-4 start-4">
-              <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white rounded-full" style={{ backgroundColor: 'var(--color-primary)' }}>
+              <span className="inline-block px-3 py-1 text-[10px] font-bold tracking-wider uppercase rounded-full" style={{ backgroundColor: 'var(--brand, var(--color-primary))', color: 'var(--brand-contrast, #fff)' }}>
                 {t('theme.product_card.new')}
               </span>
             </div>
@@ -98,7 +98,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
             <WishlistButton
               productId={product._id || product.id}
               product={product}
-              className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-white transition"
+              className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center text-[color:var(--brand-ink,var(--color-primary))] hover:bg-[color:var(--brand,var(--color-primary))] hover:text-[color:var(--brand-contrast,#fff)] transition"
               renderIcon={(active) => (
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
@@ -114,7 +114,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
                 type="button"
                 aria-label={t('common:aria.quick_view')}
                 onClick={(e) => { e.preventDefault(); onQuickView(product); }}
-                className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-white transition"
+                className="w-9 h-9 rounded-full bg-white shadow flex items-center justify-center text-[color:var(--brand-ink,var(--color-primary))] hover:bg-[color:var(--brand,var(--color-primary))] hover:text-[color:var(--brand-contrast,#fff)] transition"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -130,7 +130,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
               type="button"
               onClick={(e) => { if (requiresOptions) return; e.preventDefault(); if (!pre.ctaDisabled) addItem(product._id || product.id, 1); }}
               disabled={!requiresOptions && pre.ctaDisabled}
-              className="px-7 py-3 rounded-full bg-[color:var(--color-primary)] text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--beauxe-rose-ink)] transition disabled:opacity-60"
+              className="px-7 py-3 rounded-full bg-[color:var(--brand,var(--color-primary))] text-[color:var(--brand-contrast,#fff)] text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--beauxe-rose-ink)] transition disabled:opacity-60"
               title={requiresOptions ? t('theme.product_card.select_options_tooltip') : pre.mode === 'preorder' ? [pre.shipByLabel, pre.depositLabel].filter(Boolean).join(' · ') || undefined : undefined}
             >
               {requiresOptions ? t('theme.product_card.choose_options') : pre.mode === 'preorder' ? `+ ${t('theme.product_card.preorder')}` : pre.mode === 'soldOut' ? t('theme.product_card.sold_out') : t('theme.product_card.add_to_cart')}
@@ -145,7 +145,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
       <div className="pt-4 text-center">
         <Link
           to={`/products/${slug}`}
-          className="block font-serif text-[17px] text-[color:var(--color-primary)] hover:text-[color:var(--beauxe-rose-ink)] line-clamp-1"
+          className="block font-serif text-[17px] text-[color:var(--brand-ink,var(--color-primary))] hover:text-[color:var(--beauxe-rose-ink)] line-clamp-1"
           style={{ fontFamily: 'var(--font-family-heading)' }}
         >
           {product.name}
@@ -164,7 +164,7 @@ export const BeauxeProductCard: React.FC<Props> = ({ product, onQuickView }) => 
           {(onSale || pre.savingsPct > 0) && strikePrice > displayPrice && (
             <span className="text-neutral-400 line-through">{formatPrice(strikePrice)}</span>
           )}
-          <span className={`font-bold ${onSale || pre.savingsPct > 0 ? 'text-[color:var(--color-error)]' : 'text-[color:var(--color-primary)]'}`}>
+          <span className={`font-bold ${onSale || pre.savingsPct > 0 ? 'text-[color:var(--color-error)]' : 'text-[color:var(--brand-ink,var(--color-primary))]'}`}>
             {formatPrice(price)}
           </span>
         </div>

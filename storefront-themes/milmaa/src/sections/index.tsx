@@ -20,13 +20,17 @@ import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/
 const HERO_DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=1600&q=80&auto=format&fit=crop';
 
-const TEAL = 'var(--color-primary)';
 const DARK_TEAL = 'var(--color-foreground)';
 const PINK = 'var(--color-accent)';
 const YELLOW = 'var(--color-secondary)';
 const CREAM = 'var(--color-background)';
 const MUTED = 'var(--color-muted)';
 const HEADING_FONT = 'var(--font-family-heading)';
+// Store colour (PBI 10-39) on the teal signature areas; teal without one.
+const BRAND = 'var(--brand, var(--color-primary))';
+const ON_BRAND = 'var(--brand-contrast, #fff)';
+/** Store colour as text on the cream page (darkened when too light to read). */
+const BRAND_INK = 'var(--brand-ink, var(--color-primary))';
 
 /** First photos of the store's own products (newest first) for hero image slots — never stock. */
 function useStoreProductPhotos(count: number) {
@@ -39,7 +43,7 @@ function useStoreProductPhotos(count: number) {
 }
 
 /** Pastel tint rotation used behind imagery so photos sit inside the palette. */
-const TINTS = [YELLOW, PINK, TEAL];
+const TINTS = [YELLOW, PINK, BRAND];
 
 /**
  * Bottom-anchored scrim in the tile's pastel tint so dark-teal (or cream)
@@ -57,7 +61,7 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
   const text = merchantText(s.text);
   if (!text) return null;
   return (
-    <div className="text-white text-[12px] py-2.5 text-center font-medium" style={{ backgroundColor: TEAL }}>
+    <div className="text-[12px] py-2.5 text-center font-medium" style={{ backgroundColor: BRAND, color: ON_BRAND }}>
       {text}
     </div>
   );
@@ -116,7 +120,7 @@ interface FlavorTile {
 const FlavorsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const { t } = useTranslation('theme');
   const s = useThemeSettings(id);
-  const { categories } = useCategories();
+  const { categories, loading: categoriesLoading } = useCategories();
   const blocks: any[] = (section as any)?.blocks || [];
 
   const blockTiles: FlavorTile[] = blocks.map((b, i) => {
@@ -146,8 +150,12 @@ const FlavorsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const defaultTiles: FlavorTile[] = [
     { id: 'a', title: t('theme.section.milmaa-flavors.flavor_1_title', { defaultValue: 'BANANA MILK' }), subtitle: t('theme.section.milmaa-flavors.flavor_1_subtitle', { defaultValue: 'Sweet, creamy, naturally energizing' }), href: '/products', tint: YELLOW, fit: 'contain' },
     { id: 'b', title: t('theme.section.milmaa-flavors.flavor_2_title', { defaultValue: 'BADAM MILK' }), subtitle: t('theme.section.milmaa-flavors.flavor_2_subtitle', { defaultValue: 'Rich almond indulgence, iron-packed' }), href: '/products', tint: PINK, fit: 'contain' },
-    { id: 'c', title: t('theme.section.milmaa-flavors.flavor_3_title', { defaultValue: 'CASHEWNUT MILK' }), subtitle: t('theme.section.milmaa-flavors.flavor_3_subtitle', { defaultValue: 'Buttery smooth, protein-rich' }), href: '/products', tint: TEAL, fit: 'contain' },
+    { id: 'c', title: t('theme.section.milmaa-flavors.flavor_3_title', { defaultValue: 'CASHEWNUT MILK' }), subtitle: t('theme.section.milmaa-flavors.flavor_3_subtitle', { defaultValue: 'Buttery smooth, protein-rich' }), href: '/products', tint: BRAND, fit: 'contain' },
   ];
+  // While the store's categories load (and no curated image blocks decide
+  // the tiles) show plain tinted panels — no demo flavour names that the
+  // real categories would replace a moment later.
+  const pending = !blocksHaveImages && categoriesLoading;
 
   const items: FlavorTile[] = blocksHaveImages
     ? blockTiles
@@ -168,15 +176,18 @@ const FlavorsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
         )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {items.slice(0, 3).map((tile) => {
-          const isDark = tile.tint === TEAL;
+        {pending && TINTS.map((tint, i) => (
+          <div key={i} className="rounded-[40px] aspect-[4/5]" style={{ backgroundColor: tint }} aria-hidden="true" />
+        ))}
+        {!pending && items.slice(0, 3).map((tile) => {
+          const isDark = tile.tint === BRAND;
           const hasPhoto = !!tile.image && tile.fit === 'cover';
           return (
             <Link
               key={tile.id}
               to={tile.href}
               className="group relative block overflow-hidden rounded-[40px] aspect-[4/5] p-8"
-              style={{ backgroundColor: tile.tint, color: isDark ? CREAM : DARK_TEAL }}
+              style={{ backgroundColor: tile.tint, color: isDark ? 'var(--brand-contrast, var(--color-background))' : DARK_TEAL }}
             >
               {tile.image ? (
                 <img
@@ -233,6 +244,10 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const regular = useProducts({ sort: source === 'newest' ? 'newest' : 'popular', limit });
   const { products, loading } = source === 'featured' ? featured : regular;
 
+  // Featured shows only the store's picks: nothing while they load or when
+  // the store has none (never other products in their place).
+  if (source === 'featured' && (loading || products.length === 0)) return null;
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
       <div className="text-center mb-12">
@@ -280,7 +295,7 @@ const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   if (items.length === 0) return null;
 
   return (
-    <section className="py-20" style={{ backgroundColor: MUTED }}>
+    <section className="py-20" style={{ backgroundColor: 'var(--brand-soft, var(--color-muted))' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div className="relative">
           <div className="aspect-square rounded-[48px] overflow-hidden" style={{ backgroundColor: PINK }}>
@@ -294,7 +309,7 @@ const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 
         <div>
           {s.eyebrow && (
-            <div className="text-[11px] tracking-[0.3em] uppercase font-bold mb-4" style={{ color: TEAL }}>
+            <div className="text-[11px] tracking-[0.3em] uppercase font-bold mb-4" style={{ color: BRAND_INK }}>
               {s.eyebrow}
             </div>
           )}
@@ -306,7 +321,7 @@ const BenefitsSection: React.FC<SectionComponentProps> = ({ id, section }) => {
               const bs = b.settings || {};
               return (
                 <div key={b.id} className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold" style={{ backgroundColor: TEAL, color: '#fff' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold" style={{ backgroundColor: BRAND, color: ON_BRAND }}>
                     {i + 1}
                   </div>
                   <div>
@@ -336,7 +351,7 @@ const BlogSection: React.FC<SectionComponentProps> = ({ id, section }) => {
     { id: 'b', settings: { title: t('theme.section.milmaa-blog.post_2_title', { defaultValue: 'Why plant-based is the future' }), excerpt: t('theme.section.milmaa-blog.post_2_excerpt', { defaultValue: 'The science behind sustainable nutrition.' }), date: 'May 28' } },
     { id: 'c', settings: { title: t('theme.section.milmaa-blog.post_3_title', { defaultValue: 'Meet our farmers' }), excerpt: t('theme.section.milmaa-blog.post_3_excerpt', { defaultValue: 'The hands behind every bottle of Milmaa.' }), date: 'May 14' } },
   ];
-  const tints = [YELLOW, PINK, TEAL];
+  const tints = [YELLOW, PINK, BRAND];
   // Posts without an uploaded image borrow real store photography (category
   // photos first, then product shots) so the row never renders empty tints.
   const { categories } = useCategories();
@@ -378,7 +393,7 @@ const BlogSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                   </div>
                 )}
               </div>
-              <div className="text-[11px] tracking-[0.2em] uppercase font-bold mb-2" style={{ color: TEAL }}>
+              <div className="text-[11px] tracking-[0.2em] uppercase font-bold mb-2" style={{ color: BRAND_INK }}>
                 {bs.date || 'Jun 12'} · {t('theme.section.milmaa-blog.post_label')}
               </div>
               <h3 className="font-serif text-xl font-semibold mb-2 line-clamp-2 group-hover:opacity-70" style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}>
@@ -427,7 +442,7 @@ const TestimonialsSection: React.FC<SectionComponentProps> = ({ id, section }) =
                   "{bs.quote}"
                 </p>
                 <div className="flex items-center gap-3 pt-4 border-t border-current/10">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ backgroundColor: TEAL, color: '#fff' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ backgroundColor: BRAND, color: ON_BRAND }}>
                     {(bs.author || 'A').charAt(0)}
                   </div>
                   <div>
@@ -459,7 +474,7 @@ const INSTAGRAM_TILE_COUNT = 6;
  */
 const InstagramSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
-  const tints = [YELLOW, PINK, TEAL, MUTED, PINK, YELLOW];
+  const tints = [YELLOW, PINK, BRAND, MUTED, PINK, YELLOW];
   const { products } = useProducts({ sort: 'popular', limit: INSTAGRAM_TILE_COUNT });
   const { categories } = useCategories();
 

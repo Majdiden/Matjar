@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
   const linkCls = 'block py-1 text-[0.95rem] text-dune transition-colors duration-300 hover:text-clay';
 
   return (
-    <footer className="mt-16 border-t border-line bg-tint">
+    <footer className="mt-16 border-t border-line bg-[color:var(--brand-soft,#f6eedd)]">
       <div className="mx-auto max-w-[1280px] px-4 py-14 sm:px-6">
         <div className={`grid gap-10 md:grid-cols-2 ${hasContact ? 'lg:grid-cols-[1.4fr_1fr_1fr_1fr]' : 'lg:grid-cols-[1.4fr_1fr_1fr]'}`}>
           <div>
@@ -74,7 +74,7 @@ export const Footer: React.FC = () => {
                     {footer.social.map((l) => {
                       const Icon = (I as any)[l.platform];
                       return (
-                        <a key={l.platform} href={l.url} target="_blank" rel="noopener noreferrer" aria-label={l.name} className="grid h-10 w-10 place-items-center border border-line text-ink transition-colors hover:border-bronze hover:bg-bronze hover:text-cream">
+                        <a key={l.platform} href={l.url} target="_blank" rel="noopener noreferrer" aria-label={l.name} className="grid h-10 w-10 place-items-center border border-line text-ink transition-colors hover:border-bronze hover:bg-bronze hover:text-on-bronze">
                           {Icon ? <Icon className="h-4 w-4" /> : <SocialIcon platform={l.platform} className="h-4 w-4" />}
                         </a>
                       );

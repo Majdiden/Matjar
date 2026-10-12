@@ -9,9 +9,23 @@
    type only; text and hover surfaces with white type use the deeper
    bronze ink (≥ 6:1). */
 :root {
-  --atelier-bronze: var(--color-secondary, #b6713e);
-  --atelier-bronze-ink: color-mix(in srgb, var(--color-secondary, #b6713e) 76%, #000);
-  --atelier-bronze-light: color-mix(in srgb, var(--color-secondary, #b6713e) 70%, #fff);
+  /* Store colour (PBI 10-39): when the store has its own colour it replaces
+     the bronze accent (the --brand* tokens are unset otherwise, so these
+     fall back to the theme's bronze). */
+  --atelier-bronze: var(--brand, var(--color-secondary, #b6713e));
+  --atelier-bronze-ink: var(--brand-ink, color-mix(in srgb, var(--color-secondary, #b6713e) 76%, #000));
+  --atelier-bronze-light: color-mix(in srgb, var(--brand, var(--color-secondary, #b6713e)) 70%, #fff);
+  /* The accent as text/icons on the dark bands: bronze as designed, a store
+     colour lifted toward white so dark colours stay readable. */
+  --at-brand-light: color-mix(in srgb, var(--brand) 70%, #fff);
+  --atelier-bronze-on-dark: var(--at-brand-light, var(--color-secondary, #b6713e));
+  /* Dark bands (header, footer, page banners) take the store colour deep
+     enough for white type; --brand-ink is unset without one → charcoal. */
+  --at-band: var(--brand-ink, #1c1c1c);
+  --at-band-deep: color-mix(in srgb, var(--brand-ink) 82%, #000);
+  /* White only when the store has a colour (invalid otherwise): badges that
+     sit on the band flip to white so they never vanish into it. */
+  --at-on-band: color-mix(in srgb, var(--brand) 0%, #fff);
   --atelier-sale: #c81e1e;
   --atelier-success: var(--color-success, #2e8b57);
   --atelier-grey-100: #f2f2f2;
@@ -28,7 +42,7 @@
   --font-heading-ar: 'Amiri', 'Tajawal', serif;
 }
 @supports not (color: color-mix(in srgb, #000 50%, #fff)) {
-  :root { --atelier-bronze-ink: #8a4f24; --atelier-bronze-light: #d9a575; }
+  :root { --atelier-bronze-ink: var(--brand-ink, #8a4f24); --atelier-bronze-light: #d9a575; --atelier-bronze-on-dark: var(--color-secondary, #b6713e); }
 }
 
 html[lang='ar'] {
@@ -97,8 +111,9 @@ html[dir='rtl'] .at-rail-wrap { --at-fade-dir: left; }
   border-radius: 100px; padding: 0.875rem 1.75rem; font-weight: 700; font-size: 14px; min-height: 44px;
   transition: background-color .3s linear, color .3s linear, border-color .3s linear, transform .3s linear;
 }
-.at-btn-dark { background: var(--color-foreground); color: #fff; }
-.at-btn-dark:hover { background: var(--atelier-bronze-ink); color: #fff; }
+/* The main dark button takes the store colour (deep enough for white type). */
+.at-btn-dark { background: var(--brand-ink, var(--color-foreground)); color: #fff; }
+.at-btn-dark:hover { background: var(--at-band-deep, var(--atelier-bronze-ink)); color: #fff; }
 .at-btn-light { background: #fff; color: var(--color-foreground); }
 .at-btn-light:hover { background: var(--atelier-bronze-ink); color: #fff; }
 .at-btn-outline { background: transparent; color: var(--color-foreground); border: 1.5px solid var(--color-foreground); }

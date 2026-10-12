@@ -3,6 +3,7 @@ import type { ThemeManifest, MergedThemeSettings, SectionInstance, ThemeColors, 
 import { useStore } from '../contexts/StoreContext';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { BRAND_COLOR_TOKEN, resolveBoundSettings, resolvePrimaryColor, type BrandBindingSource } from './brandBindings';
+import { brandCssVars, brandPalette } from './brandColor';
 import { universalSections } from './universalSections';
 
 /**
@@ -619,7 +620,10 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
   // Light palette: manifest colours, then the merchant's colours; the brand
   // colour replaces the primary token only when the merchant has not changed
   // it. Shared by the merged settings and the CSS variables below.
-  const lightPalette = useMemo<ThemeColors>(() => {
+  // The store's own colour (brand kit or a changed primary) also drives the
+  // --brand-* tokens themes paint their signature areas with (brandColor.ts);
+  // null for a store that kept the theme's colour, so nothing changes there.
+  const { lightPalette, ownColor } = useMemo(() => {
     const palette: ThemeColors = {
       ...manifest.colors,
       ...(overrides?.settings?.colors as Partial<ThemeColors>),
@@ -630,7 +634,7 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
       brandSource,
     );
     if (primary.source === 'brand' && primary.color) palette[BRAND_COLOR_TOKEN] = primary.color;
-    return palette;
+    return { lightPalette: palette, ownColor: primary.source === 'default' ? null : primary.color ?? null };
   }, [manifest, overrides, brandSource]);
 
   const merged = useMemo<MergedThemeSettings>(() => {
@@ -802,10 +806,15 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
       ...(manifest.colorsDark || {}),
     };
 
-    const colorVars = (palette: ThemeColors) =>
-      Object.entries(palette)
-        .map(([key, value]) => `  --color-${key}: ${value};`)
-        .join('\n');
+    // `--color-on-primary`: readable text on the primary colour, whatever it
+    // is (a light store colour gets dark text on its buttons).
+    const colorVars = (palette: ThemeColors) => {
+      const onPrimary = brandPalette((palette as Record<string, string>)[BRAND_COLOR_TOKEN])?.contrast;
+      return [
+        ...Object.entries(palette).map(([key, value]) => `  --color-${key}: ${value};`),
+        ...(onPrimary ? [`  --color-on-primary: ${onPrimary};`] : []),
+      ].join('\n');
+    };
 
     const typoVars: string[] = [];
     if (merged.typography.fontFamily) typoVars.push(`  --font-family: ${merged.typography.fontFamily};`);
@@ -830,7 +839,7 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
       typeof merged.global?.border_radius === 'number' ? merged.global.border_radius : undefined,
     ).join('\n');
 
-    const css = `:root {\n${activeVars}\n${typoVars.join('\n')}\n${tokenVars}\n}\n` +
+    const css = `:root {\n${activeVars}\n${typoVars.join('\n')}\n${tokenVars}\n${brandCssVars(ownColor)}\n}\n` +
       `[data-color-mode="dark"] {\n${darkScopedVars}\n}\n` +
       `[data-color-mode="light"] {\n${lightScopedVars}\n}\n` +
       // `overflow-x: clip` is a global safety net against accidental
@@ -879,7 +888,7 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
       style?.remove();
       document.documentElement.removeAttribute('data-color-mode');
     };
-  }, [manifest, overrides, lightPalette, merged.colors, merged.typography, merged.layout, merged.colorMode]);
+  }, [manifest, overrides, lightPalette, ownColor, merged.colors, merged.typography, merged.layout, merged.colorMode]);
 
   const getSections = (template: keyof ThemeManifest['templates']): SectionInstance[] => {
     // Allow themes to expose multiple homepage layouts. When a theme setting

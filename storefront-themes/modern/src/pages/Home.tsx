@@ -92,6 +92,13 @@ const Home: React.FC = () => {
   const { products: featured, loading: featuredLoading } = useFeaturedProducts(feat.product_limit || 8);
   const { products: newArrivals, loading: newLoading } = useProducts({ sort: 'newest', limit: arrivals.product_limit || 8 });
   const { categories } = useCategories();
+  // Hero photo: the merchant's own, else a featured (then newest) product
+  // photo, else the theme's stock photo — and while products load, an empty
+  // frame rather than a stock photo that would be swapped a moment later.
+  const heroOwnImage = merchantImage(hero.background_image);
+  const productPhoto = (list: Product[]) => list.find((p) => p.images?.[0])?.images?.[0];
+  const heroProductPhoto = productPhoto(featured) || (featuredLoading ? undefined : productPhoto(newArrivals));
+  const heroPhotoPending = !heroOwnImage && !heroProductPhoto && (featuredLoading || newLoading);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   // Animate sections on scroll
@@ -165,9 +172,9 @@ const Home: React.FC = () => {
           subtitle={merchantText(hero.subheading) || undefined}
           primaryCta={{ label: merchantText(hero.primary_button_text) || t('theme.section.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
           secondaryCta={secondaryText ? { label: secondaryText, href: hero.secondary_button_url || '/categories' } : undefined}
-          backgroundImage={merchantImage(hero.background_image) || undefined}
-          media={featured?.find((p) => p.images?.[0])?.images?.[0]}
-          defaultImage={HERO_DEFAULT_IMAGE}
+          backgroundImage={heroOwnImage || undefined}
+          media={heroProductPhoto}
+          defaultImage={heroPhotoPending ? undefined : HERO_DEFAULT_IMAGE}
         />
       );
       // Slide 2 — Sale, only when the merchant wrote one (no demo sale copy
@@ -229,14 +236,16 @@ const Home: React.FC = () => {
       />
     ),
 
-    'featured-products': () => (
+    // Only for stores with featured products — nothing while they load or
+    // when none are marked.
+    'featured-products': () => !featuredLoading && featured.length > 0 && (
       <section
         ref={featuredRef as React.RefObject<HTMLElement>}
         className={`max-w-7xl mx-auto px-4 sm:px-6 py-16 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       >
         <ProductCarousel
           products={featured}
-          loading={featuredLoading}
+          loading={false}
           heading={feat.heading || t('theme.section.featured-products.heading')}
           subheading={feat.subheading || undefined}
           viewAllHref={feat.view_all_url || '/products'}
@@ -252,7 +261,7 @@ const Home: React.FC = () => {
     ),
 
     'trust-badges': () => trust.show_section !== false && trustItems.length > 0 && (
-      <section style={{ backgroundColor: trust.background_color || 'var(--color-muted-background, #f9fafb)' }}>
+      <section style={{ backgroundColor: trust.background_color && trust.background_color !== '#f9fafb' ? trust.background_color : 'var(--brand-soft, #f9fafb)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {trustItems.map((item) => {
@@ -270,7 +279,7 @@ const Home: React.FC = () => {
                     borderColor: 'var(--color-border, #e5e7eb)',
                   }}
                 >
-                  <div className="shrink-0" style={{ color: trust.accent_color || 'var(--color-primary, #2563eb)' }}>{iconSvgs[item.icon] || (item.lineIcon ? <TrustLineIconSvg name={item.lineIcon} className="w-8 h-8" /> : iconSvgs.shipping)}</div>
+                  <div className="shrink-0" style={{ color: trust.accent_color && trust.accent_color !== '#2563eb' ? trust.accent_color : 'var(--brand-ink, #2563eb)' }}>{iconSvgs[item.icon] || (item.lineIcon ? <TrustLineIconSvg name={item.lineIcon} className="w-8 h-8" /> : iconSvgs.shipping)}</div>
                   <div>
                     {item.title && <h3 className="font-semibold" style={{ color: 'var(--color-foreground, #111827)' }}>{item.title}</h3>}
                     {item.description && <p className="text-sm" style={{ color: 'var(--color-muted, #6b7280)' }}>{item.description}</p>}
@@ -326,11 +335,12 @@ const Home: React.FC = () => {
         className="py-20"
         style={{
           background: news.use_gradient !== false
-            ? `linear-gradient(135deg, var(--color-primary, #2563eb) 0%, var(--color-secondary, #1e40af) 100%)`
+            ? `linear-gradient(135deg, var(--brand, var(--color-primary, #2563eb)) 0%, var(--brand-strong, var(--color-secondary, #1e40af)) 100%)`
             : news.background_color || '#2563eb',
+          color: news.use_gradient !== false ? 'var(--brand-contrast, #fff)' : '#fff',
         }}
       >
-        <div className="max-w-2xl mx-auto px-4 text-center text-white">
+        <div className="max-w-2xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-2">{news.heading || t('theme.section.newsletter.heading')}</h2>
           <p className="opacity-90 mb-8">{news.subheading || t('theme.section.newsletter.subheading')}</p>
           <form className="flex gap-2 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>

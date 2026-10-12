@@ -308,8 +308,8 @@
         "description": "An outbound webhook to an external service failed repeatedly."
       },
       "domain_verification_failed": {
-        "label": "Domain verification failed",
-        "description": "Custom domain DNS or SSL verification failed."
+        "label": "Own link verification failed",
+        "description": "DNS or security certificate check failed for your own link."
       },
       "staff_invite_accepted": {
         "label": "Staff invite accepted",

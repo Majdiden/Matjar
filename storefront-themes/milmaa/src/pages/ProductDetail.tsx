@@ -188,7 +188,7 @@ const ProductDetail: React.FC = () => {
           {/* Info */}
           <div>
             {product.categories?.[0] && (
-              <div className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.3em] uppercase font-bold mb-3" style={{ color: TEAL }}>
+              <div className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.3em] uppercase font-bold mb-3" style={{ color: 'var(--brand-ink, var(--color-primary))' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 shrink-0"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6" /></svg>
                 {product.categories[0].name}
               </div>

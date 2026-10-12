@@ -1,8 +1,8 @@
 {
   "list": {
-    "title": "Domains",
-    "subtitle": "The web addresses people use to visit your store.",
-    "copy_aria": "Copy address",
+    "title": "Store link",
+    "subtitle": "The link customers use to open your store. Share it on WhatsApp and social media.",
+    "copy_aria": "Copy link",
     "hero": {
       "live_at": "Your store is live at",
       "copy": "Copy",
@@ -10,39 +10,39 @@
       "manage": "Manage"
     },
     "platform": {
-      "title": "Free platform address",
-      "badge_main": "Main address",
-      "description": "Always available. No DNS setup needed. Free forever.",
-      "rename": "Rename",
-      "copy_aria": "Copy address",
+      "title": "Your free link",
+      "badge_main": "Main link",
+      "description": "Always works, free, nothing to set up.",
+      "rename": "Change link",
+      "copy_aria": "Copy link",
       "visit_aria": "Visit store",
-      "not_primary": "Not currently your main address.",
-      "use_as_main": "Use as main address"
+      "not_primary": "Not your store's main link right now.",
+      "use_as_main": "Make it the main link"
     },
     "custom": {
-      "section_title": "Your custom domains",
-      "section_hint": "Connect a domain you already own — we'll handle the security certificate automatically.",
+      "section_title": "Your own links",
+      "section_hint": "Bought a web name (a domain) like mystore.com? Connect it here and we take care of security.",
       "add_another": "Add another",
-      "main_address_badge": "Main address",
-      "use_as_main": "Use as main address",
+      "main_address_badge": "Main link",
+      "use_as_main": "Make it the main link",
       "visit": "Visit",
       "remove": "Remove"
     },
     "empty": {
-      "title": "No custom domains yet",
-      "hint": "Connect a domain like mystore.com to give your store a professional address. We'll handle the SSL certificate automatically.",
-      "action": "Connect a domain"
+      "title": "No link of your own yet",
+      "hint": "Connect a web name you bought (a domain) like mystore.com to use it as your store link. We set up the security certificate for you.",
+      "action": "Connect your own link"
     },
     "plan_gate": {
-      "title": "Custom domains are a Pro feature",
-      "hint": "You're on the {{plan}} plan. Upgrade to connect a domain you already own.",
+      "title": "Your own link is a Pro feature",
+      "hint": "You are on the {{plan}} plan. Upgrade to connect a web name you own.",
       "upgrade": "Upgrade plan"
     },
     "action": {
-      "connect": "Connect a domain"
+      "connect": "Connect your own link"
     },
     "column": {
-      "address": "Address",
+      "address": "Link",
       "status": "Status"
     }
   },
@@ -59,14 +59,14 @@
       "disabled": "Disabled"
     },
     "description": {
-      "active": "Your store is serving visitors at this address.",
+      "active": "Your store opens at this link.",
       "pending_dns": "Add the DNS records shown below at your domain provider. This proves you own the domain.",
       "ownership_verified": "Ownership confirmed. Now checking that your domain points to our servers.",
       "dns_verified": "DNS is pointing at us. Preparing to issue an SSL certificate.",
       "provisioning_ssl": "This usually takes a few minutes. You don't need to do anything.",
       "ssl_failed": "We weren't able to get a security certificate for this domain. You can try again.",
       "dns_misconfigured": "Your DNS records changed and no longer point to our servers. Update them and re-check.",
-      "disabled": "This domain is turned off and not serving traffic."
+      "disabled": "This link is turned off and does not open your store."
     },
     "issued_valid": "Issued & valid",
     "issued_on": "Issued on",
@@ -98,15 +98,15 @@
     "live": "Live"
   },
   "add": {
-    "title_input": "Add a custom domain",
+    "title_input": "Connect your own link",
     "title_verify": "Verify domain ownership",
-    "title_done": "Domain connected",
-    "description_input": "Connect a hostname you own to this store.",
+    "title_done": "Link connected",
+    "description_input": "Type the web name you bought (your domain) to connect it to your store.",
     "description_verify": "Add the DNS records below, then click verify.",
     "description_done": "SSL certificate is being issued. You can close this dialog.",
     "field": {
       "hostname": {
-        "label": "Hostname",
+        "label": "Your web name",
         "placeholder": "shop.mystore.com",
         "hint": "Enter without http:// or https://."
       }
@@ -119,7 +119,7 @@
     "propagation_hint_1": "DNS propagation usually takes 5–30 minutes, sometimes longer.",
     "propagation_hint_2": "After the records resolve globally, click Verify.",
     "verified_message": "{{hostname}} is verified",
-    "ssl_progress": "SSL issuance is in progress. You can track status in the domains list.",
+    "ssl_progress": "Issuing the security certificate. You can follow it on the Store link page.",
     "step": {
       "domain": "Domain",
       "verify": "Verify",
@@ -139,20 +139,20 @@
     }
   },
   "subdomain_dialog": {
-    "title": "Change your free address",
+    "title": "Change your free link",
     "description": "This will change the slug used for your free {{suffix}} address. Any bookmarks to your old address will stop working.",
     "field": {
       "new_address": {
-        "label": "New address"
+        "label": "New link"
       }
     },
     "toast": {
-      "updated": "Address updated",
-      "error": "Failed to update address"
+      "updated": "Link updated",
+      "error": "Could not update the link"
     }
   },
   "toast": {
-    "set_primary": "{{hostname}} is now your main storefront address",
+    "set_primary": "{{hostname}} is now your store's main link",
     "error_primary": "Failed to update main address",
     "retry_ssl": "Retrying setup for {{hostname}}",
     "error_retry": "Retry failed",
@@ -161,12 +161,12 @@
     "removed": "{{hostname}} removed",
     "error_remove": "Failed to remove domain",
     "error_load": "Failed to load domains",
-    "address_copied": "Address copied",
+    "address_copied": "Link copied",
     "target_copied": "Target copied"
   },
   "confirm": {
     "remove_title": "Remove {{hostname}}?",
     "remove_description": "Your store will stop responding at this address and the security certificate will be revoked. You can add the domain back later.",
-    "remove_confirm": "Remove domain"
+    "remove_confirm": "Remove link"
   }
 }

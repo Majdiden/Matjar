@@ -180,7 +180,7 @@ export const CategoryShowcase = React.forwardRef<HTMLElement, CategoryShowcasePr
             <span
               aria-hidden="true"
               className={cn('mb-4 block h-[3px] w-12 rounded-[var(--radius-pill,9999px)]', !alignStart && 'mx-auto')}
-              style={{ background: 'linear-gradient(90deg, var(--color-primary, #2563eb), var(--color-accent, #f59e0b))' }}
+              style={{ background: 'linear-gradient(90deg, var(--brand, var(--color-primary, #2563eb)), var(--color-accent, #f59e0b))' }}
             />
             <h2
               className="text-3xl font-bold tracking-tight text-balance sm:text-4xl"

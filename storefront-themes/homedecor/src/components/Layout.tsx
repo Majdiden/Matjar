@@ -3,7 +3,7 @@ import { Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
-import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
+import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { Drawer } from '@matjar/theme-shared/components/primitives/Drawer';
@@ -17,14 +17,19 @@ import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 
+/** Manifest default of `announcement_bg`. */
+const STRIP_DEFAULT_BG = '#2d2d2d';
+
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
   const topStripText = useTopStripText();
   const footer = useStoreFooter();
   const stripBg = useThemeSetting<string>('announcement_bg');
+  // The strip takes the store colour (PBI 10-39) unless the merchant picked
+  // its own strip colour (anything but the manifest default).
+  const stripOwnColor = !!stripBg && stripBg.trim().toLowerCase() !== STRIP_DEFAULT_BG;
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
-  const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
   // Store-managed header nav. When present (new stores ship a seeded
   // "header" menu) it drives the nav; while loading/empty (older stores)
@@ -42,8 +47,10 @@ const Layout: React.FC = () => {
       {topStripText && (
         <div
           data-section-id={TOP_STRIP_ANCHOR}
-          className="min-h-9 px-6 py-2 flex items-center justify-center text-center text-xs tracking-[0.2em] text-[#d4a76a]"
-          style={{ backgroundColor: stripBg || '#2d2d2d' }}
+          className="min-h-9 px-6 py-2 flex items-center justify-center text-center text-xs tracking-[0.2em]"
+          style={stripOwnColor
+            ? { backgroundColor: stripBg, color: '#d4a76a' }
+            : { backgroundColor: `var(--brand, ${STRIP_DEFAULT_BG})`, color: 'var(--brand-contrast, #d4a76a)' }}
         >
           {topStripText}
         </div>
@@ -54,11 +61,11 @@ const Layout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-18 py-4">
             {/* Logo with house icon */}
-            <Link to="/" className="flex items-center gap-2 text-xl font-semibold tracking-wide text-gray-800">
-              <svg className="w-5 h-5 text-[#d4a76a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Link to="/" className="flex items-center gap-2 min-w-0 text-xl font-semibold tracking-wide text-gray-800">
+              <svg className="w-5 h-5 shrink-0 text-[var(--brand-ink,#d4a76a)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              {store?.name || 'HomeDecor'}
+              <span className="truncate">{store?.name || 'HomeDecor'}</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -97,17 +104,12 @@ const Layout: React.FC = () => {
                 <LanguageSwitcher />
               </div>
 
-              {/* Wishlist — desktop only */}
-              <Link to="/wishlist" className="relative text-gray-500 hover:text-gray-900 hidden md:block" aria-label={t('common:aria.wishlist')}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                </svg>
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-2 -end-2 w-4 h-4 bg-[#d4a76a] text-[#2d2d2d] text-[10px] rounded-full flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
+              {/* Wishlist — on every screen size (phones too) */}
+              <WishlistHeaderLink
+                className="relative inline-flex h-10 w-10 md:h-auto md:w-auto items-center justify-center text-gray-500 hover:text-gray-900"
+                iconClassName="w-5 h-5"
+                badgeClassName="absolute top-0 end-0 md:-top-2 md:-end-2 min-w-[16px] h-4 px-0.5 bg-[var(--brand,#d4a76a)] text-[var(--brand-contrast,#2d2d2d)] text-[10px] rounded-full flex items-center justify-center"
+              />
 
               {/* Cart — desktop only */}
               <button onClick={openCart} className="relative text-gray-500 hover:text-gray-900 hidden md:block" aria-label={t('common:aria.cart')}>
@@ -115,7 +117,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {cart && cart.itemCount > 0 && (
-                  <span className="absolute -top-2 -end-2 w-4 h-4 bg-[#d4a76a] text-[#2d2d2d] text-[10px] rounded-full flex items-center justify-center">
+                  <span className="absolute -top-2 -end-2 w-4 h-4 bg-[var(--brand,#d4a76a)] text-[var(--brand-contrast,#2d2d2d)] text-[10px] rounded-full flex items-center justify-center">
                     {cart.itemCount}
                   </span>
                 )}
@@ -139,7 +141,7 @@ const Layout: React.FC = () => {
       <main className="flex-1"><Outlet /></main>
 
       {/* 3-Column Footer */}
-      <footer className="bg-[#2d2d2d] text-gray-300 py-14">
+      <footer className="bg-[var(--brand-strong,#2d2d2d)] text-[var(--brand-contrast,#d1d5db)] py-14">
         <div className="max-w-7xl mx-auto px-6">
           <div className={`grid grid-cols-1 ${footer.policies.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8 mb-8`}>
             <div>
@@ -148,10 +150,10 @@ const Layout: React.FC = () => {
                   <img src={footer.logo} alt={footer.storeName} className="h-8 w-auto object-contain" />
                 ) : (
                   <>
-                    <svg className="w-5 h-5 text-[#d4a76a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-[var(--brand-contrast,#d4a76a)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    <h3 className="text-white font-semibold text-lg">{footer.storeName}</h3>
+                    <h3 className="text-[var(--brand-contrast,#fff)] font-semibold text-lg">{footer.storeName}</h3>
                   </>
                 )}
               </div>
@@ -165,7 +167,7 @@ const Layout: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={s.name}
-                      className="text-gray-400 hover:text-[#d4a76a] transition"
+                      className="text-[var(--brand-contrast,#9ca3af)] hover:text-[var(--brand-contrast,#d4a76a)] transition"
                     >
                       <SocialIcon platform={s.platform} className="w-5 h-5" />
                     </a>
@@ -174,33 +176,33 @@ const Layout: React.FC = () => {
               )}
             </div>
             <div>
-              <h4 className="text-white text-sm font-semibold mb-3">{footer.titles.shop}</h4>
+              <h4 className="text-[var(--brand-contrast,#fff)] text-sm font-semibold mb-3">{footer.titles.shop}</h4>
               <div className="space-y-2 text-sm">
                 {footer.shop.map((l) => (
-                  <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>
+                  <Link key={l.to} to={l.to} className="block hover:text-[var(--brand-contrast,#fff)] transition">{l.label}</Link>
                 ))}
               </div>
             </div>
             <div>
-              <h4 className="text-white text-sm font-semibold mb-3">{footer.titles.help}</h4>
+              <h4 className="text-[var(--brand-contrast,#fff)] text-sm font-semibold mb-3">{footer.titles.help}</h4>
               <div className="space-y-2 text-sm">
                 {footer.help.map((l) => (
-                  <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>
+                  <Link key={l.to} to={l.to} className="block hover:text-[var(--brand-contrast,#fff)] transition">{l.label}</Link>
                 ))}
               </div>
             </div>
             {footer.policies.length > 0 && (
               <div>
-                <h4 className="text-white text-sm font-semibold mb-3">{footer.titles.policies}</h4>
+                <h4 className="text-[var(--brand-contrast,#fff)] text-sm font-semibold mb-3">{footer.titles.policies}</h4>
                 <div className="space-y-2 text-sm">
                   {footer.policies.map((l) => (
-                    <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>
+                    <Link key={l.to} to={l.to} className="block hover:text-[var(--brand-contrast,#fff)] transition">{l.label}</Link>
                   ))}
                 </div>
               </div>
             )}
           </div>
-          <div className="border-t border-gray-700 pt-6 text-center text-xs">
+          <div className="border-t border-[var(--brand,#374151)] pt-6 text-center text-xs">
             {footer.copyright}
           </div>
         </div>

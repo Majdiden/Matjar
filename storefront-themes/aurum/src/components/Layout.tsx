@@ -3,7 +3,6 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
-import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
@@ -15,6 +14,7 @@ import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
+import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
 
 /**
  * Aurum Layout — dark editorial luxury chrome.
@@ -56,7 +56,6 @@ const Layout: React.FC = () => {
   const { t } = useTranslation(['theme', 'common']);
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
-  const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
   // Store-managed header nav; while loading/empty fall back to the
   // category list so the nav never disappears.
@@ -104,7 +103,7 @@ const Layout: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-night text-ink">
       {/* ═══ ANNOUNCEMENT BAR ════════════════════════════════════ */}
       {barText && (
-        <div data-section-id={TOP_STRIP_ANCHOR} className="bg-night text-[10px] tracking-[0.3em] uppercase text-gold py-2.5 text-center px-4">
+        <div data-section-id={TOP_STRIP_ANCHOR} className="bg-[var(--brand,var(--color-background,#141414))] text-[10px] tracking-[0.3em] uppercase text-[var(--brand-contrast,var(--color-accent,#c8a24b))] py-2.5 text-center px-4">
           {barText}
         </div>
       )}
@@ -170,20 +169,20 @@ const Layout: React.FC = () => {
               <Link to="/account" className="hidden md:block text-mute hover:text-ink transition-colors">
                 {t('theme.header.account')}
               </Link>
-              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="relative text-mute hover:text-ink transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.4}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                </svg>
-                {(wishlistCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-2 min-w-[16px] h-4 px-1 bg-gold text-night text-[9px] rounded-full flex items-center justify-center font-semibold">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
+<WishlistHeaderLink
+                className="relative inline-flex h-10 w-10 -mx-3 items-center justify-center text-mute hover:text-ink transition-colors"
+                iconClassName="w-4 h-4"
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.4} aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
+                }
+                badgeClassName="absolute top-0.5 end-0.5 min-w-[16px] h-4 px-1 bg-[var(--brand,var(--color-accent,#c8a24b))] text-[var(--brand-contrast,var(--color-background,#141414))] text-[9px] rounded-full flex items-center justify-center font-semibold"
+              />
               <button onClick={openCart} className="relative text-mute hover:text-ink transition-colors uppercase tracking-[0.15em]">
                 {t('theme.header.cart')}
                 {(cart?.itemCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-3.5 min-w-[16px] h-4 px-1 bg-gold text-night text-[9px] rounded-full flex items-center justify-center font-semibold">
+                  <span className="absolute -top-2 -end-3.5 min-w-[16px] h-4 px-1 bg-[var(--brand,var(--color-accent,#c8a24b))] text-[var(--brand-contrast,var(--color-background,#141414))] text-[9px] rounded-full flex items-center justify-center font-semibold">
                     {cart?.itemCount}
                   </span>
                 )}
@@ -212,9 +211,9 @@ const Layout: React.FC = () => {
       {/* ═══ FOOTER ══════════════════════════════════════════════ */}
       <footer className="mt-28 border-t border-line">
         {/* Giant wordmark */}
-        {footerWordmark && <div className="overflow-hidden select-none py-8 md:py-12" aria-hidden>
+        {footerWordmark && <div className="overflow-hidden select-none py-8 md:py-12 bg-[var(--brand,transparent)]" aria-hidden>
           <div
-            className="font-display leading-[0.95] uppercase text-center whitespace-nowrap text-ink/90"
+            className="font-display leading-[0.95] uppercase text-center whitespace-nowrap text-[var(--brand-contrast,var(--color-foreground,#f4f1ea))]"
             style={{
               fontFamily: 'var(--font-family-heading)',
               // Scale to the brand's length so a long name (e.g. "AURUM

@@ -15,6 +15,7 @@ import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
+import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
 
 /**
  * Glowing Layout — ultra minimalist cosmetics chrome.
@@ -53,7 +54,7 @@ const Layout: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-white text-neutral-900">
       {/* ═══ TOP STRIP ═══════════════════════════════════════════ */}
       {stripText && (
-        <div data-section-id={TOP_STRIP_ANCHOR} className="bg-black text-white text-[11px] tracking-[0.18em] font-medium py-2.5 text-center">
+        <div data-section-id={TOP_STRIP_ANCHOR} className="bg-[var(--brand,#000)] text-[var(--brand-contrast,#fff)] text-[11px] tracking-[0.18em] font-medium py-2.5 text-center">
           {stripText}
         </div>
       )}
@@ -73,7 +74,7 @@ const Layout: React.FC = () => {
             </Link>
 
             {/* End: search (desktop) / language (desktop) / account / wishlist / cart / hamburger (mobile) */}
-            <div className="flex items-center gap-5 text-neutral-700">
+            <div className="flex items-center gap-3 md:gap-5 text-neutral-700">
               {/* Desktop search bar */}
               <div className="hidden md:block w-56">
                 <SearchBar variant="expanded" />
@@ -92,7 +93,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
                 {(wishlistCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 bg-black text-white text-[10px] rounded-full flex items-center justify-center font-semibold">
+                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 bg-[var(--brand,#000)] text-[var(--brand-contrast,#fff)] text-[10px] rounded-full flex items-center justify-center font-semibold">
                     {wishlistCount}
                   </span>
                 )}
@@ -102,16 +103,22 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
                 {(cart?.itemCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 bg-black text-white text-[10px] rounded-full flex items-center justify-center font-semibold">
+                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 bg-[var(--brand,#000)] text-[var(--brand-contrast,#fff)] text-[10px] rounded-full flex items-center justify-center font-semibold">
                     {cart?.itemCount}
                   </span>
                 )}
               </button>
+              {/* Wishlist — phones (desktop keeps the icon row above) */}
+              <WishlistHeaderLink
+                className="relative md:hidden inline-flex h-10 w-10 items-center justify-center text-neutral-700 hover:text-black"
+                iconClassName="w-5 h-5"
+                badgeClassName="absolute top-0.5 end-0.5 min-w-[16px] h-4 px-1 bg-[var(--brand,#000)] text-[var(--brand-contrast,#fff)] text-[10px] rounded-full flex items-center justify-center font-semibold"
+              />
               {/* Hamburger — mobile only, opposite end from the wordmark */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-label={t('common:aria.menu')}
-                className="md:hidden text-neutral-700"
+                className="md:hidden inline-flex h-10 w-10 -me-2 items-center justify-center text-neutral-700"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
@@ -161,7 +168,7 @@ const Layout: React.FC = () => {
       </main>
 
       {/* ═══ FOOTER ══════════════════════════════════════════════ */}
-      <footer className="mt-24 bg-white border-t border-neutral-100 pt-16 pb-8">
+      <footer className="mt-24 bg-[var(--brand-soft,#fff)] border-t border-neutral-100 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             {footer.logo ? (

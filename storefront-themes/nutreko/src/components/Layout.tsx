@@ -15,6 +15,7 @@ import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
+import { WishlistHeaderLink } from '@matjar/theme-shared';
 
 /**
  * Nutreko Layout — bold black header with lime accent.
@@ -25,7 +26,11 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
  */
 
 const DARK = 'var(--color-secondary)';
-const LIME = 'var(--color-primary)';
+// Store colour (PBI 10-39) on the lime signature areas; lime without one.
+const LIME = 'var(--brand, var(--color-primary))';
+const ON_LIME = 'var(--brand-contrast, var(--color-secondary))';
+// Store colour as text on the black header/footer (lightened so dark colours stay readable).
+const LIME_ON_DARK = 'var(--nk-brand-on-dark, var(--color-primary))';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
@@ -54,7 +59,7 @@ const Layout: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-white" style={{ color: DARK }}>
       {/* ═══ TOP STRIP (lime) ══════════════════════════════════════ */}
       {barText && (
-        <div data-section-id={TOP_STRIP_ANCHOR} className="text-[11px] tracking-[0.2em] font-bold py-2.5" style={{ backgroundColor: LIME, color: DARK }}>
+        <div data-section-id={TOP_STRIP_ANCHOR} className="text-[11px] tracking-[0.2em] font-bold py-2.5" style={{ backgroundColor: LIME, color: ON_LIME }}>
           <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-8">
             <span className="flex items-center gap-2"><svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg>{barText}</span>
           </div>
@@ -79,17 +84,17 @@ const Layout: React.FC = () => {
             {/* Wordmark */}
             <Link
               to="/"
-              className="font-display text-3xl md:text-4xl tracking-tighter"
+              className="font-display text-3xl md:text-4xl tracking-tighter min-w-0 flex-1 truncate text-center md:flex-none md:text-start"
               style={{ fontFamily: 'var(--font-family-heading)' }}
             >
-              {brand}<span style={{ color: LIME }}>.</span>
+              {brand}<span style={{ color: LIME_ON_DARK }}>.</span>
             </Link>
 
             {/* Nav (hidden on mobile) */}
             <nav className="hidden md:flex items-center gap-7 text-[12px] tracking-[0.15em] uppercase font-bold">
               {hasMenu ? (
                 menuItems.map((item) => {
-                  const cls = 'hover:text-[var(--color-primary)]';
+                  const cls = 'hover:text-[var(--nk-brand-on-dark,var(--color-primary))]';
                   const href = itemHref(item);
                   return isExternal(item) ? (
                     <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" className={cls}>{item.label}</a>
@@ -99,48 +104,55 @@ const Layout: React.FC = () => {
                 })
               ) : (
                 <>
-                  <Link to="/" className={isActive('/') && location.pathname === '/' ? 'text-[var(--color-primary)]' : 'hover:text-[var(--color-primary)]'}>{t('theme.nav.home')}</Link>
-                  <Link to="/products" className={isActive('/products') ? 'text-[var(--color-primary)]' : 'hover:text-[var(--color-primary)]'}>{t('theme.nav.shop_all')}</Link>
+                  <Link to="/" className={isActive('/') && location.pathname === '/' ? 'text-[var(--nk-brand-on-dark,var(--color-primary))]' : 'hover:text-[var(--nk-brand-on-dark,var(--color-primary))]'}>{t('theme.nav.home')}</Link>
+                  <Link to="/products" className={isActive('/products') ? 'text-[var(--nk-brand-on-dark,var(--color-primary))]' : 'hover:text-[var(--nk-brand-on-dark,var(--color-primary))]'}>{t('theme.nav.shop_all')}</Link>
                   {categories.slice(0, 4).map((cat) => (
-                    <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[var(--color-primary)]">
+                    <Link key={cat._id} to={`/categories/${cat.slug}`} className="hover:text-[var(--nk-brand-on-dark,var(--color-primary))]">
                       {cat.name}
                     </Link>
                   ))}
-                  <Link to="/about" className="hover:text-[var(--color-primary)]">{t('theme.nav.about')}</Link>
+                  <Link to="/about" className="hover:text-[var(--nk-brand-on-dark,var(--color-primary))]">{t('theme.nav.about')}</Link>
                 </>
               )}
             </nav>
 
             {/* Icons (desktop only — mobile uses the drawer + bottom nav) */}
             <div className="hidden md:flex items-center gap-4 md:gap-5 text-white">
-              <LanguageSwitcher className="text-white hover:text-[var(--color-primary)]" />
-              <SearchBar variant="compact" className="text-white hover:text-[var(--color-primary)] hover:bg-white/10" />
-              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="relative hover:text-[var(--color-primary)] hidden md:block">
+              <LanguageSwitcher className="text-white hover:text-[var(--nk-brand-on-dark,var(--color-primary))]" />
+              <SearchBar variant="compact" className="text-white hover:text-[var(--nk-brand-on-dark,var(--color-primary))] hover:bg-white/10" />
+              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="relative hover:text-[var(--nk-brand-on-dark,var(--color-primary))] hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
                 {wishlistItems.length > 0 && (
-                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-black text-[10px] rounded-full flex items-center justify-center font-black" style={{ backgroundColor: LIME }}>
+                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-[10px] rounded-full flex items-center justify-center font-black" style={{ backgroundColor: LIME, color: ON_LIME }}>
                     {wishlistItems.length}
                   </span>
                 )}
               </Link>
-              <Link to="/account" aria-label={t('common:aria.account')} className="hover:text-[var(--color-primary)] hidden md:block">
+              <Link to="/account" aria-label={t('common:aria.account')} className="hover:text-[var(--nk-brand-on-dark,var(--color-primary))] hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
               </Link>
-              <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hover:text-[var(--color-primary)] hidden md:block">
+              <button onClick={openCart} aria-label={t('common:aria.cart')} className="relative hover:text-[var(--nk-brand-on-dark,var(--color-primary))] hidden md:block">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
                 {(cart?.itemCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-black text-[10px] rounded-full flex items-center justify-center font-black" style={{ backgroundColor: LIME }}>
+                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-[10px] rounded-full flex items-center justify-center font-black" style={{ backgroundColor: LIME, color: ON_LIME }}>
                     {cart?.itemCount}
                   </span>
                 )}
               </button>
             </div>
+
+            {/* Phone: wishlist heart (cart, search and account live in the bottom nav) */}
+            <WishlistHeaderLink
+              className="md:hidden relative inline-flex h-10 w-10 items-center justify-center -me-2 text-white"
+              iconClassName="w-6 h-6"
+              badgeClassName="absolute top-0 end-0 min-w-[18px] h-[18px] px-1 text-[10px] rounded-full flex items-center justify-center font-black bg-[var(--brand,var(--color-primary))] text-[var(--brand-contrast,var(--color-secondary))]"
+            />
           </div>
         </div>
 
@@ -161,7 +173,7 @@ const Layout: React.FC = () => {
                 <img src={footer.logo} alt={footer.storeName} className="h-12 w-auto mb-4 object-contain" />
               ) : (
                 <div className="font-display text-4xl mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>
-                  {brand}<span style={{ color: LIME }}>.</span>
+                  {brand}<span style={{ color: LIME_ON_DARK }}>.</span>
                 </div>
               )}
               {footer.description && (
@@ -176,7 +188,7 @@ const Layout: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={s.name}
-                      className="w-10 h-10 border-2 border-white/20 flex items-center justify-center hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition"
+                      className="w-10 h-10 border-2 border-white/20 flex items-center justify-center hover:border-[var(--brand,var(--color-primary))] hover:text-[var(--nk-brand-on-dark,var(--color-primary))] transition"
                     >
                       <SocialIcon platform={s.platform} className="w-4 h-4" />
                     </a>
@@ -192,7 +204,7 @@ const Layout: React.FC = () => {
               .filter((col) => col.links.length > 0)
               .map((col) => (
                 <div key={col.title}>
-                  <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME }}>{col.title}</h4>
+                  <h4 className="text-[11px] tracking-[0.22em] uppercase font-black mb-5" style={{ color: LIME_ON_DARK }}>{col.title}</h4>
                   <div className="space-y-3 text-sm text-white/70">
                     {col.links.map((l) => (
                       <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>

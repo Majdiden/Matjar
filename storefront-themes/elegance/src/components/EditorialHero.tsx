@@ -54,7 +54,7 @@ export default function EditorialHero({ media, sectionId = 'hero', mediaLoading 
       className="relative isolate flex min-h-[32rem] h-[82vh] max-h-[44rem] items-end overflow-hidden text-white lg:max-h-[860px]"
       style={{
         background:
-          'linear-gradient(160deg, var(--color-primary, #1a1a2e) 0%, var(--color-secondary, #c9a96e) 135%)',
+          'linear-gradient(160deg, var(--brand-strong, var(--color-primary, #1a1a2e)) 0%, var(--brand, var(--color-secondary, #c9a96e)) 135%)',
       }}
     >
       {/* Full-bleed photograph (as <img> so a 404 / CSP block drops it to the gradient) */}
@@ -82,7 +82,7 @@ export default function EditorialHero({ media, sectionId = 'hero', mediaLoading 
         <div className="max-w-2xl">
           {eyebrow && (
             <div className="flex items-center gap-3">
-              <span className="h-px w-10 bg-[var(--color-secondary,#c9a96e)]" />
+              <span className="h-px w-10 bg-[var(--brand,var(--color-secondary,#c9a96e))]" />
               <span className="text-[11px] font-medium uppercase tracking-[0.4em] text-white/90 sm:text-xs">
                 {eyebrow}
               </span>
@@ -103,7 +103,7 @@ export default function EditorialHero({ media, sectionId = 'hero', mediaLoading 
             to={ctaHref}
             className="group mt-8 inline-flex items-center gap-3 text-xs font-medium uppercase tracking-[0.28em] text-white transition-colors duration-[var(--duration-base,250ms)] sm:text-sm"
           >
-            <span className="border-b border-white/50 pb-1.5 transition-colors duration-[var(--duration-base,250ms)] group-hover:border-[var(--color-secondary,#c9a96e)]">
+            <span className="border-b border-white/50 pb-1.5 transition-colors duration-[var(--duration-base,250ms)] group-hover:border-[var(--brand,var(--color-secondary,#c9a96e))]">
               {ctaLabel}
             </span>
             <svg

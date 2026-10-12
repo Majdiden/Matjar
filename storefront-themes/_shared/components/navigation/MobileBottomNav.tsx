@@ -305,7 +305,10 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
               title={item.label}
               className="group relative grid h-12 w-16 select-none place-items-center rounded-full"
               style={{
-                color: isActive ? 'var(--color-primary, #111827)' : 'var(--color-muted, #9ca3af)',
+                // Active tab: a solid pill in the store's own colour (--brand,
+                // PBI 10-39) with its readable icon colour; stores without one
+                // keep the theme-primary tint.
+                color: isActive ? 'var(--brand-contrast, var(--color-primary, #111827))' : 'var(--color-muted, #9ca3af)',
                 WebkitTapHighlightColor: 'transparent',
               }}
             >
@@ -316,7 +319,7 @@ export function MobileBottomNav(props: MobileBottomNavProps) {
                   'mbn-hi absolute inset-1 rounded-full',
                   isActive ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
                 )}
-                style={{ background: 'color-mix(in srgb, var(--color-primary, #2563eb) 15%, transparent)' }}
+                style={{ background: 'var(--brand, color-mix(in srgb, var(--color-primary, #2563eb) 15%, transparent))' }}
               />
               {/* Icon — springs down slightly while pressed */}
               <span className="relative grid place-items-center transition-transform duration-200 ease-out group-active:scale-90 motion-reduce:transition-none motion-reduce:transform-none">

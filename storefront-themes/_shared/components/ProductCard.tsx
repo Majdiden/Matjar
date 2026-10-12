@@ -187,7 +187,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             onClick={handleAdd}
             disabled={adding || pre.ctaDisabled}
             className="w-full mt-3 inline-flex items-center justify-center text-xs font-semibold text-white px-3 py-2 min-h-[36px] rounded-[var(--radius-sm,6px)] transition-all duration-[var(--duration-fast,150ms)] hover:brightness-110 active:scale-95 disabled:opacity-50"
-            style={{ backgroundColor: 'var(--color-primary, #667eea)' }}
+            style={{ backgroundColor: 'var(--color-primary, #667eea)', color: 'var(--color-on-primary, #fff)' }}
             title={
               requiresOptions
                 ? t('select_options_hint')

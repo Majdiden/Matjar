@@ -33,9 +33,10 @@ import BeauxeProductCard from '../components/BeauxeProductCard';
  *   You may also like
  */
 
-const NAVY = 'var(--color-primary)';
+// Store colour (PBI 10-39): navy text follows it, darkened to stay readable.
+const NAVY = 'var(--brand-ink, var(--color-primary))';
 const PINK = 'var(--color-secondary)';
-const BLUSH = 'var(--color-accent)'; // blush surface, not the muted text colour
+const BLUSH = 'var(--brand-soft, var(--color-accent))'; // blush surface, not the muted text colour
 const ROSE_INK = 'var(--beauxe-rose-ink)';
 const CREAM = 'var(--color-accent)';
 
@@ -100,7 +101,7 @@ const ProductDetail: React.FC = () => {
       <div className="max-w-3xl mx-auto px-6 py-32 text-center" style={{ color: NAVY }}>
         <h1 className="font-serif text-5xl mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>{t('theme.product_detail.not_found_heading')}</h1>
         <p className="opacity-70 mb-6">{t('theme.product_detail.not_found_body')}</p>
-        <Link to="/products" className="inline-block px-8 py-3 rounded-full text-white text-[11px] tracking-[0.22em] uppercase" style={{ backgroundColor: NAVY }}>
+        <Link to="/products" className="inline-block px-8 py-3 rounded-full text-[11px] tracking-[0.22em] uppercase" style={{ backgroundColor: 'var(--brand, var(--color-primary))', color: 'var(--brand-contrast, #fff)' }}>
           {t('theme.product_detail.back_to_shop')}
         </Link>
       </div>
@@ -314,7 +315,7 @@ const ProductDetail: React.FC = () => {
                 <button
                   onClick={handleAdd}
                   disabled={!canAddToCart}
-                  className="flex-1 h-12 rounded-full bg-[color:var(--color-primary)] text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--beauxe-rose-ink)] disabled:bg-neutral-200 disabled:text-neutral-600 disabled:cursor-not-allowed transition"
+                  className="flex-1 h-12 rounded-full bg-[color:var(--brand,var(--color-primary))] text-[color:var(--brand-contrast,#fff)] text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--beauxe-rose-ink)] disabled:bg-neutral-200 disabled:text-neutral-600 disabled:cursor-not-allowed transition"
                 >
                   {needsSelection
                   ? t('product:card.options')
@@ -331,8 +332,8 @@ const ProductDetail: React.FC = () => {
                 aria-pressed={wishlisted}
                 className={`w-full h-12 rounded-full border-2 border-[color:var(--color-primary)] text-[11px] tracking-[0.22em] uppercase font-semibold transition ${
                   wishlisted
-                    ? 'bg-[color:var(--color-primary)] text-white hover:bg-white hover:text-[color:var(--color-primary)]'
-                    : 'bg-transparent text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-white'
+                    ? 'bg-[color:var(--brand,var(--color-primary))] text-[color:var(--brand-contrast,#fff)] hover:bg-white hover:text-[color:var(--brand-ink,var(--color-primary))]'
+                    : 'bg-transparent text-[color:var(--brand-ink,var(--color-primary))] hover:bg-[color:var(--brand,var(--color-primary))] hover:text-[color:var(--brand-contrast,#fff)]'
                 }`}
               >
                 {wishlisted ? t('product:wishlist.remove') : t('theme.product_detail.add_to_wishlist')}

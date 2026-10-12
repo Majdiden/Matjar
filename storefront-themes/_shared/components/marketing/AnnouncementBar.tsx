@@ -12,7 +12,7 @@ interface AnnouncementBarProps {
   linkText?: string;
   dismissible?: boolean;
   className?: string;
-  /** Background color (default: uses --color-primary) */
+  /** Background color (default: the store colour, else --color-primary) */
   bgColor?: string;
   textColor?: string;
   /** Storage key for dismiss state */
@@ -49,8 +49,10 @@ export function AnnouncementBar(props: AnnouncementBarProps) {
     <div
       className={cn('relative flex items-center justify-center px-4 py-2 text-sm font-medium', className)}
       style={{
-        backgroundColor: bgColor || 'var(--color-primary, #2563eb)',
-        color: textColor || 'white',
+        // The store's own colour (--brand, PBI 10-39) with its readable text
+        // colour; stores without one keep the theme primary on white text.
+        backgroundColor: bgColor || 'var(--brand, var(--color-primary, #2563eb))',
+        color: textColor || 'var(--brand-contrast, white)',
       }}
     >
       <span>{message}</span>

@@ -6,9 +6,12 @@ export default {
     extend: {
       colors: {
         cream: 'var(--color-background, #fcf7ee)',
-        sand: 'var(--color-accent, #ecdec1)',
+        // Store colour (PBI 10-39): sand panels take its light tint, bronze
+        // takes the colour itself (text on it: on-bronze), clay its readable ink.
+        sand: 'var(--brand-soft, var(--color-accent, #ecdec1))',
         ink: 'var(--color-foreground, #0f0f0f)',
-        bronze: 'var(--color-primary, #8f5426)',
+        bronze: 'var(--brand, var(--color-primary, #8f5426))',
+        'on-bronze': 'var(--brand-contrast, var(--color-background, #fcf7ee))',
         clay: 'var(--linen-bronze-deep, #6f3f18)',
         dune: 'var(--color-muted, #5f5a52)',
         line: 'var(--color-border, #e6dccb)',

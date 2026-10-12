@@ -68,14 +68,14 @@ const Layout: React.FC = () => {
   }, [mega, closeMega]);
 
   const iconBtn = 'relative grid h-10 w-10 place-items-center text-ink transition-colors duration-300 hover:text-clay';
-  const badge = 'absolute -end-0.5 -top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-bronze px-1 text-[10px] font-bold text-cream';
+  const badge = 'absolute -end-0.5 -top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-bronze px-1 text-[10px] font-bold text-on-bronze';
 
   return (
     <div className="flex min-h-screen flex-col bg-cream font-body text-ink">
       <a href="#linen-main" className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[100] focus:bg-ink focus:px-4 focus:py-2 focus:text-cream">{t('theme.nav.skip')}</a>
       {stripText && (
-        <div data-section-id={TOP_STRIP_ANCHOR} className="bg-ink px-4 py-2.5 text-center">
-          <p className="linen-eyebrow text-[0.7rem] text-white/85">{stripText}</p>
+        <div data-section-id={TOP_STRIP_ANCHOR} className="bg-[color:var(--brand,var(--color-foreground,#0f0f0f))] px-4 py-2.5 text-center">
+          <p className="linen-eyebrow text-[0.7rem] text-[color:var(--brand-contrast,rgb(255_255_255/0.85))]">{stripText}</p>
         </div>
       )}
 

@@ -1,7 +1,7 @@
 /**
  * Beauxe section registry — pink/cream cosmetics sections.
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@matjar/theme-shared/components/sections';
 import { useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -11,14 +11,21 @@ import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRai
 import BeauxeProductCard from '../components/BeauxeProductCard';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
-import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
+import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 
-const NAVY = 'var(--color-primary)';
-const PINK = 'var(--color-secondary)';
-const CREAM = 'var(--color-accent)';
+// Store colour (PBI 10-39): navy text/fills and the blush panels follow the
+// merchant's colour when the store has one; the theme's own palette otherwise.
+/** Navy as TEXT: the store colour darkened enough to read on light panels. */
+const NAVY = 'var(--brand-ink, var(--color-primary))';
+/** Navy as a FILL (top bar, buttons) and the text on it. */
+const NAVY_BG = 'var(--brand, var(--color-primary))';
+const ON_NAVY = 'var(--brand-contrast, #fff)';
+/** Rose accents (rules, quote marks). */
+const PINK = 'var(--brand, var(--color-secondary))';
+const CREAM = 'var(--brand-soft, var(--color-accent))';
 // Soft blush SURFACE (the manifest's "pink/cream backdrop"). Not --color-muted:
 // that is the muted TEXT colour and made the hero/banners grey-mauve.
-const BLUSH = 'var(--color-accent)';
+const BLUSH = 'var(--brand-soft, var(--color-accent))';
 const ROSE_INK = 'var(--beauxe-rose-ink)';
 
 // Niche default hero image (beauty model) — the same photo the demo seeder
@@ -30,6 +37,16 @@ const HERO_DEFAULT_IMAGE =
 // Category-tile pastel rotation (matches the manifest's default tile backgrounds).
 const TILE_TINTS = ['#f8e4e4', '#faf3ec', '#f3ddd1'];
 
+/** First photos of the store's own products (newest first) — never stock. */
+function useStoreProductPhotos(count: number) {
+  const { products, loading } = useProducts({ sort: 'newest', limit: 8 });
+  const photos = useMemo(
+    () => products.map((p: any) => p?.images?.[0]).filter((u: unknown) => !isStockImage(u)).slice(0, count) as string[],
+    [products, count],
+  );
+  return { photos, loading };
+}
+
 // ─── Top bar ──────────────────────────────────────────────────────
 
 const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
@@ -38,7 +55,7 @@ const TopBarSection: React.FC<SectionComponentProps> = ({ id }) => {
   const text = merchantText(s.text);
   if (!text) return null;
   return (
-    <div className="text-white text-[11px] tracking-[0.2em] py-2.5 text-center" style={{ backgroundColor: NAVY }}>
+    <div className="text-[11px] tracking-[0.2em] py-2.5 text-center" style={{ backgroundColor: NAVY_BG, color: ON_NAVY }}>
       {text}
       {s.link_text && (
         <Link to={s.link_url || '/products'} className="ms-3 underline hover:text-[color:var(--color-secondary)]">
@@ -55,13 +72,16 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
   const { store } = useStore();
-  // Image precedence: merchant/demo `image` setting → featured product shot →
-  // baked-in niche default. A failing URL steps to the next candidate.
-  const { products: featured } = useFeaturedProducts(1);
+  // Image precedence: the merchant's own photo → the store's product shots →
+  // (a store with no photos at all) the niche default. While the products
+  // load the frame stays a plain panel, so no stock photo flashes first.
+  // A failing URL steps to the next candidate.
   const ownPhoto = merchantImage(s.image, store?.brand?.coverImage);
-  const candidates = React.useMemo(
-    () => [ownPhoto, s.image as string, featured?.[0]?.images?.[0], HERO_DEFAULT_IMAGE].filter(Boolean) as string[],
-    [ownPhoto, s.image, featured]
+  const { photos, loading } = useStoreProductPhotos(3);
+  const pending = !ownPhoto && loading;
+  const candidates = useMemo(
+    () => (pending ? [] : [ownPhoto, ...photos, HERO_DEFAULT_IMAGE].filter(Boolean) as string[]),
+    [pending, ownPhoto, photos]
   );
   const [failed, setFailed] = React.useState<Set<string>>(() => new Set());
   const heroImage = candidates.find((src) => !failed.has(src));
@@ -94,8 +114,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
           )}
           <Link
             to={s.cta_url || '/products'}
-            className="group inline-flex items-center gap-2 px-10 py-4 rounded-full text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:opacity-90 transition"
-            style={{ backgroundColor: NAVY }}
+            className="group inline-flex items-center gap-2 px-10 py-4 rounded-full text-[11px] tracking-[0.22em] uppercase font-semibold hover:opacity-90 transition"
+            style={{ backgroundColor: NAVY_BG, color: ON_NAVY }}
           >
             {s.cta_text || t('theme.section.hero.cta')}
             <svg className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -119,7 +139,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
                 onError={() => setFailed((prev) => new Set(prev).add(heroImage))}
                 className="w-full h-full object-cover"
               />
-            ) : (
+            ) : pending ? null : (
               <div className="w-full h-full flex items-center justify-center" style={{ color: PINK }}>
                 <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
@@ -167,7 +187,7 @@ const FeatureStripSection: React.FC<SectionComponentProps> = ({ section }) => {
           const bs = b.settings || {};
           return (
             <div key={b.id} className="flex items-center gap-4 text-center md:text-start justify-center md:justify-start">
-              <svg className="w-7 h-7 shrink-0" fill="none" stroke={PINK} viewBox="0 0 24 24" strokeWidth={1.8}>
+              <svg className="w-7 h-7 shrink-0" fill="none" stroke="var(--brand-ink, var(--color-secondary))" viewBox="0 0 24 24" strokeWidth={1.8}>
                 {iconFor(bs.icon)}
               </svg>
               <div>
@@ -204,7 +224,7 @@ interface CategoryTileData {
 const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const { categories } = useCategories();
+  const { categories, loading: categoriesLoading } = useCategories();
   const blocks: any[] = (section as any)?.blocks || [];
 
   const blockTiles: CategoryTileData[] = blocks.map((b, i) => {
@@ -233,6 +253,10 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
     { id: 'c', title: t('theme.section.category_tiles.default_fragrance', { defaultValue: 'Fragrance' }), href: '/products', tint: TILE_TINTS[2] },
   ];
 
+  // While the store's categories load (and no curated image blocks decide
+  // the tiles) show plain pastel panels — no demo names swapped a moment later.
+  const pending = !blocksHaveImages && categoriesLoading;
+
   const items: CategoryTileData[] = blocksHaveImages
     ? blockTiles
     : categoryTiles.length > 0
@@ -250,7 +274,10 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
         {s.subheading && <p className="text-sm opacity-75" style={{ color: NAVY }}>{s.subheading}</p>}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {items.slice(0, 3).map((tile) => {
+        {pending && TILE_TINTS.map((tint) => (
+          <div key={tint} className="rounded-[40px] aspect-[4/5]" style={{ backgroundColor: tint }} aria-hidden="true" />
+        ))}
+        {!pending && items.slice(0, 3).map((tile) => {
           const hasImage = !!tile.image;
           return (
             <Link
@@ -279,7 +306,7 @@ const CategoryTilesSection: React.FC<SectionComponentProps> = ({ id, section }) 
                 <h3 className="font-serif text-4xl md:text-5xl mb-4" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
                   {tile.title}
                 </h3>
-                <span className="inline-block px-6 py-2 rounded-full text-[11px] tracking-[0.22em] uppercase font-semibold text-white bg-[color:var(--color-primary)] group-hover:bg-[color:var(--beauxe-rose-ink)] transition">
+                <span className="inline-block px-6 py-2 rounded-full text-[11px] tracking-[0.22em] uppercase font-semibold text-[color:var(--brand-contrast,#fff)] bg-[color:var(--brand,var(--color-primary))] group-hover:bg-[color:var(--brand-strong,var(--beauxe-rose-ink))] transition">
                   {t('theme.section.category_tiles.shop_now')} <span className="inline-block rtl:rotate-180">→</span>
                 </span>
               </div>
@@ -305,7 +332,12 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const regular = useProducts({ sort: source === 'newest' ? 'newest' : 'popular', limit });
   const { products, loading } = source === 'featured' ? featured : regular;
   // Older installs stored the English defaults as literal settings; treat them as unset.
+  // Featured shows only the store's picks: nothing while they load or when
+  // the store has none (never other products under "best sellers").
+  const hideFeatured = source === 'featured' && (loading || products.length === 0);
   const merchantHeading = LEGACY_GRID_HEADINGS.includes(String(s.heading || '').trim()) ? null : merchantText(s.heading);
+
+  if (hideFeatured) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
@@ -334,7 +366,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
       <div className="text-center mt-12">
         <Link
           to="/products"
-          className="inline-block px-10 py-4 rounded-full border-2 border-[color:var(--color-primary)] text-[color:var(--color-primary)] text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--color-primary)] hover:text-white transition"
+          className="inline-block px-10 py-4 rounded-full border-2 border-[color:var(--brand-ink,var(--color-primary))] text-[color:var(--brand-ink,var(--color-primary))] text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[color:var(--brand,var(--color-primary))] hover:border-[color:var(--brand,var(--color-primary))] hover:text-[color:var(--brand-contrast,#fff)] transition"
         >
           {t('theme.section.product_grid.view_all')} <span className="inline-block rtl:rotate-180">→</span>
         </Link>
@@ -372,8 +404,8 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
         )}
         <Link
           to={s.cta_url || '/products'}
-          className="inline-block px-10 py-4 rounded-full text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:opacity-90 transition"
-          style={{ backgroundColor: NAVY }}
+          className="inline-block px-10 py-4 rounded-full text-[11px] tracking-[0.22em] uppercase font-semibold hover:opacity-90 transition"
+          style={{ backgroundColor: NAVY_BG, color: ON_NAVY }}
         >
           {s.cta_text || t('theme.section.banner.cta')}
         </Link>

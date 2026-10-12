@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
-import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
+import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SocialIcon, WhatsAppIcon } from '@matjar/theme-shared/components/pages/PageIcon';
@@ -18,7 +18,6 @@ import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/to
 const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
-  const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
   // Store-managed header nav. When present it drives the nav; while
   // loading/empty we fall back to the category list so nav never disappears.
@@ -47,7 +46,7 @@ const Layout: React.FC = () => {
         <div
           data-section-id={TOP_STRIP_ANCHOR}
           className="min-h-9 px-4 py-2 flex items-center justify-center text-center text-xs font-medium"
-          style={{ backgroundColor: 'var(--color-primary)', color: '#ffffff' }}
+          style={{ backgroundColor: 'var(--brand, var(--color-primary))', color: 'var(--brand-contrast, #ffffff)' }}
         >
           {topStripText}
         </div>
@@ -59,15 +58,17 @@ const Layout: React.FC = () => {
         style={{
           backgroundColor: 'var(--color-background)',
           borderColor: 'var(--color-border)',
+          // A thin line in the store's colour along the top (none without one).
+          boxShadow: 'inset 0 3px 0 var(--brand, transparent)',
         }}
       >
         <div className="max-w-6xl mx-auto px-4">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between gap-3 h-14">
             <Link
               to="/"
-              className="text-lg font-bold"
+              className="min-w-0 truncate text-lg font-bold"
               style={{
-                color: 'var(--color-foreground)',
+                color: 'var(--brand-ink, var(--color-foreground))',
                 fontFamily: 'var(--font-family-heading)',
               }}
             >
@@ -97,7 +98,7 @@ const Layout: React.FC = () => {
               )}
             </nav>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               {/* Language switcher — desktop only; on mobile it lives in the drawer below */}
               <div className="hidden md:flex items-center">
                 <LanguageSwitcher />
@@ -106,27 +107,24 @@ const Layout: React.FC = () => {
               <div className="hidden md:block">
                 <SearchBar variant="compact" className="hover:opacity-80" />
               </div>
-              <Link to="/wishlist" aria-label={t('common:aria.wishlist')} className="relative hover:opacity-80 hidden md:block" style={{ color: 'var(--color-muted)' }}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                </svg>
-                {wishlistCount > 0 && (
-                  <span
-                    className="absolute -top-1.5 -end-1.5 w-4 h-4 text-white text-[10px] rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--color-primary)' }}
-                  >
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
+<WishlistHeaderLink
+                className="relative inline-flex h-10 w-10 -mx-2.5 items-center justify-center hover:opacity-80 text-[var(--color-muted)]"
+                iconClassName="w-5 h-5"
+                icon={
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
+                }
+                badgeClassName="absolute top-1 end-1 w-4 h-4 bg-[var(--brand,var(--color-primary))] text-[var(--brand-contrast,#fff)] text-[10px] rounded-full flex items-center justify-center"
+              />
               <button onClick={openCart} className="relative hover:opacity-80 hidden md:block" style={{ color: 'var(--color-muted)' }}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {cart && cart.itemCount > 0 && (
                   <span
-                    className="absolute -top-1.5 -end-1.5 w-4 h-4 text-white text-[10px] rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: 'var(--color-primary)' }}
+                    className="absolute -top-1.5 -end-1.5 w-4 h-4 text-[var(--brand-contrast,#fff)] text-[10px] rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: 'var(--brand, var(--color-primary))' }}
                   >
                     {cart.itemCount}
                   </span>
@@ -135,7 +133,7 @@ const Layout: React.FC = () => {
 
               {/* Mobile hamburger toggle */}
               <button
-                className="md:hidden hover:opacity-80"
+                className="md:hidden inline-flex h-10 w-10 -me-2 items-center justify-center hover:opacity-80"
                 style={{ color: 'var(--color-foreground)' }}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label={t('common:aria.menu')}
@@ -166,7 +164,7 @@ const Layout: React.FC = () => {
       <footer
         className="border-t py-8"
         style={{
-          backgroundColor: 'var(--color-background)',
+          backgroundColor: 'var(--brand-soft, var(--color-background))',
           borderColor: 'var(--color-border)',
         }}
       >

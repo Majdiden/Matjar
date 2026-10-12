@@ -38,7 +38,7 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
   const text = merchantText(s.text);
   if (!text) return null;
   return (
-    <div className="bg-black text-white text-[11px] tracking-[0.18em] font-medium py-2.5 text-center">
+    <div className="bg-[var(--brand,#000)] text-[var(--brand-contrast,#fff)] text-[11px] tracking-[0.18em] font-medium py-2.5 text-center">
       {text}
     </div>
   );
@@ -54,8 +54,21 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const eyebrow = merchantText(s.eyebrow);
   const heading = merchantText(s.heading) || store?.name || '';
   const sub = merchantText(s.subheading);
+  // Hero photo: the merchant's own, else a featured (then newest) product
+  // photo, else the theme's stock photo for a store with neither. While
+  // products load the arch holds a plain tint, never a stock photo first.
+  const ownImage = merchantImage(s.image, store?.brand?.coverImage);
+  const { products: featured, loading: featuredLoading } = useFeaturedProducts(4);
+  const { products: newest, loading: newestLoading } = useProducts({ sort: 'newest', limit: 4 });
+  const photoOf = (list: any[]) => merchantImage(...list.map((p) => {
+    const img = p?.images?.[0];
+    return typeof img === 'string' ? img : img?.url;
+  }));
+  const productPhoto = photoOf(featured) || (featuredLoading ? null : photoOf(newest));
+  const photoPending = !ownImage && !productPhoto && (featuredLoading || newestLoading);
+  const heroImage = ownImage || productPhoto || (photoPending ? null : s.image || GLOWING_DEFAULTS.hero);
   return (
-    <section className="relative overflow-hidden" style={{ backgroundColor: 'var(--color-accent)' }}>
+    <section className="relative overflow-hidden" style={{ backgroundColor: 'var(--brand-soft, var(--color-accent))' }}>
       {/* soft leaf decoration */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.07]" aria-hidden>
         <svg className="absolute top-10 start-10 w-64 h-64" viewBox="0 0 200 200" fill="none">
@@ -87,7 +100,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
         )}
         <Link
           to={s.cta_url || '/products'}
-          className="inline-block mt-10 px-10 py-4 bg-black text-white text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-neutral-800 transition"
+          className="inline-block mt-10 px-10 py-4 bg-[var(--brand,#000)] text-[var(--brand-contrast,#fff)] text-[11px] tracking-[0.22em] uppercase font-semibold hover:bg-[var(--brand-strong,#262626)] transition"
         >
           {s.cta_text || t('theme.hero.cta')}
         </Link>
@@ -95,13 +108,17 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
         {/* Editorial hero image — merchant's setting first, tasteful skincare
             default otherwise, so the hero is never an empty colour stage. */}
         <div className="mt-14 max-w-4xl mx-auto overflow-hidden rounded-t-[999px] rounded-b-3xl group">
-          <img
-            src={merchantImage(s.image, store?.brand?.coverImage) || s.image || GLOWING_DEFAULTS.hero}
-            alt=""
-            aria-hidden="true"
-            onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = 'none'; }}
-            className="w-full aspect-[16/9] object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-          />
+          {heroImage ? (
+            <img
+              src={heroImage}
+              alt=""
+              aria-hidden="true"
+              onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = 'none'; }}
+              className="w-full aspect-[16/9] object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            />
+          ) : (
+            <div className="w-full aspect-[16/9] bg-black/[0.04]" aria-hidden="true" />
+          )}
         </div>
       </div>
     </section>
@@ -186,6 +203,10 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const { products, loading } = source === 'featured' ? featured : regular;
   // Older installs stored the English defaults as literal settings; treat them as unset.
   const merchantHeading = LEGACY_GRID_HEADINGS.includes(String(s.heading || '').trim()) ? null : merchantText(s.heading);
+  // A featured ("best sellers") grid shows only the store's featured
+  // products: nothing while they load or when none are marked, never a
+  // stand-in list under that heading.
+  if (source === 'featured' && (loading || products.length === 0)) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
@@ -199,7 +220,7 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
         {s.subheading && (
           <p className="mt-3 text-sm text-neutral-500 max-w-md mx-auto">{s.subheading}</p>
         )}
-        <div className="w-12 h-px bg-black mx-auto mt-6" />
+        <div className="w-12 h-px bg-[var(--brand,#000)] mx-auto mt-6" />
       </div>
 
       {loading ? (
@@ -225,7 +246,7 @@ const QuoteSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   return (
-    <section className="py-24 md:py-32" style={{ backgroundColor: 'var(--color-accent)' }}>
+    <section className="py-24 md:py-32" style={{ backgroundColor: 'var(--brand-soft, var(--color-accent))' }}>
       <div className="max-w-2xl mx-auto text-center px-6">
         <p
           className="font-display text-3xl md:text-4xl leading-snug text-black italic"

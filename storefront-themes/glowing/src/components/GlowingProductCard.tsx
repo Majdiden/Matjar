@@ -101,7 +101,7 @@ export const GlowingProductCard: React.FC<Props> = ({ product, onQuickView }) =>
           <button
             type="button"
             onClick={(e) => { if (requiresOptions) return; e.preventDefault(); addItem(product._id || product.id, 1); }}
-            className="absolute bottom-0 start-0 end-0 py-3.5 bg-black text-white text-[11px] tracking-[0.22em] uppercase font-semibold translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+            className="absolute bottom-0 start-0 end-0 py-3.5 bg-[var(--brand,#000)] text-[var(--brand-contrast,#fff)] text-[11px] tracking-[0.22em] uppercase font-semibold translate-y-full group-hover:translate-y-0 transition-transform duration-300"
           >
             {requiresOptions ? t('theme.product_card.choose_options') : t('theme.product_card.add_to_cart')}
           </button>

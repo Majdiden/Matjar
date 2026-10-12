@@ -83,7 +83,7 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
           )}
         </div>
         {!list && (
-          <button type="button" onClick={add} disabled={!hasOptions && !canAdd} className="linen-card-bar absolute inset-x-0 bottom-0 h-12 w-full bg-ink text-[0.75rem] font-bold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-bronze disabled:bg-line disabled:text-dune">
+          <button type="button" onClick={add} disabled={!hasOptions && !canAdd} className="linen-card-bar absolute inset-x-0 bottom-0 h-12 w-full bg-ink text-[0.75rem] font-bold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-bronze hover:text-on-bronze disabled:bg-line disabled:text-dune">
             {cta}
           </button>
         )}

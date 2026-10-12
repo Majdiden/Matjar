@@ -19,7 +19,7 @@ const CartPage: React.FC = () => {
 
   return (
     <div>
-      <div className="bg-[#1c1c1c] px-4 py-14 text-center text-white">
+      <div className="bg-[color:var(--brand-ink,#1c1c1c)] px-4 py-14 text-center text-white">
         <h1 className="font-display text-[36px] font-medium uppercase sm:text-[44px]">{t('theme.cart.page_title')}</h1>
         <nav aria-label="Breadcrumb" className="mt-3 text-[12px] font-semibold uppercase tracking-[0.14em] text-white/80"><Link to="/" className="at-link-hover-light">{t('theme.layout.nav.home')}</Link><span className="mx-2">•</span><span>{t('theme.cart.page_title')}</span></nav>
       </div>

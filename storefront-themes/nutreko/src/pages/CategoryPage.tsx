@@ -6,7 +6,7 @@ import NutrekoProductCard from '../components/NutrekoProductCard';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 
-const LIME = 'var(--color-primary)';
+const LIME = 'var(--brand, var(--color-primary))'; // store colour (PBI 10-39), lime without one
 
 const CategoryPage: React.FC = () => {
   const { t } = useTranslation('theme');

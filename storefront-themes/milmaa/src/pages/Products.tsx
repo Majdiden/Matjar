@@ -60,7 +60,7 @@ const Products: React.FC = () => {
   return (
     <div style={{ backgroundColor: CREAM }}>
       {/* Title banner */}
-      <div className="relative overflow-hidden py-20" style={{ backgroundColor: MUTED }}>
+      <div className="relative overflow-hidden py-20" style={{ backgroundColor: 'var(--brand-soft, var(--color-muted))' }}>
         <div className="absolute -top-16 -end-16 w-64 h-64 rounded-full opacity-60" style={{ backgroundColor: PINK }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <div className="text-[11px] tracking-[0.3em] uppercase mb-3 font-bold opacity-70" style={{ color: DARK_TEAL }}>

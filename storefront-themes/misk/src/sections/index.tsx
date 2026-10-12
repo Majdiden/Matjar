@@ -105,16 +105,35 @@ const Cta: React.FC<{ to?: string; className?: string; children: React.ReactNode
 
 // ─── 1. Hero ──────────────────────────────────────────────────────
 
+/** First photos of the store's own products (newest first) — never stock. */
+function useStoreProductPhotos(count: number) {
+  const { products, loading } = useProducts({ sort: 'newest', limit: 8 });
+  const photos = useMemo(
+    () => products.map((p: any) => p?.images?.[0]).filter((u: unknown) => !isStockImage(u)).slice(0, count) as string[],
+    [products, count],
+  );
+  return { photos, loading };
+}
+
 const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const storeName = useStore().store?.name || '';
-  // Once the merchant has their own photo, extra slides still carrying a
-  // theme stock photo are dropped; slides they filled themselves stay.
-  const hasOwnPhoto = !!merchantImage(s.image);
+  const { store } = useStore();
+  const storeName = store?.name || '';
+  // Photo: the merchant's own (hero setting or cover), else a store product
+  // photo, else (a store with no photos at all) the theme's stock slides.
+  // While the products load, stock-photo frames stay a plain panel so no
+  // stock photo flashes before the store's own.
+  const firstSlide = blocksOf(section).find((b) => b.type === 'slide');
+  const ownPhoto = merchantImage(s.image, firstSlide?.settings?.image, store?.brand?.coverImage);
+  const { photos, loading: photosLoading } = useStoreProductPhotos(1);
+  const heroPhoto = ownPhoto || photos[0] || null;
+  const pendingPhoto = !ownPhoto && photosLoading;
+  // Once the store has a photo, extra slides still carrying a theme stock
+  // photo are dropped; slides the merchant filled themselves stay.
   const slides = blocksOf(section)
     .filter((b) => b.type === 'slide')
-    .filter((b, i) => !hasOwnPhoto || i === 0 || !isStockImage(b.settings?.image));
+    .filter((b, i) => !(heroPhoto || pendingPhoto) || i === 0 || !isStockImage(b.settings?.image));
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -140,7 +159,14 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   return (
     <section
       className={`relative overflow-hidden ${height}`}
-      style={{ background: s.band_color || 'var(--misk-midnight, #191528)', '--misk-hero-duration': `${interval}ms` } as React.CSSProperties}
+      style={{
+        // The shipped midnight band takes the store colour (deep enough for
+        // the white copy); a band colour the merchant picked is kept.
+        background: !s.band_color || String(s.band_color).trim().toLowerCase() === '#191528'
+          ? `var(--brand-ink, ${s.band_color || 'var(--misk-midnight, #191528)'})`
+          : s.band_color,
+        '--misk-hero-duration': `${interval}ms`,
+      } as React.CSSProperties}
       aria-roledescription="carousel"
       aria-label={storeName || undefined}
       onMouseEnter={() => pauseOnHover && setPaused(true)}
@@ -149,7 +175,9 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
       <div className={`relative mx-auto grid max-w-[1320px] ${height}`}>
         {slides.map((slide, i) => {
           // The section-level (My Store) settings override the first slide.
-          const b = i === 0 ? { ...(slide.settings || {}), ...filled(s, ['heading', 'subheading', 'image', 'cta_text']) } : slide.settings || {};
+          const b: Record<string, any> = i === 0 ? { ...(slide.settings || {}), ...filled(s, ['heading', 'subheading', 'image', 'cta_text']) } : { ...(slide.settings || {}) };
+          if (i === 0 && heroPhoto) b.image = heroPhoto;
+          const photoPending = pendingPhoto && isStockImage(b.image);
           const active = i === idx;
           // Merchant copy only: extras (eyebrow, short line) show when typed,
           // the title falls back to the store name.
@@ -164,12 +192,16 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
               className={`grid items-center gap-8 px-4 pb-24 pt-12 sm:px-6 md:grid-cols-2 md:gap-14 md:pb-28 md:pt-16 ${height} ${active ? 'relative z-10 opacity-100' : 'pointer-events-none absolute inset-0 z-0 opacity-0'} transition-opacity duration-700`}
             >
               <div className={`overflow-hidden ${imageStart ? 'md:order-1' : 'md:order-2'}`} style={{ borderRadius: radius }}>
-                <Media
-                  src={b.image}
-                  alt=""
-                  eager={i === 0}
-                  className={`aspect-[4/5] w-full object-cover ${active && s.zoom_effect !== false ? 'misk-kenburns' : ''}`}
-                />
+                {photoPending ? (
+                  <span className="block aspect-[4/5] w-full bg-white/10" aria-hidden />
+                ) : (
+                  <Media
+                    src={b.image}
+                    alt=""
+                    eager={i === 0}
+                    className={`aspect-[4/5] w-full object-cover ${active && s.zoom_effect !== false ? 'misk-kenburns' : ''}`}
+                  />
+                )}
               </div>
               <div
                 key={active ? `on-${i}` : `off-${i}`}
@@ -423,6 +455,9 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const source = s.product_source || 'newest';
   const { products, loading } = useGridProducts(source, limit, s.collection || undefined);
 
+  // Featured shows only the store's picks: nothing while they load (no
+  // heading over skeletons) and nothing when the store has none.
+  if (source === 'featured' && !s.collection && loading) return null;
   if (!loading && !products.length) return null;
 
   const cols = COLS[String(s.columns || '4')] || 'md:grid-cols-4';
