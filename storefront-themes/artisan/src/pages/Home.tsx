@@ -40,7 +40,9 @@ const ArtisanHero: React.FC<ArtisanSectionProps> = ({ id }) => {
   // Photo: the merchant's own, else a product photo; the theme's stock photo
   // only for a brand-new store with no products yet.
   const own = merchantImage(hero.background_image, store?.brand?.coverImage);
-  const productPhoto = merchantImage(...(featured || []).map((p) => p.images?.[0]));
+  // Store photos: featured products first, else the newest ones.
+  const { products: newest, loading: newestLoading } = useProducts({ sort: 'newest', limit: 4 });
+  const productPhoto = merchantImage(...[...(featured || []), ...(newest || [])].map((p) => p.images?.[0]));
   return (
     <Hero
       variant="split"
@@ -52,7 +54,7 @@ const ArtisanHero: React.FC<ArtisanSectionProps> = ({ id }) => {
       saleText={merchantText(hero.eyebrow_text) || undefined}
       backgroundImage={own || undefined}
       media={productPhoto || undefined}
-      defaultImage={!own && !productPhoto && !loading ? HERO_DEFAULT_IMAGE : undefined}
+      defaultImage={!own && !productPhoto && !loading && !newestLoading ? HERO_DEFAULT_IMAGE : undefined}
     />
   );
 };
@@ -69,14 +71,14 @@ const ArtisanPhilosophy: React.FC<ArtisanSectionProps> = ({ id }) => {
   if (!body) return null;
   return (
     <section ref={ref as React.RefObject<HTMLElement>} className={`max-w-3xl mx-auto px-6 py-20 text-center ${ENTRANCE} ${reveal(visible)}`}>
-      {philosophy.show_dividers !== false && <div className="w-16 h-px bg-[var(--color-accent)] mx-auto mb-6" />}
-      <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-primary)] mb-6 italic">
+      {philosophy.show_dividers !== false && <div className="w-16 h-px bg-[var(--brand,var(--color-accent))] mx-auto mb-6" />}
+      <h2 className="text-2xl md:text-3xl font-bold text-[var(--brand-ink,var(--color-primary))] mb-6 italic">
         {philosophy.heading || t('theme.section.philosophy.heading')}
       </h2>
       <p className="text-gray-600 leading-relaxed text-lg">
         {body}
       </p>
-      {philosophy.show_dividers !== false && <div className="w-16 h-px bg-[var(--color-accent)] mx-auto mt-6" />}
+      {philosophy.show_dividers !== false && <div className="w-16 h-px bg-[var(--brand,var(--color-accent))] mx-auto mt-6" />}
     </section>
   );
 };
@@ -87,17 +89,17 @@ const ArtisanFeatured: React.FC<ArtisanSectionProps> = ({ id, onQuickView }) => 
   const feat = useThemeSettings(id);
   const { products: featured, loading } = useFeaturedProducts(feat.product_limit || 6);
   const { ref, isIntersecting: visible } = useIntersectionObserver({ threshold: 0.1 });
+  // Only for a store with featured products — nothing while loading, so a
+  // store without any never shows an empty "featured" heading.
+  if (loading || featured.length === 0) return null;
   return (
     <section ref={ref as React.RefObject<HTMLElement>} className={`bg-white py-16 ${ENTRANCE} ${reveal(visible)}`}>
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold italic text-[var(--color-primary)] mb-2">{feat.heading || t('theme.section.featured_products.heading')}</h2>
+          <h2 className="text-3xl font-bold italic text-[var(--brand-ink,var(--color-primary))] mb-2">{feat.heading || t('theme.section.featured_products.heading')}</h2>
           {feat.subheading && <p className="text-gray-500">{feat.subheading}</p>}
         </div>
-        {loading ? (
-          <Skeleton.ProductGrid count={3} />
-        ) : (
-          <ProductRail columns={3}>
+        <ProductRail columns={3}>
             {featured.map((product) => (
               <ProductCard key={product._id} product={product} onQuickView={feat.show_quick_view !== false ? onQuickView : undefined}>
                 <ProductCard.Image showBadge showQuickView={feat.show_quick_view !== false} hoverSwap />
@@ -109,12 +111,11 @@ const ArtisanFeatured: React.FC<ArtisanSectionProps> = ({ id, onQuickView }) => 
                 </ProductCard.Body>
               </ProductCard>
             ))}
-          </ProductRail>
-        )}
+        </ProductRail>
         <div className="text-center mt-10">
           <Link
             to={feat.view_all_url || '/products'}
-            className="inline-block border-2 border-[var(--color-primary)] text-[var(--color-primary)] px-8 py-3 rounded font-semibold hover:bg-[var(--color-primary)] hover:text-white transition"
+            className="inline-block border-2 border-[var(--brand-ink,var(--color-primary))] text-[var(--brand-ink,var(--color-primary))] px-8 py-3 rounded font-semibold hover:bg-[var(--brand,var(--color-primary))] hover:text-[var(--brand-contrast,#fff)] hover:border-[var(--brand,var(--color-primary))] transition"
           >
             {feat.view_all_text || t('theme.section.featured_products.view_all')}
           </Link>
@@ -143,7 +144,7 @@ const ArtisanSpotlight: React.FC<ArtisanSectionProps> = ({ id }) => {
     <section ref={ref as React.RefObject<HTMLElement>} className={`bg-[var(--color-muted)]/20/30 py-16 ${ENTRANCE} ${reveal(visible)}`}>
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold italic text-[var(--color-primary)] mb-2">{spotlight.heading || t('theme.section.artisan_spotlight.heading')}</h2>
+          <h2 className="text-3xl font-bold italic text-[var(--brand-ink,var(--color-primary))] mb-2">{spotlight.heading || t('theme.section.artisan_spotlight.heading')}</h2>
           {spotlight.subheading && <p className="text-gray-500">{spotlight.subheading}</p>}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -151,11 +152,11 @@ const ArtisanSpotlight: React.FC<ArtisanSectionProps> = ({ id }) => {
             const { name, craft, quote } = block.settings as { name: string; craft: string; quote: string };
             return (
               <div key={block.id} className="bg-white rounded-lg p-6 border border-[var(--color-border)] text-center hover:shadow-md transition">
-                <div className="w-20 h-20 rounded-full bg-[var(--color-muted)]/20 mx-auto mb-4 flex items-center justify-center text-[var(--color-primary)] text-2xl font-bold italic">
+                <div className="w-20 h-20 rounded-full bg-[var(--color-muted)]/20 mx-auto mb-4 flex items-center justify-center text-[var(--brand-ink,var(--color-primary))] text-2xl font-bold italic">
                   {String(name || '?').split(' ').map(n => n[0]).join('')}
                 </div>
-                {name && <h3 className="font-bold text-[var(--color-primary)]">{name}</h3>}
-                {craft && <p className="text-xs text-[var(--color-accent)] uppercase tracking-wider mb-3">{craft}</p>}
+                {name && <h3 className="font-bold text-[var(--brand-ink,var(--color-primary))]">{name}</h3>}
+                {craft && <p className="text-xs text-[var(--brand-ink,var(--color-accent))] uppercase tracking-wider mb-3">{craft}</p>}
                 {quote && <p className="text-sm text-gray-500 italic leading-relaxed">"{quote}"</p>}
               </div>
             );
@@ -176,22 +177,22 @@ const ArtisanCategories: React.FC<ArtisanSectionProps> = ({ id }) => {
   return (
     <section ref={ref as React.RefObject<HTMLElement>} className={`max-w-6xl mx-auto px-6 py-16 ${ENTRANCE} ${reveal(visible)}`}>
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold italic text-[var(--color-primary)] mb-2">{cats.heading || t('theme.section.categories.heading')}</h2>
+        <h2 className="text-3xl font-bold italic text-[var(--brand-ink,var(--color-primary))] mb-2">{cats.heading || t('theme.section.categories.heading')}</h2>
         {cats.subheading && <p className="text-gray-500">{cats.subheading}</p>}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {categories.slice(0, cats.max_categories || 4).map((cat) => (
           <Link key={cat._id} to={`/categories/${cat.slug}`} className="group text-center">
-            <div className="w-full h-44 bg-[var(--color-muted)]/20 rounded-lg overflow-hidden mb-3 border border-[var(--color-border)] group-hover:border-[var(--color-accent)] transition-all duration-500">
+            <div className="w-full h-44 bg-[var(--color-muted)]/20 rounded-lg overflow-hidden mb-3 border border-[var(--color-border)] group-hover:border-[var(--brand,var(--color-accent))] transition-all duration-500">
               {cat.image ? (
                 <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-[var(--color-primary)] text-4xl font-bold italic opacity-30 group-hover:opacity-50 transition">
+                <div className="w-full h-full flex items-center justify-center text-[var(--brand-ink,var(--color-primary))] text-4xl font-bold italic opacity-30 group-hover:opacity-50 transition">
                   {cat.name[0]}
                 </div>
               )}
             </div>
-            <h3 className="font-semibold text-sm text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition">{cat.name}</h3>
+            <h3 className="font-semibold text-sm text-[var(--brand-ink,var(--color-primary))] group-hover:text-[var(--color-accent)] transition">{cat.name}</h3>
             {cats.show_product_count !== false && cat.productCount !== undefined && (
               <span className="text-xs text-gray-400">{cat.productCount} {cats.product_count_label || t('theme.section.categories.pieces_label')}</span>
             )}
@@ -213,10 +214,10 @@ const ArtisanNewArrivals: React.FC<ArtisanSectionProps> = ({ id, onQuickView }) 
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-bold italic text-[var(--color-primary)]">{arrivals.heading || t('theme.section.new_arrivals.heading')}</h2>
+            <h2 className="text-3xl font-bold italic text-[var(--brand-ink,var(--color-primary))]">{arrivals.heading || t('theme.section.new_arrivals.heading')}</h2>
             {arrivals.subheading && <p className="text-gray-500 mt-1">{arrivals.subheading}</p>}
           </div>
-          <Link to={arrivals.view_all_url || '/products?sort=newest'} className="text-[var(--color-accent)] font-semibold text-sm hover:underline flex items-center gap-1">
+          <Link to={arrivals.view_all_url || '/products?sort=newest'} className="text-[var(--brand-ink,var(--color-accent))] font-semibold text-sm hover:underline flex items-center gap-1">
             {arrivals.view_all_text || t('theme.section.new_arrivals.see_more')}
             <svg className="w-4 h-4 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -251,7 +252,7 @@ const ArtisanNewsletter: React.FC<ArtisanSectionProps> = ({ id }) => {
   return (
     <section className="py-20 border-t border-b border-[var(--color-border)]">
       <div className="max-w-2xl mx-auto px-6 text-center">
-        <h2 className="text-3xl font-bold italic text-[var(--color-primary)] mb-4">{news.heading || t('theme.section.newsletter.heading')}</h2>
+        <h2 className="text-3xl font-bold italic text-[var(--brand-ink,var(--color-primary))] mb-4">{news.heading || t('theme.section.newsletter.heading')}</h2>
         <p className="text-gray-600 mb-8 leading-relaxed">
           {news.subheading || t('theme.section.newsletter.subheading')}
         </p>
@@ -263,7 +264,7 @@ const ArtisanNewsletter: React.FC<ArtisanSectionProps> = ({ id }) => {
           />
           <button
             type="submit"
-            className="px-6 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-secondary)] text-white rounded font-semibold transition"
+            className="px-6 py-3.5 bg-[var(--brand,var(--color-primary))] hover:bg-[var(--brand-strong,var(--color-secondary))] text-[var(--brand-contrast,#fff)] rounded font-semibold transition"
           >
             {news.button_text || t('theme.section.newsletter.button')}
           </button>

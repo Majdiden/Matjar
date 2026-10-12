@@ -17,7 +17,7 @@ const AnnouncementBar: React.FC<{ dark?: boolean }> = ({ dark = true }) => {
   const text = useTopStripText();
   if (!text) return null;
   return (
-    <div data-section-id={TOP_STRIP_ANCHOR} className={`px-4 py-2 text-center text-[12px] font-semibold uppercase tracking-[0.14em] ${dark ? 'bg-[#1c1c1c] text-white' : 'bg-[color:var(--color-accent)] text-[#1c1c1c]'}`} role="status">
+    <div data-section-id={TOP_STRIP_ANCHOR} className={`px-4 py-2 text-center text-[12px] font-semibold uppercase tracking-[0.14em] ${dark ? 'bg-[color:var(--brand,#1c1c1c)] text-[color:var(--brand-contrast,#fff)]' : 'bg-[color:var(--brand,var(--color-accent))] text-[color:var(--brand-contrast,#1c1c1c)]'}`} role="status">
       <span className="inline-block">{text}</span>
     </div>
   );

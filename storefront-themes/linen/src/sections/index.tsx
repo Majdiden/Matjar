@@ -57,16 +57,33 @@ const SectionHead: React.FC<{ eyebrow?: string; heading?: string; action?: React
 
 // ─── 1. Hero slideshow ───────────────────────────────────────────
 
+/** First photos of the store's own products (newest first) — never stock. */
+function useStoreProductPhotos(count: number) {
+  const { products, loading } = useProducts({ sort: 'newest', limit: 8 });
+  const photos = useMemo(
+    () => products.map((p: any) => p?.images?.[0]).filter((u: unknown) => !isStockImage(u)).slice(0, count) as string[],
+    [products, count],
+  );
+  return { photos, loading };
+}
+
 const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const { t } = useTranslation(['theme']);
-  const storeName = useStore().store?.name || '';
-  // Once the merchant has their own photo, extra slides still carrying a
-  // theme stock photo are dropped; slides they filled themselves stay.
-  const hasOwnPhoto = !!merchantImage(s.image);
-  const slides = blocksOf(section)
-    .filter((b) => b.type === 'slide')
-    .filter((b, i) => !hasOwnPhoto || i === 0 || !isStockImage(b.settings?.image));
+  const { store } = useStore();
+  const storeName = store?.name || '';
+  // Photo: the merchant's own (hero setting, first slide or cover), else a
+  // store product photo, else (a store with no photos at all) the theme's
+  // stock slides. While the products load, stock-photo frames stay a plain
+  // panel so no stock photo flashes before the store's own.
+  const allSlides = blocksOf(section).filter((b) => b.type === 'slide');
+  const ownPhoto = merchantImage(s.image, allSlides[0]?.settings?.image, store?.brand?.coverImage);
+  const { photos, loading: photosLoading } = useStoreProductPhotos(1);
+  const heroPhoto = ownPhoto || photos[0] || null;
+  const pendingPhoto = !ownPhoto && photosLoading;
+  // Once the store has a photo, extra slides still carrying a theme stock
+  // photo are dropped; slides the merchant filled themselves stay.
+  const slides = allSlides.filter((b, i) => !(heroPhoto || pendingPhoto) || i === 0 || !isStockImage(b.settings?.image));
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const autoplay = s.autoplay !== false && slides.length > 1;
@@ -94,7 +111,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 
   return (
     <section
-      className="relative overflow-hidden bg-tint"
+      className="relative overflow-hidden bg-[color:var(--brand-soft,#f6eedd)]"
       aria-roledescription="carousel"
       onMouseEnter={() => pauseOnHover && setPaused(true)}
       onMouseLeave={() => pauseOnHover && setPaused(false)}
@@ -103,7 +120,9 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
       <div className="relative mx-auto grid max-w-[1280px] md:min-h-[720px]">
         {slides.map((slide, i) => {
           // The section-level (My Store) settings override the first slide.
-          const b = i === 0 ? { ...slide.settings, ...firstSlide } : slide.settings || {};
+          const b: Record<string, any> = i === 0 ? { ...slide.settings, ...firstSlide } : { ...(slide.settings || {}) };
+          if (i === 0 && heroPhoto) b.image = heroPhoto;
+          else if (pendingPhoto && isStockImage(b.image)) b.image = '';
           const active = i === idx;
           return (
             <div
@@ -117,7 +136,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
             >
               <div className="relative h-[300px] md:h-full">
                 {b.image && <img src={b.image} alt="" className="h-full w-full object-cover" loading={i === 0 ? 'eager' : 'lazy'} />}
-                <div className="absolute inset-0 bg-gradient-to-t from-cream via-[#fcf7ee]/20 to-transparent md:hidden" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--brand-soft,var(--color-background,#fcf7ee))] via-[#fcf7ee]/20 to-transparent md:hidden" />
               </div>
               <div className="relative flex items-center px-4 pb-6 pt-2 md:px-14 md:pb-32 md:pt-16 lg:px-20">
                 {active && (
@@ -158,8 +177,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
             ) : <span />}
             {s.show_arrows !== false && (
               <div className="pointer-events-auto flex gap-2">
-                <button type="button" onClick={() => go(idx - 1)} className="grid h-11 w-11 place-items-center rounded-full border border-bronze bg-cream text-clay transition-colors duration-200 hover:bg-bronze hover:text-cream" aria-label={t('theme.section.hero.prev')}><I.chevronLeft className="h-5 w-5 rtl:-scale-x-100" /></button>
-                <button type="button" onClick={() => go(idx + 1)} className="grid h-11 w-11 place-items-center rounded-full border border-bronze bg-cream text-clay transition-colors duration-200 hover:bg-bronze hover:text-cream" aria-label={t('theme.section.hero.next')}><I.chevronRight className="h-5 w-5 rtl:-scale-x-100" /></button>
+                <button type="button" onClick={() => go(idx - 1)} className="grid h-11 w-11 place-items-center rounded-full border border-bronze bg-cream text-clay transition-colors duration-200 hover:bg-bronze hover:text-on-bronze" aria-label={t('theme.section.hero.prev')}><I.chevronLeft className="h-5 w-5 rtl:-scale-x-100" /></button>
+                <button type="button" onClick={() => go(idx + 1)} className="grid h-11 w-11 place-items-center rounded-full border border-bronze bg-cream text-clay transition-colors duration-200 hover:bg-bronze hover:text-on-bronze" aria-label={t('theme.section.hero.next')}><I.chevronRight className="h-5 w-5 rtl:-scale-x-100" /></button>
               </div>
             )}
           </div>
@@ -211,6 +230,9 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const listed = useProducts(source === 'featured' ? { limit: 1 } : { limit, sort: source === 'popular' ? 'popular' : 'newest' });
   const products = source === 'featured' ? featured.products : listed.products;
   const loading = source === 'featured' ? featured.loading : listed.loading;
+  // Featured shows only the store's picks: nothing while they load (no
+  // heading over skeletons) and nothing when the store has none.
+  if (source === 'featured' && loading) return null;
   if (!loading && !products.length) return null;
   return (
     <section className="linen-section" style={wrap(s)}>

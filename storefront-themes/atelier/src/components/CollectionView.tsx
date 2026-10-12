@@ -7,6 +7,7 @@ import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
+import { merchantImage } from '@matjar/theme-shared/theme/heroContent';
 import AtelierProductCard from './AtelierProductCard';
 import { useOverlayA11y } from '../lib/motion';
 
@@ -141,7 +142,10 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
     availability ? { key: 'avail', label: availability === 'in' ? t('theme.collection.in_stock') : t('theme.collection.out_of_stock'), clear: () => set({ avail: null }) } : null,
   ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
 
-  const banner = bannerImage || globalBanner;
+  // The category's own photo, else the merchant's own banner. The theme's
+  // stock banner is never used: it showed while the category loaded and was
+  // then swapped for the category photo (the band alone is the fallback).
+  const banner = bannerImage || merchantImage(globalBanner);
   const isDrawer = placement.startsWith('drawer');
   const drawerSide = placement.replace('drawer-', '') as 'start' | 'top' | 'bottom';
 
@@ -177,7 +181,7 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
   return (
     <div>
       {/* Breadcrumb hero */}
-      <div className="relative flex min-h-[220px] items-center justify-center overflow-hidden bg-[#1c1c1c] px-4 py-16 text-center text-white sm:min-h-[280px]">
+      <div className="relative flex min-h-[220px] items-center justify-center overflow-hidden bg-[color:var(--brand-ink,#1c1c1c)] px-4 py-16 text-center text-white sm:min-h-[280px]">
         {banner && <img src={banner} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />}
         <div className="absolute inset-0 bg-black/30" />
         <div className="relative">

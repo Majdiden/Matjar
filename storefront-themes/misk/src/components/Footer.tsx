@@ -44,7 +44,11 @@ export const Footer: React.FC = () => {
   const cols = panels >= 4 ? 'lg:grid-cols-4' : panels === 3 ? 'lg:grid-cols-3' : panels === 2 ? 'lg:grid-cols-2' : '';
 
   return (
-    <footer className="misk-footer border-t border-line" style={background ? { background } : undefined}>
+    <footer
+      className="misk-footer border-t border-line"
+      // The shipped white footer takes the store colour's light tint (PBI 10-39); a colour the merchant picked is kept.
+      style={!background || background.trim().toLowerCase() === '#ffffff' ? { background: 'var(--brand-soft, #ffffff)' } : { background }}
+    >
       <div className={`mx-auto grid max-w-[1320px] divide-y divide-line ${cols} lg:divide-x lg:divide-y-0 rtl:lg:divide-x-reverse`}>
         {showContact && (
           <div className={panel}>

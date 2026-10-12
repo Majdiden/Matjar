@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
+import { WishlistHeaderLink } from '@matjar/theme-shared';
 
 /**
  * Beauxe Layout — navy announcement + pink-accent header.
@@ -24,8 +25,11 @@ import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
  * ─ Footer: cream background, navy text, 4-col links
  */
 
-const NAVY = 'var(--color-primary)';
-const PINK = 'var(--color-secondary)';
+// Store colour (PBI 10-39): the navy bar and badges take it, the blush footer
+// takes its light tint, navy text its readable shade; theme palette without one.
+const NAVY = 'var(--brand-ink, var(--color-primary))';
+const NAVY_BG = 'var(--brand, var(--color-primary))';
+const ON_NAVY = 'var(--brand-contrast, #fff)';
 const CREAM = 'var(--color-background)';
 
 const Layout: React.FC = () => {
@@ -57,7 +61,7 @@ const Layout: React.FC = () => {
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: CREAM, color: NAVY, fontFamily: 'var(--font-family)' }}>
       {/* ═══ TOP BAR (navy) ══════════════════════════════════════ */}
       {barText && (
-        <div data-section-id={TOP_STRIP_ANCHOR} className="text-white text-[11px] tracking-[0.2em] font-medium py-2.5" style={{ backgroundColor: NAVY }}>
+        <div data-section-id={TOP_STRIP_ANCHOR} className="text-[11px] tracking-[0.2em] font-medium py-2.5" style={{ backgroundColor: NAVY_BG, color: ON_NAVY }}>
           <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
             {/* Left slot kept empty (mirrors the right links) so the text stays centred. */}
             <div className="hidden md:block flex-1" aria-hidden />
@@ -102,7 +106,7 @@ const Layout: React.FC = () => {
             {/* Center on desktop, start on mobile: serif wordmark (logo) */}
             <Link
               to="/"
-              className="font-serif text-3xl md:text-4xl tracking-tight text-start md:text-center whitespace-nowrap"
+              className="font-serif text-3xl md:text-4xl tracking-tight text-start md:text-center whitespace-nowrap min-w-0 flex-1 truncate md:flex-none"
               style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
             >
               {brand}
@@ -121,7 +125,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
                 {(wishlistCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-white text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: NAVY }}>
+                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: NAVY_BG, color: ON_NAVY }}>
                     {wishlistCount}
                   </span>
                 )}
@@ -131,23 +135,30 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
                 {(cart?.itemCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-white text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: NAVY }}>
+                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: NAVY_BG, color: ON_NAVY }}>
                     {cart?.itemCount}
                   </span>
                 )}
               </button>
             </div>
 
-            {/* Mobile hamburger — opposite end from the logo */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden"
-              aria-label={t('common:aria.menu')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke={NAVY} viewBox="0 0 24 24" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
-              </svg>
-            </button>
+            {/* Mobile: wishlist heart + hamburger — opposite end from the logo */}
+            <div className="md:hidden flex items-center gap-1 shrink-0 -me-2" style={{ color: NAVY }}>
+              <WishlistHeaderLink
+                className="relative inline-flex h-10 w-10 items-center justify-center"
+                iconClassName="w-6 h-6"
+                badgeClassName="absolute top-0.5 end-0.5 min-w-[18px] h-[18px] px-1 text-[10px] rounded-full flex items-center justify-center font-bold bg-[color:var(--brand,var(--color-primary))] text-[color:var(--brand-contrast,#fff)]"
+              />
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="inline-flex h-10 w-10 items-center justify-center"
+                aria-label={t('common:aria.menu')}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -160,7 +171,7 @@ const Layout: React.FC = () => {
       </main>
 
       {/* ═══ FOOTER ══════════════════════════════════════════════ */}
-      <footer className="mt-20 pt-16 pb-6" style={{ backgroundColor: 'var(--color-accent)' }}>
+      <footer className="mt-20 pt-16 pb-6" style={{ backgroundColor: 'var(--brand-soft, var(--color-accent))' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
             <div className="md:col-span-2">

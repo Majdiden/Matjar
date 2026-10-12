@@ -72,13 +72,15 @@ export const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
       style={{
         background: s.background_image
           ? `url(${s.background_image}) center/cover`
-          : `linear-gradient(135deg, var(--color-primary, #2563eb) 0%, var(--color-secondary, #1e40af) 100%)`,
+          : `linear-gradient(135deg, var(--brand, var(--color-primary, #2563eb)) 0%, var(--brand-strong, var(--color-secondary, #1e40af)) 100%)`,
+        // On the store-colour band (PBI 10-39) text takes its readable colour.
+        color: s.background_image ? '#fff' : 'var(--brand-contrast, #fff)',
       }}
     >
       {s.background_image && s.overlay_opacity > 0 && (
         <div className="absolute inset-0 bg-black" style={{ opacity: s.overlay_opacity / 100 }} />
       )}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-white relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center relative z-10">
         {s.badge_text && (
           <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-sm font-medium mb-4 backdrop-blur-sm">
             {s.badge_text}
@@ -100,7 +102,8 @@ export const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
           {s.secondary_button_text && (
             <Link
               to={s.secondary_button_url || '/categories'}
-              className="inline-block border-2 border-white/40 text-white font-semibold px-8 py-3.5 rounded-lg hover:bg-white/10 transition"
+              className="inline-block border-2 font-semibold px-8 py-3.5 rounded-lg hover:bg-white/10 transition"
+              style={{ borderColor: 'color-mix(in srgb, currentColor 40%, transparent)' }}
             >
               {s.secondary_button_text}
             </Link>
@@ -130,8 +133,10 @@ export const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
     <section
       className="py-3 px-4 text-center text-sm font-medium"
       style={{
-        backgroundColor: s.background_color || 'var(--color-primary, #2563eb)',
-        color: s.text_color || '#ffffff',
+        // The merchant's own strip colours, else the store colour (PBI 10-39)
+        // with its readable text colour, else the theme primary.
+        backgroundColor: s.background_color || 'var(--brand, var(--color-primary, #2563eb))',
+        color: s.text_color || (s.background_color ? '#ffffff' : 'var(--brand-contrast, #ffffff)'),
       }}
     >
       <span>{message}</span>
@@ -166,7 +171,7 @@ export const RichTextSection: React.FC<SectionComponentProps> = ({ id }) => {
         <Link
           to={s.button_url || '#'}
           className="inline-block mt-6 px-6 py-3 rounded-lg text-white font-medium hover:opacity-90"
-          style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
+          style={{ backgroundColor: 'var(--color-primary, #2563eb)', color: 'var(--color-on-primary, #fff)' }}
         >
           {s.button_text}
         </Link>
@@ -198,7 +203,7 @@ export const ImageWithTextSection: React.FC<SectionComponentProps> = ({ id }) =>
             <Link
               to={s.button_url || '#'}
               className="inline-block px-6 py-3 rounded-lg text-white font-medium hover:opacity-90"
-              style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
+              style={{ backgroundColor: 'var(--color-primary, #2563eb)', color: 'var(--color-on-primary, #fff)' }}
             >
               {s.button_text}
             </Link>

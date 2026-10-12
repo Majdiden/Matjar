@@ -224,7 +224,7 @@ function CompareFloatingBar() {
         <button
           onClick={open}
           className="ms-auto shrink-0 text-white text-sm font-semibold px-4 sm:px-5 h-10 rounded-[var(--radius-pill,9999px)] hover:brightness-110 active:scale-95 transition"
-          style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
+          style={{ backgroundColor: 'var(--color-primary, #2563eb)', color: 'var(--color-on-primary, #fff)' }}
         >
           {t('product:compare.add')}
         </button>
@@ -271,7 +271,7 @@ export function ProductCompare(props: ProductCompareProps) {
           : 'text-[var(--color-muted,#6b7280)] border-[var(--color-border,#e5e7eb)] hover:border-[var(--color-primary,#2563eb)] hover:text-[var(--color-foreground,#111)]',
         className
       )}
-      style={comparing ? { backgroundColor: 'var(--color-primary, #2563eb)' } : undefined}
+      style={comparing ? { backgroundColor: 'var(--color-primary, #2563eb)', color: 'var(--color-on-primary, #fff)' } : undefined}
     >
       {comparing ? t('compare.remove', 'Comparing') : t('compare.add', 'Compare')}
     </button>

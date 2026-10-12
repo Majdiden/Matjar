@@ -6,8 +6,9 @@ import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { useTranslation } from 'react-i18next';
 
-const NAVY = 'var(--color-primary)';
-const BLUSH = 'var(--color-accent)'; // blush surface, not the muted text colour
+// Store colour (PBI 10-39): navy text follows it, darkened to stay readable.
+const NAVY = 'var(--brand-ink, var(--color-primary))';
+const BLUSH = 'var(--brand-soft, var(--color-accent))'; // blush surface, not the muted text colour
 
 const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

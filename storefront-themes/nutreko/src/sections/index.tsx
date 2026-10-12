@@ -19,7 +19,10 @@ import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/
 const HERO_DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&q=80&auto=format&fit=crop';
 
-const LIME = 'var(--color-primary)';
+// Store colour (PBI 10-39) on the lime signature areas; lime without one.
+const LIME = 'var(--brand, var(--color-primary))';
+const ON_LIME = 'var(--brand-contrast, var(--color-secondary))';
+const LIME_ON_DARK = 'var(--nk-brand-on-dark, var(--color-primary))';
 
 /** First photos of the store's own products (newest first) for hero image slots — never stock. */
 function useStoreProductPhotos(count: number) {
@@ -30,7 +33,6 @@ function useStoreProductPhotos(count: number) {
   );
   return { photos, loading };
 }
-const DARK = 'var(--color-secondary)';
 const headingFont = { fontFamily: 'var(--font-family-heading)' } as const;
 
 // ─── Top info strip ───────────────────────────────────────────────
@@ -41,7 +43,7 @@ const TopStripSection: React.FC<SectionComponentProps> = ({ id }) => {
   const text = merchantText(s.text);
   if (!text) return null;
   return (
-    <div className="text-[11px] tracking-[0.2em] font-bold py-2.5 text-center" style={{ backgroundColor: LIME, color: DARK }}>
+    <div className="text-[11px] tracking-[0.2em] font-bold py-2.5 text-center" style={{ backgroundColor: LIME, color: ON_LIME }}>
       <span className="inline-flex items-center gap-2"><svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg>{text}</span>
     </div>
   );
@@ -74,7 +76,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <div>
           {eyebrow && (
-            <div className="text-[11px] tracking-[0.25em] uppercase font-black mb-6" style={{ color: LIME }}>
+            <div className="text-[11px] tracking-[0.25em] uppercase font-black mb-6" style={{ color: LIME_ON_DARK }}>
               {eyebrow}
             </div>
           )}
@@ -83,7 +85,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             style={headingFont}
           >
             {heading.split(' ').map((w: string, i: number) => (
-              <span key={i} className={i === 1 ? 'text-[var(--color-primary)]' : ''}>{w} </span>
+              <span key={i} style={i === 1 ? { color: LIME_ON_DARK } : undefined}>{w} </span>
             ))}
           </h1>
           {s.subheading && (
@@ -95,7 +97,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id }) => {
             <Link
               to={s.cta_url || '/products'}
               className="group inline-flex items-center gap-2 px-10 py-4 text-[11px] tracking-[0.22em] uppercase font-black hover:scale-105 transition"
-              style={{ backgroundColor: LIME, color: DARK }}
+              style={{ backgroundColor: LIME, color: ON_LIME }}
             >
               {s.cta_text || t('theme.section.nutreko-hero.cta', { defaultValue: 'SHOP NOW' })}
               <svg className="w-3.5 h-3.5 rtl:rotate-180 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -160,7 +162,7 @@ const GuaranteeSection: React.FC<SectionComponentProps> = ({ section }) => {
             const bs = b.settings || {};
             const iconPath = Object.values(icons)[i % 4];
             return (
-              <div key={b.id || i} className="p-6 md:p-8 text-center hover:bg-[var(--color-primary)] transition">
+              <div key={b.id || i} className="p-6 md:p-8 text-center hover:bg-[var(--brand,var(--color-primary))] hover:text-[var(--brand-contrast,var(--color-secondary))] transition">
                 <svg className="w-10 h-10 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d={iconPath} />
                 </svg>
@@ -207,7 +209,7 @@ const CategoryStripSection: React.FC<SectionComponentProps> = ({ id, section }) 
             <Link
               key={b.id}
               to={bs.cta_url || '/products'}
-              className="group relative aspect-square border-2 border-black bg-[var(--color-muted)] flex flex-col items-center justify-center p-6 hover:bg-[var(--color-primary)] transition"
+              className="group relative aspect-square border-2 border-black bg-[var(--color-muted)] flex flex-col items-center justify-center p-6 hover:bg-[var(--brand,var(--color-primary))] hover:text-[var(--brand-contrast,var(--color-secondary))] transition"
             >
               {bs.image ? (
                 <img src={bs.image} alt={bs.title} className="w-20 h-20 object-contain mb-3" />
@@ -241,6 +243,10 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const featured = useFeaturedProducts(limit);
   const regular = useProducts({ sort: source === 'newest' ? 'newest' : 'popular', limit });
   const { products, loading } = source === 'featured' ? featured : regular;
+
+  // Featured shows only the store's picks: nothing while they load or when
+  // the store has none (never other products under a "top sellers" heading).
+  if (source === 'featured' && (loading || products.length === 0)) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
@@ -295,7 +301,7 @@ const BannerSection: React.FC<SectionComponentProps> = ({ id }) => {
         <div className="relative p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex-1">
             {s.eyebrow && (
-              <div className="inline-block px-3 py-1 text-[10px] tracking-[0.25em] uppercase font-black mb-4" style={{ backgroundColor: LIME, color: DARK }}>
+              <div className="inline-block px-3 py-1 text-[10px] tracking-[0.25em] uppercase font-black mb-4" style={{ backgroundColor: LIME, color: ON_LIME }}>
                 {s.eyebrow}
               </div>
             )}

@@ -79,9 +79,9 @@ const Footer: React.FC = () => {
   return (
     <footer className="mt-10">
       {uspItems.length > 0 && (
-        <div className="border-t border-[#e5e5e5] bg-[color:var(--color-accent)] py-8"><UspStrip items={uspItems} /></div>
+        <div className="border-t border-[#e5e5e5] bg-[color:var(--brand-soft,var(--color-accent))] py-8"><UspStrip items={uspItems} /></div>
       )}
-      <div className="at-footer bg-[#1c1c1c] text-white">
+      <div className="at-footer bg-[color:var(--brand-ink,#1c1c1c)] text-white">
         <div className="mx-auto grid max-w-[1320px] gap-8 px-4 py-14 sm:px-6 md:grid-cols-12">
           <div className="md:col-span-4">
             <Link to="/" className="inline-block">
@@ -89,10 +89,10 @@ const Footer: React.FC = () => {
             </Link>
             {footer.description && <p className="mt-4 max-w-sm text-[14px] text-white/70">{footer.description}</p>}
             <ul className="mt-5 space-y-2 text-[14px] text-white/85">
-              {address && <li className="flex gap-3"><Icon name="check" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" /><span>{address}</span></li>}
-              {phone && <li className="flex gap-3"><Icon name="headset" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" />{phone.href ? <a href={phone.href} dir="ltr" className="at-link-hover-light">{phone.text}</a> : <span dir="ltr">{phone.text}</span>}</li>}
-              {whatsapp && <li className="flex gap-3"><Icon name="headset" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" /><a href={whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="at-link-hover-light">{whatsapp.display}</a></li>}
-              {email && <li className="flex gap-3"><Icon name="sparkle" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze)]" /><a href={`mailto:${email}`} className="at-link-hover-light">{email}</a></li>}
+              {address && <li className="flex gap-3"><Icon name="check" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze-on-dark)]" /><span>{address}</span></li>}
+              {phone && <li className="flex gap-3"><Icon name="headset" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze-on-dark)]" />{phone.href ? <a href={phone.href} dir="ltr" className="at-link-hover-light">{phone.text}</a> : <span dir="ltr">{phone.text}</span>}</li>}
+              {whatsapp && <li className="flex gap-3"><Icon name="headset" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze-on-dark)]" /><a href={whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="at-link-hover-light">{whatsapp.display}</a></li>}
+              {email && <li className="flex gap-3"><Icon name="sparkle" className="mt-1 h-4 w-4 shrink-0 text-[color:var(--atelier-bronze-on-dark)]" /><a href={`mailto:${email}`} className="at-link-hover-light">{email}</a></li>}
             </ul>
             {footer.social.length > 0 && (
               <ul className="mt-6 flex flex-wrap gap-2">

@@ -73,6 +73,11 @@ function renderKidsBadgeIcon(icon: string): React.ReactNode {
   }
 }
 
+/** True when a colour setting still holds its manifest default (the merchant did not pick one). */
+const isDefaultColor = (value: unknown, def: string) => !value || String(value).trim().toLowerCase() === def.toLowerCase();
+/** The merchant's own colour pick, else the store colour token (PBI 10-39) over the theme default. */
+const brandOr = (value: unknown, def: string, token: string) => (isDefaultColor(value, def) ? `var(${token}, ${def})` : String(value));
+
 type SectionProps = { id: string; onQuickView: (product: Product) => void };
 
 // Each bespoke section reads its settings / blocks by its own INSTANCE id, so
@@ -83,7 +88,13 @@ function HeroBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
   const { store } = useStore();
-  const { products: featured } = useFeaturedProducts(4);
+  const { products: featured, loading } = useFeaturedProducts(4);
+  // Photo: the merchant's own, else a product photo; the theme's stock photo
+  // only once loaded and the store has none (never flashed before the real one).
+  const own = merchantImage(hero.background_image, store?.brand?.coverImage);
+  // Store photos: featured products first, else the newest ones.
+  const { products: newest, loading: newestLoading } = useProducts({ sort: 'newest', limit: 4 });
+  const productPhoto = merchantImage(...[...(featured || []), ...(newest || [])].map((p) => p.images?.[0]));
   // Only the merchant's own copy: the title falls back to the store name and
   // the second heading line shows only when set.
   const title = [merchantText(hero.heading_line1) || store?.name || '', merchantText(hero.heading_line2)].filter(Boolean).join(' ');
@@ -95,9 +106,9 @@ function HeroBlock({ id }: SectionProps) {
       title={title}
       subtitle={merchantText(hero.subheading) || undefined}
       primaryCta={{ label: merchantText(hero.button_text) || t('common:storefront.shop_now'), href: hero.button_url || '/products' }}
-      backgroundImage={merchantImage(hero.background_image) || undefined}
-      media={featured?.find((p) => p.images?.[0])?.images?.[0]}
-      defaultImage={HERO_DEFAULT_IMAGE}
+      backgroundImage={own || undefined}
+      media={productPhoto || undefined}
+      defaultImage={!own && !productPhoto && !loading && !newestLoading ? HERO_DEFAULT_IMAGE : undefined}
     />
   );
 }
@@ -107,7 +118,8 @@ function CategoriesBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const cats = useThemeSettings(id);
   const catBlocks = useSectionBlocks(id);
-  const { categories } = useCategories();
+  const { categories, loading } = useCategories();
+  const max = cats.max_categories || 6;
   const { ref: categoriesRef, isIntersecting: categoriesVisible } = useIntersectionObserver({ threshold: 0.1 });
 
   return (
@@ -118,22 +130,30 @@ function CategoriesBlock({ id }: SectionProps) {
       }`}
     >
       <h2 className="text-2xl font-extrabold text-center mb-2">
-        <span className="text-[#ec4899]">{cats.heading_highlight || t('theme.section.categories.heading_highlight')}</span>{' '}
+        <span className="text-[var(--brand-ink,#ec4899)]">{cats.heading_highlight || t('theme.section.categories.heading_highlight')}</span>{' '}
         {(cats.heading || t('theme.section.categories.title')).replace(cats.heading_highlight || t('theme.section.categories.heading_highlight'), '').trim() || t('theme.section.categories.heading_suffix')}
       </h2>
       <p className="text-gray-500 text-center mb-10 text-sm">
         {cats.subheading || t('theme.section.categories.subtitle')}
       </p>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-        {(categories.length > 0
-          ? categories.slice(0, cats.max_categories || 6).map((c, i) => ({
+        {/* While the store's categories load: same-size blank bubbles, never
+            the demo ones (they would flash before the real categories). */}
+        {loading && Array.from({ length: max }).map((_, i) => (
+          <div key={i} aria-hidden="true" className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-[var(--brand-soft,#fdf2f8)]">
+            <span className="w-12 h-12" />
+            <span className="h-4" />
+          </div>
+        ))}
+        {!loading && (categories.length > 0
+          ? categories.slice(0, max).map((c, i) => ({
               key: c._id,
               href: `/categories/${c.slug}`,
               name: c.name,
               letter: (c.name?.[0] || '?').toUpperCase(),
               ...CATEGORY_BUBBLE_COLORS[i % CATEGORY_BUBBLE_COLORS.length],
             }))
-          : catBlocks.slice(0, cats.max_categories || 6).map((b, i) => ({
+          : catBlocks.slice(0, max).map((b, i) => ({
               key: b.id,
               href: '/products',
               name: b.settings.name as string,
@@ -258,6 +278,8 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
   const feat = useThemeSettings(id);
   const { products: featured, loading } = useFeaturedProducts(feat.product_limit || 8);
   const { ref: featuredRef, isIntersecting: featuredVisible } = useIntersectionObserver({ threshold: 0.1 });
+  // Only for a store with featured products — nothing while loading.
+  if (loading || featured.length === 0) return null;
 
   return (
     <section
@@ -283,14 +305,7 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
             {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
           </Link>
         </div>
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {Array.from({ length: feat.product_limit || 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-72 rounded-2xl" />
-            ))}
-          </div>
-        ) : (
-          <ProductRail columns={(Number(feat.columns) || 4) as 2 | 3 | 4 | 5}>
+        <ProductRail columns={(Number(feat.columns) || 4) as 2 | 3 | 4 | 5}>
             {featured.map((p) => (
               <ProductCard key={p._id} product={p} onQuickView={onQuickView}>
                 <ProductCard.Image showBadge showQuickView hoverSwap />
@@ -302,8 +317,7 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
                 </ProductCard.Body>
               </ProductCard>
             ))}
-          </ProductRail>
-        )}
+        </ProductRail>
       </div>
     </section>
   );
@@ -363,6 +377,10 @@ function NewsletterBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const newsletter = useThemeSettings(id);
   const { ref: ctaRef, isIntersecting: ctaVisible } = useIntersectionObserver({ threshold: 0.2 });
+  // The band takes the store colour unless the merchant picked its colours;
+  // its text then follows the colour's readable text colour.
+  const onBrand = isDefaultColor(newsletter.gradient_from, '#fbbf24') && isDefaultColor(newsletter.gradient_via, '#ec4899') && isDefaultColor(newsletter.gradient_to, '#8b5cf6');
+  const textOn = onBrand ? 'var(--brand-contrast, #fff)' : '#fff';
 
   return (
     <section
@@ -371,17 +389,18 @@ function NewsletterBlock({ id }: SectionProps) {
         ctaVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
       style={{
-        background: `linear-gradient(to right, ${newsletter.gradient_from || '#fbbf24'}, ${newsletter.gradient_via || '#ec4899'}, ${newsletter.gradient_to || '#8b5cf6'})`,
+        background: `linear-gradient(to right, ${brandOr(newsletter.gradient_from, '#fbbf24', '--brand')}, ${brandOr(newsletter.gradient_via, '#ec4899', '--brand')}, ${brandOr(newsletter.gradient_to, '#8b5cf6', '--brand-strong')})`,
+        color: textOn,
       }}
     >
       <div className="max-w-2xl mx-auto px-4 text-center">
         <div className="flex justify-center mb-4">
-          <svg className="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" /></svg>
+          <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" /></svg>
         </div>
-        <h2 className="text-3xl font-extrabold text-white mb-4 [text-shadow:0_1px_4px_rgba(0,0,0,0.35)]">
+        <h2 className="text-3xl font-extrabold mb-4 [text-shadow:0_1px_4px_rgba(0,0,0,0.35)]">
           {newsletter.heading || t('theme.section.newsletter.title')}
         </h2>
-        <p className="text-white/95 mb-8 [text-shadow:0_1px_3px_rgba(0,0,0,0.3)]">
+        <p className="mb-8 opacity-95 [text-shadow:0_1px_3px_rgba(0,0,0,0.3)]">
           {newsletter.subheading || t('theme.section.newsletter.subtitle')}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -392,7 +411,7 @@ function NewsletterBlock({ id }: SectionProps) {
           />
           <button
             className="px-6 py-3 rounded-full font-extrabold hover:opacity-90 transition shadow-lg"
-            style={{ backgroundColor: '#ffffff', color: newsletter.button_text_color || '#ec4899' }}
+            style={{ backgroundColor: '#ffffff', color: brandOr(newsletter.button_text_color, '#ec4899', '--brand-ink') }}
           >
             {newsletter.button_text || t('theme.section.newsletter.button')}
           </button>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
-import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
+import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
@@ -19,7 +19,6 @@ import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 const Layout: React.FC = () => {
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
-  const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
   // Store-managed header nav. When present (new stores ship a seeded
   // "header" menu) it drives the nav; while loading/empty (older stores)
@@ -42,7 +41,6 @@ const Layout: React.FC = () => {
           <AnnouncementBar
             message={stripText}
             dismissible={false}
-            className="bg-[var(--color-primary)] text-[var(--color-border)]"
           />
         </div>
       )}
@@ -53,7 +51,7 @@ const Layout: React.FC = () => {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to="/" className="shrink-0">
-              <span className="text-2xl font-bold text-[var(--color-primary)] italic tracking-wide">
+              <span className="text-2xl font-bold text-[var(--brand-ink,var(--color-primary))] italic tracking-wide">
                 {store?.name || 'Artisan'}
               </span>
             </Link>
@@ -101,21 +99,12 @@ const Layout: React.FC = () => {
                 <LanguageSwitcher />
               </div>
 
-              {/* Wishlist */}
-              <Link
-                to="/wishlist"
-                className="relative hidden md:inline-flex p-2 text-[var(--color-primary)]/60 hover:text-[var(--color-primary)] transition"
-                aria-label={t('common:aria.wishlist')}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                </svg>
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-0.5 -end-0.5 min-w-[16px] h-[16px] rounded-full bg-[var(--color-accent)] text-white text-[10px] font-bold flex items-center justify-center px-1">
-                    {wishlistCount > 99 ? '99+' : wishlistCount}
-                  </span>
-                )}
-              </Link>
+              {/* Wishlist — on every screen size (phones too) */}
+              <WishlistHeaderLink
+                className="relative inline-flex h-10 w-10 items-center justify-center text-[var(--color-primary)]/60 hover:text-[var(--color-primary)] transition"
+                iconClassName="w-5 h-5"
+                badgeClassName="absolute top-0.5 end-0.5 min-w-[16px] h-[16px] rounded-full bg-[var(--brand,var(--color-accent))] text-[var(--brand-contrast,#fff)] text-[10px] font-bold flex items-center justify-center px-1"
+              />
 
               {/* Cart */}
               <button
@@ -127,7 +116,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {cart && cart.itemCount > 0 && (
-                  <span className="absolute -top-0.5 -end-0.5 min-w-[16px] h-[16px] rounded-full bg-[var(--color-accent)] text-white text-[10px] font-bold flex items-center justify-center px-1">
+                  <span className="absolute -top-0.5 -end-0.5 min-w-[16px] h-[16px] rounded-full bg-[var(--brand,var(--color-accent))] text-[var(--brand-contrast,#fff)] text-[10px] font-bold flex items-center justify-center px-1">
                     {cart.itemCount > 99 ? '99+' : cart.itemCount}
                   </span>
                 )}
@@ -160,17 +149,17 @@ const Layout: React.FC = () => {
       </main>
 
       {/* Footer — content from the store's own data */}
-      <footer className="bg-[var(--color-primary)] text-[var(--color-border)]">
+      <footer className="bg-[var(--brand,var(--color-primary))] text-[var(--brand-contrast,var(--color-border))]">
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               {footer.logo ? (
                 <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto mb-4 object-contain" />
               ) : (
-                <h3 className="text-white text-xl italic mb-4">{footer.storeName}</h3>
+                <h3 className="text-[var(--brand-contrast,#fff)] text-xl italic mb-4">{footer.storeName}</h3>
               )}
               {footer.description && (
-                <p className="text-sm text-[var(--color-border)] leading-relaxed">{footer.description}</p>
+                <p className="text-sm leading-relaxed">{footer.description}</p>
               )}
               {footer.social.length > 0 && (
                 <div className="flex gap-3 mt-4">
@@ -181,7 +170,7 @@ const Layout: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={s.name}
-                      className="hover:text-white transition"
+                      className="hover:text-[var(--brand-contrast,#fff)] transition"
                     >
                       <SocialIcon platform={s.platform} className="w-5 h-5" />
                     </a>
@@ -197,16 +186,16 @@ const Layout: React.FC = () => {
               .filter((col) => col.links.length > 0)
               .map((col) => (
                 <div key={col.title}>
-                  <h4 className="text-white font-semibold mb-3">{col.title}</h4>
+                  <h4 className="text-[var(--brand-contrast,#fff)] font-semibold mb-3">{col.title}</h4>
                   <ul className="space-y-2 text-sm">
                     {col.links.map((l) => (
-                      <li key={l.to}><Link to={l.to} className="hover:text-white transition">{l.label}</Link></li>
+                      <li key={l.to}><Link to={l.to} className="hover:text-[var(--brand-contrast,#fff)] transition">{l.label}</Link></li>
                     ))}
                   </ul>
                 </div>
               ))}
           </div>
-          <div className="border-t border-[var(--color-border)] mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[var(--color-border)]">
+          <div className="border-t border-[var(--brand-strong,var(--color-border))] mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
             <span>{footer.copyright}</span>
           </div>
         </div>

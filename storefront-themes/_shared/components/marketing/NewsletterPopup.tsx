@@ -104,7 +104,7 @@ function NewsletterPopupLegacy(props: NewsletterPopupProps) {
                   type="submit"
                   disabled={status === 'loading'}
                   className="w-full py-3 rounded-lg text-white font-medium transition disabled:opacity-50"
-                  style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
+                  style={{ backgroundColor: 'var(--color-primary, #2563eb)', color: 'var(--color-on-primary, #fff)' }}
                 >
                   {status === 'loading' ? t('newsletter.subscribing') : t('newsletter.submit')}
                 </button>

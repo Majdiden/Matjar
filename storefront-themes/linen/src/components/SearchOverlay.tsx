@@ -107,7 +107,7 @@ export const SearchOverlay: React.FC<Props> = ({ open, onClose, popular }) => {
                 {placeholder}
               </span>
             )}
-            <button type="submit" className="absolute end-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-bronze" aria-label={t('theme.search.submit')}>
+            <button type="submit" className="absolute end-2 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-bronze hover:text-on-bronze" aria-label={t('theme.search.submit')}>
               <I.search className="h-5 w-5" />
             </button>
           </form>

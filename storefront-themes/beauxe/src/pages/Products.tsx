@@ -15,9 +15,10 @@ import { useTranslation } from 'react-i18next';
  *     module) + right product grid
  */
 
-const NAVY = 'var(--color-primary)';
+// Store colour (PBI 10-39): navy text follows it, darkened to stay readable.
+const NAVY = 'var(--brand-ink, var(--color-primary))';
 const PINK = 'var(--color-secondary)';
-const BLUSH = 'var(--color-accent)'; // blush surface, not the muted text colour
+const BLUSH = 'var(--brand-soft, var(--color-accent))'; // blush surface, not the muted text colour
 
 const FilterCard: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="bg-white rounded-3xl p-6 mb-6 border border-pink-100">

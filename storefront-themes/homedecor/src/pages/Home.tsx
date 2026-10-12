@@ -27,6 +27,11 @@ const ROOM_KEYS = [
   { nameKey: 'theme.rooms.outdoor', icon: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z' },
 ];
 
+/** True when a colour setting still holds its manifest default (the merchant did not pick one). */
+const isDefaultColor = (value: unknown, def: string) => !value || String(value).trim().toLowerCase() === def.toLowerCase();
+/** The merchant's own colour pick, else the store colour token (PBI 10-39) over the theme default. */
+const brandOr = (value: unknown, def: string, token: string) => (isDefaultColor(value, def) ? `var(${token}, ${def})` : String(value));
+
 type SectionProps = { id: string; onQuickView: (product: Product) => void };
 
 // Each bespoke section reads its settings / blocks by its own INSTANCE id, so
@@ -41,7 +46,13 @@ function HeroBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
   const { store } = useStore();
-  const { products: featured } = useFeaturedProducts(4);
+  const { products: featured, loading } = useFeaturedProducts(4);
+  // Photo: the merchant's own, else a product photo; the theme's stock photo
+  // only once loaded and the store has none (never flashed before the real one).
+  const own = merchantImage(hero.background_image, store?.brand?.coverImage);
+  // Store photos: featured products first, else the newest ones.
+  const { products: newest, loading: newestLoading } = useProducts({ sort: 'newest', limit: 4 });
+  const productPhoto = merchantImage(...[...(featured || []), ...(newest || [])].map((p) => p.images?.[0]));
   // Only the merchant's own copy: the title falls back to the store name, and
   // the second heading line / second button show only when set.
   const title = [merchantText(hero.heading_line1) || store?.name || '', merchantText(hero.heading_line2)].filter(Boolean).join(' ');
@@ -55,9 +66,9 @@ function HeroBlock({ id }: SectionProps) {
       subtitle={merchantText(hero.subheading) || undefined}
       primaryCta={{ label: merchantText(hero.primary_button_text) || t('theme.hero.primary_cta'), href: hero.primary_button_url || '/products' }}
       secondaryCta={secondaryText ? { label: secondaryText, href: hero.secondary_button_url || '/categories' } : undefined}
-      backgroundImage={merchantImage(hero.background_image) || undefined}
-      media={featured?.find((p) => p.images?.[0])?.images?.[0]}
-      defaultImage={HERO_DEFAULT_IMAGE}
+      backgroundImage={own || undefined}
+      media={productPhoto || undefined}
+      defaultImage={!own && !productPhoto && !loading && !newestLoading ? HERO_DEFAULT_IMAGE : undefined}
       overlayOpacity={hero.overlay_opacity || 0}
     />
   );
@@ -74,13 +85,13 @@ function NewArrivalsBlock({ id, onQuickView }: SectionProps) {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between mb-12">
           <div>
-            <p className="text-[#d4a76a] text-xs uppercase tracking-[0.3em] mb-2">
+            <p className="text-[var(--brand-ink,#d4a76a)] text-xs uppercase tracking-[0.3em] mb-2">
               {t('theme.section.new_arrivals.eyebrow')}
             </p>
             <h2 className="text-3xl font-semibold">{arrivals.heading || t('theme.section.new_arrivals.title')}</h2>
             {arrivals.subheading && <p className="text-gray-500 mt-2">{arrivals.subheading}</p>}
           </div>
-          <Link to={arrivals.view_all_url || '/products?sort=newest'} className="text-[#d4a76a] text-sm font-medium hover:underline">
+          <Link to={arrivals.view_all_url || '/products?sort=newest'} className="text-[var(--brand-ink,#d4a76a)] text-sm font-medium hover:underline">
             {t('theme.section.new_arrivals.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
           </Link>
         </div>
@@ -116,8 +127,11 @@ function NewArrivalsBlock({ id, onQuickView }: SectionProps) {
 function CategoriesBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const cats = useThemeSettings(id);
-  const { categories } = useCategories();
+  const { categories, loading } = useCategories();
   const { ref: categoriesRef, isIntersecting: categoriesVisible } = useIntersectionObserver({ threshold: 0.1 });
+  // Warm tiles take a light tint of the store colour unless the merchant picked them.
+  const tileBg = brandOr(cats.tile_background_color, '#f0ebe3', '--brand-soft');
+  const tileHover = brandOr(cats.tile_hover_color, '#e8e0d4', '--brand-soft');
 
   return (
     <section
@@ -125,13 +139,18 @@ function CategoriesBlock({ id }: SectionProps) {
       className={`max-w-7xl mx-auto px-6 py-20 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
     >
       <div className="text-center mb-12">
-        <p className="text-[#d4a76a] text-xs uppercase tracking-[0.3em] mb-2">
+        <p className="text-[var(--brand-ink,#d4a76a)] text-xs uppercase tracking-[0.3em] mb-2">
           {cats.eyebrow || t('theme.section.categories.eyebrow')}
         </p>
         <h2 className="text-3xl font-semibold">{cats.heading || t('theme.section.categories.title')}</h2>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-        {(categories.length > 0 ? categories.slice(0, cats.max_categories || 6) : ROOM_KEYS).map((item, i) => {
+        {/* While the store's categories load: same-size blank tiles, never the
+            demo rooms (they would flash before the real categories). */}
+        {loading && Array.from({ length: cats.max_categories || 6 }).map((_, i) => (
+          <div key={i} aria-hidden="true" className="rounded-lg h-48" style={{ backgroundColor: tileBg }} />
+        ))}
+        {!loading && (categories.length > 0 ? categories.slice(0, cats.max_categories || 6) : ROOM_KEYS).map((item, i) => {
           const cat = categories[i];
           const room = ROOM_KEYS[i] || ROOM_KEYS[0];
           return (
@@ -139,14 +158,14 @@ function CategoriesBlock({ id }: SectionProps) {
               key={cat?._id || room.nameKey}
               to={cat ? `/categories/${cat.slug}` : '/products'}
               className="group relative rounded-lg p-8 flex flex-col items-center justify-center h-48 transition-colors"
-              style={{ backgroundColor: cats.tile_background_color || '#f0ebe3' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = cats.tile_hover_color || '#e8e0d4'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = cats.tile_background_color || '#f0ebe3'; }}
+              style={{ backgroundColor: tileBg }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = tileHover; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = tileBg; }}
             >
-              <svg className="w-10 h-10 text-[#d4a76a] mb-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-10 h-10 text-[var(--brand-ink,#d4a76a)] mb-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={room.icon} />
               </svg>
-              <h3 className="font-medium text-gray-700 group-hover:text-[#d4a76a] transition">
+              <h3 className="font-medium text-gray-700 group-hover:text-[var(--brand-ink,#d4a76a)] transition">
                 {cat?.name || t(room.nameKey)}
               </h3>
             </Link>
@@ -163,6 +182,8 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
   const feat = useThemeSettings(id);
   const { products: featured, loading } = useFeaturedProducts(feat.product_limit || 9);
   const { ref: productsRef, isIntersecting: productsVisible } = useIntersectionObserver({ threshold: 0.1 });
+  // Only for a store with featured products — nothing while loading.
+  if (loading || featured.length === 0) return null;
 
   return (
     <section
@@ -172,24 +193,17 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between mb-12">
           <div>
-            <p className="text-[#d4a76a] text-xs uppercase tracking-[0.3em] mb-2">
+            <p className="text-[var(--brand-ink,#d4a76a)] text-xs uppercase tracking-[0.3em] mb-2">
               {feat.eyebrow || t('theme.section.featured_products.eyebrow')}
             </p>
             <h2 className="text-3xl font-semibold">{feat.heading || t('theme.section.featured_products.title')}</h2>
           </div>
-          <Link to={feat.view_all_url || '/products'} className="text-[#d4a76a] text-sm font-medium hover:underline">
+          <Link to={feat.view_all_url || '/products'} className="text-[var(--brand-ink,#d4a76a)] text-sm font-medium hover:underline">
             {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
           </Link>
         </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-80 rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <ProductRail columns={(Number(feat.columns) || 3) as 2 | 3 | 4 | 5}>
+        <ProductRail columns={(Number(feat.columns) || 3) as 2 | 3 | 4 | 5}>
             {featured.map((p) => (
               <ProductCard key={p._id} product={p} onQuickView={feat.show_quick_view !== false ? onQuickView : undefined}>
                 <ProductCard.Image showBadge showQuickView={feat.show_quick_view !== false} hoverSwap />
@@ -201,8 +215,7 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
                 </ProductCard.Body>
               </ProductCard>
             ))}
-          </ProductRail>
-        )}
+        </ProductRail>
       </div>
     </section>
   );
@@ -237,7 +250,7 @@ function PhilosophyBlock({ id }: SectionProps) {
       style={{ backgroundColor: philosophy.background_color || '#f9f7f4' }}
     >
       <div className="max-w-4xl mx-auto px-6 text-center">
-        <p className="text-[#d4a76a] text-xs uppercase tracking-[0.3em] mb-4">
+        <p className="text-[var(--brand-ink,#d4a76a)] text-xs uppercase tracking-[0.3em] mb-4">
           {philosophy.eyebrow || t('theme.section.philosophy.eyebrow')}
         </p>
         <h2 className="text-3xl font-semibold mb-6">{philosophy.heading || t('theme.section.philosophy.title')}</h2>
@@ -250,8 +263,8 @@ function PhilosophyBlock({ id }: SectionProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
           {pillarBlocks.map((block) => (
             <div key={block.id} className="text-center">
-              <div className="w-12 h-12 bg-[#d4a76a]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <div className="w-3 h-3 bg-[#d4a76a] rounded-full" />
+              <div className="w-12 h-12 bg-[var(--brand-soft,rgb(212_167_106_/_0.1))] rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-3 h-3 bg-[var(--brand,#d4a76a)] rounded-full" />
               </div>
               {merchantText(block.settings.title) && <h3 className="font-medium text-gray-800 mb-2">{block.settings.title}</h3>}
               {merchantText(block.settings.description) && <p className="text-sm text-gray-500">{block.settings.description}</p>}
@@ -277,7 +290,7 @@ function TrendingBlock({ id, onQuickView }: SectionProps) {
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <p className="text-[#d4a76a] text-xs uppercase tracking-[0.3em] mb-2">
+          <p className="text-[var(--brand-ink,#d4a76a)] text-xs uppercase tracking-[0.3em] mb-2">
             {trending.eyebrow || t('theme.section.trending.eyebrow')}
           </p>
           <h2 className="text-3xl font-semibold">{trending.heading || t('theme.section.trending.title')}</h2>
@@ -303,19 +316,23 @@ function NewsletterBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const news = useThemeSettings(id);
   const { ref: newsletterRef, isIntersecting: newsletterVisible } = useIntersectionObserver({ threshold: 0.1 });
+  // A deep shade of the store colour unless the merchant picked the band colour;
+  // its text then follows the colour's readable text colour.
+  const onBrand = isDefaultColor(news.background_color, '#2d2d2d');
+  const onBand = (fallback: string) => (onBrand ? `var(--brand-contrast, ${fallback})` : fallback);
 
   return (
     <section
       ref={newsletterRef as React.RefObject<HTMLElement>}
       className={`py-20 transition-all duration-[var(--duration-slow,500ms)] ease-[var(--ease-entrance,cubic-bezier(0.16,1,0.3,1))] ${newsletterVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      style={{ backgroundColor: news.background_color || '#2d2d2d' }}
+      style={{ backgroundColor: brandOr(news.background_color, '#2d2d2d', '--brand-strong') }}
     >
       <div className="max-w-xl mx-auto px-6 text-center">
-        <p className="text-[#d4a76a] text-xs uppercase tracking-[0.3em] mb-4">
+        <p className="text-xs uppercase tracking-[0.3em] mb-4" style={{ color: onBand('#d4a76a') }}>
           {news.eyebrow || t('theme.section.newsletter.eyebrow')}
         </p>
-        <h2 className="text-2xl font-semibold text-white mb-4">{news.heading || t('theme.section.newsletter.title')}</h2>
-        <p className="text-gray-300 mb-8">
+        <h2 className="text-2xl font-semibold mb-4" style={{ color: onBand('#fff') }}>{news.heading || t('theme.section.newsletter.title')}</h2>
+        <p className="mb-8" style={{ color: onBand('#d1d5db') }}>
           {news.subheading || t('theme.section.newsletter.subtitle')}
         </p>
         <form onSubmit={(e) => e.preventDefault()} className="flex gap-3 max-w-md mx-auto">
@@ -324,7 +341,7 @@ function NewsletterBlock({ id }: SectionProps) {
             placeholder={news.placeholder || t('theme.section.newsletter.placeholder')}
             className="flex-1 bg-[#3d3d3d] text-white px-4 py-3 border border-gray-600 focus:border-[#d4a76a] focus:outline-none placeholder-gray-500"
           />
-          <button type="submit" className="bg-[#d4a76a] text-[#2d2d2d] px-6 py-3 font-medium hover:bg-[#c49a5f] transition whitespace-nowrap">
+          <button type="submit" className="bg-[var(--brand-contrast,#d4a76a)] text-[var(--brand-strong,#2d2d2d)] px-6 py-3 font-medium hover:bg-[var(--brand-soft,#c49a5f)] transition whitespace-nowrap">
             {news.button_text || t('theme.section.newsletter.button')}
           </button>
         </form>

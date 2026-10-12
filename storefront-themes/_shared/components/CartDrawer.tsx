@@ -126,7 +126,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               <button
                 onClick={onClose}
                 className="mt-5 inline-flex items-center justify-center px-5 h-11 rounded-[var(--radius,12px)] text-white text-sm font-semibold hover:brightness-110 active:scale-95 transition"
-                style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
+                style={{ backgroundColor: 'var(--color-primary, #2563eb)', color: 'var(--color-on-primary, #fff)' }}
               >
                 {t('drawer.continue_shopping')}
               </button>
@@ -211,7 +211,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               to="/checkout"
               onClick={onClose}
               className="flex items-center justify-center w-full h-12 rounded-[var(--radius,12px)] text-white font-semibold shadow-[var(--shadow-sm)] hover:brightness-110 hover:shadow-[var(--shadow-md)] active:scale-[0.99] transition"
-              style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
+              style={{ backgroundColor: 'var(--color-primary, #2563eb)', color: 'var(--color-on-primary, #fff)' }}
             >
               {t('drawer.checkout')}
             </Link>

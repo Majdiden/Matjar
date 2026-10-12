@@ -18,7 +18,8 @@ import { ProductProvider } from '@matjar/theme-shared/contexts/ProductContext';
 import { useTrustLines, type TrustLineIcon } from '@matjar/theme-shared/components/commerce/TrustBadges';
 import NutrekoProductCard from '../components/NutrekoProductCard';
 
-const LIME = 'var(--color-primary)';
+const LIME = 'var(--brand, var(--color-primary))'; // store colour (PBI 10-39), lime without one
+const ON_LIME = 'var(--brand-contrast, var(--color-secondary))';
 const DARK = 'var(--color-secondary)';
 const ORANGE = 'var(--color-accent)';
 const ERROR = 'var(--color-error)';
@@ -166,7 +167,7 @@ const ProductDetail: React.FC = () => {
                     {t('theme.product_detail.pre_order')}
                   </span>
                 ) : inStock ? (
-                  <span className="inline-block px-4 py-2 text-[11px] font-black tracking-wider uppercase" style={{ backgroundColor: LIME, color: DARK }}>
+                  <span className="inline-block px-4 py-2 text-[11px] font-black tracking-wider uppercase" style={{ backgroundColor: LIME, color: ON_LIME }}>
                     {t('theme.product_detail.in_stock_badge')}
                   </span>
                 ) : null}
@@ -256,7 +257,7 @@ const ProductDetail: React.FC = () => {
 
             {/* Stock indicator */}
             <div className="flex items-center gap-2 mb-5 text-xs font-bold uppercase tracking-wider">
-              <span className={`w-2 h-2 ${inStock ? 'bg-[var(--color-primary)]' : 'bg-red-500'}`} />
+              <span className={`w-2 h-2 ${inStock ? 'bg-[var(--brand,var(--color-primary))]' : 'bg-red-500'}`} />
               <span className={inStock ? 'text-black' : 'text-red-600'}>
                 {inStock ? t('theme.product_detail.in_stock_badge') : t('theme.product_detail.out_of_stock')}
               </span>
@@ -268,14 +269,14 @@ const ProductDetail: React.FC = () => {
                 <div className="flex items-center border-2 border-black">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="w-11 h-14 text-lg font-black hover:bg-[var(--color-primary)]"
+                    className="w-11 h-14 text-lg font-black hover:bg-[var(--brand,var(--color-primary))] hover:text-[var(--brand-contrast,var(--color-secondary))]"
                   >
                     −
                   </button>
                   <span className="w-12 text-center text-base font-black">{qty}</span>
                   <button
                     onClick={() => setQty(qty + 1)}
-                    className="w-11 h-14 text-lg font-black hover:bg-[var(--color-primary)]"
+                    className="w-11 h-14 text-lg font-black hover:bg-[var(--brand,var(--color-primary))] hover:text-[var(--brand-contrast,var(--color-secondary))]"
                   >
                     +
                   </button>
@@ -299,8 +300,8 @@ const ProductDetail: React.FC = () => {
                 type="button"
                 className="w-full h-14 border-2 border-black text-[12px] tracking-[0.22em] uppercase font-black hover:text-black transition"
                 style={{ backgroundColor: DARK, color: '#fff' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = LIME; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = DARK; }}
+                onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = LIME; el.style.color = ON_LIME; }}
+                onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = DARK; el.style.color = '#fff'; }}
               >
                 {t('theme.product_detail.buy_now')}
               </button>
@@ -344,7 +345,7 @@ const ProductDetail: React.FC = () => {
               <button
                 key={k}
                 onClick={() => setTab(k)}
-                className={`flex-1 py-5 text-[11px] tracking-[0.22em] uppercase font-black transition border-e-2 border-black last:border-e-0 ${tab === k ? 'bg-black text-white' : 'hover:bg-[var(--color-primary)]'}`}
+                className={`flex-1 py-5 text-[11px] tracking-[0.22em] uppercase font-black transition border-e-2 border-black last:border-e-0 ${tab === k ? 'bg-black text-white' : 'hover:bg-[var(--brand,var(--color-primary))] hover:text-[var(--brand-contrast,var(--color-secondary))]'}`}
               >
                 {label}
               </button>

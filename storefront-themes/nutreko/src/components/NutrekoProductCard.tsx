@@ -19,7 +19,8 @@ interface Props {
   onQuickView?: (p: any) => void;
 }
 
-const LIME = 'var(--color-primary)';
+const LIME = 'var(--brand, var(--color-primary))'; // store colour (PBI 10-39), lime without one
+const ON_LIME = 'var(--brand-contrast, var(--color-secondary))';
 const DARK = 'var(--color-secondary)';
 
 export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) => {
@@ -91,7 +92,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
               <div className="absolute top-0 start-0">
                 <span
                   className="inline-block px-4 py-2 text-[11px] font-black tracking-widest uppercase"
-                  style={{ backgroundColor: LIME, color: DARK }}
+                  style={{ backgroundColor: LIME, color: ON_LIME }}
                 >
                   {t('theme.product_card.new', { defaultValue: 'NEW' })}
                 </span>
@@ -104,7 +105,7 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
                 type="button"
                 aria-label={t('common:aria.quick_view')}
                 onClick={(e) => { e.preventDefault(); onQuickView(product); }}
-                className="absolute top-3 end-3 w-10 h-10 bg-white border-2 border-black flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-[var(--color-primary)] transition"
+                className="absolute top-3 end-3 w-10 h-10 bg-white border-2 border-black flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-[var(--brand,var(--color-primary))] hover:text-[var(--brand-contrast,var(--color-secondary))] transition"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -159,8 +160,8 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             to={`/products/${slug}`}
             className="mt-4 block w-full py-3 text-center text-[11px] tracking-[0.2em] uppercase font-black border-2 border-black hover:text-black transition"
             style={{ backgroundColor: DARK, color: '#fff' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = LIME; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = DARK; }}
+            onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = LIME; el.style.color = ON_LIME; }}
+            onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = DARK; el.style.color = '#fff'; }}
           >
             {t('theme.product_card.choose_options')}
           </Link>
@@ -170,8 +171,8 @@ export const NutrekoProductCard: React.FC<Props> = ({ product, onQuickView }) =>
             onClick={() => addItem(product._id || product.id, 1)}
             className="mt-4 w-full py-3 text-[11px] tracking-[0.2em] uppercase font-black border-2 border-black hover:text-black transition"
             style={{ backgroundColor: DARK, color: '#fff' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = LIME; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = DARK; }}
+            onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = LIME; el.style.color = ON_LIME; }}
+            onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = DARK; el.style.color = '#fff'; }}
           >
             {t('theme.product_card.add_to_cart')}
           </button>

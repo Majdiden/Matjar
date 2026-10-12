@@ -45,7 +45,8 @@ const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero'
   const secondaryCta = secondaryText
     ? { label: secondaryText, href: hero.secondary_button_url || '/categories' }
     : null;
-  const backgroundImage: string | undefined = merchantImage(hero.background_image) || undefined;
+  // The merchant's own photo (hero setting, else the store cover image).
+  const backgroundImage: string | undefined = merchantImage(hero.background_image, store?.brand?.coverImage) || undefined;
   const overlayOpacity: number = hero.overlay_opacity || 0;
   const image = backgroundImage || media;
 
@@ -80,7 +81,7 @@ const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero'
       <div
         className="pointer-events-none absolute inset-y-0 end-0 -z-10 w-1/2"
         style={{
-          background: 'linear-gradient(135deg, var(--color-primary, #dc2626), color-mix(in srgb, var(--color-primary, #dc2626) 55%, #000))',
+          background: 'linear-gradient(135deg, var(--brand, var(--color-primary, #dc2626)), color-mix(in srgb, var(--brand, var(--color-primary, #dc2626)) 55%, #000))',
           clipPath: 'polygon(28% 0, 100% 0, 100% 100%, 0% 100%)',
           opacity: image ? 0.45 : 0.92,
         }}
@@ -89,7 +90,7 @@ const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero'
       {/* Motion accent stripes */}
       <div
         className="pointer-events-none absolute -top-10 end-[18%] -z-10 h-[140%] w-2 sm:w-3 rotate-12 opacity-80"
-        style={{ background: 'var(--color-accent, #ef4444)' }}
+        style={{ background: 'var(--brand, var(--color-accent, #ef4444))' }}
       />
       <div
         className="pointer-events-none absolute -top-10 end-[22%] -z-10 h-[140%] w-1 sm:w-1.5 rotate-12 opacity-50"
@@ -97,7 +98,7 @@ const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero'
       />
       <div
         className="pointer-events-none absolute -bottom-10 start-[-2%] -z-10 h-1.5 w-1/2 -rotate-3"
-        style={{ background: 'linear-gradient(90deg, var(--color-primary, #dc2626), transparent)' }}
+        style={{ background: 'linear-gradient(90deg, var(--brand, var(--color-primary, #dc2626)), transparent)' }}
       />
 
       <div className="relative z-10 mx-auto w-full max-w-[var(--layout-max-width,1280px)] px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
@@ -105,7 +106,7 @@ const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero'
           {/* Eyebrow — angular accent bar + label (no filled pill) */}
           {eyebrow && (
             <span className="inline-flex items-center gap-3 text-xs sm:text-sm font-black uppercase italic tracking-[0.15em] text-white">
-              <span className="h-3 w-7 -skew-x-12" aria-hidden="true" style={{ background: 'var(--color-primary, #dc2626)' }} />
+              <span className="h-3 w-7 -skew-x-12" aria-hidden="true" style={{ background: 'var(--brand, var(--color-primary, #dc2626))' }} />
               {eyebrow}
             </span>
           )}
@@ -141,8 +142,8 @@ const SportzoneHero: React.FC<SportzoneHeroProps> = ({ media, sectionId = 'hero'
             {/* Big angular (parallelogram) primary CTA */}
             <Link
               to={primaryCta.href}
-              className="group inline-flex items-center justify-center gap-2 px-9 py-4 text-base font-black uppercase italic tracking-wider text-white shadow-[var(--shadow-lg)] [transform:skewX(-10deg)] transition-[transform,filter] duration-[var(--duration-fast,150ms)] hover:brightness-110 hover:[transform:skewX(-10deg)_translateY(var(--hover-lift,-3px))]"
-              style={{ background: 'var(--color-primary, #dc2626)' }}
+              className="group inline-flex items-center justify-center gap-2 px-9 py-4 text-base font-black uppercase italic tracking-wider text-[var(--brand-contrast,#fff)] shadow-[var(--shadow-lg)] [transform:skewX(-10deg)] transition-[transform,filter] duration-[var(--duration-fast,150ms)] hover:brightness-110 hover:[transform:skewX(-10deg)_translateY(var(--hover-lift,-3px))]"
+              style={{ background: 'var(--brand, var(--color-primary, #dc2626))' }}
             >
               <span className="inline-flex items-center gap-2 [transform:skewX(10deg)]">
                 {primaryCta.label}

@@ -10,7 +10,7 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
  * Nutreko Products page — dark title banner + bold sidebar filters.
  */
 
-const LIME = 'var(--color-primary)';
+const LIME = 'var(--brand, var(--color-primary))'; // store colour (PBI 10-39), lime without one
 const headingFont = { fontFamily: 'var(--font-family-heading)' } as const;
 
 const FilterBlock: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -63,7 +63,7 @@ const Products: React.FC = () => {
             <span>{t('theme.products.breadcrumb_shop')}</span>
           </div>
           <h1 className="font-display text-5xl md:text-7xl uppercase leading-[0.95]" style={headingFont}>
-            <span style={{ color: LIME }}>{t('theme.products.page_title')}</span>
+            <span style={{ color: 'var(--nk-brand-on-dark, var(--color-primary))' }}>{t('theme.products.page_title')}</span>
           </h1>
           <p className="mt-4 text-white/60 max-w-xl">
             {t('theme.products.page_subtitle')}

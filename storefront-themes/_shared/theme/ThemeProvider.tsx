@@ -3,7 +3,7 @@ import type { ThemeManifest, MergedThemeSettings, SectionInstance, ThemeColors, 
 import { useStore } from '../contexts/StoreContext';
 import { useLanguage } from '../i18n/LanguageProvider';
 import { BRAND_COLOR_TOKEN, resolveBoundSettings, resolvePrimaryColor, type BrandBindingSource } from './brandBindings';
-import { brandCssVars } from './brandColor';
+import { brandCssVars, brandPalette } from './brandColor';
 import { universalSections } from './universalSections';
 
 /**
@@ -806,10 +806,15 @@ export function ThemeProvider({ manifest, children }: ThemeProviderProps) {
       ...(manifest.colorsDark || {}),
     };
 
-    const colorVars = (palette: ThemeColors) =>
-      Object.entries(palette)
-        .map(([key, value]) => `  --color-${key}: ${value};`)
-        .join('\n');
+    // `--color-on-primary`: readable text on the primary colour, whatever it
+    // is (a light store colour gets dark text on its buttons).
+    const colorVars = (palette: ThemeColors) => {
+      const onPrimary = brandPalette((palette as Record<string, string>)[BRAND_COLOR_TOKEN])?.contrast;
+      return [
+        ...Object.entries(palette).map(([key, value]) => `  --color-${key}: ${value};`),
+        ...(onPrimary ? [`  --color-on-primary: ${onPrimary};`] : []),
+      ].join('\n');
+    };
 
     const typoVars: string[] = [];
     if (merged.typography.fontFamily) typoVars.push(`  --font-family: ${merged.typography.fontFamily};`);

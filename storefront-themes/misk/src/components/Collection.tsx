@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { storefrontApi } from '@matjar/theme-shared/api/client';
 import { useCategories, useFeaturedProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { merchantImage } from '@matjar/theme-shared/theme/heroContent';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
@@ -56,6 +57,7 @@ export const Collection: React.FC<Props> = ({ categorySlug, collectionHandle, ti
   // ── settings ──
   const fallbackBanner = useThemeSetting<string>('collection_banner_image');
   const bannerHeight = Number(useThemeSetting<number>('collection_banner_height')) || 320;
+  const banner = bannerImage || merchantImage(fallbackBanner);
   const showChips = useThemeSetting<boolean>('collection_show_chips') !== false;
   const placement = useThemeSetting<string>('filter_placement') || 'start';
   const desktopCols = String(useThemeSetting<string>('default_columns') || '3');
@@ -248,8 +250,12 @@ export const Collection: React.FC<Props> = ({ categorySlug, collectionHandle, ti
 
   return (
     <div>
-      <div className="relative flex items-center justify-center overflow-hidden bg-ink" style={{ minHeight: `${bannerHeight}px` }}>
-        {(bannerImage || fallbackBanner) && <img src={bannerImage || fallbackBanner} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+      {/* The category's own photo, else the merchant's own banner. The theme's
+          stock banner is never used: it showed while the category loaded and
+          was then swapped for the category photo (the band alone is the
+          fallback, in the store colour when it has one). */}
+      <div className="relative flex items-center justify-center overflow-hidden bg-[color:var(--brand-ink,var(--color-foreground,#14110E))]" style={{ minHeight: `${bannerHeight}px` }}>
+        {banner && <img src={banner} alt="" className="absolute inset-0 h-full w-full object-cover" />}
         <div className="absolute inset-0 bg-black/50" />
         <div className="relative w-full px-4 py-12 text-center text-white">
           <h1 className="font-display text-4xl sm:text-5xl">{title}</h1>

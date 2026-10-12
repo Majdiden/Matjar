@@ -21,6 +21,9 @@ import { SectionAnchor, TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-
 
 const OPEN_DELAY = 150;
 
+/** A colour setting still at the theme's shipped value (or empty): the store colour may replace it. */
+const brandable = (value: string | undefined, shipped: string) => !value || value.trim().toLowerCase() === shipped;
+
 const Layout: React.FC = () => {
   const { t } = useTranslation(['theme']);
   const { store } = useStore();
@@ -143,7 +146,7 @@ const Layout: React.FC = () => {
       </a>
 
       {showUtility && (
-        <div className="hidden border-b border-line lg:block" style={utilityBg ? { background: utilityBg } : undefined}>
+        <div className="hidden border-b border-line lg:block" style={utilityBg ? { background: brandable(utilityBg, '#f4efe7') ? `var(--brand-soft, ${utilityBg})` : utilityBg } : undefined}>
           <div className="mx-auto flex max-w-[1320px] items-center justify-between gap-4 px-6 py-2 text-xs text-muted">
             <div className="flex items-center gap-5">
               {phone && (
@@ -176,7 +179,14 @@ const Layout: React.FC = () => {
 
       {stripText && (
         <SectionAnchor id={TOP_STRIP_ANCHOR} className="">
-          <Announcement messages={[stripText]} interval={0} background={announceBg} color={announceColor} />
+          <Announcement
+            messages={[stripText]}
+            interval={0}
+            // The shipped colours (ink/white) give way to the store colour;
+            // colours the merchant picked themselves are kept.
+            background={brandable(announceBg, '#14110e') ? `var(--brand, ${announceBg || 'var(--color-foreground, #14110e)'})` : announceBg}
+            color={brandable(announceBg, '#14110e') && brandable(announceColor, '#ffffff') ? `var(--brand-contrast, ${announceColor || '#ffffff'})` : announceColor}
+          />
         </SectionAnchor>
       )}
 

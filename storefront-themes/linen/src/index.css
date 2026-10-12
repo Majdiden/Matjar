@@ -6,7 +6,7 @@
    The customizer feeds --color-* / --font-* through ThemeProvider; the
    defaults here mirror the manifest so the page never flashes unstyled. */
 :root {
-  --linen-bronze-deep: #6f3f18;
+  --linen-bronze-deep: var(--brand-ink, #6f3f18); /* store colour (PBI 10-39), readable on cream */
   --linen-reveal-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --linen-marquee-duration: 30s;
   --fs-base: 1.0625rem; --lh-base: 1.7rem;
@@ -53,9 +53,11 @@ html[lang='ar'] .linen-eyebrow { letter-spacing: 0.04em; }
 
 /* ── Buttons (square, colour per state as classes) ───────────────── */
 .linen-btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap px-7 py-3.5 text-center text-[0.8125rem] font-bold uppercase tracking-[0.16em] transition-colors duration-200 disabled:cursor-not-allowed; }
-.linen-btn-solid { @apply bg-sand text-ink hover:bg-bronze hover:text-cream disabled:bg-line disabled:text-dune; }
-.linen-btn-dark  { @apply bg-ink text-cream hover:bg-bronze hover:text-cream disabled:bg-line disabled:text-dune; }
-.linen-btn-outline { @apply border border-bronze bg-transparent text-clay hover:bg-bronze hover:text-cream disabled:border-line disabled:text-dune; }
+/* The solid CTA is sand by design; with a store colour it is that colour
+   (sand would now be its light tint, the same as the panels behind it). */
+.linen-btn-solid { @apply bg-[color:var(--brand,var(--color-accent,#ecdec1))] text-[color:var(--brand-contrast,var(--color-foreground,#0f0f0f))] hover:bg-bronze hover:text-on-bronze disabled:bg-line disabled:text-dune; }
+.linen-btn-dark  { @apply bg-ink text-cream hover:bg-bronze hover:text-on-bronze disabled:bg-line disabled:text-dune; }
+.linen-btn-outline { @apply border border-bronze bg-transparent text-clay hover:bg-bronze hover:text-on-bronze disabled:border-line disabled:text-dune; }
 html[lang='ar'] .linen-btn { letter-spacing: 0.03em; }
 
 /* ── Section rhythm (customizer value from md; 40px on phones) ────── */

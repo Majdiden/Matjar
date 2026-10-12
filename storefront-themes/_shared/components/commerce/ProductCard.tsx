@@ -186,7 +186,7 @@ function ProductImage({
               </span>
             )}
             {product.isFeatured && (
-              <span className={badge} style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}>
+              <span className={badge} style={{ backgroundColor: 'var(--color-primary, #2563eb)', color: 'var(--color-on-primary, #fff)' }}>
                 {t('product:featured_badge', 'Featured')}
               </span>
             )}
@@ -445,7 +445,7 @@ function ProductActions({
           fullWidth && 'w-full',
           addToCartClassName
         )}
-        style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
+        style={{ backgroundColor: 'var(--color-primary, #2563eb)', color: 'var(--color-on-primary, #fff)' }}
         title={
           requiresOptions
             ? t('select_options_hint', 'Select options on the product page')

@@ -15,14 +15,19 @@ import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar';
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
+import { WishlistHeaderLink } from '@matjar/theme-shared';
 
 /**
  * Milmaa Layout — cream background with teal accents.
  */
 
-const TEAL = 'var(--color-primary)';
+// Store colour (PBI 10-39) on the teal strip and the footer band; theme colours without one.
+const TEAL = 'var(--brand, var(--color-primary))';
+const ON_TEAL = 'var(--brand-contrast, #fff)';
+/** Footer band: the store colour deep enough for the cream copy. */
+const FOOTER_BG = 'var(--brand-ink, var(--color-foreground))';
+const BADGE_BG = 'var(--brand, var(--color-accent))';
 const DARK_TEAL = 'var(--color-foreground)';
-const PINK = 'var(--color-accent)';
 const CREAM = 'var(--color-background)';
 const BORDER = 'var(--color-border)';
 const HEADING_FONT = 'var(--font-family-heading)';
@@ -55,7 +60,7 @@ const Layout: React.FC = () => {
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: CREAM, color: DARK_TEAL }}>
       {/* ═══ TOP STRIP ══════════════════════════════════════════ */}
       {barText && (
-        <div data-section-id={TOP_STRIP_ANCHOR} className="text-white text-[12px] py-2.5 text-center font-medium" style={{ backgroundColor: TEAL }}>
+        <div data-section-id={TOP_STRIP_ANCHOR} className="text-[12px] py-2.5 text-center font-medium" style={{ backgroundColor: TEAL, color: ON_TEAL }}>
           {barText}
         </div>
       )}
@@ -79,7 +84,7 @@ const Layout: React.FC = () => {
             {/* Logo */}
             <Link
               to="/"
-              className="font-serif text-3xl md:text-4xl font-bold tracking-tight"
+              className="font-serif text-3xl md:text-4xl font-bold tracking-tight min-w-0 flex-1 truncate text-center md:flex-none md:text-start"
               style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}
             >
               {brand.toLowerCase()}
@@ -128,7 +133,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
                 {(wishlistCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-white text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: PINK }}>
+                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: BADGE_BG, color: ON_TEAL }}>
                     {wishlistCount}
                   </span>
                 )}
@@ -138,12 +143,19 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
                 {(cart?.itemCount || 0) > 0 && (
-                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-white text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: PINK }}>
+                  <span className="absolute -top-2 -end-2 min-w-[18px] h-[18px] px-1 text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: BADGE_BG, color: ON_TEAL }}>
                     {cart?.itemCount}
                   </span>
                 )}
               </button>
             </div>
+
+            {/* Phone: wishlist heart (cart, search and account live in the bottom nav) */}
+            <WishlistHeaderLink
+              className="md:hidden relative inline-flex h-10 w-10 shrink-0 items-center justify-center -me-2"
+              iconClassName="w-6 h-6"
+              badgeClassName="absolute top-0 end-0 min-w-[18px] h-[18px] px-1 text-[10px] rounded-full flex items-center justify-center font-bold bg-[var(--brand,var(--color-accent))] text-[var(--brand-contrast,#fff)]"
+            />
           </div>
         </div>
 
@@ -156,7 +168,7 @@ const Layout: React.FC = () => {
       </main>
 
       {/* ═══ FOOTER — content from the store's own data ═════════ */}
-      <footer className="mt-20 pt-16 pb-6" style={{ backgroundColor: DARK_TEAL, color: CREAM }}>
+      <footer className="mt-20 pt-16 pb-6" style={{ backgroundColor: FOOTER_BG, color: CREAM }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
             <div className="md:col-span-2">

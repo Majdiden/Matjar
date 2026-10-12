@@ -67,7 +67,7 @@ const Heading: React.FC<{ s: Record<string, any>; fallbackKey: string; id?: stri
   if (!eyebrow && !heading && !sub) return null;
   return (
     <div className={`${align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'} ${className}`}>
-      {eyebrow && <p className={`at-eyebrow ${light ? '!text-[color:var(--atelier-bronze)]' : ''}`}>{eyebrow}</p>}
+      {eyebrow && <p className={`at-eyebrow ${light ? '!text-[color:var(--atelier-bronze-on-dark)]' : ''}`}>{eyebrow}</p>}
       {heading && <h2 className={`mt-2 font-display text-[30px] font-medium leading-[1.15] sm:text-[38px] ${light ? 'text-white' : ''}`}>{heading}</h2>}
       {sub && <p className={`mt-3 text-[15px] leading-relaxed ${light ? 'text-white/85' : 'text-[#4a4a4a]'}`}>{sub}</p>}
     </div>
@@ -95,16 +95,34 @@ const IconItem: React.FC<{ icon: string; title: string; text?: string; center?: 
 const pick = (s: Record<string, any>, keys: string[]) =>
   Object.fromEntries(keys.filter((k) => typeof s[k] === 'string' && s[k].trim()).map((k) => [k, s[k]]));
 
+/** First photos of the store's own products (newest first) — never stock. */
+function useStoreProductPhotos(count: number) {
+  const { products, loading } = useProducts({ sort: 'newest', limit: 8 });
+  const photos = useMemo(
+    () => products.map((p: any) => p?.images?.[0]).filter((u: unknown) => !isStockImage(u)).slice(0, count) as string[],
+    [products, count],
+  );
+  return { photos, loading };
+}
+
 const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const s = useThemeSettings(id);
   const blocks = useBlocks(id, section);
   const { t } = useTranslation(['theme']);
-  const storeName = useStore().store?.name || '';
-  // Once the merchant has their own photo, extra slides still carrying a
-  // theme stock photo are dropped; slides they filled themselves stay.
-  const hasOwnPhoto = !!merchantImage(s.image);
+  const { store } = useStore();
+  const storeName = store?.name || '';
+  // Photo: the merchant's own (hero setting or cover), else a store product
+  // photo, else (a store with no photos at all) the theme's stock slides.
+  // While the products load, slides with a stock photo stay bare (the band
+  // colour) so no stock photo flashes before the store's own.
+  const ownPhoto = merchantImage(s.image, blocks[0]?.settings?.image, store?.brand?.coverImage);
+  const { photos, loading: photosLoading } = useStoreProductPhotos(1);
+  const heroPhoto = ownPhoto || photos[0] || null;
+  const pendingPhoto = !ownPhoto && photosLoading;
+  // Once the store has a photo, extra slides still carrying a theme stock
+  // photo are dropped; slides the merchant filled themselves stay.
   const all = blocks.length ? blocks : [{ id: 'fallback', type: 'slide', settings: {} }];
-  const slides = hasOwnPhoto ? all.filter((sl, i) => i === 0 || !isStockImage(sl.settings?.image)) : all;
+  const slides = heroPhoto || pendingPhoto ? all.filter((sl, i) => i === 0 || !isStockImage(sl.settings?.image)) : all;
   const [idx, setIdx] = useState(0);
   const [cycle, setCycle] = useState(0);
   const [hover, setHover] = useState(false);
@@ -122,11 +140,13 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
   const overlay = Number(s.overlay_opacity ?? 35) / 100;
   const pad2 = (n: number) => String(n).padStart(2, '0');
   return (
-    <section className={`relative w-full overflow-hidden bg-[#1c1c1c] ${h}`} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} aria-roledescription="carousel">
+    <section className={`relative w-full overflow-hidden bg-[color:var(--brand-ink,#1c1c1c)] ${h}`} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} aria-roledescription="carousel">
       {slides.map((sl, i) => {
         const active = i === idx;
         // The section-level (My Store) settings override the first slide.
-        const st = i === 0 ? { ...sl.settings, ...pick(s, ['heading', 'image', 'cta_text']) } : sl.settings || {};
+        const st: Record<string, any> = i === 0 ? { ...sl.settings, ...pick(s, ['heading', 'image', 'cta_text']) } : { ...(sl.settings || {}) };
+        if (i === 0 && heroPhoto) st.image = heroPhoto;
+        else if (pendingPhoto && isStockImage(st.image)) st.image = '';
         // Extras (eyebrow) only when the merchant typed them; title falls back to the store name.
         const eyebrow = merchantText(st.eyebrow);
         const heading = merchantText(st.heading) || storeName;
@@ -141,7 +161,7 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
             <div className={`relative mx-auto flex h-full max-w-[1320px] flex-col justify-center px-6 pt-24 sm:px-10 ${s.align === 'center' ? 'items-center text-center' : 'items-start'}`}>
               {active && (
                 <div key={cycle} className="max-w-2xl">
-                  {eyebrow && <p className="at-eyebrow !text-[color:var(--atelier-bronze)] opacity-0" style={{ animation: 'at-caption .6s ease-out forwards', animationDelay: '0ms' }}>{eyebrow}</p>}
+                  {eyebrow && <p className="at-eyebrow !text-[color:var(--atelier-bronze-on-dark)] opacity-0" style={{ animation: 'at-caption .6s ease-out forwards', animationDelay: '0ms' }}>{eyebrow}</p>}
                   {heading && <h1 className="mt-4 font-display text-[40px] font-medium leading-[1.05] text-white opacity-0 sm:text-[56px] lg:text-[72px]" style={{ animation: 'at-caption .6s ease-out forwards', animationDelay: '120ms' }}>{heading}</h1>}
                   {sub && <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-white/85 opacity-0 sm:text-[18px]" style={{ animation: 'at-caption .6s ease-out forwards', animationDelay: '180ms' }}>{sub}</p>}
                   {cta && <div className="mt-8 opacity-0" style={{ animation: 'at-caption .6s ease-out forwards', animationDelay: '240ms' }}><Link to={st.cta_url || '/products'} className="at-btn at-btn-light">{cta}</Link></div>}
@@ -297,6 +317,9 @@ const ProductGridSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const limit = Number(s.product_limit || 8);
   const { products, loading } = useSourcedProducts(String(s.product_source || 'newest'), limit);
   const cols = String(s.columns || '4') === '3' ? 'lg:grid-cols-3' : 'lg:grid-cols-4';
+  // Featured shows only the store's picks: nothing while they load (no
+  // heading over skeletons that may never fill) and nothing without any.
+  if (String(s.product_source || 'newest') === 'featured' && loading) return null;
   if (!loading && products.length === 0) return null;
   return (
     <Shell s={s}>
@@ -377,7 +400,7 @@ const VideoBlockSection: React.FC<SectionComponentProps> = ({ id }) => {
                   <span className="text-[12px] font-bold uppercase tracking-[0.18em]">{t('theme.section.video.play')}</span>
                 </button>
               )}
-              <p className="at-eyebrow mt-8 !text-[color:var(--atelier-bronze)]">{s.eyebrow || t('theme.section.video.eyebrow')}</p>
+              <p className="at-eyebrow mt-8 !text-[color:var(--atelier-bronze-on-dark)]">{s.eyebrow || t('theme.section.video.eyebrow')}</p>
               <h2 className="mt-2 max-w-3xl font-display text-[32px] font-medium leading-tight text-white sm:text-[46px]">{s.heading || t('theme.section.video.heading')}</h2>
               <Cta s={s} id={id} fallbackKey="video" variant="at-btn-light" className="mt-7" />
             </div>

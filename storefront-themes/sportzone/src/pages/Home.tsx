@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useThemeSettings, useTemplateSections, useMerchantBlocks } from '@matjar/theme-shared/theme/ThemeProvider';
 import { useTrustLines, TrustLineIconSvg } from '@matjar/theme-shared/components/commerce/TrustBadges';
-import { merchantText } from '@matjar/theme-shared/theme/heroContent';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sections';
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
@@ -14,6 +14,11 @@ import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import type { Product } from '@matjar/theme-shared/types/commerce';
 
+/** True when a colour setting still holds its manifest default (the merchant did not pick one). */
+const isDefaultColor = (value: unknown, def: string) => !value || String(value).trim().toLowerCase() === def.toLowerCase();
+/** The merchant's own colour pick, else the store colour token (PBI 10-39) over the theme default. */
+const brandOr = (value: unknown, def: string, token: string) => (isDefaultColor(value, def) ? `var(${token}, ${def})` : String(value));
+
 type SectionProps = { id: string; onQuickView: (product: Product) => void };
 
 // Each bespoke section reads its settings / blocks by its own INSTANCE id, so
@@ -22,9 +27,12 @@ type SectionProps = { id: string; onQuickView: (product: Product) => void };
 /** Hero — bespoke high-energy athletic hero */
 function HeroBlock({ id }: SectionProps) {
   const { products: featured } = useFeaturedProducts(4);
+  // Store photos: featured products first, else the newest ones.
+  const { products: newest } = useProducts({ sort: 'newest', limit: 4 });
+  const media = merchantImage(...[...(featured || []), ...(newest || [])].map((p) => p.images?.[0]));
 
   return (
-    <SportzoneHero sectionId={id} media={featured?.find((p) => p.images?.[0])?.images?.[0]} />
+    <SportzoneHero sectionId={id} media={media || undefined} />
   );
 }
 
@@ -52,7 +60,7 @@ function CategoriesBlock({ id }: SectionProps) {
           >
             {cat.image && <img src={cat.image} alt={cat.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-500" />}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-            <div className="absolute inset-0 border-2 border-transparent group-hover:border-[#dc2626] transition-all duration-300 rounded" />
+            <div className="absolute inset-0 border-2 border-transparent group-hover:border-[var(--brand,#dc2626)] transition-all duration-300 rounded" />
             <div className="absolute bottom-0 start-0 p-4">
               <span className="text-white font-black uppercase text-sm tracking-wider">{cat.name}</span>
               {cats.show_shop_now_label !== false && (
@@ -74,6 +82,8 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
   const feat = useThemeSettings(id);
   const { products: featured, loading: featuredLoading } = useFeaturedProducts(feat.product_limit || 8);
   const productsObserver = useIntersectionObserver({ threshold: 0.1 });
+  // Only for a store with featured products — nothing while loading.
+  if (featuredLoading || featured.length === 0) return null;
 
   return (
     <section
@@ -83,24 +93,17 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-black uppercase">{feat.heading || t('theme.section.featured_products.title')}</h2>
-          <Link to={feat.view_all_url || '/products'} className="text-[#dc2626] font-bold text-sm uppercase hover:underline">
+          <Link to={feat.view_all_url || '/products'} className="text-[var(--brand-ink,#dc2626)] font-bold text-sm uppercase hover:underline">
             {feat.view_all_text || t('theme.section.featured_products.view_all')} <span className="inline-block rtl:rotate-180">&rarr;</span>
           </Link>
         </div>
-        {featuredLoading ? (
-          <div className={`grid grid-cols-2 md:grid-cols-${feat.columns || '4'} gap-6`}>
-            {Array.from({ length: parseInt(feat.columns) || 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-72 rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <ProductRail columns={4}>
+        <ProductRail columns={4}>
             {featured.map((p) => (
               <ProductCard
                 key={p._id}
                 product={p}
                 onQuickView={feat.show_quick_view !== false ? onQuickView : undefined}
-                className="border-gray-200 hover:border-[#dc2626]/40"
+                className="border-gray-200 hover:border-[color:color-mix(in_srgb,var(--brand,#dc2626)_40%,transparent)]"
               >
                 <ProductCard.Image showBadge showQuickView={feat.show_quick_view !== false} hoverSwap />
                 <ProductCard.Body>
@@ -113,8 +116,7 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
                 </ProductCard.Body>
               </ProductCard>
             ))}
-          </ProductRail>
-        )}
+        </ProductRail>
       </div>
     </section>
   );
@@ -124,18 +126,22 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
 function CtaBannerBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const cta = useThemeSettings(id);
-  const ctaBgColor = cta.background_color || '#dc2626';
+  // The band takes the store colour unless the merchant picked its colour;
+  // its text then follows the colour's readable text colour.
+  const onBrand = isDefaultColor(cta.background_color, '#dc2626');
+  const ctaBgColor = brandOr(cta.background_color, '#dc2626', '--brand');
+  const ctaTextColor = onBrand ? 'var(--brand-contrast, #fff)' : '#fff';
   const ctaBtnBg = cta.button_bg_color || '#ffffff';
-  const ctaBtnTextColor = cta.button_text_color || '#dc2626';
+  const ctaBtnTextColor = brandOr(cta.button_text_color, '#dc2626', '--brand-ink');
 
   return (
-    <section className="py-16 text-center px-4" style={{ backgroundColor: ctaBgColor }}>
-      <h2 className={`text-3xl md:text-4xl font-black uppercase text-white ${merchantText(cta.subheading) ? 'mb-4' : 'mb-8'}`}>
+    <section className="py-16 text-center px-4" style={{ backgroundColor: ctaBgColor, color: ctaTextColor }}>
+      <h2 className={`text-3xl md:text-4xl font-black uppercase ${merchantText(cta.subheading) ? 'mb-4' : 'mb-8'}`}>
         {cta.heading || t('theme.section.cta_banner.title')}
       </h2>
       {/* The merchant's own line only — no demo promise ("Free shipping over $75"). */}
       {merchantText(cta.subheading) && (
-        <p className="text-white mb-8 max-w-md mx-auto">{merchantText(cta.subheading)}</p>
+        <p className="mb-8 max-w-md mx-auto">{merchantText(cta.subheading)}</p>
       )}
       <Link
         to={cta.button_url || '/products'}
@@ -167,7 +173,7 @@ function PerformanceGearBlock({ id, onQuickView }: SectionProps) {
         ) : (
           <ProductRail columns={4}>
             {perfProducts.map((p) => (
-              <ProductCard key={p._id} product={p} onQuickView={onQuickView} className="border-gray-200 hover:border-[#dc2626]/40">
+              <ProductCard key={p._id} product={p} onQuickView={onQuickView} className="border-gray-200 hover:border-[color:color-mix(in_srgb,var(--brand,#dc2626)_40%,transparent)]">
                 <ProductCard.Image showBadge showQuickView hoverSwap />
                 <ProductCard.Body>
                   <ProductCard.Title />
@@ -228,8 +234,8 @@ function TrustBadgesBlock({ id }: SectionProps) {
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {trustBlocks.map((f) => (
-          <div key={f.key} className="bg-white rounded-lg p-6 border-2 border-gray-100 hover:border-[#dc2626]/30 flex items-center gap-4 transition">
-            <div className="text-[#dc2626] flex-shrink-0">{f.icon}</div>
+          <div key={f.key} className="bg-white rounded-lg p-6 border-2 border-gray-100 hover:border-[color:color-mix(in_srgb,var(--brand,#dc2626)_30%,transparent)] flex items-center gap-4 transition">
+            <div className="text-[var(--brand-ink,#dc2626)] flex-shrink-0">{f.icon}</div>
             <div>
               {f.title && <h3 className="font-black uppercase mb-1">{f.title}</h3>}
               {f.desc && <p className="text-sm text-gray-500">{f.desc}</p>}
