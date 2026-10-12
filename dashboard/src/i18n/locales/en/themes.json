@@ -302,6 +302,7 @@
         "placeholder": "Select a {{type}}…"
       },
       "arabic_label": "Arabic",
+      "english_label": "English",
       "unsupported": "Unsupported type: {{type}}"
     },
     "preview": {

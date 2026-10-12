@@ -5,6 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
+import { useLanguageOrder } from '../../hooks/useLanguageOrder';
+import { langDir } from '../../lib/languageOrder';
+import { slugifyLink } from '../../lib/storeLink';
 import { CONTENT_SECTION_MAX, SECTION_KEY_RE, SUGGESTED_SECTIONS, slugifyKey, type ContentSectionRow, type SpecRow } from './contentSections';
 
 function move<T>(list: T[], from: number, to: number): T[] {
@@ -59,6 +62,8 @@ export function SpecificationsEditor({ rows, onChange }: { rows: SpecRow[]; onCh
 // ── Content sections ─────────────────────────────────────────────────────
 export function ContentSectionsEditor({ rows, onChange }: { rows: ContentSectionRow[]; onChange: (rows: ContentSectionRow[]) => void }) {
   const { t } = useTranslation(['products']);
+  // Each section's English and Arabic text: the UI language's group first.
+  const { sort: uiLanguageFirst, first: uiFirst } = useLanguageOrder();
   const full = rows.length >= CONTENT_SECTION_MAX;
   const keyCounts = rows.reduce<Record<string, number>>((acc, r) => { acc[r.key] = (acc[r.key] || 0) + 1; return acc; }, {});
 
@@ -66,13 +71,16 @@ export function ContentSectionsEditor({ rows, onChange }: { rows: ContentSection
     onChange(rows.map((r, idx) => {
       if (idx !== i) return r;
       const next = { ...r, ...patch };
-      if (patch.title !== undefined && next.autoKey) next.key = slugifyKey(patch.title);
+      // Auto key from the English title, else the Arabic one in Latin letters.
+      if ((patch.titleEn !== undefined || patch.titleAr !== undefined) && next.autoKey) {
+        next.key = slugifyKey(next.titleEn) || slugifyKey(slugifyLink(next.titleAr, 40));
+      }
       return next;
     }));
 
   const add = (preset?: { key: string; title: string; titleAr: string }) => {
     if (full) return;
-    onChange([...rows, { key: preset?.key ?? '', title: preset?.title ?? '', titleAr: preset?.titleAr ?? '', body: '', bodyAr: '', autoKey: !preset }]);
+    onChange([...rows, { key: preset?.key ?? '', titleEn: preset?.title ?? '', titleAr: preset?.titleAr ?? '', bodyEn: '', bodyAr: '', autoKey: !preset }]);
   };
 
   return (
@@ -106,7 +114,7 @@ export function ContentSectionsEditor({ rows, onChange }: { rows: ContentSection
           return (
             <div key={i} className="rounded-lg border p-3 sm:p-4 space-y-3">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium">{row.title || t('products.form.content_sections.untitled')} <span className="text-muted-foreground">#{i + 1}</span></span>
+                <span className="text-sm font-medium">{(uiFirst === 'ar' ? row.titleAr || row.titleEn : row.titleEn || row.titleAr) || t('products.form.content_sections.untitled')} <span className="text-muted-foreground">#{i + 1}</span></span>
                 <div className="flex gap-1">
                   <Button type="button" variant="ghost" size="icon" aria-label={t('products.form.content_sections.move_up')} disabled={i === 0} onClick={() => onChange(move(rows, i, i - 1))}><ArrowUp className="h-4 w-4" /></Button>
                   <Button type="button" variant="ghost" size="icon" aria-label={t('products.form.content_sections.move_down')} disabled={i === rows.length - 1} onClick={() => onChange(move(rows, i, i + 1))}><ArrowDown className="h-4 w-4" /></Button>
@@ -114,43 +122,60 @@ export function ContentSectionsEditor({ rows, onChange }: { rows: ContentSection
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-[1fr_180px]">
-                <div className="space-y-1.5">
-                  <Label>{t('products.form.content_sections.title_label')}</Label>
-                  <Input maxLength={80} value={row.title} onChange={(e) => update(i, { title: e.target.value })} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>{t('products.form.content_sections.key_label')}</Label>
-                  <Input
-                    dir="ltr"
-                    className="font-mono text-xs"
-                    value={row.key}
-                    onChange={(e) => update(i, { key: e.target.value.toLowerCase(), autoKey: false })}
-                    aria-invalid={keyInvalid || keyDup ? true : undefined}
-                  />
-                  {(keyInvalid || keyDup) && (
-                    <p className="text-xs text-destructive">
-                      {keyDup ? t('products.form.content_sections.key_duplicate') : t('products.form.content_sections.key_invalid')}
-                    </p>
-                  )}
-                </div>
-              </div>
+              {/* One title + text per language, the UI language's first; the
+                  key (shared by both) under them. */}
+              {uiLanguageFirst((['en', 'ar'] as const).map((lang) => {
+                const sfx = lang === 'ar' ? '-ar' : '';
+                const title = lang === 'ar' ? row.titleAr : row.titleEn;
+                const body = lang === 'ar' ? row.bodyAr : row.bodyEn;
+                return {
+                  lang,
+                  node: (
+                    <div key={lang} className="space-y-3">
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`section-${i}-title${sfx}`}>{t(`products.form.content_sections.title_${lang}_label`)}</Label>
+                        <Input
+                          id={`section-${i}-title${sfx}`}
+                          dir={langDir(lang)}
+                          lang={lang}
+                          maxLength={80}
+                          value={title}
+                          onChange={(e) => update(i, lang === 'ar' ? { titleAr: e.target.value } : { titleEn: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`section-${i}-body${sfx}`}>{t(`products.form.content_sections.body_${lang}_label`)}</Label>
+                        <Textarea
+                          id={`section-${i}-body${sfx}`}
+                          dir={langDir(lang)}
+                          lang={lang}
+                          rows={4}
+                          maxLength={5000}
+                          value={body}
+                          onChange={(e) => update(i, lang === 'ar' ? { bodyAr: e.target.value } : { bodyEn: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  ),
+                };
+              })).map((g) => g.node)}
+              <p className="text-xs text-muted-foreground">{t('products.form.content_sections.body_hint')}</p>
 
-              <div className="space-y-1.5">
-                <Label>{t('products.form.content_sections.body_label')}</Label>
-                <Textarea rows={4} maxLength={5000} value={row.body} onChange={(e) => update(i, { body: e.target.value })} />
-                <p className="text-xs text-muted-foreground">{t('products.form.content_sections.body_hint')}</p>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label>{t('products.form.content_sections.title_ar_label')}</Label>
-                  <Input dir="rtl" maxLength={80} value={row.titleAr} onChange={(e) => update(i, { titleAr: e.target.value })} />
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label>{t('products.form.content_sections.body_ar_label')}</Label>
-                  <Textarea dir="rtl" rows={4} maxLength={5000} value={row.bodyAr} onChange={(e) => update(i, { bodyAr: e.target.value })} />
-                </div>
+              <div className="space-y-1.5 sm:max-w-[220px]">
+                <Label htmlFor={`section-${i}-key`}>{t('products.form.content_sections.key_label')}</Label>
+                <Input
+                  id={`section-${i}-key`}
+                  dir="ltr"
+                  className="font-mono text-xs"
+                  value={row.key}
+                  onChange={(e) => update(i, { key: e.target.value.toLowerCase(), autoKey: false })}
+                  aria-invalid={keyInvalid || keyDup ? true : undefined}
+                />
+                {(keyInvalid || keyDup) && (
+                  <p className="text-xs text-destructive">
+                    {keyDup ? t('products.form.content_sections.key_duplicate') : t('products.form.content_sections.key_invalid')}
+                  </p>
+                )}
               </div>
             </div>
           );

@@ -26,6 +26,11 @@ import { LinkSlugField } from '../../components/LinkSlugField';
 import { useStorefrontHost } from '../../hooks/useStorefrontHost';
 import { slugifyLink } from '../../lib/storeLink';
 import { focusFieldById, focusFirstInvalid } from '../../lib/focusFirstInvalid';
+import { useLanguageOrder } from '../../hooks/useLanguageOrder';
+import {
+  EMPTY_LANG_TEXT, isLangTextEmpty, langDir, readLangText, writeLangFields, writeLangText,
+  type FieldLang, type LangText,
+} from '../../lib/languageOrder';
 
 // Wrapper of the variant editor, focused when variants are on but empty.
 const VARIANTS_SECTION_ID = 'product-variants';
@@ -96,8 +101,22 @@ function parseServerValidation(err: unknown): {
   return { fieldErrors, messages };
 }
 
+// Product text fields edited as one box per language.
+type LangField = 'name' | 'shortDescription' | 'description';
+// Their i18n key under products.form.field.
+const LANG_FIELD_KEYS: Record<LangField, string> = {
+  name: 'name', shortDescription: 'short_description', description: 'description',
+};
+
+// A content section is saved once it has a title and a text (in any language).
+const sectionFilled = (s: ContentSectionRow) =>
+  !isLangTextEmpty({ ar: s.titleAr, en: s.titleEn }) && !isLangTextEmpty({ ar: s.bodyAr, en: s.bodyEn });
+
 export const ProductForm: React.FC = () => {
   const { t } = useTranslation(['products', 'common']);
+  // Name, short description and description: one Arabic and one English
+  // box each, the UI language's first. Base fields get the store language.
+  const { sort: uiLanguageFirst, storeLang } = useLanguageOrder();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = Boolean(id);
@@ -121,11 +140,18 @@ export const ProductForm: React.FC = () => {
   const [savedActive, setSavedActive] = useState(false);
   const storeHost = useStorefrontHost();
   const [tagInput, setTagInput] = useState('');
-  // Optional Arabic translations, kept separate from the strictly-typed
-  // ProductFormData. Flat here → nested `translations.ar` on submit (the shape
-  // the storefront reads for an Arabic-language store). Empty stays empty; the
-  // storefront falls back to the base (English) field.
-  const [arData, setArData] = useState({ name: '', shortDescription: '', description: '' });
+  // The per-language text, kept outside the strictly-typed ProductFormData.
+  // Stored `name`/`description`/`shortDescription` + `translations.{ar,en}`
+  // → one box per language (lib/languageOrder.ts); back on submit.
+  const [text, setText] = useState<Record<LangField, LangText>>({
+    name: EMPTY_LANG_TEXT, shortDescription: EMPTY_LANG_TEXT, description: EMPTY_LANG_TEXT,
+  });
+  const setLangText = (field: LangField, lang: FieldLang, value: string) => {
+    setText(prev => ({ ...prev, [field]: { ...prev[field], [lang]: value } }));
+    if (field !== 'shortDescription' && formErrors[field]) {
+      setFormErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
+    }
+  };
   // Product-page content: key/value specifications and merchant-authored
   // blocks ("How to use", "Ingredients"…). Kept outside ProductFormData like
   // translations; flattened rows here → schema shape on submit.
@@ -163,21 +189,18 @@ export const ProductForm: React.FC = () => {
         setSavedSlug(product.slug || '');
         setSavedActive(product.status === 'active');
         // Product type doesn't model translations — read defensively.
-        const ar = (product as any).translations?.ar || {};
-        setArData({
-          name: ar.name || '',
-          shortDescription: ar.shortDescription || '',
-          description: ar.description || '',
+        const stored = product as any;
+        setText({
+          name: readLangText(stored, 'name'),
+          shortDescription: readLangText(stored, 'shortDescription'),
+          description: readLangText(stored, 'description'),
         });
         setSpecs((product.specifications || []).map((s) => ({ key: s.key || '', value: s.value || '' })));
-        setContentSections((product.contentSections || []).map((s) => ({
-          key: s.key || '',
-          title: s.title || '',
-          body: s.body || '',
-          titleAr: s.translations?.ar?.title || '',
-          bodyAr: s.translations?.ar?.body || '',
-          autoKey: false,
-        })));
+        setContentSections((product.contentSections || []).map((s) => {
+          const title = readLangText(s, 'title');
+          const body = readLangText(s, 'body');
+          return { key: s.key || '', titleEn: title.en, titleAr: title.ar, bodyEn: body.en, bodyAr: body.ar, autoKey: false };
+        }));
       }
     } catch (err: unknown) {
       const e = err as ApiErrorLike;
@@ -189,8 +212,9 @@ export const ProductForm: React.FC = () => {
 
   const validateForm = (): boolean => {
     const errors: Partial<Record<keyof ProductFormData, string>> = {};
-    if (!formData.name.trim()) errors.name = t('products.form.field.name.error.required');
-    if (!formData.description.trim()) errors.description = t('products.form.field.description.error.required');
+    // Either language will do; the error shows on the store language's box.
+    if (isLangTextEmpty(text.name)) errors.name = t('products.form.field.name.error.required');
+    if (isLangTextEmpty(text.description)) errors.description = t('products.form.field.description.error.required');
     if (formData.price <= 0) errors.price = t('products.form.field.regular_price.error.positive');
     if (formData.salePrice && formData.salePrice >= formData.price) errors.salePrice = t('products.form.field.sale_price.error.less_than_price');
     if (!formData.sku.trim()) errors.sku = t('products.form.field.sku.error.required');
@@ -209,7 +233,7 @@ export const ProductForm: React.FC = () => {
     }
     setFormErrors(errors);
     // Content sections: a filled section needs a valid, unique key.
-    const filled = contentSections.filter((s) => s.title.trim() && s.body.trim());
+    const filled = contentSections.filter(sectionFilled);
     const keys = filled.map((s) => s.key);
     if (filled.some((s) => !SECTION_KEY_RE.test(s.key)) || new Set(keys).size !== keys.length) {
       toast.error(t('products.form.content_sections.toast_invalid'));
@@ -228,31 +252,33 @@ export const ProductForm: React.FC = () => {
     }
     try {
       setSaving(true);
-      // Base (English) fields save as before; only the `ar` side is attached.
+      // Each box saves to its own language's translation; the base fields
+      // (the storefront's fallback) get the store language's text, or the
+      // other language's when that one is empty.
       // Cast to any because ProductFormData doesn't model translations.
       const { slug, ...fields } = formData;
+      const localized = writeLangFields(text, storeLang);
       const payload = {
         ...fields,
+        ...localized.base,
         // Omitted unless edited: the server derives it (new) or keeps it (edit).
         ...(slugEditing && slug.trim() ? { slug } : {}),
-        translations: {
-          ar: {
-            name: arData.name.trim(),
-            shortDescription: arData.shortDescription.trim(),
-            description: arData.description.trim(),
-          },
-        },
-        // Empty rows are dropped; empty Arabic strings are omitted.
+        translations: localized.translations,
+        // Empty rows are dropped.
         specifications: specs
           .map((s) => ({ key: s.key.trim(), value: s.value.trim() }))
           .filter((s) => s.key && s.value),
         contentSections: contentSections
-          .filter((s) => s.title.trim() && s.body.trim())
+          .filter(sectionFilled)
           .map((s) => {
-            const ar: { title?: string; body?: string } = {};
-            if (s.titleAr.trim()) ar.title = s.titleAr.trim();
-            if (s.bodyAr.trim()) ar.body = s.bodyAr.trim();
-            return { key: s.key, title: s.title.trim(), body: s.body.trim(), ...(Object.keys(ar).length ? { translations: { ar } } : {}) };
+            const title = writeLangText({ ar: s.titleAr, en: s.titleEn }, storeLang);
+            const body = writeLangText({ ar: s.bodyAr, en: s.bodyEn }, storeLang);
+            return {
+              key: s.key,
+              title: title.base,
+              body: body.base,
+              translations: { ar: { title: title.ar, body: body.ar }, en: { title: title.en, body: body.en } },
+            };
           }),
       } as any;
       if (isEditMode && id) {
@@ -295,7 +321,8 @@ export const ProductForm: React.FC = () => {
   };
 
   // The link shown when not editing: stored (edit) or derived from the name (new).
-  const autoSlug = isEditMode ? savedSlug : slugifyLink(formData.name || arData.name);
+  // Same source as the server (services/product.js): English name first.
+  const autoSlug = isEditMode ? savedSlug : slugifyLink(text.name.en.trim() || text.name.ar.trim());
   // Server leaves a 301 from the old URL when a live product's link changes.
   const editedSlug = slugEditing ? slugifyLink(formData.slug) : '';
   const willRedirect = isEditMode && savedActive && Boolean(editedSlug) && editedSlug !== savedSlug;
@@ -311,6 +338,40 @@ export const ProductForm: React.FC = () => {
   const removeTag = (tag: string) => {
     handleChange('tags', formData.tags.filter(t => t !== tag));
   };
+
+  // One box per language for `field`, the UI language's first. Labels say
+  // the language; the required marker and any error sit on the store
+  // language's box (either language is accepted). Ids: `<idBase>` for
+  // English, `<idBase>-ar` for Arabic.
+  const renderLangPair = (
+    field: LangField,
+    opts: { idBase: string; error?: string; required?: boolean; multiline?: boolean },
+  ) => uiLanguageFirst((['en', 'ar'] as const).map((lang) => {
+    const id = lang === 'ar' ? `${opts.idBase}-ar` : opts.idBase;
+    const keyBase = `products.form.field.${LANG_FIELD_KEYS[field]}`;
+    const onStoreBox = lang === storeLang;
+    const props = {
+      id,
+      dir: langDir(lang),
+      lang,
+      placeholder: t(`${keyBase}.placeholder_${lang}`),
+      value: text[field][lang],
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setLangText(field, lang, e.target.value),
+      'aria-invalid': onStoreBox && opts.error ? true : undefined,
+    };
+    return {
+      lang,
+      node: (
+        <div key={`${field}-${lang}`} className="space-y-2">
+          <Label htmlFor={id}>
+            {t(`${keyBase}.label_${lang}`)}{opts.required && onStoreBox ? ' *' : ''}
+          </Label>
+          {opts.multiline ? <Textarea rows={5} {...props} /> : <Input {...props} />}
+          {onStoreBox && opts.error && <p className="text-xs text-destructive">{opts.error}</p>}
+        </div>
+      ),
+    };
+  })).map((f) => f.node);
 
   if (loading) {
     return (
@@ -353,28 +414,7 @@ export const ProductForm: React.FC = () => {
                 <CardTitle className="text-base">{t('products.form.section.basic_info.title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>{t('products.form.field.name.label')}</Label>
-                  <Input
-                    placeholder={t('products.form.field.name.placeholder')}
-                    value={formData.name}
-                    onChange={e => handleChange('name', e.target.value)}
-                    aria-invalid={formErrors.name ? true : undefined}
-                  />
-                  {formErrors.name && <p className="text-xs text-destructive">{formErrors.name}</p>}
-                </div>
-
-                {/* Optional Arabic name — shown to shoppers browsing in Arabic.
-                    Leave blank to reuse the name above. */}
-                <div className="space-y-2">
-                  <Label>{t('products.form.field.name_ar.label', { defaultValue: 'Name (Arabic)' })}</Label>
-                  <Input
-                    dir="rtl"
-                    placeholder={t('products.form.field.name_ar.placeholder', { defaultValue: 'Arabic product name (optional)' })}
-                    value={arData.name}
-                    onChange={e => setArData(prev => ({ ...prev, name: e.target.value }))}
-                  />
-                </div>
+                {renderLangPair('name', { idBase: 'product-name', error: formErrors.name, required: true })}
 
                 <LinkSlugField
                   label={t('products.form.field.slug.label')}
@@ -399,42 +439,11 @@ export const ProductForm: React.FC = () => {
                   error={formErrors.slug}
                 />
 
-                {/* Optional Arabic short description. The base form has no English
-                    short-description field, so this Arabic variant stands alone. */}
-                <div className="space-y-2">
-                  <Label>{t('products.form.field.short_description_ar.label', { defaultValue: 'Short Description (Arabic)' })}</Label>
-                  <Input
-                    dir="rtl"
-                    placeholder={t('products.form.field.short_description_ar.placeholder', { defaultValue: 'Short Arabic summary (optional)' })}
-                    value={arData.shortDescription}
-                    onChange={e => setArData(prev => ({ ...prev, shortDescription: e.target.value }))}
-                  />
-                </div>
+                {renderLangPair('shortDescription', { idBase: 'product-short-description' })}
 
-                <div className="space-y-2">
-                  <Label>{t('products.form.field.description.label')}</Label>
-                  <Textarea
-                    placeholder={t('products.form.field.description.placeholder')}
-                    value={formData.description}
-                    onChange={e => handleChange('description', e.target.value)}
-                    rows={5}
-                    aria-invalid={formErrors.description ? true : undefined}
-                  />
-                  {formErrors.description && <p className="text-xs text-destructive">{formErrors.description}</p>}
-                </div>
-
-                {/* Optional Arabic description. Base description is a plain
-                    Textarea, so the Arabic variant mirrors it (no rich editor). */}
-                <div className="space-y-2">
-                  <Label>{t('products.form.field.description_ar.label', { defaultValue: 'Description (Arabic)' })}</Label>
-                  <Textarea
-                    dir="rtl"
-                    placeholder={t('products.form.field.description_ar.placeholder', { defaultValue: 'Arabic description (optional)' })}
-                    value={arData.description}
-                    onChange={e => setArData(prev => ({ ...prev, description: e.target.value }))}
-                    rows={5}
-                  />
-                </div>
+                {renderLangPair('description', {
+                  idBase: 'product-description', error: formErrors.description, required: true, multiline: true,
+                })}
 
                 <div className="space-y-2">
                   <Label>{t('products.form.field.sku.label')}</Label>

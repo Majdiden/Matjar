@@ -17,6 +17,8 @@ import {
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { focusFieldById } from '../../lib/focusFirstInvalid';
+import { useLanguageOrder } from '../../hooks/useLanguageOrder';
+import { isLangTextEmpty, langDir, langTextIn, readLangText, writeLangText, type FieldLang, type LangText } from '../../lib/languageOrder';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errMsg } from '../../lib/errors';
 
@@ -32,7 +34,10 @@ type Target = '_self' | '_blank';
 interface MenuItem {
   _id?: string;
   label: string;
-  /** Optional per-language label overrides shown on the storefront. */
+  /**
+   * Per-language labels the storefront shows first (`label` is the fallback).
+   * The form edits these — one box per language — and derives `label` on save.
+   */
   translations?: { en?: { label?: string }; ar?: { label?: string } };
   url: string;
   type: ItemType;
@@ -92,6 +97,28 @@ function makeItem(overrides: Partial<MenuItem> = {}): MenuItem {
   };
 }
 
+/** An item's name as edited, one box per language. */
+const itemText = (item: MenuItem): LangText => ({
+  ar: item.translations?.ar?.label || '',
+  en: item.translations?.en?.label || '',
+});
+
+/**
+ * Stored items → one box per language: each item's `translations.{ar,en}.label`
+ * filled from its translations or, for older data, from the language `label`
+ * is written in (lib/languageOrder.ts).
+ */
+function toLangBoxes(items: MenuItem[]): MenuItem[] {
+  return items.map((item) => {
+    const text = readLangText(item, 'label');
+    return {
+      ...item,
+      translations: { ar: { label: text.ar }, en: { label: text.en } },
+      children: toLangBoxes(item.children || []),
+    };
+  });
+}
+
 /** Flatten nested items into a list with depth info */
 function flatten(items: MenuItem[], depth = 0): FlatItem[] {
   const result: FlatItem[] = [];
@@ -107,7 +134,7 @@ function flatten(items: MenuItem[], depth = 0): FlatItem[] {
 }
 
 /** Rebuild nested structure from flat list with depth info */
-function unflatten(flat: FlatItem[]): MenuItem[] {
+function unflatten(flat: FlatItem[], storeLang: FieldLang): MenuItem[] {
   if (flat.length === 0) return [];
 
   // We rebuild by maintaining a stack of "current parent lists"
@@ -115,9 +142,12 @@ function unflatten(flat: FlatItem[]): MenuItem[] {
   const stack: { list: MenuItem[]; depth: number }[] = [{ list: root, depth: -1 }];
 
   for (const item of flat) {
+    // Both translations written out (an emptied box clears its own); the base
+    // `label` gets the store language's text, or the other language's.
+    const text = writeLangText(itemText(item), storeLang);
     const node: MenuItem = {
-      label: item.label,
-      translations: item.translations,
+      label: text.base,
+      translations: { ar: { label: text.ar }, en: { label: text.en } },
       url: item.url,
       type: item.type,
       resourceId: item.resourceId,
@@ -213,6 +243,9 @@ const ItemRow: React.FC<ItemRowProps> = ({
   flat, index, onChange, onMoveUp, onMoveDown, onIndent, onOutdent, onDelete, onAddChild,
 }) => {
   const { t } = useTranslation(['menus']);
+  // Link name: one box per language, the UI language's first. The store
+  // language's box keeps the `menu-item-label-<i>` id validation focuses.
+  const { sort: uiLanguageFirst, storeLang } = useLanguageOrder();
   const item = flat[index];
   const [expanded, setExpanded] = useState(true);
   const hasChildren = item.children && item.children.length > 0;
@@ -236,21 +269,24 @@ const ItemRow: React.FC<ItemRowProps> = ({
         )}
         <div className="flex-1 min-w-0 space-y-1">
           <Label className="text-xs text-muted-foreground">{t('menus:form.item.field.label')}</Label>
-          <Input
-            id={`menu-item-label-${index}`}
-            className="h-9 w-full text-sm"
-            placeholder={t('menus:form.item.label_placeholder')}
-            value={item.label}
-            onChange={e => onChange(index, { label: e.target.value })}
-          />
-          {/* Optional Arabic label — shown to shoppers browsing in Arabic. */}
-          <Input
-            className="h-9 w-full text-sm"
-            dir="rtl"
-            placeholder={t('menus:form.item.label_ar_placeholder', { defaultValue: 'التسمية بالعربية (اختياري)' })}
-            value={item.translations?.ar?.label || ''}
-            onChange={e => onChange(index, { translations: { ...item.translations, ar: { label: e.target.value } } })}
-          />
+          {uiLanguageFirst((['en', 'ar'] as const).map((lang) => ({
+            lang,
+            node: (
+              <Input
+                key={lang}
+                id={lang === storeLang ? `menu-item-label-${index}` : `menu-item-label-${lang}-${index}`}
+                className="h-9 w-full text-sm"
+                dir={langDir(lang)}
+                lang={lang}
+                aria-label={t(`menus:form.item.field.label_${lang}`)}
+                placeholder={t(`menus:form.item.label_${lang}_placeholder`)}
+                value={item.translations?.[lang]?.label || ''}
+                onChange={e => onChange(index, {
+                  translations: { ...item.translations, [lang]: { label: e.target.value } },
+                })}
+              />
+            ),
+          }))).map(f => f.node)}
         </div>
         <div className="w-40 shrink-0 space-y-1">
           <Label className="text-xs text-muted-foreground">{t('menus:form.item.field.type')}</Label>
@@ -341,14 +377,14 @@ const ItemRow: React.FC<ItemRowProps> = ({
 // ── Preview panel ────────────────────────────────────────────────────────────
 
 const PreviewTree: React.FC<{ items: MenuItem[]; depth?: number }> = ({ items, depth = 0 }) => {
-  const { t } = useTranslation(['menus']);
+  const { t, i18n } = useTranslation(['menus']);
   if (!items || items.length === 0) return null;
   return (
     <ul className={depth === 0 ? 'space-y-1' : 'ms-4 mt-1 space-y-0.5 border-s ps-3'}>
       {items.map((item, i) => (
         <li key={i}>
           <div className="flex items-center gap-1 text-sm py-0.5">
-            <span className={item.children?.length ? 'font-medium' : ''}>{item.label || <em className="text-muted-foreground">{t('menus:form.preview.untitled')}</em>}</span>
+            <span className={item.children?.length ? 'font-medium' : ''}>{langTextIn(itemText(item), i18n.language) || <em className="text-muted-foreground">{t('menus:form.preview.untitled')}</em>}</span>
             {item.target === '_blank' && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
             <span className="text-xs text-muted-foreground ms-auto">{item.url || item.resourceId || item.type}</span>
           </div>
@@ -367,7 +403,8 @@ export const MenuForm: React.FC = () => {
   const confirm = useConfirm();
   const isNew = !id || id === 'new';
 
-  const { t } = useTranslation(['menus', 'common']);
+  const { t, i18n } = useTranslation(['menus', 'common']);
+  const { storeLang } = useLanguageOrder();
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
 
@@ -379,7 +416,7 @@ export const MenuForm: React.FC = () => {
   const [flatItems, setFlatItems] = useState<FlatItem[]>([]);
 
   // Derive nested items from flat list for preview / save
-  const nestedItems = useCallback(() => unflatten(flatItems), [flatItems]);
+  const nestedItems = useCallback(() => unflatten(flatItems, storeLang), [flatItems, storeLang]);
 
   useEffect(() => {
     if (isNew) return;
@@ -391,7 +428,7 @@ export const MenuForm: React.FC = () => {
         setHandleTouched(true);
         setLocation(m.location || 'custom');
         setIsActive(m.isActive ?? true);
-        setFlatItems(flatten(m.items || []));
+        setFlatItems(flatten(toLangBoxes(m.items || [])));
       })
       .catch(() => toast.error(t('menus:form.toast.error_load')))
       .finally(() => setLoading(false));
@@ -523,10 +560,11 @@ export const MenuForm: React.FC = () => {
    */
   const validateItems = (items: FlatItem[]): { message: string; fieldId: string } | null => {
     for (const [i, item] of items.entries()) {
-      if (!item.label.trim()) {
+      // A name in either language will do.
+      if (isLangTextEmpty(itemText(item))) {
         return { message: t('menus:form.validate.item_name_required'), fieldId: `menu-item-label-${i}` };
       }
-      const name = item.label.trim();
+      const name = langTextIn(itemText(item), i18n.language);
       if (['link', 'external'].includes(item.type) && !item.url.trim()) {
         return { message: t('menus:form.validate.item_url_required', { name }), fieldId: `menu-item-url-${i}` };
       }

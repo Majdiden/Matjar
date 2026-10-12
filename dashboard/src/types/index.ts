@@ -119,7 +119,7 @@ export interface ProductContentSection {
   key: string;
   title: string;
   body: string;
-  translations?: { ar?: { title?: string; body?: string } };
+  translations?: { ar?: { title?: string; body?: string }; en?: { title?: string; body?: string } };
 }
 
 export interface Product {

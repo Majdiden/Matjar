@@ -306,6 +306,7 @@
         "placeholder": "اختر {{type}}…"
       },
       "arabic_label": "العربية",
+      "english_label": "الإنجليزية",
       "unsupported": "نوع غير مدعوم: {{type}}"
     },
     "preview": {

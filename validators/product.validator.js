@@ -65,12 +65,16 @@ const specSchema = z.object({
 });
 
 export const CONTENT_SECTION_MAX = 10;
+// Per-language title/body of a content section ("" clears it).
+const sectionTranslationSchema = z
+  .object({ title: z.string().trim().max(80).optional(), body: z.string().trim().max(5000).optional() })
+  .partial();
 const contentSectionSchema = z.object({
   key: z.string().trim().toLowerCase().regex(/^[a-z0-9][a-z0-9-]{0,39}$/, "Section key must be a slug"),
   title: z.string().trim().min(1).max(80),
   body: z.string().trim().min(1).max(5000),
   translations: z
-    .object({ ar: z.object({ title: z.string().trim().max(80).optional(), body: z.string().trim().max(5000).optional() }).partial().optional() })
+    .object({ ar: sectionTranslationSchema.optional(), en: sectionTranslationSchema.optional() })
     .partial()
     .optional(),
 });
