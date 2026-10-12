@@ -115,29 +115,27 @@
       },
       "field": {
         "name": {
-          "label": "Product Name *",
-          "placeholder": "e.g., Wireless Headphones",
+          "label_ar": "Product name (Arabic)",
+          "label_en": "Product name (English)",
+          "placeholder_ar": "Name in Arabic",
+          "placeholder_en": "e.g., Wireless Headphones",
           "error": {
-            "required": "Required"
+            "required": "Write the name in Arabic or English."
           }
         },
-        "name_ar": {
-          "label": "Name (Arabic)",
-          "placeholder": "Arabic product name (optional)"
-        },
-        "short_description_ar": {
-          "label": "Short Description (Arabic)",
-          "placeholder": "Short Arabic summary (optional)"
-        },
-        "description_ar": {
-          "label": "Description (Arabic)",
-          "placeholder": "Arabic description (optional)"
+        "short_description": {
+          "label_ar": "Short description (Arabic)",
+          "label_en": "Short description (English)",
+          "placeholder_ar": "Short summary in Arabic (optional)",
+          "placeholder_en": "Short summary (optional)"
         },
         "description": {
-          "label": "Description *",
-          "placeholder": "Describe your product...",
+          "label_ar": "Description (Arabic)",
+          "label_en": "Description (English)",
+          "placeholder_ar": "Describe your product in Arabic",
+          "placeholder_en": "Describe your product...",
           "error": {
-            "required": "Required"
+            "required": "Write a description in Arabic or English."
           }
         },
         "sku": {
@@ -225,11 +223,11 @@
           "size-guide": "Size guide"
         },
         "untitled": "Untitled section",
-        "title_label": "Title",
+        "title_en_label": "Title (English)",
         "key_label": "Key",
         "key_invalid": "Lowercase letters, digits and dashes only.",
         "key_duplicate": "Another section already uses this key.",
-        "body_label": "Text",
+        "body_en_label": "Text (English)",
         "body_hint": "Plain text. Line breaks are kept.",
         "title_ar_label": "Title (Arabic)",
         "body_ar_label": "Text (Arabic)",
@@ -323,10 +321,12 @@
         },
         "field": {
           "name": {
-            "label": "Category Name",
-            "placeholder": "e.g., Electronics",
+            "label_ar": "Category name (Arabic)",
+            "label_en": "Category name (English)",
+            "placeholder_ar": "Name in Arabic",
+            "placeholder_en": "e.g., Electronics",
             "error": {
-              "required": "Category name is required"
+              "required": "Write the category name in Arabic or English."
             }
           },
           "slug": {
@@ -343,10 +343,6 @@
           "description": {
             "label": "Description (Optional)",
             "placeholder": "Describe this category..."
-          },
-          "name_ar": {
-            "label": "Name (Arabic)",
-            "placeholder": "Arabic category name (optional)"
           }
         }
       },

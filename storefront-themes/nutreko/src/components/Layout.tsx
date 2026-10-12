@@ -51,7 +51,9 @@ const Layout: React.FC = () => {
   const barText = useTopStripText();
   const footer = useStoreFooter();
 
-  const brand = (store?.name || 'NUTREKO').toUpperCase();
+  const storeName = store?.name || 'NUTREKO';
+  const brand = storeName.toUpperCase();
+  const logo = store?.logo;
   const isActive = (path: string) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
 
@@ -82,12 +84,25 @@ const Layout: React.FC = () => {
             </button>
 
             {/* Wordmark */}
+            {/* Logo (when the store has one) + wordmark. The name keeps a
+                font-derived line box and a little block padding so the
+                truncate clip never cuts Arabic marks or descenders. */}
             <Link
               to="/"
-              className="font-display text-3xl md:text-4xl tracking-tighter min-w-0 flex-1 truncate text-center md:flex-none md:text-start"
-              style={{ fontFamily: 'var(--font-family-heading)' }}
+              aria-label={storeName}
+              className="flex min-w-0 flex-1 items-center justify-center gap-2.5 md:flex-none md:justify-start md:gap-3"
             >
-              {brand}<span style={{ color: LIME_ON_DARK }}>.</span>
+              {logo && (
+                <span className="shrink-0 rounded-lg bg-white p-1">
+                  <img src={logo} alt={storeName} className="block h-8 w-auto max-w-[96px] rounded-md object-contain md:h-10 md:max-w-[150px]" />
+                </span>
+              )}
+              <span
+                className={`font-display min-w-0 truncate py-[0.12em] [line-height:normal] tracking-tighter ${logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
+                style={{ fontFamily: 'var(--font-family-heading)' }}
+              >
+                {brand}<span style={{ color: LIME_ON_DARK }}>.</span>
+              </span>
             </Link>
 
             {/* Nav (hidden on mobile) */}
@@ -170,9 +185,11 @@ const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
             <div className="md:col-span-2">
               {footer.logo ? (
-                <img src={footer.logo} alt={footer.storeName} className="h-12 w-auto mb-4 object-contain" />
+                <span className="mb-5 inline-block rounded-xl bg-white p-2">
+                  <img src={footer.logo} alt={footer.storeName} className="block h-16 w-auto max-w-[220px] rounded-lg object-contain md:h-[72px]" />
+                </span>
               ) : (
-                <div className="font-display text-4xl mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>
+                <div className="font-display text-4xl mb-4 py-[0.12em] [line-height:normal]" style={{ fontFamily: 'var(--font-family-heading)' }}>
                   {brand}<span style={{ color: LIME_ON_DARK }}>.</span>
                 </div>
               )}

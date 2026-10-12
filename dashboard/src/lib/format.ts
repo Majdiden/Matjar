@@ -3,6 +3,8 @@
 // need to plumb a context — price formatting is the single most common
 // thing we do and we want it to be cheap and synchronous.
 
+import { storeLanguage, type FieldLang } from "./languageOrder.ts";
+
 const STORAGE_KEY = "tenantCurrency";
 const LOCALE_KEY = "tenantLocale";
 
@@ -14,6 +16,15 @@ export function setTenantCurrency(code: string | null | undefined) {
 export function setTenantLocale(locale: string | null | undefined) {
   if (!locale) return;
   try { localStorage.setItem(LOCALE_KEY, locale); } catch { /* ignore */ }
+}
+
+/**
+ * The store's own language (tenant settings.language, cached as the tenant
+ * locale by AuthContext / Settings). Arabic until known, like the server.
+ */
+export function getStoreLanguage(): FieldLang {
+  try { return storeLanguage(localStorage.getItem(LOCALE_KEY)); }
+  catch { return "ar"; }
 }
 
 export function getTenantCurrency(): string {

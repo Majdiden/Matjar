@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { storefrontApi } from '@matjar/theme-shared/api/client';
@@ -6,6 +6,8 @@ import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { useAtelierUI } from '../../contexts/AtelierUI';
 import { useOverlayA11y, useTypewriter } from '../../lib/motion';
+import { localizeProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { useLanguage } from '@matjar/theme-shared/i18n/LanguageProvider';
 
 /**
  * Full-width search panel dropping from the top. The placeholder types
@@ -21,7 +23,10 @@ const SearchCanvas: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const [rawResults, setResults] = useState<any[]>([]);
+  // In the shopper's language (the API returns the store's own).
+  const { lang } = useLanguage();
+  const results = useMemo(() => localizeProducts(rawResults, lang), [rawResults, lang]);
   const [total, setTotal] = useState(0);
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);

@@ -169,11 +169,23 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
           className="flex items-center justify-between gap-3 px-5 h-16 border-b shrink-0"
           style={{ borderColor: 'var(--color-border)' }}
         >
-          <span
-            className="text-lg font-bold truncate"
-            style={{ fontFamily: 'var(--font-family-heading)' }}
-          >
-            {heading}
+          <span className="flex items-center gap-3 min-w-0">
+            {!title && store?.logo && (
+              <img
+                src={store.logo}
+                alt=""
+                aria-hidden="true"
+                className="h-9 w-auto max-w-[96px] shrink-0 object-contain rounded-md"
+              />
+            )}
+            {/* leading-normal + py-1: `truncate` clips to the line box, so a
+                tight line-height cut off Arabic descenders/marks. */}
+            <span
+              className="min-w-0 text-lg font-bold truncate leading-normal py-1"
+              style={{ fontFamily: 'var(--font-family-heading)' }}
+            >
+              {heading}
+            </span>
           </span>
           <button
             onClick={onClose}

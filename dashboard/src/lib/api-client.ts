@@ -10,6 +10,10 @@ interface SignupV2Fields {
   onboardingFlow?: 'v1' | 'v2';
   city?: string;
   deliveryAreas?: string;
+  /** Short line under the store name (10-41). */
+  tagline?: string;
+  /** `#rrggbb` (10-41). */
+  brandColor?: string;
 }
 
 // GET /onboarding (PBI 10-17); timestamps are ISO strings or null.
@@ -35,6 +39,9 @@ export interface OnboardingState {
 // bare-localhost "Store not found" fallback.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
+/** An explicit `Authorization` header for one call, or none. */
+const authHeader = (token?: string): Record<string, string> => (token ? { Authorization: `Bearer ${token}` } : {});
+
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -47,8 +54,10 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor - add auth token
 apiClient.interceptors.request.use(
   (config) => {
+    // A call may carry its own token (right after signup, for the new store,
+    // before the session is stored); otherwise the stored session.
     const token = localStorage.getItem('token');
-    if (token) {
+    if (token && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -917,11 +926,11 @@ export const api = {
       });
     },
 
-    logo: (file: File) => {
+    logo: (file: File, opts?: { token?: string }) => {
       const formData = new FormData();
       formData.append('logo', file);
       return api.post('/upload/logo', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data', ...authHeader(opts?.token) },
       });
     },
 
@@ -962,12 +971,12 @@ export const api = {
     // Media library upload (audit 6.6) — records an Asset with preset
     // "content" + the original filename, and returns the created row so
     // the caller can insert/select it without a re-fetch.
-    contentImage: (file: File, alt?: string) => {
+    contentImage: (file: File, alt?: string, opts?: { token?: string }) => {
       const formData = new FormData();
       formData.append('image', file);
       if (alt) formData.append('alt', alt);
       return api.post('/upload/content', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data', ...authHeader(opts?.token) },
       });
     },
 
@@ -1279,8 +1288,8 @@ export const api = {
   // only the keys sent change; null clears a field.
   storeProfile: {
     get: () => api.get<{ success?: boolean; data?: StoreProfile }>('/store-profile'),
-    update: (patch: StoreProfilePatch) =>
-      api.put<{ success?: boolean; data?: StoreProfile }>('/store-profile', patch),
+    update: (patch: StoreProfilePatch, opts?: { token?: string }) =>
+      api.put<{ success?: boolean; data?: StoreProfile }>('/store-profile', patch, { headers: authHeader(opts?.token) }),
   },
 
   // Platform feature flags (effective, for the current session). Auth-only;

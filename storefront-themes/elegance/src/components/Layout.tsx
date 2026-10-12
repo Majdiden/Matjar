@@ -45,14 +45,20 @@ const Layout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between gap-3 h-20">
             {/* Logo — one end of the row */}
-            <Link to="/" className="min-w-0">
-              {store?.logo ? (
-                <img src={store.logo} alt={store.name} className="h-14 w-auto max-w-[200px] object-contain" />
-              ) : (
-                <span className="block truncate text-2xl tracking-[0.2em] uppercase font-light text-gray-900">
-                  {store?.name || 'Elegance'}
-                </span>
+            {/* Logo (when set) beside the name, on one line. The name keeps a
+                roomy line box so `truncate`'s overflow clip never cuts Arabic
+                descenders/marks. */}
+            <Link to="/" className="flex items-center gap-2.5 md:gap-3 min-w-0">
+              {store?.logo && (
+                <img
+                  src={store.logo}
+                  alt={store.name || 'Elegance'}
+                  className="h-10 md:h-12 w-auto max-w-[88px] md:max-w-[160px] shrink-0 object-contain rounded-md"
+                />
               )}
+              <span className={`block min-w-0 truncate tracking-[0.2em] uppercase font-light text-gray-900 leading-[1.6] py-1 ${store?.logo ? 'text-lg md:text-2xl' : 'text-2xl'}`}>
+                {store?.name || 'Elegance'}
+              </span>
             </Link>
 
             {/* Right actions */}
@@ -146,7 +152,9 @@ const Layout: React.FC = () => {
           <div className={`grid grid-cols-1 ${footer.policies.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-10`}>
             <div>
               {footer.logo ? (
-                <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto mb-4 object-contain" />
+                <span className="inline-flex mb-5 rounded-xl bg-white/95 p-1.5">
+                  <img src={footer.logo} alt={footer.storeName} className="h-14 md:h-[72px] w-auto max-w-[220px] object-contain rounded-lg" />
+                </span>
               ) : (
                 <h3 className="text-[var(--brand-contrast,#fff)] text-lg tracking-[0.15em] uppercase font-light mb-4">{footer.storeName}</h3>
               )}

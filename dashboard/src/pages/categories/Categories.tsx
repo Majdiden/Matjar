@@ -24,6 +24,8 @@ import { LinkSlugField } from '../../components/LinkSlugField';
 import { useStorefrontHost } from '../../hooks/useStorefrontHost';
 import { slugifyLink } from '../../lib/storeLink';
 import { focusFirstInvalid } from '../../lib/focusFirstInvalid';
+import { useLanguageOrder } from '../../hooks/useLanguageOrder';
+import { EMPTY_LANG_TEXT, isLangTextEmpty, langDir, readLangText, writeLangText, type LangText } from '../../lib/languageOrder';
 
 // Shape of the `GET /categories` list response as returned by the backend.
 // The server wraps the payload in `responseObject.data`; the optional
@@ -38,6 +40,9 @@ interface ApiErrorLike { message?: string; error?: string }
 
 export const Categories: React.FC = () => {
   const { t } = useTranslation(['products', 'common']);
+  // Name: one Arabic and one English box, the UI language's first; the base
+  // `name` gets the store language's text.
+  const { sort: uiLanguageFirst, storeLang } = useLanguageOrder();
   const [categories, setCategories] = useState<CategoryListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -83,12 +88,13 @@ export const Categories: React.FC = () => {
     loadCategories();
   };
 
-  const [formData, setFormData] = useState<CategoryFormData & { nameAr: string }>({
+  const [formData, setFormData] = useState<CategoryFormData>({
     name: '',
     description: '',
     slug: '',
-    nameAr: '',
   });
+  // The name as edited, one box per language (lib/languageOrder.ts).
+  const [nameText, setNameText] = useState<LangText>(EMPTY_LANG_TEXT);
 
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof CategoryFormData, string>>>({});
 
@@ -119,7 +125,8 @@ export const Categories: React.FC = () => {
 
   const openAddDialog = () => {
     setEditingCategory(null);
-    setFormData({ name: '', description: '', slug: '', nameAr: '' });
+    setFormData({ name: '', description: '', slug: '' });
+    setNameText(EMPTY_LANG_TEXT);
     setFormErrors({});
     setSlugEditing(false);
     setDialogOpen(true);
@@ -131,8 +138,8 @@ export const Categories: React.FC = () => {
       name: category.name,
       description: category.description || '',
       slug: category.slug,
-      nameAr: (category as any).translations?.ar?.name || '',
     });
+    setNameText(readLangText(category as any, 'name'));
     setFormErrors({});
     setSlugEditing(false);
     setDialogOpen(true);
@@ -141,13 +148,14 @@ export const Categories: React.FC = () => {
   const closeDialog = () => {
     setDialogOpen(false);
     setEditingCategory(null);
-    setFormData({ name: '', description: '', slug: '', nameAr: '' });
+    setFormData({ name: '', description: '', slug: '' });
+    setNameText(EMPTY_LANG_TEXT);
     setFormErrors({});
   };
 
   const validateForm = (): boolean => {
     const errors: Partial<Record<keyof CategoryFormData, string>> = {};
-    if (!formData.name.trim()) errors.name = t('products.categories.form.field.name.error.required');
+    if (isLangTextEmpty(nameText)) errors.name = t('products.categories.form.field.name.error.required');
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -162,14 +170,16 @@ export const Categories: React.FC = () => {
     try {
       setSaving(true);
       setError('');
-      // Flat `nameAr` in the form → nested `translations.ar.name` the storefront
-      // reads for an Arabic-language store. Empty stays empty (falls back to name).
-      const { nameAr, slug, ...base } = formData;
+      // Each box → its own `translations.<lang>.name`; the base `name` (the
+      // storefront's fallback) gets the store language's text, or the other.
+      const { slug, ...base } = formData;
+      const name = writeLangText(nameText, storeLang);
       const payload = {
         ...base,
+        name: name.base,
         // Omitted unless edited: the server derives it (new) or keeps it (edit).
         ...(slugEditing && slug?.trim() ? { slug } : {}),
-        translations: { ar: { name: (nameAr || '').trim() } },
+        translations: { ar: { name: name.ar }, en: { name: name.en } },
       } as any;
       if (editingCategory) {
         await api.categories.update(editingCategory._id, payload);
@@ -219,7 +229,7 @@ export const Categories: React.FC = () => {
   };
 
   // The link shown when not editing: stored (edit) or derived from the name (new).
-  const autoSlug = editingCategory ? editingCategory.slug : slugifyLink(formData.name || formData.nameAr);
+  const autoSlug = editingCategory ? editingCategory.slug : slugifyLink(nameText.en.trim() || nameText.ar.trim());
   // Server leaves a 301 from the old URL when a live category's link changes.
   const editedSlug = slugEditing ? slugifyLink(formData.slug || '') : '';
   const willRedirect = Boolean(editingCategory && (editingCategory.status ?? 'active') === 'active' &&editedSlug && editedSlug !== editingCategory.slug);
@@ -404,23 +414,28 @@ export const Categories: React.FC = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="py-4 space-y-4">
-              <Input
-                label={t('products.categories.form.field.name.label')}
-                placeholder={t('products.categories.form.field.name.placeholder')}
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                error={formErrors.name}
-                required
-              />
-              {/* Optional Arabic name — shown to shoppers browsing in Arabic.
-                  Leave blank to reuse the name above. */}
-              <Input
-                label={t('products.categories.form.field.name_ar.label', { defaultValue: 'Name (Arabic)' })}
-                placeholder={t('products.categories.form.field.name_ar.placeholder', { defaultValue: 'اسم التصنيف بالعربية (اختياري)' })}
-                value={formData.nameAr}
-                onChange={(e) => setFormData((prev) => ({ ...prev, nameAr: e.target.value }))}
-                dir="rtl"
-              />
+              {/* One box per language, the UI language's first. Either will do;
+                  the marker and any error sit on the store language's box. */}
+              {uiLanguageFirst((['en', 'ar'] as const).map((lang) => ({
+                lang,
+                node: (
+                  <Input
+                    key={`name-${lang}`}
+                    id={lang === 'ar' ? 'category-name-ar' : 'category-name'}
+                    label={`${t(`products.categories.form.field.name.label_${lang}`)}${lang === storeLang ? ' *' : ''}`}
+                    placeholder={t(`products.categories.form.field.name.placeholder_${lang}`)}
+                    value={nameText[lang]}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNameText((prev) => ({ ...prev, [lang]: value }));
+                      if (formErrors.name) setFormErrors((prev) => { const n = { ...prev }; delete n.name; return n; });
+                    }}
+                    error={lang === storeLang ? formErrors.name : undefined}
+                    dir={langDir(lang)}
+                    lang={lang}
+                  />
+                ),
+              }))).map((f) => f.node)}
               <LinkSlugField
                 label={t('products.categories.form.field.slug.label')}
                 host={storeHost}

@@ -88,8 +88,20 @@ const Layout: React.FC = () => {
       <header className="sticky top-0 z-40" style={{ backgroundColor: HEADER_BG }}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16 gap-6">
-            <Link to="/" className="min-w-0 truncate text-2xl md:text-3xl font-black tracking-tight text-[var(--brand-contrast,#fff)] shrink">
-              {brandName}
+            {/* Logo (when set) + name on one line. The name keeps a roomy
+                line box so `truncate`'s overflow clip never cuts Arabic
+                descenders/marks. */}
+            <Link to="/" className="flex items-center gap-2.5 min-w-0 shrink text-[var(--brand-contrast,#fff)]">
+              {store?.logo && (
+                <img
+                  src={store.logo}
+                  alt={store?.name || brandName}
+                  className="h-9 md:h-11 w-auto max-w-[88px] md:max-w-[140px] shrink-0 object-contain rounded-md"
+                />
+              )}
+              <span className={`block min-w-0 truncate font-black tracking-tight leading-[1.5] py-1 ${store?.logo ? 'text-xl md:text-2xl' : 'text-2xl md:text-3xl'}`}>
+                {brandName}
+              </span>
             </Link>
 
             <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center">
@@ -275,7 +287,9 @@ const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
             <div>
               {footer.logo ? (
-                <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto mb-4 object-contain" />
+                <span className="inline-flex mb-4 rounded-xl bg-white/95 p-1.5">
+                  <img src={footer.logo} alt={footer.storeName} className="h-14 md:h-[72px] w-auto max-w-[220px] object-contain rounded-lg" />
+                </span>
               ) : (
                 <h3 className="text-2xl font-black tracking-tight mb-4" style={{ color: onChrome('var(--color-primary)') }}>
                   {brandName}

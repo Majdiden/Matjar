@@ -51,7 +51,9 @@ const Layout: React.FC = () => {
 
   const barText = useTopStripText();
 
-  const brand = (store?.name || 'BEAUXE').toUpperCase();
+  const storeName = store?.name || 'BEAUXE';
+  const brand = storeName.toUpperCase();
+  const logo = store?.logo;
   const footer = useStoreFooter();
   const contact = footer.contact;
   const isActive = (path: string) =>
@@ -104,12 +106,24 @@ const Layout: React.FC = () => {
             </nav>
 
             {/* Center on desktop, start on mobile: serif wordmark (logo) */}
+            {/* Logo (when the store has one) + wordmark. The name keeps a
+                font-derived line box and a little block padding so the
+                truncate clip never cuts Arabic marks or descenders. */}
             <Link
               to="/"
-              className="font-serif text-3xl md:text-4xl tracking-tight text-start md:text-center whitespace-nowrap min-w-0 flex-1 truncate md:flex-none"
-              style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
+              aria-label={storeName}
+              className="flex min-w-0 flex-1 items-center justify-start gap-2.5 md:flex-none md:justify-center md:gap-3 md:max-w-[min(40vw,520px)]"
+              style={{ color: NAVY }}
             >
-              {brand}
+              {logo && (
+                <img src={logo} alt={storeName} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain md:h-12 md:max-w-[160px]" />
+              )}
+              <span
+                className={`font-serif min-w-0 truncate whitespace-nowrap py-[0.12em] [line-height:normal] tracking-tight ${logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
+                style={{ fontFamily: 'var(--font-family-heading)' }}
+              >
+                {brand}
+              </span>
             </Link>
 
             {/* Right: icons (desktop only — search/cart/account live in the bottom nav on mobile) */}
@@ -176,9 +190,9 @@ const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
             <div className="md:col-span-2">
               {footer.logo ? (
-                <img src={footer.logo} alt={footer.storeName} className="h-12 w-auto max-w-[200px] object-contain mb-4" />
+                <img src={footer.logo} alt={footer.storeName} className="h-16 w-auto max-w-[220px] rounded-xl object-contain mb-5 md:h-[72px]" />
               ) : (
-                <div className="font-serif text-4xl mb-4" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
+                <div className="font-serif text-4xl mb-4 py-[0.12em] [line-height:normal]" style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}>
                   {footer.storeName.toUpperCase()}
                 </div>
               )}

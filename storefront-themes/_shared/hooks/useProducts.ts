@@ -8,7 +8,7 @@ import { useLanguage } from '../i18n/LanguageProvider';
  * it in (see the Category schema). Keeps a bilingual storefront without theme
  * changes — every consumer of `cat.name` gets the localized value for free.
  */
-function localizeCategory(cat: any, lang: string): any {
+export function localizeCategory(cat: any, lang: string): any {
   const localized = cat?.translations?.[lang]?.name;
   return localized ? { ...cat, name: localized } : cat;
 }
@@ -41,7 +41,7 @@ export function productContentSections(p: any, lang: string): ProductContentSect
     .filter((s: ProductContentSection) => s.title && s.body);
 }
 
-function localizeProduct(p: any, lang: string): any {
+export function localizeProduct(p: any, lang: string): any {
   const tr = p?.translations?.[lang];
   const sections = productContentSections(p, lang);
   const sectionsChanged = Array.isArray(p?.contentSections) && sections.some((s, i) => {

@@ -17,7 +17,7 @@ import { resolveSignupPlan } from "./platform/billing/signupPlan.js";
 import { APIError } from "../middlewares/errorHandler.js";
 import { normalizeSocialLinks } from "../utils/socialLinks.js";
 import { validateSubdomain } from "../utils/subdomain.js";
-import { normalizeBilingualText } from "../utils/brandKit.js";
+import { normalizeBilingualText, normalizeBrandColor } from "../utils/brandKit.js";
 import { normalizeDeliveryAreas } from "../utils/policyAnswers.js";
 import { resolveStoreNicheKey } from "./themeCategories.js";
 
@@ -27,9 +27,10 @@ import { resolveStoreNicheKey } from "./themeCategories.js";
 export const DEFAULT_STORE_LANGUAGE = "ar";
 export const STORE_LANGUAGES = Object.freeze(["ar", "en"]);
 
-// Signup flows the dashboard can run (PBI 10-16). v2 asks for the city and
-// delivery areas and fills the brand kit from the signup; v1 is the original
-// order and must keep producing exactly the stores it always did.
+// Signup flows the dashboard can run (PBI 10-16, 10-41). v2 asks for the
+// store's identity (short line, colour; the logo and cover photo are
+// uploaded right after signup) and fills the brand kit from it; v1 is the
+// original order and must keep producing exactly the stores it always did.
 export const ONBOARDING_FLOWS = Object.freeze(["v1", "v2"]);
 export const ONBOARDING_FLOW_V2 = "v2";
 
@@ -38,11 +39,27 @@ export const ONBOARDING_FLOW_V2 = "v2";
  * write (400 on bad input). Returns `{}` for v1 so v1 stores are unchanged.
  * The store's WhatsApp defaults to the account phone — `phone` is already
  * E.164 here (resolveMerchantPhone), so it is a valid WhatsApp number.
+ *
+ * The short line is written in the merchant's signup language; the brand
+ * kit needs Arabic, so English text fills both (the merchant can translate
+ * it in Site identity). City and delivery areas are still accepted from
+ * older dashboards; signup no longer asks for them (the guided setup does).
  */
-export function buildSignupV2Settings({ flow, city, deliveryAreas, phone }) {
+export function buildSignupV2Settings({ flow, city, deliveryAreas, phone, tagline, brandColor, language }) {
   if (flow !== ONBOARDING_FLOW_V2) return {};
   const brand = {};
   if (phone) brand.whatsapp = phone;
+  if (tagline != null && String(tagline).trim()) {
+    const text = String(tagline).trim();
+    const { value, invalid } = normalizeBilingualText("tagline", language === "en" ? { ar: text, en: text } : { ar: text });
+    if (invalid.length) throw new APIError("Invalid short line", 400);
+    if (value) brand.tagline = value;
+  }
+  if (brandColor != null && brandColor !== "") {
+    const color = normalizeBrandColor(brandColor);
+    if (!color) throw new APIError("Invalid brand colour", 400);
+    brand.color = color;
+  }
   if (city != null) {
     const { value, invalid } = normalizeBilingualText("city", { ar: city });
     if (invalid.length) throw new APIError("Invalid city", 400);
@@ -113,6 +130,9 @@ const addATenantService = async (tenantData) => {
       flow: onboardingFlow,
       city: tenantData.city,
       deliveryAreas: tenantData.deliveryAreas,
+      tagline: tenantData.tagline,
+      brandColor: tenantData.brandColor,
+      language: tenantData.language,
       phone,
     });
 
@@ -395,6 +415,8 @@ const addStoreForExistingUserService = (existingUser, storeData = {}) =>
     onboardingFlow: storeData.onboardingFlow,
     city: storeData.city,
     deliveryAreas: storeData.deliveryAreas,
+    tagline: storeData.tagline,
+    brandColor: storeData.brandColor,
     skipAutoSetup: storeData.skipAutoSetup,
   });
 

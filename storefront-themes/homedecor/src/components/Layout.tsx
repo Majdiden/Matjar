@@ -62,10 +62,15 @@ const Layout: React.FC = () => {
           <div className="flex items-center justify-between h-18 py-4">
             {/* Logo with house icon */}
             <Link to="/" className="flex items-center gap-2 min-w-0 text-xl font-semibold tracking-wide text-gray-800">
+              {store?.logo ? (
+                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+              ) : (
               <svg className="w-5 h-5 shrink-0 text-[var(--brand-ink,#d4a76a)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <span className="truncate">{store?.name || 'HomeDecor'}</span>
+              )}
+              {/* leading-normal + py-1 keep Arabic marks inside the truncate clip box */}
+              <span className="min-w-0 truncate leading-normal py-1">{store?.name || 'HomeDecor'}</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -147,7 +152,7 @@ const Layout: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 {footer.logo ? (
-                  <img src={footer.logo} alt={footer.storeName} className="h-8 w-auto object-contain" />
+                  <span className="inline-flex items-center rounded-2xl bg-white p-2 shadow-sm"><img src={footer.logo} alt={footer.storeName} className="h-14 md:h-16 w-auto max-w-[220px] object-contain rounded-lg" /></span>
                 ) : (
                   <>
                     <svg className="w-5 h-5 text-[var(--brand-contrast,#d4a76a)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

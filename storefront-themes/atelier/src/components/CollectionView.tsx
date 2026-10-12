@@ -10,6 +10,8 @@ import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { merchantImage } from '@matjar/theme-shared/theme/heroContent';
 import AtelierProductCard from './AtelierProductCard';
 import { useOverlayA11y } from '../lib/motion';
+import { localizeProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { useLanguage } from '@matjar/theme-shared/i18n/LanguageProvider';
 
 type View = 'grid-4' | 'grid-3' | 'grid-2' | 'list';
 const VIEW_KEY = 'atelier.view_collection';
@@ -55,7 +57,10 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
   const page = Math.max(1, Number(params.get('page') || 1));
 
   const [view, setView] = useState<View>(() => { try { return (localStorage.getItem(VIEW_KEY) as View) || (`grid-${defaultCols}` as View); } catch { return `grid-${defaultCols}` as View; } });
-  const [items, setItems] = useState<any[]>([]);
+  const [rawItems, setItems] = useState<any[]>([]);
+  // In the shopper's language (the API returns the store's own).
+  const { lang } = useLanguage();
+  const items = useMemo(() => localizeProducts(rawItems, lang), [rawItems, lang]);
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);

@@ -44,10 +44,10 @@ describe("signupSteps", () => {
     assert.deepEqual([...signupSteps("v1")], ["welcome", "account", "otp", "store", "niche", "theme"]);
   });
 
-  it("asks where the merchant is right before the look in v2", () => {
+  it("asks for the store identity right before the look in v2", () => {
     assert.deepEqual(
       [...signupSteps("v2")],
-      ["welcome", "account", "otp", "store", "niche", "location", "theme"]
+      ["welcome", "account", "otp", "store", "niche", "identity", "theme"]
     );
   });
 });

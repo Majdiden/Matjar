@@ -6,12 +6,16 @@
 
 export type SignupFlow = 'v1' | 'v2';
 
-export type SignupStep = 'welcome' | 'account' | 'otp' | 'store' | 'niche' | 'location' | 'theme';
+export type SignupStep = 'welcome' | 'account' | 'otp' | 'store' | 'niche' | 'identity' | 'theme';
 
-/** v1: the original order. v2 adds "where are you" before the look. */
+/**
+ * v1: the original order. v2 (10-41) adds the store's identity — logo,
+ * colour and cover photo — before the look, so the new store already looks
+ * like the merchant's; where they deliver is asked in the guided setup.
+ */
 const SIGNUP_STEPS: Record<SignupFlow, readonly SignupStep[]> = {
   v1: ['welcome', 'account', 'otp', 'store', 'niche', 'theme'],
-  v2: ['welcome', 'account', 'otp', 'store', 'niche', 'location', 'theme'],
+  v2: ['welcome', 'account', 'otp', 'store', 'niche', 'identity', 'theme'],
 };
 
 /** URL parameter the operator uses to force a flow (`?flow=v2` / `?flow=v1`). */

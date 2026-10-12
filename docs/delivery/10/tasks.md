@@ -48,3 +48,6 @@ This document lists all tasks associated with PBI 10.
 | 10-38 | ["Domains" renamed to "Store link"](./10-38.md) | Review | Merchants did not understand "Domains / النطاقات" |
 | 10-39 | [Store colour, no stock flash, featured only when featured, phone wishlist](./10-39.md) | Review | The identity colour only reached buttons; stock pictures flashed on refresh; empty featured sections; no wishlist on phones |
 | 10-40 | [Store-centred link preview card](./10-40.md) | Review | The shared link preview showed the logo small on a white card |
+| 10-41 | [Signup asks for the store identity instead of the location](./10-41.md) | Review | Location and delivery areas made signup longer without making the store feel like the merchant's |
+| 10-42 | [Two-language fields: the UI language first, one language per box](./10-42.md) | Review | Per-language fields always put one language first and mixed which value was which |
+| 10-43 | [Store logo in every theme header; names never clipped; larger footer logo](./10-43.md) | Review | The header showed only the name, cut at the bottom; the footer logo was too small |

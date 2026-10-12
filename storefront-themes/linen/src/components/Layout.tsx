@@ -90,15 +90,20 @@ const Layout: React.FC = () => {
               <button type="button" onClick={() => setDrawerOpen(true)} className={`${iconBtn} lg:hidden`} aria-label={t('theme.nav.menu')} aria-expanded={drawerOpen}>
                 <I.menu className="h-6 w-6" />
               </button>
-              <Link to="/" className="hidden items-center lg:flex" aria-label={store?.name || 'Home'}>
-                {store?.logo ? <img src={store.logo} alt={store.name} className="h-9 w-auto object-contain" /> : <span className="font-heading text-2xl tracking-[0.22em] text-ink">{(store?.name || 'STORE').toUpperCase()}</span>}
+              {/* Logo (when the store has one) beside the name. The name keeps
+                  a font-derived line box + block padding so truncation clips
+                  sideways only, never Arabic marks or descenders. */}
+              <Link to="/" className="hidden min-w-0 items-center gap-3 lg:flex" aria-label={store?.name || 'Home'}>
+                {store?.logo && <img src={store.logo} alt={store.name} className="h-11 w-auto max-w-[150px] shrink-0 rounded-lg object-contain" />}
+                <span className={`font-heading block min-w-0 max-w-[18rem] truncate py-[0.12em] [line-height:normal] text-ink ${store?.logo ? 'text-xl tracking-[0.16em]' : 'text-2xl tracking-[0.22em]'}`}>{(store?.name || 'STORE').toUpperCase()}</span>
               </Link>
             </div>
 
             {/* centre: logo (mobile) / nav (desktop) */}
-            <div className="flex justify-center">
-              <Link to="/" className="flex items-center lg:hidden" aria-label={store?.name || 'Home'}>
-                {store?.logo ? <img src={store.logo} alt={store.name} className="h-8 w-auto object-contain" /> : <span className="font-heading max-w-[56vw] truncate text-[1.05rem] tracking-[0.14em] text-ink sm:text-xl sm:tracking-[0.2em]">{(store?.name || 'STORE').toUpperCase()}</span>}
+            <div className="flex min-w-0 justify-center">
+              <Link to="/" className="flex min-w-0 items-center gap-2 lg:hidden" aria-label={store?.name || 'Home'}>
+                {store?.logo && <img src={store.logo} alt={store.name} className="h-9 w-auto max-w-[88px] shrink-0 rounded-md object-contain" />}
+                <span className="font-heading block min-w-0 truncate py-[0.12em] [line-height:normal] text-[1.05rem] tracking-[0.14em] text-ink sm:text-xl sm:tracking-[0.2em]">{(store?.name || 'STORE').toUpperCase()}</span>
               </Link>
               <nav ref={nav} className="hidden items-center lg:flex" aria-label={t('theme.nav.menu')}>
                 {items.map((it, i) => {

@@ -50,8 +50,14 @@ const Layout: React.FC = () => {
       <header className="sticky top-0 z-50 bg-[#111827] border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="min-w-0 truncate text-xl font-black uppercase tracking-wider text-white">
-              <span className="text-[var(--brand,#dc2626)]">///</span> {store?.name || 'SportZone'}
+            <Link to="/" className="min-w-0 flex items-center gap-2 text-xl font-black uppercase tracking-wider text-white">
+              {store?.logo ? (
+                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+              ) : (
+                <span className="shrink-0 text-[var(--brand,#dc2626)]" aria-hidden="true">///</span>
+              )}
+              {/* leading-normal + py-1 keep Arabic marks inside the truncate clip box */}
+              <span className="min-w-0 truncate leading-normal py-1">{store?.name || 'SportZone'}</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
@@ -133,7 +139,7 @@ const Layout: React.FC = () => {
             <div>
               <h3 className="text-white font-black text-lg uppercase mb-2">
                 {footer.logo ? (
-                  <img src={footer.logo} alt={footer.storeName} className="h-8 w-auto object-contain" />
+                  <span className="inline-flex items-center rounded-2xl bg-white p-2 shadow-sm"><img src={footer.logo} alt={footer.storeName} className="h-14 md:h-16 w-auto max-w-[220px] object-contain rounded-lg" /></span>
                 ) : (
                   <><span className="text-[var(--brand,#dc2626)]">///</span> {footer.storeName}</>
                 )}

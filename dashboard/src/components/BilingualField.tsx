@@ -52,6 +52,7 @@ import { useTranslation } from 'react-i18next';
 import { Plus, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { validateBilingual, type BilingualValue } from '../lib/bilingual';
+import { uiLang } from '../lib/languageOrder';
 
 export type { BilingualValue, BilingualError } from '../lib/bilingual';
 
@@ -101,7 +102,8 @@ export const BilingualField: React.FC<BilingualFieldProps> = ({
   englishNote,
 }) => {
   const { t, i18n } = useTranslation('storeDesign');
-  const englishFirst = !(i18n.language || 'ar').startsWith('ar');
+  // The dashboard-wide rule (lib/languageOrder.ts): UI language first.
+  const englishFirst = uiLang(i18n.language) === 'en';
   const autoId = useId();
   const baseId = id || autoId;
   const arId = `${baseId}-ar`;

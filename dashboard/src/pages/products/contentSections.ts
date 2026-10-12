@@ -3,10 +3,14 @@ export const CONTENT_SECTION_MAX = 10;
 export const SECTION_KEY_RE = /^[a-z0-9][a-z0-9-]{0,39}$/;
 
 export interface SpecRow { key: string; value: string }
+/**
+ * One section as edited: one box per language (lib/languageOrder.ts turns
+ * stored `title`/`body` + `translations.{ar,en}` into these and back).
+ */
 export interface ContentSectionRow {
   key: string;
-  title: string;
-  body: string;
+  titleEn: string;
+  bodyEn: string;
   titleAr: string;
   bodyAr: string;
   /** false once the merchant edited the key by hand — stop deriving it from the title. */

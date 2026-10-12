@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useProduct, productContentSections } from '@matjar/theme-shared/hooks/useProducts';
+import { useProduct, productContentSections, localizeProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
@@ -21,6 +21,7 @@ import { ATELIER_SECTION_REGISTRY } from '../sections';
 import AtelierProductCard from '../components/AtelierProductCard';
 import { useAtelierUI } from '../contexts/AtelierUI';
 import { Icon, useCountdown, useOverlayA11y } from '../lib/motion';
+import { useLanguage } from '@matjar/theme-shared/i18n/LanguageProvider';
 
 const RECENT_KEY = 'atelier.recently_viewed';
 const RECENT_MAX = 6;
@@ -192,7 +193,9 @@ const ProductDetail: React.FC = () => {
   const [share, setShare] = useState(false);
   const [ask, setAsk] = useState(false);
   const [sticky, setSticky] = useState(false);
-  const [recent, setRecent] = useState<any[]>([]);
+  const [rawRecent, setRecent] = useState<any[]>([]);
+  const { lang: recentLang } = useLanguage();
+  const recent = useMemo(() => localizeProducts(rawRecent, recentLang), [rawRecent, recentLang]);
   const stickyRef = useRef<HTMLDivElement>(null);
   const shareRef = useRef<HTMLDivElement>(null);
   const askRef = useRef<HTMLDivElement>(null);

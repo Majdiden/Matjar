@@ -44,15 +44,20 @@ const Layout: React.FC = () => {
   /* Shared header building blocks (identical behavior in all variants)  */
   /* ------------------------------------------------------------------ */
 
-  const renderLogo = (imgCls: string, textCls: string) => (
-    <Link to="/" className="flex items-center gap-2 shrink-0">
-      {store?.logo ? (
-        <img src={store.logo} alt={store.name} className={imgCls} />
-      ) : (
-        <span className={textCls} style={{ color: 'var(--brand-ink, var(--color-primary, #2563eb))' }}>
-          {store?.name || 'Store'}
-        </span>
+  // Logo (when the store has one) + the store name on one line. The name
+  // keeps a roomy line box: `truncate` clips overflow, and a tight leading
+  // cut Arabic descenders/marks.
+  const renderLogo = (imgCls: string, textCls: string, linkCls = '') => (
+    <Link to="/" className={`flex items-center gap-2 md:gap-2.5 min-w-0 ${linkCls}`}>
+      {store?.logo && (
+        <img src={store.logo} alt={store.name} className={`${imgCls} w-auto shrink-0 object-contain rounded-md`} />
       )}
+      <span
+        className={`block min-w-0 truncate leading-[1.5] py-1 ${textCls}`}
+        style={{ color: 'var(--brand-ink, var(--color-primary, #2563eb))' }}
+      >
+        {store?.name || 'Store'}
+      </span>
     </Link>
   );
 
@@ -141,7 +146,7 @@ const Layout: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          {renderLogo('h-11 w-auto max-w-[180px] object-contain', 'text-xl font-bold')}
+          {renderLogo('h-9 md:h-11 max-w-[80px] md:max-w-[140px]', `${store?.logo ? 'text-lg md:text-xl' : 'text-xl'} font-bold`, 'me-3')}
 
           {/* Desktop Nav — store menu when available, else categories */}
           <nav className="hidden lg:flex items-center gap-1">
@@ -149,7 +154,7 @@ const Layout: React.FC = () => {
           </nav>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center shrink-0 gap-2">
             {/* Desktop Search (search on mobile lives in the bottom nav) */}
             <div className="hidden md:block w-64">
               <SearchBar placeholder={t('theme.products.search_placeholder')} className="w-full" />
@@ -191,8 +196,8 @@ const Layout: React.FC = () => {
           </div>
 
           {/* Centered logo */}
-          <div className="flex justify-center">
-            {renderLogo('h-11 w-auto max-w-[180px] object-contain', 'text-xl font-bold')}
+          <div className="flex justify-center min-w-0 max-w-[52vw] md:max-w-[36vw]">
+            {renderLogo('h-9 md:h-11 max-w-[64px] md:max-w-[120px]', `${store?.logo ? 'text-lg md:text-xl' : 'text-xl'} font-bold`)}
           </div>
 
           {/* End group: language + cart */}
@@ -221,7 +226,7 @@ const Layout: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between gap-2 h-14">
           {/* Logo */}
-          {renderLogo('h-9 w-auto max-w-[150px] object-contain', 'text-lg font-bold')}
+          {renderLogo('h-8 md:h-9 max-w-[72px] md:max-w-[120px]', `${store?.logo ? 'text-base md:text-lg' : 'text-lg'} font-bold`, 'me-2')}
 
           {/* Nav — collapses into the menu below xl for a quieter bar */}
           <nav className="hidden xl:flex items-center gap-0.5">
@@ -229,7 +234,7 @@ const Layout: React.FC = () => {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center shrink-0 gap-1">
             <div className="hidden md:block w-44">
               <SearchBar placeholder={t('theme.products.search_placeholder')} className="w-full" />
             </div>
@@ -305,11 +310,15 @@ const Layout: React.FC = () => {
     </ul>
   );
 
-  const brandName = sf.logo ? (
-    <img src={sf.logo} alt={sf.storeName} className="h-9 w-auto object-contain" />
+  // Footer brand: the logo, large enough to read, on a light rounded tile so a
+  // transparent/dark logo stays visible on the dark footer; else the name.
+  const renderFooterBrand = (imgCls: string) => (sf.logo ? (
+    <span className="inline-flex rounded-xl bg-white/95 p-1.5">
+      <img src={sf.logo} alt={sf.storeName} className={`${imgCls} w-auto max-w-[220px] object-contain rounded-lg`} />
+    </span>
   ) : (
     sf.storeName
-  );
+  ));
 
   const copyright = <span>{sf.copyright}</span>;
   const hasPolicies = sf.policies.length > 0;
@@ -324,7 +333,7 @@ const Layout: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className={`grid grid-cols-1 ${hasPolicies ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8`}>
           <div>
-            <h3 className="text-[var(--brand-contrast,#fff)] font-bold text-lg mb-4">{brandName}</h3>
+            <h3 className="text-[var(--brand-contrast,#fff)] font-bold text-lg mb-4">{renderFooterBrand('h-14 md:h-16')}</h3>
             {sf.description && <p className="text-sm text-[var(--brand-contrast,#9ca3af)] leading-relaxed">{sf.description}</p>}
             {sf.social.length > 0 && (
               <div className="mt-4">
@@ -362,7 +371,7 @@ const Layout: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <span className="text-[var(--brand-contrast,#fff)] font-bold">{brandName}</span>
+            <span className="text-[var(--brand-contrast,#fff)] font-bold">{renderFooterBrand('h-14')}</span>
             {[sf.shop[0], ...sf.help, ...sf.policies].filter(Boolean).map((l) => (
               <Link key={l.to} to={l.to} className="hover:text-[var(--brand-contrast,#fff)] transition">{l.label}</Link>
             ))}
@@ -391,7 +400,7 @@ const Layout: React.FC = () => {
               className="text-[var(--brand-contrast,#fff)] font-bold text-2xl mb-4"
               style={{ fontFamily: 'var(--font-family-heading, inherit)' }}
             >
-              {brandName}
+              {renderFooterBrand('h-16 md:h-20')}
             </h3>
             {sf.description && <p className="text-sm text-[var(--brand-contrast,#9ca3af)] leading-relaxed">{sf.description}</p>}
             {sf.social.length > 0 && (

@@ -101,6 +101,10 @@ export const registerTenantSchema = z.object({
     // Raw text: room for the line breaks/spaces the service collapses before
     // applying DELIVERY_AREAS_MAX_LENGTH.
     deliveryAreas: z.string().max(DELIVERY_AREAS_MAX_LENGTH * 2).optional(),
+    // Signup v2 identity (10-41): short line → brand kit tagline, colour →
+    // brand colour (the logo and cover photo are uploaded after signup).
+    tagline: z.string().trim().max(BRAND_TEXT_MAX_LENGTH.tagline).optional(),
+    brandColor: z.string().trim().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   }),
 });
 

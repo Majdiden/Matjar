@@ -64,15 +64,27 @@ const Layout: React.FC = () => {
       >
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between gap-3 h-14">
+            {/* Logo (when set) + name on one line. The name keeps a roomy
+                line box so `truncate`'s overflow clip never cuts Arabic
+                descenders/marks. */}
             <Link
               to="/"
-              className="min-w-0 truncate text-lg font-bold"
+              className="flex items-center gap-2 min-w-0"
               style={{
                 color: 'var(--brand-ink, var(--color-foreground))',
                 fontFamily: 'var(--font-family-heading)',
               }}
             >
-              {store?.name || 'Store'}
+              {store?.logo && (
+                <img
+                  src={store.logo}
+                  alt={store.name || 'Store'}
+                  className="h-8 md:h-10 w-auto max-w-[80px] md:max-w-[120px] shrink-0 object-contain rounded-md"
+                />
+              )}
+              <span className="block min-w-0 truncate text-lg font-bold leading-[1.6] py-0.5">
+                {store?.name || 'Store'}
+              </span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-5">
@@ -169,6 +181,16 @@ const Layout: React.FC = () => {
         }}
       >
         <div className="max-w-6xl mx-auto px-4">
+          {/* Store logo — clearly visible above the footer links. */}
+          {footer.logo && (
+            <div className="flex justify-center mb-6">
+              <img
+                src={footer.logo}
+                alt={footer.storeName}
+                className="h-14 md:h-16 w-auto max-w-[220px] object-contain rounded-lg"
+              />
+            </div>
+          )}
           <div
             className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm"
             style={{ color: 'var(--color-muted)' }}

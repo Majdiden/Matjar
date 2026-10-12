@@ -138,21 +138,37 @@ const Layout: React.FC = () => {
               </nav>
             </div>
 
-            {/* Center: serif wordmark / logo */}
-            <Link to="/" className="justify-self-center flex items-center min-w-0 max-w-full" aria-label={brand}>
-              {store?.logo ? (
-                <img src={store.logo} alt={brand} className="h-12 md:h-14 w-auto max-w-[200px] object-contain" />
-              ) : (
-                <span
-                  className="aurum-wordmark font-display tracking-[0.1em] sm:tracking-[0.18em] uppercase leading-none text-ink"
-                  style={{
-                    fontFamily: 'var(--font-family-heading)',
-                    '--aurum-brand-chars': Math.max(brand.length, 4),
-                  } as React.CSSProperties}
-                >
-                  {brand}
-                </span>
+            {/* Center: logo (when the store has one) + serif wordmark. The
+                wordmark scales to the room left beside the logo and never
+                exceeds the column budget; its roomy line box keeps Arabic
+                descenders/marks from being clipped by the overflow guard. */}
+            <Link
+              to="/"
+              className="justify-self-center flex items-center gap-2 md:gap-3 min-w-0 max-w-[58vw] md:max-w-[40vw]"
+            >
+              {store?.logo && (
+                <img
+                  src={store.logo}
+                  alt={store?.name || brand}
+                  className="h-9 md:h-12 w-auto max-w-[64px] md:max-w-[120px] shrink-0 object-contain rounded-md"
+                />
               )}
+              <span
+                className="aurum-wordmark block min-w-0 truncate font-display tracking-[0.1em] sm:tracking-[0.18em] uppercase leading-[1.6] py-1 text-ink"
+                style={{
+                  fontFamily: 'var(--font-family-heading)',
+                  '--aurum-brand-chars': Math.max(brand.length, 4),
+                  ...(store?.logo
+                    ? {
+                        '--aurum-brand-room': 'calc(58vw - 48px)',
+                        '--aurum-brand-room-md': 'calc(40vw - 132px)',
+                        '--aurum-brand-min': '13px',
+                      }
+                    : null),
+                } as React.CSSProperties}
+              >
+                {brand}
+              </span>
             </Link>
 
             {/* End: utility text links */}
@@ -231,7 +247,9 @@ const Layout: React.FC = () => {
             {/* About */}
             <div className="col-span-2 md:col-span-1">
               {footer.logo ? (
-                <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto max-w-[180px] object-contain mb-5" />
+                <span className="inline-flex mb-5 rounded-xl bg-white/90 p-1.5">
+                  <img src={footer.logo} alt={footer.storeName} className="h-14 md:h-[72px] w-auto max-w-[220px] object-contain rounded-lg" />
+                </span>
               ) : (
                 <h4 className="text-sm tracking-[0.22em] uppercase text-ink mb-5">{footer.storeName}</h4>
               )}

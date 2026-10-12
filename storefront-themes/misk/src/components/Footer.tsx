@@ -94,9 +94,9 @@ export const Footer: React.FC = () => {
         )}
 
         <div className={`${panel} flex flex-col items-center justify-center gap-5 text-center`}>
-          <Link to="/" className="font-display text-3xl tracking-[var(--misk-track,0)] text-ink">
+          <Link to="/" className="block py-[0.15em] font-display text-3xl [line-height:normal] tracking-[var(--misk-track,0)] text-ink">
             {footer.logo
-              ? <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto object-contain" />
+              ? <img src={footer.logo} alt={footer.storeName} className="mx-auto block h-16 w-auto max-w-[220px] rounded-xl object-contain lg:h-20" />
               : footer.storeName}
           </Link>
           {aboutText && <p className="max-w-xs text-sm text-muted">{aboutText}</p>}

@@ -52,11 +52,16 @@ const Layout: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo — sits at the start of the header row */}
             <Link to="/" className="min-w-0 text-xl font-bold text-[var(--brand-ink,#7c3aed)] tracking-tight flex items-center gap-2">
+              {store?.logo ? (
+                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+              ) : (
               <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
               </svg>
-              <span className="truncate">{store?.name || 'BookShelf'}</span>
+              )}
+              {/* leading-normal + py-1 keep Arabic marks inside the truncate clip box */}
+              <span className="min-w-0 truncate leading-normal py-1">{store?.name || 'BookShelf'}</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
@@ -156,7 +161,7 @@ const Layout: React.FC = () => {
           <div className={`grid grid-cols-1 ${footer.policies.length > 0 ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8 mb-8`}>
             <div>
               {footer.logo ? (
-                <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto mb-3 object-contain" />
+                <span className="inline-flex items-center rounded-2xl bg-white p-2 shadow-sm mb-3"><img src={footer.logo} alt={footer.storeName} className="h-14 md:h-16 w-auto max-w-[220px] object-contain rounded-lg" /></span>
               ) : (
                 <h3 className="text-[var(--brand-contrast,#fff)] text-lg font-bold mb-3 flex items-center gap-2">
                   <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">

@@ -88,9 +88,10 @@
       }
     },
     "item": {
-      "label_placeholder": "e.g. Home, About, Shop",
       "field": {
         "label": "Link name",
+        "label_en": "Link name (English)",
+        "label_ar": "Link name (Arabic)",
         "type": "Type",
         "url": "URL or path",
         "url_external": "External URL",
@@ -104,7 +105,9 @@
         "product": "Product",
         "category": "Category",
         "page": "Page"
-      }
+      },
+      "label_en_placeholder": "e.g. Home, About, Shop",
+      "label_ar_placeholder": "Name in Arabic"
     },
     "preview": {
       "empty": "Add items to see a preview.",

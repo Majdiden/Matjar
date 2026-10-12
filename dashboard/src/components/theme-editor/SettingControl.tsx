@@ -15,6 +15,7 @@ import ColorPickerPopover from './ColorPickerPopover';
 import { RichTextEditor } from '../RichTextEditor';
 import { MediaPicker } from '../MediaPicker';
 import type { AnySectionSetting } from '@matjar/theme-shared/types/theme';
+import { useLanguageOrder } from '../../hooks/useLanguageOrder';
 
 interface SettingControlProps {
   setting: AnySectionSetting;
@@ -57,6 +58,10 @@ export default function SettingControl({ setting, value, onChange, arValue, onAr
   // manifest default (the base value is the fallback), so blank means blank.
   const arCurrentValue = toStringValue(arValue);
   const checkedValue = typeof rawValue === 'boolean' ? rawValue : Boolean(rawValue);
+  // With an Arabic twin, the base value is the English one: written left to
+  // right whatever the dashboard direction.
+  const baseDir = onArChange ? ('ltr' as const) : undefined;
+  const baseLang = onArChange ? 'en' : undefined;
   // Manifest-declared label/info are English by default; a `settings.<id>.*`
   // key can override per-locale while falling back to the manifest string.
   const label = t(`themes:settings.${setting.id}.label`, { defaultValue: setting.label });
@@ -68,32 +73,44 @@ export default function SettingControl({ setting, value, onChange, arValue, onAr
     case 'text':
       return (
         <FieldWrapper label={label} info={info}>
-          <Input
-            type="text"
-            value={currentValue}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={setting.placeholder || ''}
-            className="h-9 text-sm"
+          <LanguagePair
+            base={
+              <Input
+                type="text"
+                dir={baseDir}
+                lang={baseLang}
+                value={currentValue}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={setting.placeholder || ''}
+                className="h-9 text-sm"
+              />
+            }
+            arabic={onArChange && (
+              <ArabicField type="text" value={arCurrentValue} onChange={onArChange} placeholder={setting.placeholder} />
+            )}
           />
-          {onArChange && (
-            <ArabicField type="text" value={arCurrentValue} onChange={onArChange} placeholder={setting.placeholder} />
-          )}
         </FieldWrapper>
       );
 
     case 'textarea':
       return (
         <FieldWrapper label={label} info={info}>
-          <Textarea
-            value={currentValue}
-            onChange={(e) => onChange(e.target.value)}
-            rows={3}
-            placeholder={setting.placeholder || ''}
-            className="text-sm resize-y min-h-[72px]"
+          <LanguagePair
+            base={
+              <Textarea
+                dir={baseDir}
+                lang={baseLang}
+                value={currentValue}
+                onChange={(e) => onChange(e.target.value)}
+                rows={3}
+                placeholder={setting.placeholder || ''}
+                className="text-sm resize-y min-h-[72px]"
+              />
+            }
+            arabic={onArChange && (
+              <ArabicField type="textarea" value={arCurrentValue} onChange={onArChange} placeholder={setting.placeholder} />
+            )}
           />
-          {onArChange && (
-            <ArabicField type="textarea" value={arCurrentValue} onChange={onArChange} placeholder={setting.placeholder} />
-          )}
         </FieldWrapper>
       );
 
@@ -102,17 +119,22 @@ export default function SettingControl({ setting, value, onChange, arValue, onAr
       // Emits HTML; the customization write path sanitizes it server-side.
       return (
         <FieldWrapper label={label} info={info}>
-          <RichTextEditor
-            value={currentValue}
-            onChange={(html) => onChange(html)}
-            placeholder={setting.placeholder || ''}
+          <LanguagePair
+            base={
+              <RichTextEditor
+                value={currentValue}
+                onChange={(html) => onChange(html)}
+                placeholder={setting.placeholder || ''}
+                dir={baseDir}
+              />
+            }
+            arabic={onArChange && (
+              // Simplification: the Arabic variant uses a plain Textarea rather
+              // than wiring a second TipTap instance. It still edits the same
+              // `<id>__ar` HTML string the storefront reads.
+              <ArabicField type="richtext" value={arCurrentValue} onChange={onArChange} placeholder={setting.placeholder} />
+            )}
           />
-          {onArChange && (
-            // Simplification: the Arabic variant uses a plain Textarea rather
-            // than wiring a second TipTap instance. It still edits the same
-            // `<id>__ar` HTML string the storefront reads.
-            <ArabicField type="richtext" value={arCurrentValue} onChange={onArChange} placeholder={setting.placeholder} />
-          )}
         </FieldWrapper>
       );
 
@@ -256,9 +278,38 @@ export default function SettingControl({ setting, value, onChange, arValue, onAr
 // ─── Helper components ──────────────────────────────────────────────
 
 /**
+ * A text setting's base (English) control and its optional Arabic twin, the
+ * UI language's one first (lib/languageOrder.ts), each under a small muted
+ * language label. Without a twin the base control renders alone, unlabelled.
+ */
+function LanguagePair({ base, arabic }: { base: React.ReactNode; arabic?: React.ReactNode }) {
+  const { t } = useTranslation('themes');
+  const { sort } = useLanguageOrder();
+  if (!arabic) return <>{base}</>;
+  return (
+    <div className="space-y-2">
+      {sort([
+        {
+          lang: 'en' as const,
+          node: (
+            <div key="en" className="space-y-1">
+              <span className="block text-[10px] font-medium text-slate-400">
+                {t('themes:editor.control.english_label')}
+              </span>
+              {base}
+            </div>
+          ),
+        },
+        { lang: 'ar' as const, node: <div key="ar">{arabic}</div> },
+      ]).map((f) => f.node)}
+    </div>
+  );
+}
+
+/**
  * Optional Arabic companion input for text-type settings. Visually matches
  * the base control (text→Input, textarea/richtext→Textarea) but forced to
- * RTL, sitting directly beneath it with a small muted "Arabic" label.
+ * RTL, with a small muted "Arabic" label; LanguagePair places it.
  * richtext deliberately uses a Textarea rather than a second TipTap editor.
  */
 function ArabicField({
@@ -274,13 +325,14 @@ function ArabicField({
 }) {
   const { t } = useTranslation('themes');
   return (
-    <div className="space-y-1 pt-1">
+    <div className="space-y-1">
       <span className="block text-[10px] font-medium text-slate-400">
         {t('themes:editor.control.arabic_label', { defaultValue: 'Arabic' })}
       </span>
       {type === 'text' ? (
         <Input
           dir="rtl"
+          lang="ar"
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -290,6 +342,7 @@ function ArabicField({
       ) : (
         <Textarea
           dir="rtl"
+          lang="ar"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={3}

@@ -162,6 +162,8 @@ export const addStoreController = asyncHandler(async (req, res) => {
     onboardingFlow: req.body.onboardingFlow,
     city: req.body.city,
     deliveryAreas: req.body.deliveryAreas,
+    tagline: typeof req.body.tagline === "string" ? req.body.tagline : undefined,
+    brandColor: typeof req.body.brandColor === "string" ? req.body.brandColor : undefined,
   });
 
   // Sign a JWT for the NEW store's admin user so the dashboard can hop to the
