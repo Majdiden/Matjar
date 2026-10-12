@@ -15,6 +15,7 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
+import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -32,6 +33,13 @@ import { useTranslation } from 'react-i18next';
 // stay legible. (`--color-secondary` is a green tint, which renders the
 // "navy" chrome green-on-green and makes the wordmark/phone unreadable.)
 const NAVY = '#0f172a';
+// The store's own colour (when it has one) takes over the navy chrome: the
+// header bar in the colour itself, the footer in its deeper shade, with
+// text in its readable contrast. Without one, the navy design is unchanged.
+const HEADER_BG = `var(--brand, ${NAVY})`;
+const FOOTER_BG = `var(--brand-strong, ${NAVY})`;
+/** Text/icons on the chrome: the store's contrast colour, else the given colour. */
+const onChrome = (fallback: string) => `var(--brand-contrast, ${fallback})`;
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -69,18 +77,18 @@ const Layout: React.FC = () => {
         <div data-section-id={TOP_STRIP_ANCHOR}>
           <AnnouncementBar
             message={announcementText}
-            bgColor="var(--color-secondary)"
-            textColor="var(--color-background)"
+            bgColor="var(--brand-strong, var(--color-secondary))"
+            textColor="var(--brand-contrast, var(--color-background))"
             dismissible={false}
           />
         </div>
       )}
 
       {/* ═══ HEADER — Row 1: navy nav bar ═════════════════════════ */}
-      <header className="sticky top-0 z-40" style={{ backgroundColor: NAVY }}>
+      <header className="sticky top-0 z-40" style={{ backgroundColor: HEADER_BG }}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16 gap-6">
-            <Link to="/" className="text-2xl md:text-3xl font-black tracking-tight text-white shrink-0">
+            <Link to="/" className="min-w-0 truncate text-2xl md:text-3xl font-black tracking-tight text-[var(--brand-contrast,#fff)] shrink">
               {brandName}
             </Link>
 
@@ -90,22 +98,22 @@ const Layout: React.FC = () => {
                   const cls = "text-sm font-semibold transition-colors";
                   const href = itemHref(item);
                   return isExternal(item) ? (
-                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" className={cls} style={{ color: 'var(--color-background)' }}>{item.label}</a>
+                    <a key={item._id || href} href={href} target={item.target || '_blank'} rel="noopener noreferrer" className={cls} style={{ color: onChrome('var(--color-background)') }}>{item.label}</a>
                   ) : (
-                    <Link key={item._id || href} to={href} className={cls} style={{ color: isActive(href) ? 'var(--color-primary)' : 'var(--color-background)' }}>{item.label}</Link>
+                    <Link key={item._id || href} to={href} className={cls} style={{ color: isActive(href) ? onChrome('var(--color-primary)') : onChrome('var(--color-background)') }}>{item.label}</Link>
                   );
                 })
               ) : (
                 <>
-                  <Link to="/" className="text-sm font-semibold transition-colors" style={{ color: isActive('/') && location.pathname === '/' ? 'var(--color-primary)' : 'var(--color-background)' }}>{t('theme.nav.home')}</Link>
-                  <Link to="/products" className="text-sm font-semibold text-white hover:opacity-80 transition">{t('theme.nav.collections')}</Link>
-                  <Link to="/products" className="text-sm font-semibold text-white hover:opacity-80 transition">{t('theme.nav.products')}</Link>
+                  <Link to="/" className="text-sm font-semibold transition-colors" style={{ color: isActive('/') && location.pathname === '/' ? onChrome('var(--color-primary)') : onChrome('var(--color-background)') }}>{t('theme.nav.home')}</Link>
+                  <Link to="/products" className="text-sm font-semibold text-[var(--brand-contrast,#fff)] hover:opacity-80 transition">{t('theme.nav.collections')}</Link>
+                  <Link to="/products" className="text-sm font-semibold text-[var(--brand-contrast,#fff)] hover:opacity-80 transition">{t('theme.nav.products')}</Link>
                   {categories.slice(0, 2).map((cat) => (
                     <Link
                       key={cat._id}
                       to={`/categories/${cat.slug}`}
                       className="text-sm font-semibold transition-colors"
-                      style={{ color: isActive(`/categories/${cat.slug}`) ? 'var(--color-primary)' : 'var(--color-background)' }}
+                      style={{ color: isActive(`/categories/${cat.slug}`) ? onChrome('var(--color-primary)') : onChrome('var(--color-background)') }}
                     >
                       {cat.name}
                     </Link>
@@ -116,26 +124,40 @@ const Layout: React.FC = () => {
 
             {/* The store's own phone number only — hidden when it has none. */}
             {footer.contact.phone && (
-              <div className="hidden md:flex items-center gap-5 text-xs text-white">
+              <div className="hidden md:flex items-center gap-5 text-xs text-[var(--brand-contrast,#fff)]">
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4" style={{ color: onChrome('var(--color-primary)') }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
                   </svg>
                   <span className="whitespace-nowrap">
                     {t('theme.nav.call_us')}{' '}
                     {footer.contact.phone.href ? (
-                      <a href={footer.contact.phone.href} dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</a>
+                      <a href={footer.contact.phone.href} dir="ltr" style={{ color: onChrome('var(--color-primary)') }}>{footer.contact.phone.text}</a>
                     ) : (
-                      <span dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</span>
+                      <span dir="ltr" style={{ color: onChrome('var(--color-primary)') }}>{footer.contact.phone.text}</span>
                     )}
                   </span>
                 </span>
               </div>
             )}
 
+            {/* Wishlist — phones (from md the search row below carries it) */}
+            <div className="md:hidden flex items-center gap-1 shrink-0 -me-2">
+              <WishlistHeaderLink
+                className="relative inline-flex h-10 w-10 items-center justify-center text-[var(--brand-contrast,#fff)]"
+                iconClassName="w-6 h-6"
+                icon={
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8} aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                  </svg>
+                }
+                badgeClassName="absolute top-0 end-0 min-w-[18px] h-[18px] px-1 bg-[var(--brand-contrast,var(--color-primary))] text-[var(--brand,#fff)] text-[10px] rounded-full flex items-center justify-center font-bold"
+              />
+            </div>
+
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="lg:hidden text-white"
+              className="lg:hidden inline-flex h-10 w-10 -me-2 md:me-0 items-center justify-center shrink-0 text-[var(--brand-contrast,#fff)]"
               aria-label={t('common:aria.toggle_menu')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,8 +173,8 @@ const Layout: React.FC = () => {
             <div className="flex items-center gap-4 py-3">
               <button
                 onClick={() => setCollectionOpen(!collectionOpen)}
-                className="flex items-center gap-3 px-5 py-3 rounded-lg text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap transition"
-                style={{ backgroundColor: 'var(--color-primary)' }}
+                className="flex items-center gap-3 px-5 py-3 rounded-lg text-xs font-bold uppercase tracking-wider text-[var(--brand-contrast,#fff)] whitespace-nowrap transition"
+                style={{ backgroundColor: 'var(--brand, var(--color-primary))' }}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -191,7 +213,7 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
                 </svg>
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-0.5 -end-0.5 w-5 h-5 text-white text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--color-primary)' }}>{wishlistCount}</span>
+                  <span className="absolute -top-0.5 -end-0.5 w-5 h-5 text-[var(--brand-contrast,#fff)] text-[10px] rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: 'var(--brand, var(--color-primary))' }}>{wishlistCount}</span>
                 )}
               </Link>
 
@@ -205,8 +227,8 @@ const Layout: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                 </svg>
                 <span
-                  className="absolute -top-0.5 -end-0.5 w-5 h-5 text-white text-[10px] rounded-full flex items-center justify-center font-bold"
-                  style={{ backgroundColor: 'var(--color-primary)' }}
+                  className="absolute -top-0.5 -end-0.5 w-5 h-5 text-[var(--brand-contrast,#fff)] text-[10px] rounded-full flex items-center justify-center font-bold"
+                  style={{ backgroundColor: 'var(--brand, var(--color-primary))' }}
                 >
                   {cart?.itemCount || 0}
                 </span>
@@ -248,19 +270,19 @@ const Layout: React.FC = () => {
       {/* ═══ FOOTER — dark navy, content from the store's own data ═══ */}
       {/* pb is larger on mobile so the fixed MobileBottomNav (md:hidden) never
           covers the copyright row; collapses back to a tight pad from md up. */}
-      <footer className="pt-16 pb-24 md:pb-4 mt-12 text-slate-300" style={{ backgroundColor: NAVY }}>
+      <footer className="pt-16 pb-24 md:pb-4 mt-12 text-[var(--brand-contrast,#cbd5e1)]" style={{ backgroundColor: FOOTER_BG }}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
             <div>
               {footer.logo ? (
                 <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto mb-4 object-contain" />
               ) : (
-                <h3 className="text-2xl font-black tracking-tight mb-4" style={{ color: 'var(--color-primary)' }}>
+                <h3 className="text-2xl font-black tracking-tight mb-4" style={{ color: onChrome('var(--color-primary)') }}>
                   {brandName}
                 </h3>
               )}
               {footer.description && (
-                <p className="text-sm mb-5 text-slate-400">{footer.description}</p>
+                <p className="text-sm mb-5 text-[var(--brand-contrast,#94a3b8)]">{footer.description}</p>
               )}
               {footer.social.length > 0 && (
                 <div className="flex items-center gap-2">
@@ -271,7 +293,7 @@ const Layout: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={s.name}
-                      className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition text-white"
+                      className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition text-[var(--brand-contrast,#fff)]"
                     >
                       <SocialIcon platform={s.platform} className="w-4 h-4" />
                     </a>
@@ -288,10 +310,10 @@ const Layout: React.FC = () => {
               .filter((col) => col.links.length > 0)
               .map((col) => (
                 <div key={col.title}>
-                  <h4 className="font-bold text-sm mb-4 uppercase tracking-wide text-white">{col.title}</h4>
-                  <div className="space-y-2.5 text-sm text-slate-400">
+                  <h4 className="font-bold text-sm mb-4 uppercase tracking-wide text-[var(--brand-contrast,#fff)]">{col.title}</h4>
+                  <div className="space-y-2.5 text-sm text-[var(--brand-contrast,#94a3b8)]">
                     {col.links.map((l) => (
-                      <Link key={l.to} to={l.to} className="block hover:text-white transition">{l.label}</Link>
+                      <Link key={l.to} to={l.to} className="block hover:text-[var(--brand-contrast,#fff)] transition">{l.label}</Link>
                     ))}
                   </div>
                 </div>
@@ -303,47 +325,47 @@ const Layout: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 border-y border-white/10 text-sm">
               {footer.contact.phone && (
                 <div className="flex items-center gap-3">
-                  <svg className="w-5 h-5 shrink-0" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-5 h-5 shrink-0" style={{ color: onChrome('var(--color-primary)') }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2l2 5-3 2a12 12 0 006 6l2-3 5 2v2a2 2 0 01-2 2A16 16 0 013 5z" />
                   </svg>
-                  <span className="text-white font-semibold">{t('theme.footer.available_by_phone')}</span>
+                  <span className="text-[var(--brand-contrast,#fff)] font-semibold">{t('theme.footer.available_by_phone')}</span>
                   {footer.contact.phone.href ? (
-                    <a href={footer.contact.phone.href} dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</a>
+                    <a href={footer.contact.phone.href} dir="ltr" style={{ color: onChrome('var(--color-primary)') }}>{footer.contact.phone.text}</a>
                   ) : (
-                    <span dir="ltr" style={{ color: 'var(--color-primary)' }}>{footer.contact.phone.text}</span>
+                    <span dir="ltr" style={{ color: onChrome('var(--color-primary)') }}>{footer.contact.phone.text}</span>
                   )}
                 </div>
               )}
               {footer.contact.whatsapp && (
                 <div className="flex items-center gap-3">
-                  <span style={{ color: 'var(--color-primary)' }}><WhatsAppIcon className="w-5 h-5 shrink-0" /></span>
-                  <span className="text-white font-semibold">WhatsApp</span>
-                  <a href={footer.contact.whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-slate-400 hover:text-white">
+                  <span style={{ color: onChrome('var(--color-primary)') }}><WhatsAppIcon className="w-5 h-5 shrink-0" /></span>
+                  <span className="text-[var(--brand-contrast,#fff)] font-semibold">WhatsApp</span>
+                  <a href={footer.contact.whatsapp.href} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-[var(--brand-contrast,#94a3b8)] hover:text-[var(--brand-contrast,#fff)]">
                     {footer.contact.whatsapp.display}
                   </a>
                 </div>
               )}
               {footer.contact.email && (
                 <div className="flex items-center gap-3">
-                  <svg className="w-5 h-5 shrink-0" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-5 h-5 shrink-0" style={{ color: onChrome('var(--color-primary)') }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span className="text-white font-semibold">{t('theme.footer.email_label')}</span>
-                  <a href={`mailto:${footer.contact.email}`} className="text-slate-400 hover:text-white">{footer.contact.email}</a>
+                  <span className="text-[var(--brand-contrast,#fff)] font-semibold">{t('theme.footer.email_label')}</span>
+                  <a href={`mailto:${footer.contact.email}`} className="text-[var(--brand-contrast,#94a3b8)] hover:text-[var(--brand-contrast,#fff)]">{footer.contact.email}</a>
                 </div>
               )}
               {footer.contact.address && (
                 <div className="flex items-center gap-3">
-                  <svg className="w-5 h-5 shrink-0" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-5 h-5 shrink-0" style={{ color: onChrome('var(--color-primary)') }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                   </svg>
-                  <span className="text-slate-400">{footer.contact.address}</span>
+                  <span className="text-[var(--brand-contrast,#94a3b8)]">{footer.contact.address}</span>
                 </div>
               )}
             </div>
           )}
 
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-6 text-xs text-slate-400">
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-6 text-xs text-[var(--brand-contrast,#94a3b8)]">
             <span>{footer.copyright}</span>
             <FooterPaymentBadges size="sm" />
           </div>

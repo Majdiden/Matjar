@@ -6,7 +6,6 @@ import { DEFAULT_SECTION_REGISTRY } from '@matjar/theme-shared/components/sectio
 import { useFeaturedProducts, useCategories, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { ProductCard } from '@matjar/theme-shared/components/commerce/ProductCard';
 import { ProductRail } from '@matjar/theme-shared/components/commerce/ProductRail';
-import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import { QuickView } from '@matjar/theme-shared/components/discovery/QuickView';
 import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersectionObserver';
 import EditorialHero from '../components/EditorialHero';
@@ -26,11 +25,16 @@ const HEADING_FONT = { fontFamily: 'var(--font-family-heading, "Playfair Display
 // i18n keys this theme always fed the shared Hero)
 const EleganceHero: React.FC<EleganceSectionProps> = ({ id }) => {
   const { products: featured, loading } = useFeaturedProducts(8);
+  const { products: newest, loading: newestLoading } = useProducts({ sort: 'newest', limit: 8 });
+  // A featured product's photo, else (store without featured products) a
+  // newest product's; the hero waits with a plain colour panel meanwhile.
+  const featuredPhoto = merchantImage(...(featured || []).map((p) => p.images?.[0]));
+  const newestPhoto = loading ? null : merchantImage(...(newest || []).map((p) => p.images?.[0]));
   return (
     <EditorialHero
       sectionId={id}
-      mediaLoading={loading}
-      media={merchantImage(...(featured || []).map((p) => p.images?.[0])) || undefined}
+      mediaLoading={!featuredPhoto && (loading || newestLoading)}
+      media={featuredPhoto || newestPhoto || undefined}
     />
   );
 };
@@ -82,8 +86,11 @@ const EleganceFeatured: React.FC<EleganceSectionProps> = ({ id, onQuickView }) =
   const feat = useThemeSettings(id);
   const { products: featured, loading } = useFeaturedProducts(feat.product_limit || 8);
   const { ref, isIntersecting: visible } = useIntersectionObserver({ threshold: 0.1 });
+  // Only for stores with featured products — nothing while they load or
+  // when none are marked.
+  if (loading || featured.length === 0) return null;
   return (
-    <section ref={ref as React.RefObject<HTMLElement>} className={`bg-gray-50 py-20 transition-all duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+    <section ref={ref as React.RefObject<HTMLElement>} className={`bg-[var(--brand-soft,#f9fafb)] py-20 transition-all duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between mb-10">
           <div>
@@ -96,7 +103,7 @@ const EleganceFeatured: React.FC<EleganceSectionProps> = ({ id, onQuickView }) =
           </div>
           <Link to={feat.view_all_url || '/products'} className="text-xs tracking-[0.15em] uppercase text-gray-600 hover:text-gray-900 transition border-b border-gray-400 pb-0.5">{t('theme.product_detail.view_all')}</Link>
         </div>
-        {loading ? <Skeleton.ProductGrid count={4} /> : (
+        {(
           <ProductRail columns={4}>
             {featured.map(product => (
               <ProductCard key={product._id} product={product} onQuickView={onQuickView}>

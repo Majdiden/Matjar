@@ -29,7 +29,15 @@ function HeroBlock({ id }: SectionProps) {
   const { t } = useTranslation(['theme', 'common']);
   const hero = useThemeSettings(id);
   const { store } = useStore();
-  const { products: featured } = useFeaturedProducts(4);
+  const { products: featured, loading: featuredLoading } = useFeaturedProducts(4);
+  const { products: newest, loading: newestLoading } = useProducts({ sort: 'newest', limit: 4 });
+  // The merchant's photo, else a featured (then newest) product photo, else
+  // the stock photo; while products load the frame stays empty instead of
+  // flashing a stock photo first.
+  const ownImage = merchantImage(hero.background_image);
+  const photoOf = (list: Product[]) => list.find((p) => p.images?.[0])?.images?.[0];
+  const productPhoto = photoOf(featured) || (featuredLoading ? undefined : photoOf(newest));
+  const photoPending = !ownImage && !productPhoto && (featuredLoading || newestLoading);
 
   return (
     <Hero
@@ -39,9 +47,9 @@ function HeroBlock({ id }: SectionProps) {
       title={merchantText(hero.heading) || store?.name || ''}
       subtitle={merchantText(hero.subheading) || undefined}
       primaryCta={{ label: merchantText(hero.button_text) || t('theme.hero.main.cta'), href: hero.button_url || '/products' }}
-      backgroundImage={merchantImage(hero.background_image) || undefined}
-      media={featured?.find((p) => p.images?.[0])?.images?.[0]}
-      defaultImage={HERO_DEFAULT_IMAGE}
+      backgroundImage={ownImage || undefined}
+      media={productPhoto}
+      defaultImage={photoPending ? undefined : HERO_DEFAULT_IMAGE}
     />
   );
 }
@@ -147,6 +155,9 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
   const feat = useThemeSettings(id);
   const { products: featured, loading } = useFeaturedProducts(feat.product_limit || 6);
   const { ref: productsRef, isIntersecting: productsVisible } = useIntersectionObserver({ threshold: 0.1 });
+  // Only for stores with featured products — nothing while they load or
+  // when none are marked.
+  if (loading || featured.length === 0) return null;
 
   return (
     <section
@@ -172,13 +183,7 @@ function FeaturedBlock({ id, onQuickView }: SectionProps) {
         </Link>
       </div>
 
-      {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-64 rounded-lg" />
-          ))}
-        </div>
-      ) : (
+      {(
         <ProductRail columns={3}>
           {featured.map((p) => (
             <ProductCard key={p._id} product={p} onQuickView={feat.show_quick_view !== false ? onQuickView : undefined}>
@@ -273,8 +278,8 @@ function NewsletterBlock({ id }: SectionProps) {
         />
         <button
           type="submit"
-          className="text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition"
-          style={{ backgroundColor: 'var(--color-primary)' }}
+          className="text-[var(--brand-contrast,#fff)] px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition"
+          style={{ backgroundColor: 'var(--brand, var(--color-primary))' }}
         >
           {news.button_text || t('theme.section.newsletter.cta')}
         </button>

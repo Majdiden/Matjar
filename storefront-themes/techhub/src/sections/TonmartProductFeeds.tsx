@@ -42,7 +42,7 @@ const Header: React.FC<{ title: string; subtitle?: string; viewAllHref?: string 
         <Link
           to={viewAllHref}
           className="text-[11px] font-bold uppercase tracking-wider hover:opacity-70 inline-flex items-center gap-1"
-          style={{ color: 'var(--color-primary)' }}
+          style={{ color: 'var(--brand-ink, var(--color-primary))' }}
         >
           {t('theme.section.tonmart_feeds.view_all')}
           <span aria-hidden className="rtl:rotate-180 inline-block">→</span>
@@ -62,6 +62,9 @@ export const TonmartFeaturedProductsSection: React.FC<SectionComponentProps> = (
   const limit = Number(s.product_limit) || 8;
   const { products, loading } = useFeaturedProducts(limit);
   const cols = Math.min(5, Math.max(2, Number(s.columns) || 4));
+  // Only for stores with featured products: nothing while they load or
+  // when none are marked (no heading, skeleton or "view all").
+  if (loading || products.length === 0) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
@@ -70,22 +73,11 @@ export const TonmartFeaturedProductsSection: React.FC<SectionComponentProps> = (
         subtitle={s.subheading}
         viewAllHref={s.view_all_url || '/products'}
       />
-      {loading ? (
-        <div
-          className="grid gap-8"
-          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-        >
-          {Array.from({ length: cols }).map((_, i) => (
-            <Skeleton key={i} className="h-80 rounded-xl" />
-          ))}
-        </div>
-      ) : (
-        <ProductRail columns={cols as 2 | 3 | 4 | 5}>
-          {products.map((p: any) => (
-            <TonmartProductCard key={p._id} product={p} onQuickView={onQuickView} />
-          ))}
-        </ProductRail>
-      )}
+      <ProductRail columns={cols as 2 | 3 | 4 | 5}>
+        {products.map((p: any) => (
+          <TonmartProductCard key={p._id} product={p} onQuickView={onQuickView} />
+        ))}
+      </ProductRail>
     </section>
   );
 };

@@ -393,7 +393,7 @@ const ProductDetail: React.FC = () => {
               <h2 className="text-4xl md:text-5xl text-ink" style={{ fontFamily: 'var(--font-family-heading)' }}>
                 {t('theme.product_detail.you_may_also_like')}
               </h2>
-              <div className="w-12 h-px bg-gold mx-auto mt-6" />
+              <div className="w-12 h-px bg-[var(--brand,var(--color-accent,#c8a24b))] mx-auto mt-6" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
               {relatedProducts.slice(0, 4).map((p: any) => (

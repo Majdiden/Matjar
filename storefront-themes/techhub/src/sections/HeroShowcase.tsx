@@ -68,9 +68,15 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
   //   autoplay_interval  : ms between slides (default 5000)
   const source: 'featured' | 'newest' = s.product_source === 'newest' ? 'newest' : 'featured';
   const slideCount = Math.max(1, Math.min(8, Number(s.slide_count) || 3));
-  const { products: featured } = useFeaturedProducts(slideCount);
-  const { products: newest } = useProducts({ sort: 'newest', limit: slideCount });
-  const slides = (source === 'newest' ? newest : featured).slice(0, slideCount);
+  const { products: featured, loading: featuredLoading } = useFeaturedProducts(slideCount);
+  const { products: newest, loading: newestLoading } = useProducts({ sort: 'newest', limit: slideCount });
+  // Featured products feed the slider; a store without any shows its newest
+  // instead. While the source is still loading the panel holds a plain
+  // block, so one product never flashes before another.
+  const slidesLoading = source === 'newest' ? newestLoading : featuredLoading || (featured.length === 0 && newestLoading);
+  const slides = slidesLoading
+    ? []
+    : (source === 'newest' || featured.length === 0 ? newest : featured).slice(0, slideCount);
 
   const autoplay = s.autoplay !== false;
   const interval = Math.max(2000, Number(s.autoplay_interval) || 5000);
@@ -91,11 +97,16 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
   const flashEnabled = s.flash_enabled !== false;
   const flashSource: 'on_sale' | 'featured' | 'newest' =
     s.flash_source === 'featured' ? 'featured' : s.flash_source === 'newest' ? 'newest' : 'on_sale';
-  const { products: deals } = useProducts({ onSale: 1, limit: 1 });
+  const { products: deals, loading: dealsLoading } = useProducts({ onSale: 1, limit: 1 });
   const deal =
     flashSource === 'featured' ? featured[0]
     : flashSource === 'newest' ? newest[0]
     : deals[0];
+  const dealLoading =
+    flashSource === 'featured' ? featuredLoading : flashSource === 'newest' ? newestLoading : dealsLoading;
+  // No product to show (e.g. nothing on sale): no card and no label, rather
+  // than a placeholder that never fills.
+  const showDeal = flashEnabled && (!!deal || dealLoading);
 
   // Top strip (hotline · shipping · flash-deal label) — hideable from the
   // dashboard via `show_top_strip` (default off: the store's one top strip
@@ -138,7 +149,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               </Link>
             )}
           </div>
-          {flashEnabled && (
+          {showDeal && (
             <div className="flex items-center gap-2" style={{ color: 'var(--color-primary)' }}>
               <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
@@ -151,12 +162,12 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
       )}
 
       {/* Tripartite grid */}
-      <div className="max-w-7xl mx-auto px-4 py-6 grid gap-4 lg:grid-cols-[240px_1fr_260px]">
+      <div className={`max-w-7xl mx-auto px-4 py-6 grid gap-4 ${showDeal ? 'lg:grid-cols-[240px_1fr_260px]' : 'lg:grid-cols-[240px_1fr]'}`}>
         {/* ── Left rail: category list ───────────────────────────── */}
         <aside>
           <div
-            className="rounded-t-md px-4 py-3 text-xs font-bold uppercase tracking-wider text-white flex items-center gap-2"
-            style={{ backgroundColor: 'var(--color-primary)' }}
+            className="rounded-t-md px-4 py-3 text-xs font-bold uppercase tracking-wider text-[var(--brand-contrast,#fff)] flex items-center gap-2"
+            style={{ backgroundColor: 'var(--brand, var(--color-primary))' }}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -195,7 +206,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
           className="relative rounded-lg overflow-hidden"
           style={{
             background:
-              'linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 8%, var(--color-background)) 0%, var(--color-background) 50%, color-mix(in srgb, var(--color-accent) 8%, var(--color-background)) 100%)',
+              'linear-gradient(135deg, var(--brand-soft, color-mix(in srgb, var(--color-primary) 8%, var(--color-background))) 0%, var(--color-background) 50%, var(--brand-soft, color-mix(in srgb, var(--color-accent) 8%, var(--color-background))) 100%)',
           }}
         >
           <div className="relative grid md:grid-cols-2 gap-6 px-8 md:px-12 py-12 md:py-16 items-center min-h-[360px]">
@@ -203,7 +214,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               {eyebrow && (
                 <div
                   className="text-[11px] font-bold uppercase tracking-[0.25em] mb-3"
-                  style={{ color: 'var(--color-primary)' }}
+                  style={{ color: 'var(--brand-ink, var(--color-primary))' }}
                 >
                   {eyebrow}
                 </div>
@@ -222,9 +233,9 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               </h1>
               <Link
                 to={s.primary_button_url || '/products'}
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full text-xs font-bold uppercase tracking-wider text-white transition-all hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 px-7 py-3 rounded-full text-xs font-bold uppercase tracking-wider text-[var(--brand-contrast,#fff)] transition-all hover:-translate-y-0.5"
                 style={{
-                  backgroundColor: 'var(--color-foreground)',
+                  backgroundColor: 'var(--brand, var(--color-foreground))',
                 }}
               >
                 {s.primary_button_text || t('theme.hero.showcase.cta')}
@@ -253,7 +264,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
                   />
                 </Link>
               ) : (
-                <div className="h-[280px] w-[280px] rounded-2xl animate-pulse" style={{ backgroundColor: 'color-mix(in srgb, var(--color-foreground) 4%, transparent)' }} />
+                <div className={`h-[280px] w-[280px] rounded-2xl ${slidesLoading ? 'animate-pulse' : ''}`} style={{ backgroundColor: 'color-mix(in srgb, var(--color-foreground) 4%, transparent)' }} />
               )}
             </div>
           </div>
@@ -281,7 +292,7 @@ export const HeroShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
         </div>
 
         {/* ── Right: flash-deal card ──────────────────────────────── */}
-        {flashEnabled && (
+        {showDeal && (
         <aside>
           {deal ? (
             <Link

@@ -205,8 +205,8 @@ export const TonmartProductCard: React.FC<Props> = ({ product, onQuickView }) =>
         <div className="absolute top-3 start-3 flex flex-col gap-1.5">
           {discount > 0 && (
             <span
-              className="text-[10px] font-bold px-2 py-1 rounded text-white"
-              style={{ backgroundColor: 'var(--color-primary)' }}
+              className="text-[10px] font-bold px-2 py-1 rounded text-[var(--brand-contrast,#fff)]"
+              style={{ backgroundColor: 'var(--brand, var(--color-primary))' }}
             >
               -{discount}%
             </span>

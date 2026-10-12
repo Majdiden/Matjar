@@ -39,7 +39,7 @@ export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, 
     : ['featured', 'newest', 'best-sellers', 'on-sale']
   ).filter((tab): tab is TabKey => tab in TAB_LABEL_KEYS);
 
-  const [active, setActive] = useState<TabKey>(tabs[0] || 'featured');
+  const [chosen, setChosen] = useState<TabKey | null>(null);
 
   // Run all four queries unconditionally so hook count stays stable as the
   // user clicks between tabs — the unused results are just ignored.
@@ -55,7 +55,16 @@ export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, 
     'on-sale': onSale,
   };
 
-  const current = sources[active];
+  // The "featured" tab only for stores with featured products: hidden
+  // while they load and when none are marked. Until the shopper picks a
+  // tab, the first visible one shows (a skeleton while featured loads, so
+  // the grid never swaps from newest to featured).
+  const hasFeatured = !featured.loading && featured.products.length > 0;
+  const visibleTabs = tabs.filter((tab) => tab !== 'featured' || hasFeatured);
+  const waitingForFeatured = chosen === null && tabs[0] === 'featured' && featured.loading;
+  const active: TabKey = chosen && visibleTabs.includes(chosen) ? chosen : visibleTabs[0] || 'newest';
+  const setActive = setChosen;
+  const current = waitingForFeatured ? { products: [], loading: true } : sources[active];
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
@@ -69,8 +78,8 @@ export const TabbedProductGridSection: React.FC<SectionComponentProps> = ({ id, 
 
         {/* Pill-tab switcher */}
         <div role="tablist" className="flex items-center gap-2 flex-wrap">
-          {tabs.map((tab) => {
-            const isActive = tab === active;
+          {visibleTabs.map((tab) => {
+            const isActive = !waitingForFeatured && tab === active;
             return (
               <button
                 key={tab}

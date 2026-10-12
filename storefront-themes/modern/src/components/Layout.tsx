@@ -3,7 +3,6 @@ import { Outlet, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
-import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
 import { useCategories } from '@matjar/theme-shared/hooks/useProducts';
 import { useMenu, type MenuItem } from '@matjar/theme-shared/hooks/useMenu';
 import { useLayoutSetting } from '@matjar/theme-shared/theme/ThemeProvider';
@@ -12,6 +11,7 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
+import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
 import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
@@ -23,7 +23,6 @@ const Layout: React.FC = () => {
   const sf = useStoreFooter();
   const { store } = useStore();
   const { cart, isOpen: cartOpen, openCart, closeCart } = useCart();
-  const { count: wishlistCount } = useWishlist();
   const { categories } = useCategories();
   // Store-managed header nav. When present (new stores ship a seeded
   // "header" menu) it drives the nav; while loading/empty (older stores)
@@ -50,7 +49,7 @@ const Layout: React.FC = () => {
       {store?.logo ? (
         <img src={store.logo} alt={store.name} className={imgCls} />
       ) : (
-        <span className={textCls} style={{ color: 'var(--color-primary, #2563eb)' }}>
+        <span className={textCls} style={{ color: 'var(--brand-ink, var(--color-primary, #2563eb))' }}>
           {store?.name || 'Store'}
         </span>
       )}
@@ -91,8 +90,8 @@ const Layout: React.FC = () => {
       </svg>
       {cart && cart.itemCount > 0 && (
         <span
-          className="absolute -top-0.5 -end-0.5 min-w-[18px] h-[18px] rounded-full text-white text-[10px] font-bold flex items-center justify-center px-1"
-          style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
+          className="absolute -top-0.5 -end-0.5 min-w-[18px] h-[18px] rounded-full text-[var(--brand-contrast,#fff)] text-[10px] font-bold flex items-center justify-center px-1"
+          style={{ backgroundColor: 'var(--brand, var(--color-primary, #2563eb))' }}
         >
           {cart.itemCount > 99 ? '99+' : cart.itemCount}
         </span>
@@ -100,24 +99,18 @@ const Layout: React.FC = () => {
     </button>
   );
 
+  // Heart with the saved-items count — shown on phones too (PBI 10-39).
   const renderWishlistLink = (linkCls: string) => (
-    <Link
-      to="/wishlist"
-      className={linkCls}
-      aria-label={t('common:aria.wishlist')}
-    >
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-      </svg>
-      {wishlistCount > 0 && (
-        <span
-          className="absolute -top-0.5 -end-0.5 min-w-[18px] h-[18px] rounded-full text-white text-[10px] font-bold flex items-center justify-center px-1"
-          style={{ backgroundColor: 'var(--color-primary, #2563eb)' }}
-        >
-          {wishlistCount > 99 ? '99+' : wishlistCount}
-        </span>
-      )}
-    </Link>
+    <WishlistHeaderLink
+      className={`${linkCls} inline-flex h-10 w-10 items-center justify-center`}
+      iconClassName="w-5 h-5"
+      icon={
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+        </svg>
+      }
+      badgeClassName="absolute -top-0.5 -end-0.5 min-w-[18px] h-[18px] rounded-full bg-[var(--brand,var(--color-primary,#2563eb))] text-[var(--brand-contrast,#fff)] text-[10px] font-bold flex items-center justify-center px-1"
+    />
   );
 
   const renderMenuToggle = (btnCls: string) => (
@@ -169,7 +162,7 @@ const Layout: React.FC = () => {
             </div>
 
             {/* Wishlist */}
-            {renderWishlistLink(`relative ${iconBtnCls} hidden md:block`)}
+            {renderWishlistLink(`relative ${iconBtnCls}`)}
 
             {/* Cart */}
             {renderCartButton(`relative ${iconBtnCls} hidden md:block`)}
@@ -207,7 +200,7 @@ const Layout: React.FC = () => {
             <div className="hidden md:flex items-center">
               <LanguageSwitcher />
             </div>
-            {renderWishlistLink(`relative ${iconBtnCls} hidden md:block`)}
+            {renderWishlistLink(`relative ${iconBtnCls}`)}
             {renderCartButton(`relative ${iconBtnCls} hidden md:block`)}
           </div>
         </div>
@@ -243,7 +236,7 @@ const Layout: React.FC = () => {
             <div className="hidden md:flex items-center">
               <LanguageSwitcher />
             </div>
-            {renderWishlistLink(`relative p-1.5 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 transition hidden md:block`)}
+            {renderWishlistLink(`relative p-1.5 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 transition`)}
             {renderCartButton(`relative p-1.5 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 transition hidden md:block`)}
             {renderMenuToggle(`xl:hidden p-1.5 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 transition`)}
           </div>
@@ -283,16 +276,16 @@ const Layout: React.FC = () => {
     hasContact ? (
       <ul className={listCls}>
         {email && (
-          <li><a href={`mailto:${email}`} className="hover:text-white transition">{email}</a></li>
+          <li><a href={`mailto:${email}`} className="hover:text-[var(--brand-contrast,#fff)] transition">{email}</a></li>
         )}
         {phone && (
           <li>
-            {phone.href ? <a href={phone.href} dir="ltr" className="hover:text-white transition">{phone.text}</a> : <span dir="ltr">{phone.text}</span>}
+            {phone.href ? <a href={phone.href} dir="ltr" className="hover:text-[var(--brand-contrast,#fff)] transition">{phone.text}</a> : <span dir="ltr">{phone.text}</span>}
           </li>
         )}
         {whatsapp && (
           <li>
-            <a href={whatsapp.href} dir="ltr" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white transition">
+            <a href={whatsapp.href} dir="ltr" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-[var(--brand-contrast,#fff)] transition">
               <WhatsAppIcon className="w-3.5 h-3.5" />
               {whatsapp.display}
             </a>
@@ -307,7 +300,7 @@ const Layout: React.FC = () => {
   const renderLinks = (links: { label: string; to: string }[], listCls: string) => (
     <ul className={listCls}>
       {links.map((l) => (
-        <li key={l.to}><Link to={l.to} className="hover:text-white transition">{l.label}</Link></li>
+        <li key={l.to}><Link to={l.to} className="hover:text-[var(--brand-contrast,#fff)] transition">{l.label}</Link></li>
       ))}
     </ul>
   );
@@ -327,35 +320,35 @@ const Layout: React.FC = () => {
 
   // "standard" — brand, shop, help (+ policies when the store has any).
   const standardFooter = (
-    <footer className="bg-gray-900 text-gray-300">
+    <footer className="bg-[var(--brand-strong,#111827)] text-[var(--brand-contrast,#d1d5db)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className={`grid grid-cols-1 ${hasPolicies ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-8`}>
           <div>
-            <h3 className="text-white font-bold text-lg mb-4">{brandName}</h3>
-            {sf.description && <p className="text-sm text-gray-400 leading-relaxed">{sf.description}</p>}
+            <h3 className="text-[var(--brand-contrast,#fff)] font-bold text-lg mb-4">{brandName}</h3>
+            {sf.description && <p className="text-sm text-[var(--brand-contrast,#9ca3af)] leading-relaxed">{sf.description}</p>}
             {sf.social.length > 0 && (
               <div className="mt-4">
-                {renderSocialLinks('w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition')}
+                {renderSocialLinks('w-8 h-8 rounded-full bg-[var(--brand,#1f2937)] flex items-center justify-center text-[var(--brand-contrast,#9ca3af)] hover:text-[var(--brand-contrast,#fff)] hover:bg-gray-700 transition')}
               </div>
             )}
-            {renderContactList('mt-4 space-y-1 text-sm text-gray-400')}
+            {renderContactList('mt-4 space-y-1 text-sm text-[var(--brand-contrast,#9ca3af)]')}
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-3">{sf.titles.shop}</h4>
+            <h4 className="text-[var(--brand-contrast,#fff)] font-semibold mb-3">{sf.titles.shop}</h4>
             {renderLinks(sf.shop, 'space-y-2 text-sm')}
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-3">{sf.titles.help}</h4>
+            <h4 className="text-[var(--brand-contrast,#fff)] font-semibold mb-3">{sf.titles.help}</h4>
             {renderLinks(sf.help, 'space-y-2 text-sm')}
           </div>
           {hasPolicies && (
             <div>
-              <h4 className="text-white font-semibold mb-3">{sf.titles.policies}</h4>
+              <h4 className="text-[var(--brand-contrast,#fff)] font-semibold mb-3">{sf.titles.policies}</h4>
               {renderLinks(sf.policies, 'space-y-2 text-sm')}
             </div>
           )}
         </div>
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
+        <div className="border-t border-[var(--brand,#1f2937)] mt-8 pt-8 text-center text-sm text-[var(--brand-contrast,#6b7280)]">
           {copyright}
         </div>
       </div>
@@ -365,20 +358,20 @@ const Layout: React.FC = () => {
   // "minimal" — one slim band: brand + essential links, then a thin
   // contact/copyright row. Much less vertical weight, nothing lost.
   const minimalFooter = (
-    <footer className="bg-gray-900 text-gray-300">
+    <footer className="bg-[var(--brand-strong,#111827)] text-[var(--brand-contrast,#d1d5db)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <span className="text-white font-bold">{brandName}</span>
+            <span className="text-[var(--brand-contrast,#fff)] font-bold">{brandName}</span>
             {[sf.shop[0], ...sf.help, ...sf.policies].filter(Boolean).map((l) => (
-              <Link key={l.to} to={l.to} className="hover:text-white transition">{l.label}</Link>
+              <Link key={l.to} to={l.to} className="hover:text-[var(--brand-contrast,#fff)] transition">{l.label}</Link>
             ))}
           </div>
         </div>
-        <div className="border-t border-gray-800 mt-5 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-gray-500">
+        <div className="border-t border-[var(--brand,#1f2937)] mt-5 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-[var(--brand-contrast,#6b7280)]">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            {renderContactList('flex flex-wrap items-center gap-x-4 gap-y-1 text-gray-400')}
-            {renderSocialLinks('w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition', 'w-3.5 h-3.5')}
+            {renderContactList('flex flex-wrap items-center gap-x-4 gap-y-1 text-[var(--brand-contrast,#9ca3af)]')}
+            {renderSocialLinks('w-7 h-7 rounded-full bg-[var(--brand,#1f2937)] flex items-center justify-center text-[var(--brand-contrast,#9ca3af)] hover:text-[var(--brand-contrast,#fff)] hover:bg-gray-700 transition', 'w-3.5 h-3.5')}
           </div>
           {copyright}
         </div>
@@ -389,41 +382,41 @@ const Layout: React.FC = () => {
   // "expanded" — a substantial footer: a wider grid with a bigger brand
   // block and roomier spacing. All columns and content preserved.
   const expandedFooter = (
-    <footer className="bg-gray-900 text-gray-300">
+    <footer className="bg-[var(--brand-strong,#111827)] text-[var(--brand-contrast,#d1d5db)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
         <div className={`grid grid-cols-1 md:grid-cols-2 ${hasPolicies ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-10 lg:gap-12`}>
           {/* Bigger brand block spanning two columns on large screens */}
           <div className="lg:col-span-2 max-w-md">
             <h3
-              className="text-white font-bold text-2xl mb-4"
+              className="text-[var(--brand-contrast,#fff)] font-bold text-2xl mb-4"
               style={{ fontFamily: 'var(--font-family-heading, inherit)' }}
             >
               {brandName}
             </h3>
-            {sf.description && <p className="text-sm text-gray-400 leading-relaxed">{sf.description}</p>}
+            {sf.description && <p className="text-sm text-[var(--brand-contrast,#9ca3af)] leading-relaxed">{sf.description}</p>}
             {sf.social.length > 0 && (
               <div className="mt-6">
-                {renderSocialLinks('w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition')}
+                {renderSocialLinks('w-9 h-9 rounded-full bg-[var(--brand,#1f2937)] flex items-center justify-center text-[var(--brand-contrast,#9ca3af)] hover:text-[var(--brand-contrast,#fff)] hover:bg-gray-700 transition')}
               </div>
             )}
-            {renderContactList('mt-6 space-y-2 text-sm text-gray-400')}
+            {renderContactList('mt-6 space-y-2 text-sm text-[var(--brand-contrast,#9ca3af)]')}
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-4">{sf.titles.shop}</h4>
+            <h4 className="text-[var(--brand-contrast,#fff)] font-semibold mb-4">{sf.titles.shop}</h4>
             {renderLinks(sf.shop, 'space-y-3 text-sm')}
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-4">{sf.titles.help}</h4>
+            <h4 className="text-[var(--brand-contrast,#fff)] font-semibold mb-4">{sf.titles.help}</h4>
             {renderLinks(sf.help, 'space-y-3 text-sm')}
           </div>
           {hasPolicies && (
             <div>
-              <h4 className="text-white font-semibold mb-4">{sf.titles.policies}</h4>
+              <h4 className="text-[var(--brand-contrast,#fff)] font-semibold mb-4">{sf.titles.policies}</h4>
               {renderLinks(sf.policies, 'space-y-3 text-sm')}
             </div>
           )}
         </div>
-        <div className="border-t border-gray-800 mt-14 pt-8 text-center text-sm text-gray-500">
+        <div className="border-t border-[var(--brand,#1f2937)] mt-14 pt-8 text-center text-sm text-[var(--brand-contrast,#6b7280)]">
           {copyright}
         </div>
       </div>

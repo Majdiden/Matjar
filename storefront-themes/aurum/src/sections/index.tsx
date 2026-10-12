@@ -16,7 +16,7 @@ import { useIntersectionObserver } from '@matjar/theme-shared/hooks/useIntersect
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
 import AurumProductCard from '../components/AurumProductCard';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
-import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
+import { merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
 import { useTrustLines, TrustLineIconSvg, type TrustLine } from '@matjar/theme-shared/components/commerce/TrustBadges';
 
 const serif = { fontFamily: 'var(--font-family-heading)' } as const;
@@ -50,22 +50,27 @@ const SplitHeroSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
   const { store } = useStore();
-  const { photos, loading } = useStoreProductPhotos(1);
+  const { photos, loading } = useStoreProductPhotos(2);
   const heading = merchantText(s.heading) || store?.name || '';
   const sub = merchantText(s.subheading);
-  // Right panel: the merchant's own photo, else a product photo, else hidden.
-  // Stock only on a brand-new store (no photo of its own, no products).
+  // Each panel: the merchant's own photo, else a product photo, else (on a
+  // brand-new store with neither) the theme's stock photo. While products
+  // load, a panel that may take a product photo is a plain block, so a
+  // stock photo never flashes before the store's own.
   const ownPhoto = merchantImage(s.image_left, store?.brand?.coverImage);
   const hasOwnPhoto = !!ownPhoto;
-  const imageLeft = ownPhoto || s.image_left;
-  const imageRight = !isStockImage(s.image_right)
-    ? s.image_right
-    : photos[0] || (!hasOwnPhoto && !loading ? s.image_right : null);
+  const ownRight = merchantImage(s.image_right);
+  const productPhotos = hasOwnPhoto ? photos : photos.slice(1);
+  const imageLeft = ownPhoto || (loading ? null : photos[0] || s.image_left);
+  const rightPending = !ownRight && loading;
+  const imageRight = ownRight
+    || (loading ? null : productPhotos[0] || (!hasOwnPhoto && photos.length === 0 ? s.image_right : null));
+  const showRight = rightPending || !!imageRight;
 
   return (
-    <section className={`grid grid-cols-1 ${imageRight ? 'md:grid-cols-2' : ''} md:h-[85vh] min-h-[70vh]`}>
+    <section className={`grid grid-cols-1 ${showRight ? 'md:grid-cols-2' : ''} md:h-[85vh] min-h-[70vh]`}>
       {/* Left: editorial image + copy */}
-      <div className="relative overflow-hidden group min-h-[70vh] md:min-h-0">
+      <div className="relative overflow-hidden group min-h-[70vh] md:min-h-0 bg-[var(--color-border,#2b2b2b)]">
         {imageLeft && (
           <img
             src={imageLeft}
@@ -90,7 +95,7 @@ const SplitHeroSection: React.FC<SectionComponentProps> = ({ id }) => {
           )}
           <Link
             to={s.cta_url || '/products'}
-            className="mt-8 inline-block bg-ink text-night px-10 py-4 text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-ink/90 transition-colors duration-300"
+            className="mt-8 inline-block bg-[var(--brand,var(--color-foreground,#f4f1ea))] text-[var(--brand-contrast,var(--color-background,#141414))] px-10 py-4 text-[11px] tracking-[0.22em] uppercase font-medium hover:bg-[var(--brand-strong,var(--color-foreground,#f4f1ea))] transition-colors duration-300"
           >
             {s.cta_text || t('theme.hero.cta')}
           </Link>
@@ -98,13 +103,15 @@ const SplitHeroSection: React.FC<SectionComponentProps> = ({ id }) => {
       </div>
 
       {/* Right: close-up */}
-      {imageRight && (
-        <div className="relative overflow-hidden group hidden md:block">
-          <img
-            src={imageRight}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
-          />
+      {showRight && (
+        <div className="relative overflow-hidden group hidden md:block bg-[var(--color-border,#2b2b2b)]">
+          {imageRight && (
+            <img
+              src={imageRight}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
+            />
+          )}
         </div>
       )}
     </section>
@@ -151,7 +158,7 @@ const MarqueeSection: React.FC<SectionComponentProps> = ({ id }) => {
             >
               {item}
             </span>
-            <span className="w-1.5 h-1.5 rotate-45 bg-gold/70 shrink-0" aria-hidden />
+            <span className="w-1.5 h-1.5 rotate-45 bg-[var(--brand,var(--color-accent,#c8a24b))] opacity-70 shrink-0" aria-hidden />
           </React.Fragment>
         ))}
       </div>
@@ -166,8 +173,10 @@ const SpotlightSection: React.FC<SectionComponentProps> = ({ id, onQuickView }) 
   const s = useThemeSettings(id);
   const { products: featured, loading: loadingFeatured } = useFeaturedProducts(1);
   const { products: fallback, loading: loadingFallback } = useProducts({ sort: 'newest', limit: 1 });
-  const product = featured[0] || fallback[0];
-  const loading = loadingFeatured && loadingFallback;
+  // Featured first; newest only once the store turns out to have none, so
+  // the card never swaps from one product to another while loading.
+  const product = featured[0] || (loadingFeatured ? undefined : fallback[0]);
+  const loading = loadingFeatured || (featured.length === 0 && loadingFallback);
 
   return (
     <section className="max-w-[1440px] mx-auto px-4 sm:px-8 py-20 md:py-28">
@@ -235,7 +244,7 @@ const CollectionTabsSection: React.FC<SectionComponentProps> = ({ id, onQuickVie
                 key={cat._id}
                 onClick={() => setActive(cat.slug)}
                 className={`pb-2 text-[11px] tracking-[0.22em] uppercase border-b transition-colors duration-300 ${
-                  isActive ? 'text-ink border-ink' : 'text-mute border-transparent hover:text-ink'
+                  isActive ? 'text-ink border-[var(--brand,var(--color-foreground,#f4f1ea))]' : 'text-mute border-transparent hover:text-ink'
                 }`}
               >
                 {cat.name}
@@ -313,6 +322,9 @@ const ProductRailSection: React.FC<SectionComponentProps> = ({ id, onQuickView }
   const featured = useFeaturedProducts(limit);
   const regular = useProducts({ sort: source === 'popular' ? 'popular' : 'newest', limit });
   const { products, loading } = source === 'featured' ? featured : regular;
+  // A featured rail shows only the store's featured products: nothing while
+  // they load or when none are marked.
+  if (source === 'featured' && (loading || products.length === 0)) return null;
 
   return (
     <section className="max-w-[1440px] mx-auto px-4 sm:px-8 py-20 md:py-28">
@@ -435,10 +447,13 @@ const TrustSection: React.FC<SectionComponentProps> = ({ id, section }) => {
 const CollectionsShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => {
   const { t } = useTranslation(['theme']);
   const s = useThemeSettings(id);
-  const { categories } = useCategories();
+  const { categories, loading } = useCategories();
   const fallbackImages = [s.image_1, s.image_2, s.image_3, s.image_4];
 
-  const cards = (categories.length > 0
+  // While categories load: plain tiles, no stock photo or demo label.
+  const cards = loading
+    ? fallbackImages.map((_, i) => ({ key: `p${i}`, label: '', to: '/products', image: null as string | null }))
+    : (categories.length > 0
     ? categories.slice(0, 4).map((cat, i) => ({
         key: cat._id,
         label: cat.name,
@@ -474,7 +489,7 @@ const CollectionsShowcaseSection: React.FC<SectionComponentProps> = ({ id }) => 
               <span className="text-[13px] md:text-sm tracking-[0.3em] uppercase text-ink">
                 {card.label}
               </span>
-              <span className="border border-ink/70 px-5 py-2.5 text-[10px] tracking-[0.22em] uppercase text-ink group-hover:bg-ink group-hover:text-night transition-colors duration-300">
+              <span className={`${card.label ? '' : 'invisible '}border border-ink/70 px-5 py-2.5 text-[10px] tracking-[0.22em] uppercase text-ink group-hover:bg-ink group-hover:text-night transition-colors duration-300`}>
                 {t('theme.section.showcase.cta')}
               </span>
             </div>
