@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,8 @@ import { storefrontApi } from '../../api/client';
 import type { Product } from '../../types/commerce';
 import { useStore } from '../../contexts/StoreContext';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
+import { localizeProducts } from '../../hooks/useProducts';
+import { useLanguage } from '../../i18n/LanguageProvider';
 
 export const SLOT_KEY = 'searchBar';
 
@@ -135,10 +137,14 @@ export function SearchOverlay({ placeholder, accent, onClose }: SearchOverlayPro
   const ph = placeholder || t('search.placeholder');
   const ac = accent || 'var(--color-primary, #2563eb)';
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Product[]>([]);
+  const [rawResults, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [recent, setRecent] = useState<string[]>(() => loadRecent());
-  const [trending, setTrending] = useState<Product[]>([]);
+  const [rawTrending, setTrending] = useState<Product[]>([]);
+  // In the shopper's language (the API returns the store's own).
+  const { lang } = useLanguage();
+  const results = useMemo(() => localizeProducts(rawResults, lang) as Product[], [rawResults, lang]);
+  const trending = useMemo(() => localizeProducts(rawTrending, lang) as Product[], [rawTrending, lang]);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 

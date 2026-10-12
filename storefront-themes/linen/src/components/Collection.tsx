@@ -11,6 +11,8 @@ import { LinenProductCard } from './LinenProductCard';
 import { Reveal } from '../lib/Reveal';
 import { useStoredState, useEscape, useFocusTrap, useBodyScrollLock } from '../lib/hooks';
 import { I } from '../lib/icons';
+import { localizeProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { useLanguage } from '@matjar/theme-shared/i18n/LanguageProvider';
 
 const PAGE_SIZE = 12;
 
@@ -62,6 +64,7 @@ export const Collection: React.FC<Props> = ({ categorySlug, title, bannerImage, 
 
   const [view, setView] = useStoredState<'grid' | 'list'>('linen.collection.view', 'grid');
   const [pages, setPages] = useState<any[][]>([]);
+  const { lang } = useLanguage();
   const [pagination, setPagination] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [more, setMore] = useState(false);
@@ -115,7 +118,8 @@ export const Collection: React.FC<Props> = ({ categorySlug, title, bannerImage, 
     } finally { setMore(false); }
   };
 
-  const all = pages.flat();
+  // In the shopper's language (the API returns the store's own).
+  const all = localizeProducts(pages.flat(), lang);
   const products = inStockOnly ? all.filter((p) => (p.stock ?? 0) > 0) : all;
   const total = inStockOnly ? products.length : (pagination?.total ?? products.length);
   const loaded = inStockOnly ? products.length : all.length;

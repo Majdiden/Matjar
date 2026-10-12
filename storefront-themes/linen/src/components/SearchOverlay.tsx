@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { storefrontApi } from '@matjar/theme-shared/api/client';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useTypewriter, useEscape, useFocusTrap, useBodyScrollLock } from '../lib/hooks';
 import { I } from '../lib/icons';
+import { localizeProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { useLanguage } from '@matjar/theme-shared/i18n/LanguageProvider';
 
 interface Props {
   open: boolean;
@@ -30,7 +32,10 @@ export const SearchOverlay: React.FC<Props> = ({ open, onClose, popular }) => {
   const panel = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const [rawResults, setResults] = useState<any[]>([]);
+  // In the shopper's language (the API returns the store's own).
+  const { lang } = useLanguage();
+  const results = useMemo(() => localizeProducts(rawResults, lang), [rawResults, lang]);
   const [total, setTotal] = useState(0);
   const [busy, setBusy] = useState(false);
   const abort = useRef<AbortController | null>(null);

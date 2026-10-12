@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_SECTION_REGISTRY, type SectionComponent, type SectionComponentProps } from '@matjar/theme-shared/components/sections';
 import { useSectionBlocks, useThemeSettings } from '@matjar/theme-shared/theme/ThemeProvider';
-import { useCategories, useFeaturedProducts, useProducts } from '@matjar/theme-shared/hooks/useProducts';
+import { localizeProduct, useCategories, useFeaturedProducts, useProducts } from '@matjar/theme-shared/hooks/useProducts';
 import { storefrontApi } from '@matjar/theme-shared/api/client';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { Skeleton } from '@matjar/theme-shared/components/primitives/Skeleton';
@@ -19,6 +19,7 @@ import { BeforeAfter, CountUp, Icon, Marquee, Reveal, prefersReducedMotion } fro
 import manifest from '../theme.manifest';
 import { storefrontLocale } from '@matjar/theme-shared/utils/locale';
 import { isStockImage, merchantImage, merchantText } from '@matjar/theme-shared/theme/heroContent';
+import { useLanguage } from '@matjar/theme-shared/i18n/LanguageProvider';
 
 /** Resolved blocks, falling back to the manifest definition's defaults when a store instance carries none. */
 function useBlocks(id: string, section?: { type: string }) {
@@ -470,7 +471,9 @@ function useProductByHandle(handle: string) {
     storefrontApi.getProduct(handle).then((r: any) => { if (live) setP(r?.data?.product || r?.data || null); }).catch(() => { if (live) setP(null); });
     return () => { live = false; };
   }, [handle]);
-  return p;
+  // In the shopper's language (the API returns the store's own).
+  const { lang } = useLanguage();
+  return useMemo(() => (p ? localizeProduct(p, lang) : p), [p, lang]);
 }
 
 const Hotspot: React.FC<{ x: number; y: number; handle: string; onLoaded: (p: any) => void }> = ({ x, y, handle, onLoaded }) => {
