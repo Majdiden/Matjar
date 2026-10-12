@@ -404,6 +404,9 @@ export const FeaturedProductsSection: React.FC<SectionComponentProps> = ({ id, o
   const limit = Number(s.product_limit) || 8;
   const { products, loading } = useFeaturedProducts(limit);
   const cols = s.columns || '4';
+  // Only for stores that marked products as featured — and nothing while
+  // loading, so a store without any never flashes an empty grid.
+  if (loading || products.length === 0) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
@@ -420,9 +423,7 @@ export const FeaturedProductsSection: React.FC<SectionComponentProps> = ({ id, o
           {t('section.featured_products.view_all')} →
         </Link>
       </div>
-      {loading ? (
-        <Skeleton.ProductGrid count={parseInt(cols) || 4} />
-      ) : (
+      {(
         <div className={`grid grid-cols-2 md:grid-cols-${cols} gap-4 md:gap-6`}>
           {products.map((p: any) => (
             <ProductCard key={p._id} product={p} onQuickView={onQuickView}>
