@@ -5,7 +5,6 @@ import { useAuth } from '../contexts/auth-context';
 import { encodeAuthPayload, appHost, isAppHost } from '../lib/authHandoff';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Badge } from '../components/ui/badge';
@@ -35,9 +34,13 @@ import {
   Mail,
   RefreshCw,
   Info,
-  MapPin,
+  ImagePlus,
+  Palette,
 } from 'lucide-react';
 import { api } from '../lib/api-client';
+import { shrinkImage } from '../lib/shrinkImage';
+import { SIGNUP_COLOR_SWATCHES, setPendingIdentity, suggestColorFromImage } from '../lib/signupIdentity';
+import { uploadPendingIdentity } from '../lib/signupIdentityUpload';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { OtpInput } from '../components/OtpInput';
 import { PhoneInput } from '../components/PhoneInput';
@@ -103,11 +106,20 @@ interface LinkNotice {
   platform?: SocialPlatform;
 }
 
-// Signup v2 "where are you" answers (mirror backend utils/brandKit.js city
-// limit and utils/policyAnswers.js DELIVERY_AREAS_MAX_LENGTH).
-const CITY_MIN_LENGTH = 2;
-const CITY_MAX_LENGTH = 80;
-const DELIVERY_AREAS_MAX_LENGTH = 300;
+// Signup v2 short line (mirrors backend utils/brandKit.js tagline limit).
+const TAGLINE_MAX_LENGTH = 140;
+
+/** A preview URL for a picked file, revoked when it changes. */
+function useObjectUrl(file: File | null): string | null {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!file) { setUrl(null); return; }
+    const next = URL.createObjectURL(file);
+    setUrl(next);
+    return () => URL.revokeObjectURL(next);
+  }, [file]);
+  return url;
+}
 
 // Public storefront domain suffix shown next to the subdomain field.
 // Configurable via VITE_STORE_DOMAIN_SUFFIX; defaults to matjar.to.
@@ -225,10 +237,33 @@ export const Register: React.FC = () => {
     subdomain: '',
     niche: '',
     themeSlug: '',
-    // Signup v2 only.
-    city: '',
-    deliveryAreas: '',
+    // Signup v2 only: the store's identity (10-41).
+    tagline: '',
+    brandColor: '',
   });
+  // Logo and cover photo (v2), shrunk on the phone; uploaded right after the
+  // store is created (lib/signupIdentity.ts).
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [suggestedColor, setSuggestedColor] = useState<string | null>(null);
+  const logoPreview = useObjectUrl(logoFile);
+  const coverPreview = useObjectUrl(coverFile);
+  useEffect(() => {
+    setPendingIdentity({ logo: logoFile, cover: coverFile });
+  }, [logoFile, coverFile]);
+  const pickLogo = async (file: File | undefined) => {
+    if (!file) return;
+    const small = await shrinkImage(file).catch(() => file);
+    setLogoFile(small);
+    const color = await suggestColorFromImage(small);
+    setSuggestedColor(color);
+    // The logo's colour, unless the merchant already chose one.
+    if (color) setForm(p => (p.brandColor ? p : { ...p, brandColor: color }));
+  };
+  const pickCover = async (file: File | undefined) => {
+    if (!file) return;
+    setCoverFile(await shrinkImage(file).catch(() => file));
+  };
 
   // Merchant contact phone — country (ISO2) + national digits. The enabled
   // dial codes come from the platform (Sudan by default); the country is
@@ -607,11 +642,6 @@ export const Register: React.FC = () => {
       else if (subdomainAvailable === false) errs.subdomain = t('auth.field.subdomain.error.taken');
       else if (subdomainAvailable !== true) errs.subdomain = t('auth.field.subdomain.error.waiting');
     }
-    if (s === 'location') {
-      const city = form.city.trim();
-      if (!city) errs.city = t('onboarding:signup.city_error_required');
-      else if (city.length < CITY_MIN_LENGTH) errs.city = t('onboarding:signup.city_error_too_short');
-    }
     if (s === 'niche' && !form.niche) errs.niche = t('auth.register.pick_niche_error');
     if (s === 'theme' && !form.themeSlug) errs.themeSlug = t('auth.register.pick_theme_error');
     return errs;
@@ -627,7 +657,6 @@ export const Register: React.FC = () => {
     account: ['name', 'email', 'phone', 'password'],
     store: ['storeName', 'subdomain'],
     niche: ['niche'],
-    location: ['city'],
     theme: ['themeSlug'],
   };
 
@@ -682,7 +711,6 @@ export const Register: React.FC = () => {
       ...(addMode ? {} : validateStep('account')),
       ...validateStep('store'),
       ...validateStep('niche'),
-      ...(isV2 ? validateStep('location') : {}),
     };
     if (Object.keys(priorErrs).length > 0) {
       setError(t('auth.register.general_error'));
@@ -696,13 +724,13 @@ export const Register: React.FC = () => {
     }
     setError('');
     setSubmitting(true);
-    // v2 answers; the server fills the brand kit (city, WhatsApp from the
-    // account phone) and the delivery areas from them.
+    // v2 identity; the server fills the brand kit (short line, colour,
+    // WhatsApp from the account phone). The photos follow after signup.
     const v2Fields = isV2
       ? {
           onboardingFlow: 'v2' as const,
-          city: form.city.trim(),
-          ...(form.deliveryAreas.trim() ? { deliveryAreas: form.deliveryAreas.trim() } : {}),
+          ...(form.tagline.trim() ? { tagline: form.tagline.trim() } : {}),
+          ...(form.brandColor ? { brandColor: form.brandColor } : {}),
         }
       : {};
 
@@ -729,6 +757,8 @@ export const Register: React.FC = () => {
         };
         const ro = r.responseObject || {};
         toast.success(t('auth.toast.store_created'));
+        // The logo and cover photo chosen here, for the NEW store (its token).
+        if (ro.accessToken) await uploadPendingIdentity(ro.accessToken);
         if (ro.accessToken) {
           // Hand the user straight into the NEW store, signed in. The dashboard
           // is single-host now (app.<platformDomain>) and the new store's
@@ -1087,6 +1117,17 @@ export const Register: React.FC = () => {
                 {renderLinkNotice('storeName')}
               </div>
 
+              {isV2 && (
+                <div className="space-y-2">
+                  <Label htmlFor="tagline">{t('onboarding:signup.tagline_label')}</Label>
+                  <Input id="tagline" placeholder={t('onboarding:signup.tagline_placeholder')}
+                    value={form.tagline} maxLength={TAGLINE_MAX_LENGTH}
+                    onChange={e => update('tagline', e.target.value)}
+                    aria-describedby="tagline-help" />
+                  <p id="tagline-help" className="text-xs text-muted-foreground">{t('onboarding:signup.tagline_help')}</p>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="subdomain">{t('auth.field.subdomain.label')}</Label>
                 <p id="subdomain-help" className="text-xs text-muted-foreground">{t('auth.field.subdomain.help')}</p>
@@ -1186,39 +1227,81 @@ export const Register: React.FC = () => {
           </div>
         )}
 
-        {step === 'location' && (
+        {step === 'identity' && (
           <div className={`space-y-8 onb-step${transitionDir === "out" ? " leaving" : ""}`}>
             <div>
-              <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
-                <MapPin className="h-6 w-6" />
-              </div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('onboarding:signup.location_title')}</h1>
-              <p className="mt-2 text-muted-foreground">{t('onboarding:signup.location_subtitle')}</p>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">{t('onboarding:signup.identity_title')}</h1>
+              <p className="mt-2 text-muted-foreground">{t('onboarding:signup.identity_subtitle')}</p>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-7">
+              {/* Logo: one big button opening the gallery or camera. */}
               <div className="space-y-2">
-                <Label htmlFor="city">{t('onboarding:signup.city_label')}</Label>
-                <Input id="city" placeholder={t('onboarding:signup.city_placeholder')}
-                  value={form.city} autoFocus autoComplete="address-level2"
-                  maxLength={CITY_MAX_LENGTH}
-                  onChange={e => update('city', e.target.value)}
-                  className="h-12 text-base"
-                  aria-invalid={!!fieldErrors.city} />
-                {fieldErrors.city && <p className="text-xs text-destructive">{fieldErrors.city}</p>}
+                <p className="text-base font-semibold">{t('onboarding:signup.logo_label')}</p>
+                <label className="flex cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed p-3 transition-colors hover:bg-accent focus-within:ring-2 focus-within:ring-ring">
+                  <span className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted">
+                    {logoPreview
+                      ? <img src={logoPreview} alt="" className="h-full w-full object-contain" />
+                      : <ImagePlus className="h-7 w-7 text-muted-foreground" aria-hidden />}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-medium text-primary">
+                      {logoFile ? t('onboarding:signup.logo_change') : t('onboarding:signup.logo_add')}
+                    </span>
+                    <span className="block text-sm text-muted-foreground">{t('onboarding:signup.logo_help')}</span>
+                  </span>
+                  <input type="file" accept="image/*" className="sr-only"
+                    onChange={e => { void pickLogo(e.target.files?.[0]); e.target.value = ''; }} />
+                </label>
               </div>
 
+              {/* Colour: the logo's colour first, then ready-made ones. */}
               <div className="space-y-2">
-                <Label htmlFor="deliveryAreas">{t('onboarding:signup.areas_label')}</Label>
-                <Textarea id="deliveryAreas" rows={3}
-                  placeholder={t('onboarding:signup.areas_placeholder')}
-                  value={form.deliveryAreas}
-                  maxLength={DELIVERY_AREAS_MAX_LENGTH}
-                  onChange={e => update('deliveryAreas', e.target.value)}
-                  className="text-base"
-                  aria-describedby="deliveryAreas-help" />
-                <p id="deliveryAreas-help" className="text-xs text-muted-foreground">{t('onboarding:signup.areas_help')}</p>
+                <p className="flex items-center gap-2 text-base font-semibold">
+                  <Palette className="h-4 w-4" aria-hidden />
+                  {t('onboarding:signup.color_label')}
+                </p>
+                <div className="flex flex-wrap gap-3" role="radiogroup" aria-label={t('onboarding:signup.color_label')}>
+                  {[...(suggestedColor && !SIGNUP_COLOR_SWATCHES.includes(suggestedColor) ? [suggestedColor] : []), ...SIGNUP_COLOR_SWATCHES].map(c => {
+                    const selected = form.brandColor === c;
+                    return (
+                      <button key={c} type="button" role="radio" aria-checked={selected}
+                        aria-label={c === suggestedColor ? t('onboarding:signup.color_from_logo') : c}
+                        onClick={() => update('brandColor', selected ? '' : c)}
+                        className={`relative h-11 w-11 rounded-full border transition-transform active:scale-95 ${selected ? 'ring-2 ring-offset-2 ring-foreground' : ''}`}
+                        style={{ backgroundColor: c }}>
+                        {selected && <Check className="absolute inset-0 m-auto h-5 w-5 text-white drop-shadow" aria-hidden />}
+                      </button>
+                    );
+                  })}
+                </div>
+                {suggestedColor && form.brandColor === suggestedColor && (
+                  <p className="text-xs text-muted-foreground">{t('onboarding:signup.color_from_logo')}</p>
+                )}
               </div>
+
+              {/* Cover photo: replaces the theme's stock picture at the top of the store. */}
+              <div className="space-y-2">
+                <p className="text-base font-semibold">{t('onboarding:signup.cover_label')}</p>
+                <label className="block cursor-pointer overflow-hidden rounded-xl border-2 border-dashed transition-colors hover:bg-accent focus-within:ring-2 focus-within:ring-ring">
+                  {coverPreview ? (
+                    <img src={coverPreview} alt="" className="aspect-[16/7] w-full object-cover" />
+                  ) : (
+                    <span className="flex aspect-[16/7] w-full flex-col items-center justify-center gap-2 bg-muted/50 p-4 text-center">
+                      <ImagePlus className="h-7 w-7 text-muted-foreground" aria-hidden />
+                      <span className="font-medium text-primary">{t('onboarding:signup.cover_add')}</span>
+                      <span className="text-sm text-muted-foreground">{t('onboarding:signup.cover_help')}</span>
+                    </span>
+                  )}
+                  <input type="file" accept="image/*" className="sr-only"
+                    onChange={e => { void pickCover(e.target.files?.[0]); e.target.value = ''; }} />
+                </label>
+                {coverFile && (
+                  <p className="text-sm text-primary">{t('onboarding:signup.cover_change')}</p>
+                )}
+              </div>
+
+              <p className="text-sm text-muted-foreground">{t('onboarding:signup.identity_later')}</p>
             </div>
           </div>
         )}

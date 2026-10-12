@@ -95,6 +95,36 @@ describe("E2E guided onboarding (signup v2 + first-sale checklist)", () => {
     assert.deepEqual(sf.body.data.store.brand.city, { ar: "الخرطوم" });
   });
 
+  it("v2 signup stores the store identity: short line and colour (10-41)", async () => {
+    await register(app, "eifa", {
+      onboardingFlow: "v2",
+      tagline: "  عطور و بخورات سودانية ",
+      brandColor: "#5B3A29",
+    }).expect(201);
+    const ar = await tenantBySlug("eifa");
+    assert.deepEqual(ar.settings.brand.tagline, { ar: "عطور و بخورات سودانية" });
+    assert.equal(ar.settings.brand.color, "#5b3a29");
+
+    // English signups: the brand kit needs Arabic, so the line fills both.
+    await register(app, "rose", { onboardingFlow: "v2", language: "en", tagline: "Fresh flowers daily" }).expect(201);
+    assert.deepEqual((await tenantBySlug("rose")).settings.brand.tagline, { ar: "Fresh flowers daily", en: "Fresh flowers daily" });
+
+    const sf = await request(app).get("/storefront/store-info").set("Host", "eifa.localhost").expect(200);
+    assert.equal(sf.body.data.store.brand.color, "#5b3a29");
+
+    // v1 ignores them.
+    await register(app, "plain", { tagline: "x", brandColor: "#000000" }).expect(201);
+    assert.equal((await tenantBySlug("plain")).settings.brand, undefined);
+  });
+
+  it("rejects a bad colour or a too-long short line before writing anything", async () => {
+    for (const extra of [{ brandColor: "red" }, { brandColor: "#12345" }, { tagline: "x".repeat(141) }]) {
+      const res = await register(app, "bad", { onboardingFlow: "v2", ...extra });
+      assert.equal(res.status, 400, JSON.stringify(extra));
+    }
+    assert.equal(await mongoose.model("Tenant").countDocuments({}), 0);
+  });
+
   it("v2 signup without a phone or answers leaves the brand kit empty", async () => {
     await register(app, "blue", { onboardingFlow: "v2" }).expect(201);
     const tenant = await tenantBySlug("blue");

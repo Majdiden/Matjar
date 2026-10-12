@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Check, Store } from 'lucide-react';
 import { api } from '../lib/api-client';
+import { uploadPendingIdentity } from '../lib/signupIdentityUpload';
 import { useAuth } from '../contexts/auth-context';
 
 type Phase = 'setup' | 'ready';
@@ -147,6 +148,10 @@ export default function SetupInProgress() {
       };
       clearSetupStorage();
       if (!res.responseObject) throw new Error('No session');
+      // The logo and cover photo chosen at signup (10-41), uploaded with the
+      // new store's token before signing in (which may switch host).
+      const newToken = (res.responseObject as { accessToken?: string }).accessToken;
+      if (newToken) await uploadPendingIdentity(newToken);
       await loginWithResponse(res.responseObject);
       navigate('/dashboard', { replace: true });
     } catch (err) {
