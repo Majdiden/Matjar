@@ -228,21 +228,24 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
 
         {/* Footer — language toggle. An inline segmented control (not a
             floating dropdown) so it can never open off-screen or get clipped
-            by the panel edge at the bottom of the menu. */}
+            by the panel edge at the bottom of the menu. Fixed left-to-right
+            order (dir="ltr"), so the two options stay put when the page
+            direction flips; each label keeps its own language and direction. */}
         <div
           className="px-5 py-4 border-t shrink-0"
           style={{ borderColor: 'var(--color-border)' }}
         >
           <div
             className="flex gap-1 rounded-2xl border p-1"
+            dir="ltr"
             role="group"
             aria-label={t('common:aria.language', { defaultValue: 'Language' })}
             style={{ borderColor: 'var(--color-border)' }}
           >
             {([
-              { code: 'en' as const, label: 'English' },
-              { code: 'ar' as const, label: 'العربية' },
-            ]).map(({ code, label }) => {
+              { code: 'en' as const, label: 'English', dir: 'ltr' as const },
+              { code: 'ar' as const, label: 'العربية', dir: 'rtl' as const },
+            ]).map(({ code, label, dir }) => {
               const active = lang === code;
               return (
                 <button
@@ -250,6 +253,8 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
                   type="button"
                   onClick={() => setLang(code)}
                   aria-pressed={active}
+                  lang={code}
+                  dir={dir}
                   className={cn(
                     'flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition',
                     !active && 'opacity-70 hover:opacity-100',
