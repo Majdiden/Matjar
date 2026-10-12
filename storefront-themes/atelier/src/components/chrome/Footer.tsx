@@ -85,7 +85,9 @@ const Footer: React.FC = () => {
         <div className="mx-auto grid max-w-[1320px] gap-8 px-4 py-14 sm:px-6 md:grid-cols-12">
           <div className="md:col-span-4">
             <Link to="/" className="inline-block">
-              {footer.logo ? <img src={footer.logo} alt={footer.storeName} className="h-9 w-auto brightness-0 invert" /> : <span className="font-display text-3xl">{footer.storeName}</span>}
+              {footer.logo
+                ? <span className="inline-block rounded-xl bg-white p-2"><img src={footer.logo} alt={footer.storeName} className="block h-16 w-auto max-w-[220px] rounded-lg object-contain md:h-[72px]" /></span>
+                : <span className="block py-[0.12em] font-display text-3xl [line-height:normal]">{footer.storeName}</span>}
             </Link>
             {footer.description && <p className="mt-4 max-w-sm text-[14px] text-white/70">{footer.description}</p>}
             <ul className="mt-5 space-y-2 text-[14px] text-white/85">

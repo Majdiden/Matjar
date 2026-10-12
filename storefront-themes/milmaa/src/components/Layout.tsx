@@ -53,6 +53,7 @@ const Layout: React.FC = () => {
   const footer = useStoreFooter();
 
   const brand = (store?.name || 'Milmaa');
+  const logo = store?.logo;
   const isActive = (path: string) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
 
@@ -82,12 +83,24 @@ const Layout: React.FC = () => {
             </button>
 
             {/* Logo */}
+            {/* Logo (when the store has one) + wordmark. The name keeps a
+                font-derived line box and a little block padding so the
+                truncate clip never cuts Arabic marks or descenders. */}
             <Link
               to="/"
-              className="font-serif text-3xl md:text-4xl font-bold tracking-tight min-w-0 flex-1 truncate text-center md:flex-none md:text-start"
-              style={{ fontFamily: HEADING_FONT, color: DARK_TEAL }}
+              aria-label={brand}
+              className="flex min-w-0 flex-1 items-center justify-center gap-2.5 md:flex-none md:justify-start md:gap-3"
+              style={{ color: DARK_TEAL }}
             >
-              {brand.toLowerCase()}
+              {logo && (
+                <img src={logo} alt={brand} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain md:h-12 md:max-w-[160px]" />
+              )}
+              <span
+                className={`font-serif min-w-0 truncate py-[0.12em] [line-height:normal] font-bold tracking-tight ${logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
+                style={{ fontFamily: HEADING_FONT }}
+              >
+                {brand.toLowerCase()}
+              </span>
             </Link>
 
             {/* Nav */}
@@ -173,9 +186,11 @@ const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
             <div className="md:col-span-2">
               {footer.logo ? (
-                <img src={footer.logo} alt={footer.storeName} className="h-12 w-auto mb-4 object-contain" />
+                <span className="mb-5 inline-block rounded-2xl bg-white p-2">
+                  <img src={footer.logo} alt={footer.storeName} className="block h-16 w-auto max-w-[220px] rounded-xl object-contain md:h-[72px]" />
+                </span>
               ) : (
-                <div className="font-serif text-4xl font-bold mb-4" style={{ fontFamily: HEADING_FONT }}>
+                <div className="font-serif text-4xl font-bold mb-4 py-[0.12em] [line-height:normal]" style={{ fontFamily: HEADING_FONT }}>
                   {brand.toLowerCase()}
                 </div>
               )}

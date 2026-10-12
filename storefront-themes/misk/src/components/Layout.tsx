@@ -111,11 +111,16 @@ const Layout: React.FC = () => {
   const badge = 'misk-num absolute end-1 top-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-gold-ink px-1 text-[10px] font-bold text-white';
   const logoCentered = headerLayout === 'logo_center';
 
+  // Logo (when the store has one) beside the store name. Amiri sits far
+  // outside a fixed line box, so the name keeps its font-derived line
+  // height plus a little block padding: truncation then clips sideways
+  // only, never the marks above or the descenders below.
   const Logo = ({ className = '' }: { className?: string }) => (
-    <Link to="/" className={`flex items-center ${className}`} aria-label={store?.name || 'Home'}>
-      {store?.logo
-        ? <img src={store.logo} alt={store.name} className="h-9 w-auto object-contain" />
-        : <span className="font-display truncate text-2xl text-ink">{store?.name || 'STORE'}</span>}
+    <Link to="/" className={`flex min-w-0 items-center gap-2.5 lg:gap-3 ${className}`} aria-label={store?.name || 'Home'}>
+      {store?.logo && (
+        <img src={store.logo} alt={store.name} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain lg:h-12 lg:max-w-[160px]" />
+      )}
+      <span className={`font-display min-w-0 truncate py-[0.15em] [line-height:normal] text-ink ${store?.logo ? 'text-xl lg:text-2xl' : 'text-2xl'} lg:max-w-[18rem]`}>{store?.name || 'STORE'}</span>
     </Link>
   );
 
@@ -204,8 +209,8 @@ const Layout: React.FC = () => {
               {logoCentered && <div className="hidden lg:flex"><DesktopNav /></div>}
             </div>
 
-            <div className={`flex ${logoCentered ? 'justify-center' : 'justify-center lg:justify-center'}`}>
-              <Logo className="lg:hidden max-w-[56vw]" />
+            <div className={`flex min-w-0 ${logoCentered ? 'justify-center' : 'justify-center lg:justify-center'}`}>
+              <Logo className="lg:hidden max-w-full" />
               {logoCentered ? <Logo className="hidden lg:flex" /> : <div className="hidden lg:flex"><DesktopNav /></div>}
             </div>
 

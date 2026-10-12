@@ -29,8 +29,8 @@ export const Footer: React.FC = () => {
       <div className="mx-auto max-w-[1280px] px-4 py-14 sm:px-6">
         <div className={`grid gap-10 md:grid-cols-2 ${hasContact ? 'lg:grid-cols-[1.4fr_1fr_1fr_1fr]' : 'lg:grid-cols-[1.4fr_1fr_1fr]'}`}>
           <div>
-            <Link to="/" className="font-heading text-2xl tracking-[0.2em] text-ink">
-              {footer.logo ? <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto object-contain" /> : footer.storeName.toUpperCase()}
+            <Link to="/" className="inline-block py-[0.12em] font-heading text-2xl [line-height:normal] tracking-[0.2em] text-ink">
+              {footer.logo ? <img src={footer.logo} alt={footer.storeName} className="block h-16 w-auto max-w-[220px] rounded-xl object-contain md:h-[72px]" /> : footer.storeName.toUpperCase()}
             </Link>
             {about && <p className="mt-4 max-w-sm text-[0.95rem] text-dune">{about}</p>}
           </div>
