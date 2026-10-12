@@ -15,6 +15,8 @@
  * Everything is escaped; absolute URLs are built from the request host.
  */
 
+import { CARD_HEIGHT, CARD_WIDTH, storeCardVersion } from "../services/ogCard.js";
+
 function escapeHtml(str) {
   return String(str ?? "")
     .replace(/&/g, "&amp;")
@@ -50,16 +52,16 @@ export function buildStorefrontHead({ tenant, baseUrl, path = "/", product }) {
   const favicon = absUrl(baseUrl, s.favicon || s.logo);
   const url = `${baseUrl}${path || "/"}`;
 
-  // The dynamically composed store SHARE CARD (logo + 3 featured products),
+  // The dynamically composed store SHARE CARD (services/ogCard.js),
   // served by GET /og/store-card.png on the tenant's own host. Absolute so
   // social crawlers can fetch it. Used as the store/home OG image and the
   // site-wide default; product pages keep their own product image below.
-  const storeCardUrl = `${baseUrl}/og/store-card.png`;
+  const storeCardUrl = `${baseUrl}/og/store-card.png?v=${storeCardVersion(tenant, baseUrl)}`;
 
   let title;
   let description;
   let image;
-  // Whether `image` is the 1200×630 composed card (drives og:image:width/height
+  // Whether `image` is the 1200×1200 composed card (drives og:image:width/height
   // and the large Twitter card). Product images have unknown dimensions.
   let isComposedCard = false;
 
@@ -100,8 +102,8 @@ export function buildStorefrontHead({ tenant, baseUrl, path = "/", product }) {
     metaTag("og:description", description),
     metaTag("og:url", url),
     image ? metaTag("og:image", image) : "",
-    isComposedCard ? metaTag("og:image:width", "1200") : "",
-    isComposedCard ? metaTag("og:image:height", "630") : "",
+    isComposedCard ? metaTag("og:image:width", String(CARD_WIDTH)) : "",
+    isComposedCard ? metaTag("og:image:height", String(CARD_HEIGHT)) : "",
     isComposedCard ? metaTag("og:image:type", "image/png") : "",
     // Twitter
     metaTag("twitter:card", image ? "summary_large_image" : "summary", "name"),
