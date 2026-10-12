@@ -204,29 +204,15 @@ const PaymentLogo: React.FC<Props> = ({ code, className, src, size }) => {
         </Wrap>
       );
     case 'cod':
-      // Cash on delivery: a green wallet with two banknotes fanned out of it
-      // (border, centre emblem and corner marks so they read as money even
-      // at 24px). Language-free, so it reads the same in Arabic and English.
+      // Cash on delivery: two overlapping banknotes, no text, so it reads
+      // as cash at 24px and the same in Arabic and English.
       return (
         <Wrap fill="#fff" className={className}>
-          <g transform="rotate(-9 13.5 6.1)">
-            <rect x="7.2" y="2.6" width="12.6" height="7" rx="1" fill="#dcfce7" />
-            <rect x="8.1" y="3.5" width="10.8" height="5.2" rx="0.6" fill="none" stroke="#15803d" strokeWidth="0.55" />
-            <circle cx="13.5" cy="6.3" r="1.82" fill="#fff" stroke="#15803d" strokeWidth="0.55" />
-            <circle cx="9.4" cy="6.3" r="0.55" fill="#15803d" />
-            <circle cx="17.6" cy="6.3" r="0.55" fill="#15803d" />
-          </g>
-          <g transform="rotate(7 15.7 6.4)">
-            <rect x="9.4" y="2.9" width="12.6" height="7" rx="1" fill="#15803d" />
-            <rect x="10.3" y="3.8" width="10.8" height="5.2" rx="0.6" fill="none" stroke="#bbf7d0" strokeWidth="0.55" />
-            <circle cx="15.7" cy="6.6" r="1.82" fill="#16a34a" stroke="#bbf7d0" strokeWidth="0.55" />
-            <circle cx="11.6" cy="6.6" r="0.55" fill="#bbf7d0" />
-            <circle cx="19.8" cy="6.6" r="0.55" fill="#bbf7d0" />
-          </g>
-          <path d="M4.6 9.6a2 2 0 0 1 2-2h14.8a2 2 0 0 1 2 2v6.2a2 2 0 0 1-2 2H6.6a2 2 0 0 1-2-2z" fill="#14532d" />
-          <path d="M4.6 9.6a2 2 0 0 1 2-2h14.8a2 2 0 0 1 2 2v.9H4.6z" fill="#166534" />
-          <path d="M23.4 11.4h-5.6a1.8 1.8 0 0 0 0 3.6h5.6z" fill="#15803d" />
-          <circle cx="18" cy="13.2" r="0.95" fill="#fff" />
+          <rect x="7" y="4.5" width="15" height="9" rx="1.6" fill="#dcfce7" stroke="#15803d" strokeWidth="1" />
+          <rect x="5" y="7" width="15" height="9" rx="1.6" fill="#15803d" />
+          <circle cx="12.5" cy="11.5" r="2.3" fill="none" stroke="#fff" strokeWidth="1.1" />
+          <circle cx="7.4" cy="9.3" r="0.7" fill="#fff" />
+          <circle cx="17.6" cy="13.7" r="0.7" fill="#fff" />
         </Wrap>
       );
     case 'bank':
