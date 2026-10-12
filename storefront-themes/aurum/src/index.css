@@ -55,15 +55,18 @@ h1, h2, h3, h4, h5, h6 {
    The serif store name sits in the header's centre column and must
    always fit on one line. Its size scales with the viewport divided by
    the name length (--aurum-brand-chars, set inline), so long names
-   shrink instead of overflowing/clipping. ~0.9em per tracked capital. */
+   shrink instead of overflowing/clipping. ~0.9em per tracked capital.
+   With a logo beside it, the inline --aurum-brand-room(-md) subtract the
+   logo's width and --aurum-brand-min keeps the name legible (it then
+   ellipsizes rather than shrinking further). */
 .aurum-wordmark {
   --aurum-brand-chars: 6;
-  font-size: clamp(11px, calc(58vw / var(--aurum-brand-chars) / 0.9), 24px);
+  font-size: clamp(var(--aurum-brand-min, 11px), calc(var(--aurum-brand-room, 58vw) / var(--aurum-brand-chars) / 0.9), 24px);
   white-space: nowrap;
 }
 @media (min-width: 768px) {
   .aurum-wordmark {
-    font-size: clamp(11px, calc(40vw / var(--aurum-brand-chars) / 0.9), 28px);
+    font-size: clamp(var(--aurum-brand-min, 11px), calc(var(--aurum-brand-room-md, 40vw) / var(--aurum-brand-chars) / 0.9), 28px);
   }
 }
 

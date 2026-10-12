@@ -65,16 +65,27 @@ const Layout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between py-6">
             {/* Start: serif wordmark */}
-            <Link
-              to="/"
-              className="font-display text-3xl md:text-4xl tracking-tight text-black leading-none"
-              style={{ fontFamily: 'var(--font-family-heading)' }}
-            >
-              {brand}
+            {/* Logo (when the store has one) + the name on one line. The name
+                keeps a roomy line box: a tight leading under `truncate`'s
+                overflow clip cut Arabic descenders and marks. */}
+            <Link to="/" className="flex items-center gap-2.5 md:gap-3 min-w-0 me-3 text-black">
+              {store?.logo && (
+                <img
+                  src={store.logo}
+                  alt={store?.name || brand}
+                  className="h-10 md:h-12 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md"
+                />
+              )}
+              <span
+                className={`font-display block min-w-0 truncate tracking-tight leading-[1.6] py-1 ${store?.logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
+                style={{ fontFamily: 'var(--font-family-heading)' }}
+              >
+                {brand}
+              </span>
             </Link>
 
             {/* End: search (desktop) / language (desktop) / account / wishlist / cart / hamburger (mobile) */}
-            <div className="flex items-center gap-3 md:gap-5 text-neutral-700">
+            <div className="flex items-center shrink-0 gap-3 md:gap-5 text-neutral-700">
               {/* Desktop search bar */}
               <div className="hidden md:block w-56">
                 <SearchBar variant="expanded" />
@@ -172,7 +183,7 @@ const Layout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             {footer.logo ? (
-              <img src={footer.logo} alt={footer.storeName} className="h-12 w-auto max-w-[200px] object-contain mx-auto mb-4" />
+              <img src={footer.logo} alt={footer.storeName} className="h-16 md:h-20 w-auto max-w-[240px] object-contain rounded-lg mx-auto mb-5" />
             ) : (
               <div className="font-display text-4xl tracking-tight mb-4" style={{ fontFamily: 'var(--font-family-heading)' }}>
                 {footer.storeName.toUpperCase()}
