@@ -50,10 +50,14 @@ const Layout: React.FC = () => {
       <header className="sticky top-0 z-50 bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="min-w-0 flex items-center text-2xl font-extrabold tracking-tight">
-              {/* The store's own name; the two-tone theme wordmark only without one. */}
+            <Link to="/" className="min-w-0 flex items-center gap-2 text-xl md:text-2xl font-extrabold tracking-tight">
+              {store?.logo && (
+                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+              )}
+              {/* The store's own name; the two-tone theme wordmark only without one.
+                  leading-normal + py-1 keep Arabic marks inside the truncate clip box. */}
               {store?.name ? (
-                <span className="truncate text-[var(--brand-ink,#ec4899)]">{store.name}</span>
+                <span className="min-w-0 truncate leading-normal py-1 text-[var(--brand-ink,#ec4899)]">{store.name}</span>
               ) : (
                 <>
                   <span className="text-[#ec4899]">Kids</span>
@@ -158,7 +162,7 @@ const Layout: React.FC = () => {
             <div>
               <h3 className="text-xl font-extrabold mb-3">
                 {footer.logo ? (
-                  <img src={footer.logo} alt={footer.storeName} className="h-9 w-auto object-contain" />
+                  <span className="inline-flex items-center rounded-2xl bg-white p-2 shadow-sm"><img src={footer.logo} alt={footer.storeName} className="h-14 md:h-16 w-auto max-w-[220px] object-contain rounded-lg" /></span>
                 ) : (
                   <>
                     {footer.storeName} <span className="text-[#fbbf24]"><svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27Z" /></svg></span>

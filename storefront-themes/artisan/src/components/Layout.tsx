@@ -50,8 +50,13 @@ const Layout: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <Link to="/" className="shrink-0">
-              <span className="text-2xl font-bold text-[var(--brand-ink,var(--color-primary))] italic tracking-wide">
+            <Link to="/" className="flex items-center gap-3 min-w-0 lg:max-w-[22rem]">
+              {store?.logo && (
+                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+              )}
+              {/* leading-normal + py-1: `truncate` clips to the line box, which
+                  cut off Arabic descenders/marks under a tight line-height. */}
+              <span className="min-w-0 truncate leading-normal py-1 pe-1 text-xl md:text-2xl font-bold text-[var(--brand-ink,var(--color-primary))] italic tracking-wide">
                 {store?.name || 'Artisan'}
               </span>
             </Link>
@@ -87,7 +92,7 @@ const Layout: React.FC = () => {
             </nav>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               {/* Desktop Search (search on mobile lives in the bottom nav) */}
               <div className="hidden md:block w-56">
                 <SearchBar placeholder={t('theme.products.search_placeholder')} className="w-full" />
@@ -154,7 +159,7 @@ const Layout: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               {footer.logo ? (
-                <img src={footer.logo} alt={footer.storeName} className="h-10 w-auto mb-4 object-contain" />
+                <span className="inline-flex items-center rounded-2xl bg-white p-2 shadow-sm mb-4"><img src={footer.logo} alt={footer.storeName} className="h-14 md:h-16 w-auto max-w-[220px] object-contain rounded-lg" /></span>
               ) : (
                 <h3 className="text-[var(--brand-contrast,#fff)] text-xl italic mb-4">{footer.storeName}</h3>
               )}

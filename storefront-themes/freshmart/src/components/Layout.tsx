@@ -50,10 +50,15 @@ const Layout: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 min-w-0">
+              {store?.logo ? (
+                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+              ) : (
               <svg className="w-7 h-7 shrink-0 text-[var(--brand-ink,#16a34a)]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-8 2C14 2 17 0 17 0c-3 0-7 4-7 4s-2-2-5-2c0 0 4 4 4 8C9 14.57 7.89 17.31 7 20H9c1-3 3.64-6 8-6 0 0-4.07 4-4 9h2c0-5 3-9 3-9S19 18 19 20h2C21 7 17 8 17 8z"/>
               </svg>
-              <span className="text-xl font-extrabold text-[var(--brand-ink,#16a34a)] truncate">
+              )}
+              {/* leading-normal + py-1 keep Arabic marks inside the truncate clip box */}
+              <span className="min-w-0 text-xl font-extrabold text-[var(--brand-ink,#16a34a)] truncate leading-normal py-1">
                 {store?.name || 'FreshMart'}
               </span>
             </Link>
@@ -158,7 +163,7 @@ const Layout: React.FC = () => {
             <div>
               <h3 className="text-[var(--brand-contrast,#fff)] font-bold text-lg mb-4 flex items-center gap-2">
                 {footer.logo ? (
-                  <img src={footer.logo} alt={footer.storeName} className="h-8 w-auto object-contain" />
+                  <span className="inline-flex items-center rounded-2xl bg-white p-2 shadow-sm"><img src={footer.logo} alt={footer.storeName} className="h-14 md:h-16 w-auto max-w-[220px] object-contain rounded-lg" /></span>
                 ) : (
                   <>
                     <svg className="w-5 h-5 text-[var(--brand-contrast,#86efac)]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
