@@ -204,13 +204,15 @@ const PaymentLogo: React.FC<Props> = ({ code, className, src, size }) => {
         </Wrap>
       );
     case 'cod':
+      // Cash on delivery: two overlapping banknotes, no text, so it reads
+      // as cash at 24px and the same in Arabic and English.
       return (
-        <Wrap fill="#e6f4ea" stroke="#137333" className={className}>
-          <rect x="5" y="7" width="18" height="6" rx="1" fill="#137333" />
-          <circle cx="14" cy="10" r="1.5" fill="#e6f4ea" />
-          <text x="14" y="18" textAnchor="middle" fontFamily="Arial, sans-serif" fontWeight="700" fontSize="4" fill="#137333">
-            COD
-          </text>
+        <Wrap fill="#fff" className={className}>
+          <rect x="7" y="4.5" width="15" height="9" rx="1.6" fill="#dcfce7" stroke="#15803d" strokeWidth="1" />
+          <rect x="5" y="7" width="15" height="9" rx="1.6" fill="#15803d" />
+          <circle cx="12.5" cy="11.5" r="2.3" fill="none" stroke="#fff" strokeWidth="1.1" />
+          <circle cx="7.4" cy="9.3" r="0.7" fill="#fff" />
+          <circle cx="17.6" cy="13.7" r="0.7" fill="#fff" />
         </Wrap>
       );
     case 'bank':
