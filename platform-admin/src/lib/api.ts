@@ -78,10 +78,21 @@ export const PLATFORM_SCOPES = {
   FLAGS_WRITE: 'flags.write',
   // Send notifications to every store or one store.
   ANNOUNCEMENTS_SEND: 'announcements.send',
+  // Signup invitation codes: owners and promoters.
+  INVITE_CODES: 'invite_codes.manage',
   // Permanently delete stores: owners by role, others only by an owner's grant.
   TENANT_DELETE: 'tenant.delete',
 } as const;
 export type PlatformScope = (typeof PLATFORM_SCOPES)[keyof typeof PLATFORM_SCOPES];
+
+/**
+ * Promoters (PBI 10-47) only ever see their invitation codes, the stores
+ * registered with them and their own account security.
+ */
+export const isPromoter = (user: PlatformUser | null) => user?.role === 'promoter';
+export const PROMOTER_HOME = '/invite-codes';
+export const promoterMayOpen = (path: string) =>
+  path === PROMOTER_HOME || path.startsWith(`${PROMOTER_HOME}/`) || path.startsWith('/security/me');
 
 export function hasScope(user: PlatformUser | null, scope: PlatformScope): boolean {
   if (!user) return false;

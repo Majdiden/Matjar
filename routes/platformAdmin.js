@@ -70,6 +70,7 @@ import overviewRoutes from "./platform/overview.js";
 // Phase C sub-routers
 import incidentRoutes from "./platform/incidents.js";
 import announcementRoutes from "./platform/announcements.js";
+import inviteCodeRoutes from "./platform/inviteCodes.js";
 import privacyRoutes from "./platform/privacy.js";
 import bulkRoutes from "./platform/bulk.js";
 // Phase B sub-routers
@@ -122,6 +123,7 @@ router.use("/billing", billingRoutes);
 router.use("/overview", overviewRoutes);
 router.use("/incidents", incidentRoutes);
 router.use("/announcements", announcementRoutes);
+router.use("/invite-codes", inviteCodeRoutes);
 router.use("/tenants/:tenantId/privacy", privacyRoutes);
 router.use("/bulk", bulkRoutes);
 router.use("/system", systemRoutes);

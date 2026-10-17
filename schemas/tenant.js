@@ -467,6 +467,22 @@ const tenantSchema = new Schema({
   lastLoginAt: { type: Date, default: null, index: true },
   lastLoginBy: { type: String, default: null },
 
+  // The signup invitation / referral code this store registered with
+  // (PBI 10-47), and the promoter who created it. Null for stores that
+  // signed up without one, or were added from an existing account.
+  inviteCode: {
+    type: new Schema(
+      {
+        codeId: { type: Schema.Types.ObjectId, ref: "InviteCode" },
+        code: String,
+        promoterId: { type: Schema.Types.ObjectId, ref: "TenantUser", index: true },
+        usedAt: Date,
+      },
+      { _id: false }
+    ),
+    default: null,
+  },
+
   // Whether the merchant actively PICKED a theme during onboarding (true) or
   // skipped the theme step and got the default look applied (false). Consumed
   // by the dashboard onboarding checklist to nudge "choose a theme". Default

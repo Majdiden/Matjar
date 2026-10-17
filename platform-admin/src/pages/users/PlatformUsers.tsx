@@ -31,6 +31,7 @@ const canDeleteStores = (u: PlatformStaffUser) => u.scopes.includes(PLATFORM_SCO
 const ROLE_TONE: Record<string, React.ComponentProps<typeof Badge>['variant']> = {
   owner: 'default',
   admin: 'secondary',
+  promoter: 'warning',
 };
 
 export default function PlatformUsers() {

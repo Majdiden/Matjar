@@ -49,6 +49,7 @@ import { storefrontUrl } from '../lib/api-storefront';
 import TenantConfigTab from './TenantConfigTab';
 import TenantUsageTab from './TenantUsageTab';
 import { TENANT_TABS, canSeeTab } from '../components/nav';
+import { SetupCard, DomainsCard, DataCard, KpiTile, Row } from '../components/tenant/OverviewCards';
 
 // Tab list (with per-tab scopes) lives in components/nav.ts so the quick
 // navigator can deep-link the same tabs.
@@ -580,131 +581,12 @@ export default function TenantDetailPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Setup</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <Row
-                label="Status"
-                value={
-                  tenant.setupStatus?.status ? (
-                    <span className="capitalize">
-                      {String(tenant.setupStatus.status).replace(/_/g, ' ')}
-                    </span>
-                  ) : (
-                    '—'
-                  )
-                }
-              />
-              <Row
-                label="Started"
-                value={
-                  tenant.setupStatus?.startedAt ? formatDate(tenant.setupStatus.startedAt) : '—'
-                }
-              />
-              <Row
-                label="Completed"
-                value={
-                  tenant.setupStatus?.completedAt
-                    ? formatDate(tenant.setupStatus.completedAt)
-                    : '—'
-                }
-              />
-              {tenant.setupStatus?.lastError && (
-                <Row label="Last error" value={tenant.setupStatus.lastError} />
-              )}
-              {tenant.setupStatus?.steps && (
-                <div className="pt-2">
-                  <div className="mb-1 text-xs font-medium text-muted-foreground">Steps</div>
-                  <ul className="space-y-1 text-xs">
-                    {Object.entries(tenant.setupStatus.steps).map(([key, val]) => (
-                      <li key={key}>
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="capitalize text-muted-foreground">
-                            {key.replace(/_/g, ' ')}
-                          </span>
-                          <span className="capitalize">
-                            {val?.status ? val.status.replace(/_/g, ' ') : '—'}
-                          </span>
-                        </div>
-                        {val?.reason && (
-                          <div className="mt-0.5 break-words text-[11px] text-muted-foreground">
-                            {val.reason}
-                          </div>
-                        )}
-                        {key === 'data_seeding' && val?.status === 'completed' && typeof val.products === 'number' && (
-                          <div className="mt-0.5 text-[11px] text-muted-foreground">
-                            {val.products} products · {val.categories ?? 0} categories · {val.collections ?? 0} collections · {val.pages ?? 0} pages
-                            {val.draft ? ' (draft)' : ''}
-                          </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Domains</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <Row label="Slug" value={<code className="text-xs">{tenant.slug}</code>} />
-              <Row
-                label="Subdomain"
-                value={tenant.domains?.subdomain?.fullDomain || tenant.domains?.subdomain?.name || '—'}
-              />
-              <Row
-                label="Custom"
-                value={
-                  tenant.domains?.customDomain?.name ? (
-                    <span>
-                      {tenant.domains.customDomain.name}{' '}
-                      {tenant.domains.customDomain.isVerified ? (
-                        <Badge variant="success" className="ml-1">
-                          verified
-                        </Badge>
-                      ) : (
-                        <Badge variant="warning" className="ml-1">
-                          pending
-                        </Badge>
-                      )}
-                    </span>
-                  ) : (
-                    '—'
-                  )
-                }
-              />
-              <Row label="Primary" value={tenant.domains?.primaryDomain || 'subdomain'} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Data</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="text-xs text-muted-foreground">
-                All exports go through the async pipeline (Exports tab) so the
-                dump is off-dyno and the download is audited.
-              </div>
-              <Row label="Active theme" value={tenant.settings?.activeTheme || '—'} />
-              <Row label="Niche" value={tenant.settings?.niche || '—'} />
-              <Row
-                label="Last merchant login"
-                value={
-                  tenant.lastLoginAt
-                    ? `${formatRelative(tenant.lastLoginAt)} (${formatDate(tenant.lastLoginAt)})${tenant.lastLoginBy ? ` · ${tenant.lastLoginBy}` : ''}`
-                    : 'never'
-                }
-              />
-              <Row label="Created" value={formatDate(tenant.createdAt)} />
-              <Row label="Updated" value={formatDate(tenant.updatedAt)} />
-            </CardContent>
-          </Card>
+          <SetupCard tenant={tenant} />
+          <DomainsCard tenant={tenant} />
+          <DataCard
+            tenant={tenant}
+            note="All exports go through the async pipeline (Exports tab) so the dump is off-dyno and the download is audited."
+          />
 
           {canExport && <TenantPrivacyCard tenantId={tenantId} ensureReauth={reauth.ensure} />}
         </div>
@@ -915,36 +797,3 @@ export default function TenantDetailPage() {
     </div>
   );
 }
-
-const Row: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
-  <div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-    <span className="shrink-0 text-muted-foreground">{label}</span>
-    <span className="min-w-0 [overflow-wrap:anywhere] sm:text-right">{value}</span>
-  </div>
-);
-
-const KpiTile: React.FC<{
-  label: string;
-  value: React.ReactNode;
-  icon: React.ReactNode;
-  tone?: string;
-  onClick?: () => void;
-}> = ({ label, value, icon, tone, onClick }) => {
-  const clickable = !!onClick;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={!clickable}
-      className={`rounded-lg border bg-card p-3 text-left transition-colors ${
-        clickable ? 'hover:bg-accent' : 'cursor-default'
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">{label}</span>
-        <span className={tone || 'text-muted-foreground'}>{icon}</span>
-      </div>
-      <div className={`mt-1 text-2xl font-semibold ${tone || ''}`}>{value}</div>
-    </button>
-  );
-};

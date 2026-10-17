@@ -19,6 +19,10 @@ export const PLATFORM_SCOPES = Object.freeze({
   FLAGS_WRITE: "flags.write", // feature flags, access programs, overrides
   PAYMENTS_WRITE: "payments.write", // platform payment-method catalog (what merchants may enable)
   ANNOUNCEMENTS_SEND: "announcements.send", // send notifications to every store or one store
+  // Signup invitation codes: create, list and revoke one's own codes and see
+  // the stores registered with them. Owners and promoters only (never admin
+  // by role; an owner may grant it).
+  INVITE_CODES: "invite_codes.manage",
   // Permanently delete a store and all of its data. Held by OWNER only; an
   // owner may grant it to individual staff (config/platformRoles.js →
   // OWNER_ONLY_GRANTS). Never part of any other role.

@@ -26,8 +26,8 @@ import {
   BarChart3,
   Users,
   ShieldCheck,
-  ShieldAlert, SlidersHorizontal, Siren, Megaphone, } from 'lucide-react';
-import { PLATFORM_SCOPES, type PlatformScope, type PlatformUser } from '../lib/api';
+  ShieldAlert, SlidersHorizontal, Siren, Megaphone, Ticket, } from 'lucide-react';
+import { PLATFORM_SCOPES, isPromoter, type PlatformScope, type PlatformUser } from '../lib/api';
 
 /**
  * Platform-admin navigation — mirrors the domain groups of the permanent
@@ -107,7 +107,10 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     key: 'stores',
     label: 'Stores',
-    items: [{ to: '/tenants', label: 'Tenants', icon: Building2, scope: S.SUPPORT_READ, tab: true, ready: true }],
+    items: [
+      { to: '/tenants', label: 'Tenants', icon: Building2, scope: S.SUPPORT_READ, tab: true, ready: true },
+      { to: '/invite-codes', label: 'Invitation codes', shortLabel: 'Codes', icon: Ticket, scope: S.INVITE_CODES, tab: true, ready: true, keywords: 'beta invite referral code promoter signup' },
+    ],
   },
   {
     key: 'commerce',
@@ -200,6 +203,8 @@ export function tabHref(base: string, tab: NavTab): string {
 }
 
 export function canSee(user: PlatformUser | null, item: NavItem): boolean {
+  // A promoter's console is their invitation codes and nothing else.
+  if (isPromoter(user)) return item.scope === S.INVITE_CODES;
   if (item.role && user?.role !== item.role) return false;
   if (item.scope && !user?.scopes?.includes(item.scope)) return false;
   return true;
