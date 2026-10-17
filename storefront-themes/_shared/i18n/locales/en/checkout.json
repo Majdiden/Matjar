@@ -33,7 +33,10 @@
           "label": "Address",
           "placeholder": "Street address"
         },
-        "address2": { "label": "Apartment, suite, etc. (optional)" },
+        "address2": {
+          "label": "Detailed address",
+          "placeholder": "e.g. neighbourhood, street, nearest landmark (next to a mosque or school), house number or colour"
+        },
         "city": { "label": "City" },
         "state": { "label": "State / Region" },
         "postal": { "label": "ZIP / Postal" },

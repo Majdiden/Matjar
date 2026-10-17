@@ -23,9 +23,9 @@ const PLACEHOLDER = 'https://placehold.co/800x800/ecdec1/0f0f0f?text=%20';
 /**
  * Linen product card: square image on cream, "New" / sale pills, wishlist
  * heart, a quick-view eye, and a full-width add-to-cart bar that slides up
- * on hover/focus. On phones and touch screens only a small heart covers the
- * photo: the add button sits under the price and quick view is left out.
- * Title in the heading face, optional rating, price with compare-at.
+ * on hover/focus. On touch screens, where the bar is always shown, the card
+ * is taller by the bar's height so the bar sits under the photo. Title in the
+ * heading face, optional rating, price with compare-at.
  */
 export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, showBadge = true, newDays = 30, onQuickView, variant = 'grid' }) => {
   const { t } = useTranslation(['theme']);
@@ -58,9 +58,9 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
 
   const list = variant === 'list';
   return (
-    <article className={`group ${list ? 'grid grid-cols-[minmax(120px,38%)_minmax(0,1fr)] gap-5 sm:gap-8' : 'flex h-full flex-col'}`}>
-      <div className="linen-card-media relative aspect-square overflow-hidden bg-tint-strong">
-        <Link to={`/products/${product.slug}`} className="block h-full w-full" aria-label={product.name}>
+    <article className={`group ${list ? 'grid grid-cols-[minmax(120px,38%)_minmax(0,1fr)] gap-5 sm:gap-8' : ''}`}>
+      <div className={`linen-card-media relative aspect-square overflow-hidden bg-tint-strong ${!list ? 'linen-card-media--bar' : ''}`}>
+        <Link to={`/products/${product.slug}`} className="linen-card-img relative block h-full w-full" aria-label={product.name}>
           <img src={img} alt={product.name} loading="lazy" onError={() => setImgFailed(true)} className={`h-full w-full object-cover transition-opacity duration-500 ${img2 ? 'group-hover:opacity-0' : 'group-hover:scale-[1.03] transition-transform'}`} />
           {img2 && <img src={img2} alt="" aria-hidden loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" />}
         </Link>
@@ -78,7 +78,7 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
             renderIcon={(on) => <I.heart className="linen-card-icon" fill={on ? 'currentColor' : 'none'} />}
           />
           {onQuickView && (
-            <button type="button" onClick={(e) => { e.preventDefault(); onQuickView(product); }} className="linen-card-action linen-card-quick grid place-items-center rounded-full border border-line bg-cream text-ink transition-colors hover:bg-ink hover:text-cream" aria-label={t('theme.product_card.quick_view')}>
+            <button type="button" onClick={(e) => { e.preventDefault(); onQuickView(product); }} className="linen-card-action grid place-items-center rounded-full border border-line bg-cream text-ink transition-colors hover:bg-ink hover:text-cream" aria-label={t('theme.product_card.quick_view')}>
               <I.eye className="linen-card-icon" />
             </button>
           )}
@@ -89,7 +89,7 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
           </button>
         )}
       </div>
-      <div className={`${list ? 'flex flex-col justify-center' : 'flex flex-1 flex-col pt-4 text-center'}`}>
+      <div className={`${list ? 'flex flex-col justify-center' : 'pt-4 text-center'}`}>
         <h3 className="font-heading text-lg leading-snug text-ink">
           <Link to={`/products/${product.slug}`} className="transition-colors hover:text-clay">{product.name}</Link>
         </h3>
@@ -103,13 +103,6 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
           {onSale && <s className="linen-strike text-dune">{formatPrice(product.compareAtPrice)}</s>}
           <span className={onSale ? 'font-bold text-clay' : 'text-ink'}>{formatPrice(product.price)}</span>
         </p>
-        {!list && (
-          <div className="linen-card-bar-touch mt-auto pt-3">
-            <button type="button" onClick={add} disabled={!hasOptions && !canAdd} className="flex h-10 w-full items-center justify-center bg-ink px-3 text-[0.75rem] font-bold uppercase tracking-[0.12em] text-cream transition-colors hover:bg-bronze hover:text-on-bronze disabled:bg-line disabled:text-dune">
-              {cta}
-            </button>
-          </div>
-        )}
         {list && product.shortDescription && <p className="mt-3 line-clamp-3 text-[0.95rem] text-dune">{product.shortDescription}</p>}
         {list && (
           <button type="button" onClick={add} disabled={!hasOptions && !canAdd} className="linen-btn linen-btn-solid mt-4 self-start">{cta}</button>

@@ -24,9 +24,9 @@ const PLACEHOLDER = 'https://placehold.co/800x800/f4efe7/14110e?text=%20';
 /**
  * Misk product card: a square image on sand, a corner sale ribbon, a wishlist
  * heart and quick-view eye in a mirrored action rail, and a quick-add bar that
- * slides up on hover/focus. On phones and touch screens nothing covers the
- * photo but a small heart: the add button sits under the price and the
- * quick-view eye is left out (the card itself opens the product).
+ * slides up on hover/focus. On touch screens, where the bar is always shown,
+ * the card is taller by the bar's height so the bar sits under the photo
+ * instead of covering it.
  *
  * Ribbon, text alignment, quick-add and the second-image swap are all theme
  * settings, so a merchant can take the card from "busy" to "quiet" without
@@ -75,9 +75,9 @@ export const MiskProductCard: React.FC<Props> = ({
   const textAlign = list ? 'text-start' : align === 'start' ? 'text-start' : 'text-center';
 
   return (
-    <article className={`group ${list ? 'grid grid-cols-[minmax(110px,36%)_minmax(0,1fr)] gap-4 sm:gap-8' : 'flex h-full flex-col'}`}>
-      <div className="misk-card-media relative aspect-square overflow-hidden rounded-[var(--radius-sm,6px)] bg-sand">
-        <Link to={`/products/${product.slug}`} className="block h-full w-full" aria-label={product.name}>
+    <article className={`group ${list ? 'grid grid-cols-[minmax(110px,36%)_minmax(0,1fr)] gap-4 sm:gap-8' : ''}`}>
+      <div className={`misk-card-media relative aspect-square overflow-hidden rounded-[var(--radius-sm,6px)] bg-sand ${!list && showQuickAdd ? 'misk-card-media--bar' : ''}`}>
+        <Link to={`/products/${product.slug}`} className="misk-card-img relative block h-full w-full" aria-label={product.name}>
           <img
             src={img}
             alt={product.name}
@@ -113,7 +113,7 @@ export const MiskProductCard: React.FC<Props> = ({
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); onQuickView(product); }}
-              className={`${actionBtn} misk-card-quick`}
+              className={actionBtn}
               aria-label={t('theme.card.quick_view')}
             >
               <I.eye className="misk-card-icon" />
@@ -133,7 +133,7 @@ export const MiskProductCard: React.FC<Props> = ({
         )}
       </div>
 
-      <div className={`${list ? 'flex flex-col justify-center' : 'flex flex-1 flex-col pt-4'} ${textAlign}`}>
+      <div className={`${list ? 'flex flex-col justify-center' : 'pt-4'} ${textAlign}`}>
         <h3 className="font-display text-lg leading-snug text-ink">
           <Link to={`/products/${product.slug}`} className="transition-colors duration-300 hover:text-gold-ink">{product.name}</Link>
         </h3>
@@ -150,18 +150,6 @@ export const MiskProductCard: React.FC<Props> = ({
           <span className={onSale ? 'font-bold text-ink' : 'text-ink'}>{formatPrice(product.price)}</span>
           {onSale && <s className="misk-strike text-muted">{formatPrice(product.compareAtPrice)}</s>}
         </p>
-        {!list && showQuickAdd && (
-          <div className="misk-card-bar-touch mt-auto pt-3">
-            <button
-              type="button"
-              onClick={add}
-              disabled={!hasOptions && !canAdd}
-              className="flex h-10 w-full items-center justify-center rounded-[var(--radius-sm,6px)] bg-ink px-3 text-sm font-bold text-white transition-colors duration-300 hover:bg-gold-ink disabled:bg-line disabled:text-muted"
-            >
-              {cta}
-            </button>
-          </div>
-        )}
         {list && product.shortDescription && <p className="mt-3 line-clamp-3 text-sm text-muted">{product.shortDescription}</p>}
         {list && (
           <button type="button" onClick={add} disabled={!hasOptions && !canAdd} className="misk-btn misk-btn-solid mt-4 self-start">{cta}</button>
