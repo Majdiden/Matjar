@@ -95,6 +95,18 @@ const DEFAULT_TEMPLATES_AR = {
   },
 };
 
+// What {{status}} becomes in the email, by the email's language.
+const STATUS_LABELS = {
+  en: { Pending: "received", Processing: "being prepared", Shipped: "shipped", Delivered: "delivered", Cancelled: "cancelled", Refunded: "refunded" },
+  ar: { Pending: "قيد الانتظار", Processing: "قيد التجهيز", Shipped: "تم الشحن", Delivered: "تم التسليم", Cancelled: "ملغى", Refunded: "تم الاسترداد" },
+};
+
+/** The status as the customer reads it ("قيد التجهيز", not "Processing"). */
+export function statusLabelFor(status, language) {
+  const labels = String(language).toLowerCase().startsWith("ar") ? STATUS_LABELS.ar : STATUS_LABELS.en;
+  return labels[status] || String(status || "").toLowerCase();
+}
+
 /**
  * Pick the default template set for a store language. Falls back to English
  * for any language we don't ship defaults for, so a missing/unknown language
@@ -108,6 +120,7 @@ function defaultTemplatesFor(language) {
 
 export const ORDER_NOTIFICATION_STATUSES = STATUSES;
 export const ORDER_NOTIFICATION_DEFAULTS = DEFAULT_TEMPLATES;
+export const ORDER_NOTIFICATION_DEFAULTS_AR = DEFAULT_TEMPLATES_AR;
 
 /**
  * Record a customer-notified event on the order timeline.
@@ -212,7 +225,7 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
     const vars = {
       customerName,
       orderNumber: order.orderNumber || "",
-      status: newStatus,
+      status: statusLabelFor(newStatus, emailLanguage),
       total: `${order.totalAmount ?? ""} ${order.currency || tenant.settings?.currency || "SDG"}`.trim(),
       trackingNumber: order.trackingNumber || "",
       storeName: tenant.settings?.storeName || tenant.name || "Store",

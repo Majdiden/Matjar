@@ -59,3 +59,4 @@ This document lists all tasks associated with PBI 10.
 | 10-49 | [Live-store fixes: recently viewed, descriptions, cart drawer, Misk phone header, detailed address in orders](./10-49.md) | Review | Recently viewed showed sold out; descriptions flipped numbers; the sticky bar covered checkout |
 | 10-50 | [Delivery areas at checkout from the merchant's shipping zones](./10-50.md) | Review | Zones were matched by country only, so every order paid the first zone's price |
 | 10-51 | [Live-store fixes: categories, notifications, short store links, store language, phone storefront](./10-51.md) | Review | Raw keys at signup and in notifications; long store links; iPhone zoom; Modern add-to-cart crash |
+| 10-52 | [Status email templates: real default emails and translated status names](./10-52.md) | Review | The Arabic template page showed "pending" / "Pending" inside the text |

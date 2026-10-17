@@ -341,11 +341,35 @@
     "email_template": {
       "send_this_email": {
         "label": "إرسال هذه الرسالة",
-        "description": "تُرسَل تلقائيًا عند انتقال الطلب إلى حالة \"{{status}}\"."
+        "description": "تُرسَل تلقائيًا عند انتقال الطلب إلى «{{status}}»."
       },
-      "subject_placeholder": "طلبك {{orderNumber}} {{status}}",
-      "body_placeholder": "مرحبًا {{customerName}}،\n\nطلبك {{orderNumber}} أصبح الآن {{status}}.\n\nشكرًا لتسوّقك معنا!",
-      "off_badge": "(متوقف)"
+      "off_badge": "(متوقف)",
+      "defaults": {
+        "Pending": {
+          "subject": "تم استلام الطلب {{orderNumber}}",
+          "body": "مرحباً {{customerName}}،\n\nلقد استلمنا طلبك {{orderNumber}} بقيمة {{total}}. سنعلمك عند شحنه.\n\nشكراً لك،\n{{storeName}}"
+        },
+        "Processing": {
+          "subject": "جارٍ تجهيز الطلب {{orderNumber}}",
+          "body": "مرحباً {{customerName}}،\n\nيجري الآن تجهيز طلبك {{orderNumber}} للشحن.\n\n{{storeName}}"
+        },
+        "Shipped": {
+          "subject": "تم شحن الطلب {{orderNumber}}",
+          "body": "مرحباً {{customerName}}،\n\nأخبار سارة — تم شحن طلبك {{orderNumber}}! رقم التتبّع: {{trackingNumber}}.\n\n{{storeName}}"
+        },
+        "Delivered": {
+          "subject": "تم تسليم الطلب {{orderNumber}}",
+          "body": "مرحباً {{customerName}}،\n\nتم تسليم طلبك {{orderNumber}}. نتمنى لك تجربة ممتعة!\n\n{{storeName}}"
+        },
+        "Cancelled": {
+          "subject": "تم إلغاء الطلب {{orderNumber}}",
+          "body": "مرحباً {{customerName}}،\n\nتم إلغاء طلبك {{orderNumber}}.\n\n{{storeName}}"
+        },
+        "Refunded": {
+          "subject": "تم استرداد مبلغ الطلب {{orderNumber}}",
+          "body": "مرحباً {{customerName}}،\n\nتم استرداد مبلغ طلبك {{orderNumber}} ({{total}}).\n\n{{storeName}}"
+        }
+      }
     },
     "toast": {
       "settings_saved": "تم حفظ الإعدادات",
