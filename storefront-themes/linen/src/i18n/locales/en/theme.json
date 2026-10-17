@@ -24,8 +24,7 @@
       "searching": "Searching…",
       "none": "Nothing found for “{{term}}”.",
       "see_all": "See all {{count}} results",
-      "hint": "Type at least three letters to see suggestions.",
-      "popular_defaults": "Serum, Moisturizer, Sun care, Mist, Cleanser"
+      "hint": "Type at least three letters to see suggestions."
     },
     "footer": {
       "newsletter_heading": "Join the list",

@@ -9,6 +9,8 @@ import { ToastProvider } from '../components/primitives/Toast';
 import { CompareProvider } from '../components/commerce/ProductCompare';
 import { ConfirmProvider } from '../components/primitives/ConfirmDialog';
 import '../i18n';
+// Every theme: no zoom-in when a field is focused on iPhone.
+import '../styles/touchInputs.css';
 import { LanguageProvider } from '../i18n/LanguageProvider';
 import { registerThemeResources } from '../i18n';
 

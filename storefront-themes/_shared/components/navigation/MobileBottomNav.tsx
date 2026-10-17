@@ -92,9 +92,11 @@ const ICONS = {
  */
 const NAV_CSS = `
 /* Reserve room for the floating pill so page footers and sticky CTAs are
-   never hidden beneath it (phones only). */
+   never hidden beneath it (phones only). --mbn-space is the pill's height:
+   other floating bars (product compare) sit above it. */
 @media (max-width: 767px) {
-  body { padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)); }
+  :root { --mbn-space: calc(5.25rem + env(safe-area-inset-bottom, 0px)); }
+  body { padding-bottom: var(--mbn-space); }
 }
 .mbn-pill {
   background: var(--color-background, #ffffff);

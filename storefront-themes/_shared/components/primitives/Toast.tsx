@@ -18,7 +18,6 @@ interface ToastContextValue {
 const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function useToast() {
-  const { t } = useTranslation(['common']);
   const ctx = useContext(ToastContext);
   if (!ctx) throw new Error('useToast must be used within ToastProvider');
   return ctx;
@@ -41,6 +40,7 @@ const typeIcons: Record<ToastType, string> = {
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation(['common']);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const removeToast = useCallback((id: string) => {
@@ -79,22 +79,24 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
       {/* Toast container */}
       <div
-        className="fixed bottom-4 end-4 z-[100] flex flex-col-reverse gap-2 pointer-events-none"
+        className="fixed end-4 z-[100] flex flex-col-reverse gap-2 pointer-events-none"
+        // Above the phone bottom menu (--mbn-space), which stacks higher.
+        style={{ bottom: 'calc(var(--mbn-space, 0px) + 1rem)' }}
         aria-live="polite"
       >
-        {toasts.map(t => (
+        {toasts.map((item) => (
           <div
-            key={t.id}
+            key={item.id}
             className={cn(
               'pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg min-w-[280px] max-w-sm',
               'animate-in slide-in-from-right fade-in duration-300',
-              typeStyles[t.type]
+              typeStyles[item.type]
             )}
           >
-            <span className="text-lg leading-none">{typeIcons[t.type]}</span>
-            <span className="text-sm font-medium flex-1">{t.message}</span>
+            <span className="text-lg leading-none">{typeIcons[item.type]}</span>
+            <span className="text-sm font-medium flex-1">{item.message}</span>
             <button
-              onClick={() => removeToast(t.id)}
+              onClick={() => removeToast(item.id)}
               className="opacity-70 hover:opacity-100 transition-opacity text-lg leading-none"
               aria-label={t('common:aria.dismiss')}
             >

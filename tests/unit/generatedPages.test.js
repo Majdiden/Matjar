@@ -263,7 +263,7 @@ describe("storefront payload", () => {
     assert.equal("generatedPages" in s, false);
     assert.equal("trust" in s, false);
     assert.deepEqual(Object.keys(s), [
-      "name", "description", "logo", "favicon", "currency", "theme", "themeCustomization",
+      "name", "language", "description", "logo", "favicon", "currency", "theme", "themeCustomization",
       "socialLinks", "brand", "contactInfo", "contact", "policies", "giftCards",
     ]);
     // An explicit "off" switch and empty answer objects are the same as never set.

@@ -66,6 +66,7 @@ function publicCategory(c) {
     label: c.name?.en || c.key,
     labelAr: c.name?.ar || "",
     icon: c.icon || "",
+    image: c.image || "",
     order: c.order,
   };
 }
@@ -144,7 +145,7 @@ export async function decorateConsoleThemes(rows) {
   };
 }
 
-const snapshot = (c) => (c ? { key: c.key, name: c.name, icon: c.icon, aliases: c.aliases, order: c.order, active: c.active } : null);
+const snapshot = (c) => (c ? { key: c.key, name: c.name, icon: c.icon, image: c.image, aliases: c.aliases, order: c.order, active: c.active } : null);
 
 export async function createThemeCategory(input, actor) {
   await ensureThemeCategoriesSeeded();
@@ -169,6 +170,7 @@ export async function createThemeCategory(input, actor) {
 }
 
 export async function updateThemeCategory(key, patch, actor) {
+  await ensureThemeCategoriesSeeded();
   const before = await findThemeCategoryRepo(key);
   if (!before) throw new APIError("Category not found", 404);
   if (key === GENERAL_THEME_CATEGORY && patch.active === false) {
@@ -177,7 +179,7 @@ export async function updateThemeCategory(key, patch, actor) {
   const set = { updatedBy: actor?.email || null };
   if (patch.name?.en !== undefined) set["name.en"] = patch.name.en;
   if (patch.name?.ar !== undefined) set["name.ar"] = patch.name.ar;
-  for (const k of ["icon", "aliases", "active", "order"]) if (patch[k] !== undefined) set[k] = patch[k];
+  for (const k of ["icon", "image", "aliases", "active", "order"]) if (patch[k] !== undefined) set[k] = patch[k];
   const after = await updateThemeCategoryRepo(key, set);
   return { before: snapshot(before), after: snapshot(after), row: after };
 }

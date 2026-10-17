@@ -34,6 +34,8 @@ export interface ThemeCategory {
   key: string;
   name: { en: string; ar: string };
   icon?: string;
+  /** Uploaded picture shown instead of the icon ("" = none). */
+  image?: string;
   aliases?: string[];
   order: number;
   active: boolean;
@@ -47,6 +49,8 @@ export interface ThemeCategoryInput {
   key?: string;
   name?: { en?: string; ar?: string };
   icon?: string;
+  /** Only "" (remove the picture); set it with uploadImage. */
+  image?: '';
   aliases?: string[];
   active?: boolean;
   reason?: string;
@@ -169,7 +173,15 @@ export const storefrontApi = {
       return res.data.data as ThemeCategory;
     },
     update: async (key: string, patch: ThemeCategoryInput & { order?: number }) => {
-      const res = await http.patch(`/storefront/theme-categories/${encodeURIComponent(key)}`, clean(patch));
+      // Not cleanParams: "" is meaningful here (no icon, remove the picture).
+      const body = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
+      const res = await http.patch(`/storefront/theme-categories/${encodeURIComponent(key)}`, body);
+      return res.data.data as ThemeCategory;
+    },
+    uploadImage: async (key: string, file: File) => {
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await http.post(`/storefront/theme-categories/${encodeURIComponent(key)}/image`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       return res.data.data as ThemeCategory;
     },
     reorder: async (keys: string[]) => {

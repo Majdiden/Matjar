@@ -51,6 +51,8 @@ import { useFeatures } from '../../contexts/features-context';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '../../components/EmptyState';
 import { formatDate } from '../../lib/format';
+import { StoreLinkSuggestions } from '../../components/StoreLinkSuggestions';
+import { useStoreLinkSuggestions } from '../../hooks/useStoreLinkSuggestions';
 
 // Poll every 10s while any row is in a transitional state
 // (pending_dns, ownership_verified, dns_verified, provisioning_ssl).
@@ -73,6 +75,8 @@ export const Domains: React.FC = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [subdomainDialog, setSubdomainDialog] = useState(false);
   const [newSubdomain, setNewSubdomain] = useState('');
+  // Short free links from the store name, asked for only while the dialog is open.
+  const linkSuggestions = useStoreLinkSuggestions(subdomainDialog ? domainInfo?.storeName ?? '' : '');
 
   const confirm = useConfirm();
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -399,6 +403,11 @@ export const Domains: React.FC = () => {
                 .{platformSuffix}
               </span>
             </div>
+            <StoreLinkSuggestions
+              suggestions={linkSuggestions}
+              current={newSubdomain}
+              onPick={setNewSubdomain}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSubdomainDialog(false)}>

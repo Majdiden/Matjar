@@ -19,6 +19,18 @@
  */
 export const GENERAL_THEME_CATEGORY = "general";
 
+/**
+ * Icons a category can use (Lucide names). The platform console offers these
+ * as a picker and signup draws them; keep the three lists in step
+ * (platform-admin ThemeCategoriesPanel, dashboard Register — parity test).
+ */
+export const THEME_CATEGORY_ICONS = Object.freeze([
+  "Store", "ShoppingBag", "Shirt", "Footprints", "Glasses", "Watch", "Gem", "Sparkles",
+  "SprayCan", "Flower2", "HeartPulse", "Pill", "Baby", "Gift", "Smartphone", "Laptop",
+  "Camera", "Music", "UtensilsCrossed", "Coffee", "Cake", "Leaf", "Home", "Sofa",
+  "Palette", "Wrench", "Car", "PawPrint", "Dumbbell", "BookOpen",
+]);
+
 export const THEME_CATEGORIES = Object.freeze([
   { key: "general", label: "General", labelAr: "عام", icon: "Store", aliases: ["general", "starter", "multi-purpose"] },
   { key: "fashion", label: "Fashion & apparel", labelAr: "أزياء وملابس", icon: "Shirt", aliases: ["fashion", "apparel", "clothing", "luxury"] },

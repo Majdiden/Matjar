@@ -8,6 +8,7 @@ import { describe, it, before, after, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import request from "supertest";
 import mongoose from "mongoose";
+import sharp from "sharp";
 import { startTestDb, stopTestDb, clearAllCollections } from "../helpers/db.js";
 import { buildTestApp } from "../helpers/app.js";
 import { generateHash } from "../../utils/misc.js";
@@ -83,6 +84,30 @@ describe("E2E theme categories", () => {
     await as(owner)(request(app).patch(`${BASE}/theme-categories/fashion`)).send({}).expect(400);
     await as(owner)(request(app).patch(`${BASE}/theme-categories/nope`)).send({ active: false }).expect(404);
     await as(owner)(request(app).put(`${BASE}/theme-categories/order`)).send({ keys: ["general", "fashion"] }).expect(400);
+  });
+
+  it("icon from the offered list; a picture is uploaded, shown publicly, and can be removed", async () => {
+    const patch = (body) => as(owner)(request(app).patch(`${BASE}/theme-categories/fashion`)).send(body);
+    await patch({ icon: "NotAnIcon" }).expect(400);
+    await patch({ image: "https://evil.example/x.png" }).expect(400); // only uploads set a picture
+    await patch({ icon: "SprayCan" }).expect(200);
+
+    // The upload route: write scope, and a file is required. (Storing the file
+    // needs the image host, absent in tests, so the picture is set directly.)
+    const png = await sharp({ create: { width: 8, height: 8, channels: 3, background: "#5e3049" } }).png().toBuffer();
+    await as(support)(request(app).post(`${BASE}/theme-categories/fashion/image`)).attach("image", png, "cat.png").expect(403);
+    await as(owner)(request(app).post(`${BASE}/theme-categories/fashion/image`)).expect(400);
+    const url = "https://res.cloudinary.com/demo/image/upload/cat.png";
+    await mongoose.model("ThemeCategory").updateOne({ key: "fashion" }, { $set: { image: url } });
+
+    let pub = (await request(app).get("/api/themes/categories").expect(200)).body.data.categories.find((c) => c.key === "fashion");
+    assert.equal(pub.image, url);
+    assert.equal(pub.icon, "SprayCan");
+
+    await patch({ image: "", icon: "" }).expect(200);
+    pub = (await request(app).get("/api/themes/categories")).body.data.categories.find((c) => c.key === "fashion");
+    assert.equal(pub.image, "");
+    assert.equal(pub.icon, "");
   });
 
   it("create, rename, hide, reorder and delete — every write audited", async () => {

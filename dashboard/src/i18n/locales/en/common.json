@@ -302,5 +302,8 @@
       "facebook": "Facebook",
       "telegram": "Telegram"
     }
+  },
+  "store_link": {
+    "suggestions": "Short links that are free — tap one to use it:"
   }
 }

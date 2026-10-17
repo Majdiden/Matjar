@@ -79,6 +79,8 @@ export interface DomainInfoResponse {
   activeDomain: string;
   canUseCustomDomain: boolean;
   subscriptionPlan: string;
+  /** The store's name, for short link suggestions. */
+  storeName?: string;
   registry?: DomainRegistryRow[];
 }
 

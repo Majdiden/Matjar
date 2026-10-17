@@ -11,6 +11,12 @@
       "unread": "Unread",
       "unread_count": "{{count}} unread"
     },
+    "severity": {
+      "info": "Info",
+      "success": "Done",
+      "warning": "Warning",
+      "error": "Problem"
+    },
     "test": {
       "title": "Test notification",
       "description": "In-app, sound, and OS channels firing."

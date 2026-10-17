@@ -22,8 +22,11 @@ const themeCategorySchema = new Schema(
       en: { type: String, required: true, trim: true },
       ar: { type: String, default: "", trim: true },
     },
-    // Lucide icon name shown next to the category (optional).
+    // Lucide icon name shown next to the category (optional; one of
+    // THEME_CATEGORY_ICONS in config/themeCategories.js).
     icon: { type: String, default: "", trim: true },
+    // Uploaded picture shown instead of the icon (optional).
+    image: { type: String, default: "", trim: true },
     // Manifest category strings that map onto this category for themes
     // without an explicit assignment.
     aliases: { type: [String], default: [] },

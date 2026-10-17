@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { ArrowDown, ArrowUp, Pencil, Plus, Tags, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ArrowDown, ArrowUp, Pencil, Plus, Tags, Trash2, Upload, X } from 'lucide-react';
 import { storefrontApi, type ThemeCategory } from '../../lib/api-storefront';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -10,6 +10,7 @@ import { Toggle } from '../../components/ui/Toggle';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { PageSpinner, ErrorState } from '../../components/ui/Spinner';
 import { useToast } from '../../components/ui/toast-context';
+import { CATEGORY_ICONS, CategoryMark, IconPicker } from './categoryIcons';
 
 interface Props {
   canWrite: boolean;
@@ -39,6 +40,7 @@ export function ThemeCategoriesPanel({ canWrite, onChanged }: Props) {
   const [en, setEn] = useState('');
   const [ar, setAr] = useState('');
   const [key, setKey] = useState('');
+  const [newIcon, setNewIcon] = useState('');
   const [keyTouched, setKeyTouched] = useState(false);
   const [creating, setCreating] = useState(false);
   // Edit / delete
@@ -61,9 +63,9 @@ export function ThemeCategoriesPanel({ canWrite, onChanged }: Props) {
     if (!KEY_RE.test(k)) { toast.error('Key: 1-32 lowercase letters, digits or dashes'); return; }
     setCreating(true);
     try {
-      await storefrontApi.themeCategories.create({ key: k, name: { en: en.trim(), ar: ar.trim() } });
+      await storefrontApi.themeCategories.create({ key: k, name: { en: en.trim(), ar: ar.trim() }, ...(newIcon && { icon: newIcon }) });
       toast.success(`Category "${en.trim()}" added`);
-      setEn(''); setAr(''); setKey(''); setKeyTouched(false);
+      setEn(''); setAr(''); setKey(''); setNewIcon(''); setKeyTouched(false);
       await afterChange();
     } catch (err) { toast.error(errMsg(err, 'Could not add the category')); }
     finally { setCreating(false); }
@@ -104,6 +106,7 @@ export function ThemeCategoriesPanel({ canWrite, onChanged }: Props) {
             <ul className="divide-y rounded-md border">
               {rows.map((r, i) => (
                 <li key={r.key} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
+                  <CategoryMark icon={r.icon} image={r.image} />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`font-medium ${r.active ? '' : 'text-muted-foreground line-through'}`}>{r.name.en}</span>
@@ -136,12 +139,16 @@ export function ThemeCategoriesPanel({ canWrite, onChanged }: Props) {
               <div><Label htmlFor="cat-key">Key</Label><Input id="cat-key" value={suggestedKey} onChange={(e) => { setKeyTouched(true); setKey(e.target.value.toLowerCase()); }} maxLength={32} dir="ltr" className="font-mono" placeholder="pets" /></div>
               <Button onClick={() => void create()} loading={creating}><Plus className="h-3.5 w-3.5" /> Add</Button>
             </div>
+            <div className="mt-3">
+              <Label>Icon <span className="font-normal text-muted-foreground">(optional; a picture can be added after, with Edit)</span></Label>
+              <div className="mt-1"><IconPicker value={newIcon} onChange={setNewIcon} /></div>
+            </div>
             <p className="mt-1 text-xs text-muted-foreground">The key is permanent (stores and themes refer to it); names can be changed any time.</p>
           </div>
         )}
       </CardContent>
 
-      <CategoryEditModal category={editing} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await afterChange(); }} />
+      <CategoryEditModal category={editing} onClose={() => { setEditing(null); void afterChange(); }} onSaved={async () => { setEditing(null); await afterChange(); }} />
 
       <ConfirmModal
         open={!!deleting}
@@ -171,21 +178,35 @@ function CategoryEditModal({ category, onClose, onSaved }: { category: ThemeCate
   const [ar, setAr] = useState('');
   const [icon, setIcon] = useState('');
   const [aliases, setAliases] = useState('');
+  const [image, setImage] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!category) return;
-    setEn(category.name.en); setAr(category.name.ar); setIcon(category.icon ?? ''); setAliases((category.aliases ?? []).join(', '));
+    setEn(category.name.en); setAr(category.name.ar); setImage(category.image ?? '');
+    // An icon from before the picker that it doesn't offer shows as none.
+    setIcon(category.icon && CATEGORY_ICONS[category.icon] ? category.icon : ''); setAliases((category.aliases ?? []).join(', '));
   }, [category]);
 
   if (!category) return null;
+
+  // The picture is saved on upload (its own request), so it is never lost to
+  // a Cancel; removing it is part of Save.
+  const upload = async (file: File) => {
+    setUploading(true);
+    try { const row = await storefrontApi.themeCategories.uploadImage(category.key, file); setImage(row.image ?? ''); toast.success('Picture uploaded'); }
+    catch (err) { toast.error(errMsg(err, 'Upload failed')); }
+    finally { setUploading(false); if (fileRef.current) fileRef.current.value = ''; }
+  };
 
   const save = async () => {
     if (!en.trim() || !ar.trim()) { toast.error('Enter the English and Arabic names'); return; }
     const aliasList = aliases.split(',').map((a) => a.trim().toLowerCase()).filter(Boolean);
     setSaving(true);
     try {
-      await storefrontApi.themeCategories.update(category.key, { name: { en: en.trim(), ar: ar.trim() }, icon: icon.trim(), aliases: aliasList });
+      await storefrontApi.themeCategories.update(category.key, { name: { en: en.trim(), ar: ar.trim() }, icon, aliases: aliasList, ...(!image && category.image ? { image: '' as const } : {}) });
       toast.success('Category saved');
       await onSaved();
     } catch (err) { toast.error(errMsg(err, 'Save failed')); }
@@ -205,8 +226,18 @@ function CategoryEditModal({ category, onClose, onSaved }: { category: ThemeCate
         <div><Label htmlFor="edit-en">English name</Label><Input id="edit-en" value={en} onChange={(e) => setEn(e.target.value)} maxLength={60} /></div>
         <div><Label htmlFor="edit-ar">Arabic name</Label><Input id="edit-ar" value={ar} onChange={(e) => setAr(e.target.value)} maxLength={60} dir="rtl" lang="ar" /></div>
         <div>
-          <Label htmlFor="edit-icon">Icon <span className="font-normal text-muted-foreground">(optional, Lucide name)</span></Label>
-          <Input id="edit-icon" value={icon} onChange={(e) => setIcon(e.target.value)} maxLength={40} dir="ltr" placeholder="Shirt" />
+          <Label>Picture <span className="font-normal text-muted-foreground">(optional, shown instead of the icon)</span></Label>
+          <div className="mt-1 flex items-center gap-3">
+            <CategoryMark icon={icon} image={image} className="h-14 w-14" />
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} />
+            <Button type="button" variant="outline" size="sm" loading={uploading} onClick={() => fileRef.current?.click()}><Upload className="h-3.5 w-3.5" /> {image ? 'Replace' : 'Upload'}</Button>
+            {image && <Button type="button" variant="ghost" size="sm" onClick={() => setImage('')}><X className="h-3.5 w-3.5" /> Remove</Button>}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">JPEG, PNG or WebP, square looks best. Signup shows it in a small square.</p>
+        </div>
+        <div>
+          <Label>Icon <span className="font-normal text-muted-foreground">(used when there is no picture)</span></Label>
+          <div className="mt-1"><IconPicker value={icon} onChange={setIcon} /></div>
         </div>
         <div>
           <Label htmlFor="edit-aliases">Manifest keywords <span className="font-normal text-muted-foreground">(optional)</span></Label>

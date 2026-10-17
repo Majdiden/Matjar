@@ -606,8 +606,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     <div className={`max-w-6xl mx-auto px-4 sm:px-6 py-12 ${className}`}>
       <h1 className="text-3xl font-bold mb-2">{t('checkout.title')}</h1>
 
-      {/* Stepper */}
-      <ol className="flex items-center gap-2 mb-8 text-xs font-medium">
+      {/* Stepper. On phones only the current step is named (the others keep
+          their number), so the four steps fit the width in both languages. */}
+      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-8 text-xs font-medium">
         {STEPS.map((s, i) => {
           const isActive = s.id === step;
           const isDone = s.id < step;
@@ -625,7 +626,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 >
                   {isDone ? '✓' : s.id}
                 </span>
-                <span className="uppercase tracking-wider">{s.label}</span>
+                <span className={`uppercase tracking-wider ${isActive ? '' : 'hidden sm:inline'}`}>{s.label}</span>
               </li>
               {i < STEPS.length - 1 && (
                 <svg className="w-3 h-3 text-gray-300 rtl:rotate-180 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -788,7 +789,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 <textarea
                   id="shipping-address-details"
                   rows={3}
-                  dir="auto"
+                  // Empty, an "auto" box is left-to-right and the Arabic
+                  // placeholder sits on the left: follow the page until typed.
+                  dir={shipping.addressLine2 ? 'auto' : undefined}
                   value={shipping.addressLine2}
                   onChange={setShippingField('addressLine2')}
                   className={`${inputClass} resize-y min-h-[88px]`}
@@ -814,7 +817,6 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                     <select
                       id="shipping-zone"
                       required
-                      dir="auto"
                       value={shipping.deliveryZoneId || ''}
                       onChange={(e) => {
                         const zone = deliveryZones.find((z) => z.id === e.target.value);
@@ -1068,7 +1070,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
               );
             })()}
 
-            <div className="space-y-3 max-h-64 overflow-y-auto">
+            {/* pt/pe: room for the quantity badge, which sits outside the
+                photo's corner and would be clipped by the scroll box. */}
+            <div className="space-y-3 max-h-64 overflow-y-auto pt-2 pe-2">
               {cart.items.map((item) => (
                 <div key={item.id} className="flex gap-3 text-sm">
                   <div className="relative">

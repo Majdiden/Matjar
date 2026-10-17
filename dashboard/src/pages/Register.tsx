@@ -26,10 +26,6 @@ import {
   Baby,
   Home as HomeIcon,
   ShoppingBag,
-  Sparkles,
-  Gem,
-  HeartPulse,
-  Sofa,
   Tag,
   Mail,
   RefreshCw,
@@ -72,6 +68,9 @@ import {
   type SignupStep,
 } from '../lib/onboarding';
 import { categoryName, nicheChoices, type ThemeCategoryInfo } from '../lib/themeCategories';
+import { CATEGORY_ICONS } from '../lib/categoryIcons';
+import { StoreLinkSuggestions } from '../components/StoreLinkSuggestions';
+import { useStoreLinkSuggestions } from '../hooks/useStoreLinkSuggestions';
 import { toast } from 'sonner';
 import { focusFirstInvalid } from '../lib/focusFirstInvalid';
 import { formatInvitationCode, normalizeInvitationCode, type SignupCodeMode } from '../lib/invitationCode';
@@ -142,25 +141,14 @@ const NICHE_ICONS: Record<string, React.ReactNode> = {
   general: <ShoppingBag className="h-5 w-5" />,
 };
 
-// Category icons by the Lucide name the platform owner set on a category.
-const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  Store: <Store className="h-5 w-5" />,
-  Shirt: <Shirt className="h-5 w-5" />,
-  Sparkles: <Sparkles className="h-5 w-5" />,
-  Gem: <Gem className="h-5 w-5" />,
-  Smartphone: <Smartphone className="h-5 w-5" />,
-  UtensilsCrossed: <UtensilsCrossed className="h-5 w-5" />,
-  HeartPulse: <HeartPulse className="h-5 w-5" />,
-  Sofa: <Sofa className="h-5 w-5" />,
-  Home: <HomeIcon className="h-5 w-5" />,
-  Baby: <Baby className="h-5 w-5" />,
-  Dumbbell: <Dumbbell className="h-5 w-5" />,
-  BookOpen: <BookOpen className="h-5 w-5" />,
-  ShoppingBag: <ShoppingBag className="h-5 w-5" />,
+// A category's picture, else the icon the platform owner picked, else the
+// built-in niche icon, else a tag (never an empty box).
+const nicheIcon = (c: ThemeCategoryInfo) => {
+  if (c.image) return <img src={c.image} alt="" className="h-full w-full object-cover" />;
+  const Picked = c.icon ? CATEGORY_ICONS[c.icon] : undefined;
+  if (Picked) return <Picked className="h-5 w-5" />;
+  return NICHE_ICONS[c.key] || <Tag className="h-5 w-5" />;
 };
-
-const nicheIcon = (c: ThemeCategoryInfo) =>
-  NICHE_ICONS[c.key] ?? (c.icon && CATEGORY_ICONS[c.icon]) ?? <Tag className="h-5 w-5" />;
 
 /**
  * Theme card preview image with a graceful fallback: if the theme ships no
@@ -340,15 +328,17 @@ export const Register: React.FC = () => {
   const stepIndex = STEPS.indexOf(step);
   const progress = ((stepIndex + 1) / STEPS.length) * 100;
 
-  // Auto-suggest subdomain from store name until the user edits the field
-  // directly. We re-sync on every keystroke so "Standards" fills the whole
-  // slug, not just "s". Arabic names are transliterated (a web address can't
-  // hold Arabic letters).
+  // Short, free links built from the store name (bitna, betna, bitna-asl…),
+  // not the whole name spelled out. Until the merchant edits the link
+  // themselves it follows the store name: the first two words at once, then
+  // the best suggestion when it arrives. Arabic names are transliterated (a
+  // web address can't hold Arabic letters).
+  const linkSuggestions = useStoreLinkSuggestions(form.storeName);
   useEffect(() => {
     if (subdomainTouched) return;
-    const slug = slugifyStoreName(form.storeName);
+    const slug = linkSuggestions?.[0] ?? slugifyStoreName(form.storeName).split('-').slice(0, 2).join('-');
     setForm(p => (p.subdomain === slug ? p : { ...p, subdomain: slug }));
-  }, [form.storeName, subdomainTouched]);
+  }, [form.storeName, subdomainTouched, linkSuggestions]);
 
   // Debounced subdomain availability check
   useEffect(() => {
@@ -1225,6 +1215,11 @@ export const Register: React.FC = () => {
                 ) : subdomainAvailable === true ? (
                   <p className="text-xs text-green-600">{t('auth.field.subdomain.available')}</p>
                 ) : null}
+                <StoreLinkSuggestions
+                  suggestions={linkSuggestions}
+                  current={form.subdomain}
+                  onPick={(s) => { setSubdomainTouched(true); setLinkNotice(null); update('subdomain', s); }}
+                />
                 {renderLinkNotice('subdomain')}
                 {!linkNotice && !subdomainTouched && hasArabic(form.storeName) && form.subdomain && (
                   <p className="flex items-start gap-1.5 text-xs text-muted-foreground" role="status">
@@ -1295,7 +1290,8 @@ export const Register: React.FC = () => {
               {niches.map(cat => {
                 const id = cat.key;
                 const selected = form.niche === id;
-                const tagline = t(`auth.niche.${id}.tagline`, { defaultValue: '' });
+                // Built-in categories have a tagline; ones the platform added don't.
+                const tagline = i18n.exists(`auth.niche.${id}.tagline`) ? t(`auth.niche.${id}.tagline`) : '';
                 return (
                   <button
                     key={id}
@@ -1307,7 +1303,7 @@ export const Register: React.FC = () => {
                         : 'border-border hover:border-foreground/30 hover:bg-accent/50'
                     }`}
                   >
-                    <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${
+                    <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden ${
                       selected ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
                     }`}>
                       {nicheIcon(cat)}

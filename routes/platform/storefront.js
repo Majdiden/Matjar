@@ -14,6 +14,7 @@ import {
   listHealthSchema,
   themeCategoryCreateSchema,
   themeCategoryUpdateSchema,
+  themeCategoryKeySchema,
   themeCategoryOrderSchema,
   themeCategoryDeleteSchema,
   themeCategoryAssignSchema,
@@ -34,6 +35,7 @@ import {
   themeCategories,
   themeCategoryCreate,
   themeCategoryUpdate,
+  themeCategoryImage,
   themeCategoryReorder,
   themeCategoryDelete,
   themeCategoryAssign,
@@ -84,6 +86,7 @@ router.get("/theme-categories", read, themeCategories);
 router.post("/theme-categories", ...categoryWrite, validate(themeCategoryCreateSchema), themeCategoryCreate);
 router.put("/theme-categories/order", ...categoryWrite, validate(themeCategoryOrderSchema), themeCategoryReorder);
 router.patch("/theme-categories/:key", ...categoryWrite, validate(themeCategoryUpdateSchema), themeCategoryUpdate);
+router.post("/theme-categories/:key/image", ...categoryWrite, validate(themeCategoryKeySchema), uploadSingleImage, handleUploadError, validateUploadedFiles, themeCategoryImage);
 router.delete("/theme-categories/:key", ...categoryWrite, validate(themeCategoryDeleteSchema), themeCategoryDelete);
 router.put("/themes/:id/categories", validateObjectId("id"), ...categoryWrite, validate(themeCategoryAssignSchema), themeCategoryAssign);
 

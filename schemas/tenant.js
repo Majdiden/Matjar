@@ -111,7 +111,9 @@ const tenantSchema = new Schema({
   settings: {
     currency: { type: String, default: "SDG" },
     timezone: { type: String, default: "Africa/Khartoum" },
-    language: { type: String, default: "en" },
+    // Store language: the storefront opens in it. Arabic unless the merchant
+    // chose English (services/tenant.js DEFAULT_STORE_LANGUAGE).
+    language: { type: String, default: "ar" },
     taxIncluded: { type: Boolean, default: false },
     activeTheme: { type: String, default: null }, // Theme slug
     // What the store sells, picked at signup: a theme category key
