@@ -17,6 +17,7 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
 import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
 import { useTranslation } from 'react-i18next';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 /**
  * TechHub Layout — TONMART-style chrome.
@@ -93,7 +94,7 @@ const Layout: React.FC = () => {
                 descenders/marks. */}
             <Link to="/" className="flex items-center gap-2.5 min-w-0 shrink text-[var(--brand-contrast,#fff)]">
               {store?.logo && (
-                <img
+                <StoreLogo
                   src={store.logo}
                   alt={store?.name || brandName}
                   className="h-9 md:h-11 w-auto max-w-[88px] md:max-w-[140px] shrink-0 object-contain rounded-md"

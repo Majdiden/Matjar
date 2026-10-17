@@ -16,6 +16,7 @@ import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
@@ -52,7 +53,7 @@ const Layout: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="min-w-0 flex items-center gap-2 text-xl md:text-2xl font-extrabold tracking-tight">
               {store?.logo && (
-                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
               )}
               {/* The store's own name; the two-tone theme wordmark only without one.
                   leading-normal + py-1 keep Arabic marks inside the truncate clip box. */}

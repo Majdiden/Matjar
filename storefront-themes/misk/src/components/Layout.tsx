@@ -18,6 +18,7 @@ import { Footer } from './Footer';
 import { useHideOnScroll } from '../lib/hooks';
 import { I } from '../lib/icons';
 import { SectionAnchor, TOP_STRIP_ANCHOR, useTopStripText } from '@matjar/theme-shared/theme/topStrip';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const OPEN_DELAY = 150;
 
@@ -118,7 +119,7 @@ const Layout: React.FC = () => {
   const Logo = ({ className = '' }: { className?: string }) => (
     <Link to="/" className={`flex min-w-0 items-center gap-2.5 lg:gap-3 ${className}`} aria-label={store?.name || 'Home'}>
       {store?.logo && (
-        <img src={store.logo} alt={store.name} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain lg:h-12 lg:max-w-[160px]" />
+        <StoreLogo src={store.logo} alt={store.name} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain lg:h-12 lg:max-w-[160px]" />
       )}
       <span className={`font-display min-w-0 truncate py-[0.15em] [line-height:normal] text-ink ${store?.logo ? 'text-xl lg:text-2xl' : 'text-2xl'} lg:max-w-[18rem]`}>{store?.name || 'STORE'}</span>
     </Link>

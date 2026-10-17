@@ -13,6 +13,7 @@ import { useAtelierUI } from '../../contexts/AtelierUI';
 import { useStickyReveal } from '../../lib/motion';
 import AnnouncementBar from './AnnouncementBar';
 import { WishlistHeaderLink } from '@matjar/theme-shared';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const hrefOf = (item: MenuItem) => item.resolvedUrl || item.url || '/';
 const isExternal = (item: MenuItem) => item.type === 'external' || item.target === '_blank';
@@ -129,7 +130,7 @@ const HeaderRow: React.FC<{ light: boolean; sticky?: boolean }> = ({ light, stic
         <Link to="/" className="absolute start-1/2 flex max-w-[calc(100vw-13.5rem)] -translate-x-1/2 items-center gap-2 rtl:translate-x-1/2 lg:static lg:max-w-[22rem] lg:translate-x-0 lg:gap-3 rtl:lg:translate-x-0 shrink-0 min-w-0" aria-label={store?.name || 'Home'}>
           {store?.logo && (
             <span className="shrink-0 rounded-lg bg-white p-1">
-              <img src={store.logo} alt={store.name} className="block h-8 w-auto max-w-[88px] rounded-md object-contain lg:h-10 lg:max-w-[140px]" />
+              <StoreLogo src={store.logo} alt={store.name} className="block h-8 w-auto max-w-[88px] rounded-md object-contain lg:h-10 lg:max-w-[140px]" />
             </span>
           )}
           <span className={`block min-w-0 truncate py-[0.12em] [line-height:normal] font-display font-semibold tracking-tight ${store?.logo ? 'text-[19px] lg:text-[22px]' : 'text-[22px] lg:text-[26px]'}`}>{store?.name || 'Store'}</span>

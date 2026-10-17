@@ -15,6 +15,7 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 /**
  * Aurum Layout — dark editorial luxury chrome.
@@ -147,7 +148,7 @@ const Layout: React.FC = () => {
               className="justify-self-center flex items-center gap-2 md:gap-3 min-w-0 max-w-[58vw] md:max-w-[40vw]"
             >
               {store?.logo && (
-                <img
+                <StoreLogo
                   src={store.logo}
                   alt={store?.name || brand}
                   className="h-9 md:h-12 w-auto max-w-[64px] md:max-w-[120px] shrink-0 object-contain rounded-md"

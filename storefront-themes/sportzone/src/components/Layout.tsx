@@ -15,6 +15,7 @@ import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMen
 import { AnnouncementBar } from '@matjar/theme-shared/components/marketing/AnnouncementBar';
 import { useTopStripText, SectionAnchor, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
 import { useTranslation } from 'react-i18next';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -52,7 +53,7 @@ const Layout: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="min-w-0 flex items-center gap-2 text-xl font-black uppercase tracking-wider text-white">
               {store?.logo ? (
-                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
               ) : (
                 <span className="shrink-0 text-[var(--brand,#dc2626)]" aria-hidden="true">///</span>
               )}

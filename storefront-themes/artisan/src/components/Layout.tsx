@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -52,7 +53,7 @@ const Layout: React.FC = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 min-w-0 lg:max-w-[22rem]">
               {store?.logo && (
-                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
               )}
               {/* leading-normal + py-1: `truncate` clips to the line box, which
                   cut off Arabic descenders/marks under a tight line-height. */}

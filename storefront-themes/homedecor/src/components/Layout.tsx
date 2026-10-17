@@ -16,6 +16,7 @@ import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { useThemeSetting } from '@matjar/theme-shared/theme/ThemeProvider';
 import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 /** Manifest default of `announcement_bg`. */
 const STRIP_DEFAULT_BG = '#2d2d2d';
@@ -63,7 +64,7 @@ const Layout: React.FC = () => {
             {/* Logo with house icon */}
             <Link to="/" className="flex items-center gap-2 min-w-0 text-xl font-semibold tracking-wide text-gray-800">
               {store?.logo ? (
-                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
               ) : (
               <svg className="w-5 h-5 shrink-0 text-[var(--brand-ink,#d4a76a)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />

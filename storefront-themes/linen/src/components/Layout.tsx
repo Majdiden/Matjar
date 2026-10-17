@@ -17,6 +17,7 @@ import { MobileDrawer } from './MobileDrawer';
 import { Footer } from './Footer';
 import { useHideOnScroll } from '../lib/hooks';
 import { I } from '../lib/icons';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const OPEN_DELAY = 150;
 
@@ -94,7 +95,7 @@ const Layout: React.FC = () => {
                   a font-derived line box + block padding so truncation clips
                   sideways only, never Arabic marks or descenders. */}
               <Link to="/" className="hidden min-w-0 items-center gap-3 lg:flex" aria-label={store?.name || 'Home'}>
-                {store?.logo && <img src={store.logo} alt={store.name} className="h-11 w-auto max-w-[150px] shrink-0 rounded-lg object-contain" />}
+                {store?.logo && <StoreLogo src={store.logo} alt={store.name} className="h-11 w-auto max-w-[150px] shrink-0 rounded-lg object-contain" />}
                 <span className={`font-heading block min-w-0 max-w-[18rem] truncate py-[0.12em] [line-height:normal] text-ink ${store?.logo ? 'text-xl tracking-[0.16em]' : 'text-2xl tracking-[0.22em]'}`}>{(store?.name || 'STORE').toUpperCase()}</span>
               </Link>
             </div>
@@ -102,7 +103,7 @@ const Layout: React.FC = () => {
             {/* centre: logo (mobile) / nav (desktop) */}
             <div className="flex min-w-0 justify-center">
               <Link to="/" className="flex min-w-0 items-center gap-2 lg:hidden" aria-label={store?.name || 'Home'}>
-                {store?.logo && <img src={store.logo} alt={store.name} className="h-9 w-auto max-w-[88px] shrink-0 rounded-md object-contain" />}
+                {store?.logo && <StoreLogo src={store.logo} alt={store.name} className="h-9 w-auto max-w-[88px] shrink-0 rounded-md object-contain" />}
                 <span className="font-heading block min-w-0 truncate py-[0.12em] [line-height:normal] text-[1.05rem] tracking-[0.14em] text-ink sm:text-xl sm:tracking-[0.2em]">{(store?.name || 'STORE').toUpperCase()}</span>
               </Link>
               <nav ref={nav} className="hidden items-center lg:flex" aria-label={t('theme.nav.menu')}>

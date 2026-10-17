@@ -10,6 +10,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import logger from "../utils/logger.js";
+import { trimLogo } from "./logoTrim.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,7 +43,7 @@ export const uploadImage = async (file, tenantDomain, preset = "product", option
       // Generate unique filename
       const timestamp = Date.now();
       const random = Math.round(Math.random() * 1E9);
-      const filename = `${preset}-${timestamp}-${random}.jpg`; // Default to jpg for simplicity
+      const filename = `${preset}-${timestamp}-${random}.${preset === "logo" ? "png" : "jpg"}`;
       const filepath = path.join(uploadDir, filename);
 
       // Process buffer
@@ -66,7 +67,8 @@ export const uploadImage = async (file, tenantDomain, preset = "product", option
           fit: "inside",
           withoutEnlargement: true,
         })
-        .toFormat("jpeg", { quality: 85 })
+        // Logos keep their transparency (JPEG would paint it black).
+        .toFormat(preset === "logo" ? "png" : "jpeg", preset === "logo" ? {} : { quality: 85 })
         .toFile(filepath);
 
       const fileStats = fs.statSync(filepath);
@@ -366,7 +368,11 @@ export const uploadCategoryImage = async (file, tenantDomain) => {
  */
 export const uploadLogo = async (file, tenantDomain) => {
   try {
-    const result = await uploadImage(file, tenantDomain, "logo");
+    // Cropped to the logo itself (margins, screenshot bars), kept as PNG so
+    // a transparent background stays transparent.
+    const { buffer, trimmed } = Buffer.isBuffer(file) ? await trimLogo(file) : { buffer: file, trimmed: false };
+    const input = trimmed ? `data:image/png;base64,${buffer.toString("base64")}` : buffer;
+    const result = await uploadImage(input, tenantDomain, "logo");
 
     return {
       success: true,
