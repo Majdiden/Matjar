@@ -236,7 +236,7 @@ const ProductDetail: React.FC = () => {
             </div>
 
             {product.shortDescription && (
-              <p className="text-sm leading-relaxed mb-6 opacity-80">
+              <p dir="auto" className="text-sm leading-relaxed mb-6 opacity-80">
                 {product.shortDescription}
               </p>
             )}

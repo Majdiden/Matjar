@@ -103,7 +103,7 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
           {onSale && <s className="linen-strike text-dune">{formatPrice(product.compareAtPrice)}</s>}
           <span className={onSale ? 'font-bold text-clay' : 'text-ink'}>{formatPrice(product.price)}</span>
         </p>
-        {list && product.shortDescription && <p className="mt-3 line-clamp-3 text-[0.95rem] text-dune">{product.shortDescription}</p>}
+        {list && product.shortDescription && <p dir="auto" className="mt-3 line-clamp-3 text-[0.95rem] text-dune">{product.shortDescription}</p>}
         {list && (
           <button type="button" onClick={add} disabled={!hasOptions && !canAdd} className="linen-btn linen-btn-solid mt-4 self-start">{cta}</button>
         )}

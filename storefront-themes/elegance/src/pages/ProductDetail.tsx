@@ -251,7 +251,7 @@ const ProductDetail: React.FC = () => {
           {product.description && (
             <div className="prose prose-sm max-w-none mb-8">
               <h3 className="font-semibold mb-2">{t('theme.product_detail.description_heading')}</h3>
-              <p className="text-gray-600 whitespace-pre-line">{product.description}</p>
+              <p dir="auto" className="text-gray-600 whitespace-pre-line">{product.description}</p>
             </div>
           )}
 

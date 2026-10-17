@@ -66,7 +66,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     'transition-colors duration-[var(--duration-fast,150ms)] hover:bg-black/[0.04] active:scale-95 disabled:opacity-40';
 
   return (
-    <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label={t('drawer.title_empty')}>
+    <div className="fixed inset-0 z-[115]" role="dialog" aria-modal="true" aria-label={t('drawer.title_empty')}>
       {/* Backdrop */}
       <div
         onClick={onClose}

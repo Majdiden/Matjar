@@ -205,7 +205,7 @@ export const Collection: React.FC<Props> = ({ categorySlug, title, bannerImage, 
         <div className="relative w-full px-4 py-14 text-center text-cream">
           <p className="linen-eyebrow text-white/85"><Link to="/" className="hover:text-cream">{t('theme.nav.home')}</Link> <span className="mx-2">•</span> {title}</p>
           <h1 className="font-heading mt-3 text-4xl sm:text-5xl">{title}</h1>
-          {description && <p className="mx-auto mt-3 max-w-xl text-white/85">{description}</p>}
+          {description && <p dir="auto" className="mx-auto mt-3 max-w-xl text-white/85">{description}</p>}
         </div>
       </div>
 

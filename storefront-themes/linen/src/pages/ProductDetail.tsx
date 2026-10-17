@@ -169,7 +169,7 @@ const ProductDetail: React.FC = () => {
               {onSale && <s className="linen-strike text-lg text-dune">{formatPrice(compareAt)}</s>}
               <span className={onSale ? 'font-bold text-clay' : ''}>{formatPrice(pre.effectivePrice ?? price)}</span>
             </p>
-            {product.shortDescription && <p className="mt-4 text-dune">{product.shortDescription}</p>}
+            {product.shortDescription && <p dir="auto" className="mt-4 text-dune">{product.shortDescription}</p>}
 
             {hasOptions && (
               <div className="mt-8">

@@ -35,11 +35,11 @@ const ProductDescription: React.FC<ProductDescriptionProps> = (props) => {
   return (
     <div className={className}>
       {product.shortDescription && (
-        <p className="text-base font-medium mb-4 leading-relaxed">{product.shortDescription}</p>
+        <p dir="auto" className="text-base font-medium mb-4 leading-relaxed">{product.shortDescription}</p>
       )}
       {product.description && (
-        <div
-          className="prose prose-sm max-w-none leading-relaxed"
+        <div dir="auto"
+          className="prose prose-sm max-w-none leading-relaxed [&_:is(p,li,h1,h2,h3,h4,blockquote)]:[unicode-bidi:plaintext]"
           dangerouslySetInnerHTML={{ __html: product.description }}
         />
       )}

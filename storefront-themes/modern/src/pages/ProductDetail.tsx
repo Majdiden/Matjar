@@ -287,7 +287,7 @@ const ProductDetail: React.FC = () => {
 
           {/* Short description */}
           {product.shortDescription && (
-            <p className="text-gray-600 text-sm leading-relaxed mb-6">{product.shortDescription}</p>
+            <p dir="auto" className="text-gray-600 text-sm leading-relaxed mb-6">{product.shortDescription}</p>
           )}
 
           {/* Quantity + Add to Cart (or Pre-order) */}

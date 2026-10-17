@@ -201,22 +201,22 @@ const Layout: React.FC = () => {
         onMouseLeave={closeMega}
       >
         <div className="mx-auto max-w-[1320px] px-4 sm:px-6">
-          <div className={`grid h-16 items-center gap-4 lg:h-[84px] ${logoCentered ? 'grid-cols-[auto_1fr_auto] lg:grid-cols-[1fr_auto_1fr]' : 'grid-cols-[auto_1fr_auto] lg:grid-cols-[auto_1fr_auto]'}`}>
-            <div className="flex items-center gap-1">
-              <button type="button" onClick={() => setDrawerOpen(true)} className={`${iconBtn} lg:hidden`} aria-label={t('theme.nav.menu')} aria-expanded={drawerOpen}>
-                <I.menu className="h-6 w-6" />
-              </button>
+          {/* Phones and tablets: the logo at the start, wishlist and the menu at the
+              end (search and cart live in the phone's bottom bar; tablets keep
+              them here). Desktop: logo, menu links, icons. */}
+          <div className={`grid h-16 items-center gap-4 lg:h-[84px] ${logoCentered ? 'grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[1fr_auto_1fr]' : 'grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[auto_1fr_auto]'}`}>
+            <div className="flex min-w-0 items-center gap-1">
+              <Logo className="lg:hidden max-w-full" />
               {!logoCentered && <Logo className="hidden lg:flex" />}
               {logoCentered && <div className="hidden lg:flex"><DesktopNav /></div>}
             </div>
 
-            <div className={`flex min-w-0 ${logoCentered ? 'justify-center' : 'justify-center lg:justify-center'}`}>
-              <Logo className="lg:hidden max-w-full" />
+            <div className={`hidden min-w-0 lg:flex ${logoCentered ? 'justify-center' : 'justify-center'}`}>
               {logoCentered ? <Logo className="hidden lg:flex" /> : <div className="hidden lg:flex"><DesktopNav /></div>}
             </div>
 
             <div className="flex items-center justify-end gap-0.5">
-              <button type="button" onClick={() => setSearchOpen(true)} className={iconBtn} aria-label={t('theme.search.title')}>
+              <button type="button" onClick={() => setSearchOpen(true)} className={`${iconBtn} hidden md:grid`} aria-label={t('theme.search.title')}>
                 <I.search className="h-5 w-5" />
               </button>
               {showAccountIcon && (
@@ -228,9 +228,12 @@ const Layout: React.FC = () => {
                   {wishlistCount > 0 && <span className={badge}>{wishlistCount}</span>}
                 </Link>
               )}
-              <button type="button" onClick={openCart} className={iconBtn} aria-label={t('theme.nav.cart')}>
+              <button type="button" onClick={openCart} className={`${iconBtn} hidden md:grid`} aria-label={t('theme.nav.cart')}>
                 <I.bag className="h-5 w-5" />
                 {cart && cart.itemCount > 0 && <span className={badge}>{cart.itemCount}</span>}
+              </button>
+              <button type="button" onClick={() => setDrawerOpen(true)} className={`${iconBtn} lg:hidden`} aria-label={t('theme.nav.menu')} aria-expanded={drawerOpen}>
+                <I.menu className="h-6 w-6" />
               </button>
             </div>
           </div>
