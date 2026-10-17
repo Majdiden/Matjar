@@ -1,4 +1,4 @@
-import type { TFunction } from 'i18next';
+import i18n, { type TFunction } from 'i18next';
 import type { NotificationItem } from '../contexts/notifications-context';
 import { ltrIsolate } from './utils';
 
@@ -42,6 +42,23 @@ const TYPE_KEY: Record<string, string> = {
   'impersonation.expired': 'impersonation_expired',
 };
 
+/**
+ * Platform announcements (PBI 10-46) carry their own text in both languages
+ * (`data.title` / `data.body` = { ar, en }): the dashboard language first,
+ * else the other one, else the stored copy. Mirrors the server helper.
+ */
+export const ANNOUNCEMENT_TYPE = 'platform.announcement';
+
+type TextPair = { ar?: string; en?: string } | undefined;
+
+function announcementCopy(n: NotificationItem): { title: string; body: string } {
+  const lang = (i18n.language || 'en').toLowerCase().startsWith('ar') ? 'ar' : 'en';
+  const other = lang === 'ar' ? 'en' : 'ar';
+  const pick = (pair: TextPair, stored?: string) => (pair && (pair[lang] || pair[other])) || stored || '';
+  const data = (n.data ?? {}) as { title?: TextPair; body?: TextPair };
+  return { title: pick(data.title, n.title) || 'Matjar', body: pick(data.body, n.body ?? '') };
+}
+
 function detailSuffix(detail: unknown): string {
   const s = detail == null ? '' : String(detail).trim();
   return s ? ` — ${s}` : '';
@@ -79,6 +96,7 @@ export function renderNotificationCopy(
   t: TFunction,
   n: NotificationItem,
 ): { title: string; body: string } {
+  if (n.type === ANNOUNCEMENT_TYPE) return announcementCopy(n);
   const key = TYPE_KEY[n.type];
   if (!key) {
     return { title: n.title, body: n.body ?? '' };

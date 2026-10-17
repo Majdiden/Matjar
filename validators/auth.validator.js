@@ -104,6 +104,9 @@ export const registerTenantSchema = z.object({
     // Signup v2 identity (10-41): short line → brand kit tagline, colour →
     // brand colour (the logo and cover photo are uploaded after signup).
     tagline: z.string().trim().max(BRAND_TEXT_MAX_LENGTH.tagline).optional(),
+    // Referral / beta invitation code (10-47); checked by the controller
+    // against the platform's signup mode.
+    invitationCode: z.string().trim().max(32).optional(),
     brandColor: z.string().trim().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   }),
 });

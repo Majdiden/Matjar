@@ -12,6 +12,7 @@ import {
   renderNotificationCopy,
   resolveTenantLanguage,
   pickLanguage,
+  ANNOUNCEMENT_TYPE,
 } from "./notificationCopy.js";
 
 /**
@@ -175,6 +176,9 @@ function renderEmail(notification, language) {
  */
 export async function dispatchEmails(models, notification) {
   if (!notification) return;
+  // Platform announcements send their own formatted email
+  // (services/platform/announcements.js), only when the platform asked for it.
+  if (notification.type === ANNOUNCEMENT_TYPE) return;
 
   // Platform-level feature flag. Cheap short-circuit before any DB work.
   if (!isEmailConfigured()) return;

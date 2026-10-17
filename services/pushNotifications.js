@@ -44,12 +44,18 @@ const PUSH_BADGE = "/dashboard/pwa-192x192.png";
  * visibility logic of dispatchEmails / the inbox repository:
  *   - restricted to staff roles (or the explicit recipient list)
  *   - permission gate (notification.permission, null = broadcast)
- * Unlike email there is NO per-type channel opt-in — installing the PWA and
- * granting push permission IS the opt-in.
+ *   - the user's per-type "phone and desktop" switch
+ *     (notificationPreferences[type].browser): on unless switched off;
+ *     installing the PWA and granting push permission is the opt-in.
  *
  * Returns the eligible user docs (with `_id` + `language`) so the caller can
  * render each recipient's push payload in THEIR saved language.
  */
+/** The user's "phone and desktop" switch for a type: on unless switched off. */
+export function pushEnabledFor(user, type) {
+  return user?.notificationPreferences?.[type]?.browser !== false;
+}
+
 async function resolveRecipients(models, notification) {
   const baseFilter = { isActive: true };
   if (
@@ -64,7 +70,7 @@ async function resolveRecipients(models, notification) {
   let users = [];
   try {
     users = await models.User.find(baseFilter)
-      .select("_id roles customRoleIds language")
+      .select("_id roles customRoleIds language notificationPreferences")
       .lean();
   } catch (err) {
     logger.warn("push: recipient lookup failed", {
@@ -73,6 +79,7 @@ async function resolveRecipients(models, notification) {
     });
     return [];
   }
+  users = users.filter((u) => pushEnabledFor(u, notification.type));
   if (users.length === 0) return [];
 
   const requiredPerm = notification.permission || null;

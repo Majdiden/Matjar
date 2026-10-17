@@ -18,6 +18,7 @@ import {
   confirmEmailVerificationController,
   updateCurrentUserController,
   phoneCountriesController,
+  checkInvitationCodeController,
   onboardingConfigController,
 } from "../controllers/auth.js";
 import {
@@ -65,6 +66,14 @@ const otpVerifyLimiter = createRateLimiter({
   max: 40,
   message: "Too many verification attempts. Please try again shortly.",
 });
+// Invitation-code check on the signup form (PBI 10-47): per-IP ceiling so the
+// code space can't be scanned.
+const inviteCodeCheckLimiter = createRateLimiter({
+  prefix: "signup:code-check",
+  windowMs: 15 * MINUTE,
+  max: 30,
+  message: "Too many code checks. Please try again shortly.",
+});
 // Passkey login ceremony — per-IP ceiling on both options + verify.
 const webauthnAuthLimiter = createRateLimiter({
   prefix: "webauthn:auth",
@@ -76,6 +85,8 @@ const webauthnAuthLimiter = createRateLimiter({
 // Public routes
 authRoutes.post("/register", validate(registerTenantSchema), registerTenantController);
 authRoutes.get("/check-email", checkEmailController);
+// Is this invitation / referral code usable? (signup store step, PBI 10-47)
+authRoutes.get("/check-invitation-code", inviteCodeCheckLimiter, checkInvitationCodeController);
 // Enabled phone dial codes (+ default) for the signup / profile phone field.
 // Public: the signup form needs it before any account exists.
 authRoutes.get("/phone-countries", phoneCountriesController);

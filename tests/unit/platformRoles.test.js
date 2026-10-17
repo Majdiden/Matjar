@@ -11,6 +11,7 @@ import {
   canActOnRole,
   isValidRole,
   OWNER_ONLY_GRANTS,
+  OWNER_AND_PROMOTER_SCOPES,
 } from "../../config/platformRoles.js";
 import { PLATFORM_SCOPES } from "../../middlewares/platformAdmin.js";
 
@@ -32,9 +33,23 @@ describe("platform roles", () => {
     }
     // Admin keeps everything else.
     const admin = PLATFORM_ROLE_DEFS.find((r) => r.key === PLATFORM_ROLES.ADMIN);
-    assert.equal(admin.scopes.length, Object.keys(PLATFORM_SCOPES).length - OWNER_ONLY_GRANTS.length);
+    assert.equal(
+      admin.scopes.length,
+      Object.keys(PLATFORM_SCOPES).length - OWNER_ONLY_GRANTS.length - OWNER_AND_PROMOTER_SCOPES.length
+    );
     // An explicit grant adds it to any role.
     assert.ok(resolveEffectiveScopes(PLATFORM_ROLES.OPERATIONS, ["tenant.delete"]).includes("tenant.delete"));
+  });
+
+  it("invitation codes belong to owners and promoters; a promoter has nothing else", () => {
+    for (const def of PLATFORM_ROLE_DEFS) {
+      const has = def.scopes.includes(PLATFORM_SCOPES.INVITE_CODES);
+      assert.equal(has, [PLATFORM_ROLES.OWNER, PLATFORM_ROLES.PROMOTER].includes(def.key), `${def.key} invite_codes`);
+    }
+    const promoter = PLATFORM_ROLE_DEFS.find((r) => r.key === PLATFORM_ROLES.PROMOTER);
+    assert.deepEqual(promoter.scopes, [PLATFORM_SCOPES.INVITE_CODES]);
+    assert.equal(canAssignRole("admin", "promoter"), true);
+    assert.equal(canAssignRole("promoter", "promoter"), false);
   });
 
   it("resolves effective scopes = role ∪ explicit grants, ignoring unknown grants", () => {

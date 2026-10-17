@@ -68,11 +68,11 @@ describe("E2E guided onboarding (signup v2 + first-sale checklist)", () => {
 
   it("serves the signup flow publicly from the global onboarding.v2 flag (off by default)", async () => {
     const off = await request(app).get("/api/auth/onboarding-config").expect(200);
-    assert.deepEqual(off.body.responseObject, { v2: false });
+    assert.deepEqual(off.body.responseObject, { v2: false, signupCode: "open" });
 
     await setFeatureOverrides([{ key: "onboarding.v2", value: true }], "test");
     const on = await request(app).get("/api/auth/onboarding-config").expect(200);
-    assert.deepEqual(on.body.responseObject, { v2: true });
+    assert.deepEqual(on.body.responseObject, { v2: true, signupCode: "open" });
   });
 
   it("v2 signup: WhatsApp defaults to the account phone, city and delivery areas are stored", async () => {

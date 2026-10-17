@@ -73,6 +73,11 @@ export function resolveNotificationPath(n) {
       return "/dashboard/settings?tab=domains";
     case "staff.invite_accepted":
       return "/dashboard/staff";
+    case "platform.announcement":
+      // Only dashboard paths: the link opens inside the merchant's dashboard.
+      return typeof n.data?.link === "string" && /^\/dashboard(\/|$|\?)/.test(n.data.link)
+        ? n.data.link
+        : "/dashboard/notifications";
     default:
       return null;
   }

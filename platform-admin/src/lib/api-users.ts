@@ -74,6 +74,7 @@ const ROLE_RANK: Record<string, number> = {
   finance: 50,
   developer: 50,
   support: 40,
+  promoter: 10,
 };
 export function roleRank(role?: string | null): number {
   return ROLE_RANK[String(role || '').toLowerCase()] ?? 0;

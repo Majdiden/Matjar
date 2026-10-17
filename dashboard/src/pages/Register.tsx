@@ -74,6 +74,7 @@ import {
 import { categoryName, nicheChoices, type ThemeCategoryInfo } from '../lib/themeCategories';
 import { toast } from 'sonner';
 import { focusFirstInvalid } from '../lib/focusFirstInvalid';
+import { formatInvitationCode, normalizeInvitationCode, type SignupCodeMode } from '../lib/invitationCode';
 
 // Signup email-OTP length. Must match the backend (services/otp.js).
 const OTP_LENGTH = 4;
@@ -212,14 +213,23 @@ export const Register: React.FC = () => {
   const [globalV2, setGlobalV2] = useState<boolean | null>(null);
   const [lockedFlow, setLockedFlow] = useState<SignupFlow | null>(null);
   const hasFlowOverride = new URLSearchParams(location.search).has(SIGNUP_FLOW_PARAM);
+  // Whether signup asks for a code (PBI 10-47): "open" (no field),
+  // "optional" (referral code) or "required" (beta invitation code). Adding
+  // a store to an existing account never asks.
+  const [signupCodeMode, setSignupCodeMode] = useState<SignupCodeMode>('open');
   useEffect(() => {
-    if (hasFlowOverride) return;
     let active = true;
     api.auth.onboardingConfig()
-      .then((r) => { if (active) setGlobalV2(r.responseObject?.v2 === true); })
-      .catch(() => { /* v1 */ });
+      .then((r) => {
+        if (!active) return;
+        if (!hasFlowOverride) setGlobalV2(r.responseObject?.v2 === true);
+        const mode = r.responseObject?.signupCode;
+        if (mode === 'optional' || mode === 'required') setSignupCodeMode(mode);
+      })
+      .catch(() => { /* v1, open signup: the server still enforces its mode */ });
     return () => { active = false; };
   }, [hasFlowOverride]);
+  const showCode = !addMode && signupCodeMode !== 'open';
   const flow = lockedFlow ?? resolveSignupFlow(location.search, globalV2);
   const isV2 = flow === 'v2';
   const STEPS = signupSteps(flow);
@@ -240,6 +250,8 @@ export const Register: React.FC = () => {
     // Signup v2 only: the store's identity (10-41).
     tagline: '',
     brandColor: '',
+    // Referral / beta invitation code (10-47); a shared signup link fills it in.
+    invitationCode: formatInvitationCode(new URLSearchParams(location.search).get('code') || ''),
   });
   // Logo and cover photo (v2), shrunk on the phone; uploaded right after the
   // store is created (lib/signupIdentity.ts).
@@ -279,6 +291,29 @@ export const Register: React.FC = () => {
   const [subdomainTouched, setSubdomainTouched] = useState(false);
   const [subdomainChecking, setSubdomainChecking] = useState(false);
   const [subdomainAvailable, setSubdomainAvailable] = useState<boolean | null>(null);
+  // Invitation code check: null = not checked yet.
+  const [codeChecking, setCodeChecking] = useState(false);
+  const [codeValid, setCodeValid] = useState<boolean | null>(null);
+  const normalizedCode = normalizeInvitationCode(form.invitationCode);
+  useEffect(() => {
+    setCodeValid(null);
+    if (!showCode || normalizedCode.length < 8) {
+      setCodeChecking(false);
+      // A partial code is simply not valid (yet).
+      if (showCode && normalizedCode) setCodeValid(false);
+      return;
+    }
+    let active = true;
+    setCodeChecking(true);
+    const id = window.setTimeout(() => {
+      api.auth.checkInvitationCode(normalizedCode)
+        .then((r) => { if (active) setCodeValid(r.responseObject?.valid === true); })
+        // Can't check (offline, rate limited): let the final submit decide.
+        .catch(() => { if (active) setCodeValid(true); })
+        .finally(() => { if (active) setCodeChecking(false); });
+    }, 350);
+    return () => { active = false; window.clearTimeout(id); };
+  }, [showCode, normalizedCode]);
   // Social pages recognised in pasted links — sent with the signup so the
   // store's footer links to them.
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
@@ -641,6 +676,14 @@ export const Register: React.FC = () => {
       else if (subdomainChecking) errs.subdomain = t('auth.field.subdomain.error.checking');
       else if (subdomainAvailable === false) errs.subdomain = t('auth.field.subdomain.error.taken');
       else if (subdomainAvailable !== true) errs.subdomain = t('auth.field.subdomain.error.waiting');
+
+      if (showCode) {
+        const code = normalizeInvitationCode(form.invitationCode);
+        if (!code) {
+          if (signupCodeMode === 'required') errs.invitationCode = t('auth.field.invitation_code.error.required');
+        } else if (codeChecking || codeValid === null) errs.invitationCode = t('auth.field.invitation_code.error.checking');
+        else if (!codeValid) errs.invitationCode = t('auth.field.invitation_code.error.invalid');
+      }
     }
     if (s === 'niche' && !form.niche) errs.niche = t('auth.register.pick_niche_error');
     if (s === 'theme' && !form.themeSlug) errs.themeSlug = t('auth.register.pick_theme_error');
@@ -655,7 +698,7 @@ export const Register: React.FC = () => {
   // Fields relevant to each step, used for bulk-touch when Continue is hit.
   const STEP_FIELDS: Partial<Record<Step, FieldKey[]>> = {
     account: ['name', 'email', 'phone', 'password'],
-    store: ['storeName', 'subdomain'],
+    store: ['storeName', 'subdomain', 'invitationCode'],
     niche: ['niche'],
     theme: ['themeSlug'],
   };
@@ -807,6 +850,9 @@ export const Register: React.FC = () => {
         phoneCountry: phone.country || defaultPhoneCountry,
         language: storeLanguage,
         ...(Object.keys(socialLinks).length ? { socialLinks } : {}),
+        ...(showCode && normalizeInvitationCode(form.invitationCode)
+          ? { invitationCode: normalizeInvitationCode(form.invitationCode) }
+          : {}),
         ...v2Fields,
       })) as {
         responseObject?: {
@@ -828,7 +874,18 @@ export const Register: React.FC = () => {
       const tenantId = response.responseObject?.tenantId;
       navigate(`/dashboard/setup?tenantId=${tenantId}`, { replace: true });
     } catch (err) {
-      const e = err as { message?: string; error?: string };
+      const e = err as { message?: string; error?: string; code?: string };
+      // The code was taken or revoked meanwhile: back to the store step,
+      // with the message on the code field.
+      if (e?.code === 'INVITE_CODE_INVALID' || e?.code === 'INVITE_CODE_REQUIRED') {
+        if (e.code === 'INVITE_CODE_REQUIRED') setSignupCodeMode('required');
+        setCodeValid(e.code === 'INVITE_CODE_INVALID' ? false : null);
+        setTouched(prev => ({ ...prev, invitationCode: true }));
+        setError('');
+        setStep('store');
+        toast.error(t(`auth.field.invitation_code.error.${e.code === 'INVITE_CODE_REQUIRED' ? 'required' : 'invalid'}`));
+        return;
+      }
       const msg = e?.message || e?.error || t('auth.toast.sign_in_failed');
       setError(msg);
       toast.error(msg);
@@ -1182,6 +1239,46 @@ export const Register: React.FC = () => {
                   </p>
                 )}
               </div>
+
+              {showCode && (
+                <div className="space-y-2">
+                  <Label htmlFor="invitationCode">
+                    {t(signupCodeMode === 'required' ? 'auth.field.invitation_code.label_required' : 'auth.field.invitation_code.label_optional')}
+                  </Label>
+                  <p id="invitationCode-help" className="text-xs text-muted-foreground">
+                    {t(signupCodeMode === 'required' ? 'auth.field.invitation_code.help_required' : 'auth.field.invitation_code.help_optional')}
+                  </p>
+                  {/* Codes are Latin letters and digits: always left-to-right. */}
+                  <div className="relative" dir="ltr">
+                    <Input
+                      id="invitationCode"
+                      dir="ltr"
+                      placeholder={t('auth.field.invitation_code.placeholder')}
+                      value={form.invitationCode}
+                      onChange={e => setForm(p => ({ ...p, invitationCode: formatInvitationCode(e.target.value) }))}
+                      onBlur={() => setTouched(prev => ({ ...prev, invitationCode: true }))}
+                      autoCapitalize="characters"
+                      autoCorrect="off"
+                      autoComplete="off"
+                      spellCheck={false}
+                      maxLength={9}
+                      aria-describedby="invitationCode-help"
+                      aria-invalid={!!fieldErrors.invitationCode}
+                      className="font-mono tracking-widest pe-10 uppercase"
+                    />
+                    <div className="absolute inset-y-0 right-3 flex items-center">
+                      {codeChecking && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                      {!codeChecking && codeValid === true && <Check className="h-4 w-4 text-green-500" />}
+                      {!codeChecking && codeValid === false && normalizedCode.length === 8 && <X className="h-4 w-4 text-destructive" />}
+                    </div>
+                  </div>
+                  {fieldErrors.invitationCode ? (
+                    <p className="text-xs text-destructive">{fieldErrors.invitationCode}</p>
+                  ) : codeValid === true ? (
+                    <p className="text-xs text-green-600">{t('auth.field.invitation_code.valid')}</p>
+                  ) : null}
+                </div>
+              )}
             </div>
           </div>
         )}

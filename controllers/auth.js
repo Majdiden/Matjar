@@ -22,6 +22,7 @@ import { logAudit } from "../utils/audit.js";
 import logger from "../utils/logger.js";
 import { getEnabledPhoneCountries, resolveMerchantPhone } from "../services/phoneCountries.js";
 import { isFeatureEnabled } from "../services/featureFlags.js";
+import { checkSignupCode, claimCode, releaseCode, linkCodeToStore, getSignupMode, isCodeUsable } from "../services/signupAccess.js";
 
 export const registerTenantController = asyncHandler(async (req, res) => {
   // Email-OTP gate. When the client supplies an `emailVerificationToken`
@@ -36,7 +37,24 @@ export const registerTenantController = asyncHandler(async (req, res) => {
       throw new APIError("Email verification is invalid or has expired. Please verify your email again.", 400);
     }
   }
-  const result = await addATenantService(req.body);
+  // Registration lock / invitation codes (PBI 10-47). Checked before
+  // anything is created, then claimed atomically and given back if creating
+  // the store fails. Adding a store from an existing account
+  // (addStoreController) never needs a code.
+  const code = await checkSignupCode(req.body.invitationCode);
+  const claimed = code ? await claimCode(code, { email: req.body.email }) : null;
+  let result;
+  try {
+    result = await addATenantService(req.body);
+  } catch (err) {
+    if (claimed) await releaseCode(claimed._id);
+    throw err;
+  }
+  if (claimed && result?.responseObject?.tenantId) {
+    await linkCodeToStore(claimed, result.responseObject.tenantId, req.body.storeName).catch((err) =>
+      logger.error("invitation code: linking the store failed", { error: err?.message })
+    );
+  }
   res.status(result.statusCode).json(result);
 });
 
@@ -555,9 +573,22 @@ export const updateCurrentUserController = asyncHandler(async (req, res) => {
  * prod while the flag is off.
  */
 export const onboardingConfigController = asyncHandler(async (_req, res) => {
-  const v2 = await isFeatureEnabled("onboarding.v2");
+  const [v2, signupCode] = await Promise.all([isFeatureEnabled("onboarding.v2"), getSignupMode()]);
   res.set("Cache-Control", "public, max-age=60");
-  res.json({ success: true, responseObject: { v2 } });
+  // signupCode: "open" (no field), "optional" (referral code) or "required"
+  // (beta invitation code) — PBI 10-47.
+  res.json({ success: true, responseObject: { v2, signupCode } });
+});
+
+/**
+ * GET /auth/check-invitation-code?code= — whether a signup code can be used
+ * (PBI 10-47), so the store step can tell the merchant before the last step.
+ * Answers only { valid }; rate limited per IP.
+ */
+export const checkInvitationCodeController = asyncHandler(async (req, res) => {
+  const valid = await isCodeUsable(req.query.code);
+  res.set("Cache-Control", "no-store");
+  res.json({ success: true, responseObject: { valid } });
 });
 
 export const phoneCountriesController = asyncHandler(async (_req, res) => {

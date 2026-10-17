@@ -11,6 +11,7 @@ import {
   Package,
   RotateCcw,
   Trash2,
+  Megaphone,
   Users,
   Webhook,
 } from 'lucide-react';
@@ -33,6 +34,7 @@ function iconForType(type: string): React.ElementType {
   if (type.startsWith('webhook.')) return Webhook;
   if (type.startsWith('domain.')) return Globe;
   if (type.startsWith('staff.')) return Users;
+  if (type.startsWith('platform.')) return Megaphone;
   return AlertTriangle;
 }
 

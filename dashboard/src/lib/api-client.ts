@@ -299,7 +299,11 @@ export const api = {
 
     // Which signup flow to run (global `onboarding.v2` flag). Public.
     onboardingConfig: () =>
-      api.get<{ responseObject?: { v2?: boolean } }>('/auth/onboarding-config'),
+      api.get<{ responseObject?: { v2?: boolean; signupCode?: 'open' | 'optional' | 'required' } }>('/auth/onboarding-config'),
+
+    // Can this invitation / referral code register a store? (PBI 10-47)
+    checkInvitationCode: (code: string) =>
+      api.get<{ responseObject?: { valid?: boolean } }>(`/auth/check-invitation-code?code=${encodeURIComponent(code)}`),
 
     // Enabled phone dial codes (+ default) for the signup / profile phone
     // field. Public — cached client-side by hooks/usePhoneCountries.

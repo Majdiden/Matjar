@@ -23,6 +23,13 @@ const S = PLATFORM_SCOPES;
 export const OWNER_ONLY_GRANTS = Object.freeze([S.TENANT_DELETE]);
 const withoutOwnerOnly = (scopes) => scopes.filter((s) => !OWNER_ONLY_GRANTS.includes(s));
 
+/**
+ * Scopes held by OWNER and PROMOTER only (PBI 10-47): signup invitation codes
+ * are the promoters' job; staff roles never get them by role.
+ */
+export const OWNER_AND_PROMOTER_SCOPES = Object.freeze([S.INVITE_CODES]);
+const withoutPromoterOnly = (scopes) => scopes.filter((s) => !OWNER_AND_PROMOTER_SCOPES.includes(s));
+
 export const PLATFORM_ROLES = Object.freeze({
   OWNER: "owner",
   ADMIN: "admin",
@@ -30,6 +37,7 @@ export const PLATFORM_ROLES = Object.freeze({
   SUPPORT: "support",
   FINANCE: "finance",
   DEVELOPER: "developer",
+  PROMOTER: "promoter",
 });
 
 export const PLATFORM_ROLE_DEFS = Object.freeze([
@@ -43,7 +51,7 @@ export const PLATFORM_ROLE_DEFS = Object.freeze([
     key: PLATFORM_ROLES.ADMIN,
     label: "Admin",
     description: "Everything except permanently deleting stores and promoting owners.",
-    scopes: withoutOwnerOnly(Object.values(S)),
+    scopes: withoutPromoterOnly(withoutOwnerOnly(Object.values(S))),
   },
   {
     key: PLATFORM_ROLES.OPERATIONS,
@@ -58,6 +66,7 @@ export const PLATFORM_ROLE_DEFS = Object.freeze([
       S.QUEUE_RETRY,
       S.AUDIT_READ,
       S.BILLING_READ,
+      S.ANNOUNCEMENTS_SEND,
     ],
   },
   {
@@ -78,6 +87,12 @@ export const PLATFORM_ROLE_DEFS = Object.freeze([
     description: "Read-only inspection plus queues, flags and system health.",
     scopes: [S.SUPPORT_READ, S.QUEUE_RETRY, S.FLAGS_WRITE, S.AUDIT_READ],
   },
+  {
+    key: PLATFORM_ROLES.PROMOTER,
+    label: "Promoter",
+    description: "Creates signup invitation codes and sees only the stores registered with their own codes.",
+    scopes: [S.INVITE_CODES],
+  },
 ]);
 
 export function getRoleDef(key) {
@@ -96,6 +111,7 @@ const ROLE_RANK = Object.freeze({
   [PLATFORM_ROLES.FINANCE]: 50,
   [PLATFORM_ROLES.DEVELOPER]: 50,
   [PLATFORM_ROLES.SUPPORT]: 40,
+  [PLATFORM_ROLES.PROMOTER]: 10,
 });
 
 export function roleRank(role) {
