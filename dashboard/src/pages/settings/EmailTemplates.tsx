@@ -87,6 +87,10 @@ export const EmailTemplates: React.FC = () => {
   if (loading) return <Skeleton className="h-96" />;
 
   const tpl = config.templates[activeStatus] || { enabled: true, subject: '', body: '' };
+  const statusLabel = t(`common:status.${activeStatus}`, { defaultValue: activeStatus });
+  // The placeholders are the email the store sends when the fields are left
+  // empty (services/orderNotifications.js defaults), in the dashboard language.
+  const defaultKey = `settings.email_template.defaults.${activeStatus}`;
 
   return (
     <>
@@ -141,7 +145,7 @@ export const EmailTemplates: React.FC = () => {
           <div className="space-y-4 border rounded-md p-4">
             <FlagRow
               label={t('settings.email_template.send_this_email.label')}
-              description={t('settings.email_template.send_this_email.description', { status: activeStatus })}
+              description={t('settings.email_template.send_this_email.description', { status: statusLabel })}
               checked={tpl.enabled !== false}
               onCheckedChange={v => updateTemplate(activeStatus, { enabled: v })}
             />
@@ -150,7 +154,7 @@ export const EmailTemplates: React.FC = () => {
               <Input
                 value={tpl.subject || ''}
                 onChange={e => updateTemplate(activeStatus, { subject: e.target.value })}
-                placeholder={t('settings.email_template.subject_placeholder', { orderNumber: '{{orderNumber}}', status: activeStatus.toLowerCase() })}
+                placeholder={t(`${defaultKey}.subject`, { skipInterpolation: true })}
               />
             </div>
             <div className="space-y-2">
@@ -159,7 +163,7 @@ export const EmailTemplates: React.FC = () => {
                 rows={10}
                 value={tpl.body || ''}
                 onChange={e => updateTemplate(activeStatus, { body: e.target.value })}
-                placeholder={t('settings.email_template.body_placeholder', { customerName: '{{customerName}}', orderNumber: '{{orderNumber}}', status: activeStatus.toLowerCase() })}
+                placeholder={t(`${defaultKey}.body`, { skipInterpolation: true })}
               />
             </div>
           </div>

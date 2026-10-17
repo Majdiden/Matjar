@@ -341,11 +341,35 @@
     "email_template": {
       "send_this_email": {
         "label": "Send this email",
-        "description": "Sent automatically when an order transitions to \"{{status}}\"."
+        "description": "Sent automatically when an order moves to “{{status}}”."
       },
-      "subject_placeholder": "Your order {{orderNumber}} is {{status}}",
-      "body_placeholder": "Hi {{customerName}},\n\nYour order {{orderNumber}} is now {{status}}.\n\nThanks for shopping with us!",
-      "off_badge": "(off)"
+      "off_badge": "(off)",
+      "defaults": {
+        "Pending": {
+          "subject": "Order {{orderNumber}} received",
+          "body": "Hi {{customerName}},\n\nWe received your order {{orderNumber}} for {{total}}. We'll let you know when it ships.\n\nThanks,\n{{storeName}}"
+        },
+        "Processing": {
+          "subject": "Order {{orderNumber}} is being prepared",
+          "body": "Hi {{customerName}},\n\nYour order {{orderNumber}} is now being prepared for shipment.\n\n{{storeName}}"
+        },
+        "Shipped": {
+          "subject": "Order {{orderNumber}} has shipped",
+          "body": "Hi {{customerName}},\n\nGood news — your order {{orderNumber}} has shipped! Tracking: {{trackingNumber}}.\n\n{{storeName}}"
+        },
+        "Delivered": {
+          "subject": "Order {{orderNumber}} delivered",
+          "body": "Hi {{customerName}},\n\nYour order {{orderNumber}} has been delivered. Enjoy!\n\n{{storeName}}"
+        },
+        "Cancelled": {
+          "subject": "Order {{orderNumber}} cancelled",
+          "body": "Hi {{customerName}},\n\nYour order {{orderNumber}} has been cancelled.\n\n{{storeName}}"
+        },
+        "Refunded": {
+          "subject": "Order {{orderNumber}} refunded",
+          "body": "Hi {{customerName}},\n\nYour order {{orderNumber}} for {{total}} has been refunded.\n\n{{storeName}}"
+        }
+      }
     },
     "toast": {
       "settings_saved": "Settings saved",
