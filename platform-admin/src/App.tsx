@@ -9,6 +9,7 @@ import TenantDetail from './pages/TenantDetail';
 import Plans from './pages/Plans';
 import Queues from './pages/Queues';
 import Incidents from './pages/incidents/Incidents';
+import Announcements from './pages/announcements/Announcements';
 import Features from './pages/Features';
 import PhoneCountries from './pages/PhoneCountries';
 import GlobalConfiguration from './pages/settings/GlobalConfiguration';
@@ -70,6 +71,7 @@ export default function App() {
             <Route path="/settings/global" element={<GlobalConfiguration />} />
             <Route path="/queues" element={<Queues />} />
             <Route path="/incidents" element={<Incidents />} />
+            <Route path="/announcements" element={<Announcements />} />
             <Route path="/commerce" element={<Navigate to="/commerce/orders" replace />} />
             <Route path="/commerce/orders" element={<CommerceOrders />} />
             <Route path="/commerce/products" element={<CommerceProducts />} />

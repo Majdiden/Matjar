@@ -58,6 +58,7 @@ export const PLATFORM_ROLE_DEFS = Object.freeze([
       S.QUEUE_RETRY,
       S.AUDIT_READ,
       S.BILLING_READ,
+      S.ANNOUNCEMENTS_SEND,
     ],
   },
   {

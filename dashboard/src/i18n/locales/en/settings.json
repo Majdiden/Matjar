@@ -314,6 +314,10 @@
       "staff_invite_accepted": {
         "label": "Staff invite accepted",
         "description": "A staff member accepted their invitation."
+      },
+      "platform_announcement": {
+        "label": "Announcements from Matjar",
+        "description": "News and important updates from the Matjar team."
       }
     },
     "notification_channel": {

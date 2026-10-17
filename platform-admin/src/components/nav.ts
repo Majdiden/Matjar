@@ -26,7 +26,7 @@ import {
   BarChart3,
   Users,
   ShieldCheck,
-  ShieldAlert, SlidersHorizontal, Siren, } from 'lucide-react';
+  ShieldAlert, SlidersHorizontal, Siren, Megaphone, } from 'lucide-react';
 import { PLATFORM_SCOPES, type PlatformScope, type PlatformUser } from '../lib/api';
 
 /**
@@ -156,6 +156,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: '/audit', label: 'Audit log', icon: ScrollText, scope: S.AUDIT_READ, ready: true },
       { to: '/queues', label: 'Queues', icon: Layers, scope: S.SUPPORT_READ, ready: true },
       { to: '/incidents', label: 'Incidents', icon: Siren, scope: S.SUPPORT_READ, ready: true },
+      { to: '/announcements', label: 'Notify stores', icon: Megaphone, scope: S.ANNOUNCEMENTS_SEND, ready: true, keywords: 'announcement notification broadcast push email message' },
     ],
   },
   {

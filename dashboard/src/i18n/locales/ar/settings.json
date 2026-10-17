@@ -314,6 +314,10 @@
       "staff_invite_accepted": {
         "label": "قَبِل موظف الدعوة",
         "description": "قبل أحد أعضاء الفريق دعوته."
+      },
+      "platform_announcement": {
+        "label": "إعلانات من Matjar",
+        "description": "أخبار وتحديثات مهمة من فريق Matjar."
       }
     },
     "notification_channel": {

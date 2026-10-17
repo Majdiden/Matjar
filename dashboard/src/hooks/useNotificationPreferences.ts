@@ -13,6 +13,7 @@ export const NOTIFICATION_TYPES = [
   'webhook.failed',
   'domain.verification_failed',
   'staff.invite_accepted',
+  'platform.announcement',
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -33,10 +34,20 @@ const DEFAULT_PREFS_FOR_TYPE: NotificationTypePrefs = {
 
 export { DEFAULT_PREFS_FOR_TYPE };
 
+/**
+ * Per-type exceptions to the defaults. Platform announcements (PBI 10-46) are
+ * rare, so their email copy is on until the merchant switches it off — the
+ * server reads a missing preference the same way
+ * (services/platform/announcements.js).
+ */
+const TYPE_DEFAULTS: Partial<Record<NotificationType, Partial<NotificationTypePrefs>>> = {
+  'platform.announcement': { email: true },
+};
+
 function buildDefaults(): NotificationPreferences {
   const out: NotificationPreferences = {};
   for (const t of NOTIFICATION_TYPES) {
-    out[t] = { ...DEFAULT_PREFS_FOR_TYPE };
+    out[t] = { ...DEFAULT_PREFS_FOR_TYPE, ...TYPE_DEFAULTS[t] };
   }
   return out;
 }

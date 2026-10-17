@@ -15,6 +15,7 @@ import {
   Bell as BellIcon, Package as PackageIcon, CreditCard as CreditCardIcon,
   RotateCcw as RotateCcwIcon, Users as UsersIcon, Globe as GlobeIcon,
   Webhook as WebhookIcon, Box as BoxIcon, AlertTriangle as AlertTriangleIcon,
+  Megaphone as MegaphoneIcon,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -32,6 +33,7 @@ const NOTIFICATION_TYPE_ICONS: Record<NotificationType, React.ElementType> = {
   'webhook.failed': WebhookIcon,
   'domain.verification_failed': GlobeIcon,
   'staff.invite_accepted': UsersIcon,
+  'platform.announcement': MegaphoneIcon,
 };
 
 const NOTIFICATION_TYPE_KEYS: Record<NotificationType, string> = {
@@ -44,6 +46,7 @@ const NOTIFICATION_TYPE_KEYS: Record<NotificationType, string> = {
   'webhook.failed': 'webhook_failed',
   'domain.verification_failed': 'domain_verification_failed',
   'staff.invite_accepted': 'staff_invite_accepted',
+  'platform.announcement': 'platform_announcement',
 };
 
 export const NotificationSettings: React.FC = () => {

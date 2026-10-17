@@ -76,6 +76,8 @@ export const PLATFORM_SCOPES = {
   PAYMENTS_WRITE: 'payments.write',
   TENANT_USERS: 'tenant.users',
   FLAGS_WRITE: 'flags.write',
+  // Send notifications to every store or one store.
+  ANNOUNCEMENTS_SEND: 'announcements.send',
   // Permanently delete stores: owners by role, others only by an owner's grant.
   TENANT_DELETE: 'tenant.delete',
 } as const;

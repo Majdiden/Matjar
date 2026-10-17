@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import i18n, { type TFunction } from 'i18next';
+import { renderNotificationCopy } from '../lib/notification-copy';
 import { api } from '../lib/api-client';
 import {
   playNotificationChime,
@@ -35,6 +37,7 @@ const ES_RETRY_WHILE_POLLING_MS = 60000;
  * │   - webhook.failed                                                  │
  * │   - domain.verification_failed                                      │
  * │   - staff.invite_accepted                                           │
+ * │   - platform.announcement                                           │
  * │                                                                     │
  * │ Contract is pinned by tests/unit/notification-links.test.js against │
  * │ tests/fixtures/notification-link-cases.json on the backend side.    │
@@ -65,6 +68,10 @@ export function resolveNotificationLink(n: NotificationItem): string | null {
       return '/dashboard/settings?tab=domains';
     case 'staff.invite_accepted':
       return '/dashboard/staff';
+    case 'platform.announcement': {
+      const link = typeof n.data?.link === 'string' ? n.data.link : '';
+      return /^\/dashboard(\/|$|\?)/.test(link) ? link : '/dashboard/notifications';
+    }
     default:
       return null;
   }
@@ -222,7 +229,11 @@ export function useNotifications() {
       if (inbox) ctxRef.current.addLocal(n);
       // Always cross-tab broadcast so followers apply their own pref filters.
       broadcast({ type: 'notification', payload: n });
-      if (toast_) toastForSeverity(n.severity, n.title, n.body, `notif-${n._id}`);
+      if (toast_) {
+        // The popup speaks the dashboard language, like the bell and inbox.
+        const copy = renderNotificationCopy(i18n.t.bind(i18n) as TFunction, n);
+        toastForSeverity(n.severity, copy.title, copy.body, `notif-${n._id}`);
+      }
       if (sound) playNotificationChime();
       // NB: no native OS notification here — the service worker push handler
       // is the single source of OS notifications (fired only when no dashboard

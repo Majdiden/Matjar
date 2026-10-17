@@ -18,6 +18,7 @@ export const PLATFORM_SCOPES = Object.freeze({
   TENANT_USERS: "tenant.users", // view/revoke merchant staff access from the console
   FLAGS_WRITE: "flags.write", // feature flags, access programs, overrides
   PAYMENTS_WRITE: "payments.write", // platform payment-method catalog (what merchants may enable)
+  ANNOUNCEMENTS_SEND: "announcements.send", // send notifications to every store or one store
   // Permanently delete a store and all of its data. Held by OWNER only; an
   // owner may grant it to individual staff (config/platformRoles.js →
   // OWNER_ONLY_GRANTS). Never part of any other role.

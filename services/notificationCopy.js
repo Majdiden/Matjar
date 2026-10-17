@@ -31,6 +31,22 @@ import logger from "../utils/logger.js";
 const SUPPORTED = new Set(["en", "ar"]);
 
 /**
+ * Platform announcements (PBI 10-46) carry their own text in both languages
+ * (`data.title` / `data.body` = { ar, en }) instead of a copy template: a
+ * recipient reads their language, else the other one, else the stored copy.
+ */
+export const ANNOUNCEMENT_TYPE = "platform.announcement";
+
+function announcementCopy(n, lang) {
+  const other = lang === "ar" ? "en" : "ar";
+  const pick = (pair, stored) => (pair && (pair[lang] || pair[other])) || stored || "";
+  return {
+    title: pick(n.data?.title, n.title) || "Matjar",
+    body: pick(n.data?.body, n.body),
+  };
+}
+
+/**
  * Normalise an arbitrary language preference to a supported code.
  * Falls through user → tenant → "en". Matches on the leading subtag so
  * "ar-EG" / "en-US" resolve correctly.
@@ -232,6 +248,7 @@ const COPY = {
  */
 export function renderNotificationCopy(notification, language) {
   const lang = pickLanguage(language);
+  if (notification?.type === ANNOUNCEMENT_TYPE) return announcementCopy(notification, lang);
   const table = COPY[lang] || COPY.en;
   const entry = table[notification?.type] || COPY.en[notification?.type];
   if (!entry) {
