@@ -90,6 +90,8 @@ const addressSchema = z.object({
   postalCode: z.string().min(1, "Postal code is required"),
   country: z.string().min(1, "Country is required"),
   phone: z.string().optional(),
+  // Delivery area (shipping zone) picked at checkout; priced by the server.
+  deliveryZoneId: z.string().max(64).optional(),
 });
 
 export const createOrderSchema = z.object({

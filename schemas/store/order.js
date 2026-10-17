@@ -204,6 +204,8 @@ const orderSchema = new Schema({
     // Free-text "leave at door", "call on arrival", gate code, etc.
     // Rendered on the shipping address card and the packing slip.
     deliveryInstructions: String,
+    // Delivery area (shipping zone) the shopper picked; its name is in `state`.
+    deliveryZoneId: String,
   },
   billingAddress: {
     firstName: String,

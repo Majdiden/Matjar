@@ -195,6 +195,9 @@ export async function priceCheckout({ lines, shippingAddress, discountCode, disc
     rateCardShippingCost: Math.round(rateCardShipping * 100) / 100,
     shippingDiscount: Math.round(shippingDiscountAmount * 100) / 100,
     shippingMethod: { name: shippingResult.description || shippingResult.type, price: shippingCost },
+    // Delivery area picked at checkout (zone shipping), or that one is needed.
+    deliveryZone: shippingResult.deliveryZone || null,
+    deliveryZoneMissing: !!shippingResult.deliveryZoneMissing,
     tax: Math.round(taxAmount * 100) / 100,
     taxRate: taxResult.rate || 0,
     taxIncluded: taxResult.included || false,

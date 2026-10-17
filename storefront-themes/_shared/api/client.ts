@@ -84,11 +84,16 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
           })
           .join('; ')
       : '';
-    throw new Error(
+    const error = new Error(
       [data.message || `Request failed: ${res.status}`, details]
         .filter(Boolean)
         .join(' — ')
-    );
+    ) as Error & { code?: string; status?: number };
+    // The server's machine-readable code (e.g. DELIVERY_ZONE_REQUIRED), so a
+    // page can react to a specific failure.
+    if (typeof data.code === 'string') error.code = data.code;
+    error.status = res.status;
+    throw error;
   }
 
   return data;

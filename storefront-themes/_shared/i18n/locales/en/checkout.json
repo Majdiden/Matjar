@@ -39,6 +39,7 @@
         },
         "city": { "label": "City" },
         "state": { "label": "State / Region" },
+        "zone": { "label": "Delivery area", "placeholder": "Choose your delivery area" },
         "postal": { "label": "ZIP / Postal" },
         "country": { "label": "Country" },
         "save_address": "Save this address to my account for next time"
@@ -112,6 +113,7 @@
       "last_name_required": "Last name is required",
       "address_required": "Address is required",
       "city_required": "City is required",
+      "zone_required": "Choose your delivery area",
       "postal_required": "Postal code is required",
       "country_required": "Country is required",
       "phone_required": "Phone is required"

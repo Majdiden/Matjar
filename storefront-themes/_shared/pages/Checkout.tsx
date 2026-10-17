@@ -27,6 +27,8 @@ interface AddressForm {
   state: string;
   postalCode: string;
   country: string;
+  /** Delivery area (shipping zone) picked at checkout; its name goes in `state`. */
+  deliveryZoneId?: string;
 }
 
 interface SavedAddress extends AddressForm {
@@ -245,13 +247,19 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   // Guests quote too: the storefront /checkout/quote endpoint prices anonymous
   // carts via the cart session cookie, so discount validation, shipping and tax
   // all resolve without an account (no `user` requirement here).
+  // Delivery by zone (Settings → Shipping → Zones): the shopper picks their
+  // area from the merchant's zones; the server prices it and the summary's
+  // shipping line shows the price.
+  const deliveryZones = store?.deliveryZones || [];
+  const usesZones = deliveryZones.length > 0;
   const canQuote = useMemo(
     () =>
       !!cart &&
       cart.items.length > 0 &&
       !!shipping.country &&
-      !!shipping.city,
-    [cart, shipping.country, shipping.city]
+      !!shipping.city &&
+      (!usesZones || !!shipping.deliveryZoneId),
+    [cart, shipping.country, shipping.city, usesZones, shipping.deliveryZoneId]
   );
 
   useEffect(() => {
@@ -282,7 +290,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     return () => {
       cancelled = true;
     };
-  }, [canQuote, shipping.addressLine1, shipping.city, shipping.state, shipping.postalCode, shipping.country, appliedDiscount]);
+  }, [canQuote, shipping.addressLine1, shipping.city, shipping.state, shipping.postalCode, shipping.country, shipping.deliveryZoneId, appliedDiscount]);
 
   // ── Handlers ─────────────────────────────────────────────────────
   const setShippingField = (key: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -449,6 +457,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     if (!shipping.addressLine1) return t('checkout.error.address_required');
     if (!shipping.city) return t('checkout.error.city_required');
     if (!shipping.country) return t('checkout.error.country_required');
+    if (usesZones && !shipping.deliveryZoneId) return t('checkout.error.zone_required');
     if (!shipping.phone) return t('checkout.error.phone_required');
     return null;
   };
@@ -531,6 +540,14 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
       await clearCart();
       navigate(`/order-success/${order?._id || ''}`, { state: { order: orderForState } });
     } catch (err: any) {
+      // The delivery area is missing or no longer offered: back to the
+      // shipping step to pick one.
+      if (err?.code === 'DELIVERY_ZONE_REQUIRED') {
+        setShipping((cur) => ({ ...cur, deliveryZoneId: '' }));
+        setStep(2);
+        setError(t('checkout.error.zone_required'));
+        return;
+      }
       setError(err?.message || t('checkout.error.place_order'));
     } finally {
       setSubmitting(false);
@@ -791,10 +808,34 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.city.label')}</label>
                   {renderCityField(shipping.city, shipping.country, (v) => setShippingValue('city', v), true)}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.state.label')}</label>
-                  <input type="text" value={shipping.state} onChange={setShippingField('state')} className={inputClass} style={inputStyle} />
-                </div>
+                {usesZones ? (
+                  <div>
+                    <label htmlFor="shipping-zone" className="block text-sm font-medium mb-1">{t('checkout.field.shipping.zone.label')}</label>
+                    <select
+                      id="shipping-zone"
+                      required
+                      dir="auto"
+                      value={shipping.deliveryZoneId || ''}
+                      onChange={(e) => {
+                        const zone = deliveryZones.find((z) => z.id === e.target.value);
+                        setShipping({ ...shipping, deliveryZoneId: zone?.id || '', state: zone?.name || '' });
+                        setSelectedAddressIdx('new');
+                      }}
+                      className={`${inputClass} bg-white`}
+                      style={inputStyle}
+                    >
+                      <option value="">{t('checkout.field.shipping.zone.placeholder')}</option>
+                      {deliveryZones.map((z) => (
+                        <option key={z.id} value={z.id}>{z.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.state.label')}</label>
+                    <input type="text" value={shipping.state} onChange={setShippingField('state')} className={inputClass} style={inputStyle} />
+                  </div>
+                )}
               </div>
 
               {user && selectedAddressIdx === 'new' && (
