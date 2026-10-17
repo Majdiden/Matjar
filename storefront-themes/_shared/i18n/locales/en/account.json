@@ -86,7 +86,7 @@
           "label": "Address line 1 *"
         },
         "address_line2": {
-          "label": "Address line 2"
+          "label": "Detailed address"
         },
         "city": {
           "label": "City *"
