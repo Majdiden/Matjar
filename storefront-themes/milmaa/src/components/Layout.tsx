@@ -16,6 +16,7 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { WishlistHeaderLink } from '@matjar/theme-shared';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 /**
  * Milmaa Layout — cream background with teal accents.
@@ -93,7 +94,7 @@ const Layout: React.FC = () => {
               style={{ color: DARK_TEAL }}
             >
               {logo && (
-                <img src={logo} alt={brand} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain md:h-12 md:max-w-[160px]" />
+                <StoreLogo src={logo} alt={brand} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain md:h-12 md:max-w-[160px]" />
               )}
               <span
                 className={`font-serif min-w-0 truncate py-[0.12em] [line-height:normal] font-bold tracking-tight ${logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}

@@ -16,6 +16,7 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { WishlistHeaderLink } from '@matjar/theme-shared/components/commerce/WishlistHeaderLink';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 /**
  * Glowing Layout — ultra minimalist cosmetics chrome.
@@ -70,7 +71,7 @@ const Layout: React.FC = () => {
                 overflow clip cut Arabic descenders and marks. */}
             <Link to="/" className="flex items-center gap-2.5 md:gap-3 min-w-0 me-3 text-black">
               {store?.logo && (
-                <img
+                <StoreLogo
                   src={store.logo}
                   alt={store?.name || brand}
                   className="h-10 md:h-12 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md"

@@ -52,3 +52,4 @@ This document lists all tasks associated with PBI 10.
 | 10-42 | [Two-language fields: the UI language first, one language per box](./10-42.md) | Review | Per-language fields always put one language first and mixed which value was which |
 | 10-43 | [Store logo in every theme header; names never clipped; larger footer logo](./10-43.md) | Review | The header showed only the name, cut at the bottom; the footer logo was too small |
 | 10-44 | [Homepage with no products: the hero, then "No products to show yet"](./10-44.md) | Review | Stores without products showed empty product sections |
+| 10-45 | [Store logo clear in every header, sized by its shape](./10-45.md) | Review | A screenshot logo showed as a thin dark strip in the header |

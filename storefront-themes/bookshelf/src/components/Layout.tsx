@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -53,7 +54,7 @@ const Layout: React.FC = () => {
             {/* Logo — sits at the start of the header row */}
             <Link to="/" className="min-w-0 text-xl font-bold text-[var(--brand-ink,#7c3aed)] tracking-tight flex items-center gap-2">
               {store?.logo ? (
-                <img src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
               ) : (
               <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />

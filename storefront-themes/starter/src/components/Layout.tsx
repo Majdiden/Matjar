@@ -14,6 +14,7 @@ import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SocialIcon, WhatsAppIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { useTranslation } from 'react-i18next';
 import { useTopStripText, TOP_STRIP_ANCHOR } from '@matjar/theme-shared/theme/topStrip';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -76,7 +77,7 @@ const Layout: React.FC = () => {
               }}
             >
               {store?.logo && (
-                <img
+                <StoreLogo
                   src={store.logo}
                   alt={store.name || 'Store'}
                   className="h-8 md:h-10 w-auto max-w-[80px] md:max-w-[120px] shrink-0 object-contain rounded-md"

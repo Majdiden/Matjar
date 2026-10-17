@@ -8,6 +8,7 @@ import { type MenuItem } from '../../hooks/useMenu';
 import { useLanguage } from '../../i18n/LanguageProvider';
 import { PolicyLinks } from '../PolicyLinks';
 import { cn } from '../../utils/cn';
+import { StoreLogo } from '../StoreLogo';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -171,10 +172,9 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
         >
           <span className="flex items-center gap-3 min-w-0">
             {!title && store?.logo && (
-              <img
+              <StoreLogo
                 src={store.logo}
                 alt=""
-                aria-hidden="true"
                 className="h-9 w-auto max-w-[96px] shrink-0 object-contain rounded-md"
               />
             )}

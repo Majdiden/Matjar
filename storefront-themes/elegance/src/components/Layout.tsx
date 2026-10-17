@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const Layout: React.FC = () => {
   const { store } = useStore();
@@ -50,7 +51,7 @@ const Layout: React.FC = () => {
                 descenders/marks. */}
             <Link to="/" className="flex items-center gap-2.5 md:gap-3 min-w-0">
               {store?.logo && (
-                <img
+                <StoreLogo
                   src={store.logo}
                   alt={store.name || 'Elegance'}
                   className="h-10 md:h-12 w-auto max-w-[88px] md:max-w-[160px] shrink-0 object-contain rounded-md"

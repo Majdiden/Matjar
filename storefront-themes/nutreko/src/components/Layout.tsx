@@ -16,6 +16,7 @@ import { SearchBar } from '@matjar/theme-shared/components/navigation/SearchBar'
 import { MobileBottomNav } from '@matjar/theme-shared/components/navigation/MobileBottomNav';
 import { MobileMenu } from '@matjar/theme-shared/components/navigation/MobileMenu';
 import { WishlistHeaderLink } from '@matjar/theme-shared';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 /**
  * Nutreko Layout — bold black header with lime accent.
@@ -94,7 +95,7 @@ const Layout: React.FC = () => {
             >
               {logo && (
                 <span className="shrink-0 rounded-lg bg-white p-1">
-                  <img src={logo} alt={storeName} className="block h-8 w-auto max-w-[96px] rounded-md object-contain md:h-10 md:max-w-[150px]" />
+                  <StoreLogo src={logo} alt={storeName} className="block h-8 w-auto max-w-[96px] rounded-md object-contain md:h-10 md:max-w-[150px]" />
                 </span>
               )}
               <span

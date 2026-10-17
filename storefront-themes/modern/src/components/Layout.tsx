@@ -16,6 +16,7 @@ import CartDrawer from '@matjar/theme-shared/components/CartDrawer';
 import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitcher';
 import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SocialIcon, WhatsAppIcon } from '@matjar/theme-shared/components/pages/PageIcon';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 const Layout: React.FC = () => {
   const { t } = useTranslation('theme');
@@ -50,7 +51,7 @@ const Layout: React.FC = () => {
   const renderLogo = (imgCls: string, textCls: string, linkCls = '') => (
     <Link to="/" className={`flex items-center gap-2 md:gap-2.5 min-w-0 ${linkCls}`}>
       {store?.logo && (
-        <img src={store.logo} alt={store.name} className={`${imgCls} w-auto shrink-0 object-contain rounded-md`} />
+        <StoreLogo src={store.logo} alt={store.name} className={`${imgCls} w-auto shrink-0 object-contain rounded-md`} />
       )}
       <span
         className={`block min-w-0 truncate leading-[1.5] py-1 ${textCls}`}

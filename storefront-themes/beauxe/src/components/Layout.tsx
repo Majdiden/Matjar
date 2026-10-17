@@ -16,6 +16,7 @@ import { LanguageSwitcher } from '@matjar/theme-shared/components/LanguageSwitch
 import { useStoreFooter } from '@matjar/theme-shared/hooks/useStoreFooter';
 import { SocialIcon } from '@matjar/theme-shared/components/pages/PageIcon';
 import { WishlistHeaderLink } from '@matjar/theme-shared';
+import { StoreLogo } from '@matjar/theme-shared/components/StoreLogo';
 
 /**
  * Beauxe Layout — navy announcement + pink-accent header.
@@ -116,7 +117,7 @@ const Layout: React.FC = () => {
               style={{ color: NAVY }}
             >
               {logo && (
-                <img src={logo} alt={storeName} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain md:h-12 md:max-w-[160px]" />
+                <StoreLogo src={logo} alt={storeName} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain md:h-12 md:max-w-[160px]" />
               )}
               <span
                 className={`font-serif min-w-0 truncate whitespace-nowrap py-[0.12em] [line-height:normal] tracking-tight ${logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
