@@ -85,7 +85,14 @@ const SectionHead: React.FC<{
  * reads as a layout bug to the merchant, who then can't tell a slow CDN from
  * a wrong URL they pasted.
  */
-const Media: React.FC<{ src?: string; alt?: string; className?: string; eager?: boolean }> = ({ src, alt = '', className = '', eager }) => {
+const Media: React.FC<{
+  src?: string;
+  alt?: string;
+  className?: string;
+  eager?: boolean;
+  style?: React.CSSProperties;
+  onRatio?: (widthOverHeight: number) => void;
+}> = ({ src, alt = '', className = '', eager, style, onRatio }) => {
   const [failed, setFailed] = useState(false);
   if (!src || failed) {
     return (
@@ -94,8 +101,31 @@ const Media: React.FC<{ src?: string; alt?: string; className?: string; eager?: 
       </span>
     );
   }
-  return <img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} onError={() => setFailed(true)} className={className} />;
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading={eager ? 'eager' : 'lazy'}
+      onError={() => setFailed(true)}
+      onLoad={onRatio ? (e) => {
+        const img = e.currentTarget;
+        if (img.naturalWidth && img.naturalHeight) onRatio(img.naturalWidth / img.naturalHeight);
+      } : undefined}
+      className={className}
+      style={style}
+    />
+  );
 };
+
+/**
+ * Hero photo frame on phones: the photo's own shape, between the theme's
+ * 4:5 and a phone screen's 9:16 — a tall poster shows whole, a very tall
+ * image stops at 9:16 and a wide one keeps the 4:5 crop. Desktop stays 4:5.
+ */
+const HERO_RATIO_MIN = 9 / 16;
+const HERO_RATIO_MAX = 4 / 5;
+const heroRatio = (r: number | null | undefined) =>
+  !r || !Number.isFinite(r) ? HERO_RATIO_MAX : Math.min(HERO_RATIO_MAX, Math.max(HERO_RATIO_MIN, r));
 
 /** Internal paths route client-side; anything with a scheme opens out. */
 const Cta: React.FC<{ to?: string; className?: string; children: React.ReactNode }> = ({ to, className, children }) =>
@@ -135,6 +165,8 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
     .filter((b) => b.type === 'slide')
     .filter((b, i) => !(heroPhoto || pendingPhoto) || i === 0 || !isStockImage(b.settings?.image));
   const [idx, setIdx] = useState(0);
+  // Each slide photo's width/height, measured when it loads (phone frame).
+  const [ratios, setRatios] = useState<Record<number, number>>({});
   const [paused, setPaused] = useState(false);
 
   const interval = Number(s.autoplay_interval) || 6000;
@@ -199,7 +231,9 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
                     src={b.image}
                     alt=""
                     eager={i === 0}
-                    className={`aspect-[4/5] w-full object-cover ${active && s.zoom_effect !== false ? 'misk-kenburns' : ''}`}
+                    onRatio={(r) => setRatios((m) => (m[i] === r ? m : { ...m, [i]: r }))}
+                    style={{ '--misk-hero-ar': heroRatio(ratios[i]) } as React.CSSProperties}
+                    className={`aspect-[var(--misk-hero-ar,4/5)] w-full object-cover md:aspect-[4/5] ${active && s.zoom_effect !== false ? 'misk-kenburns' : ''}`}
                   />
                 )}
               </div>
