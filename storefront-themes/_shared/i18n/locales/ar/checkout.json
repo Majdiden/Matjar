@@ -57,6 +57,7 @@
         "state": {
           "label": "الولاية / المنطقة"
         },
+        "zone": { "label": "منطقة التوصيل", "placeholder": "اختر منطقة التوصيل" },
         "postal": {
           "label": "الرمز البريدي"
         },
@@ -134,6 +135,7 @@
       "last_name_required": "الاسم الأخير مطلوب",
       "address_required": "العنوان مطلوب",
       "city_required": "المدينة مطلوبة",
+      "zone_required": "اختر منطقة التوصيل",
       "postal_required": "الرمز البريدي مطلوب",
       "country_required": "الدولة مطلوبة",
       "phone_required": "رقم الهاتف مطلوب"

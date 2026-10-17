@@ -2,6 +2,7 @@ import { isValidEditorPreviewToken } from "./themeCustomization.js";
 import { publicSocialLinks } from "../utils/socialLinks.js";
 import { publicBrand } from "../utils/brandKit.js";
 import { contentHash, publicTrust } from "./generatedPages.js";
+import { publicDeliveryZones } from "./shipping.js";
 
 /**
  * Build the public store payload — the exact object returned as
@@ -123,6 +124,9 @@ export function buildStoreInfo(tenant, options = {}) {
   });
   const autoContact = tenant.settings?.generatedPages?.contact === true;
   const effectiveCustomization = previewTheme ? null : themeCustomization;
+  // Delivery areas the shopper picks from at checkout (zone shipping): names
+  // only, priced by the server. Left out when the store doesn't use zones.
+  const deliveryZones = publicDeliveryZones(tenant.settings?.shipping);
 
   return {
     name: tenant.settings?.storeName || tenant.name,
@@ -166,6 +170,7 @@ export function buildStoreInfo(tenant, options = {}) {
     ...(autoContact && { generatedPages: { contact: true } }),
     // Trust-badge facts from the policy answers (_shared TrustBadges).
     ...(trust && { trust }),
+    ...(deliveryZones.length > 0 && { deliveryZones }),
   };
 }
 

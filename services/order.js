@@ -441,6 +441,19 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
       throw new APIError(quote.discountError, 400);
     }
 
+    // Delivery by zone: the shopper must pick their delivery area, and the
+    // order records the area that was priced (its name in the area field).
+    if (quote.deliveryZoneMissing) {
+      const err = new APIError("Choose your delivery area", 400, [
+        { field: "shippingAddress.deliveryZoneId", message: "Choose your delivery area", code: "DELIVERY_ZONE_REQUIRED" },
+      ]);
+      err.code = "DELIVERY_ZONE_REQUIRED";
+      throw err;
+    }
+    const orderShippingAddress = quote.deliveryZone
+      ? { ...shippingAddress, state: quote.deliveryZone.name, deliveryZoneId: quote.deliveryZone.id }
+      : shippingAddress;
+
     // ── Gift card pre-validation ────────────────────────────────
     // Coverage is now per-card (card.coverShipping / card.coverTax) rather
     // than tenant-wide. Base coverage is always goods (subtotal - product
@@ -797,8 +810,8 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
               marketCode: quote.marketCode,
             }
           : {}),
-        shippingAddress,
-        billingAddress: billingAddress || shippingAddress,
+        shippingAddress: orderShippingAddress,
+        billingAddress: billingAddress || orderShippingAddress,
         paymentMethod: resolvedPaymentLabel,
         paymentMethodCode: resolvedPaymentMethodCode,
         paymentDetails: sanitizedPaymentDetails,
