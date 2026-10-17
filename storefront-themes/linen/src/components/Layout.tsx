@@ -35,7 +35,9 @@ const Layout: React.FC = () => {
   // Merchant copy wins; otherwise the theme's translations supply the demo
   // strings, so a fresh install reads in the shopper's language.
   const msg = (v: string | undefined, key: string) => (v && v.trim()) || t(key, { defaultValue: '' });
-  const popular = msg(useThemeSetting<string>('popular_searches'), 'theme.search.popular_defaults')
+  // The merchant's own list only: made-up "most searched" terms would
+  // name products the store may not sell.
+  const popular = (useThemeSetting<string>('popular_searches') || '')
     .split(/[,،]/).map((s) => s.trim()).filter(Boolean);
   const promo = {
     image: useThemeSetting<string>('mega_image'),

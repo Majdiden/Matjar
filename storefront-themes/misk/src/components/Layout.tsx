@@ -56,7 +56,9 @@ const Layout: React.FC = () => {
   const announceBg = useThemeSetting<string>('announcement_background');
   const announceColor = useThemeSetting<string>('announcement_color');
 
-  const popular = msg(useThemeSetting<string>('popular_searches'), 'theme.search.popular_defaults')
+  // The merchant's own list only: made-up "most searched" terms would
+  // name products the store may not sell.
+  const popular = (useThemeSetting<string>('popular_searches') || '')
     .split(/[,،]/).map((s) => s.trim()).filter(Boolean);
   const showPopular = useThemeSetting<boolean>('show_search_popular') !== false;
   const searchImage = useThemeSetting<string>('search_image');

@@ -11,6 +11,12 @@
       "unread": "غير مقروء",
       "unread_count": "{{count}} غير مقروء"
     },
+    "severity": {
+      "info": "معلومة",
+      "success": "تم",
+      "warning": "تنبيه",
+      "error": "مشكلة"
+    },
     "test": {
       "title": "إشعار تجريبي",
       "description": "تعمل قنوات التطبيق والصوت والنظام."

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   AlertTriangle,
   Bell,
@@ -57,6 +58,14 @@ function severityBadgeVariant(sev: string): 'default' | 'secondary' | 'destructi
   if (sev === 'success') return 'secondary';
   return 'default';
 }
+
+/** The notification kind in the dashboard language ("New orders"), or '' when it has no name. */
+function typeLabel(t: TFunction, i18n: { exists: (key: string) => boolean }, type: string): string {
+  const key = `settings:settings.notification_type.${type.replace(/\./g, '_')}.label`;
+  return i18n.exists(key) ? t(key) : '';
+}
+
+const SEVERITIES = ['info', 'success', 'warning', 'error'];
 
 function isUnread(n: NotificationItem): boolean {
   const me = localStorage.getItem('userId') || '';
@@ -156,6 +165,8 @@ export default function Notifications() {
                 const unread = isUnread(n);
                 const link = resolveNotificationLink(n);
                 const { title, body } = renderNotificationCopy(t, n);
+                const kind = typeLabel(t, i18n, n.type);
+                const severity = SEVERITIES.includes(n.severity) ? n.severity : 'info';
                 return (
                   <div
                     key={n._id}
@@ -180,8 +191,8 @@ export default function Notifications() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{title}</span>
                         {unread && <Badge className="text-[10px]">{t('notifications.badge.unread')}</Badge>}
-                        <Badge variant={severityBadgeVariant(n.severity)} className="text-[10px] capitalize">
-                          {n.severity}
+                        <Badge variant={severityBadgeVariant(n.severity)} className="text-[10px]">
+                          {t(`notifications.severity.${severity}`)}
                         </Badge>
                       </div>
                       {body && (
@@ -191,7 +202,7 @@ export default function Notifications() {
                       )}
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         <span>{relativeTime(n.createdAt, i18n.language)}</span>
-                        <span>{n.type}</span>
+                        {kind && <span>{kind}</span>}
                         {link && <span>{t('notifications.action.click_to_open')}</span>}
                       </div>
                     </button>

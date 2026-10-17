@@ -1,0 +1,15 @@
+/*
+ * iPhone Safari zooms the page in when a field whose text is smaller than
+ * 16px gets focus, and leaves it zoomed: shoppers then have to pinch out to
+ * see the page again. On touch screens and phone widths every text field
+ * gets at least 16px text. `!important` because themes size fields with
+ * utility classes (text-sm), which an element selector would not override.
+ * Pinch-zoom stays allowed (no maximum-scale in the viewport tag).
+ */
+@media (pointer: coarse), (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']):not([type='submit']):not([type='button']),
+  select,
+  textarea {
+    font-size: max(16px, 1em) !important;
+  }
+}

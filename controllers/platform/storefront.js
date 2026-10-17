@@ -119,6 +119,22 @@ export const themeCategoryUpdate = asyncHandler(async (req, res) => {
   res.json({ success: true, data: row });
 });
 
+/** POST /theme-categories/:key/image — multipart "image"; shown instead of the icon. */
+export const themeCategoryImage = asyncHandler(async (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, message: "No image provided" });
+  const uploaded = await uploadImage(req.file.buffer, "platform", "logo");
+  const { before, after, row } = await updateThemeCategory(req.params.key, { image: uploaded.url }, req.platformUser);
+  await recordPlatformAudit(req, {
+    action: "theme_category.update",
+    resourceType: "ThemeCategory",
+    resourceId: req.params.key,
+    before: { image: before.image },
+    after: { image: after.image },
+    metadata: { fields: ["image"] },
+  });
+  res.json({ success: true, data: row });
+});
+
 export const themeCategoryReorder = asyncHandler(async (req, res) => {
   const { before, after } = await reorderThemeCategories(req.body.keys, req.platformUser);
   await recordPlatformAudit(req, {

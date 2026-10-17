@@ -26,15 +26,14 @@
     },
     "search": {
       "title": "Search",
-      "placeholder": "Which scent are you after?",
+      "placeholder": "What are you looking for?",
       "submit": "Search",
       "close": "Close search",
       "popular": "Most searched",
       "searching": "Searching…",
       "none": "No results for “{{term}}”.",
       "see_all": "See all results ({{count}})",
-      "hint": "Type at least three letters to see suggestions.",
-      "popular_defaults": "Musk, Oud, Rose, Amber, Saffron"
+      "hint": "Type at least three letters to see suggestions."
     },
     "mega": {
       "eyebrow": "This season's release",

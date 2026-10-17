@@ -749,7 +749,8 @@ const AddressesTab: React.FC<{
               <label className={fieldLabel}>{t('account.address.field.address_line2.label')}</label>
               <textarea
                 rows={3}
-                dir="auto"
+                // Follows the page until typed (empty "auto" is left-to-right).
+                dir={editing.addressLine2 ? 'auto' : undefined}
                 className={`${inputCls} resize-y`}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
                 value={editing.addressLine2 || ''}

@@ -1,15 +1,54 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
 import { sharedResources } from './resources'
 
 const STORAGE_KEY = 'matjar.storefront.lang'
 
+export type StoreLang = 'en' | 'ar'
+/** A store with no language set opens in Arabic. */
+export const DEFAULT_STORE_LANG: StoreLang = 'ar'
+
+const asLang = (v: unknown): StoreLang | null => (v === 'ar' || v === 'en' ? v : null)
+
+/** The store's language from the payload embedded in the page (storefrontServe). */
+const embeddedStoreLang = (): StoreLang | null => {
+  try {
+    const raw = document.getElementById('__MATJAR_STORE__')?.textContent
+    return raw ? asLang(JSON.parse(raw)?.language) : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The language the shopper picked during this visit: the switcher, or a link
+ * ending in ?lang=en / ?lang=ar (which then sticks for the visit). Kept per
+ * tab session, so every new visit to the store link opens in the store's
+ * language rather than whatever was picked last time.
+ */
+export const readShopperLang = (): StoreLang | null => {
+  try {
+    const fromUrl = asLang(new URLSearchParams(window.location.search).get('lang'))
+    if (fromUrl) sessionStorage.setItem(STORAGE_KEY, fromUrl)
+    return fromUrl || asLang(sessionStorage.getItem(STORAGE_KEY))
+  } catch {
+    return null
+  }
+}
+
+export const saveShopperLang = (lang: StoreLang) => {
+  try { sessionStorage.setItem(STORAGE_KEY, lang) } catch { /* storage unavailable */ }
+}
+
+/** Opening language: the shopper's pick this visit → the store's language → Arabic. */
+const initialLang = (): StoreLang =>
+  (typeof window === 'undefined' ? null : readShopperLang() || embeddedStoreLang()) || DEFAULT_STORE_LANG
+
 if (!i18n.isInitialized) {
   void i18n
-    .use(LanguageDetector)
     .use(initReactI18next)
     .init({
+      lng: initialLang(),
       resources: sharedResources,
       fallbackLng: 'en',
       supportedLngs: ['en', 'ar'],
@@ -22,11 +61,6 @@ if (!i18n.isInitialized) {
       ns: [...Object.keys(sharedResources.en), 'theme'],
       defaultNS: 'common',
       interpolation: { escapeValue: false },
-      detection: {
-        order: ['localStorage', 'navigator'],
-        lookupLocalStorage: STORAGE_KEY,
-        caches: ['localStorage'],
-      },
       returnEmptyString: false,
       returnNull: false,
     })

@@ -205,7 +205,12 @@ function CompareFloatingBar() {
   const { items, open, clear } = useCompare();
 
   return (
-    <div className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:start-1/2 sm:-translate-x-1/2 rtl:sm:translate-x-1/2 z-40 mx-auto w-auto sm:w-max max-w-[640px]">
+    // Above the phone bottom menu when there is one (--mbn-space, set by
+    // MobileBottomNav), else 1rem from the bottom.
+    <div
+      className="fixed inset-x-4 sm:inset-x-auto sm:start-1/2 sm:-translate-x-1/2 rtl:sm:translate-x-1/2 z-40 mx-auto w-auto sm:w-max max-w-[640px]"
+      style={{ bottom: 'calc(var(--mbn-space, 0px) + 1rem)' }}
+    >
       <div className="flex items-center gap-3 sm:gap-4 bg-[var(--color-background,#fff)] border border-[var(--color-border,#e5e7eb)] shadow-[var(--shadow-xl)] rounded-[var(--radius-pill,9999px)] px-3 sm:px-5 py-2.5">
         <div className="flex -space-x-2 shrink-0">
           {items.map(p => (

@@ -31,6 +31,10 @@ import { enqueueDomainVerification } from "../services/jobs/index.js";
 import logger from "../utils/logger.js";
 import mongoose from "mongoose";
 import config from "../config/index.js";
+import { suggestSubdomains } from "../services/subdomainSuggestions.js";
+
+/** Longest store name the link suggestions accept. */
+const SUGGEST_NAME_MAX_LENGTH = 100;
 
 /**
  * Resolve the tenant id for the current request. Throws 401 if the
@@ -55,6 +59,15 @@ export const checkSubdomainAvailability = asyncHandler(async (req, res) => {
   }
   const result = await checkSubdomainAvailabilityService(subdomain);
   res.json({ success: true, data: result });
+});
+
+/** GET /api/domains/suggest-subdomains?name= — Public */
+export const suggestSubdomainsHandler = asyncHandler(async (req, res) => {
+  const name = typeof req.query.name === "string" ? req.query.name.trim() : "";
+  if (!name || name.length > SUGGEST_NAME_MAX_LENGTH) {
+    return res.status(400).json({ success: false, message: `name is required (at most ${SUGGEST_NAME_MAX_LENGTH} characters)` });
+  }
+  res.json({ success: true, data: { suggestions: await suggestSubdomains(name) } });
 });
 
 /** PATCH /api/domains/subdomain — Private */
@@ -297,7 +310,9 @@ export const getDomainInfo = asyncHandler(async (req, res) => {
     return r;
   });
 
-  res.json({ success: true, data: { ...info, registry } });
+  // The store name lets the link-change dialog suggest short links.
+  const storeName = tenant.settings?.storeName || tenant.name || "";
+  res.json({ success: true, data: { ...info, registry, storeName } });
 });
 
 /** GET /api/domains/dns-check — Private */

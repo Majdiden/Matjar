@@ -62,7 +62,7 @@ export const MobileDrawer: React.FC<Props> = ({ open, onClose, items, fallback, 
         role="dialog"
         aria-modal={open ? 'true' : undefined}
         aria-label={t('theme.nav.menu')}
-        className={`misk-drawer absolute inset-y-0 end-0 flex w-[88vw] max-w-sm flex-col bg-white outline-none ${open ? 'translate-x-0' : 'ltr:translate-x-full rtl:-translate-x-full'}`}
+        className={`misk-drawer absolute inset-y-0 start-0 flex w-[88vw] max-w-sm flex-col bg-white outline-none ${open ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'}`}
       >
         <div className="flex items-center justify-between border-b border-line px-4 py-3">
           {level ? (

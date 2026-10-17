@@ -130,6 +130,9 @@ export function buildStoreInfo(tenant, options = {}) {
 
   return {
     name: tenant.settings?.storeName || tenant.name,
+    // The storefront opens in the store's language (Settings → Regional);
+    // a store without one opens in Arabic.
+    language: tenant.settings?.language === "en" ? "en" : "ar",
     description: tenant.settings?.storeDescription || "",
     logo: tenant.settings?.logo || null,
     favicon: tenant.settings?.favicon || null,

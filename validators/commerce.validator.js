@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { THEME_CATEGORY_ICONS } from "../config/themeCategories.js";
 
 /**
  * Zod schemas for the platform-admin cross-store commerce search and the
@@ -129,7 +130,13 @@ const categoryName = z.object({
   ar: z.string().trim().min(1, "Arabic name is required").max(60),
 }).strict();
 const categoryAliases = z.array(z.string().trim().toLowerCase().regex(/^[a-z0-9-]{1,32}$/)).max(20);
-const categoryIcon = z.string().trim().max(40).regex(/^[A-Za-z0-9]*$/, "Icon must be a Lucide icon name");
+const categoryIcon = z
+  .string()
+  .trim()
+  .refine((v) => v === "" || THEME_CATEGORY_ICONS.includes(v), "Pick one of the offered icons");
+// The picture is set by uploading (POST /theme-categories/:key/image); a
+// PATCH can only clear it.
+const categoryImage = z.literal("");
 
 export const themeCategoryCreateSchema = z.object({
   body: z.object({
@@ -147,11 +154,16 @@ export const themeCategoryUpdateSchema = z.object({
   body: z.object({
     name: z.object({ en: categoryName.shape.en.optional(), ar: categoryName.shape.ar.optional() }).strict().optional(),
     icon: categoryIcon.optional(),
+    image: categoryImage.optional(),
     aliases: categoryAliases.optional(),
     active: z.boolean().optional(),
     order: z.number().int().min(0).max(10000).optional(),
     reason: reason.optional(),
   }).strict().refine((b) => Object.keys(b).some((k) => k !== "reason"), { message: "Nothing to update" }),
+});
+
+export const themeCategoryKeySchema = z.object({
+  params: z.object({ key: categoryKeyParam }),
 });
 
 export const themeCategoryOrderSchema = z.object({

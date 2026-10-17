@@ -6,6 +6,7 @@
 import express from "express";
 import {
   checkSubdomainAvailability,
+  suggestSubdomainsHandler,
   updateSubdomain,
   checkCustomDomainAvailability,
   addCustomDomain,
@@ -38,6 +39,14 @@ router.use(optionalAuth);
  * @example GET /api/domains/check-subdomain?subdomain=mystore
  */
 router.get("/check-subdomain", domainCheckLimiter, checkSubdomainAvailability);
+
+/**
+ * @route   GET /api/domains/suggest-subdomains
+ * @desc    Short, free store links built from a store name (signup, link change)
+ * @access  Public
+ * @example GET /api/domains/suggest-subdomains?name=بيتنا أصل العطور
+ */
+router.get("/suggest-subdomains", domainCheckLimiter, suggestSubdomainsHandler);
 
 /**
  * @route   GET /api/domains/check-custom-domain

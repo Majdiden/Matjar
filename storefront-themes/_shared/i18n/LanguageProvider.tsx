@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import i18nInstance, { STORAGE_KEY_LANG } from './index'
+import i18nInstance, { saveShopperLang } from './index'
 
 type Lang = 'en' | 'ar'
 type Dir = 'ltr' | 'rtl'
@@ -17,22 +17,10 @@ const LanguageContext = createContext<LanguageContextValue>({
   dir: 'ltr',
 })
 
-// i18next's LanguageDetector runs synchronously during init, so by the time
-// this provider mounts `i18nInstance.language` reflects the resolved choice
-// (stored preference → navigator language → fallback). Reading from there
-// keeps the provider state aligned with what i18next actually loaded; reading
-// only localStorage misses the navigator path used on first visit.
-const resolveInitialLang = (): Lang => {
-  const detected = i18nInstance.language || ''
-  if (detected.startsWith('ar')) return 'ar'
-  if (detected.startsWith('en')) return 'en'
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY_LANG)
-    return stored === 'ar' ? 'ar' : 'en'
-  } catch {
-    return 'en'
-  }
-}
+// i18next starts in the opening language (./index → initialLang: the
+// shopper's pick this visit, else the store's language, else Arabic), so the
+// provider starts from whatever i18next loaded.
+const resolveInitialLang = (): Lang => ((i18nInstance.language || '').startsWith('en') ? 'en' : 'ar')
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation()
@@ -86,7 +74,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [i18n])
 
   const setLang = (newLang: Lang) => {
-    try { localStorage.setItem(STORAGE_KEY_LANG, newLang) } catch { /* storage unavailable */ }
+    saveShopperLang(newLang)
     void i18n.changeLanguage(newLang)
   }
 

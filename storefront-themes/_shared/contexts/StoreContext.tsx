@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { storefrontApi } from '../api/client';
+import i18n, { readShopperLang } from '../i18n';
 import type { BrandKit, GeneratedPages, StoreTrust } from '../types/commerce';
 
 export interface StoreInfo {
   name: string;
+  /** The store's language (Settings → Regional): the storefront opens in it. */
+  language?: 'ar' | 'en';
   description?: string;
   logo?: string;
   favicon?: string;
@@ -108,7 +111,13 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const refresh = React.useCallback(async () => {
     try {
       const res = await storefrontApi.getStoreInfo();
-      setStore(res.data?.store || null);
+      const next = res.data?.store || null;
+      setStore(next);
+      // Without the embedded payload the page opened in Arabic: switch to the
+      // store's language once it is known, unless the shopper picked one.
+      if (!EMBEDDED_STORE && next?.language && !readShopperLang() && !i18n.language?.startsWith(next.language)) {
+        void i18n.changeLanguage(next.language);
+      }
     } catch {
       // keep stale store on failure
     } finally {

@@ -13,6 +13,8 @@ export interface ThemeCategoryInfo {
   labelAr?: string;
   /** Lucide icon name, may be empty. */
   icon?: string;
+  /** Uploaded picture shown instead of the icon, may be empty. */
+  image?: string;
   /** Themes in the category (library: `count`, signup endpoint: `themeCount`). */
   count?: number;
   themeCount?: number;

@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { normaliseThemeCategories, summariseThemeCategories, THEME_CATEGORIES, defaultThemeCategoryDocs, resolveThemeCategoryKeys } from "../../config/themeCategories.js";
+import fs from "node:fs";
+import { normaliseThemeCategories, summariseThemeCategories, THEME_CATEGORIES, THEME_CATEGORY_ICONS, defaultThemeCategoryDocs, resolveThemeCategoryKeys } from "../../config/themeCategories.js";
 import { STORE_NICHES } from "../../config/storeNiches.js";
 import { deriveCategoryKeys } from "../../migrations/017_seed_theme_categories.js";
 
@@ -49,5 +50,17 @@ describe("theme categories", () => {
     for (const raw of [["cosmetics", "beauty"], ["supplements", "fitness"], ["kids", "general"], [], ["weird"]]) {
       assert.deepEqual(deriveCategoryKeys(raw, cats), normaliseThemeCategories(raw, cats), JSON.stringify(raw));
     }
+  });
+
+  it("the icon list matches the console picker and signup", () => {
+    // Both apps declare the map as `CATEGORY_ICONS ... = { A, B, ... };`.
+    const namesIn = (file) => {
+      const src = fs.readFileSync(new URL(file, import.meta.url), "utf8");
+      const body = src.match(/export const CATEGORY_ICONS[^=]*=\s*\{([^}]*)\}/)[1];
+      return body.split(",").map((n) => n.trim()).filter(Boolean);
+    };
+    assert.deepEqual(namesIn("../../platform-admin/src/pages/storefront/categoryIcons.tsx"), [...THEME_CATEGORY_ICONS]);
+    assert.deepEqual(namesIn("../../dashboard/src/lib/categoryIcons.ts"), [...THEME_CATEGORY_ICONS]);
+    for (const c of THEME_CATEGORIES) assert.ok(THEME_CATEGORY_ICONS.includes(c.icon), `${c.key}: ${c.icon}`);
   });
 });
