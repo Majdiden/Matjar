@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { storefrontApi } from '../api/client';
 import { useLanguage } from '../i18n/LanguageProvider';
+import { isolateBidi } from '../utils/bidi';
 
 /**
  * Resolve a category's display name for the active language. The base `name` is
@@ -9,8 +10,9 @@ import { useLanguage } from '../i18n/LanguageProvider';
  * changes — every consumer of `cat.name` gets the localized value for free.
  */
 export function localizeCategory(cat: any, lang: string): any {
-  const localized = cat?.translations?.[lang]?.name;
-  return localized ? { ...cat, name: localized } : cat;
+  if (!cat) return cat;
+  const name = isolateBidi(cat.translations?.[lang]?.name || cat.name);
+  return name === cat.name ? cat : { ...cat, name };
 }
 
 /**
@@ -48,8 +50,9 @@ export function localizeProduct(p: any, lang: string): any {
     const raw = p.contentSections[i];
     return raw && (raw.title !== s.title || raw.body !== s.body);
   });
-  if (!tr && !sectionsChanged) return p;
-  const name = tr?.name || p.name;
+  // Names read in their own direction in any page (utils/bidi.ts).
+  const name = isolateBidi(tr?.name || p?.name);
+  if (!tr && !sectionsChanged) return name === p?.name ? p : { ...p, name };
   const description = tr?.description || p.description;
   const shortDescription = tr?.shortDescription || p.shortDescription;
   if (!sectionsChanged && name === p.name && description === p.description && shortDescription === p.shortDescription) {
