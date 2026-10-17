@@ -279,10 +279,10 @@ const ProductDetailExtras: React.FC<ProductDetailExtrasProps> = (props) => {
           {tab === 'description' && (
             <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
               {product.shortDescription && (
-                <p className="text-base text-gray-900 font-medium mb-4">{product.shortDescription}</p>
+                <p dir="auto" className="text-base text-gray-900 font-medium mb-4">{product.shortDescription}</p>
               )}
               {product.description ? (
-                <div className="whitespace-pre-line">{product.description}</div>
+                <div dir="auto" className="whitespace-pre-line">{product.description}</div>
               ) : (
                 <p className="text-gray-500">{t('description.no_description')}</p>
               )}

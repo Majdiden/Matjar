@@ -150,7 +150,7 @@ export const MiskProductCard: React.FC<Props> = ({
           <span className={onSale ? 'font-bold text-ink' : 'text-ink'}>{formatPrice(product.price)}</span>
           {onSale && <s className="misk-strike text-muted">{formatPrice(product.compareAtPrice)}</s>}
         </p>
-        {list && product.shortDescription && <p className="mt-3 line-clamp-3 text-sm text-muted">{product.shortDescription}</p>}
+        {list && product.shortDescription && <p dir="auto" className="mt-3 line-clamp-3 text-sm text-muted">{product.shortDescription}</p>}
         {list && (
           <button type="button" onClick={add} disabled={!hasOptions && !canAdd} className="misk-btn misk-btn-solid mt-4 self-start">{cta}</button>
         )}

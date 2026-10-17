@@ -268,7 +268,7 @@ export const Collection: React.FC<Props> = ({ categorySlug, collectionHandle, ti
             <span className="mx-2" aria-hidden>·</span>
             <span>{title}</span>
           </nav>
-          {description && <p className="mx-auto mt-3 max-w-xl text-white/85">{description}</p>}
+          {description && <p dir="auto" className="mx-auto mt-3 max-w-xl text-white/85">{description}</p>}
 
           {showChips && categories.length > 0 && (
             <ul className="misk-rail misk-snap misk-snap-3 mt-8 justify-center md:mx-0 md:flex md:flex-wrap md:gap-6 md:overflow-visible md:p-0">

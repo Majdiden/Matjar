@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useProduct, productContentSections } from '@matjar/theme-shared/hooks/useProducts';
+import { useProduct, useProducts, productContentSections } from '@matjar/theme-shared/hooks/useProducts';
 import { useStore } from '@matjar/theme-shared/contexts/StoreContext';
 import { useCart } from '@matjar/theme-shared/contexts/CartContext';
 import { useWishlist } from '@matjar/theme-shared/hooks/useWishlist';
@@ -111,11 +111,24 @@ const ProductDetail: React.FC = () => {
   useEffect(() => {
     if (!product?._id) return;
     setRecent((list) => {
-      const entry = { _id: product._id, name: product.name, slug: product.slug, price: product.price, compareAtPrice: product.compareAtPrice, images: product.images };
+      // Only the id matters (the rail loads the product live); the rest keeps
+      // older entries readable.
+      const entry = { _id: product._id, slug: product.slug };
       return [entry, ...(list || []).filter((p) => p && p._id !== product._id)].slice(0, RECENT_MAX);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?._id]);
+
+  // The rail shows the products as they are now (stock, price, name in the
+  // shopper's language): only ids come from this browser's history.
+  const recentIds = (recent || [])
+    .filter((p) => p && p._id && p._id !== product?._id)
+    .slice(0, 4)
+    .map((p) => p._id as string);
+  const { products: recentLive } = useProducts({ ids: recentIds.join(',') || 'none', limit: 4 });
+  const recentShown = recentIds
+    .map((id) => recentLive.find((p: any) => p._id === id))
+    .filter(Boolean);
 
   if (loading) {
     return (
@@ -155,7 +168,6 @@ const ProductDetail: React.FC = () => {
   // product template already carries the policies section, it shows them.
   const policiesInTemplate = productSections.some((sec) => sec.type === 'product-policies');
   const shopPolicies = policiesInTemplate ? [] : publishedPolicies(store, t).filter((p) => p.key === 'delivery' || p.key === 'returns');
-  const recentList = (recent || []).filter((p) => p && p._id !== product._id);
 
   const add = async () => {
     if (!canAdd) return;
@@ -289,7 +301,7 @@ const ProductDetail: React.FC = () => {
               {onSale && showSave && <span className="rounded-full bg-sale px-3 py-1 text-xs font-bold text-white">{t('theme.product.save', { percent: savePct })}</span>}
             </p>
 
-            {product.shortDescription && <p className="mt-4 border-t border-line pt-4 text-muted">{product.shortDescription}</p>}
+            {product.shortDescription && <p dir="auto" className="mt-4 border-t border-line pt-4 text-muted">{product.shortDescription}</p>}
 
             {hasOptions && (
               <div className="mt-8">
@@ -397,12 +409,12 @@ const ProductDetail: React.FC = () => {
           </Reveal>
         )}
 
-        {showRecent && recentList.length > 0 && (
+        {showRecent && recentShown.length > 0 && (
           <Reveal className="mt-20">
             <div className="mb-8 text-center">
               <h2 className="font-display text-3xl text-ink">{t('theme.product.recently_viewed')}</h2>
             </div>
-            <ProductRail columns={4}>{recentList.slice(0, 4).map((p: any) => <MiskProductCard key={p._id} product={p} showRating={false} />)}</ProductRail>
+            <ProductRail columns={4}>{recentShown.map((p: any) => <MiskProductCard key={p._id} product={p} showRating={false} />)}</ProductRail>
           </Reveal>
         )}
       </div>

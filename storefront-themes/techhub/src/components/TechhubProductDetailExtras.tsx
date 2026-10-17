@@ -264,7 +264,7 @@ const TechhubProductDetailExtras: React.FC<ProductDetailExtrasProps> = ({
         {tab === 'description' && (
           <div className="max-w-3xl whitespace-pre-line">
             {product.shortDescription && (
-              <p className="text-base font-semibold mb-4" style={{ color: 'var(--color-foreground)' }}>
+              <p dir="auto" className="text-base font-semibold mb-4" style={{ color: 'var(--color-foreground)' }}>
                 {product.shortDescription}
               </p>
             )}

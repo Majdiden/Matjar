@@ -247,7 +247,7 @@ const ProductDetail: React.FC = () => {
             )}
 
             {product.shortDescription && (
-              <p className="text-sm leading-relaxed mb-8" style={{ color: NAVY, opacity: 0.8 }}>
+              <p dir="auto" className="text-sm leading-relaxed mb-8" style={{ color: NAVY, opacity: 0.8 }}>
                 {product.shortDescription}
               </p>
             )}

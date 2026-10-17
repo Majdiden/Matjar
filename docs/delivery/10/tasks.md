@@ -56,3 +56,4 @@ This document lists all tasks associated with PBI 10.
 | 10-46 | [Platform notifications to every store or one store](./10-46.md) | Review | The platform had no way to tell merchants about news or problems |
 | 10-47 | [Beta invitation codes, the Promoter role and the signup lock](./10-47.md) | Review | The beta needed invite-only signup and promoters who hand out codes |
 | 10-48 | [Storefront on phones: clear product photos, readable store name and logo, working contact details](./10-48.md) | Review | A new store showed scrambled hours, covered photos, a cut name and a small logo |
+| 10-49 | [Live-store fixes: recently viewed, descriptions, cart drawer, Misk phone header, detailed address in orders](./10-49.md) | Review | Recently viewed showed sold out; descriptions flipped numbers; the sticky bar covered checkout |

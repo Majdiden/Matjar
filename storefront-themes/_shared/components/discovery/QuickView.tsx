@@ -298,7 +298,7 @@ export function QuickView(props: QuickViewProps) {
 
             {/* Short description */}
             {product.shortDescription && (
-              <p className="text-sm text-[var(--color-muted,#6b7280)] mb-5 leading-relaxed line-clamp-4">
+              <p dir="auto" className="text-sm text-[var(--color-muted,#6b7280)] mb-5 leading-relaxed line-clamp-4">
                 {product.shortDescription}
               </p>
             )}

@@ -68,13 +68,13 @@ export const ProductDetailsSection: React.FC<SectionComponentProps> = ({ id }) =
 
       {hasDescription && (
         looksHtml ? (
-          <div
-            className="prose max-w-none leading-relaxed"
+          <div dir="auto"
+            className="prose max-w-none leading-relaxed [&_:is(p,li,h1,h2,h3,h4,blockquote)]:[unicode-bidi:plaintext]"
             style={{ color: 'var(--color-foreground)' }}
             dangerouslySetInnerHTML={{ __html: description }}
           />
         ) : (
-          <p className="leading-relaxed whitespace-pre-line" style={{ opacity: 0.9 }}>
+          <p dir="auto" className="leading-relaxed whitespace-pre-line" style={{ opacity: 0.9 }}>
             {description}
           </p>
         )

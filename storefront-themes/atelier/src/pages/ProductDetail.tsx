@@ -303,7 +303,7 @@ const ProductDetail: React.FC = () => {
         <span className="text-[#6b6b6b]">{t('theme.product_detail.available')}</span>
         {inStock ? <span className="flex items-center gap-1 text-[color:var(--atelier-success)]"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>{pre.mode === 'preorder' ? t('theme.card.preorder') : t('theme.card.in_stock')}</span> : <span className="text-[#8f8f8f]">{t('theme.card.sold_out')}</span>}
       </p>
-      {product.shortDescription && <p className="mt-4 text-[15px] leading-[1.7] text-[#4a4a4a]">{product.shortDescription}</p>}
+      {product.shortDescription && <p dir="auto" className="mt-4 text-[15px] leading-[1.7] text-[#4a4a4a]">{product.shortDescription}</p>}
       <dl className="mt-4 space-y-1 text-[12px]">
         {(activeVariant?.sku || product.sku) && <div className="flex gap-2"><dt className="font-extrabold uppercase tracking-wider text-[#6b6b6b]">{t('theme.product_detail.sku')}</dt><dd>{activeVariant?.sku || product.sku}</dd></div>}
         {Array.isArray(product.tags) && product.tags.length > 0 && <div className="flex gap-2"><dt className="font-extrabold uppercase tracking-wider text-[#6b6b6b]">{t('theme.product_detail.tags')}</dt><dd className="flex flex-wrap gap-1">{product.tags.map((tg: string) => <Link key={tg} to={`/search?q=${encodeURIComponent(tg)}`} className="at-link-hover">{tg}</Link>).reduce((acc: React.ReactNode[], el, i) => (i ? [...acc, <span key={`s${i}`}>,</span>, el] : [el]), [])}</dd></div>}

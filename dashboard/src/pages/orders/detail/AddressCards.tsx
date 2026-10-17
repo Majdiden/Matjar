@@ -143,7 +143,14 @@ export const AddressCards: React.FC = () => {
                 <p className="font-medium">{addr?.firstName} {addr?.lastName}</p>
               )}
               {addr?.addressLine1 && <p>{addr.addressLine1}</p>}
-              {addr?.addressLine2 && <p>{addr.addressLine2}</p>}
+              {/* Detailed address (العنوان بالتفصيل): landmarks and directions the
+                  shopper wrote at checkout — labelled, line breaks kept. */}
+              {addr?.addressLine2 && (
+                <div className="pt-1">
+                  <p className="text-xs text-muted-foreground">{t('orders:dialog.address_edit.field.line2')}</p>
+                  <p dir="auto" className="whitespace-pre-line">{addr.addressLine2}</p>
+                </div>
+              )}
               <p>
                 {[addr?.city, addr?.state, addr?.postalCode].filter(Boolean).join(', ')}
               </p>
@@ -232,8 +239,10 @@ export const AddressCards: React.FC = () => {
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="addr-line2">{t('orders:dialog.address_edit.field.line2')}</Label>
-              <Input
+              <Textarea
                 id="addr-line2"
+                rows={3}
+                dir="auto"
                 value={addressForm.addressLine2 || ''}
                 onChange={(e) => setAddressForm((f) => ({ ...f, addressLine2: e.target.value }))}
               />

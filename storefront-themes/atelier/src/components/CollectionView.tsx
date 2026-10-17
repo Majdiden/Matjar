@@ -194,7 +194,7 @@ const CollectionView: React.FC<Props> = ({ title, description, categorySlug, cat
           <nav aria-label="Breadcrumb" className="mt-3 text-[12px] font-semibold uppercase tracking-[0.14em] text-white/80"><Link to="/" className="at-link-hover-light">{t('theme.layout.nav.home')}</Link><span className="mx-2">•</span><span>{title}</span></nav>
         </div>
       </div>
-      {description && <p className="mx-auto max-w-2xl px-4 pt-8 text-center text-[15px] text-[#4a4a4a]">{description}</p>}
+      {description && <p dir="auto" className="mx-auto max-w-2xl px-4 pt-8 text-center text-[15px] text-[#4a4a4a]">{description}</p>}
 
       {/* Circular category carousel */}
       {showCats && categories.length > 0 && (
