@@ -74,11 +74,11 @@ const Layout: React.FC = () => {
                 <StoreLogo
                   src={store.logo}
                   alt={store?.name || brand}
-                  className="h-10 md:h-12 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md"
+                  className="h-11 md:h-12 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md"
                 />
               )}
               <span
-                className={`font-display block min-w-0 truncate tracking-tight leading-[1.6] py-1 ${store?.logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
+                className={`font-display min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 tracking-tight leading-[1.6] py-1 ${store?.logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
                 style={{ fontFamily: 'var(--font-family-heading)' }}
               >
                 {brand}

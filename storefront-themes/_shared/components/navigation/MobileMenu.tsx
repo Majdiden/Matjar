@@ -175,7 +175,7 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
               <StoreLogo
                 src={store.logo}
                 alt=""
-                className="h-9 w-auto max-w-[96px] shrink-0 object-contain rounded-md"
+                className="h-11 w-auto max-w-[96px] shrink-0 object-contain rounded-md"
               />
             )}
             {/* leading-normal + py-1: `truncate` clips to the line box, so a

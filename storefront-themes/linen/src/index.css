@@ -103,6 +103,13 @@ html[dir='rtl'] .linen-hero-progress { transform-origin: 100% 50%; }
 .linen-card-bar { transform: translateY(100%); transition: transform 300ms var(--linen-reveal-ease); }
 .group:hover .linen-card-bar, .group:focus-within .linen-card-bar { transform: translateY(0); }
 @media (hover: none) { .linen-card-bar { transform: translateY(0); } }
+/* Touch screens show the bar all the time: the card grows by the bar's
+   height so the photo keeps its full square and the bar sits below it. */
+@media (hover: none), (max-width: 767px) {
+  .linen-card-media--bar { aspect-ratio: auto; padding-bottom: 3rem; }
+  .linen-card-media--bar .linen-card-img { height: auto; aspect-ratio: 1 / 1; }
+  .linen-card-media--bar .linen-card-bar { transform: translateY(0); }
+}
 
 /* ── Drawers ─────────────────────────────────────────────────────── */
 .linen-drawer { transition: transform 300ms var(--linen-reveal-ease), opacity 300ms; }

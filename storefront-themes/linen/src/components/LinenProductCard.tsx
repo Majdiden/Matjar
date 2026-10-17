@@ -23,8 +23,9 @@ const PLACEHOLDER = 'https://placehold.co/800x800/ecdec1/0f0f0f?text=%20';
 /**
  * Linen product card: square image on cream, "New" / sale pills, wishlist
  * heart, a quick-view eye, and a full-width add-to-cart bar that slides up
- * on hover/focus (always visible on touch). Title in the heading face,
- * optional rating, price with compare-at.
+ * on hover/focus. On touch screens, where the bar is always shown, the card
+ * is taller by the bar's height so the bar sits under the photo. Title in the
+ * heading face, optional rating, price with compare-at.
  */
 export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, showBadge = true, newDays = 30, onQuickView, variant = 'grid' }) => {
   const { t } = useTranslation(['theme']);
@@ -58,8 +59,8 @@ export const LinenProductCard: React.FC<Props> = ({ product, showRating = true, 
   const list = variant === 'list';
   return (
     <article className={`group ${list ? 'grid grid-cols-[minmax(120px,38%)_minmax(0,1fr)] gap-5 sm:gap-8' : ''}`}>
-      <div className="linen-card-media relative aspect-square overflow-hidden bg-tint-strong">
-        <Link to={`/products/${product.slug}`} className="block h-full w-full" aria-label={product.name}>
+      <div className={`linen-card-media relative aspect-square overflow-hidden bg-tint-strong ${!list ? 'linen-card-media--bar' : ''}`}>
+        <Link to={`/products/${product.slug}`} className="linen-card-img relative block h-full w-full" aria-label={product.name}>
           <img src={img} alt={product.name} loading="lazy" onError={() => setImgFailed(true)} className={`h-full w-full object-cover transition-opacity duration-500 ${img2 ? 'group-hover:opacity-0' : 'group-hover:scale-[1.03] transition-transform'}`} />
           {img2 && <img src={img2} alt="" aria-hidden loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" />}
         </Link>

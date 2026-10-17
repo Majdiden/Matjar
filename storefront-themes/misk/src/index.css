@@ -169,6 +169,13 @@ html[dir='rtl'] .misk-ribbon b { display: block; transform: scaleX(-1); }
 .misk-card-bar { transform: translateY(100%); transition: transform 320ms var(--misk-ease); }
 .group:hover .misk-card-bar, .group:focus-within .misk-card-bar { transform: translateY(0); }
 @media (hover: none) { .misk-card-bar { transform: translateY(0); } }
+/* Touch screens show the bar all the time: the card grows by the bar's
+   height so the photo keeps its full square and the bar sits below it. */
+@media (hover: none), (max-width: 767px) {
+  .misk-card-media--bar { aspect-ratio: auto; padding-bottom: 3rem; }
+  .misk-card-media--bar .misk-card-img { height: auto; aspect-ratio: 1 / 1; }
+  .misk-card-media--bar .misk-card-bar { transform: translateY(0); }
+}
 /* The action rail keeps a 44px target on roomy cards and shrinks on the
    narrow 2-up phone grid so it never dominates the product image. */
 .misk-card-media { container-type: inline-size; container-name: miskcard; }

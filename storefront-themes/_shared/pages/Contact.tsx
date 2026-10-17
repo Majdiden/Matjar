@@ -3,7 +3,8 @@ import { useStore } from '../contexts/StoreContext';
 import { contactApi } from '../api/client';
 import { useTranslation } from 'react-i18next';
 import { usePage } from '../hooks/usePage';
-import { useContactInfo } from '../hooks/useContactInfo';
+import { useContactInfo, telLink } from '../hooks/useContactInfo';
+import { mapsSearchLink } from './ContactPage';
 
 interface ContactProps {
   className?: string;
@@ -19,7 +20,7 @@ const Contact: React.FC<ContactProps> = ({
   subheading,
 }) => {
   const { store } = useStore();
-  const { t } = useTranslation(['footer']);
+  const { t } = useTranslation(['footer', 'generated']);
   // Merchant-authored CMS content (editable in the dashboard) shown above the
   // contact form so edits reflect on the storefront.
   const { page } = usePage('contact');
@@ -97,35 +98,55 @@ const Contact: React.FC<ContactProps> = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Contact Info */}
+        {/* Contact Info. Each value keeps its own direction (dir="auto"), so
+            Arabic typed into an English page — or digits beside Arabic, like
+            opening hours — reads in the right order, and each channel is a
+            tap away: call or WhatsApp, email, the map. */}
         <div className="space-y-6">
-          <div>
-            <h3 className="font-semibold mb-2">{t('footer.contact.info.store')}</h3>
-            <p className="text-gray-600 text-sm">{store?.name || info.storeName}</p>
-          </div>
-          {email && (
-            <div>
-              <h3 className="font-semibold mb-2">{t('footer.contact.info.email')}</h3>
-              <p className="text-gray-600 text-sm">{email}</p>
-            </div>
-          )}
+          <InfoRow label={t('footer.contact.info.store')}>
+            <span dir="auto">{store?.name || info.storeName}</span>
+          </InfoRow>
           {phone && (
-            <div>
-              <h3 className="font-semibold mb-2">{t('footer.contact.info.phone')}</h3>
-              <p className="text-gray-600 text-sm">{phone}</p>
-            </div>
+            <InfoRow label={t('footer.contact.info.phone')}>
+              <span dir="ltr" className="inline-block">{phone}</span>
+              <span className="mt-2 flex flex-wrap gap-2">
+                {telLink(phone) && (
+                  <ActionLink href={telLink(phone)!} color={ringColor}>{t('generated:pages.contact.call')}</ActionLink>
+                )}
+                {info.whatsapp && (
+                  <ActionLink href={info.whatsapp.href} color={ringColor} external>
+                    {t('generated:contact.whatsapp_button')}
+                  </ActionLink>
+                )}
+              </span>
+            </InfoRow>
+          )}
+          {!phone && info.whatsapp && (
+            <InfoRow label="WhatsApp">
+              <ActionLink href={info.whatsapp.href} color={ringColor} external>
+                {t('generated:contact.whatsapp_button')}
+              </ActionLink>
+            </InfoRow>
+          )}
+          {email && (
+            <InfoRow label={t('footer.contact.info.email')}>
+              <a href={`mailto:${email}`} dir="ltr" className="inline-block break-all underline underline-offset-2" style={{ color: ringColor }}>
+                {email}
+              </a>
+            </InfoRow>
           )}
           {address && (
-            <div>
-              <h3 className="font-semibold mb-2">{t('footer.contact.info.address')}</h3>
-              <p className="text-gray-600 text-sm">{address}</p>
-            </div>
+            <InfoRow label={t('footer.contact.info.address')}>
+              <span dir="auto" className="block whitespace-pre-line">{address}</span>
+              <span className="mt-2 flex">
+                <ActionLink href={mapsSearchLink(address)} color={ringColor} external>{t('generated:pages.contact.map')}</ActionLink>
+              </span>
+            </InfoRow>
           )}
           {info.hours && (
-            <div>
-              <h3 className="font-semibold mb-2">{t('footer.contact.info.hours')}</h3>
-              <p className="text-gray-600 text-sm">{info.hours}</p>
-            </div>
+            <InfoRow label={t('footer.contact.info.hours')}>
+              <span dir="auto" className="block whitespace-pre-line">{info.hours}</span>
+            </InfoRow>
           )}
         </div>
 
@@ -222,5 +243,30 @@ const Contact: React.FC<ContactProps> = ({
     </div>
   );
 };
+
+/** One contact detail: a label and its value (text-start, so it follows the page). */
+const InfoRow: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+  <div>
+    <h3 className="font-semibold mb-2">{label}</h3>
+    <div className="text-gray-600 text-sm text-start">{children}</div>
+  </div>
+);
+
+/** A small outlined button for a contact action (call, WhatsApp, map). */
+const ActionLink: React.FC<{ href: string; color: string; external?: boolean; children: React.ReactNode }> = ({
+  href,
+  color,
+  external,
+  children,
+}) => (
+  <a
+    href={href}
+    className="inline-flex min-h-[40px] items-center rounded-full border px-4 text-sm font-semibold transition hover:opacity-80"
+    style={{ color, borderColor: color }}
+    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+  >
+    {children}
+  </a>
+);
 
 export default Contact;

@@ -24,7 +24,9 @@ const PLACEHOLDER = 'https://placehold.co/800x800/f4efe7/14110e?text=%20';
 /**
  * Misk product card: a square image on sand, a corner sale ribbon, a wishlist
  * heart and quick-view eye in a mirrored action rail, and a quick-add bar that
- * slides up on hover/focus (always visible on touch, where there is no hover).
+ * slides up on hover/focus. On touch screens, where the bar is always shown,
+ * the card is taller by the bar's height so the bar sits under the photo
+ * instead of covering it.
  *
  * Ribbon, text alignment, quick-add and the second-image swap are all theme
  * settings, so a merchant can take the card from "busy" to "quiet" without
@@ -74,8 +76,8 @@ export const MiskProductCard: React.FC<Props> = ({
 
   return (
     <article className={`group ${list ? 'grid grid-cols-[minmax(110px,36%)_minmax(0,1fr)] gap-4 sm:gap-8' : ''}`}>
-      <div className="misk-card-media relative aspect-square overflow-hidden rounded-[var(--radius-sm,6px)] bg-sand">
-        <Link to={`/products/${product.slug}`} className="block h-full w-full" aria-label={product.name}>
+      <div className={`misk-card-media relative aspect-square overflow-hidden rounded-[var(--radius-sm,6px)] bg-sand ${!list && showQuickAdd ? 'misk-card-media--bar' : ''}`}>
+        <Link to={`/products/${product.slug}`} className="misk-card-img relative block h-full w-full" aria-label={product.name}>
           <img
             src={img}
             alt={product.name}

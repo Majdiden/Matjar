@@ -41,8 +41,18 @@ describe("trimLogo", () => {
     assert.ok(s.height >= 320, `text kept: ${s.height}`);
   });
 
-  it("leaves a logo on a coloured tile, a tight logo and unreadable input alone", async () => {
-    const tile = await trimLogo(await svg(500, 500, "#be185d", `<circle cx="250" cy="250" r="120" fill="#fff"/>`));
+  it("cuts a coloured square down around a small mark, keeping its colour", async () => {
+    const input = await svg(500, 500, "#5b2a4a", `<circle cx="250" cy="250" r="70" fill="#d4a017"/>`);
+    const { buffer, trimmed } = await trimLogo(input);
+    assert.equal(trimmed, true);
+    const { width, height } = await sizeOf(buffer);
+    assert.ok(width < 220 && width > 150 && height === width, `${width}x${height}`);
+    const { data } = await sharp(buffer).raw().toBuffer({ resolveWithObject: true });
+    assert.deepEqual([data[0], data[1], data[2]], [0x5b, 0x2a, 0x4a], "corner keeps the square's colour");
+  });
+
+  it("leaves a mark that already fills its coloured square, a tight logo and unreadable input alone", async () => {
+    const tile = await trimLogo(await svg(500, 500, "#be185d", `<circle cx="250" cy="250" r="190" fill="#fff"/>`));
     assert.equal(tile.trimmed, false);
     const tight = await trimLogo(await svg(400, 400, "#fff", `<rect x="4" y="4" width="392" height="392" fill="#111"/>`));
     assert.equal(tight.trimmed, false);

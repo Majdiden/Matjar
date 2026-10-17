@@ -130,10 +130,10 @@ const HeaderRow: React.FC<{ light: boolean; sticky?: boolean }> = ({ light, stic
         <Link to="/" className="absolute start-1/2 flex max-w-[calc(100vw-13.5rem)] -translate-x-1/2 items-center gap-2 rtl:translate-x-1/2 lg:static lg:max-w-[22rem] lg:translate-x-0 lg:gap-3 rtl:lg:translate-x-0 shrink-0 min-w-0" aria-label={store?.name || 'Home'}>
           {store?.logo && (
             <span className="shrink-0 rounded-lg bg-white p-1">
-              <StoreLogo src={store.logo} alt={store.name} className="block h-8 w-auto max-w-[88px] rounded-md object-contain lg:h-10 lg:max-w-[140px]" />
+              <StoreLogo src={store.logo} alt={store.name} className="block h-10 w-auto max-w-[88px] rounded-md object-contain lg:h-10 lg:max-w-[140px]" />
             </span>
           )}
-          <span className={`block min-w-0 truncate py-[0.12em] [line-height:normal] font-display font-semibold tracking-tight ${store?.logo ? 'text-[19px] lg:text-[22px]' : 'text-[22px] lg:text-[26px]'}`}>{store?.name || 'Store'}</span>
+          <span className={`min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 py-[0.12em] [line-height:normal] font-display font-semibold tracking-tight ${store?.logo ? 'text-[19px] lg:text-[22px]' : 'text-[22px] lg:text-[26px]'}`}>{store?.name || 'Store'}</span>
         </Link>
 
         <nav className="hidden lg:flex h-full items-center" aria-label={t('theme.layout.nav.main')}>

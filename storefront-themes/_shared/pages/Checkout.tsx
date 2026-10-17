@@ -285,7 +285,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   }, [canQuote, shipping.addressLine1, shipping.city, shipping.state, shipping.postalCode, shipping.country, appliedDiscount]);
 
   // ── Handlers ─────────────────────────────────────────────────────
-  const setShippingField = (key: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const setShippingField = (key: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setShipping({ ...shipping, [key]: e.target.value });
     setSelectedAddressIdx('new');
   };
@@ -762,9 +762,22 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 <input type="text" required value={shipping.addressLine1} onChange={setShippingField('addressLine1')} className={inputClass} style={inputStyle} placeholder={t('checkout.field.shipping.address.placeholder')} />
               </div>
 
+              {/* Detailed address (العنوان بالتفصيل): neighbourhood, landmarks,
+                  house — how deliveries are actually found here. Stored as
+                  addressLine2, so it reaches the merchant's order page, the
+                  receipt and the order emails as is. */}
               <div>
-                <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.address2.label')}</label>
-                <input type="text" value={shipping.addressLine2} onChange={setShippingField('addressLine2')} className={inputClass} style={inputStyle} />
+                <label htmlFor="shipping-address-details" className="block text-sm font-medium mb-1">{t('checkout.field.shipping.address2.label')}</label>
+                <textarea
+                  id="shipping-address-details"
+                  rows={3}
+                  dir="auto"
+                  value={shipping.addressLine2}
+                  onChange={setShippingField('addressLine2')}
+                  className={`${inputClass} resize-y min-h-[88px]`}
+                  style={inputStyle}
+                  placeholder={t('checkout.field.shipping.address2.placeholder')}
+                />
               </div>
 
               {/* Country first so the city dropdown is scoped to it. */}

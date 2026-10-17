@@ -744,12 +744,17 @@ const AddressesTab: React.FC<{
               />
             </div>
             <div className="sm:col-span-2">
+              {/* Detailed address (العنوان بالتفصيل): landmarks, house — same
+                  field as at checkout. */}
               <label className={fieldLabel}>{t('account.address.field.address_line2.label')}</label>
-              <input
-                className={inputCls}
+              <textarea
+                rows={3}
+                dir="auto"
+                className={`${inputCls} resize-y`}
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
                 value={editing.addressLine2 || ''}
                 onChange={(e) => setEditing({ ...editing, addressLine2: e.target.value })}
+                placeholder={t('checkout:checkout.field.shipping.address2.placeholder')}
               />
             </div>
             <div>

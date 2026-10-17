@@ -53,11 +53,11 @@ const Layout: React.FC = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 min-w-0 lg:max-w-[22rem]">
               {store?.logo && (
-                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-11 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
               )}
               {/* leading-normal + py-1: `truncate` clips to the line box, which
                   cut off Arabic descenders/marks under a tight line-height. */}
-              <span className="min-w-0 truncate leading-normal py-1 pe-1 text-xl md:text-2xl font-bold text-[var(--brand-ink,var(--color-primary))] italic tracking-wide">
+              <span className="min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 leading-normal py-1 pe-1 text-xl md:text-2xl font-bold text-[var(--brand-ink,var(--color-primary))] italic tracking-wide">
                 {store?.name || 'Artisan'}
               </span>
             </Link>

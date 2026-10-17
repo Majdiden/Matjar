@@ -1,5 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isolateBidi } from '../utils/bidi';
+
+/** Cart line names read in their own direction in any page (utils/bidi.ts). */
+function isolateCartNames<T extends { items?: any[] } | null>(cart: T): T {
+  if (!cart?.items) return cart;
+  return {
+    ...cart,
+    items: cart.items.map((it) => (it?.product?.name ? { ...it, product: { ...it.product, name: isolateBidi(it.product.name) } } : it)),
+  };
+}
 import { cartApi, isPreviewMode, notifyPreviewDisabled } from '../api/client';
 
 // Theme preview shows ephemeral demo products that don't exist in the DB, so
@@ -98,7 +108,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
     try {
       const res = await cartApi.get();
-      setCart(res.data?.cart || null);
+      setCart(isolateCartNames(res.data?.cart || null));
     } catch {
       setCart(null);
     } finally {

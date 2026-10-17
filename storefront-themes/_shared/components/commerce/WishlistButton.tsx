@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useWishlist } from '../../hooks/useWishlist';
+import { stripBidi } from '../../utils/bidi';
 import { useThemeSlot } from '../../theme/ThemeSlotsProvider';
 
 export const SLOT_KEY = 'wishlistButton';
@@ -39,7 +40,8 @@ function toSnapshot(product: any, productId: string) {
   if (!product) return undefined;
   return {
     _id: productId,
-    name: product.name,
+    // Stored plain; the display adds its own reading-order marks.
+    name: stripBidi(product.name),
     slug: product.slug,
     price: product.price,
     images: product.images,

@@ -53,12 +53,12 @@ const Layout: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="min-w-0 flex items-center gap-2 text-xl md:text-2xl font-extrabold tracking-tight">
               {store?.logo && (
-                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-11 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
               )}
               {/* The store's own name; the two-tone theme wordmark only without one.
                   leading-normal + py-1 keep Arabic marks inside the truncate clip box. */}
               {store?.name ? (
-                <span className="min-w-0 truncate leading-normal py-1 text-[var(--brand-ink,#ec4899)]">{store.name}</span>
+                <span className="min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 leading-normal py-1 text-[var(--brand-ink,#ec4899)]">{store.name}</span>
               ) : (
                 <>
                   <span className="text-[#ec4899]">Kids</span>
