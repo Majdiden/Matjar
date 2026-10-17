@@ -96,15 +96,15 @@ const Layout: React.FC = () => {
                   sideways only, never Arabic marks or descenders. */}
               <Link to="/" className="hidden min-w-0 items-center gap-3 lg:flex" aria-label={store?.name || 'Home'}>
                 {store?.logo && <StoreLogo src={store.logo} alt={store.name} className="h-11 w-auto max-w-[150px] shrink-0 rounded-lg object-contain" />}
-                <span className={`font-heading block min-w-0 max-w-[18rem] truncate py-[0.12em] [line-height:normal] text-ink ${store?.logo ? 'text-xl tracking-[0.16em]' : 'text-2xl tracking-[0.22em]'}`}>{(store?.name || 'STORE').toUpperCase()}</span>
+                <span className={`font-heading min-w-0 max-w-[18rem] line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 py-[0.12em] [line-height:normal] text-ink ${store?.logo ? 'text-xl tracking-[0.16em]' : 'text-2xl tracking-[0.22em]'}`}>{(store?.name || 'STORE').toUpperCase()}</span>
               </Link>
             </div>
 
             {/* centre: logo (mobile) / nav (desktop) */}
             <div className="flex min-w-0 justify-center">
               <Link to="/" className="flex min-w-0 items-center gap-2 lg:hidden" aria-label={store?.name || 'Home'}>
-                {store?.logo && <StoreLogo src={store.logo} alt={store.name} className="h-9 w-auto max-w-[88px] shrink-0 rounded-md object-contain" />}
-                <span className="font-heading block min-w-0 truncate py-[0.12em] [line-height:normal] text-[1.05rem] tracking-[0.14em] text-ink sm:text-xl sm:tracking-[0.2em]">{(store?.name || 'STORE').toUpperCase()}</span>
+                {store?.logo && <StoreLogo src={store.logo} alt={store.name} className="h-11 w-auto max-w-[88px] shrink-0 rounded-md object-contain" />}
+                <span className="font-heading min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 py-[0.12em] [line-height:normal] text-[1.05rem] tracking-[0.14em] text-ink sm:text-xl sm:tracking-[0.2em]">{(store?.name || 'STORE').toUpperCase()}</span>
               </Link>
               <nav ref={nav} className="hidden items-center lg:flex" aria-label={t('theme.nav.menu')}>
                 {items.map((it, i) => {

@@ -136,3 +136,13 @@ html[dir='rtl'] .linen-hero-progress { transform-origin: 100% 50%; }
     .linen-card-action { width: 2.25rem; height: 2.25rem; }
   }
 }
+
+/* Phones and touch screens: the photo stays clear. The add button moves
+   under the price, quick view is left out (tapping the card opens the
+   product) and only a small heart stays on the photo. */
+.linen-card-bar-touch { display: none; }
+@media (hover: none), (max-width: 767px) {
+  .linen-card-bar, .linen-card-quick { display: none; }
+  /* Pushed to the bottom of the card, so the buttons line up across a row. */
+  .linen-card-bar-touch { display: block; }
+}

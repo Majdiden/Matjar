@@ -54,7 +54,7 @@ const Layout: React.FC = () => {
         <StoreLogo src={store.logo} alt={store.name} className={`${imgCls} w-auto shrink-0 object-contain rounded-md`} />
       )}
       <span
-        className={`block min-w-0 truncate leading-[1.5] py-1 ${textCls}`}
+        className={`min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 leading-[1.5] py-1 ${textCls}`}
         style={{ color: 'var(--brand-ink, var(--color-primary, #2563eb))' }}
       >
         {store?.name || 'Store'}
@@ -147,7 +147,7 @@ const Layout: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          {renderLogo('h-9 md:h-11 max-w-[80px] md:max-w-[140px]', `${store?.logo ? 'text-lg md:text-xl' : 'text-xl'} font-bold`, 'me-3')}
+          {renderLogo('h-11 md:h-11 max-w-[80px] md:max-w-[140px]', `${store?.logo ? 'text-lg md:text-xl' : 'text-xl'} font-bold`, 'me-3')}
 
           {/* Desktop Nav — store menu when available, else categories */}
           <nav className="hidden lg:flex items-center gap-1">
@@ -198,7 +198,7 @@ const Layout: React.FC = () => {
 
           {/* Centered logo */}
           <div className="flex justify-center min-w-0 max-w-[52vw] md:max-w-[36vw]">
-            {renderLogo('h-9 md:h-11 max-w-[64px] md:max-w-[120px]', `${store?.logo ? 'text-lg md:text-xl' : 'text-xl'} font-bold`)}
+            {renderLogo('h-11 md:h-11 max-w-[64px] md:max-w-[120px]', `${store?.logo ? 'text-lg md:text-xl' : 'text-xl'} font-bold`)}
           </div>
 
           {/* End group: language + cart */}
@@ -227,7 +227,7 @@ const Layout: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between gap-2 h-14">
           {/* Logo */}
-          {renderLogo('h-8 md:h-9 max-w-[72px] md:max-w-[120px]', `${store?.logo ? 'text-base md:text-lg' : 'text-lg'} font-bold`, 'me-2')}
+          {renderLogo('h-10 md:h-10 max-w-[72px] md:max-w-[120px]', `${store?.logo ? 'text-base md:text-lg' : 'text-lg'} font-bold`, 'me-2')}
 
           {/* Nav — collapses into the menu below xl for a quieter bar */}
           <nav className="hidden xl:flex items-center gap-0.5">

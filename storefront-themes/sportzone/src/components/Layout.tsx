@@ -53,12 +53,12 @@ const Layout: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="min-w-0 flex items-center gap-2 text-xl font-black uppercase tracking-wider text-white">
               {store?.logo ? (
-                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-11 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
               ) : (
                 <span className="shrink-0 text-[var(--brand,#dc2626)]" aria-hidden="true">///</span>
               )}
               {/* leading-normal + py-1 keep Arabic marks inside the truncate clip box */}
-              <span className="min-w-0 truncate leading-normal py-1">{store?.name || 'SportZone'}</span>
+              <span className="min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 leading-normal py-1">{store?.name || 'SportZone'}</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">

@@ -94,10 +94,10 @@ const Layout: React.FC = () => {
               style={{ color: DARK_TEAL }}
             >
               {logo && (
-                <StoreLogo src={logo} alt={brand} className="h-9 w-auto max-w-[96px] shrink-0 rounded-lg object-contain md:h-12 md:max-w-[160px]" />
+                <StoreLogo src={logo} alt={brand} className="h-11 w-auto max-w-[96px] shrink-0 rounded-lg object-contain md:h-12 md:max-w-[160px]" />
               )}
               <span
-                className={`font-serif min-w-0 truncate py-[0.12em] [line-height:normal] font-bold tracking-tight ${logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
+                className={`font-serif min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 py-[0.12em] [line-height:normal] font-bold tracking-tight ${logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
                 style={{ fontFamily: HEADING_FONT }}
               >
                 {brand.toLowerCase()}

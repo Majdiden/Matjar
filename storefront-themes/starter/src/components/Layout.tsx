@@ -80,10 +80,10 @@ const Layout: React.FC = () => {
                 <StoreLogo
                   src={store.logo}
                   alt={store.name || 'Store'}
-                  className="h-8 md:h-10 w-auto max-w-[80px] md:max-w-[120px] shrink-0 object-contain rounded-md"
+                  className="h-10 md:h-10 w-auto max-w-[80px] md:max-w-[120px] shrink-0 object-contain rounded-md"
                 />
               )}
-              <span className="block min-w-0 truncate text-lg font-bold leading-[1.6] py-0.5">
+              <span className="min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 text-lg font-bold leading-[1.6] py-0.5">
                 {store?.name || 'Store'}
               </span>
             </Link>

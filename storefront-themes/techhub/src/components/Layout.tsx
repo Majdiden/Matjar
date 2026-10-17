@@ -97,10 +97,10 @@ const Layout: React.FC = () => {
                 <StoreLogo
                   src={store.logo}
                   alt={store?.name || brandName}
-                  className="h-9 md:h-11 w-auto max-w-[88px] md:max-w-[140px] shrink-0 object-contain rounded-md"
+                  className="h-11 md:h-11 w-auto max-w-[88px] md:max-w-[140px] shrink-0 object-contain rounded-md"
                 />
               )}
-              <span className={`block min-w-0 truncate font-black tracking-tight leading-[1.5] py-1 ${store?.logo ? 'text-xl md:text-2xl' : 'text-2xl md:text-3xl'}`}>
+              <span className={`min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 font-black tracking-tight leading-[1.5] py-1 ${store?.logo ? 'text-xl md:text-2xl' : 'text-2xl md:text-3xl'}`}>
                 {brandName}
               </span>
             </Link>

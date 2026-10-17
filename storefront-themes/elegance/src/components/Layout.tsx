@@ -54,10 +54,10 @@ const Layout: React.FC = () => {
                 <StoreLogo
                   src={store.logo}
                   alt={store.name || 'Elegance'}
-                  className="h-10 md:h-12 w-auto max-w-[88px] md:max-w-[160px] shrink-0 object-contain rounded-md"
+                  className="h-11 md:h-12 w-auto max-w-[88px] md:max-w-[160px] shrink-0 object-contain rounded-md"
                 />
               )}
-              <span className={`block min-w-0 truncate tracking-[0.2em] uppercase font-light text-gray-900 leading-[1.6] py-1 ${store?.logo ? 'text-lg md:text-2xl' : 'text-2xl'}`}>
+              <span className={`min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 tracking-[0.2em] uppercase font-light text-gray-900 leading-[1.6] py-1 ${store?.logo ? 'text-lg md:text-2xl' : 'text-2xl'}`}>
                 {store?.name || 'Elegance'}
               </span>
             </Link>

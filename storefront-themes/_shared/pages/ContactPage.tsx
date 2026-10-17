@@ -77,7 +77,7 @@ const AutoContactPage: React.FC<ContactPageProps> = ({ className = '' }) => {
       label: info.address ? t('contact.address') : t('contact.city'),
       value: (
         <>
-          {info.address && <span className="block whitespace-pre-line">{info.address}</span>}
+          {info.address && <span dir="auto" className="block whitespace-pre-line">{info.address}</span>}
           {info.city && <span className={info.address ? 'block text-sm mt-0.5' : ''} style={info.address ? { color: MUTED } : undefined}>{info.city}</span>}
         </>
       ),
@@ -91,7 +91,7 @@ const AutoContactPage: React.FC<ContactPageProps> = ({ className = '' }) => {
       key: 'hours',
       icon: 'clock',
       label: t('contact.hours'),
-      value: <span className="whitespace-pre-line">{info.hours}</span>,
+      value: <span dir="auto" className="block whitespace-pre-line">{info.hours}</span>,
     });
   }
 

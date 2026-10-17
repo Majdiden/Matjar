@@ -54,7 +54,7 @@ const Layout: React.FC = () => {
             {/* Logo — sits at the start of the header row */}
             <Link to="/" className="min-w-0 text-xl font-bold text-[var(--brand-ink,#7c3aed)] tracking-tight flex items-center gap-2">
               {store?.logo ? (
-                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-9 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
+                <StoreLogo src={store.logo} alt={store?.name || ''} className="h-11 md:h-11 w-auto max-w-[96px] md:max-w-[160px] shrink-0 object-contain rounded-md" />
               ) : (
               <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
@@ -62,7 +62,7 @@ const Layout: React.FC = () => {
               </svg>
               )}
               {/* leading-normal + py-1 keep Arabic marks inside the truncate clip box */}
-              <span className="min-w-0 truncate leading-normal py-1">{store?.name || 'BookShelf'}</span>
+              <span className="min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 leading-normal py-1">{store?.name || 'BookShelf'}</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">

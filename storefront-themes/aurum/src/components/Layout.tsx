@@ -151,11 +151,11 @@ const Layout: React.FC = () => {
                 <StoreLogo
                   src={store.logo}
                   alt={store?.name || brand}
-                  className="h-9 md:h-12 w-auto max-w-[64px] md:max-w-[120px] shrink-0 object-contain rounded-md"
+                  className="h-11 md:h-12 w-auto max-w-[64px] md:max-w-[120px] shrink-0 object-contain rounded-md"
                 />
               )}
               <span
-                className="aurum-wordmark block min-w-0 truncate font-display tracking-[0.1em] sm:tracking-[0.18em] uppercase leading-[1.6] py-1 text-ink"
+                className="aurum-wordmark min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 font-display tracking-[0.1em] sm:tracking-[0.18em] uppercase leading-[1.6] py-1 text-ink"
                 style={{
                   fontFamily: 'var(--font-family-heading)',
                   '--aurum-brand-chars': Math.max(brand.length, 4),

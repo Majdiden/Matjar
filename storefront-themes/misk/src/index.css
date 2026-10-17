@@ -184,6 +184,18 @@ html[dir='rtl'] .misk-ribbon b { display: block; transform: scaleX(-1); }
 @supports not (container-type: inline-size) {
   @media (max-width: 639px) { .misk-card-action { width: 2.25rem; height: 2.25rem; } }
 }
+/* Phones and touch screens: the photo stays clear. The add button moves
+   under the price, quick view is left out (tapping the card opens the
+   product) and only a small heart stays on the photo. */
+.misk-card-bar-touch { display: none; }
+@media (hover: none), (max-width: 767px) {
+  .misk-card-bar, .misk-card-quick { display: none; }
+  /* Pushed to the bottom of the card, so the buttons line up across a row. */
+  .misk-card-bar-touch { display: block; }
+  .misk-card-actions { inset-inline-end: 0.5rem; top: 0.5rem; }
+  .misk-card-action { width: 2.125rem; height: 2.125rem; background-color: rgb(255 255 255 / 0.88); }
+  .misk-card-icon { width: 0.875rem; height: 0.875rem; }
+}
 
 /* ── Collection / note tiles ─────────────────────────────────────── */
 .misk-zoom img { transition: transform 700ms var(--misk-ease); }

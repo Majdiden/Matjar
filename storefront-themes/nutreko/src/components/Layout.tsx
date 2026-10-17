@@ -95,11 +95,11 @@ const Layout: React.FC = () => {
             >
               {logo && (
                 <span className="shrink-0 rounded-lg bg-white p-1">
-                  <StoreLogo src={logo} alt={storeName} className="block h-8 w-auto max-w-[96px] rounded-md object-contain md:h-10 md:max-w-[150px]" />
+                  <StoreLogo src={logo} alt={storeName} className="block h-10 w-auto max-w-[96px] rounded-md object-contain md:h-10 md:max-w-[150px]" />
                 </span>
               )}
               <span
-                className={`font-display min-w-0 truncate py-[0.12em] [line-height:normal] tracking-tighter ${logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
+                className={`font-display min-w-0 line-clamp-2 [overflow-wrap:anywhere] max-lg:!text-[1.0625rem] max-lg:![line-height:1.3] lg:line-clamp-1 py-[0.12em] [line-height:normal] tracking-tighter ${logo ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}
                 style={{ fontFamily: 'var(--font-family-heading)' }}
               >
                 {brand}<span style={{ color: LIME_ON_DARK }}>.</span>
