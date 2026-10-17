@@ -6,7 +6,7 @@
       "close_menu": "إغلاق القائمة",
       "back": "رجوع",
       "home": "الرئيسية",
-      "all_products": "كل العطور",
+      "all_products": "كل المنتجات",
       "browse": "تصفّح",
       "view_all_in": "عرض الكل في {{name}}",
       "wishlist": "المفضّلة",
@@ -244,7 +244,7 @@
       "shipping_returns": "الشحن والإرجاع",
       "related_eyebrow": "اخترنا لك",
       "choose": "اختر {{name}}",
-      "breadcrumb_all": "كل العطور",
+      "breadcrumb_all": "كل المنتجات",
       "sticky_label": "{{name}} بسعر {{price}}",
       "only_left_zero": "نفدت الكمية",
       "only_left_one": "بقيت قطعة واحدة",
@@ -254,7 +254,7 @@
       "only_left_other": "بقيت {{count}} قطعة"
     },
     "collection": {
-      "all_products": "كل العطور",
+      "all_products": "كل المنتجات",
       "filters": "تصفية",
       "show_filters": "إظهار التصفية",
       "hide_filters": "إخفاء التصفية",
@@ -332,7 +332,7 @@
     "cart": {
       "title": "سلة التسوّق",
       "empty_title": "سلتك فارغة",
-      "empty_body": "ابدأ بتصفّح العطور وأضف ما يعجبك.",
+      "empty_body": "ابدأ بتصفّح المنتجات وأضف ما يعجبك.",
       "continue": "مواصلة التسوّق",
       "product": "المنتج",
       "quantity": "الكمية",

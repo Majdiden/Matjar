@@ -6,7 +6,7 @@
       "close_menu": "Close menu",
       "back": "Back",
       "home": "Home",
-      "all_products": "All fragrances",
+      "all_products": "All products",
       "browse": "Browse",
       "view_all_in": "View all in {{name}}",
       "wishlist": "Wishlist",
@@ -236,13 +236,13 @@
       "shipping_returns": "Shipping & returns",
       "related_eyebrow": "Picked for you",
       "choose": "Choose {{name}}",
-      "breadcrumb_all": "All fragrances",
+      "breadcrumb_all": "All products",
       "sticky_label": "{{name}} — {{price}}",
       "only_left_one": "Only {{count}} left",
       "only_left_other": "Only {{count}} left"
     },
     "collection": {
-      "all_products": "All fragrances",
+      "all_products": "All products",
       "filters": "Filter",
       "show_filters": "Show filters",
       "hide_filters": "Hide filters",
@@ -316,7 +316,7 @@
     "cart": {
       "title": "Your cart",
       "empty_title": "Your cart is empty",
-      "empty_body": "Browse the fragrances and add what you like.",
+      "empty_body": "Browse the products and add what you like.",
       "continue": "Continue shopping",
       "product": "Product",
       "quantity": "Quantity",
