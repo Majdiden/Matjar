@@ -61,13 +61,25 @@ async function main() {
   const tenants = await Tenant.find(filter).select("name domain slug settings.logo").lean();
 
   const stats = { checked: 0, cropped: 0, unchanged: 0, failed: 0 };
+  // Why logos were left as they are, so a short "cropped" count is explainable.
+  const why = {};
+  const REASON_TEXT = {
+    "no-background": "no plain or single-colour border (photo, gradient, busy edges)",
+    "fills-square": "the mark already fills its coloured square",
+    "small-margin": "already tight: less than 8% margin",
+    "no-content": "nothing found inside the border",
+    tiny: "the logo would be a tiny piece of the image",
+    unreadable: "the image could not be read",
+  };
   for (const t of tenants) {
     stats.checked++;
     const label = `${t.name} (${t._id})`;
     try {
-      const { buffer, trimmed } = await trimLogo(await readLogo(t.settings.logo));
+      const { buffer, trimmed, reason } = await trimLogo(await readLogo(t.settings.logo));
       if (!trimmed) {
         stats.unchanged++;
+        why[reason] = (why[reason] || 0) + 1;
+        console.log(`  unchanged   ${label}: ${REASON_TEXT[reason] || reason}`);
         continue;
       }
       stats.cropped++;
@@ -89,6 +101,7 @@ async function main() {
     `\n${dryRun ? "[dry run] " : ""}checked ${stats.checked}, cropped ${stats.cropped}, ` +
       `unchanged ${stats.unchanged}, failed ${stats.failed}`
   );
+  for (const [reason, n] of Object.entries(why)) console.log(`  unchanged — ${REASON_TEXT[reason] || reason}: ${n}`);
   await gracefulShutdown();
 }
 

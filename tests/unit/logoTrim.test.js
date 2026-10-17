@@ -57,7 +57,9 @@ describe("trimLogo", () => {
     const tight = await trimLogo(await svg(400, 400, "#fff", `<rect x="4" y="4" width="392" height="392" fill="#111"/>`));
     assert.equal(tight.trimmed, false);
     const junk = Buffer.from("not an image");
-    assert.deepEqual(await trimLogo(junk), { buffer: junk, trimmed: false });
+    assert.deepEqual(await trimLogo(junk), { buffer: junk, trimmed: false, reason: "unreadable" });
+    assert.equal(tile.reason, "fills-square");
+    assert.equal(tight.reason, "small-margin");
   });
 });
 

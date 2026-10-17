@@ -85,14 +85,7 @@ const SectionHead: React.FC<{
  * reads as a layout bug to the merchant, who then can't tell a slow CDN from
  * a wrong URL they pasted.
  */
-const Media: React.FC<{
-  src?: string;
-  alt?: string;
-  className?: string;
-  eager?: boolean;
-  style?: React.CSSProperties;
-  onRatio?: (widthOverHeight: number) => void;
-}> = ({ src, alt = '', className = '', eager, style, onRatio }) => {
+const Media: React.FC<{ src?: string; alt?: string; className?: string; eager?: boolean }> = ({ src, alt = '', className = '', eager }) => {
   const [failed, setFailed] = useState(false);
   if (!src || failed) {
     return (
@@ -101,31 +94,8 @@ const Media: React.FC<{
       </span>
     );
   }
-  return (
-    <img
-      src={src}
-      alt={alt}
-      loading={eager ? 'eager' : 'lazy'}
-      onError={() => setFailed(true)}
-      onLoad={onRatio ? (e) => {
-        const img = e.currentTarget;
-        if (img.naturalWidth && img.naturalHeight) onRatio(img.naturalWidth / img.naturalHeight);
-      } : undefined}
-      className={className}
-      style={style}
-    />
-  );
+  return <img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} onError={() => setFailed(true)} className={className} />;
 };
-
-/**
- * Hero photo frame on phones: the photo's own shape, between the theme's
- * 4:5 and a phone screen's 9:16 — a tall poster shows whole, a very tall
- * image stops at 9:16 and a wide one keeps the 4:5 crop. Desktop stays 4:5.
- */
-const HERO_RATIO_MIN = 9 / 16;
-const HERO_RATIO_MAX = 4 / 5;
-const heroRatio = (r: number | null | undefined) =>
-  !r || !Number.isFinite(r) ? HERO_RATIO_MAX : Math.min(HERO_RATIO_MAX, Math.max(HERO_RATIO_MIN, r));
 
 /** Internal paths route client-side; anything with a scheme opens out. */
 const Cta: React.FC<{ to?: string; className?: string; children: React.ReactNode }> = ({ to, className, children }) =>
@@ -165,8 +135,6 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
     .filter((b) => b.type === 'slide')
     .filter((b, i) => !(heroPhoto || pendingPhoto) || i === 0 || !isStockImage(b.settings?.image));
   const [idx, setIdx] = useState(0);
-  // Each slide photo's width/height, measured when it loads (phone frame).
-  const [ratios, setRatios] = useState<Record<number, number>>({});
   const [paused, setPaused] = useState(false);
 
   const interval = Number(s.autoplay_interval) || 6000;
@@ -223,17 +191,18 @@ const HeroSection: React.FC<SectionComponentProps> = ({ id, section }) => {
               aria-hidden={!active}
               className={`grid items-center gap-8 px-4 pb-24 pt-12 sm:px-6 md:grid-cols-2 md:gap-14 md:pb-28 md:pt-16 ${height} ${active ? 'relative z-10 opacity-100' : 'pointer-events-none absolute inset-0 z-0 opacity-0'} transition-opacity duration-700`}
             >
-              <div className={`overflow-hidden ${imageStart ? 'md:order-1' : 'md:order-2'}`} style={{ borderRadius: radius }}>
+              {/* Phones: the whole photo at a contained size (at most about half
+                  the screen tall, centred) so the store name shows below it.
+                  Desktop: the theme's 4:5 frame. */}
+              <div className={`mx-auto w-fit max-w-full overflow-hidden md:mx-0 md:w-auto ${imageStart ? 'md:order-1' : 'md:order-2'}`} style={{ borderRadius: radius }}>
                 {photoPending ? (
-                  <span className="block aspect-[4/5] w-full bg-white/10" aria-hidden />
+                  <span className="block aspect-[4/5] h-[40svh] max-w-full bg-white/10 md:h-auto md:w-full" aria-hidden />
                 ) : (
                   <Media
                     src={b.image}
                     alt=""
                     eager={i === 0}
-                    onRatio={(r) => setRatios((m) => (m[i] === r ? m : { ...m, [i]: r }))}
-                    style={{ '--misk-hero-ar': heroRatio(ratios[i]) } as React.CSSProperties}
-                    className={`aspect-[var(--misk-hero-ar,4/5)] w-full object-cover md:aspect-[4/5] ${active && s.zoom_effect !== false ? 'misk-kenburns' : ''}`}
+                    className={`block max-h-[52svh] w-auto max-w-full object-contain md:aspect-[4/5] md:max-h-none md:w-full md:object-cover ${active && s.zoom_effect !== false ? 'misk-kenburns' : ''}`}
                   />
                 )}
               </div>

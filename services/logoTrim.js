@@ -157,9 +157,30 @@ function contentRange(counts, side) {
  * @returns {{ left: number, top: number, width: number, height: number } | null}
  */
 export function findLogoBox(px, width, height) {
-  if (!width || !height || px.length < width * height * 4) return null;
+  return locateLogo(px, width, height).box;
+}
+
+/**
+ * Why a logo is (not) cropped — `reason` is one of:
+ *   cropped | no-background (photo / gradient edges) | fills-square (the mark
+ *   already fills its coloured square) | small-margin | no-content | tiny |
+ *   unreadable.
+ */
+export const TRIM_REASONS = Object.freeze({
+  cropped: "cropped",
+  noBackground: "no-background",
+  fillsSquare: "fills-square",
+  smallMargin: "small-margin",
+  noContent: "no-content",
+  tiny: "tiny",
+  unreadable: "unreadable",
+});
+
+function locateLogo(px, width, height) {
+  const R = TRIM_REASONS;
+  if (!width || !height || px.length < width * height * 4) return { box: null, reason: R.unreadable };
   const found = readBackground(px, width, height);
-  if (!found) return null;
+  if (!found) return { box: null, reason: R.noBackground };
   const tile = !!found.tile;
   const bg = found.tile || found;
   const isBg = (i) => {
@@ -184,7 +205,7 @@ export function findLogoBox(px, width, height) {
   }
   const rowMin = Math.max(1, width * LINE_CONTENT_MIN);
   const rows = contentRange(rowCount.map((n) => (n >= rowMin ? n : 0)), height);
-  if (!rows) return null;
+  if (!rows) return { box: null, reason: R.noContent };
 
   const colCount = new Array(width).fill(0);
   for (let y = rows[0]; y <= rows[1]; y++) {
@@ -192,12 +213,12 @@ export function findLogoBox(px, width, height) {
   }
   const colMin = Math.max(1, (rows[1] - rows[0] + 1) * LINE_CONTENT_MIN);
   const cols = contentRange(colCount.map((n) => (n >= colMin ? n : 0)), width);
-  if (!cols) return null;
+  if (!cols) return { box: null, reason: R.noContent };
 
   const markSide = Math.max(cols[1] - cols[0] + 1, rows[1] - rows[0] + 1);
   // A coloured square keeps its colour around the mark; it is only cut down
   // when the mark is small inside it.
-  if (tile && markSide >= Math.min(width, height) * TILE_MAX_FILL) return null;
+  if (tile && markSide >= Math.min(width, height) * TILE_MAX_FILL) return { box: null, reason: R.fillsSquare };
   const pad = Math.round(markSide * (tile ? TILE_PADDING : PADDING));
   const left = Math.max(0, cols[0] - pad);
   const top = Math.max(0, rows[0] - pad);
@@ -208,22 +229,23 @@ export function findLogoBox(px, width, height) {
     height: Math.min(height, rows[1] + pad + 1) - top,
   };
   const share = (box.width * box.height) / (width * height);
-  if (share > 1 - MIN_GAIN || share < MIN_KEEP) return null;
-  return box;
+  if (share > 1 - MIN_GAIN) return { box: null, reason: R.smallMargin };
+  if (share < MIN_KEEP) return { box: null, reason: R.tiny };
+  return { box, reason: R.cropped };
 }
 
 /**
  * The logo cropped to its content, as PNG (transparency kept), or the input
  * unchanged when there is nothing to crop or the image cannot be read.
  * @param {Buffer} input
- * @returns {Promise<{ buffer: Buffer, trimmed: boolean }>}
+ * @returns {Promise<{ buffer: Buffer, trimmed: boolean, reason: string }>}
  */
 export async function trimLogo(input) {
   try {
     // Upright (EXIF) PNG first, so the box and the crop use the same pixels.
     const base = await sharp(input, { failOn: "none" }).rotate().png().toBuffer();
     const { width, height } = await sharp(base).metadata();
-    if (!width || !height) return { buffer: input, trimmed: false };
+    if (!width || !height) return { buffer: input, trimmed: false, reason: TRIM_REASONS.unreadable };
 
     const scale = Math.min(1, ANALYSIS_SIDE / Math.max(width, height));
     const w = Math.max(1, Math.round(width * scale));
@@ -234,8 +256,8 @@ export async function trimLogo(input) {
       .raw()
       .toBuffer({ resolveWithObject: true });
 
-    const box = findLogoBox(data, w, h);
-    if (!box) return { buffer: input, trimmed: false };
+    const { box, reason } = locateLogo(data, w, h);
+    if (!box) return { buffer: input, trimmed: false, reason };
 
     const left = Math.floor(box.left / scale);
     const top = Math.floor(box.top / scale);
@@ -246,9 +268,9 @@ export async function trimLogo(input) {
       height: Math.min(height - top, Math.ceil(box.height / scale)),
     };
     const buffer = await sharp(base).extract(region).png().toBuffer();
-    return { buffer, trimmed: true };
+    return { buffer, trimmed: true, reason: TRIM_REASONS.cropped };
   } catch {
-    return { buffer: input, trimmed: false };
+    return { buffer: input, trimmed: false, reason: TRIM_REASONS.unreadable };
   }
 }
 
