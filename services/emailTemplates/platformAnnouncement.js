@@ -37,6 +37,25 @@ function paragraphsHtml(text, align) {
 }
 
 const BRAND_BLUE = "#2563eb";
+/** Longest preview line (mail apps show about the first 100–150 characters). */
+const PREHEADER_MAX = 200;
+/** Invisible filler after the preview line, so nothing that follows it (the
+ *  header, the title again) is pulled into the inbox / lock-screen preview. */
+const PREHEADER_FILLER = "&#847;&zwnj;&nbsp;".repeat(90);
+
+/**
+ * The hidden preview line: the start of the message on one line. Mail apps
+ * show the first text of an email next to the subject; without this they
+ * would show "Matjar · message from the Matjar team · <the title again>".
+ */
+function preheaderHtml(body) {
+  const line = String(body || "").replace(/\s+/g, " ").trim();
+  const clipped = line.length > PREHEADER_MAX ? `${line.slice(0, PREHEADER_MAX - 1).trimEnd()}…` : line;
+  return (
+    `<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all">` +
+    `${escapeHtml(clipped)}${PREHEADER_FILLER}</div>`
+  );
+}
 const FONT = "-apple-system,'Segoe UI',Tahoma,Arial,sans-serif";
 
 /**
@@ -97,6 +116,7 @@ export function buildAnnouncementEmail({
   const html =
     `<!doctype html><html lang="${lang}" dir="${dir}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head>` +
     `<body style="margin:0;padding:0;background:#f3f4f6">` +
+    preheaderHtml(body) +
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f4f6" style="background:#f3f4f6"><tr><td align="center" style="padding:24px 12px">` +
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${dir}" bgcolor="#ffffff" style="max-width:560px;font-family:${FONT};background:#ffffff;border:1px solid #e5e7eb;border-radius:16px">` +
     // Header row: Matjar logo and name
