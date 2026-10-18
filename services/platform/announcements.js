@@ -32,6 +32,21 @@ import { notificationPreferencesUrl } from "../../utils/notificationLinks.js";
 import { isWebPushConfigured } from "../../utils/webPush.js";
 import { trackingUrls } from "../../utils/announcementTracking.js";
 import { ANNOUNCEMENT_NAMES_KEPT } from "../../schemas/announcement.js";
+import { normalizeBrandColor } from "../../utils/brandKit.js";
+import config from "../../config/index.js";
+
+/** The Matjar icon in emails (served with the dashboard). */
+const matjarLogoUrl = () => `${config.publicDashboardUrl}/dashboard/pwa-192x192.png`;
+
+/** The store's logo as an absolute https URL an email can load, or null. */
+function emailLogoUrl(logo) {
+  if (typeof logo !== "string" || !logo) return null;
+  if (/^https:\/\//i.test(logo)) return logo;
+  // Local uploads (development only, index.js → /uploads); production
+  // logos are https image-host URLs.
+  if (logo.startsWith("/uploads/")) return `${config.publicDashboardUrl}${logo}`;
+  return null;
+}
 
 /** Stores delivered to at the same time. */
 const SEND_CONCURRENCY = 4;
@@ -65,7 +80,10 @@ const pickedIds = ({ target, tenantId, tenantIds }) =>
 async function targetStores(t) {
   const ids = pickedIds(t);
   const filter = ids ? { ...LIVE_STORE, _id: { $in: ids } } : LIVE_STORE;
-  return Tenant().find(filter).select("_id name email settings.storeName settings.language").lean();
+  return Tenant()
+    .find(filter)
+    .select("_id name email settings.storeName settings.language settings.logo settings.brand.color")
+    .lean();
 }
 
 /**
@@ -140,6 +158,9 @@ async function deliverToStore(doc, store) {
         pixelUrl,
         prefsUrl: notificationPreferencesUrl(),
         storeName,
+        storeLogoUrl: emailLogoUrl(store.settings?.logo),
+        brandColor: normalizeBrandColor(store.settings?.brand?.color),
+        matjarLogoUrl: matjarLogoUrl(),
         language,
       });
       try {
