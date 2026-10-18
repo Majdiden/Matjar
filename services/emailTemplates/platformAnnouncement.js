@@ -40,13 +40,13 @@ const BRAND_BLUE = "#2563eb";
 const FONT = "-apple-system,'Segoe UI',Tahoma,Arial,sans-serif";
 
 /**
- * Design (PBI 10-55, "brand banner"): a blue Matjar band with the Matjar logo
- * on a white tile (so the blue logo stands out from the blue band) and the
- * name; a white card with the title, the text and a rounded button, all
- * centred; the footer stacks the Matjar logo above its name, then says which
- * store the person runs and links to the notification settings. Table layout
- * and inline styles only (bgcolor as the band's fallback), so Gmail, Outlook
- * and phone mail apps render it the same.
+ * Design (PBI 10-55, "clean letter"): a white card on a light grey page. Its
+ * top row carries the Matjar logo and name with "a message from the Matjar
+ * team"; below a thin line, the title, the text and a blue button, aligned
+ * with the reading direction. The footer stacks the Matjar logo above its
+ * name, then says which store the person runs and links to the notification
+ * settings. Table layout and inline styles only, so Gmail, Outlook and phone
+ * mail apps render it the same.
  *
  * @param {object} o
  * @param {string} o.title
@@ -90,30 +90,26 @@ export function buildAnnouncementEmail({
       ? `<img src="${escapeHtml(matjarLogoUrl)}" width="${size}" height="${size}" alt="Matjar" style="display:block;width:${size}px;height:${size}px;border-radius:${radius}px;border:0" />`
       : "";
 
-  // The logo on a white tile: the logo itself is blue, like the band.
-  const bandLogo = matjarLogoUrl
-    ? `<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto"><tr><td bgcolor="#ffffff" style="background:#ffffff;border-radius:18px;padding:6px">${img(52, 13)}</td></tr></table>`
-    : "";
-
   const button = linkUrl
-    ? `<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:10px auto 0"><tr><td align="center" bgcolor="${BRAND_BLUE}" style="border-radius:999px;background:${BRAND_BLUE}"><a href="${escapeHtml(linkUrl)}" style="display:inline-block;padding:14px 34px;font-family:${FONT};font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:999px">${c.open}</a></td></tr></table>`
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" align="${align}" style="margin:6px 0 4px"><tr><td bgcolor="${BRAND_BLUE}" style="border-radius:10px;background:${BRAND_BLUE}"><a href="${escapeHtml(linkUrl)}" style="display:inline-block;padding:13px 28px;font-family:${FONT};font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:10px">${c.open}</a></td></tr></table>`
     : "";
 
   const html =
     `<!doctype html><html lang="${lang}" dir="${dir}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head>` +
-    `<body style="margin:0;padding:0;background:#eef2ff">` +
-    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#eef2ff" style="background:#eef2ff"><tr><td align="center" style="padding:24px 12px">` +
-    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${dir}" style="max-width:560px;font-family:${FONT};background:#ffffff;border-radius:18px;overflow:hidden">` +
-    // Blue Matjar band
-    `<tr><td align="center" bgcolor="${BRAND_BLUE}" style="background:${BRAND_BLUE};background-image:linear-gradient(135deg,#2563eb,#1d4ed8);padding:26px 24px 22px">` +
-    bandLogo +
-    `<div style="margin-top:10px;font-size:20px;font-weight:800;color:#ffffff;letter-spacing:.3px">Matjar</div>` +
-    `<div style="margin-top:4px;font-size:13px;color:#dbeafe">${c.from}</div>` +
-    `</td></tr>` +
+    `<body style="margin:0;padding:0;background:#f3f4f6">` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f3f4f6" style="background:#f3f4f6"><tr><td align="center" style="padding:24px 12px">` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${dir}" bgcolor="#ffffff" style="max-width:560px;font-family:${FONT};background:#ffffff;border:1px solid #e5e7eb;border-radius:16px">` +
+    // Header row: Matjar logo and name
+    `<tr><td style="padding:18px 28px;border-bottom:1px solid #f0f0f0;text-align:${align}">` +
+    `<table role="presentation" cellpadding="0" cellspacing="0" align="${align}"><tr>` +
+    (matjarLogoUrl ? `<td valign="middle" style="padding-${lang === "ar" ? "left" : "right"}:10px">${img(40, 10)}</td>` : "") +
+    `<td valign="middle" style="text-align:${align}"><div style="font-size:16px;font-weight:800;color:#111827">Matjar</div>` +
+    `<div style="font-size:12px;color:#6b7280">${c.from}</div></td>` +
+    `</tr></table></td></tr>` +
     // Message
-    `<tr><td align="center" style="padding:28px 32px 30px;text-align:center">` +
-    `<h1 style="margin:0 0 14px 0;font-size:23px;line-height:1.5;color:#111827;text-align:center">${escapeHtml(title)}</h1>` +
-    `<div style="font-size:16px;color:#374151">${paragraphsHtml(body, "center")}</div>` +
+    `<tr><td style="padding:26px 28px 22px;text-align:${align}">` +
+    `<h1 style="margin:0 0 16px 0;font-size:23px;line-height:1.5;color:#111827;text-align:${align}">${escapeHtml(title)}</h1>` +
+    `<div style="font-size:16px;color:#374151">${paragraphsHtml(body, align)}</div>` +
     button +
     `</td></tr></table>` +
     // Footer: logo above the name
