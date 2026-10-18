@@ -25,6 +25,14 @@ describe("announcement email", () => {
     assert.match(html, /href="https:\/\/app\.matjar\.to\/e\/c\/t"/);
   });
 
+  it("starts with a hidden preview line holding the message, not the header or title", () => {
+    const { html } = buildAnnouncementEmail(base);
+    const body = html.slice(html.indexOf("<body"));
+    const firstText = body.replace(/<[^>]+>/g, "\n").split("\n").map((t) => t.trim()).find(Boolean);
+    assert.equal(firstText.startsWith("سطر أول. فقرة ثانية."), true, firstText);
+    assert.match(body, /display:none[^>]*>سطر أول/);
+  });
+
   it("escapes the merchant's text", () => {
     const { html } = buildAnnouncementEmail({ ...base, storeName: "<b>x</b>", title: "<script>" });
     assert.ok(!html.includes("<script>") && !html.includes("<b>x</b>"));
