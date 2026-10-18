@@ -158,8 +158,13 @@ function toRealUrl(path: string): string {
 // ── Web Push: focus/open the dashboard on click ────────────────────────
 self.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close();
-  const data = (event.notification.data || {}) as { url?: string };
-  const targetUrl = toRealUrl(data.url || DASHBOARD_SCOPE);
+  const data = (event.notification.data || {}) as { url?: string; notificationId?: string };
+  // Tapping the notification reads it: the dashboard marks `?notif=` read on
+  // load (NotificationsContext), so it is no longer unread there and counts
+  // as opened (e.g. in the platform's announcement stats).
+  const target = new URL(toRealUrl(data.url || DASHBOARD_SCOPE));
+  if (data.notificationId) target.searchParams.set('notif', data.notificationId);
+  const targetUrl = target.href;
 
   event.waitUntil(
     (async () => {

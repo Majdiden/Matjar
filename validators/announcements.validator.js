@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { objectId } from "./platform.validator.js";
-import { ANNOUNCEMENT_TITLE_MAX, ANNOUNCEMENT_BODY_MAX } from "../schemas/announcement.js";
+import { ANNOUNCEMENT_TITLE_MAX, ANNOUNCEMENT_BODY_MAX, ANNOUNCEMENT_MAX_STORES } from "../schemas/announcement.js";
 
 const pair = (max) =>
   z
@@ -17,15 +17,23 @@ const dashboardPath = z
   .max(300)
   .regex(/^\/dashboard(\/[\w\-./?=&%]*)?$/, "Use a dashboard path such as /dashboard/products");
 
+const storeList = z.array(objectId).min(1, "Pick at least one store").max(ANNOUNCEMENT_MAX_STORES);
+
 const audience = z.discriminatedUnion("target", [
   z.object({ target: z.literal("all") }),
   z.object({ target: z.literal("tenant"), tenantId: objectId }),
+  z.object({ target: z.literal("tenants"), tenantIds: storeList }),
 ]);
 
+// The reach check is a GET: picked stores travel as a comma-separated list.
 export const announcementAudienceSchema = z.object({
   query: z.union([
     z.object({ target: z.literal("all") }),
     z.object({ target: z.literal("tenant"), tenantId: objectId }),
+    z.object({
+      target: z.literal("tenants"),
+      tenantIds: z.preprocess((v) => (typeof v === "string" ? v.split(",").filter(Boolean) : v), storeList),
+    }),
   ]),
 });
 

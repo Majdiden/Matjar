@@ -26,7 +26,7 @@ export const send = asyncHandler(async (req, res) => {
     action: "announcement.send",
     resourceType: "Announcement",
     resourceId: doc._id,
-    after: { target: doc.target, tenantId: doc.tenantId, channels: doc.channels, title: doc.title },
+    after: { target: doc.target, tenantId: doc.tenantId, stores: doc.tenantIds?.length, channels: doc.channels, title: doc.title },
   });
   res.status(202).json({ success: true, data: svc.publicAnnouncement(doc.toObject()) });
 });

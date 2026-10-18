@@ -38,12 +38,13 @@ function paragraphsHtml(text, align) {
  * @param {object} o
  * @param {string} o.title
  * @param {string} o.body
- * @param {string|null} [o.linkUrl]   absolute dashboard URL for the button
+ * @param {string|null} [o.linkUrl]   absolute URL for the button (tracked)
+ * @param {string|null} [o.pixelUrl]  tracking image that counts the open
  * @param {string} o.prefsUrl         absolute URL of the notification settings
  * @param {string} o.storeName
  * @param {"ar"|"en"} [o.language]
  */
-export function buildAnnouncementEmail({ title, body, linkUrl, prefsUrl, storeName, language }) {
+export function buildAnnouncementEmail({ title, body, linkUrl, pixelUrl, prefsUrl, storeName, language }) {
   const lang = String(language || "").toLowerCase().startsWith("ar") ? "ar" : "en";
   const c = COPY[lang];
   const dir = lang === "ar" ? "rtl" : "ltr";
@@ -74,6 +75,7 @@ export function buildAnnouncementEmail({ title, body, linkUrl, prefsUrl, storeNa
     `<hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0 12px 0" />` +
     `<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.7;text-align:${align}">${escapeHtml(c.why(store))}<br>` +
     `<a href="${escapeHtml(prefsUrl)}" style="color:#6b7280">${c.manage}</a></p>` +
+    (pixelUrl ? `<img src="${escapeHtml(pixelUrl)}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0" />` : "") +
     `</div>`;
 
   return { subject: title, text, html };

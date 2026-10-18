@@ -61,3 +61,4 @@ This document lists all tasks associated with PBI 10.
 | 10-51 | [Live-store fixes: categories, notifications, short store links, store language, phone storefront](./10-51.md) | Review | Raw keys at signup and in notifications; long store links; iPhone zoom; Modern add-to-cart crash |
 | 10-52 | [Status email templates: real default emails and translated status names](./10-52.md) | Review | The Arabic template page showed "pending" / "Pending" inside the text |
 | 10-53 | [Email links open on the app host (app.matjar.to)](./10-53.md) | Review | Email links opened matjar.to or the store address instead of app.matjar.to |
+| 10-54 | [Notify stores: send to chosen stores, see who opened it](./10-54.md) | Review | Only all or one store could be targeted; no way to know who opened a message |

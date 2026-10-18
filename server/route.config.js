@@ -3,6 +3,7 @@ import platformAdminRouter from "../routes/platformAdmin.js";
 import platformAdminAppRouter from "../routes/platformAdminApp.js";
 import storefrontRouter from "../routes/storefront.js";
 import ogRouter from "../routes/og.js";
+import emailTrackingRouter from "../routes/emailTracking.js";
 import dashboardRouter from "../routes/dashboard.js";
 import { storefrontTenantResolver } from "../middlewares/tenantContext.js";
 import { subscriptionGate } from "../middlewares/subscriptionGate.js";
@@ -46,6 +47,9 @@ export default function (app) {
   // Mounted BEFORE the storefront catch-all so /platform/* never falls
   // through to tenant theme serving.
   app.use("/platform", platformAdminAppRouter);
+
+  // Announcement email open / click tracking (signed tokens, any host).
+  app.use("/e", emailTrackingRouter);
 
   // Public OG share-card image (host-resolved to a tenant). Mounted BEFORE
   // the storefront catch-all so `/og/store-card.png` returns the composed PNG

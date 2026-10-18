@@ -1,6 +1,6 @@
 /**
- * Platform announcements (PBI 10-46): the Matjar team sends a notification to
- * every store or to one store.
+ * Platform announcements (PBI 10-46, 10-54): the Matjar team sends a
+ * notification to every store or to the stores it picks.
  *
  * Channels, chosen by the sender and filtered by each staff member's own
  * switches for the `platform.announcement` type (Settings → Notifications):
@@ -15,7 +15,9 @@
  * `measureAudience` shows the sender, before sending, how many stores, people,
  * phones / computers and inboxes each channel reaches. Sending records the
  * announcement, answers at once and delivers in the background; the history
- * shows progress and the final counts.
+ * shows progress, the final counts and who opened it: unique people who read
+ * the app notification (the notifications page, or a tapped phone
+ * notification), opened the email (tracking image) or clicked its button.
  */
 import mongoose from "mongoose";
 import logger from "../../utils/logger.js";
@@ -26,14 +28,17 @@ import { pushEnabledFor } from "../pushNotifications.js";
 import { sendEmail, isEmailConfigured } from "../providers/email.js";
 import { platformFrom } from "../emailIdentity.js";
 import { buildAnnouncementEmail } from "../emailTemplates/platformAnnouncement.js";
-import { dashboardBaseUrl, notificationPreferencesUrl } from "../../utils/notificationLinks.js";
+import { notificationPreferencesUrl } from "../../utils/notificationLinks.js";
 import { isWebPushConfigured } from "../../utils/webPush.js";
+import { trackingUrls } from "../../utils/announcementTracking.js";
+import { ANNOUNCEMENT_NAMES_KEPT } from "../../schemas/announcement.js";
 
 /** Stores delivered to at the same time. */
 const SEND_CONCURRENCY = 4;
 const HISTORY_LIMIT = 50;
 
 const Announcement = () => mongoose.model("Announcement");
+const AnnouncementEvent = () => mongoose.model("AnnouncementEvent");
 const Tenant = () => mongoose.model("Tenant");
 
 const LIVE_STORE = { deletedAt: null, isActive: true };
@@ -52,9 +57,14 @@ async function staffOf(tenantIds) {
     .lean();
 }
 
+/** The store ids a target names (null for every store). */
+const pickedIds = ({ target, tenantId, tenantIds }) =>
+  target === "tenant" ? [tenantId] : target === "tenants" ? tenantIds || [] : null;
+
 /** The stores an announcement goes to. */
-async function targetStores({ target, tenantId }) {
-  const filter = target === "tenant" ? { ...LIVE_STORE, _id: tenantId } : LIVE_STORE;
+async function targetStores(t) {
+  const ids = pickedIds(t);
+  const filter = ids ? { ...LIVE_STORE, _id: { $in: ids } } : LIVE_STORE;
   return Tenant().find(filter).select("_id name email settings.storeName settings.language").lean();
 }
 
@@ -64,8 +74,8 @@ async function targetStores({ target, tenantId }) {
  * `devices` counts phones / computers with notifications on for staff who
  * did not switch announcement popups off.
  */
-export async function measureAudience({ target, tenantId = null }) {
-  const stores = await targetStores({ target, tenantId });
+export async function measureAudience(t) {
+  const stores = await targetStores(t);
   const ids = stores.map((s) => s._id);
   const staff = await staffOf(ids);
 
@@ -115,17 +125,19 @@ async function deliverToStore(doc, store) {
 
   if (doc.channels.email && isEmailConfigured()) {
     const staff = (await staffOf([store._id])).filter((u) => u.email && emailWantedBy(u));
-    const base = dashboardBaseUrl();
-    const linkUrl = doc.link ? (base ? `${base}${doc.link}` : doc.link) : base ? `${base}/dashboard` : null;
     const storeName = store.settings?.storeName || store.name;
     for (const user of staff) {
+      // Per person: the button goes through the click counter and a tracking
+      // image counts the open (utils/announcementTracking.js).
+      const { pixelUrl, clickUrl } = trackingUrls({ announcementId: doc._id, tenantId: store._id, userId: user._id });
       // The store's language first: a staff account's own `language` is a
       // schema default ("en"), not a choice the merchant made.
       const language = pickLanguage(store.settings?.language, user.language);
       const mail = buildAnnouncementEmail({
         title: textIn(title, language),
         body: textIn(body, language),
-        linkUrl,
+        linkUrl: clickUrl,
+        pixelUrl,
         prefsUrl: notificationPreferencesUrl(),
         storeName,
         language,
@@ -147,7 +159,7 @@ async function deliverToStore(doc, store) {
 export async function deliverAnnouncement(doc) {
   const delivered = { stores: 0, app: 0, email: 0, failed: 0 };
   try {
-    const stores = await targetStores({ target: doc.target, tenantId: doc.tenantId });
+    const stores = await targetStores(doc);
     let next = 0;
     const worker = async () => {
       while (next < stores.length) {
@@ -187,14 +199,25 @@ export async function deliverAnnouncement(doc) {
  */
 export async function sendAnnouncement(input, actor) {
   let tenantName = null;
-  if (input.target === "tenant") {
-    const store = await Tenant().findOne({ ...LIVE_STORE, _id: input.tenantId }).select("name settings.storeName").lean();
-    if (!store) {
-      const err = new Error("Store not found or not active");
+  let tenantIds;
+  let tenantNames;
+  const ids = pickedIds(input);
+  if (ids) {
+    const unique = [...new Set(ids.map(String))];
+    const stores = await Tenant().find({ ...LIVE_STORE, _id: { $in: unique } }).select("name settings.storeName").lean();
+    if (stores.length !== unique.length) {
+      const err = new Error(
+        unique.length === 1 ? "Store not found or not active" : `${unique.length - stores.length} of the picked stores are not active`
+      );
       err.statusCode = 404;
       throw err;
     }
-    tenantName = store.settings?.storeName || store.name;
+    const nameOf = (st) => st.settings?.storeName || st.name;
+    if (input.target === "tenant") tenantName = nameOf(stores[0]);
+    else {
+      tenantIds = unique;
+      tenantNames = stores.slice(0, ANNOUNCEMENT_NAMES_KEPT).map(nameOf);
+    }
   }
   const audience = await measureAudience(input);
   const doc = await Announcement().create({
@@ -205,6 +228,8 @@ export async function sendAnnouncement(input, actor) {
     target: input.target,
     tenantId: input.target === "tenant" ? input.tenantId : null,
     tenantName,
+    tenantIds,
+    tenantNames,
     audience: {
       stores: audience.stores,
       recipients: audience.recipients,
@@ -219,8 +244,55 @@ export async function sendAnnouncement(input, actor) {
   return { doc, delivery };
 }
 
+/**
+ * App reads per announcement: unique people who read its notification (the
+ * notifications page, or by tapping the phone notification) and the stores
+ * they belong to. Read from the stores' notifications, which keep `readBy`.
+ */
+async function appReads(ids) {
+  if (!ids.length) return new Map();
+  const rows = await mongoose.connection.db
+    .collection("notifications")
+    .aggregate([
+      { $match: { type: ANNOUNCEMENT_TYPE, resourceType: "announcement", resourceId: { $in: ids } } },
+      {
+        $group: {
+          _id: "$resourceId",
+          people: { $sum: { $size: { $ifNull: ["$readBy", []] } } },
+          stores: { $sum: { $cond: [{ $gt: [{ $size: { $ifNull: ["$readBy", []] } }, 0] }, 1, 0] } },
+        },
+      },
+    ])
+    .toArray();
+  return new Map(rows.map((r) => [String(r._id), { people: r.people, stores: r.stores }]));
+}
+
 export async function listAnnouncements({ limit = HISTORY_LIMIT } = {}) {
-  return Announcement().find({}).sort({ createdAt: -1 }).limit(Math.min(limit, HISTORY_LIMIT)).lean();
+  const items = await Announcement().find({}).sort({ createdAt: -1 }).limit(Math.min(limit, HISTORY_LIMIT)).lean();
+  const reads = await appReads(items.map((a) => a._id));
+  return items.map((a) => ({ ...a, appRead: reads.get(String(a._id)) || { people: 0, stores: 0 } }));
+}
+
+const EVENT_COUNTER = { email_open: "engagement.emailOpened", email_click: "engagement.emailClicked" };
+
+/**
+ * Record one person opening or clicking an announcement email. Counts each
+ * person once per kind; a click also counts as an open (the image may have
+ * been blocked). Returns the announcement's link for the click redirect.
+ */
+export async function recordEmailEvent({ announcementId, tenantId, userId }, kind) {
+  const doc = await Announcement().findById(announcementId).select("link").lean();
+  if (!doc) return null;
+  const kinds = kind === "email_click" ? ["email_click", "email_open"] : ["email_open"];
+  for (const k of kinds) {
+    try {
+      await AnnouncementEvent().create({ announcementId, tenantId, userId, kind: k });
+      await Announcement().updateOne({ _id: announcementId }, { $inc: { [EVENT_COUNTER[k]]: 1 } });
+    } catch (err) {
+      if (err?.code !== 11000) logger.warn("announcement event not recorded", { kind: k, error: err?.message });
+    }
+  }
+  return doc;
 }
 
 export function publicAnnouncement(a) {
@@ -234,9 +306,17 @@ export function publicAnnouncement(a) {
     target: a.target,
     tenantId: a.tenantId ? String(a.tenantId) : null,
     tenantName: a.tenantName,
+    storeCount: a.tenantIds?.length ?? (a.target === "tenant" ? 1 : null),
+    tenantNames: a.tenantNames || (a.tenantName ? [a.tenantName] : []),
     status: a.status,
     audience: a.audience,
     delivered: a.delivered,
+    engagement: {
+      emailOpened: a.engagement?.emailOpened || 0,
+      emailClicked: a.engagement?.emailClicked || 0,
+      appReadPeople: a.appRead?.people || 0,
+      appReadStores: a.appRead?.stores || 0,
+    },
     error: a.error,
     createdByEmail: a.createdByEmail,
     createdAt: a.createdAt,

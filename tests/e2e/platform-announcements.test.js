@@ -12,6 +12,7 @@ import { buildTestApp } from "../helpers/app.js";
 import { generateHash } from "../../utils/misc.js";
 import { getTestInbox, clearTestInbox } from "../../services/providers/email.js";
 import { sendAnnouncement, measureAudience } from "../../services/platform/announcements.js";
+import config from "../../config/index.js";
 
 const PLATFORM_PASSWORD = "PlatformPass2025!!";
 
@@ -118,7 +119,7 @@ describe("platform announcements", () => {
     const ar = mails.find((m) => m.to === "owner@anna.test");
     assert.equal(ar.subject, "ميزة جديدة");
     assert.match(ar.html, /dir="rtl"/);
-    assert.match(ar.html, /\/dashboard\/discounts/);
+    assert.match(ar.html, /\/e\/c\//); // the button goes through the click counter
     assert.equal(mails.find((m) => m.to === "owner@bata.test").subject, "New feature");
     assert.ok(b.tenantId);
   });
@@ -149,6 +150,79 @@ describe("platform announcements", () => {
     assert.deepEqual({ stores: delivered.stores, app: delivered.app, email: delivered.email }, { stores: 1, app: 1, email: 0 });
     assert.equal(getTestInbox().length, 0);
     assert.equal(await mongoose.model("Notification").countDocuments({ type: "platform.announcement", tenantId: { $ne: a.tenantId } }), 0);
+  });
+
+  it("sends to chosen stores and counts who opened it (email open, click, app read)", async () => {
+    const a = await provisionTenant(app, "alfa", "ar");
+    const b = await provisionTenant(app, "beta", "en");
+    await provisionTenant(app, "left-out");
+    const owner = await platformUser(app, "owner");
+    clearTestInbox(); // signup emails
+
+    const ids = [a.tenantId, b.tenantId];
+    const reach = await request(app)
+      .get(`/api/platform/announcements/audience?target=tenants&tenantIds=${ids.join(",")}`)
+      .set(auth(owner))
+      .expect(200);
+    assert.equal(reach.body.data.stores, 2);
+
+    const res = await request(app)
+      .post("/api/platform/announcements")
+      .set(auth(owner))
+      .send({ ...MESSAGE, target: "tenants", tenantIds: ids, channels: { app: true, email: true } })
+      .expect(202);
+    const id = res.body.data.id;
+    for (let i = 0; i < 50; i++) {
+      if ((await mongoose.model("Announcement").findById(id).lean()).status !== "sent") await new Promise((r) => setTimeout(r, 50));
+    }
+    assert.equal(getTestInbox().length, 2, "only the chosen stores");
+    assert.equal(await mongoose.model("Notification").countDocuments({ type: "platform.announcement" }), 2);
+
+    // Each email has its own tracking image and tracked button on the app host.
+    const mail = getTestInbox().find((m) => m.to === "owner@alfa.test");
+    const pixel = mail.html.match(/src="([^"]*\/e\/o\/[^"]+)"/)[1];
+    const button = mail.html.match(/href="([^"]*\/e\/c\/[^"]+)"/)[1];
+    assert.ok(pixel.startsWith(`${config.appOrigin}/e/o/`), pixel);
+    const path = (u) => new URL(u).pathname;
+
+    // Opening twice counts one person; a click redirects to the message's page.
+    const img = await request(app).get(path(pixel)).expect(200);
+    assert.equal(img.headers["content-type"], "image/gif");
+    await request(app).get(path(pixel)).expect(200);
+    const click = await request(app).get(path(button)).expect(302);
+    assert.equal(click.headers.location, `${config.appOrigin}/dashboard/discounts`);
+    // A forged token: still an image, nothing counted.
+    await request(app).get("/e/o/bm90LmEudG9rZW4.AAAAAAAAAAAAAAAAAAAAAA").expect(200);
+    const forged = await request(app).get("/e/c/bm90LmEudG9rZW4.AAAAAAAAAAAAAAAAAAAAAA").expect(302);
+    assert.equal(forged.headers.location, `${config.appOrigin}/dashboard`);
+
+    // Store B's owner reads it in the dashboard.
+    const n = await mongoose.model("Notification").findOne({ tenantId: b.tenantId, type: "platform.announcement" });
+    const bOwner = await mongoose.model("User").findOne({ tenantId: b.tenantId, email: "owner@beta.test" });
+    await mongoose.model("Notification").updateOne({ _id: n._id }, { $push: { readBy: { userId: bOwner._id, readAt: new Date() } } });
+
+    const list = await request(app).get("/api/platform/announcements").set(auth(owner)).expect(200);
+    const row = list.body.data.announcements.find((r) => r.id === id);
+    assert.equal(row.target, "tenants");
+    assert.equal(row.storeCount, 2);
+    assert.deepEqual(row.tenantNames.sort(), ["alfa store", "beta store"]);
+    assert.deepEqual(row.engagement, { emailOpened: 1, emailClicked: 1, appReadPeople: 1, appReadStores: 1 });
+  });
+
+  it("refuses chosen stores that are not active", async () => {
+    const a = await provisionTenant(app, "live");
+    const owner = await platformUser(app, "owner");
+    const ghost = new mongoose.Types.ObjectId().toString();
+    await request(app)
+      .post("/api/platform/announcements")
+      .set(auth(owner))
+      .send({ ...MESSAGE, target: "tenants", tenantIds: [a.tenantId, ghost], channels: { app: true, email: false } })
+      .expect(404);
+    await request(app)
+      .post("/api/platform/announcements")
+      .set(auth(owner))
+      .send({ ...MESSAGE, target: "tenants", tenantIds: [], channels: { app: true, email: false } })
+      .expect(400);
   });
 
   it("rejects an empty message, no channel or a link outside the dashboard", async () => {
