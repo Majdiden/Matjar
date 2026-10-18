@@ -405,14 +405,10 @@ const requestPasswordReset = async (connection, email) => {
     user.passwordResetUsedAt = null;
     await user.save();
 
-    // Build the ABSOLUTE URL the user clicks, on the tenant's own host.
-    // Staff (admin/manager/staff) reset inside the dashboard at
-    // /dashboard/reset-password; customers reset on the storefront at
-    // /reset-password. Both read `?token=` from the URL. We resolve the
-    // tenant host here so the link is never a bare relative path — the old
-    // code fell back to a relative "/reset-password" whenever the global
-    // dashboard URL env was unset, which is unusable in an email and also
-    // 404'd on the storefront for customers.
+    // Build the ABSOLUTE URL the user clicks. Staff (admin/manager/staff)
+    // reset inside the dashboard at /dashboard/reset-password on the app
+    // host; customers reset on their store's storefront at /reset-password.
+    // Both read `?token=` from the URL.
     let language;
     let host = null;
     try {
@@ -436,14 +432,15 @@ const requestPasswordReset = async (connection, email) => {
     const appPath = isStaff ? "/dashboard/reset-password" : "/reset-password";
     const query = `?token=${encodeURIComponent(rawToken)}`;
 
+    // Staff reset in the dashboard on the app host (https://app.matjar.to):
+    // the reset is found by its token, so no store address is needed.
+    // Customers reset on their store's own address.
     let resetUrl;
-    if (host) {
+    if (!isStaff && host) {
       const proto = /localhost|127\.0\.0\.1|::1/.test(host) ? "http" : "https";
       resetUrl = `${proto}://${host}${appPath}${query}`;
     } else {
-      // Last resort: the configured dashboard URL (staff-oriented).
-      const base = dashboardBaseUrl();
-      resetUrl = `${base}${appPath}${query}`;
+      resetUrl = `${dashboardBaseUrl()}${appPath}${query}`;
     }
 
     const { subject, text, html } = buildPasswordResetEmail({
