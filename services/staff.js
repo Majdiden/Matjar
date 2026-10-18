@@ -18,8 +18,8 @@ import {
 import { APIError } from "../middlewares/errorHandler.js";
 import { sendEmail } from "./providers/email.js";
 import logger from "../utils/logger.js";
-import config from "../config/index.js";
 import { emit as emitNotification } from "./notification.js";
+import { dashboardBaseUrl } from "../utils/notificationLinks.js";
 
 export const STAFF_ROLES = ["admin", "manager", "staff"];
 const EMAIL_RE = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -110,18 +110,11 @@ export const removeStaff = async (models, id, currentUserId) => {
 
 export const listInvites = async (models) => listInvitesRepo(models);
 
-const buildAcceptLink = (tenant, rawToken) => {
-  const host = tenant && typeof tenant.getActiveDomain === "function"
-    ? tenant.getActiveDomain()
-    : tenant?.domains?.subdomain?.fullDomain;
-  if (host) {
-    const proto = config.isProduction ? "https" : "http";
-    return `${proto}://${host}/dashboard/staff/accept?token=${rawToken}`;
-  }
-  // Fallback for environments without a resolvable tenant host
-  const dashboardUrl = config.publicDashboardUrl || "";
-  return `${dashboardUrl}/staff/accept?token=${rawToken}`;
-};
+// Invitations open the dashboard on the app host (https://app.matjar.to),
+// not the store's own address: the accept page finds the store from the
+// token, so it works there without a login.
+const buildAcceptLink = (rawToken) =>
+  `${dashboardBaseUrl()}/dashboard/staff/accept?token=${encodeURIComponent(rawToken)}`;
 
 export const createInvite = async (models, tenantId, { email, role, invitedById, tenant }) => {
   if (!email || !EMAIL_RE.test(email))
@@ -143,7 +136,7 @@ export const createInvite = async (models, tenantId, { email, role, invitedById,
   });
 
   // Fire-and-forget email; failure is logged but does not break the response.
-  const acceptLink = buildAcceptLink(tenant, rawToken);
+  const acceptLink = buildAcceptLink(rawToken);
   try {
     await sendEmail({
       to: invite.email,
@@ -275,7 +268,7 @@ export const resendInvite = async (models, id, { tenant } = {}) => {
 
   await refreshInviteTokenRepo(models, id, hashed, expiresAt);
 
-  const acceptLink = buildAcceptLink(tenant, rawToken);
+  const acceptLink = buildAcceptLink(rawToken);
   try {
     await sendEmail({
       to: invite.email,

@@ -16,6 +16,7 @@ import billingStatementSchema from "../schemas/billingStatement.js";
 import planChangeSchema from "../schemas/planChange.js";
 import incidentSchema from "../schemas/incident.js";
 import announcementSchema from "../schemas/announcement.js";
+import announcementEventSchema from "../schemas/announcementEvent.js";
 import inviteCodeSchema from "../schemas/inviteCode.js";
 import platformPaymentMethodSchema from "../schemas/platformPaymentMethod.js";
 import storefrontHealthSchema from "../schemas/storefrontHealth.js";
@@ -92,6 +93,7 @@ export function registerAllModels(connection) {
   connection.model("PlanChange", planChangeSchema);
   connection.model("Incident", incidentSchema);
   connection.model("Announcement", announcementSchema);
+  connection.model("AnnouncementEvent", announcementEventSchema);
   connection.model("InviteCode", inviteCodeSchema);
   connection.model("PlatformPaymentMethod", platformPaymentMethodSchema);
   connection.model("StorefrontHealth", storefrontHealthSchema);

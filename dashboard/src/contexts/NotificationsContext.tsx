@@ -143,6 +143,19 @@ export const NotificationsProvider: React.FC<{ children: React.ReactNode }> = ({
     void refresh();
   }, [refresh]);
 
+  // Opened from a phone / desktop notification (the service worker adds
+  // ?notif=<id>): mark it read, then drop the parameter from the address.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const id = url.searchParams.get('notif');
+    if (!id || !/^[a-f0-9]{24}$/.test(id)) return;
+    url.searchParams.delete('notif');
+    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
+    // Refresh after: the unread count then comes from the server, whether or
+    // not the notification was already loaded or read.
+    void markRead(id).then(() => refresh());
+  }, [markRead, refresh]);
+
   const value = useMemo<NotificationsCtx>(
     () => ({
       items,

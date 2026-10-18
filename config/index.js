@@ -154,6 +154,30 @@ class Config {
     return `app.${this.platformDomain}`;
   }
 
+  /**
+   * The app host as a URL origin (https://app.matjar.to; http for local
+   * development hosts). Every link in an email that opens the dashboard or
+   * the platform console starts here.
+   */
+  get appOrigin() {
+    const host = this.appHost;
+    const local = /(^|\.)(localhost|local|test)(:\d+)?$|^app\.127\.|:\d+$/.test(host);
+    return `${local ? "http" : "https"}://${host}`;
+  }
+
+  /**
+   * An env URL if it points at the app host, else the app origin. Old
+   * deployments set PUBLIC_DASHBOARD_URL / PLATFORM_ADMIN_URL to the bare
+   * platform domain (https://matjar.to), which put emails on the wrong host.
+   */
+  appUrlOr(envValue, path = "") {
+    const raw = String(envValue || "").trim().replace(/\/+$/, "");
+    try {
+      if (raw && this.isAppHost(new URL(raw).host)) return raw;
+    } catch { /* not a URL: use the app origin */ }
+    return `${this.appOrigin}${path}`;
+  }
+
   isAppHost(rawHost) {
     if (!rawHost) return false;
     const host = String(rawHost).split(":")[0].trim().toLowerCase().replace(/\.$/, "");
@@ -216,15 +240,12 @@ class Config {
     return (process.env.EMAIL_ENABLED || "").toLowerCase() === "true";
   }
 
-  // Public URL of the merchant dashboard SPA. Used to build absolute
-  // deep-links in outbound notification emails. Empty string means
-  // "fall back to relative /dashboard/... paths" (fine for dev).
+  // Origin of the merchant dashboard (the app host, https://app.matjar.to).
+  // Used to build absolute links in outbound emails; callers append the
+  // /dashboard/... path. PUBLIC_DASHBOARD_URL / DASHBOARD_URL are honoured
+  // only when they point at the app host (see appUrlOr).
   get publicDashboardUrl() {
-    return (
-      process.env.PUBLIC_DASHBOARD_URL ||
-      process.env.DASHBOARD_URL ||
-      ""
-    );
+    return this.appUrlOr(process.env.PUBLIC_DASHBOARD_URL || process.env.DASHBOARD_URL);
   }
 
   // Upload provider switch. Lowercased for case-insensitive comparison;

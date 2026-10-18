@@ -13,7 +13,7 @@
  * Also covers the absolute-URL helpers so the email fan-out doesn't
  * silently emit broken links when PUBLIC_DASHBOARD_URL is misconfigured.
  */
-import { describe, it, beforeEach, afterEach } from "node:test";
+import { describe, it, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -38,61 +38,53 @@ describe("resolveNotificationPath — fixture-driven", () => {
   }
 });
 
+// Every emailed dashboard link is on the app host (app.<platform domain>).
+const ENV_KEYS = ["PUBLIC_DASHBOARD_URL", "DASHBOARD_URL", "PLATFORM_DOMAIN"];
+const saved = Object.fromEntries(ENV_KEYS.map((k) => [k, process.env[k]]));
+const restoreEnv = () => {
+  for (const k of ENV_KEYS) {
+    if (saved[k] === undefined) delete process.env[k];
+    else process.env[k] = saved[k];
+  }
+};
+const useEnv = (vars) => {
+  for (const k of ENV_KEYS) delete process.env[k];
+  Object.assign(process.env, { PLATFORM_DOMAIN: "matjar.to", ...vars });
+};
+
 describe("dashboardBaseUrl", () => {
-  const ORIG = {
-    PUBLIC_DASHBOARD_URL: process.env.PUBLIC_DASHBOARD_URL,
-    DASHBOARD_URL: process.env.DASHBOARD_URL,
-  };
-  beforeEach(() => {
-    delete process.env.PUBLIC_DASHBOARD_URL;
-    delete process.env.DASHBOARD_URL;
-  });
-  afterEach(() => {
-    if (ORIG.PUBLIC_DASHBOARD_URL === undefined) delete process.env.PUBLIC_DASHBOARD_URL;
-    else process.env.PUBLIC_DASHBOARD_URL = ORIG.PUBLIC_DASHBOARD_URL;
-    if (ORIG.DASHBOARD_URL === undefined) delete process.env.DASHBOARD_URL;
-    else process.env.DASHBOARD_URL = ORIG.DASHBOARD_URL;
+  afterEach(restoreEnv);
+
+  it("is the app host when nothing is configured", () => {
+    useEnv({});
+    assert.equal(dashboardBaseUrl(), "https://app.matjar.to");
   });
 
-  it("prefers PUBLIC_DASHBOARD_URL", () => {
-    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.to";
-    process.env.DASHBOARD_URL = "https://legacy.matjar.to";
-    assert.equal(dashboardBaseUrl(), "https://admin.matjar.to");
+  it("ignores a configured URL on another host (the bare platform domain)", () => {
+    useEnv({ PUBLIC_DASHBOARD_URL: "https://matjar.to" });
+    assert.equal(dashboardBaseUrl(), "https://app.matjar.to");
+    useEnv({ DASHBOARD_URL: "https://legacy.matjar.to" });
+    assert.equal(dashboardBaseUrl(), "https://app.matjar.to");
   });
 
-  it("falls back to DASHBOARD_URL when PUBLIC_DASHBOARD_URL is unset", () => {
-    process.env.DASHBOARD_URL = "https://legacy.matjar.to";
-    assert.equal(dashboardBaseUrl(), "https://legacy.matjar.to");
+  it("keeps a configured URL on the app host, without trailing slashes", () => {
+    useEnv({ PUBLIC_DASHBOARD_URL: "https://app.matjar.to///" });
+    assert.equal(dashboardBaseUrl(), "https://app.matjar.to");
   });
 
-  it("strips trailing slashes", () => {
-    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.to///";
-    assert.equal(dashboardBaseUrl(), "https://admin.matjar.to");
-  });
-
-  it("returns empty string when nothing is configured", () => {
-    assert.equal(dashboardBaseUrl(), "");
+  it("uses http for a local development host", () => {
+    useEnv({ PLATFORM_DOMAIN: "localhost:3000" });
+    assert.equal(dashboardBaseUrl(), "http://app.localhost:3000");
   });
 });
 
 describe("resolveNotificationUrl", () => {
-  const ORIG = process.env.PUBLIC_DASHBOARD_URL;
-  afterEach(() => {
-    if (ORIG === undefined) delete process.env.PUBLIC_DASHBOARD_URL;
-    else process.env.PUBLIC_DASHBOARD_URL = ORIG;
-  });
+  afterEach(restoreEnv);
 
-  it("prefixes the base URL when configured", () => {
-    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.to";
+  it("links into the dashboard on the app host", () => {
+    useEnv({ PUBLIC_DASHBOARD_URL: "https://matjar.to" });
     const url = resolveNotificationUrl({ type: "order.created", resourceId: "o1" });
-    assert.equal(url, "https://admin.matjar.to/dashboard/orders/o1");
-  });
-
-  it("falls back to relative path when base URL is empty", () => {
-    delete process.env.PUBLIC_DASHBOARD_URL;
-    delete process.env.DASHBOARD_URL;
-    const url = resolveNotificationUrl({ type: "order.created", resourceId: "o1" });
-    assert.equal(url, "/dashboard/orders/o1");
+    assert.equal(url, "https://app.matjar.to/dashboard/orders/o1");
   });
 
   it("returns null for unknown types (even with a base URL)", () => {
@@ -102,26 +94,10 @@ describe("resolveNotificationUrl", () => {
 });
 
 describe("notificationPreferencesUrl", () => {
-  const ORIG = process.env.PUBLIC_DASHBOARD_URL;
-  afterEach(() => {
-    if (ORIG === undefined) delete process.env.PUBLIC_DASHBOARD_URL;
-    else process.env.PUBLIC_DASHBOARD_URL = ORIG;
-  });
+  afterEach(restoreEnv);
 
-  it("returns the absolute preferences URL when base is set", () => {
-    process.env.PUBLIC_DASHBOARD_URL = "https://admin.matjar.to";
-    assert.equal(
-      notificationPreferencesUrl(),
-      "https://admin.matjar.to/dashboard/settings?tab=notifications"
-    );
-  });
-
-  it("returns the relative path when no base URL", () => {
-    delete process.env.PUBLIC_DASHBOARD_URL;
-    delete process.env.DASHBOARD_URL;
-    assert.equal(
-      notificationPreferencesUrl(),
-      "/dashboard/settings?tab=notifications"
-    );
+  it("is the notification settings on the app host", () => {
+    useEnv({});
+    assert.equal(notificationPreferencesUrl(), "https://app.matjar.to/dashboard/settings?tab=notifications");
   });
 });

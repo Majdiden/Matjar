@@ -89,11 +89,10 @@ export function publicInvite(i) {
  * reset endpoint must never build a link to an attacker-controlled host.
  */
 export function platformAdminBaseUrl(req) {
-  const fromEnv = (process.env.PLATFORM_ADMIN_URL || "").trim().replace(/\/$/, "");
-  if (fromEnv) return fromEnv;
-  if (config.isProduction) {
-    const host = String(config.platformDomain || "").split(":")[0];
-    return `https://${host}/platform`;
+  // The console on the app host (https://app.matjar.to/platform), like
+  // every other emailed link; PLATFORM_ADMIN_URL only when it is on it.
+  if (config.isProduction || process.env.PLATFORM_ADMIN_URL) {
+    return config.appUrlOr(process.env.PLATFORM_ADMIN_URL, "/platform");
   }
   const origin = String(req?.headers?.origin || "").trim();
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;

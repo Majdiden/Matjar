@@ -29,6 +29,16 @@ const errorText = (err: unknown, fallback: string) =>
   (err instanceof Error ? err.message : fallback);
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+const pct = (part: number, whole: number) => `${Math.round((100 * part) / Math.max(whole, 1))}%`;
+
+/** Who a sent message went to, for the history. */
+function toLabel(r: Announcement): string {
+  if (r.target === 'all') return 'All stores';
+  const names = r.tenantNames.length ? r.tenantNames : r.tenantName ? [r.tenantName] : [];
+  const count = r.storeCount ?? names.length;
+  if (count <= 2 && names.length === count) return names.join(', ') || 'One store';
+  return `${names.slice(0, 2).join(', ')} +${count - Math.min(2, names.length)} more`;
+}
 
 /**
  * Notify stores (PBI 10-46): write a message once in English and Arabic,
@@ -41,8 +51,8 @@ export default function Announcements() {
   const toast = useToast();
 
   // ── Compose ──────────────────────────────────────────────
-  const [scope, setScope] = useState<'all' | 'tenant'>('all');
-  const [store, setStore] = useState<TenantListRow | null>(null);
+  const [scope, setScope] = useState<'all' | 'picked'>('all');
+  const [picked, setPicked] = useState<TenantListRow[]>([]);
   const [title, setTitle] = useState<TextPair>(EMPTY);
   const [body, setBody] = useState<TextPair>(EMPTY);
   const [link, setLink] = useState('');
@@ -50,8 +60,8 @@ export default function Announcements() {
   const [confirming, setConfirming] = useState(false);
 
   const target: AnnouncementTarget | null = useMemo(
-    () => (scope === 'all' ? { target: 'all' } : store ? { target: 'tenant', tenantId: store._id } : null),
-    [scope, store],
+    () => (scope === 'all' ? { target: 'all' } : picked.length ? { target: 'tenants', tenantIds: picked.map((p) => p._id) } : null),
+    [scope, picked],
   );
 
   // ── Reach for the chosen target ──────────────────────────
@@ -103,7 +113,7 @@ export default function Announcements() {
   // ── Validation ───────────────────────────────────────────
   const linkValid = !link.trim() || /^\/dashboard(\/[\w\-./?=&%]*)?$/.test(link.trim());
   const problems = [
-    !target && 'Pick a store',
+    !target && 'Pick at least one store',
     !title.ar.trim() && !title.en.trim() && 'Write a title',
     !body.ar.trim() && !body.en.trim() && 'Write the message',
     !channels.app && !channels.email && 'Pick at least one channel',
@@ -134,7 +144,12 @@ export default function Announcements() {
     void load(true);
   };
 
-  const whoLabel = scope === 'all' ? `all ${audience ? plural(audience.stores, 'store', 'stores') : 'stores'}` : store?.name || 'the store';
+  const whoLabel =
+    scope === 'all'
+      ? `all ${audience ? plural(audience.stores, 'store', 'stores') : 'stores'}`
+      : picked.length === 1
+        ? picked[0].name
+        : plural(picked.length, 'store', 'stores');
 
   const columns: DataListColumn<Announcement>[] = [
     {
@@ -156,7 +171,7 @@ export default function Announcements() {
     {
       id: 'to',
       header: 'To',
-      cell: (r) => <span className="text-sm">{r.target === 'all' ? 'All stores' : r.tenantName || 'One store'}</span>,
+      cell: (r) => <span className="text-sm">{toLabel(r)}</span>,
     },
     {
       id: 'channels',
@@ -189,6 +204,29 @@ export default function Announcements() {
       ),
     },
     {
+      id: 'opened',
+      header: 'Opened',
+      cell: (r) => (
+        <div className="text-xs leading-relaxed">
+          {r.channels.app && (
+            <div title="People who read the notification on the notifications page or by tapping it on their phone / computer">
+              App: {plural(r.engagement.appReadPeople, 'person', 'people')}
+              {r.audience.recipients > 0 && <span className="text-muted-foreground"> ({pct(r.engagement.appReadPeople, r.audience.recipients)})</span>}
+            </div>
+          )}
+          {r.channels.email && (
+            <>
+              <div title="Estimate: counted when the email's images load. Some mail apps block images, others load them for every email.">
+                Email opened: {r.engagement.emailOpened}
+                {r.delivered.email > 0 && <span className="text-muted-foreground"> ({pct(r.engagement.emailOpened, r.delivered.email)})</span>}
+              </div>
+              <div className="text-muted-foreground">Clicked: {r.engagement.emailClicked}</div>
+            </>
+          )}
+        </div>
+      ),
+    },
+    {
       id: 'status',
       header: 'Status',
       cell: (r) => (
@@ -217,8 +255,8 @@ export default function Announcements() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Notify stores</h1>
             <p className="text-sm text-muted-foreground">
-              Send a message to every store or one store. Each person gets it on the channels you pick that they
-              have not switched off in their notification settings.
+              Send a message to every store or to the stores you choose. Each person gets it on the channels you
+              pick that they have not switched off in their notification settings.
             </p>
           </div>
         </div>
@@ -238,7 +276,7 @@ export default function Announcements() {
             <div className="space-y-2">
               <Label>Send to</Label>
               <div className="flex flex-wrap gap-2">
-                {(['all', 'tenant'] as const).map((v) => (
+                {(['all', 'picked'] as const).map((v) => (
                   <button
                     key={v}
                     type="button"
@@ -248,11 +286,11 @@ export default function Announcements() {
                       scope === v ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-border hover:bg-muted'
                     }`}
                   >
-                    {v === 'all' ? 'All stores' : 'One store'}
+                    {v === 'all' ? 'All stores' : 'Chosen stores'}
                   </button>
                 ))}
               </div>
-              {scope === 'tenant' && <StorePicker value={store} onChange={setStore} />}
+              {scope === 'picked' && <StorePicker value={picked} onChange={setPicked} />}
             </div>
 
             {/* What */}
@@ -337,7 +375,7 @@ export default function Announcements() {
       <Card>
         <CardHeader>
           <CardTitle>Sent</CardTitle>
-          <CardDescription>The last 50 messages, with what reached the stores.</CardDescription>
+          <CardDescription>The last 50 messages: what reached the stores and who opened them.</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -411,12 +449,12 @@ function ChannelRow({
   );
 }
 
-/** Store search: type a name or link, pick one. */
-function StorePicker({ value, onChange }: { value: TenantListRow | null; onChange: (t: TenantListRow | null) => void }) {
+/** Store search: type a name or link, add stores one by one. */
+function StorePicker({ value, onChange }: { value: TenantListRow[]; onChange: (t: TenantListRow[]) => void }) {
   const [q, setQ] = useState('');
   const [results, setResults] = useState<TenantListRow[]>([]);
   useEffect(() => {
-    if (value || q.trim().length < 2) {
+    if (q.trim().length < 2) {
       setResults([]);
       return;
     }
@@ -431,43 +469,62 @@ function StorePicker({ value, onChange }: { value: TenantListRow | null; onChang
       window.clearTimeout(id);
       ctrl.abort();
     };
-  }, [q, value]);
+  }, [q]);
 
-  if (value) {
-    return (
-      <div className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-medium">{value.name}</div>
-          <div className="truncate text-xs text-muted-foreground">{value.domains?.primary || value.slug}</div>
-        </div>
-        <Button variant="ghost" size="icon" onClick={() => onChange(null)} aria-label="Change store">
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-    );
-  }
+  const chosen = new Set(value.map((t) => t._id));
+  const add = (t: TenantListRow) => {
+    if (!chosen.has(t._id)) onChange([...value, t]);
+    setQ('');
+  };
+  const remove = (id: string) => onChange(value.filter((t) => t._id !== id));
+
   return (
-    <div className="relative">
-      <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-      <Input className="ps-9" placeholder="Search stores by name, link or email" value={q} onChange={(e) => setQ(e.target.value)} />
-      {results.length > 0 && (
-        <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border bg-background shadow-lg">
-          {results.map((t) => (
-            <button
-              key={t._id}
-              type="button"
-              onClick={() => {
-                onChange(t);
-                setQ('');
-              }}
-              className="block w-full px-3 py-2 text-start hover:bg-muted"
-            >
-              <div className="text-sm font-medium">{t.name}</div>
-              <div className="text-xs text-muted-foreground">{t.domains?.primary || t.slug}</div>
-            </button>
+    <div className="space-y-2">
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {value.map((t) => (
+            <span key={t._id} className="inline-flex max-w-full items-center gap-1 rounded-full border bg-muted/50 py-1 pe-1 ps-3 text-sm">
+              <span className="truncate">{t.name}</span>
+              <button type="button" onClick={() => remove(t._id)} aria-label={`Remove ${t.name}`} className="rounded-full p-0.5 hover:bg-muted">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </span>
           ))}
+          {value.length > 1 && (
+            <button type="button" onClick={() => onChange([])} className="text-xs text-muted-foreground underline">
+              Clear all
+            </button>
+          )}
         </div>
       )}
+      <div className="relative">
+        <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          className="ps-9"
+          placeholder={value.length ? 'Add another store' : 'Search stores by name, link or email'}
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        {results.length > 0 && (
+          <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border bg-background shadow-lg">
+            {results.map((t) => (
+              <button
+                key={t._id}
+                type="button"
+                onClick={() => add(t)}
+                disabled={chosen.has(t._id)}
+                className="flex w-full items-center justify-between gap-2 px-3 py-2 text-start hover:bg-muted disabled:opacity-50"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium">{t.name}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{t.domains?.primary || t.slug}</span>
+                </span>
+                {chosen.has(t._id) && <span className="text-xs text-muted-foreground">Added</span>}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
