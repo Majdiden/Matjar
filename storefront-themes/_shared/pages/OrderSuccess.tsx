@@ -58,8 +58,9 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
   const params = useParams<{ id?: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  // Amounts charged or held: in the store currency, not the shopper's display choice.
-  const { formatBasePrice: formatPrice, store } = useStore();
+  // The order's own currency and rate (what the customer pays).
+  const { formatOrderPrice, store } = useStore();
+  const formatPrice = (amount: number) => formatOrderPrice(amount, order);
   const { t } = useTranslation(['order']);
 
   const accent = accentColor || 'var(--color-primary, #2563eb)';

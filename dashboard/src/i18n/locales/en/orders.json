@@ -168,7 +168,8 @@
       "tax": "Tax",
       "discount": "Discount",
       "gift_card": "Gift card",
-      "total": "Total"
+      "total": "Total",
+      "customer_pays": "Customer pays"
     },
     "payment": {
       "paid": "Paid",

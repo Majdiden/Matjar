@@ -1121,6 +1121,12 @@ router.get(
           tax: order.tax,
           discount: order.discount,
           totalAmount: order.totalAmount,
+          // Amounts are in the pricing currency; these say what the customer
+          // saw and pays (website currency or market) and at which rate.
+          baseCurrency: order.baseCurrency,
+          presentmentCurrency: order.presentmentCurrency,
+          presentmentTotal: order.presentmentTotal,
+          fxRate: order.fxRate,
           ...(fullAccess ? { shippingAddress: order.shippingAddress } : {}),
           trackingNumber: order.trackingNumber,
           trackingCarrier: order.trackingCarrier,

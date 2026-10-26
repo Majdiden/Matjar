@@ -3,6 +3,27 @@
  * Shared across all themes — communicates with the headless backend.
  */
 
+/**
+ * Price filters are typed in the currency the visitor sees; the API filters
+ * on pricing-currency prices. StoreContext sets the visitor currency's rate
+ * (1 pricing unit = rate visitor units); this converts minPrice / maxPrice.
+ */
+let priceFilterRate = 1;
+export function setPriceFilterRate(rate: number) {
+  priceFilterRate = rate > 0 ? rate : 1;
+}
+function priceFilterToBase(params?: Record<string, string | number>) {
+  if (!params || priceFilterRate === 1) return params;
+  const out = { ...params };
+  for (const key of ['minPrice', 'maxPrice']) {
+    const n = Number(out[key]);
+    if (out[key] !== undefined && out[key] !== '' && Number.isFinite(n)) {
+      out[key] = Math.round((n / priceFilterRate) * 100) / 100;
+    }
+  }
+  return out;
+}
+
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 const STOREFRONT_BASE = import.meta.env.VITE_STOREFRONT_URL || '/storefront';
 
@@ -122,6 +143,7 @@ export const storefrontApi = {
 
   /** Product listing with filters */
   getProducts: (params?: Record<string, string | number>) => {
+    params = priceFilterToBase(params);
     const qs = params ? '?' + new URLSearchParams(
       Object.entries(params).reduce((a, [k, v]) => ({ ...a, [k]: String(v) }), {} as Record<string, string>)
     ).toString() : '';
@@ -142,6 +164,7 @@ export const storefrontApi = {
 
   /** Category with products */
   getCategory: (slug: string, params?: Record<string, string | number>) => {
+    params = priceFilterToBase(params);
     const qs = params ? '?' + new URLSearchParams(
       Object.entries(params).reduce((a, [k, v]) => ({ ...a, [k]: String(v) }), {} as Record<string, string>)
     ).toString() : '';
@@ -177,6 +200,7 @@ export const storefrontApi = {
 
   /** Collection with products (supports sort, page, limit) */
   getCollection: (handle: string, params?: Record<string, string | number>) => {
+    params = priceFilterToBase(params);
     const qs = params ? '?' + new URLSearchParams(
       Object.entries(params).reduce((a, [k, v]) => ({ ...a, [k]: String(v) }), {} as Record<string, string>)
     ).toString() : '';

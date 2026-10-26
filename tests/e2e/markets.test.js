@@ -321,7 +321,7 @@ describe("E2E markets + currencies", () => {
     assert.equal(r4.status, 400);
   });
 
-  it("the base currency is the store currency, and the other currencies reach the storefront", async () => {
+  it("the base currency is the store currency; rates reach the storefront with the switcher", async () => {
     const tenantId = await provisionTenant(app);
     const adminToken = await loginAdmin(app);
     const put = (body) =>
@@ -334,6 +334,11 @@ describe("E2E markets + currencies", () => {
 
     let info = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
     assert.equal(info.currency, "SDG");
+    // Rates alone change nothing on the website…
+    assert.equal(info.currencyRates, undefined);
+    // …until visitors may switch (or the website shows another currency).
+    await put({ showSwitcher: true }).expect(200);
+    info = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
     assert.ok(Math.abs(info.currencyRates.USD - 1 / 600) < 1e-12);
 
     // Changing the base on the Currencies tab changes the store currency.
@@ -354,6 +359,44 @@ describe("E2E markets + currencies", () => {
       .expect(200);
     const after = (await request(app).get("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(200)).body.data;
     assert.equal(after.currencies.base, "SDG");
+  });
+
+  it("priced in USD, sold in SDG: visitors see and pay in SDG, the order keeps both", async () => {
+    const tenantId = await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    const put = (body) =>
+      request(app).put("/api/store-settings/currencies").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).send(body);
+
+    // A website currency needs a rate.
+    await put({ base: "USD", rates: {}, display: "SDG" }).expect(400);
+    const saved = await put({ base: "USD", rates: { SDG: 600 }, display: "SDG", showSwitcher: false });
+    assert.equal(saved.status, 200, JSON.stringify(saved.body));
+    assert.equal(saved.body.data.display, "SDG");
+
+    const info = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
+    assert.equal(info.currency, "USD");
+    assert.equal(info.displayCurrency, "SDG");
+    assert.equal(info.currencyRates.SDG, 600);
+    assert.equal(info.currencySwitcher, undefined);
+
+    // The order is charged in SDG: 100 USD × 600 (no markets configured).
+    const { product } = await seedProduct(tenantId);
+    const customerToken = await registerCustomer(app);
+    const order = await placeOrder(app, customerToken, product._id, US_ADDRESS);
+    assert.equal(order.baseCurrency, "USD");
+    assert.equal(order.presentmentCurrency, "SDG");
+    assert.equal(order.fxRate, 600);
+    assert.equal(order.presentmentSubtotal, 60000);
+    assert.equal(order.presentmentTotal, Math.round(order.totalAmount * 600 * 100) / 100);
+
+    // Switching on the currency menu; showing the pricing currency again clears the website currency.
+    await put({ showSwitcher: true }).expect(200);
+    let after = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
+    assert.equal(after.currencySwitcher, true);
+    await put({ display: null }).expect(200);
+    after = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
+    assert.equal(after.displayCurrency, undefined);
+    assert.equal(after.currencySwitcher, true);
   });
 
   it("rejects malformed currency payloads", async () => {

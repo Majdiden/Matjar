@@ -118,6 +118,18 @@ function defaultTemplatesFor(language) {
     : DEFAULT_TEMPLATES;
 }
 
+/**
+ * The order total as the customer pays it: the presentment amount when the
+ * order was shown in another currency (the website currency or a market),
+ * else the pricing-currency total.
+ */
+export function orderTotalText(order, tenant) {
+  if (order?.presentmentCurrency && order.presentmentTotal != null && order.presentmentCurrency !== order.baseCurrency) {
+    return `${order.presentmentTotal} ${order.presentmentCurrency}`;
+  }
+  return `${order?.totalAmount ?? ""} ${order?.currency || order?.baseCurrency || tenant?.settings?.currency || "SDG"}`.trim();
+}
+
 export const ORDER_NOTIFICATION_STATUSES = STATUSES;
 export const ORDER_NOTIFICATION_DEFAULTS = DEFAULT_TEMPLATES;
 export const ORDER_NOTIFICATION_DEFAULTS_AR = DEFAULT_TEMPLATES_AR;
@@ -226,7 +238,7 @@ export const notifyOrderStatusChange = async (order, newStatus) => {
       customerName,
       orderNumber: order.orderNumber || "",
       status: statusLabelFor(newStatus, emailLanguage),
-      total: `${order.totalAmount ?? ""} ${order.currency || tenant.settings?.currency || "SDG"}`.trim(),
+      total: orderTotalText(order, tenant),
       trackingNumber: order.trackingNumber || "",
       storeName: tenant.settings?.storeName || tenant.name || "Store",
     };
@@ -321,7 +333,7 @@ export const notifyMerchantNewOrder = async (order, tenantId) => {
     const isAr = String(tenant.settings?.language || "").toLowerCase().startsWith("ar");
     const storeName = tenant.settings?.storeName || tenant.name || "Store";
     const orderNumber = order.orderNumber || String(order._id || "");
-    const total = `${order.totalAmount ?? ""} ${order.currency || tenant.settings?.currency || "SDG"}`.trim();
+    const total = orderTotalText(order, tenant);
     const customerName =
       order.user?.name ||
       [order.shippingAddress?.firstName, order.shippingAddress?.lastName].filter(Boolean).join(" ") ||

@@ -6,7 +6,7 @@ import { Button } from '../../../components/ui/button';
 import { Separator } from '../../../components/ui/separator';
 import { Package, Clock, Pencil } from 'lucide-react';
 import type { OrderItem } from '../../../types';
-import { formatDate } from '../../../lib/format';
+import { formatDate, formatPrice as formatMoney } from '../../../lib/format';
 import { useOrderDetail } from './context';
 import { getEffectiveFulfilledQuantity, getReturnableQuantity, canEditOrderLines } from './lib';
 import { EditLinesDialog } from './dialogs/EditLinesDialog';
@@ -189,6 +189,13 @@ export const LineItemsCard: React.FC = () => {
             <span>{t('orders:detail.totals.total')}</span>
             <span>{formatPrice(order.totalAmount)}</span>
           </div>
+          {/* Priced in one currency, sold in another: what the customer pays. */}
+          {order.presentmentCurrency && order.presentmentTotal != null && order.presentmentCurrency !== order.baseCurrency && (
+            <div className="flex justify-between rounded-md bg-muted px-3 py-2 text-sm font-semibold">
+              <span>{t('orders:detail.totals.customer_pays')}</span>
+              <span dir="ltr">{formatMoney(order.presentmentTotal, order.presentmentCurrency)}</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

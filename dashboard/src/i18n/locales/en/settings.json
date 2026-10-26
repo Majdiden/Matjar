@@ -68,7 +68,7 @@
       },
       "currencies": {
         "title": "Currencies",
-        "description": "Your products are priced in the store currency, and orders are paid in it. Add other currencies so shoppers can see prices in them; they pick one from the language menu on your store. Enter what one unit costs in your store currency, for example 1 USD = 600 SDG."
+        "description": "Price your products in one currency and show your website in another. For example, enter prices in USD and let visitors see and pay in SDG at your exchange rate."
       },
       "markets": {
         "title": "Markets",
@@ -159,13 +159,25 @@
       },
       "currencies": {
         "base": {
-          "label": "Store currency"
+          "label": "Pricing currency",
+          "help": "The currency you enter product prices, shipping fees and discounts in. Your dashboard shows amounts in it."
         },
         "exchange_rates": {
-          "label": "Other currencies"
+          "label": "Exchange rates"
         },
         "currency_placeholder": "Currency",
-        "rate_placeholder": "600"
+        "rate_placeholder": "600",
+        "flip": "Flip the rate",
+        "display": {
+          "label": "Website currency",
+          "same": "{{code}} (same as pricing)",
+          "help_same": "Visitors see and pay in your pricing currency.",
+          "help_other": "Visitors see and pay in {{code}}: every price is converted from {{base}} with your rate. Orders keep both amounts."
+        },
+        "switcher": {
+          "label": "Let visitors change the currency",
+          "help": "Adds the other currencies to the language menu on your website. Visitors still pay in the website currency."
+        }
       },
       "markets": {
         "code": {
@@ -446,7 +458,7 @@
     "empty": {
       "no_shipping_zones": "No shipping zones configured yet.",
       "no_tax_rates": "No tax rates configured.",
-      "no_currencies": "No other currencies yet. Shoppers see prices in the store currency.",
+      "no_currencies": "No exchange rates yet. Add one to show your website in another currency.",
       "no_markets": "All customers pay in the base currency.",
       "no_countries": "No countries — this market will only be selected when it's the default."
     },

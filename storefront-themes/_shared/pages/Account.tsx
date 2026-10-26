@@ -94,8 +94,8 @@ const btnGhost =
 
 const Account: React.FC<AccountProps> = ({ className = '', accentColor }) => {
   const navigate = useNavigate();
-  // Amounts charged or held: in the store currency, not the shopper's display choice.
-  const { formatBasePrice: formatPrice, store } = useStore();
+  // Spend and balances: in the website currency (what is charged).
+  const { formatChargedPrice: formatPrice, store } = useStore();
   const { t } = useTranslation(['account']);
   const accent = accentColor || 'var(--color-primary, #2563eb)';
   const giftCardsEnabled = store?.giftCards?.enabled !== false;
@@ -434,8 +434,8 @@ const OrdersTab: React.FC<{
   onCancelled: (id: string) => void;
   flash: (kind: 'ok' | 'err', msg: string) => void;
 }> = ({ orders, accent, onCancelled, flash }) => {
-  // Amounts charged or held: in the store currency, not the shopper's display choice.
-  const { formatBasePrice: formatPrice } = useStore();
+  // Each order in its own currency and rate.
+  const { formatOrderPrice } = useStore();
   const { t } = useTranslation(['account']);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const confirm = useConfirm();
@@ -519,7 +519,7 @@ const OrdersTab: React.FC<{
                 {summary && <span className="hidden sm:inline"> · {summary}{moreCount > 0 ? ` ${t('account.order.more', { count: moreCount })}` : ''}</span>}
               </p>
             </div>
-            <p className="font-bold text-base">{formatPrice(order.totalAmount)}</p>
+            <p className="font-bold text-base">{formatOrderPrice(order.totalAmount, order)}</p>
             <div className="flex items-center gap-3 whitespace-nowrap">
               <Link
                 to={`/orders/${order._id}`}
@@ -1173,8 +1173,8 @@ interface GiftCardSummary {
 }
 
 const GiftCardsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string) => void }> = ({ accent, flash }) => {
-  // Amounts charged or held: in the store currency, not the shopper's display choice.
-  const { formatBasePrice: formatPrice } = useStore();
+  // Gift card balances: in the website currency (what is charged).
+  const { formatChargedPrice: formatPrice } = useStore();
   const { t } = useTranslation(['account']);
   const [cards, setCards] = useState<GiftCardSummary[] | null>(null);
 

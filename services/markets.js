@@ -130,6 +130,20 @@ export function applyPresentment(quote, market, currencies) {
 export async function presentmentForCheckout({ tenantId, country, quote }) {
   const tenant = await getATenantRepo({}, { _id: tenantId });
   if (!tenant) return applyPresentment(quote, null, null);
-  const market = resolveMarket(tenant, country);
-  return applyPresentment(quote, market, tenant.settings?.currencies);
+  const currencies = tenant.settings?.currencies;
+  // A market for the buyer's country wins; otherwise the website currency
+  // (Settings → Currencies) when it differs from the pricing currency.
+  const market = resolveMarket(tenant, country) || websiteCurrencyMarket(currencies);
+  return applyPresentment(quote, market, currencies);
+}
+
+/**
+ * The website currency as a market-like object (no adjustment), or null when
+ * visitors see and pay in the pricing currency itself.
+ */
+export function websiteCurrencyMarket(currencies) {
+  const base = (currencies?.base || "SDG").toUpperCase();
+  const display = currencies?.display ? String(currencies.display).toUpperCase() : null;
+  if (!display || display === base) return null;
+  return { code: null, currency: display, priceAdjustmentPct: 0 };
 }
