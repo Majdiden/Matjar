@@ -80,6 +80,7 @@
     },
     "summary": {
       "title": "Order Summary",
+      "region_changed": "Prices are for {{region}} ({{currency}}), where your delivery address is.",
       "subtotal": "Subtotal",
       "discount": "Discount",
       "shipping": "Shipping",

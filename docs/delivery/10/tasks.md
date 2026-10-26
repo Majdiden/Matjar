@@ -65,3 +65,4 @@ This document lists all tasks associated with PBI 10.
 | 10-55 | [Announcement emails: clean letter design with the Matjar logo](./10-55.md) | Review | Plain announcement emails without the Matjar logo |
 | 10-56 | [Currencies apply to the storefront: one store currency, shoppers pick a display currency](./10-56.md) | Review | Base currency and exchange rates had no effect on product prices |
 | 10-57 | [Price in one currency, sell in another; optional currency switcher](./10-57.md) | Review | Merchants want USD pricing shown and charged in SDG at their own rate |
+| 10-58 | [Regions: detect the visitor's region, let them change it, same prices from browsing to checkout](./10-58.md) | Review | Multi-region stores only switched currency at checkout |

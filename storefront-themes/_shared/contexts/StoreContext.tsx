@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { storefrontApi, setPriceFilterRate } from '../api/client';
-import i18n, { readShopperLang } from '../i18n';
+import i18n, { readShopperLang, saveShopperLang } from '../i18n';
 import type { BrandKit, GeneratedPages, StoreTrust } from '../types/commerce';
 
 export interface StoreInfo {
@@ -22,6 +22,13 @@ export interface StoreInfo {
   displayCurrency?: string;
   /** Visitors may switch currency (language menu). */
   currencySwitcher?: boolean;
+  /**
+   * Regions (Settings → Markets): each with its currency and price
+   * adjustment. When present, visitors pick a region instead of a currency.
+   */
+  markets?: StoreMarket[];
+  /** The region detected for this visitor (by country), else the default one. */
+  market?: string;
   theme?: any;
   themeCustomization?: {
     settings?: {
@@ -87,7 +94,25 @@ interface StoreContextType {
   formatOrderPrice: (amount: number, order?: OrderCurrency | null) => string;
   /** An amount typed in the visitor's currency (e.g. a price filter) → pricing currency. */
   toBaseAmount: (amount: number) => number;
+  /** An amount already in `code` (e.g. a quote's presentment total). */
+  formatMoney: (amount: number, code: string) => string;
+  /** The store's regions (empty without markets). */
+  markets: StoreMarket[];
+  /** The visitor's region: chosen, else detected, else the default one. */
+  market: StoreMarket | null;
+  setMarket: (code: string) => void;
   refresh: () => Promise<void>;
+}
+
+/** A storefront region (market). */
+export interface StoreMarket {
+  code: string;
+  name: string;
+  currency: string;
+  language?: string;
+  /** 0.1 = prices 10% higher in this region. */
+  priceAdjustmentPct?: number;
+  isDefault?: boolean;
 }
 
 /** The currency fields a placed order carries. */
@@ -97,13 +122,21 @@ export interface OrderCurrency {
   fxRate?: number;
 }
 
-/** The shopper's currency choice, kept for the visit (like the language). */
+/** The shopper's currency / region choice, kept for the visit (like the language). */
 const CURRENCY_KEY = 'matjar.storefront.currency';
-const readCurrencyChoice = (): string | null => {
+const MARKET_KEY = 'matjar.storefront.market';
+const readChoice = (key: string): string | null => {
   try {
-    return sessionStorage.getItem(CURRENCY_KEY);
+    return sessionStorage.getItem(key);
   } catch {
     return null;
+  }
+};
+const saveChoice = (key: string, value: string) => {
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {
+    /* storage unavailable: the choice holds until reload */
   }
 };
 
@@ -237,33 +270,59 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const currencies = store?.currencySwitcher
     ? Array.from(new Set([chargeCurrency, baseCurrency, ...Object.keys(rates)]))
     : [chargeCurrency];
-  const [choice, setChoice] = useState<string | null>(readCurrencyChoice);
-  // A choice the store no longer offers falls back to the website currency.
-  const currency = choice && currencies.includes(choice) ? choice : chargeCurrency;
-
+  const [choice, setChoice] = useState<string | null>(() => readChoice(CURRENCY_KEY));
   const setCurrency = React.useCallback((code: string) => {
     setChoice(code);
-    try {
-      sessionStorage.setItem(CURRENCY_KEY, code);
-    } catch {
-      /* storage unavailable: the choice holds until reload */
-    }
+    saveChoice(CURRENCY_KEY, code);
   }, []);
 
+  // Regions: the visitor's choice, else the region detected by the server,
+  // else the default one. A region sets the currency and price adjustment
+  // (and replaces the currency choice).
+  const markets = store?.markets || [];
+  const [marketChoice, setMarketChoice] = useState<string | null>(() => readChoice(MARKET_KEY));
+  const market =
+    markets.find((m) => m.code === marketChoice) ||
+    markets.find((m) => m.code === store?.market) ||
+    markets.find((m) => m.isDefault) ||
+    null;
+  const setMarket = React.useCallback(
+    (code: string) => {
+      setMarketChoice(code);
+      saveChoice(MARKET_KEY, code);
+      const lang = markets.find((m) => m.code === code)?.language;
+      if (lang === 'ar' || lang === 'en') {
+        saveShopperLang(lang);
+        void i18n.changeLanguage(lang);
+      }
+    },
+    [markets],
+  );
+
+  // What prices are shown in: the region's currency, else the visitor's
+  // currency choice, else the website currency. `factor` turns a pricing-
+  // currency amount into it (region adjustment × exchange rate).
+  const currency = market && rateOf(market.currency)
+    ? market.currency
+    : choice && currencies.includes(choice) ? choice : chargeCurrency;
+  const factor = (rateOf(currency) ?? 1) * (market && currency === market.currency ? 1 + (market.priceAdjustmentPct || 0) : 1);
+
   const convert = (amount: number, code: string) => money(amount * (rateOf(code) ?? 1), rateOf(code) ? code : baseCurrency);
-  const formatPrice = (amount: number) => convert(amount, currency);
-  const formatChargedPrice = (amount: number) => convert(amount, chargeCurrency);
+  const formatPrice = (amount: number) => money(amount * factor, currency);
+  // What is charged: the region's prices when there is a region (checkout
+  // confirms by the shipping address), else the website currency.
+  const formatChargedPrice = (amount: number) => (market ? formatPrice(amount) : convert(amount, chargeCurrency));
   const formatOrderPrice = (amount: number, order?: OrderCurrency | null) =>
     order?.presentmentCurrency && order.fxRate && order.fxRate > 0
       ? money(amount * order.fxRate, order.presentmentCurrency)
       : order?.baseCurrency
         ? money(amount, order.baseCurrency)
         : formatChargedPrice(amount);
-  const toBaseAmount = (amount: number) => amount / (rateOf(currency) ?? 1);
+  const toBaseAmount = (amount: number) => amount / factor;
 
   // The API client converts price filters typed in the visitor's currency.
   useEffect(() => {
-    setPriceFilterRate(rateOf(currency) ?? 1);
+    setPriceFilterRate(factor);
   });
 
   // Note: CSS variable injection for colors/typography is handled by ThemeProvider
@@ -298,6 +357,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         formatChargedPrice,
         formatOrderPrice,
         toBaseAmount,
+        formatMoney: money,
+        markets,
+        market,
+        setMarket,
         refresh,
       }}
     >

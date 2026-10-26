@@ -3,6 +3,7 @@ import { publicSocialLinks } from "../utils/socialLinks.js";
 import { publicBrand } from "../utils/brandKit.js";
 import { contentHash, publicTrust } from "./generatedPages.js";
 import { publicDeliveryZones } from "./shipping.js";
+import { resolveMarket } from "./markets.js";
 
 /**
  * Build the public store payload — the exact object returned as
@@ -21,6 +22,8 @@ import { publicDeliveryZones } from "./shipping.js";
  * @param {string|null} [options.previewParam]  `?preview=<token>` value — when it
  *   matches the tenant's editor token (and hasn't expired), the DRAFT
  *   customization snapshot is returned instead of the published one.
+ * @param {string|null} [options.visitorCountry] the visitor's country (utils/visitorCountry.js),
+ *   used to pick the storefront region when the store has markets
  * @param {string|null} [options.previewTheme]  `?previewTheme=<slug>` value — a
  *   different theme's bundle is being served, so report that slug and drop
  *   the customization (its sections belong to another theme's schema).
@@ -141,7 +144,29 @@ export function buildStoreInfo(tenant, options = {}) {
   );
   const displayCurrency = fx.display && displayRates[String(fx.display).toUpperCase()] ? String(fx.display).toUpperCase() : null;
   const currencySwitcher = fx.showSwitcher === true && Object.keys(displayRates).length > 0;
-  const needsRates = !!displayCurrency || currencySwitcher;
+  // Regions (Settings → Markets): each enabled market whose currency can be
+  // converted (the pricing currency or one with a rate). `market` is the
+  // region for this visitor's country (options.visitorCountry), else the
+  // default one. The storefront prices in the region's currency and
+  // adjustment; checkout still prices by the shipping address.
+  const markets = (tenant.settings?.markets || [])
+    .map((m) => (typeof m?.toObject === "function" ? m.toObject() : m))
+    .filter((m) => m?.enabled !== false && m.code && m.currency)
+    .map((m) => ({ ...m, currency: String(m.currency).toUpperCase() }))
+    .filter((m) => m.currency === storeCurrency || displayRates[m.currency] > 0)
+    .map((m) => ({
+      code: m.code,
+      name: m.name || m.code,
+      currency: m.currency,
+      ...(m.language && { language: m.language }),
+      ...(m.priceAdjustmentPct && { priceAdjustmentPct: m.priceAdjustmentPct }),
+      ...(m.isDefault && { isDefault: true }),
+    }));
+  const visitorMarket =
+    markets.length > 0
+      ? resolveMarket({ settings: { markets: tenant.settings.markets.filter((m) => markets.some((x) => x.code === m.code)) } }, options.visitorCountry)
+      : null;
+  const needsRates = !!displayCurrency || currencySwitcher || markets.length > 0;
 
   return {
     name: tenant.settings?.storeName || tenant.name,
@@ -155,6 +180,7 @@ export function buildStoreInfo(tenant, options = {}) {
     ...(needsRates && { currencyRates: displayRates }),
     ...(displayCurrency && { displayCurrency }),
     ...(currencySwitcher && { currencySwitcher: true }),
+    ...(markets.length > 0 && { markets, ...(visitorMarket && { market: visitorMarket.code }) }),
     theme: effectiveTheme,
     themeCustomization: effectiveCustomization,
     socialLinks: publicSocialLinks(tenant.settings?.socialLinks),

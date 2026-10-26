@@ -10,14 +10,18 @@ interface Props {
 }
 
 /**
- * Language menu in every theme's header. When the store offers other
- * currencies (Settings → Currencies), the same menu also lets the shopper
- * pick the currency prices are shown in, and the button shows it.
+ * Language menu in every theme's header. When the store has regions
+ * (Settings → Markets) the same menu lets the shopper pick their region,
+ * which sets the currency and prices; otherwise, when visitors may switch
+ * currency (Settings → Currencies), it offers the currencies. The button
+ * shows the language and the currency prices are in.
  */
 export function LanguageSwitcher({ className = '', openUp = false }: Props) {
   const { lang, setLang } = useLanguage()
-  const { currency, currencies, setCurrency, chargeCurrency } = useStore()
-  const multiCurrency = currencies.length > 1
+  const { currency, currencies, setCurrency, chargeCurrency, markets, market, setMarket } = useStore()
+  const multiRegion = markets.length > 1
+  const multiCurrency = !multiRegion && currencies.length > 1
+  const showsCurrency = multiRegion || multiCurrency
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -73,9 +77,11 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={
-          multiCurrency
-            ? lang === 'ar' ? 'تغيير اللغة والعملة' : 'Change language and currency'
-            : lang === 'ar' ? 'تغيير اللغة' : 'Change language'
+          multiRegion
+            ? lang === 'ar' ? 'تغيير اللغة والمنطقة' : 'Change language and region'
+            : multiCurrency
+              ? lang === 'ar' ? 'تغيير اللغة والعملة' : 'Change language and currency'
+              : lang === 'ar' ? 'تغيير اللغة' : 'Change language'
         }
         className="inline-flex min-h-[40px] items-center gap-1.5 rounded-[var(--radius-pill,9999px)] border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#2563eb)]"
         style={{ borderColor: 'color-mix(in srgb, currentColor 25%, transparent)' }}
@@ -100,7 +106,7 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
         {/* One left-to-right label so it reads "AR · SDG" in both directions. */}
         <span className="uppercase" dir="ltr">
           {lang === 'ar' ? 'AR' : 'EN'}
-          {multiCurrency && ` · ${currency}`}
+          {showsCurrency && ` · ${currency}`}
         </span>
       </button>
       {open && (
@@ -136,6 +142,32 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
             العربية
             {lang === 'ar' && <span aria-hidden="true">✓</span>}
           </button>
+          {multiRegion && (
+            <>
+              <div className="mx-3 my-1.5 border-t" style={{ borderColor: 'var(--color-border, #e5e7eb)' }} />
+              <div className="px-4 pb-1 pt-0.5 text-xs opacity-60">{lang === 'ar' ? 'المنطقة' : 'Region'}</div>
+              {markets.map((m) => (
+                <button
+                  key={m.code}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMarket(m.code)
+                    setOpen(false)
+                  }}
+                  className={`flex w-full items-center justify-between gap-3 text-start px-4 py-2.5 rounded-xl transition-colors hover:bg-black/[0.06] ${market?.code === m.code ? 'font-semibold' : ''}`}
+                >
+                  <span className="min-w-0 truncate">
+                    {m.name} <span className="opacity-60" dir="ltr">({m.currency})</span>
+                  </span>
+                  {market?.code === m.code && <span aria-hidden="true">✓</span>}
+                </button>
+              ))}
+              <p className="px-4 pb-1.5 pt-1 text-xs leading-relaxed opacity-60">
+                {lang === 'ar' ? 'يُؤكَّد السعر النهائي حسب عنوان التوصيل.' : 'The final price follows your delivery address.'}
+              </p>
+            </>
+          )}
           {multiCurrency && (
             <>
               <div className="mx-3 my-1.5 border-t" style={{ borderColor: 'var(--color-border, #e5e7eb)' }} />

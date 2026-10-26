@@ -96,7 +96,9 @@ export function applyPresentment(quote, market, currencies) {
       presentmentTotal: quote.totalAmount,
       presentmentTax: quote.tax,
       presentmentShipping: quote.shippingCost,
+      presentmentDiscount: quote.discount || 0,
       fxRate: 1,
+      presentmentPriceFactor: 1,
       marketCode: null,
     };
   }
@@ -104,7 +106,13 @@ export function applyPresentment(quote, market, currencies) {
   const adjustedSubtotal = quote.subtotal * adjust;
   const adjustedTax = quote.tax * adjust;
   const adjustedShipping = quote.shippingCost; // shipping is rate-card based, don't double-apply
-  const adjustedTotal = adjustedSubtotal + adjustedShipping + (quote.taxIncluded ? 0 : adjustedTax);
+  // Goods after discounts (the total less shipping and added tax): the
+  // adjustment applies to what the goods cost, so a discount is adjusted too.
+  const goods = quote.totalAmount - quote.shippingCost - (quote.taxIncluded ? 0 : quote.tax);
+  const adjustedTotal = goods * adjust + adjustedShipping + (quote.taxIncluded ? 0 : adjustedTax);
+  // Product discounts are adjusted like prices; a shipping discount is not.
+  const shippingDiscount = quote.shippingDiscount || 0;
+  const adjustedDiscount = ((quote.discount || 0) - shippingDiscount) * adjust + shippingDiscount;
 
   const presentmentCurrency = (market.currency || base).toUpperCase();
   const fxRate = presentmentCurrency === base
@@ -118,7 +126,10 @@ export function applyPresentment(quote, market, currencies) {
     presentmentTax: round2(adjustedTax * fxRate),
     presentmentShipping: round2(adjustedShipping * fxRate),
     presentmentTotal: round2(adjustedTotal * fxRate),
+    presentmentDiscount: round2(adjustedDiscount * fxRate),
     fxRate,
+    // Unit prices in the presentment currency = base price × this.
+    presentmentPriceFactor: adjust * fxRate,
     marketCode: market.code,
   };
 }
@@ -127,13 +138,19 @@ export function applyPresentment(quote, market, currencies) {
  * Convenience wrapper used by checkout.priceCheckout — fetches the tenant,
  * resolves the market, and returns the presentment block ready to merge.
  */
-export async function presentmentForCheckout({ tenantId, country, quote }) {
+export async function presentmentForCheckout({ tenantId, country, marketCode = null, quote }) {
   const tenant = await getATenantRepo({}, { _id: tenantId });
   if (!tenant) return applyPresentment(quote, null, null);
   const currencies = tenant.settings?.currencies;
-  // A market for the buyer's country wins; otherwise the website currency
-  // (Settings → Currencies) when it differs from the pricing currency.
-  const market = resolveMarket(tenant, country) || websiteCurrencyMarket(currencies);
+  // The shipping country decides the market. Before one is entered, the
+  // visitor's region (marketCode, chosen or detected on the storefront).
+  // Otherwise the website currency (Settings → Currencies) when it differs
+  // from the pricing currency.
+  const chosen =
+    !country && marketCode
+      ? (tenant.settings?.markets || []).find((m) => m.enabled && m.code === marketCode) || null
+      : null;
+  const market = chosen || resolveMarket(tenant, country) || websiteCurrencyMarket(currencies);
   return applyPresentment(quote, market, currencies);
 }
 

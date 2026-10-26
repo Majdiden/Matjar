@@ -59,13 +59,21 @@ interface Quote {
   shippingMethod: { id?: string; name?: string; price?: number };
   tax: number;
   totalAmount: number;
+  /** Region / website currency the customer pays in (services/markets.js). */
+  presentmentCurrency?: string;
+  presentmentTotal?: number;
+  presentmentDiscount?: number;
+  fxRate?: number;
+  /** Unit prices in the presentment currency = pricing price × this (adjustment × rate). */
+  presentmentPriceFactor?: number;
+  marketCode?: string | null;
 }
 
 const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   const navigate = useNavigate();
   const { cart, loading: cartLoading, clearCart } = useCart();
   // What is charged: the website currency, whatever the visitor browses in.
-  const { formatChargedPrice: formatPrice, store } = useStore();
+  const { formatChargedPrice: formatPrice, formatMoney, store, market, markets } = useStore();
   const { t } = useTranslation(['checkout']);
   const { t: tAll } = useTranslation();
   // Policies in the shopper's language (generated ones carry one copy per language).
@@ -272,6 +280,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
       .quote({
         shippingAddress: shipping,
         discountCode: appliedDiscount || undefined,
+        marketCode: market?.code,
       })
       .then((res) => {
         if (cancelled) return;
@@ -602,6 +611,24 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     : 0;
   const summaryTotal = Math.max(0, summaryTotalPreGift - giftCardDeduction);
   const isZeroTotal = !!appliedGiftCard && summaryTotal <= 0;
+
+  // Once quoted, show the server's numbers in the currency the delivery
+  // address's region pays in: prices and tax carry the region adjustment
+  // and the rate, shipping only the rate, totals scale with the quote's own
+  // total. Before a quote: the visitor's region / website currency.
+  const qCur = quote?.presentmentCurrency;
+  const qFx = quote?.fxRate && quote.fxRate > 0 ? quote.fxRate : 1;
+  const qFactor = quote?.presentmentPriceFactor && quote.presentmentPriceFactor > 0 ? quote.presentmentPriceFactor : qFx;
+  const qTotalRatio =
+    quote && quote.totalAmount > 0 && quote.presentmentTotal != null ? quote.presentmentTotal / quote.totalAmount : qFactor;
+  const fmtGoods = (n: number) => (qCur ? formatMoney(n * qFactor, qCur) : formatPrice(n));
+  const fmtShipping = (n: number) => (qCur ? formatMoney(n * qFx, qCur) : formatPrice(n));
+  const fmtTotal = (n: number) => (qCur ? formatMoney(n * qTotalRatio, qCur) : formatPrice(n));
+  const fmtDiscount = (n: number) =>
+    qCur && quote?.presentmentDiscount != null && n === quote.discount ? formatMoney(quote.presentmentDiscount, qCur) : fmtGoods(n);
+  // The delivery address is in another region than the one browsed in.
+  const quotedRegion = quote?.marketCode ? markets.find((m) => m.code === quote.marketCode) : null;
+  const regionChanged = !!(quotedRegion && market && quotedRegion.code !== market.code);
 
   return (
     <div className={`max-w-6xl mx-auto px-4 sm:px-6 py-12 ${className}`}>
@@ -1024,7 +1051,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   className="flex-1 py-3 rounded-lg text-white font-medium hover:opacity-90 transition disabled:opacity-50"
                   style={{ backgroundColor: accent }}
                 >
-                  {submitting ? t('checkout.action.placing') : t('checkout.action.place_order', { total: formatPrice(summaryTotal) })}
+                  {submitting ? t('checkout.action.placing') : t('checkout.action.place_order', { total: fmtTotal(summaryTotal) })}
                 </button>
               </div>
 
@@ -1099,9 +1126,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                           : ''}
                       </p>
                     )}
-                    <p className="text-gray-500 text-xs">{t('checkout.summary.price_each', { price: formatPrice(item.price) })}</p>
+                    <p className="text-gray-500 text-xs">{t('checkout.summary.price_each', { price: fmtGoods(item.price) })}</p>
                   </div>
-                  <p className="font-semibold whitespace-nowrap">{formatPrice(item.lineTotal)}</p>
+                  <p className="font-semibold whitespace-nowrap">{fmtGoods(item.lineTotal)}</p>
                 </div>
               ))}
             </div>
@@ -1148,7 +1175,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   <span>
                     {t('checkout.summary.gift_card_applied', { last4: appliedGiftCard.codeLast4 })}
                     <span className="text-xs text-gray-500 ms-1">
-                      {t('checkout.summary.gift_card_balance', { balance: formatPrice(appliedGiftCard.balance) })}
+                      {t('checkout.summary.gift_card_balance', { balance: fmtTotal(appliedGiftCard.balance) })}
                     </span>
                   </span>
                   <button onClick={removeGiftCard} className="text-xs underline text-gray-500">
@@ -1171,7 +1198,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                             className="px-3 py-1.5 rounded-full border text-xs font-medium hover:bg-gray-50 flex items-center gap-2"
                           >
                             <span className="font-mono">•••• {c.codeLast4}</span>
-                            <span className="text-gray-500">{formatPrice(c.balance)}</span>
+                            <span className="text-gray-500">{fmtTotal(c.balance)}</span>
                           </button>
                         ))}
                       </div>
@@ -1201,15 +1228,20 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
             </div>
             )}
 
+            {regionChanged && quotedRegion && (
+              <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800">
+                {t('checkout.summary.region_changed', { region: quotedRegion.name, currency: quotedRegion.currency })}
+              </p>
+            )}
             <div className="border-t pt-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">{t('checkout.summary.subtotal')}</span>
-                <span>{formatPrice(summarySubtotal)}</span>
+                <span>{fmtGoods(summarySubtotal)}</span>
               </div>
               {summaryDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>{t('checkout.summary.discount')}</span>
-                  <span>−{formatPrice(summaryDiscount)}</span>
+                  <span>−{fmtDiscount(summaryDiscount)}</span>
                 </div>
               )}
               <div className="flex justify-between">
@@ -1217,7 +1249,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 <span>
                   {quote
                     ? summaryShipping > 0
-                      ? formatPrice(summaryShipping)
+                      ? fmtShipping(summaryShipping)
                       : t('checkout.summary.shipping_free')
                     : <span className="text-xs text-gray-400">{t('checkout.summary.shipping_calculated')}</span>}
                 </span>
@@ -1227,7 +1259,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 <span>
                   {quote
                     ? summaryTax > 0
-                      ? formatPrice(summaryTax)
+                      ? fmtGoods(summaryTax)
                       : '—'
                     : <span className="text-xs text-gray-400">{t('checkout.summary.tax_calculated')}</span>}
                 </span>
@@ -1235,12 +1267,12 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
               {giftCardDeduction > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>{t('checkout.summary.gift_card')}{appliedGiftCard?.codeLast4 ? ` (•••• ${appliedGiftCard.codeLast4})` : ''}</span>
-                  <span>−{formatPrice(giftCardDeduction)}</span>
+                  <span>−{fmtTotal(giftCardDeduction)}</span>
                 </div>
               )}
               <div className="flex justify-between text-base font-bold pt-2 border-t">
                 <span>{t('checkout.summary.total')}</span>
-                <span>{formatPrice(summaryTotal)}</span>
+                <span>{fmtTotal(summaryTotal)}</span>
               </div>
               {quoteLoading && (
                 <p className="text-[11px] text-gray-400 text-end">{t('checkout.summary.updating')}</p>

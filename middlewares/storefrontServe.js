@@ -10,6 +10,7 @@ import { createScopedModels } from "../utils/scopedModel.js";
 import { isStoreDraft } from "../services/storeSetup.js";
 import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
 import { buildStoreInfo } from "../services/storefrontStoreInfo.js";
+import { visitorCountry, VISITOR_COUNTRY_HEADERS } from "../utils/visitorCountry.js";
 import {
   buildStorefrontHead,
   injectHead,
@@ -586,8 +587,11 @@ export function createStorefrontMiddleware() {
         const storeInfo = buildStoreInfo(tenant, {
           previewParam: typeof req.query.preview === "string" ? req.query.preview : null,
           previewTheme: previewDist ? previewSlug : null,
+          visitorCountry: visitorCountry(req),
         });
         html = injectStorePayload(html, storeInfo);
+        // The payload names the visitor's region: a shared cache must key on it.
+        if (storeInfo.markets) res.setHeader("Vary", VISITOR_COUNTRY_HEADERS.join(", "));
       } catch (e) {
         logger.warn("Storefront store payload injection failed", { error: e.message });
       }

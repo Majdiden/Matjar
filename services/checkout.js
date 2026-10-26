@@ -21,7 +21,7 @@ export const CALCULATION_VERSION = 1;
  * @param {string} params.tenantId
  * @returns {Object} Priced checkout quote
  */
-export async function priceCheckout({ lines, shippingAddress, discountCode, discountCodes, models, tenantId, userId }) {
+export async function priceCheckout({ lines, shippingAddress, discountCode, discountCodes, models, tenantId, userId, marketCode = null }) {
   // Backward-compat: a caller may pass a single `discountCode` (string) OR
   // an array `discountCodes`. Internally we always operate on the array
   // form so the combination validator is the single source of truth.
@@ -215,6 +215,8 @@ export async function priceCheckout({ lines, shippingAddress, discountCode, disc
     presentment = await presentmentForCheckout({
       tenantId,
       country: shippingAddress?.country,
+      // The visitor's region until a shipping country is known.
+      marketCode,
       quote: baseQuote,
     });
   } catch {
