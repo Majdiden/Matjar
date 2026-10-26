@@ -87,7 +87,8 @@ const PROGRESS_STEPS = ['Pending', 'Processing', 'Shipped', 'Delivered'] as cons
 const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentColor }) => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const { formatPrice } = useStore();
+  // Amounts charged or held: in the store currency, not the shopper's display choice.
+  const { formatBasePrice: formatPrice } = useStore();
   const { t } = useTranslation(['order']);
 
   const accent = accentColor || 'var(--color-primary, #2563eb)';

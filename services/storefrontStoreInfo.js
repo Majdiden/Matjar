@@ -127,6 +127,15 @@ export function buildStoreInfo(tenant, options = {}) {
   // Delivery areas the shopper picks from at checkout (zone shipping): names
   // only, priced by the server. Left out when the store doesn't use zones.
   const deliveryZones = publicDeliveryZones(tenant.settings?.shipping);
+  // Other currencies a shopper can see prices in (Settings → Currencies):
+  // { USD: 0.0016 } means 1 unit of the store currency = 0.0016 USD. Orders
+  // are still charged in the store currency. Left out when there are none.
+  const storeCurrency = (tenant.settings?.currency || "SDG").toUpperCase();
+  const displayRates = Object.fromEntries(
+    Object.entries(tenant.settings?.currencies?.rates || {})
+      .map(([code, rate]) => [String(code).toUpperCase(), Number(rate)])
+      .filter(([code, rate]) => /^[A-Z]{3}$/.test(code) && code !== storeCurrency && rate > 0 && Number.isFinite(rate))
+  );
 
   return {
     name: tenant.settings?.storeName || tenant.name,
@@ -136,7 +145,8 @@ export function buildStoreInfo(tenant, options = {}) {
     description: tenant.settings?.storeDescription || "",
     logo: tenant.settings?.logo || null,
     favicon: tenant.settings?.favicon || null,
-    currency: tenant.settings?.currency || "SDG",
+    currency: storeCurrency,
+    ...(Object.keys(displayRates).length > 0 && { currencyRates: displayRates }),
     theme: effectiveTheme,
     themeCustomization: effectiveCustomization,
     socialLinks: publicSocialLinks(tenant.settings?.socialLinks),

@@ -1,6 +1,10 @@
 /**
- * Currencies tab — base currency + FX rates table against
- * /store-settings/currencies.
+ * Currencies tab — the store currency + other currencies shoppers can see
+ * prices in, against /store-settings/currencies.
+ *
+ * Rates are entered the way merchants quote them, "1 USD = 600 SDG" (the
+ * price of one unit of the other currency in the store currency). The API
+ * stores the inverse multiplier (1 SDG = 0.00167 USD, services/markets.js).
  */
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +21,10 @@ import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { errorMessage, type CurrencyConfig } from './shared';
 import { getTenantLocale } from '../../lib/format';
 
+/** "1 USD = 600 SDG" ↔ stored multiplier 1/600, without float noise. */
+const perUnitFromRate = (rate: number) => String(Number((1 / rate).toPrecision(6)));
+const rateFromPerUnit = (perUnit: number) => 1 / perUnit;
+
 export const CurrencySettings: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
   const [config, setConfig] = useState<CurrencyConfig>({ base: 'SDG', rates: {} });
@@ -32,7 +40,11 @@ export const CurrencySettings: React.FC = () => {
       const res = await api.settings.listMarketsSettings() as { data?: { currencies?: CurrencyConfig } };
       const cfg: CurrencyConfig = res.data?.currencies || { base: 'SDG', rates: {} };
       setConfig(cfg);
-      setDraftRates(Object.entries(cfg.rates || {}).map(([code, rate]) => ({ code, rate: String(rate) })));
+      setDraftRates(
+        Object.entries(cfg.rates || {})
+          .filter(([code, rate]) => code !== cfg.base && Number(rate) > 0)
+          .map(([code, rate]) => ({ code, rate: perUnitFromRate(Number(rate)) })),
+      );
     } catch (err) {
       toast.error(errorMessage(err, t('settings.toast.currencies_load_failed')));
     } finally {
@@ -54,12 +66,15 @@ export const CurrencySettings: React.FC = () => {
         focusFieldById(`currency-rate-${i}`);
         return toast.error(t('settings.validation.rate_must_be_positive', { code }));
       }
-      rates[code] = num;
+      if (code === config.base) continue; // the store currency needs no rate
+      rates[code] = rateFromPerUnit(num);
     }
     setSaving(true);
     try {
       const res = await api.settings.updateCurrencies({ base: config.base, rates }) as { data?: CurrencyConfig };
-      setConfig(res.data || { base: config.base, rates });
+      const saved = res.data || { base: config.base, rates };
+      setConfig(saved);
+      setDraftRates(Object.entries(saved.rates || {}).map(([code, rate]) => ({ code, rate: perUnitFromRate(Number(rate)) })));
       toast.success(t('settings.toast.currencies_saved'));
     } catch (err) {
       toast.error(errorMessage(err, t('settings.toast.currencies_save_failed')));
@@ -68,7 +83,7 @@ export const CurrencySettings: React.FC = () => {
     }
   };
 
-  const addRow = () => setDraftRates(rs => [...rs, { code: '', rate: '1' }]);
+  const addRow = () => setDraftRates(rs => [...rs, { code: '', rate: '' }]);
   const removeRow = (i: number) => setDraftRates(rs => rs.filter((_, j) => j !== i));
   const updateRow = (i: number, patch: Partial<{ code: string; rate: string }>) =>
     setDraftRates(rs => rs.map((r, j) => j === i ? { ...r, ...patch } : r));
@@ -112,14 +127,17 @@ export const CurrencySettings: React.FC = () => {
                       placeholder={t('settings.field.currencies.currency_placeholder')}
                     />
                   </div>
+                  {/* 1 USD = [600] SDG */}
+                  <span className="shrink-0 text-sm text-muted-foreground" dir="ltr">1 {row.code || '…'} =</span>
                   <Input
                     id={`currency-rate-${i}`}
-                    type="number" step="0.0001" min="0"
+                    type="number" step="any" min="0" inputMode="decimal" dir="ltr"
                     placeholder={t('settings.field.currencies.rate_placeholder')}
                     className="flex-1"
                     value={row.rate}
                     onChange={e => updateRow(i, { rate: e.target.value })}
                   />
+                  <span className="shrink-0 text-sm text-muted-foreground" dir="ltr">{config.base}</span>
                   <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => removeRow(i)}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>

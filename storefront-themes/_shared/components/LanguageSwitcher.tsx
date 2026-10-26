@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useLanguage } from '../i18n/LanguageProvider'
+import { useStore } from '../contexts/StoreContext'
 
 interface Props {
   className?: string
@@ -8,8 +9,15 @@ interface Props {
   openUp?: boolean
 }
 
+/**
+ * Language menu in every theme's header. When the store offers other
+ * currencies (Settings → Currencies), the same menu also lets the shopper
+ * pick the currency prices are shown in, and the button shows it.
+ */
 export function LanguageSwitcher({ className = '', openUp = false }: Props) {
   const { lang, setLang } = useLanguage()
+  const { currency, currencies, setCurrency, baseCurrency } = useStore()
+  const multiCurrency = currencies.length > 1
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -64,7 +72,11 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={lang === 'ar' ? 'تغيير اللغة' : 'Change language'}
+        aria-label={
+          multiCurrency
+            ? lang === 'ar' ? 'تغيير اللغة والعملة' : 'Change language and currency'
+            : lang === 'ar' ? 'تغيير اللغة' : 'Change language'
+        }
         className="inline-flex min-h-[40px] items-center gap-1.5 rounded-[var(--radius-pill,9999px)] border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary,#2563eb)]"
         style={{ borderColor: 'color-mix(in srgb, currentColor 25%, transparent)' }}
       >
@@ -85,7 +97,11 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
           <path d="m13 20 4-9 4 9" />
           <path d="M14.5 17h5" />
         </svg>
-        <span className="uppercase">{lang === 'ar' ? 'AR' : 'EN'}</span>
+        {/* One left-to-right label so it reads "AR · SDG" in both directions. */}
+        <span className="uppercase" dir="ltr">
+          {lang === 'ar' ? 'AR' : 'EN'}
+          {multiCurrency && ` · ${currency}`}
+        </span>
       </button>
       {open && (
         // z-[200]: theme headers are sticky at z-50, which creates a stacking
@@ -120,6 +136,32 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
             العربية
             {lang === 'ar' && <span aria-hidden="true">✓</span>}
           </button>
+          {multiCurrency && (
+            <>
+              <div className="mx-3 my-1.5 border-t" style={{ borderColor: 'var(--color-border, #e5e7eb)' }} />
+              <div className="px-4 pb-1 pt-0.5 text-xs opacity-60">{lang === 'ar' ? 'العملة' : 'Currency'}</div>
+              {currencies.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setCurrency(code)
+                    setOpen(false)
+                  }}
+                  className={`flex w-full items-center justify-between text-start px-4 py-2.5 rounded-xl transition-colors hover:bg-black/[0.06] ${currency === code ? 'font-semibold' : ''}`}
+                >
+                  <span dir="ltr">{code}</span>
+                  {currency === code && <span aria-hidden="true">✓</span>}
+                </button>
+              ))}
+              {currency !== baseCurrency && (
+                <p className="px-4 pb-1.5 pt-1 text-xs leading-relaxed opacity-60">
+                  {lang === 'ar' ? `الأسعار تقريبية، والدفع بـ ${baseCurrency}.` : `Prices are approximate; you pay in ${baseCurrency}.`}
+                </p>
+              )}
+            </>
+          )}
         </div>
       )}
     </div>

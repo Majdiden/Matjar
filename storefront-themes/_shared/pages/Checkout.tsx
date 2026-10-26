@@ -64,7 +64,8 @@ interface Quote {
 const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   const navigate = useNavigate();
   const { cart, loading: cartLoading, clearCart } = useCart();
-  const { formatPrice, store } = useStore();
+  // Amounts charged or held: in the store currency, not the shopper's display choice.
+  const { formatBasePrice: formatPrice, store } = useStore();
   const { t } = useTranslation(['checkout']);
   const { t: tAll } = useTranslation();
   // Policies in the shopper's language (generated ones carry one copy per language).

@@ -28,6 +28,7 @@ import mongoose from "mongoose";
 import { startTestDb, stopTestDb, clearAllCollections } from "../helpers/db.js";
 import { buildTestApp } from "../helpers/app.js";
 import { createScopedModels } from "../../utils/scopedModel.js";
+import { setFeatureOverrides, invalidateFeatureFlagCache, invalidateTenantFeatureCache } from "../../services/featureFlags.js";
 
 const HOST = "acme.localhost";
 
@@ -182,6 +183,10 @@ describe("E2E markets + currencies", () => {
 
   beforeEach(async () => {
     await clearAllCollections();
+    // Markets and currencies are behind feature flags (off by default).
+    invalidateFeatureFlagCache();
+    invalidateTenantFeatureCache();
+    await setFeatureOverrides([{ key: "settings.markets", value: true }, { key: "settings.currencies", value: true }], "test");
   });
 
   it("admin can CRUD markets via the granular endpoints", async () => {
@@ -314,6 +319,41 @@ describe("E2E markets + currencies", () => {
         ],
       });
     assert.equal(r4.status, 400);
+  });
+
+  it("the base currency is the store currency, and the other currencies reach the storefront", async () => {
+    const tenantId = await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    const put = (body) =>
+      request(app).put("/api/store-settings/currencies").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).send(body);
+
+    // 1 SDG = 1/600 USD; the base itself in the table is ignored.
+    const res = await put({ base: "SDG", rates: { USD: 1 / 600, SDG: 1 } });
+    assert.equal(res.status, 200, JSON.stringify(res.body));
+    assert.deepEqual(Object.keys(res.body.data.rates), ["USD"]);
+
+    let info = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
+    assert.equal(info.currency, "SDG");
+    assert.ok(Math.abs(info.currencyRates.USD - 1 / 600) < 1e-12);
+
+    // Changing the base on the Currencies tab changes the store currency.
+    await put({ base: "USD", rates: {} }).expect(200);
+    const tenant = await mongoose.model("Tenant").findById(tenantId).lean();
+    assert.equal(tenant.settings.currency, "USD");
+    assert.equal(tenant.settings.currencies.base, "USD");
+    info = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
+    assert.equal(info.currency, "USD");
+    assert.equal(info.currencyRates, undefined);
+
+    // And the Regional tab's currency changes the base.
+    await request(app)
+      .put("/api/store-settings")
+      .set("Host", HOST)
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({ currency: "SDG" })
+      .expect(200);
+    const after = (await request(app).get("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(200)).body.data;
+    assert.equal(after.currencies.base, "SDG");
   });
 
   it("rejects malformed currency payloads", async () => {

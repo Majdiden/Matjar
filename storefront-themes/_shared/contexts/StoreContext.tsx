@@ -10,7 +10,14 @@ export interface StoreInfo {
   description?: string;
   logo?: string;
   favicon?: string;
+  /** The store currency: prices are set and orders are charged in it. */
   currency: string;
+  /**
+   * Other currencies shoppers can see prices in (Settings → Currencies):
+   * `{ USD: 0.0016 }` = 1 unit of `currency` is 0.0016 USD. Absent when the
+   * store has none.
+   */
+  currencyRates?: Record<string, number>;
   theme?: any;
   themeCustomization?: {
     settings?: {
@@ -56,10 +63,38 @@ export interface StoreInfo {
 interface StoreContextType {
   store: StoreInfo | null;
   loading: boolean;
+  /** The currency prices are shown in: the shopper's choice, else the store's. */
   currency: string;
+  /** The store currency (what orders are charged in). */
+  baseCurrency: string;
+  /** Currencies the shopper can pick: the store's first, then the others. */
+  currencies: string[];
+  setCurrency: (code: string) => void;
+  /** A store-currency amount, shown in the shopper's currency. */
   formatPrice: (amount: number) => string;
+  /** A store-currency amount in the store currency (what is charged, e.g. checkout). */
+  formatBasePrice: (amount: number) => string;
   refresh: () => Promise<void>;
 }
+
+/** The shopper's currency choice, kept for the visit (like the language). */
+const CURRENCY_KEY = 'matjar.storefront.currency';
+const readCurrencyChoice = (): string | null => {
+  try {
+    return sessionStorage.getItem(CURRENCY_KEY);
+  } catch {
+    return null;
+  }
+};
+
+const money = (amount: number, code: string) => {
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: code }).format(amount);
+  } catch {
+    // An unknown code: the number and the code.
+    return `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(amount)} ${code}`;
+  }
+};
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
@@ -174,14 +209,25 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return () => window.removeEventListener('message', onMessage);
   }, [refresh]);
 
-  const currency = store?.currency || 'SDG';
+  const baseCurrency = store?.currency || 'SDG';
+  const rates = store?.currencyRates || {};
+  const currencies = [baseCurrency, ...Object.keys(rates).filter((c) => c !== baseCurrency)];
+  const [choice, setChoice] = useState<string | null>(readCurrencyChoice);
+  // A choice the store no longer offers falls back to the store currency.
+  const currency = choice && (choice === baseCurrency || rates[choice] > 0) ? choice : baseCurrency;
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency,
-    }).format(amount);
-  };
+  const setCurrency = React.useCallback((code: string) => {
+    setChoice(code);
+    try {
+      sessionStorage.setItem(CURRENCY_KEY, code);
+    } catch {
+      /* storage unavailable: the choice holds until reload */
+    }
+  }, []);
+
+  const formatBasePrice = (amount: number) => money(amount, baseCurrency);
+  const formatPrice = (amount: number) =>
+    currency === baseCurrency ? formatBasePrice(amount) : money(amount * rates[currency], currency);
 
   // Note: CSS variable injection for colors/typography is handled by ThemeProvider
   // to avoid duplication and ensure manifest defaults are merged properly.
@@ -202,7 +248,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, [store?.themeCustomization?.customCSS]);
 
   return (
-    <StoreContext.Provider value={{ store, loading, currency, formatPrice, refresh }}>
+    <StoreContext.Provider
+      value={{ store, loading, currency, baseCurrency, currencies, setCurrency, formatPrice, formatBasePrice, refresh }}
+    >
       {children}
     </StoreContext.Provider>
   );

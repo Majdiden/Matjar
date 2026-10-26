@@ -94,7 +94,8 @@ const btnGhost =
 
 const Account: React.FC<AccountProps> = ({ className = '', accentColor }) => {
   const navigate = useNavigate();
-  const { formatPrice, store } = useStore();
+  // Amounts charged or held: in the store currency, not the shopper's display choice.
+  const { formatBasePrice: formatPrice, store } = useStore();
   const { t } = useTranslation(['account']);
   const accent = accentColor || 'var(--color-primary, #2563eb)';
   const giftCardsEnabled = store?.giftCards?.enabled !== false;
@@ -433,7 +434,8 @@ const OrdersTab: React.FC<{
   onCancelled: (id: string) => void;
   flash: (kind: 'ok' | 'err', msg: string) => void;
 }> = ({ orders, accent, onCancelled, flash }) => {
-  const { formatPrice } = useStore();
+  // Amounts charged or held: in the store currency, not the shopper's display choice.
+  const { formatBasePrice: formatPrice } = useStore();
   const { t } = useTranslation(['account']);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const confirm = useConfirm();
@@ -1171,7 +1173,8 @@ interface GiftCardSummary {
 }
 
 const GiftCardsTab: React.FC<{ accent: string; flash: (k: 'ok' | 'err', m: string) => void }> = ({ accent, flash }) => {
-  const { formatPrice } = useStore();
+  // Amounts charged or held: in the store currency, not the shopper's display choice.
+  const { formatBasePrice: formatPrice } = useStore();
   const { t } = useTranslation(['account']);
   const [cards, setCards] = useState<GiftCardSummary[] | null>(null);
 
