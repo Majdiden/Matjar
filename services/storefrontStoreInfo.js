@@ -127,15 +127,21 @@ export function buildStoreInfo(tenant, options = {}) {
   // Delivery areas the shopper picks from at checkout (zone shipping): names
   // only, priced by the server. Left out when the store doesn't use zones.
   const deliveryZones = publicDeliveryZones(tenant.settings?.shipping);
-  // Other currencies a shopper can see prices in (Settings → Currencies):
-  // { USD: 0.0016 } means 1 unit of the store currency = 0.0016 USD. Orders
-  // are still charged in the store currency. Left out when there are none.
+  // Currencies (Settings → Currencies). `currency` is the pricing currency:
+  // every amount the storefront receives is in it. `displayCurrency` is what
+  // visitors see and pay in, converted with `currencyRates` ({ USD: 0.0016 }
+  // = 1 unit of `currency` is 0.0016 USD). `currencySwitcher` lets visitors
+  // pick another rated currency. All left out for a single-currency store.
   const storeCurrency = (tenant.settings?.currency || "SDG").toUpperCase();
+  const fx = tenant.settings?.currencies || {};
   const displayRates = Object.fromEntries(
-    Object.entries(tenant.settings?.currencies?.rates || {})
+    Object.entries(fx.rates || {})
       .map(([code, rate]) => [String(code).toUpperCase(), Number(rate)])
       .filter(([code, rate]) => /^[A-Z]{3}$/.test(code) && code !== storeCurrency && rate > 0 && Number.isFinite(rate))
   );
+  const displayCurrency = fx.display && displayRates[String(fx.display).toUpperCase()] ? String(fx.display).toUpperCase() : null;
+  const currencySwitcher = fx.showSwitcher === true && Object.keys(displayRates).length > 0;
+  const needsRates = !!displayCurrency || currencySwitcher;
 
   return {
     name: tenant.settings?.storeName || tenant.name,
@@ -146,7 +152,9 @@ export function buildStoreInfo(tenant, options = {}) {
     logo: tenant.settings?.logo || null,
     favicon: tenant.settings?.favicon || null,
     currency: storeCurrency,
-    ...(Object.keys(displayRates).length > 0 && { currencyRates: displayRates }),
+    ...(needsRates && { currencyRates: displayRates }),
+    ...(displayCurrency && { displayCurrency }),
+    ...(currencySwitcher && { currencySwitcher: true }),
     theme: effectiveTheme,
     themeCustomization: effectiveCustomization,
     socialLinks: publicSocialLinks(tenant.settings?.socialLinks),

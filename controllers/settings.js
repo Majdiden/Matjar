@@ -137,6 +137,20 @@ function validateCurrencies(input) {
     }
     out.base = base;
   }
+  if (input.display !== undefined) {
+    if (input.display === null || input.display === "") out.display = null;
+    else {
+      const display = String(input.display).toUpperCase();
+      if (!CURRENCY_CODE_PATTERN.test(display)) {
+        throw new APIError("Website currency must be a 3-letter ISO code", 400);
+      }
+      out.display = display;
+    }
+  }
+  if (input.showSwitcher !== undefined) {
+    if (typeof input.showSwitcher !== "boolean") throw new APIError("showSwitcher must be true or false", 400);
+    out.showSwitcher = input.showSwitcher;
+  }
   if (input.rates !== undefined) {
     if (!input.rates || typeof input.rates !== "object" || Array.isArray(input.rates)) {
       throw new APIError("Currency rates must be an object map", 400);
@@ -751,11 +765,23 @@ export const updateCurrencies = async (req, res, next) => {
     if (!req.tenant?._id) throw new APIError("Tenant context not found", 400);
     const c = validateCurrencies(req.body);
     const update = {};
+    const current = req.tenant?.settings?.currencies || {};
+    const base = c.base || req.tenant?.settings?.currency || current.base || "SDG";
     if (c.base !== undefined) setStoreCurrency(update, c.base, req.tenant?.settings?.currency);
+    const rates = c.rates !== undefined ? withoutBase(c.rates, base) : withoutBase(current.rates || {}, base);
     if (c.rates !== undefined) {
-      update["settings.currencies.rates"] = withoutBase(c.rates, c.base || req.tenant?.settings?.currency);
+      update["settings.currencies.rates"] = rates;
       update["settings.currencies.ratesUpdatedAt"] = new Date();
     }
+    // The website currency must be the pricing currency or one with a rate.
+    const display = c.display !== undefined ? c.display : current.display || null;
+    if (display && display !== base && !(rates[display] > 0)) {
+      throw new APIError(`Add an exchange rate for ${display} before showing the website in it`, 400);
+    }
+    if (c.display !== undefined || c.base !== undefined || c.rates !== undefined) {
+      update["settings.currencies.display"] = display && display !== base ? display : null;
+    }
+    if (c.showSwitcher !== undefined) update["settings.currencies.showSwitcher"] = c.showSwitcher;
     if (Object.keys(update).length === 0) {
       throw new APIError("No currency fields provided", 400);
     }

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { storefrontApi } from '../api/client';
+import { storefrontApi, setPriceFilterRate } from '../api/client';
 import i18n, { readShopperLang } from '../i18n';
 import type { BrandKit, GeneratedPages, StoreTrust } from '../types/commerce';
 
@@ -10,14 +10,18 @@ export interface StoreInfo {
   description?: string;
   logo?: string;
   favicon?: string;
-  /** The store currency: prices are set and orders are charged in it. */
+  /** The pricing currency: every amount from the API is in it. */
   currency: string;
   /**
-   * Other currencies shoppers can see prices in (Settings → Currencies):
-   * `{ USD: 0.0016 }` = 1 unit of `currency` is 0.0016 USD. Absent when the
-   * store has none.
+   * Exchange rates from the pricing currency (Settings → Currencies):
+   * `{ SDG: 600 }` = 1 unit of `currency` is 600 SDG. Present when the
+   * website shows another currency or visitors may switch.
    */
   currencyRates?: Record<string, number>;
+  /** What visitors see and pay in, when not the pricing currency. */
+  displayCurrency?: string;
+  /** Visitors may switch currency (language menu). */
+  currencySwitcher?: boolean;
   theme?: any;
   themeCustomization?: {
     settings?: {
@@ -63,18 +67,34 @@ export interface StoreInfo {
 interface StoreContextType {
   store: StoreInfo | null;
   loading: boolean;
-  /** The currency prices are shown in: the shopper's choice, else the store's. */
+  /** The currency prices are shown in: the visitor's choice, else the website currency. */
   currency: string;
-  /** The store currency (what orders are charged in). */
+  /** The website currency: what visitors pay in (checkout, orders). */
+  chargeCurrency: string;
+  /** The pricing currency (what API amounts are in). */
   baseCurrency: string;
-  /** Currencies the shopper can pick: the store's first, then the others. */
+  /** Currencies the visitor can pick (one entry when switching is off). */
   currencies: string[];
   setCurrency: (code: string) => void;
-  /** A store-currency amount, shown in the shopper's currency. */
+  /** A pricing-currency amount, shown in the visitor's currency. */
   formatPrice: (amount: number) => string;
-  /** A store-currency amount in the store currency (what is charged, e.g. checkout). */
-  formatBasePrice: (amount: number) => string;
+  /** A pricing-currency amount in the website currency (what is charged, e.g. checkout). */
+  formatChargedPrice: (amount: number) => string;
+  /**
+   * An amount of a placed order, in the currency and at the rate the order
+   * was placed with (falls back to the website currency).
+   */
+  formatOrderPrice: (amount: number, order?: OrderCurrency | null) => string;
+  /** An amount typed in the visitor's currency (e.g. a price filter) → pricing currency. */
+  toBaseAmount: (amount: number) => number;
   refresh: () => Promise<void>;
+}
+
+/** The currency fields a placed order carries. */
+export interface OrderCurrency {
+  baseCurrency?: string;
+  presentmentCurrency?: string;
+  fxRate?: number;
 }
 
 /** The shopper's currency choice, kept for the visit (like the language). */
@@ -211,10 +231,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const baseCurrency = store?.currency || 'SDG';
   const rates = store?.currencyRates || {};
-  const currencies = [baseCurrency, ...Object.keys(rates).filter((c) => c !== baseCurrency)];
+  const rateOf = (code: string) => (code === baseCurrency ? 1 : rates[code] > 0 ? rates[code] : null);
+  const chargeCurrency = store?.displayCurrency && rateOf(store.displayCurrency) ? store.displayCurrency : baseCurrency;
+  // The website currency first, then the pricing currency and the others.
+  const currencies = store?.currencySwitcher
+    ? Array.from(new Set([chargeCurrency, baseCurrency, ...Object.keys(rates)]))
+    : [chargeCurrency];
   const [choice, setChoice] = useState<string | null>(readCurrencyChoice);
-  // A choice the store no longer offers falls back to the store currency.
-  const currency = choice && (choice === baseCurrency || rates[choice] > 0) ? choice : baseCurrency;
+  // A choice the store no longer offers falls back to the website currency.
+  const currency = choice && currencies.includes(choice) ? choice : chargeCurrency;
 
   const setCurrency = React.useCallback((code: string) => {
     setChoice(code);
@@ -225,9 +250,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   }, []);
 
-  const formatBasePrice = (amount: number) => money(amount, baseCurrency);
-  const formatPrice = (amount: number) =>
-    currency === baseCurrency ? formatBasePrice(amount) : money(amount * rates[currency], currency);
+  const convert = (amount: number, code: string) => money(amount * (rateOf(code) ?? 1), rateOf(code) ? code : baseCurrency);
+  const formatPrice = (amount: number) => convert(amount, currency);
+  const formatChargedPrice = (amount: number) => convert(amount, chargeCurrency);
+  const formatOrderPrice = (amount: number, order?: OrderCurrency | null) =>
+    order?.presentmentCurrency && order.fxRate && order.fxRate > 0
+      ? money(amount * order.fxRate, order.presentmentCurrency)
+      : order?.baseCurrency
+        ? money(amount, order.baseCurrency)
+        : formatChargedPrice(amount);
+  const toBaseAmount = (amount: number) => amount / (rateOf(currency) ?? 1);
+
+  // The API client converts price filters typed in the visitor's currency.
+  useEffect(() => {
+    setPriceFilterRate(rateOf(currency) ?? 1);
+  });
 
   // Note: CSS variable injection for colors/typography is handled by ThemeProvider
   // to avoid duplication and ensure manifest defaults are merged properly.
@@ -249,7 +286,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   return (
     <StoreContext.Provider
-      value={{ store, loading, currency, baseCurrency, currencies, setCurrency, formatPrice, formatBasePrice, refresh }}
+      value={{
+        store,
+        loading,
+        currency,
+        chargeCurrency,
+        baseCurrency,
+        currencies,
+        setCurrency,
+        formatPrice,
+        formatChargedPrice,
+        formatOrderPrice,
+        toBaseAmount,
+        refresh,
+      }}
     >
       {children}
     </StoreContext.Provider>

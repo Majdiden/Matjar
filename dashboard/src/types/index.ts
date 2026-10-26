@@ -265,6 +265,11 @@ export interface Order {
   discount?: number;
   total?: number;
   totalAmount: number;
+  /** Set when the customer saw and pays in another currency (website currency or market). */
+  baseCurrency?: string;
+  presentmentCurrency?: string;
+  presentmentTotal?: number;
+  fxRate?: number;
   giftCardRedemption?: {
     code?: string;
     codeLast4?: string;

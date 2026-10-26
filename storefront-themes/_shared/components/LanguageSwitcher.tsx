@@ -16,7 +16,7 @@ interface Props {
  */
 export function LanguageSwitcher({ className = '', openUp = false }: Props) {
   const { lang, setLang } = useLanguage()
-  const { currency, currencies, setCurrency, baseCurrency } = useStore()
+  const { currency, currencies, setCurrency, chargeCurrency } = useStore()
   const multiCurrency = currencies.length > 1
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -155,9 +155,9 @@ export function LanguageSwitcher({ className = '', openUp = false }: Props) {
                   {currency === code && <span aria-hidden="true">✓</span>}
                 </button>
               ))}
-              {currency !== baseCurrency && (
+              {currency !== chargeCurrency && (
                 <p className="px-4 pb-1.5 pt-1 text-xs leading-relaxed opacity-60">
-                  {lang === 'ar' ? `الأسعار تقريبية، والدفع بـ ${baseCurrency}.` : `Prices are approximate; you pay in ${baseCurrency}.`}
+                  {lang === 'ar' ? `الأسعار تقريبية، والدفع بـ ${chargeCurrency}.` : `Prices are approximate; you pay in ${chargeCurrency}.`}
                 </p>
               )}
             </>

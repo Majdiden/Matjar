@@ -262,6 +262,14 @@ const tenantSchema = new Schema({
       // ISO timestamp of the last manual or automated FX refresh — surfaces
       // staleness warnings in the dashboard. Server-managed.
       ratesUpdatedAt: { type: Date, default: null },
+      // The website currency: what visitors see prices in and pay in,
+      // converted from `base` (the currency product prices are entered in)
+      // with `rates`. Null = the same as `base`. Must be `base` or a code in
+      // `rates`. Orders keep `base` amounts plus the presentment in this one.
+      display: { type: String, default: null, uppercase: true, trim: true },
+      // Let visitors switch between `display`, `base` and the other rated
+      // currencies (language menu). Off = everyone sees `display` only.
+      showSwitcher: { type: Boolean, default: false },
     },
     // Order status notifications — per-status email templates the merchant
      // can enable/disable and customise. When a status transition occurs,

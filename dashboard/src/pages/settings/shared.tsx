@@ -22,6 +22,10 @@ export interface CurrencyConfig {
   base: string;
   rates: Record<string, number>;
   ratesUpdatedAt?: string;
+  /** Website currency (what visitors see and pay in); null = the pricing currency. */
+  display?: string | null;
+  /** Let visitors switch currency on the website. */
+  showSwitcher?: boolean;
 }
 
 /** State shape shared by the General and Regional tabs (single bulk PUT). */
