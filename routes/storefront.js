@@ -35,6 +35,7 @@ import {
 } from "../services/themeDemoPreview.js";
 import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
 import { buildStoreInfo } from "../services/storefrontStoreInfo.js";
+import { visitorCountry } from "../utils/visitorCountry.js";
 import { isStoreDraft } from "../services/storeSetup.js";
 import { isFeatureEnabledFor } from "../services/featureFlags.js";
 
@@ -434,6 +435,7 @@ router.get(
         store: buildStoreInfo(tenant, {
           previewParam: typeof req.query.preview === "string" ? req.query.preview : null,
           previewTheme: getPreviewThemeSlug(req),
+          visitorCountry: visitorCountry(req),
         }),
       },
     });
@@ -894,7 +896,7 @@ router.post(
       };
     });
 
-    const { shippingAddress, discountCode, discountCodes } = req.body || {};
+    const { shippingAddress, discountCode, discountCodes, marketCode } = req.body || {};
 
     const quote = await priceCheckout({
       lines,
@@ -904,6 +906,7 @@ router.post(
       models: req.models,
       tenantId: req.tenant._id,
       userId,
+      marketCode: typeof marketCode === "string" ? marketCode.slice(0, 32) : null,
     });
 
     res.json({ success: true, data: { quote } });

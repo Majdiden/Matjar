@@ -399,6 +399,20 @@ describe("E2E markets + currencies", () => {
     assert.equal(after.currencySwitcher, true);
   });
 
+  it("store-info picks the visitor's region from their country", async () => {
+    await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    await configureMarketsAndFx(app, adminToken);
+    const info = async (country) =>
+      (await request(app).get("/storefront/store-info").set("Host", HOST).set("CF-IPCountry", country).expect(200)).body.data.store;
+    const eu = await info("DE");
+    assert.deepEqual(eu.markets.map((m) => m.code).sort(), ["eu", "na"]);
+    assert.equal(eu.market, "eu");
+    assert.equal(eu.currencyRates.EUR, 0.9);
+    // A country in no market gets the default one.
+    assert.equal((await info("AQ")).market, "na");
+  });
+
   it("rejects malformed currency payloads", async () => {
     await provisionTenant(app);
     const adminToken = await loginAdmin(app);

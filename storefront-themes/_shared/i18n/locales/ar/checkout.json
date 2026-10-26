@@ -102,6 +102,7 @@
     },
     "summary": {
       "title": "ملخّص الطلب",
+      "region_changed": "الأسعار لمنطقة {{region}} ({{currency}})، حسب عنوان التوصيل.",
       "subtotal": "المجموع الفرعي",
       "discount": "الخصم",
       "shipping": "الشحن",

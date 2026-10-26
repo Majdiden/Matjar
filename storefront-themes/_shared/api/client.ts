@@ -371,6 +371,8 @@ export const checkoutApi = {
   quote: (data: {
     shippingAddress?: Record<string, string | undefined>;
     discountCode?: string;
+    /** The visitor's region, used until a shipping country is known. */
+    marketCode?: string;
   }) =>
     request<any>(`${STOREFRONT_BASE}/checkout/quote`, {
       method: 'POST',
