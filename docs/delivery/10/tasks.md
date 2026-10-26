@@ -63,3 +63,4 @@ This document lists all tasks associated with PBI 10.
 | 10-53 | [Email links open on the app host (app.matjar.to)](./10-53.md) | Review | Email links opened matjar.to or the store address instead of app.matjar.to |
 | 10-54 | [Notify stores: send to chosen stores, see who opened it](./10-54.md) | Review | Only all or one store could be targeted; no way to know who opened a message |
 | 10-55 | [Announcement emails: clean letter design with the Matjar logo](./10-55.md) | Review | Plain announcement emails without the Matjar logo |
+| 10-56 | [Currencies apply to the storefront: one store currency, shoppers pick a display currency](./10-56.md) | Review | Base currency and exchange rates had no effect on product prices |

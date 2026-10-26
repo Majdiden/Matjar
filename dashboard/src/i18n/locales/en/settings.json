@@ -67,8 +67,8 @@
         "description": "One row per (country, state) — checkout picks the most specific match."
       },
       "currencies": {
-        "title": "Currency & FX Rates",
-        "description": "Base currency plus exchange rates used to convert prices when a market or storefront requests a different currency. Rate is in the destination currency per 1 base unit (e.g. base USD with EUR=0.92 means $1 = €0.92)."
+        "title": "Currencies",
+        "description": "Your products are priced in the store currency, and orders are paid in it. Add other currencies so shoppers can see prices in them; they pick one from the language menu on your store. Enter what one unit costs in your store currency, for example 1 USD = 600 SDG."
       },
       "markets": {
         "title": "Markets",
@@ -159,13 +159,13 @@
       },
       "currencies": {
         "base": {
-          "label": "Base Currency"
+          "label": "Store currency"
         },
         "exchange_rates": {
-          "label": "Exchange Rates"
+          "label": "Other currencies"
         },
         "currency_placeholder": "Currency",
-        "rate_placeholder": "0.92"
+        "rate_placeholder": "600"
       },
       "markets": {
         "code": {
@@ -446,7 +446,7 @@
     "empty": {
       "no_shipping_zones": "No shipping zones configured yet.",
       "no_tax_rates": "No tax rates configured.",
-      "no_currencies": "No additional currencies yet.",
+      "no_currencies": "No other currencies yet. Shoppers see prices in the store currency.",
       "no_markets": "All customers pay in the base currency.",
       "no_countries": "No countries — this market will only be selected when it's the default."
     },

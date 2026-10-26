@@ -34,6 +34,24 @@ const sanitizePolicyBody = (html) =>
 // Store base currencies are operator-managed (Platform → Global configuration,
 // key `commerce.baseCurrencies`); the registry default mirrors the old list.
 const allowedBaseCurrencies = () => getSettingSync("commerce.baseCurrencies");
+
+/**
+ * The store's currency (prices, orders, reports) is one value kept in two
+ * places: `settings.currency` (read by the dashboard, emails, reports) and
+ * `settings.currencies.base` (read by the exchange-rate conversion). Setting
+ * either writes both. Only a CHANGE must be on the operator allow-list, so a
+ * store whose currency was later removed from it can still save.
+ */
+function setStoreCurrency(updateData, code, current) {
+  if (code !== current) {
+    const allowed = allowedBaseCurrencies();
+    if (Array.isArray(allowed) && allowed.length && !allowed.includes(code)) {
+      throw new APIError(`Invalid currency. Allowed: ${allowed.join(", ")}`, 400);
+    }
+  }
+  updateData["settings.currency"] = code;
+  updateData["settings.currencies.base"] = code;
+}
 const allowedCountries = () => getSettingSync("commerce.countries");
 
 /**
@@ -101,6 +119,10 @@ function validateMarket(market) {
     isDefault: !!market.isDefault,
   };
 }
+
+/** The rates table never lists the base currency itself (its rate is 1). */
+const withoutBase = (rates, base) =>
+  Object.fromEntries(Object.entries(rates).filter(([code]) => code !== String(base || "").toUpperCase()));
 
 // Validate the currencies block (base + rates table).
 function validateCurrencies(input) {
@@ -264,17 +286,8 @@ export const updateSettings = async (req, res, next) => {
     }
 
     if (settings.currency !== undefined) {
-      // Only a CHANGE must be on the operator allow-list — a store whose
-      // currency was later removed from the list can still save unrelated
-      // settings (the bulk PUT always re-sends the current value).
-      const current = req.tenant?.settings?.currency;
-      if (settings.currency !== current) {
-        const allowed = allowedBaseCurrencies();
-        if (!allowed.includes(settings.currency)) {
-          throw new APIError(`Invalid currency. Allowed: ${allowed.join(", ")}`, 400);
-        }
-      }
-      updateData["settings.currency"] = settings.currency;
+      // The bulk PUT always re-sends the current value (see setStoreCurrency).
+      setStoreCurrency(updateData, settings.currency, req.tenant?.settings?.currency);
     }
 
     if (settings.timezone !== undefined) {
@@ -329,9 +342,9 @@ export const updateSettings = async (req, res, next) => {
     }
     if (settings.currencies !== undefined) {
       const c = validateCurrencies(settings.currencies);
-      if (c.base !== undefined) updateData["settings.currencies.base"] = c.base;
+      if (c.base !== undefined) setStoreCurrency(updateData, c.base, req.tenant?.settings?.currency);
       if (c.rates !== undefined) {
-        updateData["settings.currencies.rates"] = c.rates;
+        updateData["settings.currencies.rates"] = withoutBase(c.rates, c.base || req.tenant?.settings?.currency);
         updateData["settings.currencies.ratesUpdatedAt"] = new Date();
       }
     }
@@ -597,14 +610,19 @@ export const listMarkets = async (req, res, next) => {
     if (!req.tenant?._id) throw new APIError("Tenant context not found", 400);
     const Tenant = mongoose.model("Tenant");
     const tenant = await Tenant.findById(req.tenant._id)
-      .select("settings.markets settings.currencies")
+      .select("settings.markets settings.currencies settings.currency")
       .lean();
     if (!tenant) throw new APIError("Tenant not found", 404);
     res.json({
       success: true,
       data: {
         markets: tenant.settings?.markets || [],
-        currencies: tenant.settings?.currencies || { base: tenant.settings?.currency || "SDG", rates: {} },
+        // The store currency is the base (setStoreCurrency keeps them equal).
+        currencies: {
+          ...(tenant.settings?.currencies || {}),
+          base: tenant.settings?.currency || tenant.settings?.currencies?.base || "SDG",
+          rates: tenant.settings?.currencies?.rates || {},
+        },
       },
     });
   } catch (error) {
@@ -733,9 +751,9 @@ export const updateCurrencies = async (req, res, next) => {
     if (!req.tenant?._id) throw new APIError("Tenant context not found", 400);
     const c = validateCurrencies(req.body);
     const update = {};
-    if (c.base !== undefined) update["settings.currencies.base"] = c.base;
+    if (c.base !== undefined) setStoreCurrency(update, c.base, req.tenant?.settings?.currency);
     if (c.rates !== undefined) {
-      update["settings.currencies.rates"] = c.rates;
+      update["settings.currencies.rates"] = withoutBase(c.rates, c.base || req.tenant?.settings?.currency);
       update["settings.currencies.ratesUpdatedAt"] = new Date();
     }
     if (Object.keys(update).length === 0) {
