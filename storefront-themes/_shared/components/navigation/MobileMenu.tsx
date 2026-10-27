@@ -35,12 +35,10 @@ const isExternal = (item: MenuItem) =>
  */
 export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
   const { t } = useTranslation(['common', 'nav', 'footer', 'theme']);
-  const { store, currency, currencies, setCurrency, chargeCurrency, markets, market, setMarket } = useStore();
-  // Region (Settings → Markets) or, without regions, currency (Settings →
-  // Currencies, "show the currency switcher"): the same choice the header
-  // language menu offers, which themes hide on phones.
+  const { store, markets, market, setMarket } = useStore();
+  // Region (Settings → Markets): the same choice the header language menu
+  // offers, which themes hide on phones.
   const multiRegion = markets.length > 1;
-  const multiCurrency = !multiRegion && currencies.length > 1;
   const { categories } = useCategories();
   const { lang, setLang } = useLanguage();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -275,37 +273,23 @@ export function MobileMenu({ isOpen, onClose, items, title }: MobileMenuProps) {
               );
             })}
           </div>
-          {(multiRegion || multiCurrency) && (
+          {multiRegion && (
             <label className="mt-3 block">
-              <span className="mb-1 block text-xs opacity-70">
-                {multiRegion
-                  ? lang === 'ar' ? 'المنطقة' : 'Region'
-                  : lang === 'ar' ? 'العملة' : 'Currency'}
-              </span>
+              <span className="mb-1 block text-xs opacity-70">{lang === 'ar' ? 'المنطقة' : 'Region'}</span>
               <select
                 className="w-full rounded-xl border bg-transparent px-3 py-2.5 text-base"
                 style={{ borderColor: 'var(--color-border)', color: 'var(--color-foreground)' }}
-                value={multiRegion ? market?.code || '' : currency}
-                onChange={(e) => (multiRegion ? setMarket(e.target.value) : setCurrency(e.target.value))}
+                value={market?.code || ''}
+                onChange={(e) => setMarket(e.target.value)}
               >
-                {multiRegion
-                  ? markets.map((m) => (
-                      <option key={m.code} value={m.code}>
-                        {m.name} ({m.currency})
-                      </option>
-                    ))
-                  : currencies.map((code) => (
-                      <option key={code} value={code}>
-                        {code}
-                      </option>
-                    ))}
+                {markets.map((m) => (
+                  <option key={m.code} value={m.code}>
+                    {m.name} ({m.currency})
+                  </option>
+                ))}
               </select>
               <span className="mt-1 block text-xs leading-relaxed opacity-60">
-                {multiRegion
-                  ? lang === 'ar' ? 'يُؤكَّد السعر النهائي حسب عنوان التوصيل.' : 'The final price follows your delivery address.'
-                  : currency !== chargeCurrency
-                    ? lang === 'ar' ? `الأسعار تقريبية، والدفع بـ ${chargeCurrency}.` : `Prices are approximate; you pay in ${chargeCurrency}.`
-                    : null}
+                {lang === 'ar' ? 'يُؤكَّد السعر النهائي حسب عنوان التوصيل.' : 'The final price follows your delivery address.'}
               </span>
             </label>
           )}

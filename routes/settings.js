@@ -2,7 +2,7 @@ import express from "express";
 import * as SettingsController from "../controllers/settings.js";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
-import { requireFeature } from "../middlewares/featureGate.js";
+import { requireFeature, requireAnyFeature } from "../middlewares/featureGate.js";
 
 const router = express.Router();
 
@@ -30,7 +30,8 @@ router.delete("/tax/rates/:rateId", canWrite, taxEnabled, SettingsController.del
 // Markets — Shopify-style geographic groupings (countries → currency,
 // language, price adjustment). The bulk PUT still works for one-shot
 // imports; per-row endpoints exist for the dashboard's UX.
-const marketsEnabled = requireFeature("settings.markets");
+// Markets and currencies are one page (Settings → Markets): either switch opens it.
+const marketsEnabled = requireAnyFeature("settings.markets", "settings.currencies");
 router.get("/markets", canRead, marketsEnabled, SettingsController.listMarkets);
 router.post("/markets", canWrite, marketsEnabled, SettingsController.createMarket);
 router.put("/markets/:marketId", canWrite, marketsEnabled, SettingsController.updateMarket);
@@ -40,7 +41,7 @@ router.delete("/markets/:marketId", canWrite, marketsEnabled, SettingsController
 // wholesale (no partial-merge surprises).
 // The Currencies tab reads the same data as Markets (rates, platform rates)
 // but must not depend on the Markets switch.
-const currenciesEnabled = requireFeature("settings.currencies");
+const currenciesEnabled = marketsEnabled;
 router.get("/currencies", canRead, currenciesEnabled, SettingsController.listMarkets);
 router.put("/currencies", canWrite, currenciesEnabled, SettingsController.updateCurrencies);
 

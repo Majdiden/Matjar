@@ -58,9 +58,11 @@ export const OwnPricesEditor: React.FC<Props> = ({ currencies, value, onChange, 
         <p className="text-xs text-muted-foreground">{t('products.form.own_prices.help')}</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        {currencies.map(({ code, rate }) => (
+        {currencies.map(({ code, rate, markets }) => (
           <div key={code} className="space-y-2">
-            <Label htmlFor={`${idPrefix}-${code}`}>{t('products.form.own_prices.field', { code })}</Label>
+            <Label htmlFor={`${idPrefix}-${code}`}>
+              {t('products.form.own_prices.market_field', { markets: markets.join(' / '), code })}
+            </Label>
             <Input
               id={`${idPrefix}-${code}`}
               type="number" step="0.01" min="0" inputMode="decimal"

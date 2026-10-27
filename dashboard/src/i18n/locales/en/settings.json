@@ -19,7 +19,7 @@
         "label": "Currencies"
       },
       "markets": {
-        "label": "Markets"
+        "label": "Markets & currencies"
       },
       "notifications": {
         "label": "Notifications"
@@ -653,6 +653,98 @@
     },
     "zone_rates_badge_one": "{{count}} rate",
     "zone_rates_badge_other": "{{count}} rates",
-    "market_badge_no_rate": "No exchange rate"
+    "market_badge_no_rate": "No exchange rate",
+    "mk": {
+      "title": "Markets",
+      "description": "Each market is a group of countries and the currency customers there pay in. Customers are matched to a market by their country, and checkout confirms it by the delivery address.",
+      "add": "Add market",
+      "empty": "Your store sells in {{base}} only. Add a market to sell in another currency or to other countries.",
+      "delete_description": "Customers from these countries will see the default market instead. Your product prices are not changed.",
+      "more": "More options",
+      "adjustment_help": "Raise or lower all prices in this market by a percentage before converting (e.g. 10 = 10% higher). Your own fixed prices are not changed.",
+      "language_help": "The website language when a customer picks this market.",
+      "enabled_help": "Off: customers from these countries see the default market.",
+      "add_country": "Add a country",
+      "same_currency": "Customers here pay your prices in {{base}}, as written.",
+      "base": {
+        "title": "Pricing currency",
+        "help": "The currency you write product prices in. Each market below shows them to its customers in its own currency.",
+        "line": "You write product prices in",
+        "change": "Change",
+        "warning": "Changing it does not change the numbers of your prices, only the currency they are read in.",
+        "saved": "Pricing currency saved"
+      },
+      "badge": {
+        "default": "Default"
+      },
+      "card": {
+        "same_currency": "Same prices as written ({{base}})",
+        "no_rate": "No exchange rate for {{currency}}: customers see {{base}} prices until you add one",
+        "convert": "Converted from your price at",
+        "auto": "updated automatically",
+        "fixed": "Your own prices for {{count}} of {{total}} products; the rest converted at",
+        "all_countries": "All countries not in another market",
+        "and_others": "and all other countries",
+        "all_payments": "All payment methods",
+        "customer_sees": "customers see"
+      },
+      "prices": {
+        "open": "Write prices in {{currency}}",
+        "title": "Prices in {{currency}}: {{name}}",
+        "help": "Type the price customers pay in {{currency}}. Leave a box empty to use the converted price shown in it.",
+        "empty": "Add products first.",
+        "converted": "converted: {{price}}",
+        "variants_note": "Options with their own price (sizes, colours) are priced on the product page.",
+        "save": "Save ({{count}})",
+        "saved": "Prices saved: {{count}}",
+        "save_failed": "Could not save the prices",
+        "invalid": "Check the price of {{product}}"
+      },
+      "dialog": {
+        "new": "Add market",
+        "edit": "Edit market",
+        "help": "Choose the countries, the currency customers there pay in, and how their prices come from your {{base}} prices."
+      },
+      "step": {
+        "where": "1. Countries and currency",
+        "prices": "2. Prices",
+        "payment": "3. Payment methods"
+      },
+      "field": {
+        "name": "Market name",
+        "currency": "Customers pay in"
+      },
+      "pricing": {
+        "convert": {
+          "title": "Convert my prices",
+          "help": "Your {{base}} prices × the exchange rate, rounded up to tidy {{currency}} amounts."
+        },
+        "fixed": {
+          "title": "Write fixed prices",
+          "help": "You type the {{currency}} price of each product. Products without one use the exchange rate."
+        }
+      },
+      "rate": {
+        "label": "Exchange rate",
+        "label_fixed": "Exchange rate (for products without a fixed price)",
+        "auto": "Update automatically with today's rate",
+        "shared": "{{markets}} also pay in {{currency}}: this rate applies there too."
+      },
+      "preview": {
+        "title": "What customers see",
+        "sample": "Sample product",
+        "own": "your price",
+        "fixed_note": "Write the {{currency}} prices after saving, from the market card.",
+        "checkout": "Cart, checkout, the order and its emails show the same amounts, in {{currency}}."
+      },
+      "error": {
+        "countries": "Add at least one country",
+        "rate": "Enter how much 1 {{base}} is in {{currency}}"
+      },
+      "default": {
+        "label": "Default market",
+        "help": "Customers from countries not in any market see this one."
+      }
+    }
   }
 }

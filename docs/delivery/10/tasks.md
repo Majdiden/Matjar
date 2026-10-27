@@ -68,3 +68,4 @@ This document lists all tasks associated with PBI 10.
 | 10-58 | [Regions: detect the visitor's region, let them change it, same prices from browsing to checkout](./10-58.md) | Review | Multi-region stores only switched currency at checkout |
 | 10-59 | [Regional pricing: own prices per currency, rounding, rate safeguards, payment methods per region, automatic rates](./10-59.md) | Review | Saudi in real SAR while Sudan is converted from USD |
 | 10-60 | [Currencies tab without the Markets switch; currency/region choice in the phone menu](./10-60.md) | Review | Permission error on Currencies; no switcher on phones |
+| 10-61 | [Markets as the one place for currencies and prices](./10-61.md) | Review | Currency setup too complicated for merchants |

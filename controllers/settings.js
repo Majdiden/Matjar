@@ -122,6 +122,10 @@ function validateMarket(market) {
   if (paymentMethods.length > 30 || paymentMethods.some((c) => !/^[a-z0-9_-]{1,40}$/i.test(c))) {
     throw new APIError("Invalid payment method codes", 400);
   }
+  const pricing = market.pricing === undefined || market.pricing === null ? "convert" : String(market.pricing);
+  if (!["convert", "fixed"].includes(pricing)) {
+    throw new APIError("pricing must be convert or fixed", 400);
+  }
   return {
     code,
     name: market.name.trim(),
@@ -129,11 +133,60 @@ function validateMarket(market) {
     currency,
     language: market.language ? String(market.language).toLowerCase().trim() : "en",
     priceAdjustmentPct: typeof adjustment === "number" ? adjustment : 0,
+    pricing,
     rounding,
     paymentMethods,
     enabled: market.enabled !== false,
     isDefault: !!market.isDefault,
   };
+}
+
+/**
+ * The exchange rate sent with a market (Settings → Markets edits the rate of
+ * the market's currency in place): `rate` (1 pricing unit = rate units) or
+ * `autoRate: { margin }` to follow the platform rate. Returns the $set to
+ * store with the market, and the tenant as it will be (for the rate check).
+ * A market in the pricing currency needs no rate.
+ */
+async function marketRateUpdate(input, market, tenant) {
+  const base = String(tenant?.settings?.currency || tenant?.settings?.currencies?.base || "SDG").toUpperCase();
+  const set = {};
+  if (market.currency === base || (input.rate === undefined && input.autoRate === undefined)) {
+    return { set, tenant };
+  }
+  const currencies = tenant?.settings?.currencies || {};
+  const auto = (currencies.auto || []).filter((a) => a.code !== market.currency);
+  let rate;
+  if (input.autoRate) {
+    const margin = input.autoRate.margin === undefined || input.autoRate.margin === null ? 0 : input.autoRate.margin;
+    if (typeof margin !== "number" || margin < -0.5 || margin > 1) {
+      throw new APIError("Margin must be between -0.5 and 1", 400);
+    }
+    const { rates, missing } = autoRatesFor(await getFxTable(), base, [{ code: market.currency, margin }]);
+    if (missing.length) {
+      const err = new APIError(`No automatic exchange rate for ${market.currency} yet; enter the rate yourself`, 400);
+      err.code = "AUTO_RATE_UNAVAILABLE";
+      throw err;
+    }
+    rate = rates[market.currency];
+    auto.push({ code: market.currency, margin });
+  } else {
+    rate = input.rate;
+    if (typeof rate !== "number" || !(rate > 0) || rate > 1e6) {
+      throw new APIError(`The exchange rate for ${market.currency} must be a positive number`, 400);
+    }
+  }
+  set[`settings.currencies.rates.${market.currency}`] = rate;
+  set["settings.currencies.auto"] = auto;
+  set["settings.currencies.ratesUpdatedAt"] = new Date();
+  const next = {
+    ...tenant,
+    settings: {
+      ...tenant?.settings,
+      currencies: { ...currencies, rates: { ...(currencies.rates || {}), [market.currency]: rate }, auto },
+    },
+  };
+  return { set, tenant: next };
 }
 
 /**
@@ -713,8 +766,11 @@ export const createMarket = async (req, res, next) => {
   try {
     if (!req.tenant?._id) throw new APIError("Tenant context not found", 400);
     const market = validateMarket(req.body);
-    assertMarketConvertible(market, req.tenant);
+    const rated = await marketRateUpdate(req.body, market, req.tenant);
+    assertMarketConvertible(market, rated.tenant);
     const Tenant = mongoose.model("Tenant");
+    // The first market is the default one (visitors from other countries).
+    if (!(req.tenant?.settings?.markets || []).some((m) => m.isDefault)) market.isDefault = true;
     // If the new market claims default, demote any existing default first.
     // We do this in two writes rather than a transaction because the global
     // settings doc is small and the window is harmless — at worst the
@@ -729,7 +785,7 @@ export const createMarket = async (req, res, next) => {
     }
     const tenant = await Tenant.findByIdAndUpdate(
       req.tenant._id,
-      { $push: { "settings.markets": market } },
+      { $push: { "settings.markets": market }, ...(Object.keys(rated.set).length && { $set: rated.set }) },
       { new: true, runValidators: true }
     );
     if (!tenant) throw new APIError("Tenant not found", 404);
@@ -755,7 +811,8 @@ export const updateMarket = async (req, res, next) => {
       throw new APIError("Invalid market id", 400);
     }
     const market = validateMarket(req.body);
-    assertMarketConvertible(market, req.tenant);
+    const rated = await marketRateUpdate(req.body, market, req.tenant);
+    assertMarketConvertible(market, rated.tenant);
     const Tenant = mongoose.model("Tenant");
     if (market.isDefault) {
       await Tenant.updateOne(
@@ -774,10 +831,12 @@ export const updateMarket = async (req, res, next) => {
           "settings.markets.$.currency": market.currency,
           "settings.markets.$.language": market.language,
           "settings.markets.$.priceAdjustmentPct": market.priceAdjustmentPct,
+          "settings.markets.$.pricing": market.pricing,
           "settings.markets.$.rounding": market.rounding,
           "settings.markets.$.paymentMethods": market.paymentMethods,
           "settings.markets.$.enabled": market.enabled,
           "settings.markets.$.isDefault": market.isDefault,
+          ...rated.set,
         },
       },
       { new: true, runValidators: true }
@@ -811,6 +870,11 @@ export const deleteMarket = async (req, res, next) => {
       { new: true }
     );
     if (!tenant) throw new APIError("Tenant not found", 404);
+    // The next market becomes the default when the default one was removed.
+    const left = tenant.settings?.markets || [];
+    if (left.length && !left.some((m) => m.isDefault)) {
+      await Tenant.updateOne({ _id: tenant._id }, { $set: { "settings.markets.0.isDefault": true } });
+    }
     logAudit(req.models, {
       action: "settings.market.deleted",
       resource: "Market",

@@ -3,29 +3,37 @@ import React from 'react';
 import { api } from '../../lib/api-client';
 import type { CurrencyConfig } from '../settings/shared';
 
-/** A currency the store sells in besides the pricing one, with its rate from it. */
+/** A market currency besides the pricing one, with its rate and the markets using it. */
 export interface OtherCurrency {
   code: string;
   rate: number;
+  /** Names of the markets paying in it ("Saudi Arabia"). */
+  markets: string[];
 }
 
 /**
- * The store's other currencies (those with an exchange rate), or [] when the
- * store has none or the Currencies settings are off for it.
+ * The currencies the store's markets pay in other than the pricing currency
+ * (Settings → Markets), or [] when there are none or Markets is off.
  */
 export function useOtherCurrencies(): OtherCurrency[] {
   const [list, setList] = React.useState<OtherCurrency[]>([]);
   React.useEffect(() => {
     let cancelled = false;
-    (api.settings.getCurrencies() as Promise<{ data?: { currencies?: CurrencyConfig } }>)
+    (api.settings.listMarketsSettings() as Promise<{
+      data?: { currencies?: CurrencyConfig; markets?: { name: string; currency: string; enabled?: boolean }[] };
+    }>)
       .then((res) => {
         if (cancelled) return;
         const cfg = res?.data?.currencies;
-        setList(
-          Object.entries(cfg?.rates || {})
-            .filter(([code, rate]) => code !== cfg?.base && Number(rate) > 0)
-            .map(([code, rate]) => ({ code, rate: Number(rate) })),
-        );
+        const byCode = new Map<string, OtherCurrency>();
+        for (const m of res?.data?.markets || []) {
+          const rate = Number(cfg?.rates?.[m.currency]);
+          if (m.enabled === false || m.currency === cfg?.base || !(rate > 0)) continue;
+          const entry = byCode.get(m.currency) || { code: m.currency, rate, markets: [] };
+          entry.markets.push(m.name);
+          byCode.set(m.currency, entry);
+        }
+        setList([...byCode.values()]);
       })
       .catch(() => { if (!cancelled) setList([]); });
     return () => { cancelled = true; };

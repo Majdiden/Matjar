@@ -242,6 +242,10 @@ const tenantSchema = new Schema({
         // base-currency subtotal BEFORE conversion so the merchant can
         // dial in regional pricing without juggling FX rounding.
         priceAdjustmentPct: { type: Number, default: 0 },
+        // How the merchant prices this market: "convert" (pricing-currency
+        // prices × the currency's rate) or "fixed" (their own price per
+        // product, the converted price where none is set yet).
+        pricing: { type: String, enum: ["convert", "fixed"], default: "convert" },
         // How converted prices are rounded up (services/regionalPricing.js
         // ROUNDING_RULES): "none", a step ("1", "5", … "1000") or "0.99".
         rounding: { type: String, default: "none" },

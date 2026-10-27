@@ -130,11 +130,12 @@ export function buildStoreInfo(tenant, options = {}) {
   // Delivery areas the shopper picks from at checkout (zone shipping): names
   // only, priced by the server. Left out when the store doesn't use zones.
   const deliveryZones = publicDeliveryZones(tenant.settings?.shipping);
-  // Currencies (Settings → Currencies). `currency` is the pricing currency:
-  // every amount the storefront receives is in it. `displayCurrency` is what
-  // visitors see and pay in, converted with `currencyRates` ({ USD: 0.0016 }
-  // = 1 unit of `currency` is 0.0016 USD). `currencySwitcher` lets visitors
-  // pick another rated currency. All left out for a single-currency store.
+  // Currencies. `currency` is the pricing currency: every amount the
+  // storefront receives is in it. Visitors see and pay in their market's
+  // currency (below), converted with `currencyRates` ({ USD: 0.0016 } = 1
+  // unit of `currency` is 0.0016 USD). `displayCurrency` is the older
+  // single website currency (migration 019 turns it into a market). Visitors
+  // choose a market, never a free currency (that showed approximate prices).
   const storeCurrency = (tenant.settings?.currency || "SDG").toUpperCase();
   const fx = tenant.settings?.currencies || {};
   const displayRates = Object.fromEntries(
@@ -143,7 +144,6 @@ export function buildStoreInfo(tenant, options = {}) {
       .filter(([code, rate]) => /^[A-Z]{3}$/.test(code) && code !== storeCurrency && rate > 0 && Number.isFinite(rate))
   );
   const displayCurrency = fx.display && displayRates[String(fx.display).toUpperCase()] ? String(fx.display).toUpperCase() : null;
-  const currencySwitcher = fx.showSwitcher === true && Object.keys(displayRates).length > 0;
   // Regions (Settings → Markets): each enabled market. `market` is the
   // region for this visitor's country (options.visitorCountry), else the
   // default one. The storefront prices in the region's currency and
@@ -167,7 +167,7 @@ export function buildStoreInfo(tenant, options = {}) {
     markets.length > 0
       ? resolveMarket({ settings: { markets: tenant.settings.markets.filter((m) => markets.some((x) => x.code === m.code)) } }, options.visitorCountry)
       : null;
-  const needsRates = !!displayCurrency || currencySwitcher || markets.length > 0;
+  const needsRates = !!displayCurrency || markets.length > 0;
 
   return {
     name: tenant.settings?.storeName || tenant.name,
@@ -180,7 +180,6 @@ export function buildStoreInfo(tenant, options = {}) {
     currency: storeCurrency,
     ...(needsRates && { currencyRates: displayRates }),
     ...(displayCurrency && { displayCurrency }),
-    ...(currencySwitcher && { currencySwitcher: true }),
     ...(markets.length > 0 && { markets, ...(visitorMarket && { market: visitorMarket.code }) }),
     theme: effectiveTheme,
     themeCustomization: effectiveCustomization,
