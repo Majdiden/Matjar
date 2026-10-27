@@ -17,7 +17,7 @@ export function useOtherCurrencies(): OtherCurrency[] {
   const [list, setList] = React.useState<OtherCurrency[]>([]);
   React.useEffect(() => {
     let cancelled = false;
-    (api.settings.listMarketsSettings() as Promise<{ data?: { currencies?: CurrencyConfig } }>)
+    (api.settings.getCurrencies() as Promise<{ data?: { currencies?: CurrencyConfig } }>)
       .then((res) => {
         if (cancelled) return;
         const cfg = res?.data?.currencies;

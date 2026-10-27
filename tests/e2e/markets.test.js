@@ -657,4 +657,18 @@ describe("E2E markets + currencies", () => {
     const tenant = await mongoose.model("Tenant").findById(tenantId).lean();
     assert.equal(tenant.settings.currencies.rates.SAR, 4.08);
   });
+
+  it("the Currencies tab works with only the Currencies switch on", async () => {
+    await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    invalidateFeatureFlagCache();
+    invalidateTenantFeatureCache();
+    await setFeatureOverrides([{ key: "settings.markets", value: false }, { key: "settings.currencies", value: true }], "test");
+    await setUsdRates(app, adminToken, { SDG: 600 });
+    const res = await request(app).get("/api/store-settings/currencies").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`);
+    assert.equal(res.status, 200, JSON.stringify(res.body));
+    assert.equal(res.body.data.currencies.base, "USD");
+    assert.equal(res.body.data.currencies.rates.SDG, 600);
+    await request(app).get("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(403);
+  });
 });

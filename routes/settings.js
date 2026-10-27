@@ -38,7 +38,11 @@ router.delete("/markets/:marketId", canWrite, marketsEnabled, SettingsController
 
 // Currencies — base currency + FX rates table. PUT replaces the rates map
 // wholesale (no partial-merge surprises).
-router.put("/currencies", canWrite, requireFeature("settings.currencies"), SettingsController.updateCurrencies);
+// The Currencies tab reads the same data as Markets (rates, platform rates)
+// but must not depend on the Markets switch.
+const currenciesEnabled = requireFeature("settings.currencies");
+router.get("/currencies", canRead, currenciesEnabled, SettingsController.listMarkets);
+router.put("/currencies", canWrite, currenciesEnabled, SettingsController.updateCurrencies);
 
 // Order status notifications — per-status email template config. PUT
 // merges per-status (so the merchant can edit one template without
