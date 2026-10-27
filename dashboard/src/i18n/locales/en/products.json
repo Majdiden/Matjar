@@ -239,8 +239,9 @@
       },
       "own_prices": {
         "title": "Your own prices in other currencies",
-        "help": "Optional. Shoppers paying in that currency see exactly this price. Leave a box empty to use the converted price shown in it.",
-        "field": "Price in {{code}}"
+        "help": "Optional. Customers in that market pay exactly this price. Leave a box empty to use the converted price shown in it.",
+        "field": "Price in {{code}}",
+        "market_field": "Price in {{markets}} ({{code}})"
       }
     },
     "status": {

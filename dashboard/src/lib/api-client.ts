@@ -1189,8 +1189,6 @@ export const api = {
 
     // Markets (per-row CRUD against the settings doc)
     listMarketsSettings: () => api.get('/store-settings/markets'),
-    /** Pricing currency, rates and platform rates (Currencies switch only). */
-    getCurrencies: () => api.get('/store-settings/currencies'),
     createMarketSettings: (market: unknown) => api.post('/store-settings/markets', market),
     updateMarketSettings: (id: string, market: unknown) =>
       api.put(`/store-settings/markets/${id}`, market),

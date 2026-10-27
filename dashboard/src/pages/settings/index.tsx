@@ -8,8 +8,8 @@
  *   Regional         — currency, timezone, language
  *   Shipping         — provider type + zone CRUD against /store-settings/shipping/zones
  *   Tax              — flags + per-rate CRUD against /store-settings/tax/rates
- *   Currencies       — base + FX rates table against /store-settings/currencies
- *   Markets          — geographic price targeting (checkout presentment)
+ *   Markets          — pricing currency + markets (countries, currency, rate or
+ *                      own prices, payment methods) against /store-settings/markets
  *   Notifications    — in-app/sound/browser/email channel preferences
  *   Email templates  — per-status email templates against /store-settings/notifications
  *
@@ -41,23 +41,20 @@ import { GeneralSettings } from './GeneralSettings';
 import { RegionalSettings } from './RegionalSettings';
 import { ShippingZones } from './ShippingZones';
 import { TaxSettings } from './TaxSettings';
-import { CurrencySettings } from './CurrencySettings';
 import { MarketsSettings } from './MarketsSettings';
 import { NotificationSettings } from './NotificationSettings';
 import { EmailTemplates } from './EmailTemplates';
 import { PoliciesSettings } from './PoliciesSettings';
 import { SecurityPanel } from '../security/Security';
 
-type SettingsTab = 'account' | 'general' | 'regional' | 'shipping' | 'tax' | 'currencies' | 'markets' | 'notifications' | 'email-templates' | 'policies' | 'security';
+type SettingsTab = 'account' | 'general' | 'regional' | 'shipping' | 'tax' | 'markets' | 'notifications' | 'email-templates' | 'policies' | 'security';
 
-const VALID_TABS: SettingsTab[] = ['account', 'general', 'regional', 'shipping', 'tax', 'currencies', 'markets', 'notifications', 'email-templates', 'policies', 'security'];
+const VALID_TABS: SettingsTab[] = ['account', 'general', 'regional', 'shipping', 'tax', 'markets', 'notifications', 'email-templates', 'policies', 'security'];
 
 // Tabs gated behind a platform feature flag. Ungated tabs are always shown.
 const TAB_FEATURES: Partial<Record<SettingsTab, FeatureKey>> = {
   regional: 'settings.regional',
   tax: 'settings.tax',
-  currencies: 'settings.currencies',
-  markets: 'settings.markets',
 };
 
 export const Settings: React.FC = () => {
@@ -67,8 +64,12 @@ export const Settings: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [savingGeneral, setSavingGeneral] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const urlTab = searchParams.get('tab') as SettingsTab | null;
+  // The old Currencies tab is part of Markets now.
+  const rawTab = searchParams.get('tab');
+  const urlTab = (rawTab === 'currencies' ? 'markets' : rawTab) as SettingsTab | null;
   const tabAllowed = (id: SettingsTab): boolean => {
+    // Markets (with currencies) opens with either platform switch.
+    if (id === 'markets') return hasFeature('settings.markets') || hasFeature('settings.currencies');
     const f = TAB_FEATURES[id];
     return !f || hasFeature(f);
   };
@@ -184,8 +185,7 @@ export const Settings: React.FC = () => {
             { id: 'regional', label: t('settings.tab.regional.label'), icon: Globe2, feature: 'settings.regional' },
             { id: 'shipping', label: t('settings.tab.shipping.label'), icon: Truck },
             { id: 'tax', label: t('settings.tab.tax.label'), icon: Receipt, feature: 'settings.tax' },
-            { id: 'currencies', label: t('settings.tab.currencies.label'), icon: Coins, feature: 'settings.currencies' },
-            { id: 'markets', label: t('settings.tab.markets.label'), icon: Globe2, feature: 'settings.markets' },
+            { id: 'markets', label: t('settings.tab.markets.label'), icon: Coins },
             { id: 'notifications', label: t('settings.tab.notifications.label'), icon: BellIcon },
             { id: 'email-templates', label: t('settings.tab.email_templates.label'), icon: Mail },
             { id: 'policies', label: t('settings.tab.policies.label', { defaultValue: 'Policies' }), icon: ScrollText },
@@ -247,14 +247,7 @@ export const Settings: React.FC = () => {
         </div>
         )}
 
-        {/* Currencies */}
-        {tab === 'currencies' && (
-        <div className="space-y-6">
-          <CurrencySettings />
-        </div>
-        )}
-
-        {/* Markets (geographic price targeting — source of truth for checkout presentment) */}
+        {/* Markets: currencies, exchange rates and prices per country */}
         {tab === 'markets' && (
         <div className="space-y-6">
           <MarketsSettings />

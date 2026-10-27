@@ -25,4 +25,21 @@ export const requireFeature = (flagKey) => async (req, res, next) => {
   }
 };
 
+/** Like requireFeature, passing when any one of the flags is on. */
+export const requireAnyFeature = (...flagKeys) => async (req, res, next) => {
+  try {
+    for (const key of flagKeys) {
+      if (await isFeatureEnabledFor(req.tenant, key)) return next();
+    }
+    return res.status(403).json({
+      success: false,
+      code: "FEATURE_DISABLED",
+      feature: flagKeys[0],
+      message: "This feature is not available.",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default requireFeature;

@@ -1,47 +1,33 @@
 /**
- * Markets tab — geographic price targeting. Source of truth for checkout
- * presentment (audit 3.5: the standalone pages/markets/Markets.tsx orphan
- * was deleted; this tab is the canonical surface).
+ * Settings → Markets: the one place a merchant sets what customers pay.
  *
- * Persisted under `tenant.settings.markets` and consumed by
- * services/regionalPricing.js and services/checkout.js::priceCheckout. A
- * market's currency must be the pricing currency or have a rate in
- * Currencies: the form blocks saving without one and flags existing markets
- * that lost theirs (they show prices in the pricing currency until then).
+ *   - The pricing currency: the currency product prices are written in.
+ *   - Markets: each has its countries and the currency customers there pay
+ *     in, priced either by converting the merchant's prices with an exchange
+ *     rate (rounded up to tidy amounts) or by the merchant's own fixed price
+ *     per product (the converted price until one is written). Each market can
+ *     limit payment methods. The default market serves visitors from every
+ *     other country.
+ *
+ * Every card and the add/edit dialog show real products as the customer will
+ * see them (marketPricing.ts mirrors services/regionalPricing.js). A market's
+ * exchange rate is saved with it (controllers/settings.js marketRateUpdate).
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Badge } from '../../components/ui/badge';
-import { Switch } from '../../components/ui/switch';
-import { CurrencyPicker, LanguagePicker, CountryPicker } from '../../components/ui/pickers';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from '../../components/ui/dialog';
-import { Globe2, Plus, Pencil, Trash2, Loader2, AlertCircle } from 'lucide-react';
+import { CurrencyPicker } from '../../components/ui/pickers';
+import { Globe2, Plus, Pencil, Trash2, AlertCircle, Tags, Loader2 } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
-import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
-import { errorMessage, ROUNDING_OPTIONS, type CurrencyConfig } from './shared';
-
-interface MarketConfig {
-  _id: string;
-  code: string;
-  name: string;
-  countries: string[];
-  currency: string;
-  language: string;
-  priceAdjustmentPct: number;
-  rounding?: string;
-  paymentMethods?: string[];
-  enabled: boolean;
-  isDefault: boolean;
-}
+import { errorMessage, type CurrencyConfig } from './shared';
+import { flag, countryName, currencyName, customerPrice, formatAmount } from './marketPricing';
+import { MarketDialog, type MarketConfig, type MarketsContext, type PricedProduct } from './MarketDialog';
+import { MarketPricesDialog } from './MarketPricesDialog';
 
 interface PaymentMethodOption {
   code: string;
@@ -49,49 +35,29 @@ interface PaymentMethodOption {
   enabled?: boolean;
 }
 
-const MARKETS_EMPTY_FORM = {
-  code: '',
-  name: '',
-  countries: [] as string[],
-  currency: '',
-  language: 'en',
-  priceAdjustmentPct: '0',
-  rounding: 'none',
-  paymentMethods: [] as string[],
-  enabled: true,
-  isDefault: false,
-};
-
 export const MarketsSettings: React.FC = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
   const listSeparator = i18n.language?.startsWith('ar') ? '، ' : ', ';
-  const [markets, setMarkets] = useState<MarketConfig[]>([]);
-  const [baseCurrency, setBaseCurrency] = useState<string>('SDG');
-  const [fxRates, setFxRates] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState(MARKETS_EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
-  const [paymentOptions, setPaymentOptions] = useState<PaymentMethodOption[]>([]);
   const confirm = useConfirm();
-
-  useEffect(() => { load(); }, []);
+  const [loading, setLoading] = useState(true);
+  const [markets, setMarkets] = useState<MarketConfig[]>([]);
+  const [currencies, setCurrencies] = useState<CurrencyConfig>({ base: 'SDG', rates: {} });
+  const [platformRates, setPlatformRates] = useState<Record<string, number>>({});
+  const [paymentOptions, setPaymentOptions] = useState<PaymentMethodOption[]>([]);
+  const [products, setProducts] = useState<PricedProduct[]>([]);
+  const [editing, setEditing] = useState<MarketConfig | 'new' | null>(null);
+  const [pricesFor, setPricesFor] = useState<MarketConfig | null>(null);
+  const [baseEditing, setBaseEditing] = useState<string | null>(null);
+  const [savingBase, setSavingBase] = useState(false);
 
   const load = async () => {
     try {
-      setLoading(true);
       const res = await api.settings.listMarketsSettings() as {
-        data?: { markets?: MarketConfig[]; currencies?: CurrencyConfig };
+        data?: { markets?: MarketConfig[]; currencies?: CurrencyConfig; platformRates?: Record<string, number> };
       };
       setMarkets(res.data?.markets || []);
-      setBaseCurrency(res.data?.currencies?.base || 'SDG');
-      setFxRates(res.data?.currencies?.rates || {});
-      // The store's payment methods, to choose which a region offers.
-      const pm = await api.paymentMethods.list().catch(() => null) as {
-        data?: { methods?: PaymentMethodOption[] };
-      } | null;
-      setPaymentOptions((pm?.data?.methods || []).filter((m) => m.enabled !== false));
+      setCurrencies(res.data?.currencies || { base: 'SDG', rates: {} });
+      setPlatformRates(res.data?.platformRates || {});
     } catch (err) {
       toast.error(errorMessage(err, t('settings.toast.markets_load_failed')));
     } finally {
@@ -99,191 +65,217 @@ export const MarketsSettings: React.FC = () => {
     }
   };
 
-  const openCreate = () => {
-    setEditingId(null);
-    setForm({ ...MARKETS_EMPTY_FORM, currency: baseCurrency });
-    setDialogOpen(true);
+  const loadProducts = async () => {
+    const res = await api.products.getAll({ page: 1, limit: 1000 }).catch(() => null) as {
+      responseObject?: { data?: PricedProduct[] };
+    } | null;
+    setProducts((res?.responseObject?.data || []).filter((p) => typeof p.price === 'number'));
   };
 
-  const openEdit = (m: MarketConfig) => {
-    setEditingId(m._id);
-    setForm({
-      code: m.code,
-      name: m.name,
-      countries: [...(m.countries || [])],
-      currency: m.currency,
-      language: m.language || 'en',
-      // Stored as a decimal fraction (0.1 = +10%); edit in percent for UX.
-      priceAdjustmentPct: String(((m.priceAdjustmentPct || 0) * 100).toFixed(2)).replace(/\.?0+$/, ''),
-      rounding: m.rounding || 'none',
-      paymentMethods: [...(m.paymentMethods || [])],
-      enabled: m.enabled !== false,
-      isDefault: !!m.isDefault,
-    });
-    setDialogOpen(true);
-  };
+  useEffect(() => {
+    load();
+    loadProducts();
+    (api.paymentMethods.list() as Promise<{ data?: { methods?: PaymentMethodOption[] } }>)
+      .then((pm) => setPaymentOptions((pm?.data?.methods || []).filter((m) => m.enabled !== false)))
+      .catch(() => setPaymentOptions([]));
+    // load/loadProducts only read setters; run once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleSave = async () => {
-    const code = form.code.trim().toLowerCase();
-    if (!/^[a-z0-9-]{2,32}$/.test(code)) {
-      focusFieldById('market-code');
-      return toast.error(t('settings.validation.market_code_invalid'));
-    }
-    if (!form.name.trim()) {
-      focusFieldById('market-name');
-      return toast.error(t('settings.validation.market_name_required'));
-    }
-    if (!/^[A-Z]{3}$/.test(form.currency)) {
-      focusFieldById('market-currency');
-      return toast.error(t('settings.validation.market_currency_invalid'));
-    }
-    if (missingFxWarning(form.currency)) {
-      focusFieldById('market-currency');
-      return toast.error(t('settings.validation.market_currency_no_rate', { currency: form.currency }));
-    }
-    const countries = form.countries.map(c => c.toUpperCase()).filter(Boolean);
-    // Index into form.countries (not the filtered list) so we focus the right row.
-    const badCountryIndex = form.countries.findIndex(c => c && !/^[A-Z]{2}$/.test(c.toUpperCase()));
-    if (badCountryIndex !== -1) {
-      focusFieldById(`market-country-${badCountryIndex}`);
-      return toast.error(t('settings.validation.market_country_invalid', { code: form.countries[badCountryIndex].toUpperCase() }));
-    }
-    const pct = parseFloat(form.priceAdjustmentPct || '0');
-    if (isNaN(pct) || pct < -95 || pct > 500) {
-      focusFieldById('market-price-adjustment');
-      return toast.error(t('settings.validation.market_price_adjustment_range'));
-    }
-    const payload = {
-      code,
-      name: form.name.trim(),
-      countries,
-      currency: form.currency,
-      language: form.language.trim().toLowerCase() || 'en',
-      priceAdjustmentPct: pct / 100,
-      rounding: form.rounding,
-      paymentMethods: form.paymentMethods,
-      enabled: form.enabled,
-      isDefault: form.isDefault,
-    };
-    setSaving(true);
+  const base = currencies.base;
+  const rateOf = (code: string) => (code === base ? 1 : Number(currencies.rates?.[code]) || 0);
+  const example = products[0] || null;
+
+  const ctx: MarketsContext = useMemo(() => ({
+    base,
+    rates: currencies.rates || {},
+    auto: currencies.auto || [],
+    platformRates,
+    paymentOptions,
+    products,
+    markets,
+  }), [base, currencies, platformRates, paymentOptions, products, markets]);
+
+  const saveBase = async () => {
+    if (!baseEditing || baseEditing === base) return setBaseEditing(null);
+    setSavingBase(true);
     try {
-      if (editingId) {
-        await api.settings.updateMarketSettings(editingId, payload);
-        toast.success(t('settings.toast.market_updated'));
-      } else {
-        await api.settings.createMarketSettings(payload);
-        toast.success(t('settings.toast.market_created'));
-      }
-      setDialogOpen(false);
-      load();
+      await api.settings.updateCurrencies({ base: baseEditing });
+      toast.success(t('settings.mk.base.saved'));
+      setBaseEditing(null);
+      await load();
     } catch (err) {
-      toast.error(errorMessage(err, t('settings.toast.market_save_failed')));
+      toast.error(errorMessage(err, t('settings.toast.currencies_save_failed')));
     } finally {
-      setSaving(false);
+      setSavingBase(false);
     }
   };
 
   const handleDelete = async (m: MarketConfig) => {
     if (!(await confirm({
       title: t('settings.confirm.delete_market.title', { name: m.name }),
-      description: t('settings.confirm.delete_market.description'),
+      description: t('settings.mk.delete_description'),
       confirmText: t('settings.confirm.delete_market.confirm_text'),
       variant: 'destructive',
     }))) return;
     try {
       await api.settings.deleteMarketSettings(m._id);
       toast.success(t('settings.toast.market_deleted'));
-      setMarkets(list => list.filter(x => x._id !== m._id));
+      await load();
     } catch (err) {
       toast.error(errorMessage(err, t('settings.toast.market_delete_failed')));
     }
   };
 
-  // A market's currency needs a rate from the pricing currency. Saving is
-  // blocked without one; an existing market whose rate was removed shows its
-  // prices in the pricing currency (with its adjustment) until it is added.
-  const missingFxWarning = (currency: string): string | null => {
-    if (!currency || currency === baseCurrency) return null;
-    if (fxRates[currency] > 0) return null;
-    return t('settings.fx_missing_warning', { currency, base: baseCurrency });
+  if (loading) return <Skeleton className="h-96" />;
+
+  // Formulas and amounts keep their own left-to-right order inside Arabic text.
+  const ltr = (text: string) => <bdi dir="ltr" className="whitespace-nowrap">{text}</bdi>;
+  const rateFormula = (m: MarketConfig) =>
+    ltr(`1 ${base} = ${Number(rateOf(m.currency).toPrecision(6)).toLocaleString('en-US')} ${m.currency}`);
+
+  const pricingLine = (m: MarketConfig): React.ReactNode => {
+    const rate = rateOf(m.currency);
+    if (m.currency === base) return t('settings.mk.card.same_currency', { base });
+    if (!rate) return t('settings.mk.card.no_rate', { currency: m.currency, base });
+    const auto = (currencies.auto || []).some((a) => a.code === m.currency);
+    const tail = (
+      <>
+        {' '}{rateFormula(m)}
+        {m.rounding && m.rounding !== 'none' && ` · ${t(`settings.field.rounding.option.${m.rounding === '0.99' ? '099' : m.rounding}`)}`}
+        {auto && ` · ${t('settings.mk.card.auto')}`}
+      </>
+    );
+    if (m.pricing !== 'fixed') return <>{t('settings.mk.card.convert')}{tail}</>;
+    const own = products.filter((p) => typeof p.prices?.[m.currency] === 'number').length;
+    return <>{t('settings.mk.card.fixed', { count: own, total: products.length })}{tail}</>;
   };
 
-  const addCountryRow = () => setForm(f => ({ ...f, countries: [...f.countries, ''] }));
-  const updateCountryRow = (i: number, v: string) =>
-    setForm(f => ({ ...f, countries: f.countries.map((c, j) => j === i ? v : c) }));
-  const removeCountryRow = (i: number) =>
-    setForm(f => ({ ...f, countries: f.countries.filter((_, j) => j !== i) }));
-
-  if (loading) return <Skeleton className="h-96" />;
+  const exampleLine = (m: MarketConfig): React.ReactNode => {
+    if (!example) return null;
+    const rate = rateOf(m.currency) || 1;
+    const shownCurrency = rateOf(m.currency) ? m.currency : base;
+    const price = customerPrice(example.price, example.prices?.[m.currency], {
+      rate, adjustment: m.priceAdjustmentPct || 0, rounding: m.rounding || 'none',
+    });
+    return (
+      <>
+        {example.name}: {ltr(formatAmount(example.price, base))} {i18n.dir() === 'rtl' ? '←' : '→'}{' '}
+        {t('settings.mk.card.customer_sees')}{' '}
+        <span className="font-semibold">{ltr(formatAmount(price.amount, shownCurrency))}</span>
+      </>
+    );
+  };
 
   return (
     <>
+      {/* Pricing currency */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t('settings.mk.base.title')}</CardTitle>
+          <CardDescription>{t('settings.mk.base.help')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {baseEditing === null ? (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm">
+                {t('settings.mk.base.line')}{' '}
+                <span className="font-semibold">{currencyName(base)}</span>{' '}
+                <span className="text-muted-foreground" dir="ltr">({base})</span>
+              </p>
+              <Button variant="outline" size="sm" onClick={() => setBaseEditing(base)}>
+                {t('settings.mk.base.change')}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="max-w-xs">
+                <CurrencyPicker value={baseEditing} onChange={setBaseEditing} />
+              </div>
+              <p className="flex items-start gap-1 text-xs text-amber-600 dark:text-amber-500">
+                <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />{t('settings.mk.base.warning')}
+              </p>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={saveBase} disabled={savingBase}>
+                  {savingBase && <Loader2 className="me-2 h-4 w-4 animate-spin" />}{t('common:action.save')}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setBaseEditing(null)}>{t('common:action.cancel')}</Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Markets */}
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="text-base">{t('settings.section.markets.title')}</CardTitle>
-            <CardDescription>
-              {t('settings.section.markets.description')}
-            </CardDescription>
+            <CardTitle className="text-base">{t('settings.mk.title')}</CardTitle>
+            <CardDescription>{t('settings.mk.description')}</CardDescription>
           </div>
-          <Button onClick={openCreate} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 me-2" />{t('settings.button.add_market')}
+          <Button onClick={() => setEditing('new')} className="w-full sm:w-auto">
+            <Plus className="me-2 h-4 w-4" />{t('settings.mk.add')}
           </Button>
         </CardHeader>
         <CardContent>
           {markets.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Globe2 className="h-10 w-10 mx-auto mb-2 opacity-40" />
-              <p className="text-sm">{t('settings.empty.no_markets')}</p>
+            <div className="py-8 text-center text-muted-foreground">
+              <Globe2 className="mx-auto mb-2 h-10 w-10 opacity-40" />
+              <p className="text-sm">{t('settings.mk.empty', { base })}</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {markets.map(m => {
-                const warn = missingFxWarning(m.currency);
+            <div className="space-y-3">
+              {markets.map((m) => {
+                const noRate = m.currency !== base && !rateOf(m.currency);
+                const methods = (m.paymentMethods || []).map((c) => paymentOptions.find((o) => o.code === c)?.label || c);
+                const line = exampleLine(m);
                 return (
-                  <div key={m._id} className="flex items-start justify-between border rounded-md px-4 py-3">
-                    <div className="min-w-0 space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-sm font-semibold">{m.code}</span>
-                        <span className="text-sm">{m.name}</span>
-                        <Badge variant="secondary" className="text-[10px]">{m.currency}</Badge>
-                        {warn && (
-                          <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-600">
-                            {t('settings.market_badge_no_rate')}
-                          </Badge>
-                        )}
-                        {m.priceAdjustmentPct !== 0 && (
-                          <Badge variant="outline" className="text-[10px]">
-                            {m.priceAdjustmentPct > 0 ? '+' : ''}{(m.priceAdjustmentPct * 100).toFixed(1)}%
-                          </Badge>
-                        )}
-                        {m.isDefault && <Badge className="text-[10px]">{t('settings.market_badge_default')}</Badge>}
-                        {!m.enabled && <Badge variant="outline" className="text-[10px] text-muted-foreground">{t('settings.market_badge_disabled')}</Badge>}
-                      </div>
-                      {m.countries.length > 0 && (
-                        <p className="text-xs text-muted-foreground">{m.countries.join(', ')}</p>
-                      )}
-                      {warn && (
-                        <p className="text-xs text-amber-600 dark:text-amber-500 flex items-center gap-1">
-                          <AlertCircle className="h-3 w-3 shrink-0" />{warn}
-                        </p>
-                      )}
-                      {(m.paymentMethods?.length || 0) > 0 && (
+                  <div key={m._id} className="space-y-2 rounded-lg border p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-lg leading-none" aria-hidden="true">
+                            {(m.countries || []).slice(0, 4).map(flag).join(' ') || '🌍'}
+                          </span>
+                          <span className="font-semibold">{m.name}</span>
+                          {m.isDefault && <Badge className="text-[10px]">{t('settings.mk.badge.default')}</Badge>}
+                          {!m.enabled && <Badge variant="outline" className="text-[10px] text-muted-foreground">{t('settings.market_badge_disabled')}</Badge>}
+                          {noRate && (
+                            <Badge variant="outline" className="border-amber-500 text-[10px] text-amber-600">
+                              {t('settings.market_badge_no_rate')}
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                          {t('settings.field.markets.payment_methods.summary', {
-                            methods: m.paymentMethods!.map((c) => paymentOptions.find((o) => o.code === c)?.label || c).join(listSeparator),
-                          })}
+                          {(m.countries || []).length
+                            ? m.countries.map(countryName).join(listSeparator)
+                            : t('settings.mk.card.all_countries')}
+                          {m.isDefault && (m.countries || []).length > 0 && ` · ${t('settings.mk.card.and_others')}`}
                         </p>
-                      )}
+                      </div>
+                      <div className="flex shrink-0 gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={t('common:action.edit')} onClick={() => setEditing(m)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" aria-label={t('common:action.delete')} onClick={() => handleDelete(m)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-1 shrink-0">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(m)}>
-                        <Pencil className="h-3.5 w-3.5" />
+                    <p className="text-sm">
+                      <span className="font-medium">{currencyName(m.currency)}</span>{' '}
+                      <span className="text-muted-foreground" dir="ltr">({m.currency})</span>
+                    </p>
+                    <p className="text-sm text-muted-foreground">{pricingLine(m)}</p>
+                    {line && <p className="rounded-md bg-muted/50 px-3 py-2 text-sm">{line}</p>}
+                    <p className="text-xs text-muted-foreground">
+                      {methods.length ? t('settings.field.markets.payment_methods.summary', { methods: methods.join(listSeparator) }) : t('settings.mk.card.all_payments')}
+                    </p>
+                    {m.pricing === 'fixed' && m.currency !== base && !noRate && (
+                      <Button variant="outline" size="sm" onClick={() => setPricesFor(m)}>
+                        <Tags className="me-2 h-4 w-4" />{t('settings.mk.prices.open', { currency: m.currency })}
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(m)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                    )}
                   </div>
                 );
               })}
@@ -292,183 +284,31 @@ export const MarketsSettings: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingId ? t('settings.dialog.edit_market') : t('settings.dialog.new_market')}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t('settings.field.markets.code.label')}</Label>
-                <Input
-                  id="market-code"
-                  value={form.code}
-                  onChange={e => setForm(f => ({ ...f, code: e.target.value }))}
-                  placeholder={t('settings.field.markets.code.placeholder')}
-                />
-                <p className="text-xs text-muted-foreground">{t('settings.field.markets.code.help')}</p>
-              </div>
-              <div className="space-y-2">
-                <Label>{t('settings.field.markets.name.label')}</Label>
-                <Input
-                  id="market-name"
-                  value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder={t('settings.field.markets.name.placeholder')}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t('settings.field.markets.currency.label')}</Label>
-                <div id="market-currency">
-                  <CurrencyPicker
-                    value={form.currency}
-                    onChange={v => setForm(f => ({ ...f, currency: v }))}
-                  />
-                </div>
-                {missingFxWarning(form.currency) && (
-                  <p className="text-xs text-amber-600 dark:text-amber-500 flex items-start gap-1">
-                    <AlertCircle className="h-3 w-3 shrink-0 mt-0.5" />{missingFxWarning(form.currency)}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label>{t('settings.field.markets.language.label')}</Label>
-                <LanguagePicker
-                  value={form.language}
-                  onChange={v => setForm(f => ({ ...f, language: v }))}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>{t('settings.field.markets.countries.label')}</Label>
-                <Button variant="ghost" size="sm" onClick={addCountryRow}>
-                  <Plus className="h-3.5 w-3.5 me-1" />{t('settings.button.add_country')}
-                </Button>
-              </div>
-              {form.countries.length === 0 ? (
-                <p className="text-xs text-muted-foreground italic">
-                  {t('settings.empty.no_countries')}
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {form.countries.map((c, i) => (
-                    <div key={i} className="flex gap-2 items-center">
-                      <div id={`market-country-${i}`} className="flex-1">
-                        <CountryPicker
-                          value={c}
-                          onChange={v => updateCountryRow(i, v)}
-                        />
-                      </div>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => removeCountryRow(i)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t('settings.field.markets.price_adjustment.label')}</Label>
-              <Input
-                id="market-price-adjustment"
-                type="number"
-                step="0.1"
-                min="-95"
-                max="500"
-                value={form.priceAdjustmentPct}
-                onChange={e => setForm(f => ({ ...f, priceAdjustmentPct: e.target.value }))}
-                placeholder={t('settings.field.markets.price_adjustment.placeholder')}
-              />
-              <p className="text-xs text-muted-foreground">
-                {t('settings.field.markets.price_adjustment.help')}
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="market-rounding">{t('settings.field.rounding.label')}</Label>
-              <select
-                id="market-rounding"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={form.rounding}
-                onChange={e => setForm(f => ({ ...f, rounding: e.target.value }))}
-              >
-                {ROUNDING_OPTIONS.map((r) => (
-                  <option key={r} value={r}>{t(`settings.field.rounding.option.${r === '0.99' ? '099' : r}`)}</option>
-                ))}
-              </select>
-              <p className="text-xs text-muted-foreground">{t('settings.field.rounding.help')}</p>
-            </div>
-
-            {paymentOptions.length > 1 && (
-              <div className="space-y-2">
-                <Label>{t('settings.field.markets.payment_methods.label')}</Label>
-                <div className="space-y-2 rounded-md border px-3 py-2">
-                  {paymentOptions.map((pm) => {
-                    const checked = form.paymentMethods.includes(pm.code);
-                    return (
-                      <label key={pm.code} className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 accent-primary"
-                          checked={checked}
-                          onChange={(e) => {
-                            const on = e.target.checked;
-                            setForm(f => ({
-                              ...f,
-                              paymentMethods: on
-                                ? [...f.paymentMethods, pm.code]
-                                : f.paymentMethods.filter((c) => c !== pm.code),
-                            }));
-                          }}
-                        />
-                        {pm.label || pm.code}
-                      </label>
-                    );
-                  })}
-                </div>
-                <p className="text-xs text-muted-foreground">{t('settings.field.markets.payment_methods.help')}</p>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="flex items-center justify-between border rounded-md px-3 py-2">
-                <div>
-                  <p className="text-sm font-medium">{t('settings.field.markets.enabled.label')}</p>
-                  <p className="text-xs text-muted-foreground">{t('settings.field.markets.enabled.description')}</p>
-                </div>
-                <Switch
-                  checked={form.enabled}
-                  onCheckedChange={v => setForm(f => ({ ...f, enabled: v }))}
-                />
-              </div>
-              <div className="flex items-center justify-between border rounded-md px-3 py-2">
-                <div>
-                  <p className="text-sm font-medium">{t('settings.field.markets.default.label')}</p>
-                  <p className="text-xs text-muted-foreground">{t('settings.field.markets.default.description')}</p>
-                </div>
-                <Switch
-                  checked={form.isDefault}
-                  onCheckedChange={v => setForm(f => ({ ...f, isDefault: v }))}
-                />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common:action.cancel')}</Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : null}
-              {editingId ? t('common:action.update') : t('common:action.create')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {editing && (
+        <MarketDialog
+          market={editing === 'new' ? null : editing}
+          ctx={ctx}
+          onClose={() => setEditing(null)}
+          onSaved={async (saved, openPrices) => {
+            setEditing(null);
+            await load();
+            if (openPrices) setPricesFor(saved);
+          }}
+        />
+      )}
+      {pricesFor && (
+        <MarketPricesDialog
+          market={pricesFor}
+          base={base}
+          rate={rateOf(pricesFor.currency)}
+          products={products}
+          onClose={() => setPricesFor(null)}
+          onSaved={async () => {
+            setPricesFor(null);
+            await loadProducts();
+          }}
+        />
+      )}
     </>
   );
 };

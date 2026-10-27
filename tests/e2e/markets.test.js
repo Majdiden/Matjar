@@ -341,12 +341,13 @@ describe("E2E markets + currencies", () => {
 
     let info = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
     assert.equal(info.currency, "SDG");
-    // Rates alone change nothing on the website…
+    // Rates alone change nothing on the website, and visitors never get a
+    // free currency switcher (they pick a market instead).
     assert.equal(info.currencyRates, undefined);
-    // …until visitors may switch (or the website shows another currency).
     await put({ showSwitcher: true }).expect(200);
     info = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
-    assert.ok(Math.abs(info.currencyRates.USD - 1 / 600) < 1e-12);
+    assert.equal(info.currencyRates, undefined);
+    assert.equal(info.currencySwitcher, undefined);
 
     // Changing the base on the Currencies tab changes the store currency.
     await put({ base: "USD", rates: {} }).expect(200);
@@ -396,14 +397,10 @@ describe("E2E markets + currencies", () => {
     assert.equal(order.presentmentSubtotal, 60000);
     assert.equal(order.presentmentTotal, Math.round(order.totalAmount * 600 * 100) / 100);
 
-    // Switching on the currency menu; showing the pricing currency again clears the website currency.
-    await put({ showSwitcher: true }).expect(200);
-    let after = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
-    assert.equal(after.currencySwitcher, true);
+    // Showing the pricing currency again clears the website currency.
     await put({ display: null }).expect(200);
-    after = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
+    const after = (await request(app).get("/storefront/store-info").set("Host", HOST).expect(200)).body.data.store;
     assert.equal(after.displayCurrency, undefined);
-    assert.equal(after.currencySwitcher, true);
   });
 
   it("store-info picks the visitor's region from their country", async () => {
@@ -560,8 +557,8 @@ describe("E2E markets + currencies", () => {
     };
     assert.equal(await shown("hoodie", { "CF-IPCountry": "SA" }), 349);
     assert.equal(await shown("cap", { "X-Matjar-Market": "sa" }), 40);
-    // Elsewhere the plain pricing-currency price.
-    assert.equal(await shown("hoodie", {}), 375);
+    // The only market is the default one, so every visitor gets its prices.
+    assert.equal(await shown("hoodie", {}), 349);
 
     const customerToken = await registerCustomer(app);
     await request(app).post("/api/cart/add").set("Host", HOST).set("Authorization", `Bearer ${customerToken}`)
@@ -658,7 +655,7 @@ describe("E2E markets + currencies", () => {
     assert.equal(tenant.settings.currencies.rates.SAR, 4.08);
   });
 
-  it("the Currencies tab works with only the Currencies switch on", async () => {
+  it("Markets (with currencies) works with only the Currencies switch on", async () => {
     await provisionTenant(app);
     const adminToken = await loginAdmin(app);
     invalidateFeatureFlagCache();
@@ -669,6 +666,43 @@ describe("E2E markets + currencies", () => {
     assert.equal(res.status, 200, JSON.stringify(res.body));
     assert.equal(res.body.data.currencies.base, "USD");
     assert.equal(res.body.data.currencies.rates.SDG, 600);
-    await request(app).get("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(403);
+    // Markets and currencies are one page: either switch opens it.
+    await request(app).get("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(200);
+  });
+
+  it("a market saves its exchange rate with it; the first market is the default", async () => {
+    const tenantId = await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    await setUsdRates(app, adminToken, {});
+    const post = (body) =>
+      request(app).post("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).send(body);
+
+    const sd = await post({ code: "sd", name: "Sudan", countries: ["SD"], currency: "SDG", rate: 2600, rounding: "100" });
+    assert.equal(sd.status, 201, JSON.stringify(sd.body));
+    assert.equal(sd.body.data.isDefault, true, "the first market is the default");
+    const sa = await post({ code: "sa", name: "Saudi", countries: ["SA"], currency: "SAR", rate: 3.75, pricing: "fixed" });
+    assert.equal(sa.status, 201, JSON.stringify(sa.body));
+    assert.equal(sa.body.data.isDefault, false);
+    assert.equal(sa.body.data.pricing, "fixed");
+    assert.equal((await post({ code: "eg", name: "Egypt", countries: ["EG"], currency: "EGP", rate: -1 })).status, 400);
+
+    let listed = (await request(app).get("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(200)).body.data;
+    assert.equal(listed.currencies.rates.SDG, 2600);
+    assert.equal(listed.currencies.rates.SAR, 3.75);
+
+    // The price table saves a product's own price alone; nothing else changes.
+    const { product } = await seedProduct(tenantId);
+    const upd = await request(app).put(`/api/products/${product._id}`).set("Host", HOST).set("Authorization", `Bearer ${adminToken}`)
+      .send({ prices: { SAR: 79 } });
+    assert.equal(upd.status, 200, JSON.stringify(upd.body));
+    const stored = await mongoose.model("Product").db.collection("products").findOne({ _id: product._id });
+    assert.equal(stored.prices.SAR, 79);
+    assert.equal(stored.name, "Hoodie");
+    assert.equal(stored.price, 100);
+
+    // Deleting the default market makes the next one the default.
+    await request(app).delete(`/api/store-settings/markets/${sd.body.data._id}`).set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(200);
+    listed = (await request(app).get("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(200)).body.data;
+    assert.deepEqual(listed.markets.map((m) => [m.code, m.isDefault]), [["sa", true]]);
   });
 });

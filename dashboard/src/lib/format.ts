@@ -36,7 +36,7 @@ export function getTenantCurrency(): string {
 const LATIN_DIGITS = "-u-nu-latn";
 
 /** The dashboard's current language (set on <html lang> by LanguageProvider). */
-function uiLanguage(): "ar" | "en" {
+export function uiLanguage(): "ar" | "en" {
   const lang = typeof document !== "undefined" ? document.documentElement.lang : "";
   return lang?.toLowerCase().startsWith("ar") ? "ar" : "en";
 }
