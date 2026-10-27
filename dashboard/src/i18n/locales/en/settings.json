@@ -747,6 +747,18 @@
         "label": "Default market",
         "help": "Customers from countries not in any market see this one."
       }
+    },
+    "hub": {
+      "account": "Your name, phone and password.",
+      "general": "Store name, description, logo and icon.",
+      "regional": "Store language, currency and time zone.",
+      "shipping": "Delivery areas and their prices.",
+      "tax": "Tax rates and whether prices include tax.",
+      "markets": "Countries you sell to, their currencies and prices.",
+      "notifications": "How you are alerted about new orders and events.",
+      "email_templates": "Emails customers receive about their orders.",
+      "policies": "Delivery, returns and privacy policies.",
+      "security": "Sign-in protection and active sessions."
     }
   }
 }

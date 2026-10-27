@@ -1,9 +1,11 @@
 /**
- * Store settings — tabbed configuration page covering everything that lives
- * on the tenant `settings` document and that the merchant edits at the
- * store level (rather than per-product or per-order).
+ * Store settings — everything that lives on the tenant `settings` document
+ * and that the merchant edits at the store level (rather than per-product or
+ * per-order).
  *
- * Tabs:
+ * /dashboard/settings shows a grid of large boxes, one per section; each opens
+ * that section's page (/dashboard/settings?tab=<section>, so older deep links
+ * keep working) with a back link to the grid. Sections:
  *   General          — store name + description, branding (logo, favicon)
  *   Regional         — currency, timezone, language
  *   Shipping         — provider type + zone CRUD against /store-settings/shipping/zones
@@ -24,15 +26,14 @@
  */
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Bell as BellIcon } from 'lucide-react';
 import { setTenantCurrency, setTenantLocale } from '../../lib/format';
 import { useLanguage } from '../../i18n/LanguageProvider';
 import { useFeatures } from '../../contexts/features-context';
 import type { FeatureKey } from '../../lib/features';
 import { Skeleton } from '../../components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { Store, Globe2, Truck, Receipt, Coins, Mail, ShieldCheck, ScrollText, UserRound } from 'lucide-react';
+import { Store, Globe2, Truck, Receipt, Coins, Mail, ShieldCheck, ScrollText, UserRound, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { errorMessage, type GeneralSettingsState, type ShippingType } from './shared';
@@ -58,12 +59,14 @@ const TAB_FEATURES: Partial<Record<SettingsTab, FeatureKey>> = {
 };
 
 export const Settings: React.FC = () => {
-  const { t } = useTranslation(['settings', 'common']);
+  const { t, i18n } = useTranslation(['settings', 'common']);
   const { setLang } = useLanguage();
+  // "Back" points to where the reading starts: left in English, right in Arabic.
+  const BackIcon = i18n.dir() === 'rtl' ? ChevronRight : ChevronLeft;
   const { hasFeature } = useFeatures();
   const [loading, setLoading] = useState(true);
   const [savingGeneral, setSavingGeneral] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   // The old Currencies tab is part of Markets now.
   const rawTab = searchParams.get('tab');
   const urlTab = (rawTab === 'currencies' ? 'markets' : rawTab) as SettingsTab | null;
@@ -76,20 +79,8 @@ export const Settings: React.FC = () => {
   // Deep-link validation is feature-aware: an off-flag `?tab=tax` falls back
   // to `general` instead of rendering a hidden tab's panel.
   const validTabs = VALID_TABS.filter(tabAllowed);
-  const initialTab: SettingsTab = urlTab && validTabs.includes(urlTab) ? urlTab : 'general';
-  const [tab, setTabState] = useState<SettingsTab>(initialTab);
-  const setTab = (next: SettingsTab) => {
-    setTabState(next);
-    const sp = new URLSearchParams(searchParams);
-    sp.set('tab', next);
-    setSearchParams(sp, { replace: true });
-  };
-  useEffect(() => {
-    if (urlTab && validTabs.includes(urlTab) && urlTab !== tab) {
-      setTabState(urlTab);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlTab]);
+  // No (or an unknown / switched-off) section: the grid of sections.
+  const tab: SettingsTab | null = urlTab && validTabs.includes(urlTab) ? urlTab : null;
   const [general, setGeneral] = useState<GeneralSettingsState>({
     storeName: '', storeDescription: '', logo: '', favicon: '',
     currency: 'SDG', timezone: 'Africa/Khartoum', language: 'en',
@@ -168,53 +159,67 @@ export const Settings: React.FC = () => {
     );
   }
 
+  const sections = ([
+    { id: 'account', icon: UserRound },
+    { id: 'general', icon: Store },
+    { id: 'regional', icon: Globe2 },
+    { id: 'shipping', icon: Truck },
+    { id: 'tax', icon: Receipt },
+    { id: 'markets', icon: Coins },
+    { id: 'notifications', icon: BellIcon },
+    { id: 'email-templates', icon: Mail },
+    { id: 'policies', icon: ScrollText },
+    { id: 'security', icon: ShieldCheck },
+  ] as { id: SettingsTab; icon: React.ElementType }[]).filter(({ id }) => tabAllowed(id));
+  const labelOf = (id: SettingsTab) => t(`settings.tab.${id.replace('-', '_')}.label`);
+  const descriptionOf = (id: SettingsTab) => t(`settings.hub.${id.replace('-', '_')}`);
+
+  // The grid of sections.
+  if (!tab) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('settings.title')}</h1>
+          <p className="text-muted-foreground">{t('settings.subtitle')}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+          {sections.map(({ id, icon: Icon }) => (
+            <Link
+              key={id}
+              to={`/dashboard/settings?tab=${id}`}
+              onClick={() => window.scrollTo({ top: 0 })}
+              className="group flex min-h-[132px] flex-col gap-3 rounded-xl border bg-card p-4 text-start shadow-sm transition hover:border-primary/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-5"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </span>
+              <span className="space-y-1">
+                <span className="block font-semibold leading-tight">{labelOf(id)}</span>
+                <span className="block text-xs leading-relaxed text-muted-foreground sm:text-sm">{descriptionOf(id)}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('settings.title')}</h1>
-        <p className="text-muted-foreground">{t('settings.subtitle')}</p>
+      {/* A section's page: back to the grid, then its settings. */}
+      <div className="space-y-2">
+        <Link
+          to="/dashboard/settings"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <BackIcon className="h-4 w-4" />
+          {t('settings.title')}
+        </Link>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{labelOf(tab)}</h1>
+        <p className="text-muted-foreground">{descriptionOf(tab)}</p>
       </div>
 
-      {/* Section navigation uses the shadcn Tabs strip — pills are reserved
-          for list filtering (audit 3.9.10). Same tab state + URL sync. Every
-          section stays visible (no sideways scrolling, which many merchants
-          miss): a two-column grid of large buttons on phones, wrapping rows
-          on wider screens. */}
-      <Tabs value={tab} onValueChange={(v) => {
-        setTab(v as SettingsTab);
-        // On phones the grid pushes the section down: bring it into view.
-        if (window.matchMedia('(max-width: 639px)').matches) {
-          requestAnimationFrame(() => document.getElementById('settings-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-        }
-      }}>
-        <TabsList className="grid h-auto w-full grid-cols-2 gap-1.5 p-1.5 sm:flex sm:flex-wrap sm:justify-start sm:gap-1 sm:p-1">
-          {([
-            { id: 'account', label: t('settings.tab.account.label'), icon: UserRound },
-            { id: 'general', label: t('settings.tab.general.label'), icon: Store },
-            { id: 'regional', label: t('settings.tab.regional.label'), icon: Globe2, feature: 'settings.regional' },
-            { id: 'shipping', label: t('settings.tab.shipping.label'), icon: Truck },
-            { id: 'tax', label: t('settings.tab.tax.label'), icon: Receipt, feature: 'settings.tax' },
-            { id: 'markets', label: t('settings.tab.markets.label'), icon: Coins },
-            { id: 'notifications', label: t('settings.tab.notifications.label'), icon: BellIcon },
-            { id: 'email-templates', label: t('settings.tab.email_templates.label'), icon: Mail },
-            { id: 'policies', label: t('settings.tab.policies.label', { defaultValue: 'Policies' }), icon: ScrollText },
-            { id: 'security', label: t('settings.tab.security.label'), icon: ShieldCheck },
-          ] as { id: SettingsTab; label: string; icon: React.ElementType; feature?: FeatureKey }[])
-            .filter(({ id }) => tabAllowed(id))
-            .map(({ id, label, icon: Icon }) => (
-            <TabsTrigger
-              key={id}
-              value={id}
-              className="min-h-[48px] justify-start gap-2 whitespace-normal px-3 py-2.5 text-start text-sm sm:min-h-0 sm:justify-center sm:whitespace-nowrap sm:py-1.5"
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              <span className="leading-tight">{label}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-
-      <div id="settings-panel" className="mt-6 scroll-mt-20">
+      <div id="settings-panel">
         {/* Account — the merchant's own profile (name + phone) */}
         {tab === 'account' && (
         <div className="space-y-6">
