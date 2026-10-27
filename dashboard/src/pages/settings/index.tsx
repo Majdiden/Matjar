@@ -176,9 +176,18 @@ export const Settings: React.FC = () => {
       </div>
 
       {/* Section navigation uses the shadcn Tabs strip — pills are reserved
-          for list filtering (audit 3.9.10). Same tab state + URL sync. */}
-      <Tabs value={tab} onValueChange={(v) => setTab(v as SettingsTab)}>
-        <TabsList className="h-auto w-full justify-start overflow-x-auto scrollbar-hide">
+          for list filtering (audit 3.9.10). Same tab state + URL sync. Every
+          section stays visible (no sideways scrolling, which many merchants
+          miss): a two-column grid of large buttons on phones, wrapping rows
+          on wider screens. */}
+      <Tabs value={tab} onValueChange={(v) => {
+        setTab(v as SettingsTab);
+        // On phones the grid pushes the section down: bring it into view.
+        if (window.matchMedia('(max-width: 639px)').matches) {
+          requestAnimationFrame(() => document.getElementById('settings-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        }
+      }}>
+        <TabsList className="grid h-auto w-full grid-cols-2 gap-1.5 p-1.5 sm:flex sm:flex-wrap sm:justify-start sm:gap-1 sm:p-1">
           {([
             { id: 'account', label: t('settings.tab.account.label'), icon: UserRound },
             { id: 'general', label: t('settings.tab.general.label'), icon: Store },
@@ -193,15 +202,19 @@ export const Settings: React.FC = () => {
           ] as { id: SettingsTab; label: string; icon: React.ElementType; feature?: FeatureKey }[])
             .filter(({ id }) => tabAllowed(id))
             .map(({ id, label, icon: Icon }) => (
-            <TabsTrigger key={id} value={id} className="gap-1.5 shrink-0">
-              <Icon className="h-4 w-4" />
-              {label}
+            <TabsTrigger
+              key={id}
+              value={id}
+              className="min-h-[48px] justify-start gap-2 whitespace-normal px-3 py-2.5 text-start text-sm sm:min-h-0 sm:justify-center sm:whitespace-nowrap sm:py-1.5"
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="leading-tight">{label}</span>
             </TabsTrigger>
           ))}
         </TabsList>
       </Tabs>
 
-      <div className="mt-6">
+      <div id="settings-panel" className="mt-6 scroll-mt-20">
         {/* Account — the merchant's own profile (name + phone) */}
         {tab === 'account' && (
         <div className="space-y-6">
