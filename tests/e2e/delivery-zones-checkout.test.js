@@ -100,9 +100,11 @@ describe("E2E delivery areas at checkout", () => {
     const areas = res.body.data.store.deliveryZones;
     assert.deepEqual(
       areas,
-      savedZones.map((z) => ({ id: String(z._id), name: z.name }))
+      savedZones.map((z) => ({ id: String(z._id), name: z.name, countries: z.countries }))
     );
     assert.ok(!JSON.stringify(areas).includes("price"));
+    // Checkout offers only the countries the store delivers to.
+    assert.deepEqual(res.body.data.store.shipCountries, ["SA"]);
   });
 
   it("the quote prices the picked zone, not the first one for the country", async () => {
@@ -172,5 +174,30 @@ describe("E2E delivery areas at checkout", () => {
     assert.equal(res.body.responseObject.shippingCost, 9);
     const saved = await models.Order.findById(res.body.responseObject._id).lean();
     assert.equal(saved.shippingAddress.state, "Omdurman");
+  });
+
+  it("the country picks the area when it has only one; the address may carry the country name", async () => {
+    const { token } = await setup(app, [
+      ...ZONES,
+      { name: "Cairo", countries: ["EG"], rates: [{ name: "Delivery", price: 12 }] },
+    ]);
+    const res = await request(app)
+      .post("/storefront/checkout/quote")
+      .set("Host", HOST)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ shippingAddress: { ...ADDRESS, city: "Cairo", country: "Egypt" } })
+      .expect(200);
+    const { quote } = res.body.data;
+    assert.equal(quote.shippingCost, 12, JSON.stringify(quote));
+    assert.equal(quote.deliveryZone.name, "Cairo");
+    assert.ok(!quote.deliveryZoneMissing);
+    // A zone of another country is not accepted for this address.
+    const sa = await request(app)
+      .post("/storefront/checkout/quote")
+      .set("Host", HOST)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ shippingAddress: { ...ADDRESS, country: "Saudi Arabia" } })
+      .expect(200);
+    assert.equal(sa.body.data.quote.deliveryZoneMissing, true, "Saudi Arabia has two areas: one must be picked");
   });
 });

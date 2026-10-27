@@ -201,7 +201,9 @@
   },
   "location": {
     "select_country": "Select country",
-    "select_city": "Select city / state"
+    "select_city": "Select city / state",
+    "other_city": "Other city",
+    "type_city": "Type your city"
   },
   "section": {
     "hero": {

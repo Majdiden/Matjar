@@ -264,7 +264,7 @@ describe("storefront payload", () => {
     assert.equal("trust" in s, false);
     assert.deepEqual(Object.keys(s), [
       "name", "language", "description", "logo", "favicon", "currency", "theme", "themeCustomization",
-      "socialLinks", "brand", "contactInfo", "contact", "policies", "giftCards",
+      "socialLinks", "brand", "contactInfo", "contact", "policies", "giftCards", "shipCountries",
     ]);
     // An explicit "off" switch and empty answer objects are the same as never set.
     const t = baseTenant();

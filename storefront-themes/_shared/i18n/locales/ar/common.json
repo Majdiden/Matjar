@@ -201,7 +201,9 @@
   },
   "location": {
     "select_country": "اختر الدولة",
-    "select_city": "اختر المدينة / الولاية"
+    "select_city": "اختر المدينة / الولاية",
+    "other_city": "مدينة أخرى",
+    "type_city": "اكتب اسم مدينتك"
   },
   "section": {
     "hero": {
