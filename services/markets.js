@@ -1,3 +1,5 @@
+import { toCountryCode } from "../utils/countryCode.js";
+
 /**
  * Markets service. The merchant defines geographic markets in
  * `tenant.settings.markets`; each market binds a set of countries to a
@@ -30,7 +32,8 @@ const round2 = (n) => Math.round(n * 100) / 100;
 export function resolveMarket(tenant, country) {
   const markets = (tenant?.settings?.markets || []).filter((m) => m.enabled);
   if (markets.length === 0) return null;
-  const upper = country ? String(country).toUpperCase() : null;
+  // Addresses carry the country name ("Saudi Arabia"); markets list codes.
+  const upper = toCountryCode(country);
   if (upper) {
     const explicit = markets.find((m) =>
       (m.countries || []).some((c) => String(c).toUpperCase() === upper)

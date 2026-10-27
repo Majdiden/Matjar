@@ -68,7 +68,9 @@ export interface StoreInfo {
   /** Trust-badge facts (PBI 10-11); absent unless the policy questions were answered. */
   trust?: StoreTrust;
   /** Delivery areas (shipping zones) to pick from at checkout; absent unless the store delivers by zone. */
-  deliveryZones?: Array<{ id: string; name: string }>;
+  deliveryZones?: Array<{ id: string; name: string; countries?: string[] }>;
+  /** Countries checkout offers (ISO codes): where the store delivers. */
+  shipCountries?: string[];
 }
 
 interface StoreContextType {

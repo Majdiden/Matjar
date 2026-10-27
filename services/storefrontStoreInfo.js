@@ -2,7 +2,8 @@ import { isValidEditorPreviewToken } from "./themeCustomization.js";
 import { publicSocialLinks } from "../utils/socialLinks.js";
 import { publicBrand } from "../utils/brandKit.js";
 import { contentHash, publicTrust } from "./generatedPages.js";
-import { publicDeliveryZones } from "./shipping.js";
+import { publicDeliveryZones, storeCountries } from "./shipping.js";
+import { getSettingSync } from "./platform/settings.js";
 import { resolveMarket } from "./markets.js";
 
 /**
@@ -130,6 +131,13 @@ export function buildStoreInfo(tenant, options = {}) {
   // Delivery areas the shopper picks from at checkout (zone shipping): names
   // only, priced by the server. Left out when the store doesn't use zones.
   const deliveryZones = publicDeliveryZones(tenant.settings?.shipping);
+  // The countries checkout offers (ISO codes): where the store delivers.
+  let shipCountries = [];
+  try {
+    shipCountries = storeCountries(tenant.settings, getSettingSync("commerce.countries"));
+  } catch {
+    shipCountries = storeCountries(tenant.settings);
+  }
   // Currencies. `currency` is the pricing currency: every amount the
   // storefront receives is in it. Visitors see and pay in their market's
   // currency (below), converted with `currencyRates` ({ USD: 0.0016 } = 1
@@ -218,6 +226,7 @@ export function buildStoreInfo(tenant, options = {}) {
     // Trust-badge facts from the policy answers (_shared TrustBadges).
     ...(trust && { trust }),
     ...(deliveryZones.length > 0 && { deliveryZones }),
+    ...(shipCountries.length > 0 && { shipCountries }),
   };
 }
 

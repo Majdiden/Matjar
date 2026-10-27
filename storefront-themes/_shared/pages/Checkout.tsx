@@ -264,14 +264,46 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   // shipping line shows the price.
   const deliveryZones = store?.deliveryZones || [];
   const usesZones = deliveryZones.length > 0;
+  // Only the countries the store delivers to; with one, it is chosen for the
+  // shopper and only the city is asked.
+  const shipCountryOptions = useMemo(() => {
+    const allowed = store?.shipCountries;
+    const list = allowed?.length ? COUNTRIES.filter((c) => allowed.includes(c.code)) : [];
+    return list.length ? list : COUNTRIES;
+  }, [store?.shipCountries]);
+  const onlyCountry = shipCountryOptions.length === 1 ? shipCountryOptions[0] : null;
+  const shippingCountryCode = COUNTRIES.find((c) => c.value === shipping.country)?.code || '';
+  // The country decides the delivery area; the shopper picks one only when
+  // their country has several (e.g. Khartoum and Omdurman).
+  const countryZones = deliveryZones.filter(
+    (z) => !z.countries?.length || (shippingCountryCode && z.countries.includes(shippingCountryCode)),
+  );
+  const needsZonePick = countryZones.length > 1;
+  useEffect(() => {
+    if (onlyCountry && shipping.country !== onlyCountry.value) {
+      setShipping((cur) => ({ ...cur, country: onlyCountry.value, city: cur.country === onlyCountry.value ? cur.city : '' }));
+    }
+  }, [onlyCountry, shipping.country]);
+  useEffect(() => {
+    // The single area of the country, or none: no pick to keep.
+    const only = countryZones.length === 1 ? countryZones[0] : null;
+    const current = countryZones.find((z) => z.id === shipping.deliveryZoneId);
+    if (only && shipping.deliveryZoneId !== only.id) {
+      setShipping((cur) => ({ ...cur, deliveryZoneId: only.id, state: only.name }));
+    } else if (!only && shipping.deliveryZoneId && !current) {
+      setShipping((cur) => ({ ...cur, deliveryZoneId: '' }));
+    }
+    // countryZones is derived from these two.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shippingCountryCode, deliveryZones.length, shipping.deliveryZoneId]);
   const canQuote = useMemo(
     () =>
       !!cart &&
       cart.items.length > 0 &&
       !!shipping.country &&
       !!shipping.city &&
-      (!usesZones || !!shipping.deliveryZoneId),
-    [cart, shipping.country, shipping.city, usesZones, shipping.deliveryZoneId]
+      (!needsZonePick || !!shipping.deliveryZoneId),
+    [cart, shipping.country, shipping.city, needsZonePick, shipping.deliveryZoneId]
   );
 
   useEffect(() => {
@@ -337,6 +369,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     value: string,
     onChange: (v: string) => void,
     required = false,
+    options = COUNTRIES,
   ) => (
     <select
       value={value}
@@ -346,44 +379,56 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
       required={required}
     >
       <option value="">{t('common:location.select_country')}</option>
-      {optionsWithCurrent(COUNTRIES, value).map((o) => (
+      {optionsWithCurrent(options, value).map((o) => (
         <option key={o.value} value={o.value}>{locationLabel(o, lang)}</option>
       ))}
     </select>
   );
 
+  // A city missing from the country's list is typed in ("Other city").
+  const [typedCity, setTypedCity] = useState<Record<string, boolean>>({});
   const renderCityField = (
     value: string,
     country: string,
     onChange: (v: string) => void,
     required = false,
+    key = 'shipping',
   ) => {
     const cities = getCitiesForCountry(country);
-    if (!cities) {
-      return (
-        <input
-          type="text"
-          required={required}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={inputClass}
-          style={inputStyle}
-        />
-      );
-    }
-    return (
-      <select
+    const textInput = (
+      <input
+        type="text"
+        required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`${inputClass} bg-white`}
+        className={inputClass}
         style={inputStyle}
-        required={required}
-      >
-        <option value="">{t('common:location.select_city')}</option>
-        {optionsWithCurrent(cities, value).map((o) => (
-          <option key={o.value} value={o.value}>{locationLabel(o, lang)}</option>
-        ))}
-      </select>
+        placeholder={cities ? t('common:location.type_city') : undefined}
+      />
+    );
+    if (!cities) return textInput;
+    const typing = typedCity[key] || (!!value && !cities.some((o) => o.value === value));
+    return (
+      <div className="space-y-2">
+        <select
+          value={typing ? '__other__' : value}
+          onChange={(e) => {
+            const other = e.target.value === '__other__';
+            setTypedCity((m) => ({ ...m, [key]: other }));
+            onChange(other ? '' : e.target.value);
+          }}
+          className={`${inputClass} bg-white`}
+          style={inputStyle}
+          required={required}
+        >
+          <option value="">{t('common:location.select_city')}</option>
+          {cities.map((o) => (
+            <option key={o.value} value={o.value}>{locationLabel(o, lang)}</option>
+          ))}
+          <option value="__other__">{t('common:location.other_city')}</option>
+        </select>
+        {typing && textInput}
+      </div>
     );
   };
 
@@ -470,7 +515,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     if (!shipping.addressLine1) return t('checkout.error.address_required');
     if (!shipping.city) return t('checkout.error.city_required');
     if (!shipping.country) return t('checkout.error.country_required');
-    if (usesZones && !shipping.deliveryZoneId) return t('checkout.error.zone_required');
+    if (needsZonePick && !shipping.deliveryZoneId) return t('checkout.error.zone_required');
     if (!shipping.phone) return t('checkout.error.phone_required');
     return null;
   };
@@ -832,18 +877,21 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                 />
               </div>
 
-              {/* Country first so the city dropdown is scoped to it. */}
-              <div>
-                <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.country.label')}</label>
-                {renderCountrySelect(shipping.country, (v) => setShippingValue('country', v), true)}
-              </div>
+              {/* Country first so the city dropdown is scoped to it; not asked
+                  when the store delivers to one country only. */}
+              {!onlyCountry && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.country.label')}</label>
+                  {renderCountrySelect(shipping.country, (v) => setShippingValue('country', v), true, shipCountryOptions)}
+                </div>
+              )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className={`grid grid-cols-1 gap-4 ${needsZonePick || !usesZones ? 'sm:grid-cols-2' : ''}`}>
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.city.label')}</label>
                   {renderCityField(shipping.city, shipping.country, (v) => setShippingValue('city', v), true)}
                 </div>
-                {usesZones ? (
+                {needsZonePick ? (
                   <div>
                     <label htmlFor="shipping-zone" className="block text-sm font-medium mb-1">{t('checkout.field.shipping.zone.label')}</label>
                     <select
@@ -851,7 +899,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       required
                       value={shipping.deliveryZoneId || ''}
                       onChange={(e) => {
-                        const zone = deliveryZones.find((z) => z.id === e.target.value);
+                        const zone = countryZones.find((z) => z.id === e.target.value);
                         setShipping({ ...shipping, deliveryZoneId: zone?.id || '', state: zone?.name || '' });
                         setSelectedAddressIdx('new');
                       }}
@@ -859,17 +907,17 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                       style={inputStyle}
                     >
                       <option value="">{t('checkout.field.shipping.zone.placeholder')}</option>
-                      {deliveryZones.map((z) => (
+                      {countryZones.map((z) => (
                         <option key={z.id} value={z.id}>{z.name}</option>
                       ))}
                     </select>
                   </div>
-                ) : (
+                ) : !usesZones ? (
                   <div>
                     <label className="block text-sm font-medium mb-1">{t('checkout.field.shipping.state.label')}</label>
                     <input type="text" value={shipping.state} onChange={setShippingField('state')} className={inputClass} style={inputStyle} />
                   </div>
-                )}
+                ) : null}
               </div>
 
               {user && selectedAddressIdx === 'new' && (
@@ -942,7 +990,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                     <input placeholder={t('checkout.field.shipping.address.label')} value={billing.addressLine1} onChange={setBillingField('addressLine1')} className={inputClass} style={inputStyle} />
                     {renderCountrySelect(billing.country, (v) => setBillingValue('country', v))}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {renderCityField(billing.city, billing.country, (v) => setBillingValue('city', v))}
+                      {renderCityField(billing.city, billing.country, (v) => setBillingValue('city', v), false, 'billing')}
                       <input placeholder={t('checkout.field.shipping.state.label')} value={billing.state} onChange={setBillingField('state')} className={inputClass} style={inputStyle} />
                     </div>
                   </div>

@@ -1,4 +1,5 @@
 import { getATenantRepo } from "../repositories/tenant.js";
+import { toCountryCode } from "../utils/countryCode.js";
 
 /**
  * Calculate shipping cost based on cart and address
@@ -13,12 +14,17 @@ export const calculateShipping = async (cart, address, tenantId) => {
   let deliveryZone = null;
   let deliveryZoneMissing = false;
   let picked = null;
+  // The delivery country decides the area; a pick is only needed when the
+  // country has several (e.g. Khartoum and Omdurman in Sudan).
+  const country = toCountryCode(address.country);
   if (settings.type === "zone") {
     const areas = publicDeliveryZones(settings);
+    const inCountry = country ? areas.filter((a) => a.countries.includes(country)) : areas;
     picked = findZoneById(settings.zones, address.deliveryZoneId);
-    if (!picked && areas.length === 1) picked = findZoneById(settings.zones, areas[0].id);
+    if (picked && country && !(picked.countries || []).some((c) => String(c).toUpperCase() === country)) picked = null;
+    if (!picked && inCountry.length === 1) picked = findZoneById(settings.zones, inCountry[0].id);
     if (picked) deliveryZone = { id: String(picked._id), name: picked.name };
-    else if (areas.length > 1) deliveryZoneMissing = true;
+    else if (inCountry.length > 1) deliveryZoneMissing = true;
   }
   const zoneInfo = { ...(deliveryZone && { deliveryZone }), ...(deliveryZoneMissing && { deliveryZoneMissing }) };
 
@@ -45,7 +51,6 @@ export const calculateShipping = async (cart, address, tenantId) => {
       // The shopper picks a delivery area (zone) at checkout; it is priced by
       // its id. Without one, the first zone for the country is the estimate
       // (older storefronts) — placing an order requires the pick.
-      const country = String(address.country || "").toUpperCase();
       const zone =
         picked ||
         settings.zones?.find((z) => z.countries?.some((c) => String(c).toUpperCase() === country));
@@ -101,5 +106,24 @@ export function publicDeliveryZones(shipping) {
   if (shipping?.type !== "zone" || !Array.isArray(shipping.zones)) return [];
   return shipping.zones
     .filter((z) => z?._id && z.name && z.rates?.length)
-    .map((z) => ({ id: String(z._id), name: z.name }));
+    .map((z) => ({ id: String(z._id), name: z.name, countries: (z.countries || []).map((c) => String(c).toUpperCase()) }));
+}
+
+/**
+ * The countries a store delivers to (ISO codes), for the checkout country
+ * list: its delivery zones' countries (zone shipping); else its markets'
+ * countries, unless a market serves "every other country" (no countries);
+ * else `fallback` (the platform's countries). Empty = no limit.
+ */
+export function storeCountries(settings, fallback = []) {
+  const shipping = settings?.shipping;
+  if (shipping?.type === "zone") {
+    const fromZones = new Set(publicDeliveryZones(shipping).flatMap((z) => z.countries));
+    if (fromZones.size) return [...fromZones];
+  }
+  const markets = (settings?.markets || []).filter((m) => m?.enabled !== false);
+  if (markets.length && markets.every((m) => (m.countries || []).length)) {
+    return [...new Set(markets.flatMap((m) => m.countries.map((c) => String(c).toUpperCase())))];
+  }
+  return Array.isArray(fallback) ? fallback.map((c) => String(c).toUpperCase()) : [];
 }

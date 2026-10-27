@@ -1,3 +1,4 @@
+import { toCountryCode } from "../utils/countryCode.js";
 import { getATenantRepo } from "../repositories/tenant.js";
 
 /**
@@ -62,7 +63,8 @@ export const calculateTax = async (cart, address, tenantId) => {
   }
 
   const rates = settings.rates || [];
-  const country = address.country || "default";
+  // Rates are keyed by country code; addresses may carry the name.
+  const country = toCountryCode(address.country) || address.country || "default";
   const state = address.state || "*";
   const included = !!settings.includeInPrice;
 
