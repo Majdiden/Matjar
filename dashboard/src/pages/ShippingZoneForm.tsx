@@ -11,11 +11,15 @@ import { ArrowLeft, Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { api } from '../lib/api-client';
 import { toast } from 'sonner';
 import { focusFieldById } from '../lib/focusFirstInvalid';
+import { getTenantCurrency } from '../lib/format';
+import { currencyName } from './settings/marketPricing';
 
 interface ShippingZone {
   _id: string;
   name: string;
   countries: string[];
+  /** Currency the prices are written in; null = the pricing currency. */
+  currency?: string | null;
   rates: Array<{
     _id?: string;
     name: string;
@@ -40,12 +44,40 @@ const ShippingZoneForm: React.FC = () => {
   const [form, setForm] = useState<{
     name: string;
     countries: string[];
+    currency: string;
     rates: Array<typeof EMPTY_RATE>;
   }>({
     name: '',
     countries: [],
+    currency: '',
     rates: [{ ...EMPTY_RATE }],
   });
+  // Delivery prices are written in the currency customers there pay in:
+  // their market's (Settings → Markets), else the pricing currency.
+  const [base, setBase] = useState(getTenantCurrency());
+  const [marketCurrency, setMarketCurrency] = useState<Record<string, string>>({});
+  const [ratedCurrencies, setRatedCurrencies] = useState<string[]>([]);
+  const [currencyTouched, setCurrencyTouched] = useState(isEdit);
+  useEffect(() => {
+    (api.settings.listMarketsSettings() as Promise<{
+      data?: { markets?: { countries?: string[]; currency: string; enabled?: boolean }[]; currencies?: { base?: string; rates?: Record<string, number> } };
+    }>)
+      .then((res) => {
+        const cur = res?.data?.currencies;
+        const b = cur?.base || getTenantCurrency();
+        const rated = Object.entries(cur?.rates || {}).filter(([c, r]) => c !== b && Number(r) > 0).map(([c]) => c);
+        const byCountry: Record<string, string> = {};
+        for (const m of res?.data?.markets || []) {
+          if (m.enabled === false || (m.currency !== b && !rated.includes(m.currency))) continue;
+          for (const c of m.countries || []) byCountry[c.toUpperCase()] = m.currency;
+        }
+        setBase(b);
+        setRatedCurrencies(rated);
+        setMarketCurrency(byCountry);
+      })
+      .catch(() => { /* Markets off: prices are in the pricing currency */ });
+  }, []);
+  const zoneCurrency = form.currency || base;
 
   useEffect(() => {
     if (!isEdit) return;
@@ -63,6 +95,7 @@ const ShippingZoneForm: React.FC = () => {
         setForm({
           name: zone.name,
           countries: zone.countries,
+          currency: zone.currency || '',
           rates: zone.rates.map((r) => ({
             name: r.name,
             price: r.price,
@@ -83,7 +116,12 @@ const ShippingZoneForm: React.FC = () => {
   const addCountry = (code: string) => {
     const upper = code.toUpperCase();
     if (!upper || form.countries.includes(upper)) return;
-    setForm((f) => ({ ...f, countries: [...f.countries, upper] }));
+    setForm((f) => ({
+      ...f,
+      countries: [...f.countries, upper],
+      // The first country sets the currency, until the merchant picks one.
+      ...(!currencyTouched && f.countries.length === 0 ? { currency: marketCurrency[upper] && marketCurrency[upper] !== base ? marketCurrency[upper] : '' } : {}),
+    }));
   };
   const removeCountry = (code: string) =>
     setForm((f) => ({ ...f, countries: f.countries.filter((c) => c !== code) }));
@@ -119,6 +157,7 @@ const ShippingZoneForm: React.FC = () => {
     const payload = {
       name: form.name.trim(),
       countries: form.countries,
+      currency: form.currency || null,
       rates: form.rates.map((r) => ({
         name: r.name.trim(),
         price: Number(r.price),
@@ -228,6 +267,25 @@ const ShippingZoneForm: React.FC = () => {
               </Button>
             </CardHeader>
             <CardContent className="space-y-3">
+              {ratedCurrencies.length > 0 && (
+                <div className="space-y-1">
+                  <Label htmlFor="zone-currency" className="text-xs">{sz('field.currency')}</Label>
+                  <select
+                    id="zone-currency"
+                    className="flex h-10 w-full max-w-xs rounded-md border border-input bg-background px-3 text-sm"
+                    value={zoneCurrency}
+                    onChange={(e) => {
+                      setCurrencyTouched(true);
+                      setForm((f) => ({ ...f, currency: e.target.value === base ? '' : e.target.value }));
+                    }}
+                  >
+                    {[base, ...ratedCurrencies].map((c) => (
+                      <option key={c} value={c}>{currencyName(c)} ({c})</option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-muted-foreground">{sz('field.currency_help', { currency: zoneCurrency })}</p>
+                </div>
+              )}
               {form.rates.map((rate, i) => (
                 <div key={i} className="border rounded-md p-3 space-y-3">
                   <div className="flex items-center justify-between">
@@ -246,7 +304,7 @@ const ShippingZoneForm: React.FC = () => {
                       <Input id={`zone-rate-name-${i}`} value={rate.name} onChange={(e) => updateRate(i, { name: e.target.value })} placeholder={sz('field.rate_name_placeholder')} />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">{sz('field.rate_price')}</Label>
+                      <Label className="text-xs">{sz('field.rate_price')} ({zoneCurrency})</Label>
                       <Input
                         id={`zone-rate-price-${i}`}
                         type="number"

@@ -305,6 +305,22 @@ function validateTaxRate(rate) {
   };
 }
 
+/**
+ * A zone priced in another currency needs that currency's exchange rate, to
+ * convert its prices to the pricing currency at checkout. The pricing
+ * currency itself is stored as null.
+ */
+function zoneCurrency(zone, tenant) {
+  const base = String(tenant?.settings?.currency || tenant?.settings?.currencies?.base || "SDG").toUpperCase();
+  if (!zone.currency || zone.currency === base) return { ...zone, currency: null };
+  if (!(Number(tenant?.settings?.currencies?.rates?.[zone.currency]) > 0)) {
+    const err = new APIError(`Add an exchange rate for ${zone.currency} (Settings → Markets) before pricing delivery in it`, 400);
+    err.code = "ZONE_CURRENCY_NO_RATE";
+    throw err;
+  }
+  return zone;
+}
+
 // Validate a single shipping zone payload. Throws APIError on bad shape.
 // Used by both the bulk PUT and the per-zone CRUD endpoints so the rules
 // stay in one place.
@@ -346,9 +362,15 @@ function validateZone(zone) {
       throw new APIError("Rate maxWeight must be >= minWeight", 400);
     }
   }
+  let currency = null;
+  if (zone.currency !== undefined && zone.currency !== null && zone.currency !== "") {
+    currency = String(zone.currency).toUpperCase();
+    if (!CURRENCY_CODE_PATTERN.test(currency)) throw new APIError("Zone currency must be a 3-letter code", 400);
+  }
   return {
     name: zone.name.trim(),
     countries: zone.countries.map((c) => String(c).toUpperCase()),
+    currency,
     rates: zone.rates.map((r) => ({
       name: r.name.trim(),
       price: r.price,
@@ -435,7 +457,7 @@ export const updateSettings = async (req, res, next) => {
         if (!Array.isArray(s.zones)) {
           throw new APIError("shipping.zones must be an array", 400);
         }
-        updateData["settings.shipping.zones"] = s.zones.map(validateZone);
+        updateData["settings.shipping.zones"] = s.zones.map((z) => zoneCurrency(validateZone(z), req.tenant));
       }
       if (s.type) updateData["settings.shipping.type"] = s.type;
       if (s.rate !== undefined) updateData["settings.shipping.rate"] = s.rate;
@@ -547,7 +569,7 @@ export const listShippingZones = async (req, res, next) => {
 export const createShippingZone = async (req, res, next) => {
   try {
     if (!req.tenant?._id) throw new APIError("Tenant context not found", 400);
-    const zone = validateZone(req.body);
+    const zone = zoneCurrency(validateZone(req.body), req.tenant);
     assertNewCountriesAllowed(zone.countries);
     const Tenant = mongoose.model("Tenant");
     const tenant = await Tenant.findByIdAndUpdate(
@@ -577,7 +599,7 @@ export const updateShippingZone = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(zoneId)) {
       throw new APIError("Invalid zone id", 400);
     }
-    const zone = validateZone(req.body);
+    const zone = zoneCurrency(validateZone(req.body), req.tenant);
     const Tenant = mongoose.model("Tenant");
     const existing = await Tenant.findOne(
       { _id: req.tenant._id, "settings.shipping.zones._id": zoneId },
@@ -591,6 +613,7 @@ export const updateShippingZone = async (req, res, next) => {
         $set: {
           "settings.shipping.zones.$.name": zone.name,
           "settings.shipping.zones.$.countries": zone.countries,
+          "settings.shipping.zones.$.currency": zone.currency,
           "settings.shipping.zones.$.rates": zone.rates,
         },
       },

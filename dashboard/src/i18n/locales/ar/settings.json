@@ -522,7 +522,9 @@
         "rate_min_weight": "الحد الأدنى للوزن (كجم)",
         "rate_max_weight": "الحد الأقصى للوزن (كجم، اتركه فارغًا لعدم وضع حد)",
         "estimated_days": "الأيام المقدّرة",
-        "estimated_days_placeholder": "3-5"
+        "estimated_days_placeholder": "3-5",
+        "currency": "أسعار التوصيل بـ",
+        "currency_help": "يدفع الزبائن هنا هذه الأسعار بـ {{currency}} كما كتبتها."
       },
       "rate_n": "تعرفة #{{n}}",
       "add_rate": "إضافة تعرفة",

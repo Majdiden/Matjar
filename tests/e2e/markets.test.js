@@ -705,4 +705,38 @@ describe("E2E markets + currencies", () => {
     listed = (await request(app).get("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(200)).body.data;
     assert.deepEqual(listed.markets.map((m) => [m.code, m.isDefault]), [["sa", true]]);
   });
+
+  it("a delivery zone is priced in its customers' currency", async () => {
+    const tenantId = await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    await setUsdRates(app, adminToken, {});
+    const zone = (body) =>
+      request(app).post("/api/store-settings/shipping/zones").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).send(body);
+    const riyadh = { name: "Riyadh", countries: ["SA"], currency: "SAR", rates: [{ name: "Delivery", price: 30 }] };
+    // A currency without an exchange rate can't price delivery.
+    const refused = await zone(riyadh);
+    assert.equal(refused.status, 400);
+    assert.equal(refused.body.code, "ZONE_CURRENCY_NO_RATE");
+
+    await request(app).post("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`)
+      .send({ ...SA_MARKET, rate: 3.75, rounding: "none" }).expect(201);
+    const saved = await zone(riyadh);
+    assert.equal(saved.status, 201, JSON.stringify(saved.body));
+    assert.equal(saved.body.data.currency, "SAR");
+    await request(app).put("/api/store-settings").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`)
+      .send({ shipping: { type: "zone" } }).expect(200);
+
+    const { product } = await seedProduct(tenantId);
+    const customerToken = await registerCustomer(app);
+    await request(app).post("/api/cart/add").set("Host", HOST).set("Authorization", `Bearer ${customerToken}`)
+      .send({ productId: product._id.toString(), quantity: 1 }).expect(200);
+    const res = await request(app).post("/storefront/checkout/quote").set("Host", HOST).set("Authorization", `Bearer ${customerToken}`)
+      .send({ shippingAddress: { ...SA_ADDRESS, country: "Saudi Arabia" } }).expect(200);
+    const { quote } = res.body.data;
+    // 30 SAR is 8 USD, and the customer pays exactly 30 SAR for delivery.
+    assert.equal(quote.marketCode, "sa");
+    assert.equal(quote.shippingCost, 8);
+    assert.equal(quote.presentmentShipping, 30);
+    assert.equal(quote.presentmentTotal, 375 + 30);
+  });
 });
