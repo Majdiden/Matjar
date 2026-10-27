@@ -522,7 +522,9 @@
         "rate_min_weight": "Min weight (kg)",
         "rate_max_weight": "Max weight (kg, blank for no cap)",
         "estimated_days": "Estimated days",
-        "estimated_days_placeholder": "3-5"
+        "estimated_days_placeholder": "3-5",
+        "currency": "Delivery prices in",
+        "currency_help": "Customers here pay these prices in {{currency}}, as written."
       },
       "rate_n": "Rate #{{n}}",
       "add_rate": "Add rate",

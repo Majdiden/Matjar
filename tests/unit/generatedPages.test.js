@@ -169,9 +169,11 @@ describe("policy generator", () => {
       { name: "  ", rates: [{ price: 1 }] },
     ]);
     assert.deepEqual(zones, [
-      { name: "بحري", price: 2000, days: "يومين" },
-      { name: "المدينة", price: 0, days: null },
+      { name: "بحري", price: 2000, currency: null, days: "يومين" },
+      { name: "المدينة", price: 0, currency: null, days: null },
     ]);
+    // A zone priced in its customers' currency says so.
+    assert.equal(summarizeZones([{ name: "الرياض", currency: "sar", rates: [{ price: 30 }] }])[0].currency, "SAR");
     const p = buildPolicies(normalizePolicyAnswers({ delivery: { time: "يوم" }, returns: { accepted: false } }, { hasZones: true }), {
       lang: "ar",
       shipping: { mode: "zones", zones },

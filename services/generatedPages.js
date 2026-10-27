@@ -408,6 +408,8 @@ export function summarizeZones(zones = []) {
     out.push({
       name,
       price: cheapest ? Number(cheapest.price) : null,
+      // The zone's own currency (its customers'), else the store's.
+      currency: typeof z.currency === "string" && z.currency ? z.currency.toUpperCase() : null,
       days: typeof cheapest?.estimatedDays === "string" && cheapest.estimatedDays.trim() ? cheapest.estimatedDays.trim() : null,
     });
   }
@@ -469,7 +471,7 @@ export function buildPolicies(
           .map((z) =>
             fill(z.days ? tpl.delivery.zoneLineWithDays : tpl.delivery.zoneLine, {
               zone: escapeHtml(z.name),
-              price: z.price == null ? tpl.delivery.free : formatPrice(z.price, currency, lang),
+              price: z.price == null ? tpl.delivery.free : formatPrice(z.price, z.currency || currency, lang),
               days: escapeHtml(z.days || ""),
             })
           )

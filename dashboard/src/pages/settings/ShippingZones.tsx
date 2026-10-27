@@ -17,11 +17,13 @@ import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { useConfirm } from '../../components/ui/use-confirm';
 import { errorMessage, type ShippingType } from './shared';
+import { formatPrice } from '../../lib/format';
 
 interface ShippingZone {
   _id: string;
   name: string;
   countries: string[];
+  currency?: string | null;
   rates: Array<{
     _id?: string;
     name: string;
@@ -184,7 +186,7 @@ const ShippingZonesPanel: React.FC<{ disabled: boolean }> = ({ disabled }) => {
                       {zone.rates.map((r, i) => (
                         <li key={i}>
                           <span className="font-medium text-foreground">{r.name}</span>
-                          {' — '}${r.price.toFixed(2)}
+                          {' — '}<bdi dir="ltr">{formatPrice(r.price, zone.currency || undefined)}</bdi>
                           {r.minWeight != null && r.maxWeight != null && (
                             <> ({r.minWeight}–{r.maxWeight}kg)</>
                           )}

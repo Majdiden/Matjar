@@ -71,7 +71,9 @@ export const calculateShipping = async (cart, address, tenantId) => {
         const rate = (eligible.length ? eligible : zone.rates)
           .slice()
           .sort((a, b) => (a.price ?? 0) - (b.price ?? 0))[0];
-        cost = rate.price;
+        // Zone prices are written in the zone's currency (its customers');
+        // the quote is in the pricing currency.
+        cost = toPricingCurrency(rate.price, zone.currency, tenant);
         description = `${rate.name}${rate.estimatedDays ? ` (${rate.estimatedDays})` : ""}`;
       }
       break;
@@ -86,11 +88,24 @@ export const calculateShipping = async (cart, address, tenantId) => {
 
   return {
     type: settings.type,
-    cost: Math.round(cost * 100) / 100,
+    // Unrounded: a zone price in another currency converts back exactly.
+    cost,
     description,
     ...zoneInfo,
   };
 };
+
+/**
+ * An amount in `currency` as pricing-currency units, with the store's
+ * exchange rate (1 pricing unit = rate units). Unchanged for the pricing
+ * currency or a currency without a rate.
+ */
+function toPricingCurrency(amount, currency, tenant) {
+  const base = String(tenant?.settings?.currency || tenant?.settings?.currencies?.base || "SDG").toUpperCase();
+  const code = currency ? String(currency).toUpperCase() : base;
+  const rate = Number(tenant?.settings?.currencies?.rates?.[code]);
+  return code !== base && rate > 0 ? amount / rate : amount;
+}
 
 /** A zone by its id (string or ObjectId), or null. */
 export function findZoneById(zones, id) {

@@ -215,6 +215,10 @@ const tenantSchema = new Schema({
       zones: [{
         name: String,
         countries: [String],
+        // The currency the zone's prices are written in: the currency
+        // customers there pay in (their market's), else the pricing currency
+        // (null). Converted to the pricing currency at checkout.
+        currency: { type: String, default: null, uppercase: true, trim: true },
         rates: [{
           name: String,
           price: Number,
