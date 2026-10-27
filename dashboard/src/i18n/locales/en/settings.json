@@ -177,6 +177,11 @@
         "switcher": {
           "label": "Let visitors change the currency",
           "help": "Adds the other currencies to the language menu on your website. Visitors still pay in the website currency."
+        },
+        "auto": {
+          "label": "Update automatically",
+          "margin": "Margin",
+          "unavailable": "No automatic rate for this currency"
         }
       },
       "markets": {
@@ -210,6 +215,11 @@
         "default": {
           "label": "Default",
           "description": "Fallback when no country matches."
+        },
+        "payment_methods": {
+          "label": "Payment methods in this region",
+          "help": "Leave all unticked to offer every payment method.",
+          "summary": "Payment: {{methods}}"
         }
       },
       "notifications": {
@@ -256,6 +266,21 @@
         "email_verified": "Verified",
         "email_unverified": "Not verified",
         "verify_hint": "Email changes and verification are handled in the Security tab."
+      },
+      "rounding": {
+        "label": "Round prices",
+        "help": "Converted prices are rounded up so they look tidy. Your own prices for a currency are never rounded.",
+        "option": {
+          "none": "No rounding",
+          "1": "Whole number",
+          "5": "Up to the next 5",
+          "10": "Up to the next 10",
+          "50": "Up to the next 50",
+          "100": "Up to the next 100",
+          "500": "Up to the next 500",
+          "1000": "Up to the next 1,000",
+          "099": "End in .99"
+        }
       }
     },
     "shipping_mode": {
@@ -441,7 +466,10 @@
       "market_name_required": "Name is required",
       "market_currency_invalid": "Currency must be a 3-letter ISO code",
       "market_country_invalid": "Invalid country code: {{code}}",
-      "market_price_adjustment_range": "Price adjustment must be between -95% and +500%"
+      "market_price_adjustment_range": "Price adjustment must be between -95% and +500%",
+      "market_currency_no_rate": "Add an exchange rate for {{currency}} in the Currencies tab first.",
+      "margin_range": "Margin must be between -50% and 100%.",
+      "auto_rate_unavailable": "There is no automatic rate for {{code}} yet. Turn off automatic and enter the rate yourself."
     },
     "button": {
       "save_changes": "Save changes",
@@ -470,7 +498,7 @@
     },
     "fx_rates_updated_at": "Last updated {{datetime}}",
     "shipping_zone_mode_warning": "Switch shipping mode to \"Zone\" above to use these rates at checkout.",
-    "fx_missing_warning": "No FX rate for {{currency}} → {{base}}. Add one on the Currencies tab or presentment will fall back to {{base}}.",
+    "fx_missing_warning": "No exchange rate for {{currency}}. Until you add one in the Currencies tab, this region sees prices in {{base}}.",
     "market_badge_disabled": "Disabled",
     "market_badge_default": "Default",
     "shipping_zone": {
@@ -624,6 +652,7 @@
       }
     },
     "zone_rates_badge_one": "{{count}} rate",
-    "zone_rates_badge_other": "{{count}} rates"
+    "zone_rates_badge_other": "{{count}} rates",
+    "market_badge_no_rate": "No exchange rate"
   }
 }

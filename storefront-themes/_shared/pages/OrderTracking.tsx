@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ordersApi } from '../api/client';
-import { useStore } from '../contexts/StoreContext';
+import { useStore, type OrderCurrency } from '../contexts/StoreContext';
 import { useConfirm } from '../components/primitives/ConfirmDialog';
 import { useTranslation } from 'react-i18next';
 // Dates follow the storefront language (ar → ar-SD), not the browser locale.
@@ -48,7 +48,7 @@ interface TrackedFulfillment {
   createdAt: string;
 }
 
-interface TrackedOrder {
+interface TrackedOrder extends OrderCurrency {
   _id: string;
   orderNumber?: string;
   status: string;
@@ -61,6 +61,7 @@ interface TrackedOrder {
     sku?: string;
     quantity: number;
     price: number;
+    presentmentPrice?: number;
   }>;
   subtotal?: number;
   shippingCost?: number;
@@ -88,7 +89,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   // The order's own currency and rate (what the customer pays).
-  const { formatOrderPrice } = useStore();
+  const { formatOrderPrice, formatOrderAmount, formatOrderLine } = useStore();
   const formatPrice = (amount: number) => formatOrderPrice(amount, order);
   const { t } = useTranslation(['order']);
 
@@ -408,10 +409,10 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
                             : t('order.tracking.preorder')}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500 mt-0.5">{t('order.tracking.qty', { qty: item.quantity })} · {formatPrice(item.price)}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{t('order.tracking.qty', { qty: item.quantity })} · {formatOrderLine(item, order)}</p>
                     </div>
                     <p className="text-sm font-semibold whitespace-nowrap">
-                      {formatPrice(item.price * item.quantity)}
+                      {formatOrderLine(item, order, item.quantity)}
                     </p>
                   </div>
                 );
@@ -421,25 +422,25 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
               {order.subtotal !== undefined && (
                 <div className="flex justify-between text-gray-600">
                   <span>{t('order.tracking.summary.subtotal')}</span>
-                  <span>{formatPrice(order.subtotal)}</span>
+                  <span>{formatOrderAmount(order, 'subtotal')}</span>
                 </div>
               )}
               {(order.discount ?? 0) > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>{t('order.tracking.summary.discount')}</span>
-                  <span>−{formatPrice(order.discount!)}</span>
+                  <span>−{formatOrderAmount(order, 'discount')}</span>
                 </div>
               )}
               {(order.shippingCost ?? 0) > 0 && (
                 <div className="flex justify-between text-gray-600">
                   <span>{t('order.tracking.summary.shipping')}</span>
-                  <span>{formatPrice(order.shippingCost!)}</span>
+                  <span>{formatOrderAmount(order, 'shippingCost')}</span>
                 </div>
               )}
               {(order.tax ?? 0) > 0 && (
                 <div className="flex justify-between text-gray-600">
                   <span>{t('order.tracking.summary.tax')}</span>
-                  <span>{formatPrice(order.tax!)}</span>
+                  <span>{formatOrderAmount(order, 'tax')}</span>
                 </div>
               )}
               {(order.giftCardRedemption?.amount ?? 0) > 0 && (
@@ -450,7 +451,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ className = '', accentCol
               )}
               <div className="flex justify-between text-base font-bold pt-2 mt-2 border-t">
                 <span>{t('order.tracking.summary.total')}</span>
-                <span>{formatPrice(order.totalAmount)}</span>
+                <span>{formatOrderAmount(order, 'totalAmount')}</span>
               </div>
             </div>
           </div>

@@ -435,7 +435,7 @@ const OrdersTab: React.FC<{
   flash: (kind: 'ok' | 'err', msg: string) => void;
 }> = ({ orders, accent, onCancelled, flash }) => {
   // Each order in its own currency and rate.
-  const { formatOrderPrice } = useStore();
+  const { formatOrderAmount } = useStore();
   const { t } = useTranslation(['account']);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const confirm = useConfirm();
@@ -519,7 +519,7 @@ const OrdersTab: React.FC<{
                 {summary && <span className="hidden sm:inline"> · {summary}{moreCount > 0 ? ` ${t('account.order.more', { count: moreCount })}` : ''}</span>}
               </p>
             </div>
-            <p className="font-bold text-base">{formatOrderPrice(order.totalAmount, order)}</p>
+            <p className="font-bold text-base">{formatOrderAmount(order, 'totalAmount')}</p>
             <div className="flex items-center gap-3 whitespace-nowrap">
               <Link
                 to={`/orders/${order._id}`}

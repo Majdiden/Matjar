@@ -69,6 +69,9 @@ const orderSchema = new Schema({
       price: { type: Number, required: true, min: 0 },
       // Per-line allocations captured at order time so receipts, refunds
       // and reporting don't drift when merchants change rules later.
+      // Unit price the customer paid in the presentment currency (their own
+      // price for that currency, or the converted and rounded one).
+      presentmentPrice: { type: Number, min: 0 },
       discountAllocation: { type: Number, default: 0, min: 0 },
       taxAllocation: { type: Number, default: 0, min: 0 },
       // Running tallies advanced by the returns lifecycle. `returnedQuantity`
@@ -280,6 +283,7 @@ const orderSchema = new Schema({
   presentmentTotal: { type: Number, min: 0 },
   presentmentTax: { type: Number, min: 0 },
   presentmentShipping: { type: Number, min: 0 },
+  presentmentDiscount: { type: Number, min: 0 },
   fxRate: { type: Number, min: 0 },
   marketCode: { type: String },
   discount: { type: Number, default: 0, min: 0 },

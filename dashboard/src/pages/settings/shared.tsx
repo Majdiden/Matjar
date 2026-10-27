@@ -18,6 +18,9 @@ export const errorMessage = (err: unknown, fallback: string): string => {
   return fallback;
 };
 
+/** Rounding of converted prices (services/regionalPricing.js ROUNDING_RULES). */
+export const ROUNDING_OPTIONS = ['none', '1', '5', '10', '50', '100', '500', '1000', '0.99'] as const;
+
 export interface CurrencyConfig {
   base: string;
   rates: Record<string, number>;
@@ -26,6 +29,10 @@ export interface CurrencyConfig {
   display?: string | null;
   /** Let visitors switch currency on the website. */
   showSwitcher?: boolean;
+  /** Rounding of prices converted to the website currency. */
+  rounding?: string;
+  /** Currencies whose rate follows the platform rate + margin (0.02 = 2%). */
+  auto?: { code: string; margin: number }[];
 }
 
 /** State shape shared by the General and Regional tabs (single bulk PUT). */

@@ -1,7 +1,9 @@
 import { calculateTax } from "./tax.js";
 import { calculateShipping } from "./shipping.js";
 import { validateDiscount, validateDiscountCombination } from "./discount.js";
-import { presentmentForCheckout } from "./markets.js";
+import { applyPresentment } from "./markets.js";
+import { getATenantRepo } from "../repositories/tenant.js";
+import { resolvePricingContext, unitPresentmentPrice, baseEquivalent } from "./regionalPricing.js";
 
 /**
  * Bump this whenever the pricing algorithm changes. Persisted on every
@@ -33,12 +35,34 @@ export async function priceCheckout({ lines, shippingAddress, discountCode, disc
   // variant price means "inherit". This matches how merchants expect to
   // configure things — change a single variant's price without re-deriving
   // a delta against the parent.
+  // The shopper's region decides what they pay per unit: the merchant's own
+  // price for that currency, or the converted price rounded by the region's
+  // rule (services/regionalPricing.js). Such a line is priced here at the
+  // pricing-currency equivalent of that amount so discounts, tax and the
+  // presentment conversion below all land on exactly what was shown.
+  // A pricing failure must not block checkout: fall back to plain prices.
+  let pricing = null;
+  let tenant = null;
+  try {
+    tenant = tenantId ? await getATenantRepo({}, { _id: tenantId }) : null;
+    pricing = tenant ? resolvePricingContext(tenant, { country: shippingAddress?.country, marketCode }) : null;
+  } catch {
+    pricing = null;
+  }
+  const regional = !!pricing && (pricing.factor !== 1 || pricing.rounding !== "none" || pricing.currency !== pricing.base);
+
   const pricedLines = lines.map(line => {
     const variant = line.variant || null;
-    const unitPrice =
+    let unitPrice =
       variant && typeof variant.price === "number" && variant.price >= 0
         ? variant.price
         : line.product.price;
+    let presentmentPrice = null;
+    if (regional) {
+      const unit = unitPresentmentPrice(line.product, variant, pricing);
+      presentmentPrice = unit.amount;
+      if (unit.own || pricing.rounding !== "none") unitPrice = baseEquivalent(unit.amount, pricing);
+    }
     const lineTotal = unitPrice * line.quantity;
     const variantOptions = variant?.optionValues || [];
     const variantLabel = variantOptions.length
@@ -51,6 +75,8 @@ export async function priceCheckout({ lines, shippingAddress, discountCode, disc
       quantity: line.quantity,
       unitPrice,
       lineTotal,
+      // What the shopper pays per unit in the presentment currency.
+      presentmentPrice,
       variant: variant
         ? {
             id: variant._id,
@@ -205,20 +231,32 @@ export async function priceCheckout({ lines, shippingAddress, discountCode, disc
     totalAmount,
   };
 
-  // 6. Presentment / market resolution. The base-currency numbers above
-  // are still authoritative — `presentment*` is purely the buyer-facing
-  // overlay (different currency, optional regional price adjustment).
-  // Failures here MUST NOT block checkout: a misconfigured FX table
-  // should degrade to "show base currency" rather than 500 the buyer.
+  // 6. Presentment: the base-currency numbers above stay authoritative;
+  // `presentment*` is the shopper-facing overlay (their currency, the
+  // region's adjustment). A market whose currency has no rate keeps its
+  // adjustment in the pricing currency (resolvePricingContext).
+  // Converted from the unrounded amounts so a line priced at exactly 349 SAR
+  // isn't shifted by rounding its pricing-currency equivalent to cents.
+  const exactQuote = {
+    ...baseQuote,
+    subtotal,
+    discount: discountAmount + shippingDiscountAmount,
+    shippingCost,
+    shippingDiscount: shippingDiscountAmount,
+    tax: taxAmount,
+    totalAmount: taxResult.included ? afterDiscount + shippingCost : afterDiscount + shippingCost + taxAmount,
+  };
   let presentment = {};
   try {
-    presentment = await presentmentForCheckout({
-      tenantId,
-      country: shippingAddress?.country,
-      // The visitor's region until a shipping country is known.
-      marketCode,
-      quote: baseQuote,
-    });
+    presentment = pricing
+      ? applyPresentment(
+          exactQuote,
+          pricing.marketCode || pricing.currency !== pricing.base || pricing.factor !== 1
+            ? { code: pricing.marketCode, currency: pricing.currency, priceAdjustmentPct: pricing.adjust - 1 }
+            : null,
+          { base: pricing.base, rates: tenant?.settings?.currencies?.rates || {} }
+        )
+      : applyPresentment(baseQuote, null, null);
   } catch {
     presentment = {};
   }

@@ -136,20 +136,25 @@ const ANTARCTIC_ADDRESS = {
   phone: "+10000000000",
 };
 
+// A region's currency needs a rate, so rates come first.
+async function setUsdRates(app, adminToken, rates = { EUR: 0.9, GBP: 0.78 }) {
+  await request(app)
+    .put("/api/store-settings/currencies")
+    .set("Host", HOST)
+    .set("Authorization", `Bearer ${adminToken}`)
+    .send({ base: "USD", rates })
+    .expect(200);
+}
+
 async function configureMarketsAndFx(app, adminToken) {
-  // Bulk-set markets via the bulk PUT (covers the validator path) and the
-  // FX table via the dedicated currencies endpoint.
+  // The FX table via the dedicated currencies endpoint, then the markets via
+  // the bulk PUT (covers the validator path).
+  await setUsdRates(app, adminToken);
   await request(app)
     .put("/api/store-settings")
     .set("Host", HOST)
     .set("Authorization", `Bearer ${adminToken}`)
     .send({ markets: [EU_MARKET, NA_MARKET] })
-    .expect(200);
-  await request(app)
-    .put("/api/store-settings/currencies")
-    .set("Host", HOST)
-    .set("Authorization", `Bearer ${adminToken}`)
-    .send({ base: "USD", rates: { EUR: 0.9, GBP: 0.78 } })
     .expect(200);
 }
 
@@ -192,6 +197,7 @@ describe("E2E markets + currencies", () => {
   it("admin can CRUD markets via the granular endpoints", async () => {
     await provisionTenant(app);
     const adminToken = await loginAdmin(app);
+    await setUsdRates(app, adminToken);
 
     const createRes = await request(app)
       .post("/api/store-settings/markets")
@@ -235,6 +241,7 @@ describe("E2E markets + currencies", () => {
   it("creating a default market demotes the previous default", async () => {
     await provisionTenant(app);
     const adminToken = await loginAdmin(app);
+    await setUsdRates(app, adminToken);
 
     await request(app)
       .post("/api/store-settings/markets")
@@ -524,5 +531,130 @@ describe("E2E markets + currencies", () => {
     // AQ isn't in either market's country list, so the default (NA) wins.
     assert.equal(order.marketCode, "na");
     assert.equal(order.presentmentCurrency, "USD");
+  });
+
+  // ── Own prices per currency, rounding, safeguards, payment methods, auto rates ──
+
+  const SA_ADDRESS = { ...EU_ADDRESS, city: "Riyadh", state: "RI", postalCode: "11564", country: "SA", phone: "+966501234567" };
+  const SA_MARKET = { code: "sa", name: "Saudi Arabia", countries: ["SA"], currency: "SAR", rounding: "5" };
+
+  it("own prices per currency are shown and charged exactly; other prices are rounded", async () => {
+    const tenantId = await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    await setUsdRates(app, adminToken, { SAR: 3.75 });
+    await request(app).post("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`)
+      .send(SA_MARKET).expect(201);
+    const { models, product } = await seedProduct(tenantId);
+    await models.Product.updateOne({ _id: product._id }, { $set: { prices: { SAR: 349 } } });
+    await models.Product.create({
+      name: "Cap", slug: "cap", sku: "CP-1", description: "A cap.", price: 10, category: product.category, stock: 5, status: "active", images: [],
+    });
+
+    // Browsing from Saudi Arabia: 349 SAR exactly; 10 USD × 3.75 = 37.5 → 40.
+    const shown = async (slug, headers) => {
+      let r = request(app).get(`/storefront/products/${slug}`).set("Host", HOST);
+      for (const [k, v] of Object.entries(headers)) r = r.set(k, v);
+      const res = await r.expect(200);
+      const p = res.body.data?.product || res.body.data;
+      return Math.round(p.price * 3.75 * 100) / 100;
+    };
+    assert.equal(await shown("hoodie", { "CF-IPCountry": "SA" }), 349);
+    assert.equal(await shown("cap", { "X-Matjar-Market": "sa" }), 40);
+    // Elsewhere the plain pricing-currency price.
+    assert.equal(await shown("hoodie", {}), 375);
+
+    const customerToken = await registerCustomer(app);
+    await request(app).post("/api/cart/add").set("Host", HOST).set("Authorization", `Bearer ${customerToken}`)
+      .send({ productId: product._id.toString(), quantity: 1 }).expect(200);
+    // The cart shows the same 349 SAR.
+    const cart = (await request(app).get("/api/cart").set("Host", HOST).set("Authorization", `Bearer ${customerToken}`)
+      .set("X-Matjar-Market", "sa").expect(200)).body.data.cart;
+    assert.equal(Math.round(cart.subtotal * 3.75 * 100) / 100, 349);
+    assert.equal(Math.round(cart.items[0].price * 3.75 * 100) / 100, 349);
+    const placed = await request(app).post("/api/orders").set("Host", HOST).set("Authorization", `Bearer ${customerToken}`)
+      .send({ shippingAddress: SA_ADDRESS, paymentMethod: "cod" });
+    assert.equal(placed.status, 201, JSON.stringify(placed.body));
+    const order = placed.body.responseObject;
+    assert.equal(order.presentmentCurrency, "SAR");
+    assert.equal(order.presentmentSubtotal, 349);
+    assert.equal(order.products[0].presentmentPrice, 349);
+    // The pricing-currency record is what 349 SAR is worth.
+    assert.ok(Math.abs(order.subtotal - 349 / 3.75) < 0.01, `subtotal was ${order.subtotal}`);
+  });
+
+  it("a region's currency needs a rate; without one it keeps its adjustment in the pricing currency", async () => {
+    const tenantId = await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    await setUsdRates(app, adminToken, {});
+    const blocked = await request(app).post("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`)
+      .send(EU_MARKET);
+    assert.equal(blocked.status, 400);
+    assert.equal(blocked.body.code, "MARKET_CURRENCY_NO_RATE");
+
+    await setUsdRates(app, adminToken, { EUR: 0.9 });
+    await request(app).post("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`)
+      .send(EU_MARKET).expect(201);
+    // The rate is removed later: EU shoppers see USD with the +10%.
+    await setUsdRates(app, adminToken, {});
+    const info = (await request(app).get("/storefront/store-info").set("Host", HOST).set("CF-IPCountry", "DE").expect(200)).body.data.store;
+    assert.equal(info.markets.find((m) => m.code === "eu").currency, "USD");
+
+    const { product } = await seedProduct(tenantId);
+    const customerToken = await registerCustomer(app);
+    const order = await placeOrder(app, customerToken, product._id, EU_ADDRESS);
+    assert.equal(order.presentmentCurrency, "USD");
+    assert.equal(order.marketCode, "eu");
+    assert.equal(order.presentmentTotal, 110);
+  });
+
+  it("a region can offer only some payment methods", async () => {
+    const tenantId = await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    await setUsdRates(app, adminToken);
+    await request(app).post("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`)
+      .send({ ...NA_MARKET, paymentMethods: ["bank_transfer"] }).expect(201);
+    const { models, product } = await seedProduct(tenantId);
+    if (!(await models.PaymentMethod.findOne({ code: "cod" }))) {
+      await models.PaymentMethod.create({ code: "cod", type: "cod", label: "Cash on delivery", enabled: true });
+    }
+
+    const all = (await request(app).get("/storefront/payment-methods").set("Host", HOST).expect(200)).body.data.methods;
+    assert.ok(all.some((m) => m.code === "cod"));
+    const na = (await request(app).get("/storefront/payment-methods?market=na").set("Host", HOST).expect(200)).body.data.methods;
+    assert.ok(!na.some((m) => m.code === "cod"), "the region doesn't offer cash on delivery");
+
+    const customerToken = await registerCustomer(app);
+    await request(app).post("/api/cart/add").set("Host", HOST).set("Authorization", `Bearer ${customerToken}`)
+      .send({ productId: product._id.toString(), quantity: 1 }).expect(200);
+    const res = await request(app).post("/api/orders").set("Host", HOST).set("Authorization", `Bearer ${customerToken}`)
+      .send({ shippingAddress: US_ADDRESS, paymentMethod: "cod", paymentMethodCode: "cod" });
+    assert.equal(res.status, 400, JSON.stringify(res.body));
+    assert.match(res.body.message, /region/);
+  });
+
+  it("automatic rates follow the platform rate plus the merchant's margin", async () => {
+    const tenantId = await provisionTenant(app);
+    const adminToken = await loginAdmin(app);
+    const { setFxTable } = await import("../../services/platform/billing/fx.js");
+    const { refreshAutoRates } = await import("../../services/autoRates.js");
+    await setFxTable({ base: "USD", rates: { SAR: 3.75 } });
+    const put = (body) =>
+      request(app).put("/api/store-settings/currencies").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).send(body);
+
+    const missing = await put({ base: "USD", rates: {}, auto: [{ code: "EGP", margin: 0 }] });
+    assert.equal(missing.status, 400);
+    assert.equal(missing.body.code, "AUTO_RATE_UNAVAILABLE");
+
+    const saved = await put({ base: "USD", rates: {}, auto: [{ code: "SAR", margin: 0.02 }] });
+    assert.equal(saved.status, 200, JSON.stringify(saved.body));
+    assert.equal(saved.body.data.rates.SAR, 3.825);
+    const listed = (await request(app).get("/api/store-settings/markets").set("Host", HOST).set("Authorization", `Bearer ${adminToken}`).expect(200)).body.data;
+    assert.equal(listed.platformRates.SAR, 3.75);
+
+    // The platform updates its rate: the store follows.
+    const { after } = await setFxTable({ base: "USD", rates: { SAR: 4 } });
+    await refreshAutoRates(after);
+    const tenant = await mongoose.model("Tenant").findById(tenantId).lean();
+    assert.equal(tenant.settings.currencies.rates.SAR, 4.08);
   });
 });

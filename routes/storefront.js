@@ -36,6 +36,8 @@ import {
 import { isValidEditorPreviewToken } from "../services/themeCustomization.js";
 import { buildStoreInfo } from "../services/storefrontStoreInfo.js";
 import { visitorCountry } from "../utils/visitorCountry.js";
+import { marketPaymentMethods } from "../services/regionalPricing.js";
+import { regionalPrices } from "../middlewares/regionalPrices.js";
 import { isStoreDraft } from "../services/storeSetup.js";
 import { isFeatureEnabledFor } from "../services/featureFlags.js";
 
@@ -120,6 +122,10 @@ router.use((req, res, next) => {
   };
   next();
 });
+
+// Product prices in the shopper's region: own prices per currency and
+// rounding (middlewares/regionalPrices.js).
+router.use(["/products", "/categories", "/collections"], regionalPrices);
 
 /**
  * Category visibility filter. Owner-preview sees every category (including
@@ -1128,6 +1134,10 @@ router.get(
           // saw and pays (website currency or market) and at which rate.
           baseCurrency: order.baseCurrency,
           presentmentCurrency: order.presentmentCurrency,
+          presentmentSubtotal: order.presentmentSubtotal,
+          presentmentDiscount: order.presentmentDiscount,
+          presentmentShipping: order.presentmentShipping,
+          presentmentTax: order.presentmentTax,
           presentmentTotal: order.presentmentTotal,
           fxRate: order.fxRate,
           ...(fullAccess ? { shippingAddress: order.shippingAddress } : {}),
@@ -1510,9 +1520,14 @@ router.get(
     // COD is the only method the storefront may ever offer — suppress any
     // manual-transfer or gateway rows regardless of tenant DB state.
     const methodsAllowed = await isFeatureEnabledFor(req.tenant, "payments.methods");
-    const visible = methodsAllowed
+    let visible = methodsAllowed
       ? sanitized
       : sanitized.filter((m) => m.code === "cod");
+    // The checkout's region may offer only some methods (Settings → Markets).
+    const regionCodes = typeof req.query.market === "string"
+      ? marketPaymentMethods(req.tenant, req.query.market.slice(0, 32))
+      : null;
+    if (regionCodes) visible = visible.filter((m) => regionCodes.includes(m.code));
     res.json({ success: true, data: { methods: visible } });
   })
 );

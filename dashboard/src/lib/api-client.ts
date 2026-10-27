@@ -1196,7 +1196,14 @@ export const api = {
       api.delete(`/store-settings/markets/${id}`),
 
     // Currencies (base + FX rates table)
-    updateCurrencies: (data: { base?: string; rates?: Record<string, number>; display?: string | null; showSwitcher?: boolean }) =>
+    updateCurrencies: (data: {
+      base?: string;
+      rates?: Record<string, number>;
+      display?: string | null;
+      showSwitcher?: boolean;
+      rounding?: string;
+      auto?: { code: string; margin: number }[];
+    }) =>
       api.put('/store-settings/currencies', data),
 
     // Order status notifications (per-status email templates)

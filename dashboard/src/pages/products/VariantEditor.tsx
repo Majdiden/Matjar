@@ -8,12 +8,16 @@ import { Switch } from '../../components/ui/switch';
 import { Badge } from '../../components/ui/badge';
 import { Plus, Trash2, RefreshCw, Layers, X } from 'lucide-react';
 import type { ProductOption, ProductVariant } from '../../types';
+import { OwnPricesEditor } from './OwnPricesEditor';
+import type { OtherCurrency } from './ownPrices';
 
 interface VariantEditorProps {
   hasVariants: boolean;
   options: ProductOption[];
   variants: ProductVariant[];
   basePrice: number;
+  /** Other currencies a variant with its own price can be priced in. */
+  currencies?: OtherCurrency[];
   onChange: (next: {
     hasVariants: boolean;
     options: ProductOption[];
@@ -53,6 +57,7 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
   options,
   variants,
   basePrice,
+  currencies = [],
   onChange,
 }) => {
   const { t } = useTranslation(['products', 'common']);
@@ -270,10 +275,21 @@ export const VariantEditor: React.FC<VariantEditorProps> = ({
                             onChange={(e) =>
                               updateVariant(idx, {
                                 price: e.target.value === '' ? undefined : parseFloat(e.target.value),
+                                // Own currency prices belong to the variant's own price.
+                                ...(e.target.value === '' ? { prices: null } : {}),
                               })
                             }
                             className="h-8 text-xs w-24"
                           />
+                          {typeof variant.price === 'number' && (
+                            <OwnPricesEditor
+                              compact
+                              currencies={currencies}
+                              basePrice={variant.price}
+                              value={variant.prices}
+                              onChange={(prices) => updateVariant(idx, { prices })}
+                            />
+                          )}
                         </td>
                         <td className="p-2">
                           <Input

@@ -6,6 +6,7 @@ import express from "express";
 import { authenticate } from "../middlewares/auth.js";
 import { requirePermission } from "../middlewares/authorize.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
+import { regionalPrices } from "../middlewares/regionalPrices.js";
 import {
   getWishlist,
   addToWishlist,
@@ -37,7 +38,7 @@ router.get(
  * @desc    Get user's wishlist
  * @access  Private
  */
-router.get("/", authenticate, asyncHandler(getWishlist));
+router.get("/", authenticate, regionalPrices, asyncHandler(getWishlist));
 
 /**
  * @route   POST /api/wishlist/add

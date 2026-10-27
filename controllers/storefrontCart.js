@@ -1,6 +1,8 @@
 import { asyncHandler } from "../middlewares/errorHandler.js";
 import { v4 as uuidv4 } from "uuid";
 import { tenantPopulate } from "../utils/scopedModel.js";
+import { pricingContextFromRequest } from "../middlewares/regionalPrices.js";
+import { contextReshapesPrices, unitPresentmentPrice, baseEquivalent, localizeProduct } from "../services/regionalPricing.js";
 
 /**
  * Get or create cart for current user/session
@@ -480,6 +482,29 @@ export const getCartStorefront = asyncHandler(async (req, res) => {
     };
   });
 
+  let subtotal = cart.subtotal || formattedItems.reduce((sum, item) => sum + item.lineTotal, 0);
+  let total = cart.total || subtotal;
+  // Lines priced as the shopper pays in their region (own prices per
+  // currency, rounding), the same way checkout prices them.
+  res.vary("X-Matjar-Market");
+  res.vary("X-Matjar-Currency");
+  const pricing = pricingContextFromRequest(req);
+  if (contextReshapesPrices(pricing)) {
+    cart.items.forEach((item, i) => {
+      const product = item.product;
+      const line = formattedItems[i];
+      if (!product || typeof product.price !== "number" || !line) return;
+      const variant = item.variantId && product.variants?.id ? product.variants.id(item.variantId) : null;
+      const unit = unitPresentmentPrice(product, variant, pricing);
+      line.price = baseEquivalent(unit.amount, pricing);
+      line.lineTotal = line.price * line.quantity;
+      if (line.product) localizeProduct(Object.assign(line.product, { prices: product.prices }), pricing);
+    });
+    const regional = formattedItems.reduce((sum, item) => sum + item.lineTotal, 0);
+    total = subtotal > 0 ? (total / subtotal) * regional : regional;
+    subtotal = regional;
+  }
+
   res.json({
     success: true,
     data: {
@@ -487,8 +512,8 @@ export const getCartStorefront = asyncHandler(async (req, res) => {
         id: cart._id.toString(),
         items: formattedItems,
         itemCount: cart.itemCount || formattedItems.reduce((sum, item) => sum + item.quantity, 0),
-        subtotal: cart.subtotal || formattedItems.reduce((sum, item) => sum + item.lineTotal, 0),
-        total: cart.total || cart.subtotal || formattedItems.reduce((sum, item) => sum + item.lineTotal, 0),
+        subtotal,
+        total,
         discount: cart.discount || null,
         savings: cart.savings || 0,
       },

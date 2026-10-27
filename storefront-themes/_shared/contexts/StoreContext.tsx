@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { storefrontApi, setPriceFilterRate } from '../api/client';
+import { storefrontApi, setPriceFilterRate, setPricingHeaders } from '../api/client';
 import i18n, { readShopperLang, saveShopperLang } from '../i18n';
 import type { BrandKit, GeneratedPages, StoreTrust } from '../types/commerce';
 
@@ -92,6 +92,10 @@ interface StoreContextType {
    * was placed with (falls back to the website currency).
    */
   formatOrderPrice: (amount: number, order?: OrderCurrency | null) => string;
+  /** An order total as the customer paid it (their currency, region prices). */
+  formatOrderAmount: (order: (OrderCurrency & Partial<Record<OrderAmountField, number>>) | null | undefined, field: OrderAmountField) => string;
+  /** An order line's unit price × quantity as the customer paid it. */
+  formatOrderLine: (item: { price: number; presentmentPrice?: number }, order: OrderCurrency | null | undefined, quantity?: number) => string;
   /** An amount typed in the visitor's currency (e.g. a price filter) → pricing currency. */
   toBaseAmount: (amount: number) => number;
   /** An amount already in `code` (e.g. a quote's presentment total). */
@@ -120,7 +124,24 @@ export interface OrderCurrency {
   baseCurrency?: string;
   presentmentCurrency?: string;
   fxRate?: number;
+  /** What the customer paid, in presentmentCurrency. */
+  presentmentSubtotal?: number;
+  presentmentDiscount?: number;
+  presentmentShipping?: number;
+  presentmentTax?: number;
+  presentmentTotal?: number;
+  giftCardRedemption?: { amount?: number } | null;
 }
+
+/** An order amount: the pricing-currency field and its presentment mirror. */
+export type OrderAmountField = 'subtotal' | 'discount' | 'shippingCost' | 'tax' | 'totalAmount';
+const PRESENTMENT_FIELD: Record<OrderAmountField, keyof OrderCurrency> = {
+  subtotal: 'presentmentSubtotal',
+  discount: 'presentmentDiscount',
+  shippingCost: 'presentmentShipping',
+  tax: 'presentmentTax',
+  totalAmount: 'presentmentTotal',
+};
 
 /** The shopper's currency / region choice, kept for the visit (like the language). */
 const CURRENCY_KEY = 'matjar.storefront.currency';
@@ -132,12 +153,22 @@ const readChoice = (key: string): string | null => {
     return null;
   }
 };
-const saveChoice = (key: string, value: string) => {
+const saveChoice = (key: string, value: string): boolean => {
   try {
     sessionStorage.setItem(key, value);
+    return true;
   } catch {
     /* storage unavailable: the choice holds until reload */
+    return false;
   }
+};
+/**
+ * Product and cart prices come from the server already set for the region and
+ * currency (own prices, rounding), so a new choice reloads the page to fetch
+ * them again. Only when the choice was saved, or the reload would undo it.
+ */
+const reloadForPrices = (saved: boolean) => {
+  if (saved && typeof window !== 'undefined') window.location.reload();
 };
 
 const money = (amount: number, code: string) => {
@@ -272,8 +303,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     : [chargeCurrency];
   const [choice, setChoice] = useState<string | null>(() => readChoice(CURRENCY_KEY));
   const setCurrency = React.useCallback((code: string) => {
+    if (code === readChoice(CURRENCY_KEY)) return;
     setChoice(code);
-    saveChoice(CURRENCY_KEY, code);
+    reloadForPrices(saveChoice(CURRENCY_KEY, code));
   }, []);
 
   // Regions: the visitor's choice, else the region detected by the server,
@@ -288,15 +320,17 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     null;
   const setMarket = React.useCallback(
     (code: string) => {
+      if (code === market?.code) return;
       setMarketChoice(code);
-      saveChoice(MARKET_KEY, code);
+      const saved = saveChoice(MARKET_KEY, code);
       const lang = markets.find((m) => m.code === code)?.language;
       if (lang === 'ar' || lang === 'en') {
         saveShopperLang(lang);
         void i18n.changeLanguage(lang);
       }
+      reloadForPrices(saved);
     },
-    [markets],
+    [markets, market?.code],
   );
 
   // What prices are shown in: the region's currency, else the visitor's
@@ -318,12 +352,25 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       : order?.baseCurrency
         ? money(amount, order.baseCurrency)
         : formatChargedPrice(amount);
+  const formatOrderAmount: StoreContextType['formatOrderAmount'] = (order, field) => {
+    const shown = order?.[PRESENTMENT_FIELD[field]];
+    // The presentment total is before a gift card; the charged total after it.
+    const usable = typeof shown === 'number' && order?.presentmentCurrency && !(field === 'totalAmount' && order.giftCardRedemption?.amount);
+    return usable ? money(shown as number, order!.presentmentCurrency!) : formatOrderPrice(Number(order?.[field]) || 0, order);
+  };
+  const formatOrderLine: StoreContextType['formatOrderLine'] = (item, order, quantity = 1) =>
+    typeof item.presentmentPrice === 'number' && order?.presentmentCurrency
+      ? money(item.presentmentPrice * quantity, order.presentmentCurrency)
+      : formatOrderPrice(item.price * quantity, order);
   const toBaseAmount = (amount: number) => amount / factor;
 
   // The API client converts price filters typed in the visitor's currency.
   useEffect(() => {
     setPriceFilterRate(factor);
   });
+  // The server prices products for this region and currency (own prices,
+  // rounding). Set during render so pages' first requests carry it.
+  setPricingHeaders(market?.code || null, market ? null : currency);
 
   // Note: CSS variable injection for colors/typography is handled by ThemeProvider
   // to avoid duplication and ensure manifest defaults are merged properly.
@@ -356,6 +403,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         formatPrice,
         formatChargedPrice,
         formatOrderPrice,
+        formatOrderAmount,
+        formatOrderLine,
         toBaseAmount,
         formatMoney: money,
         markets,

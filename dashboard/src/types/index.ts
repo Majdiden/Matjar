@@ -187,6 +187,8 @@ export interface ProductVariant {
   /** Override of product.price. Undefined = inherit. */
   price?: number;
   compareAtPrice?: number;
+  /** Own prices in other currencies for a variant with its own price ({ SAR: 99 }). */
+  prices?: Record<string, number> | null;
   stock: number;
   image?: string;
   weight?: number;
@@ -211,6 +213,8 @@ export interface ProductFormData {
   options?: ProductOption[];
   variants?: ProductVariant[];
   preorder?: PreorderConfig;
+  /** Own prices in other currencies ({ SAR: 99 }); empty = converted. */
+  prices?: Record<string, number> | null;
 }
 
 // Category types

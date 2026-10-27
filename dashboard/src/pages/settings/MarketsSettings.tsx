@@ -4,9 +4,10 @@
  * was deleted; this tab is the canonical surface).
  *
  * Persisted under `tenant.settings.markets` and consumed by
- * services/markets.js and services/checkout.js::priceCheckout. Currency
- * per market must be present in the Currencies FX table for presentment
- * conversion to succeed — the form flags a missing rate inline.
+ * services/regionalPricing.js and services/checkout.js::priceCheckout. A
+ * market's currency must be the pricing currency or have a rate in
+ * Currencies: the form blocks saving without one and flags existing markets
+ * that lost theirs (they show prices in the pricing currency until then).
  */
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +27,7 @@ import { api } from '../../lib/api-client';
 import { toast } from 'sonner';
 import { focusFieldById } from '../../lib/focusFirstInvalid';
 import { useConfirm } from '../../components/ui/use-confirm';
-import { errorMessage, type CurrencyConfig } from './shared';
+import { errorMessage, ROUNDING_OPTIONS, type CurrencyConfig } from './shared';
 
 interface MarketConfig {
   _id: string;
@@ -36,8 +37,16 @@ interface MarketConfig {
   currency: string;
   language: string;
   priceAdjustmentPct: number;
+  rounding?: string;
+  paymentMethods?: string[];
   enabled: boolean;
   isDefault: boolean;
+}
+
+interface PaymentMethodOption {
+  code: string;
+  label?: string;
+  enabled?: boolean;
 }
 
 const MARKETS_EMPTY_FORM = {
@@ -47,12 +56,15 @@ const MARKETS_EMPTY_FORM = {
   currency: '',
   language: 'en',
   priceAdjustmentPct: '0',
+  rounding: 'none',
+  paymentMethods: [] as string[],
   enabled: true,
   isDefault: false,
 };
 
 export const MarketsSettings: React.FC = () => {
-  const { t } = useTranslation(['settings', 'common']);
+  const { t, i18n } = useTranslation(['settings', 'common']);
+  const listSeparator = i18n.language?.startsWith('ar') ? '، ' : ', ';
   const [markets, setMarkets] = useState<MarketConfig[]>([]);
   const [baseCurrency, setBaseCurrency] = useState<string>('SDG');
   const [fxRates, setFxRates] = useState<Record<string, number>>({});
@@ -61,6 +73,7 @@ export const MarketsSettings: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(MARKETS_EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [paymentOptions, setPaymentOptions] = useState<PaymentMethodOption[]>([]);
   const confirm = useConfirm();
 
   useEffect(() => { load(); }, []);
@@ -74,6 +87,11 @@ export const MarketsSettings: React.FC = () => {
       setMarkets(res.data?.markets || []);
       setBaseCurrency(res.data?.currencies?.base || 'SDG');
       setFxRates(res.data?.currencies?.rates || {});
+      // The store's payment methods, to choose which a region offers.
+      const pm = await api.paymentMethods.list().catch(() => null) as {
+        data?: { methods?: PaymentMethodOption[] };
+      } | null;
+      setPaymentOptions((pm?.data?.methods || []).filter((m) => m.enabled !== false));
     } catch (err) {
       toast.error(errorMessage(err, t('settings.toast.markets_load_failed')));
     } finally {
@@ -97,6 +115,8 @@ export const MarketsSettings: React.FC = () => {
       language: m.language || 'en',
       // Stored as a decimal fraction (0.1 = +10%); edit in percent for UX.
       priceAdjustmentPct: String(((m.priceAdjustmentPct || 0) * 100).toFixed(2)).replace(/\.?0+$/, ''),
+      rounding: m.rounding || 'none',
+      paymentMethods: [...(m.paymentMethods || [])],
       enabled: m.enabled !== false,
       isDefault: !!m.isDefault,
     });
@@ -117,6 +137,10 @@ export const MarketsSettings: React.FC = () => {
       focusFieldById('market-currency');
       return toast.error(t('settings.validation.market_currency_invalid'));
     }
+    if (missingFxWarning(form.currency)) {
+      focusFieldById('market-currency');
+      return toast.error(t('settings.validation.market_currency_no_rate', { currency: form.currency }));
+    }
     const countries = form.countries.map(c => c.toUpperCase()).filter(Boolean);
     // Index into form.countries (not the filtered list) so we focus the right row.
     const badCountryIndex = form.countries.findIndex(c => c && !/^[A-Z]{2}$/.test(c.toUpperCase()));
@@ -136,6 +160,8 @@ export const MarketsSettings: React.FC = () => {
       currency: form.currency,
       language: form.language.trim().toLowerCase() || 'en',
       priceAdjustmentPct: pct / 100,
+      rounding: form.rounding,
+      paymentMethods: form.paymentMethods,
       enabled: form.enabled,
       isDefault: form.isDefault,
     };
@@ -173,9 +199,9 @@ export const MarketsSettings: React.FC = () => {
     }
   };
 
-  // Markets quote in a currency that isn't the base. Checkout uses the FX
-  // table to convert — if there's no rate, presentment silently falls back
-  // to the base. Surface the gap so the merchant fixes it in Currencies.
+  // A market's currency needs a rate from the pricing currency. Saving is
+  // blocked without one; an existing market whose rate was removed shows its
+  // prices in the pricing currency (with its adjustment) until it is added.
   const missingFxWarning = (currency: string): string | null => {
     if (!currency || currency === baseCurrency) return null;
     if (fxRates[currency] > 0) return null;
@@ -221,6 +247,11 @@ export const MarketsSettings: React.FC = () => {
                         <span className="font-mono text-sm font-semibold">{m.code}</span>
                         <span className="text-sm">{m.name}</span>
                         <Badge variant="secondary" className="text-[10px]">{m.currency}</Badge>
+                        {warn && (
+                          <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-600">
+                            {t('settings.market_badge_no_rate')}
+                          </Badge>
+                        )}
                         {m.priceAdjustmentPct !== 0 && (
                           <Badge variant="outline" className="text-[10px]">
                             {m.priceAdjustmentPct > 0 ? '+' : ''}{(m.priceAdjustmentPct * 100).toFixed(1)}%
@@ -234,7 +265,14 @@ export const MarketsSettings: React.FC = () => {
                       )}
                       {warn && (
                         <p className="text-xs text-amber-600 dark:text-amber-500 flex items-center gap-1">
-                          <AlertCircle className="h-3 w-3" />{warn}
+                          <AlertCircle className="h-3 w-3 shrink-0" />{warn}
+                        </p>
+                      )}
+                      {(m.paymentMethods?.length || 0) > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {t('settings.field.markets.payment_methods.summary', {
+                            methods: m.paymentMethods!.map((c) => paymentOptions.find((o) => o.code === c)?.label || c).join(listSeparator),
+                          })}
                         </p>
                       )}
                     </div>
@@ -352,6 +390,52 @@ export const MarketsSettings: React.FC = () => {
                 {t('settings.field.markets.price_adjustment.help')}
               </p>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="market-rounding">{t('settings.field.rounding.label')}</Label>
+              <select
+                id="market-rounding"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={form.rounding}
+                onChange={e => setForm(f => ({ ...f, rounding: e.target.value }))}
+              >
+                {ROUNDING_OPTIONS.map((r) => (
+                  <option key={r} value={r}>{t(`settings.field.rounding.option.${r === '0.99' ? '099' : r}`)}</option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">{t('settings.field.rounding.help')}</p>
+            </div>
+
+            {paymentOptions.length > 1 && (
+              <div className="space-y-2">
+                <Label>{t('settings.field.markets.payment_methods.label')}</Label>
+                <div className="space-y-2 rounded-md border px-3 py-2">
+                  {paymentOptions.map((pm) => {
+                    const checked = form.paymentMethods.includes(pm.code);
+                    return (
+                      <label key={pm.code} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-primary"
+                          checked={checked}
+                          onChange={(e) => {
+                            const on = e.target.checked;
+                            setForm(f => ({
+                              ...f,
+                              paymentMethods: on
+                                ? [...f.paymentMethods, pm.code]
+                                : f.paymentMethods.filter((c) => c !== pm.code),
+                            }));
+                          }}
+                        />
+                        {pm.label || pm.code}
+                      </label>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted-foreground">{t('settings.field.markets.payment_methods.help')}</p>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="flex items-center justify-between border rounded-md px-3 py-2">
