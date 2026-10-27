@@ -720,7 +720,7 @@
           "help": "Your {{base}} prices × the exchange rate, rounded up to tidy {{currency}} amounts."
         },
         "fixed": {
-          "title": "Write fixed prices",
+          "title": "Fixed prices",
           "help": "You type the {{currency}} price of each product. Products without one use the exchange rate."
         }
       },
