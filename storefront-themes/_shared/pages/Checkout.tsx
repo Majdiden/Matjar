@@ -134,6 +134,9 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   const [discountInput, setDiscountInput] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState<string>('');
   const [quote, setQuote] = useState<Quote | null>(null);
+  // The region the order is priced in (by the shipping address once quoted):
+  // it may offer only some payment methods.
+  const paymentRegion = quote ? quote.marketCode ?? null : market?.code ?? null;
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
 
@@ -173,7 +176,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
   useEffect(() => {
     let cancelled = false;
     paymentMethodsApi
-      .list()
+      .list(paymentRegion)
       .then((res: any) => {
         if (cancelled) return;
         const list: PaymentMethodPublic[] =
@@ -186,7 +189,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [paymentRegion]);
 
   // ── Load logged-in customer profile ──────────────────────────────
   useEffect(() => {
@@ -542,6 +545,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
         acceptsMarketing: acceptsMarketing && !user?.acceptsMarketing,
         saveAddress: !!user && saveAddress && selectedAddressIdx === 'new',
         idempotencyKey,
+        marketCode: market?.code,
       });
       const payload = res?.responseObject || res?.data || res;
       const order = payload?.order || payload;
@@ -912,6 +916,7 @@ const Checkout: React.FC<CheckoutProps> = ({ className = '', accentColor }) => {
                   onFieldChange={setPaymentFieldValues}
                   submitted={paymentSubmitted}
                   accentColor={accent}
+                  marketCode={paymentRegion}
                 />
               )}
 

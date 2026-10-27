@@ -242,6 +242,11 @@ const tenantSchema = new Schema({
         // base-currency subtotal BEFORE conversion so the merchant can
         // dial in regional pricing without juggling FX rounding.
         priceAdjustmentPct: { type: Number, default: 0 },
+        // How converted prices are rounded up (services/regionalPricing.js
+        // ROUNDING_RULES): "none", a step ("1", "5", … "1000") or "0.99".
+        rounding: { type: String, default: "none" },
+        // Payment method codes offered in this region; empty = all.
+        paymentMethods: { type: [String], default: [] },
         enabled: { type: Boolean, default: true },
         // Exactly one market may be flagged default; the controller
         // enforces this on write. Used as the fallback when a customer's
@@ -270,6 +275,18 @@ const tenantSchema = new Schema({
       // Let visitors switch between `display`, `base` and the other rated
       // currencies (language menu). Off = everyone sees `display` only.
       showSwitcher: { type: Boolean, default: false },
+      // Rounding of prices converted to the website currency (see markets[].rounding).
+      rounding: { type: String, default: "none" },
+      // Currencies whose rate follows the platform's exchange rates plus a
+      // margin (0.02 = 2% above). Their entry in `rates` is recomputed on
+      // save and whenever the platform updates its rates.
+      auto: [
+        {
+          code: { type: String, required: true, uppercase: true, trim: true },
+          margin: { type: Number, default: 0 },
+          _id: false,
+        },
+      ],
     },
     // Order status notifications — per-status email templates the merchant
      // can enable/disable and customise. When a status transition occurs,

@@ -1,5 +1,3 @@
-import { getATenantRepo } from "../repositories/tenant.js";
-
 /**
  * Markets service. The merchant defines geographic markets in
  * `tenant.settings.markets`; each market binds a set of countries to a
@@ -132,26 +130,6 @@ export function applyPresentment(quote, market, currencies) {
     presentmentPriceFactor: adjust * fxRate,
     marketCode: market.code,
   };
-}
-
-/**
- * Convenience wrapper used by checkout.priceCheckout — fetches the tenant,
- * resolves the market, and returns the presentment block ready to merge.
- */
-export async function presentmentForCheckout({ tenantId, country, marketCode = null, quote }) {
-  const tenant = await getATenantRepo({}, { _id: tenantId });
-  if (!tenant) return applyPresentment(quote, null, null);
-  const currencies = tenant.settings?.currencies;
-  // The shipping country decides the market. Before one is entered, the
-  // visitor's region (marketCode, chosen or detected on the storefront).
-  // Otherwise the website currency (Settings → Currencies) when it differs
-  // from the pricing currency.
-  const chosen =
-    !country && marketCode
-      ? (tenant.settings?.markets || []).find((m) => m.enabled && m.code === marketCode) || null
-      : null;
-  const market = chosen || resolveMarket(tenant, country) || websiteCurrencyMarket(currencies);
-  return applyPresentment(quote, market, currencies);
 }
 
 /**

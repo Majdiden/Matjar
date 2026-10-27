@@ -236,6 +236,11 @@
         "move_up": "Move up",
         "move_down": "Move down",
         "toast_invalid": "Each content section needs a valid, unique key."
+      },
+      "own_prices": {
+        "title": "Your own prices in other currencies",
+        "help": "Optional. Shoppers paying in that currency see exactly this price. Leave a box empty to use the converted price shown in it.",
+        "field": "Price in {{code}}"
       }
     },
     "status": {

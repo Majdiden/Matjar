@@ -144,8 +144,7 @@ export function buildStoreInfo(tenant, options = {}) {
   );
   const displayCurrency = fx.display && displayRates[String(fx.display).toUpperCase()] ? String(fx.display).toUpperCase() : null;
   const currencySwitcher = fx.showSwitcher === true && Object.keys(displayRates).length > 0;
-  // Regions (Settings → Markets): each enabled market whose currency can be
-  // converted (the pricing currency or one with a rate). `market` is the
+  // Regions (Settings → Markets): each enabled market. `market` is the
   // region for this visitor's country (options.visitorCountry), else the
   // default one. The storefront prices in the region's currency and
   // adjustment; checkout still prices by the shipping address.
@@ -153,7 +152,9 @@ export function buildStoreInfo(tenant, options = {}) {
     .map((m) => (typeof m?.toObject === "function" ? m.toObject() : m))
     .filter((m) => m?.enabled !== false && m.code && m.currency)
     .map((m) => ({ ...m, currency: String(m.currency).toUpperCase() }))
-    .filter((m) => m.currency === storeCurrency || displayRates[m.currency] > 0)
+    // A region whose currency has no rate keeps its adjustment in the
+    // pricing currency (services/regionalPricing.js contextForMarket).
+    .map((m) => (m.currency === storeCurrency || displayRates[m.currency] > 0 ? m : { ...m, currency: storeCurrency }))
     .map((m) => ({
       code: m.code,
       name: m.name || m.code,

@@ -35,6 +35,7 @@ import { emit as emitNotification } from "./notification.js";
 import { guardTransition } from "../utils/orderStateMachine.js";
 import { logStateChange } from "../utils/auditLog.js";
 import { isFeatureEnabledForTenantId } from "./featureFlags.js";
+import { paymentMethodAllowedInMarket } from "./regionalPricing.js";
 
 /**
  * Retry-on-VersionError helper.
@@ -328,6 +329,7 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
     acceptsMarketing,
     saveAddress,
     idempotencyKey: clientIdempotencyKey,
+    marketCode: rawMarketCode,
     sessionId,
     giftCardCode,
     giftCardId,
@@ -428,6 +430,7 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
       models,
       tenantId,
       userId,
+      marketCode: typeof rawMarketCode === "string" ? rawMarketCode.slice(0, 32) : null,
     });
 
     // priceCheckout swallows discount validation errors so the *quote* can
@@ -580,6 +583,10 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
         : null;
       if (!configured) {
         throw new APIError(`Payment method not available: ${paymentMethodCode}`, 400);
+      }
+      // A region may offer only some methods (Settings → Markets).
+      if (!(await paymentMethodAllowedInMarket(tenantId, quote.marketCode, paymentMethodCode))) {
+        throw new APIError(`Payment method not available in this region: ${paymentMethodCode}`, 400);
       }
       const details = paymentDetails && typeof paymentDetails === "object" ? paymentDetails : {};
       const fieldErrors = {};
@@ -757,6 +764,7 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
             ...(imageUrl ? { image: imageUrl } : {}),
             quantity: l.quantity,
             price: l.unitPrice,
+            ...(l.presentmentPrice != null && quote.presentmentCurrency ? { presentmentPrice: l.presentmentPrice } : {}),
             discountAllocation: alloc.discount,
             taxAllocation: alloc.tax,
             ...(l.variant
@@ -806,6 +814,7 @@ export const createOrderService = async (models, userId, orderData, tenantId) =>
               presentmentTotal: quote.presentmentTotal,
               presentmentTax: quote.presentmentTax,
               presentmentShipping: quote.presentmentShipping,
+              presentmentDiscount: quote.presentmentDiscount,
               fxRate: quote.fxRate,
               marketCode: quote.marketCode,
             }

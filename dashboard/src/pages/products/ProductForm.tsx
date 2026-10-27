@@ -27,6 +27,8 @@ import { useStorefrontHost } from '../../hooks/useStorefrontHost';
 import { slugifyLink } from '../../lib/storeLink';
 import { focusFieldById, focusFirstInvalid } from '../../lib/focusFirstInvalid';
 import { useLanguageOrder } from '../../hooks/useLanguageOrder';
+import { OwnPricesEditor } from './OwnPricesEditor';
+import { useOtherCurrencies } from './ownPrices';
 import {
   EMPTY_LANG_TEXT, isLangTextEmpty, langDir, readLangText, writeLangFields, writeLangText,
   type FieldLang, type LangText,
@@ -157,6 +159,8 @@ export const ProductForm: React.FC = () => {
   // translations; flattened rows here → schema shape on submit.
   const [specs, setSpecs] = useState<SpecRow[]>([]);
   const [contentSections, setContentSections] = useState<ContentSectionRow[]>([]);
+  // Currencies the merchant can set their own prices in (Settings → Currencies).
+  const otherCurrencies = useOtherCurrencies();
 
   useEffect(() => { loadInitialData();
     // loadInitialData closes over `id` and `isEditMode`; refetching on
@@ -185,6 +189,7 @@ export const ProductForm: React.FC = () => {
           options: product.options || [],
           variants: product.variants || [],
           preorder: product.preorder || { enabled: false },
+          prices: (product as { prices?: Record<string, number> | null }).prices || null,
         });
         setSavedSlug(product.slug || '');
         setSavedActive(product.status === 'active');
@@ -494,6 +499,14 @@ export const ProductForm: React.FC = () => {
                     {formErrors.stock && <p className="text-xs text-destructive">{formErrors.stock}</p>}
                   </div>
                 </div>
+                <div className="mt-4">
+                  <OwnPricesEditor
+                    currencies={otherCurrencies}
+                    basePrice={formData.price}
+                    value={formData.prices}
+                    onChange={(prices) => setFormData((prev) => ({ ...prev, prices }))}
+                  />
+                </div>
               </CardContent>
             </Card>
 
@@ -510,6 +523,7 @@ export const ProductForm: React.FC = () => {
                 options={formData.options || []}
                 variants={formData.variants || []}
                 basePrice={formData.price}
+                currencies={otherCurrencies}
                 onChange={(next) => {
                   setFormData((prev) => ({
                     ...prev,

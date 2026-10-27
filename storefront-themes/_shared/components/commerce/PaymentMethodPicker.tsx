@@ -15,6 +15,8 @@ interface Props {
   submitted?: boolean;
   accentColor?: string;
   className?: string;
+  /** The checkout's region: only the methods it offers are listed. */
+  marketCode?: string | null;
 }
 
 const DEFAULT_MAX = 5 * 1024 * 1024;
@@ -40,6 +42,7 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
     submitted = false,
     accentColor,
     className = '',
+    marketCode = null,
   } = props;
 
   const { t } = useTranslation(['product', 'common']);
@@ -54,13 +57,15 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
     let cancelled = false;
     setLoading(true);
     paymentMethodsApi
-      .list()
+      .list(marketCode)
       .then((res: any) => {
         if (cancelled) return;
         const list: PaymentMethodPublic[] =
           res?.data?.methods || res?.responseObject?.methods || res?.methods || [];
         setMethods(list);
         setLoading(false);
+        // A method the new region doesn't offer is no longer chosen.
+        if (value && !list.some((m) => m.code === value)) onChange('');
       })
       .catch((err) => {
         if (cancelled) return;
@@ -70,7 +75,8 @@ const PaymentMethodPicker: React.FC<Props> = (props) => {
     return () => {
       cancelled = true;
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marketCode]);
 
   const selected = methods?.find((m) => m.code === value) || null;
 

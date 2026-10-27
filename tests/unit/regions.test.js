@@ -23,7 +23,7 @@ describe("regions", () => {
     assert.ok(Math.abs(p.presentmentPriceFactor - 4.4) < 1e-9);
   });
 
-  it("the store payload lists convertible regions and picks the visitor's", () => {
+  it("the store payload lists the regions and picks the visitor's", () => {
     const tenant = {
       name: "Store",
       settings: {
@@ -32,13 +32,14 @@ describe("regions", () => {
         markets: [
           { code: "sd", name: "Sudan", countries: ["SD"], currency: "SDG", enabled: true, isDefault: true },
           { code: "sa", name: "Saudi", countries: ["SA"], currency: "SAR", priceAdjustmentPct: 0.1, enabled: true },
-          { code: "eu", name: "Europe", countries: ["DE"], currency: "EUR", enabled: true }, // no rate: left out
+          { code: "eu", name: "Europe", countries: ["DE"], currency: "EUR", enabled: true }, // no rate: shown in USD
           { code: "off", name: "Off", countries: ["EG"], currency: "SDG", enabled: false },
         ],
       },
     };
     const sa = buildStoreInfo(tenant, { visitorCountry: "SA" });
-    assert.deepEqual(sa.markets.map((m) => m.code), ["sd", "sa"]);
+    assert.deepEqual(sa.markets.map((m) => m.code), ["sd", "sa", "eu"]);
+    assert.equal(sa.markets[2].currency, "USD");
     assert.equal(sa.market, "sa");
     assert.equal(sa.markets[1].priceAdjustmentPct, 0.1);
     assert.equal(sa.currencyRates.SAR, 3.75);

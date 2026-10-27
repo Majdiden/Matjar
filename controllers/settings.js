@@ -6,6 +6,9 @@ import { logAudit } from "../utils/audit.js";
 import { refreshGeneratedAboutService } from "../services/storePages.js";
 import logger from "../utils/logger.js";
 import { STORE_CONTACT_FIELDS, normalizeStoreContactField } from "../utils/storeContact.js";
+import { ROUNDING_RULES } from "../services/regionalPricing.js";
+import { getFxTable, fxMultiplier } from "../services/platform/billing/fx.js";
+import { autoRatesFor } from "../services/autoRates.js";
 
 // The four store policies the merchant can author. Keys map 1:1 to
 // settings.policies.<key> and to the storefront policy routes.
@@ -108,6 +111,17 @@ function validateMarket(market) {
       throw new APIError("priceAdjustmentPct must be a number between -0.95 and 5", 400);
     }
   }
+  const rounding = market.rounding === undefined || market.rounding === null ? "none" : String(market.rounding);
+  if (!ROUNDING_RULES.includes(rounding)) {
+    throw new APIError(`rounding must be one of: ${ROUNDING_RULES.join(", ")}`, 400);
+  }
+  if (market.paymentMethods !== undefined && !Array.isArray(market.paymentMethods)) {
+    throw new APIError("paymentMethods must be an array of payment method codes", 400);
+  }
+  const paymentMethods = [...new Set((market.paymentMethods || []).map((c) => String(c).trim()).filter(Boolean))];
+  if (paymentMethods.length > 30 || paymentMethods.some((c) => !/^[a-z0-9_-]{1,40}$/i.test(c))) {
+    throw new APIError("Invalid payment method codes", 400);
+  }
   return {
     code,
     name: market.name.trim(),
@@ -115,9 +129,25 @@ function validateMarket(market) {
     currency,
     language: market.language ? String(market.language).toLowerCase().trim() : "en",
     priceAdjustmentPct: typeof adjustment === "number" ? adjustment : 0,
+    rounding,
+    paymentMethods,
     enabled: market.enabled !== false,
     isDefault: !!market.isDefault,
   };
+}
+
+/**
+ * A region's currency must be the pricing currency or have an exchange rate
+ * (Settings → Currencies); otherwise its prices can't be shown in it.
+ */
+function assertMarketConvertible(market, tenant) {
+  const base = String(tenant?.settings?.currency || tenant?.settings?.currencies?.base || "SDG").toUpperCase();
+  const rate = Number(tenant?.settings?.currencies?.rates?.[market.currency]);
+  if (market.currency !== base && !(rate > 0)) {
+    const err = new APIError(`Add an exchange rate for ${market.currency} (Settings → Currencies) before using it for a region`, 400);
+    err.code = "MARKET_CURRENCY_NO_RATE";
+    throw err;
+  }
 }
 
 /** The rates table never lists the base currency itself (its rate is 1). */
@@ -150,6 +180,30 @@ function validateCurrencies(input) {
   if (input.showSwitcher !== undefined) {
     if (typeof input.showSwitcher !== "boolean") throw new APIError("showSwitcher must be true or false", 400);
     out.showSwitcher = input.showSwitcher;
+  }
+  if (input.rounding !== undefined) {
+    const rounding = input.rounding === null ? "none" : String(input.rounding);
+    if (!ROUNDING_RULES.includes(rounding)) {
+      throw new APIError(`rounding must be one of: ${ROUNDING_RULES.join(", ")}`, 400);
+    }
+    out.rounding = rounding;
+  }
+  if (input.auto !== undefined) {
+    if (!Array.isArray(input.auto) || input.auto.length > 30) {
+      throw new APIError("auto must be a list of { code, margin }", 400);
+    }
+    const seen = new Set();
+    out.auto = input.auto.map((a) => {
+      const code = String(a?.code || "").toUpperCase();
+      if (!CURRENCY_CODE_PATTERN.test(code)) throw new APIError(`Invalid currency code in auto: ${a?.code}`, 400);
+      const margin = a?.margin === undefined || a?.margin === null ? 0 : a.margin;
+      if (typeof margin !== "number" || margin < -0.5 || margin > 1) {
+        throw new APIError(`Margin for ${code} must be between -0.5 and 1`, 400);
+      }
+      if (seen.has(code)) throw new APIError(`${code} is listed twice in auto`, 400);
+      seen.add(code);
+      return { code, margin };
+    });
   }
   if (input.rates !== undefined) {
     if (!input.rates || typeof input.rates !== "object" || Array.isArray(input.rates)) {
@@ -348,6 +402,7 @@ export const updateSettings = async (req, res, next) => {
         throw new APIError("markets must be an array", 400);
       }
       const validated = settings.markets.map(validateMarket);
+      validated.forEach((m) => assertMarketConvertible(m, req.tenant));
       const defaults = validated.filter((m) => m.isDefault);
       if (defaults.length > 1) {
         throw new APIError("Only one market may be marked as default", 400);
@@ -627,10 +682,20 @@ export const listMarkets = async (req, res, next) => {
       .select("settings.markets settings.currencies settings.currency")
       .lean();
     if (!tenant) throw new APIError("Tenant not found", 404);
+    const base = String(tenant.settings?.currency || tenant.settings?.currencies?.base || "SDG").toUpperCase();
+    // The platform's current rates from the store currency, for the
+    // automatic-rate option (services/autoRates.js).
+    const table = await getFxTable();
+    const platformRates = {};
+    for (const code of [table.base, ...Object.keys(table.rates || {})]) {
+      const m = fxMultiplier(table, base, code);
+      if (code !== base && m > 0) platformRates[code] = m;
+    }
     res.json({
       success: true,
       data: {
         markets: tenant.settings?.markets || [],
+        platformRates,
         // The store currency is the base (setStoreCurrency keeps them equal).
         currencies: {
           ...(tenant.settings?.currencies || {}),
@@ -648,6 +713,7 @@ export const createMarket = async (req, res, next) => {
   try {
     if (!req.tenant?._id) throw new APIError("Tenant context not found", 400);
     const market = validateMarket(req.body);
+    assertMarketConvertible(market, req.tenant);
     const Tenant = mongoose.model("Tenant");
     // If the new market claims default, demote any existing default first.
     // We do this in two writes rather than a transaction because the global
@@ -689,6 +755,7 @@ export const updateMarket = async (req, res, next) => {
       throw new APIError("Invalid market id", 400);
     }
     const market = validateMarket(req.body);
+    assertMarketConvertible(market, req.tenant);
     const Tenant = mongoose.model("Tenant");
     if (market.isDefault) {
       await Tenant.updateOne(
@@ -707,6 +774,8 @@ export const updateMarket = async (req, res, next) => {
           "settings.markets.$.currency": market.currency,
           "settings.markets.$.language": market.language,
           "settings.markets.$.priceAdjustmentPct": market.priceAdjustmentPct,
+          "settings.markets.$.rounding": market.rounding,
+          "settings.markets.$.paymentMethods": market.paymentMethods,
           "settings.markets.$.enabled": market.enabled,
           "settings.markets.$.isDefault": market.isDefault,
         },
@@ -768,11 +837,25 @@ export const updateCurrencies = async (req, res, next) => {
     const current = req.tenant?.settings?.currencies || {};
     const base = c.base || req.tenant?.settings?.currency || current.base || "SDG";
     if (c.base !== undefined) setStoreCurrency(update, c.base, req.tenant?.settings?.currency);
-    const rates = c.rates !== undefined ? withoutBase(c.rates, base) : withoutBase(current.rates || {}, base);
-    if (c.rates !== undefined) {
+    let rates = c.rates !== undefined ? withoutBase(c.rates, base) : withoutBase(current.rates || {}, base);
+    // Automatic rates: the platform's exchange rate plus the merchant's
+    // margin, for each currency they turned it on for.
+    const auto = (c.auto !== undefined ? c.auto : current.auto || []).filter((a) => a.code !== base);
+    if (auto.length) {
+      const { rates: autoRates, missing } = autoRatesFor(await getFxTable(), base, auto);
+      if (missing.length) {
+        const err = new APIError(`No automatic exchange rate for ${missing.join(", ")} yet; enter the rate yourself`, 400);
+        err.code = "AUTO_RATE_UNAVAILABLE";
+        throw err;
+      }
+      rates = { ...rates, ...autoRates };
+    }
+    if (c.rates !== undefined || auto.length || c.auto !== undefined) {
       update["settings.currencies.rates"] = rates;
       update["settings.currencies.ratesUpdatedAt"] = new Date();
     }
+    if (c.auto !== undefined || c.base !== undefined) update["settings.currencies.auto"] = auto;
+    if (c.rounding !== undefined) update["settings.currencies.rounding"] = c.rounding;
     // The website currency must be the pricing currency or one with a rate.
     const display = c.display !== undefined ? c.display : current.display || null;
     if (display && display !== base && !(rates[display] > 0)) {

@@ -70,6 +70,10 @@ const productSchema = new Schema({
   frequentlyBoughtWith: [{ type: Schema.Types.ObjectId, ref: "Product" }],
   price: { type: Number, required: true, min: [0, "Price cannot be negative"] },
   compareAtPrice: { type: Number, min: 0 },
+  // The merchant's own price in other currencies, e.g. { SAR: 99 }: shoppers
+  // paying in that currency see exactly this instead of the converted price
+  // (services/regionalPricing.js). Validated by the product controller.
+  prices: { type: Schema.Types.Mixed, default: undefined },
   category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
   sku: { type: String, sparse: true, trim: true },
   stock: {
@@ -181,6 +185,8 @@ const productSchema = new Schema({
       // Price override. `null`/`undefined` means inherit `product.price`.
       price: { type: Number, min: 0 },
       compareAtPrice: { type: Number, min: 0 },
+      // Own prices per currency for a variant with its own price (see product.prices).
+      prices: { type: Schema.Types.Mixed, default: undefined },
       stock: { type: Number, default: 0, min: 0 },
       // Optional per-variant image URL. Should generally be one of the
       // entries in `product.images` so the gallery stays consistent.

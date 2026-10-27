@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ordersApi } from '../api/client';
-import { useStore } from '../contexts/StoreContext';
+import { useStore, type OrderCurrency } from '../contexts/StoreContext';
 import { useTranslation } from 'react-i18next';
 import { localizedPaymentMethodLabel } from '../lib/paymentLabel';
 // Dates follow the storefront language (ar → ar-SD), not the browser locale.
@@ -33,9 +33,10 @@ interface OrderLine {
   sku?: string;
   quantity: number;
   price: number;
+  presentmentPrice?: number;
 }
 
-interface Order {
+interface Order extends OrderCurrency {
   _id: string;
   orderNumber?: string;
   status?: string;
@@ -59,7 +60,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
   const location = useLocation();
   const navigate = useNavigate();
   // The order's own currency and rate (what the customer pays).
-  const { formatOrderPrice, store } = useStore();
+  const { formatOrderPrice, formatOrderAmount, formatOrderLine, store } = useStore();
   const formatPrice = (amount: number) => formatOrderPrice(amount, order);
   const { t } = useTranslation(['order']);
 
@@ -189,7 +190,7 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
           </div>
           <div className="text-start sm:text-end">
             <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold">{t('order.success.order_total')}</p>
-            <p className="text-xl font-bold" style={{ color: accent }}>{formatPrice(order.totalAmount)}</p>
+            <p className="text-xl font-bold" style={{ color: accent }}>{formatOrderAmount(order, 'totalAmount')}</p>
           </div>
         </div>
 
@@ -223,9 +224,9 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
                         : t('order.success.preorder')}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500">{t('order.success.qty', { qty: item.quantity })} · {formatPrice(item.price)} each</p>
+                  <p className="text-xs text-gray-500">{t('order.success.qty', { qty: item.quantity })} · {formatOrderLine(item, order)}</p>
                 </div>
-                <p className="text-sm font-semibold whitespace-nowrap">{formatPrice(item.price * item.quantity)}</p>
+                <p className="text-sm font-semibold whitespace-nowrap">{formatOrderLine(item, order, item.quantity)}</p>
               </div>
             );
           })}
@@ -236,30 +237,30 @@ const OrderSuccess: React.FC<OrderSuccessProps> = ({ className = '', accentColor
           {order.subtotal !== undefined && (
             <div className="flex justify-between text-gray-600">
               <span>{t('order.tracking.summary.subtotal')}</span>
-              <span>{formatPrice(order.subtotal)}</span>
+              <span>{formatOrderAmount(order, 'subtotal')}</span>
             </div>
           )}
           {(order.discount ?? 0) > 0 && (
             <div className="flex justify-between text-green-600">
               <span>{t('order.tracking.summary.discount')}</span>
-              <span>−{formatPrice(order.discount!)}</span>
+              <span>−{formatOrderAmount(order, 'discount')}</span>
             </div>
           )}
           {(order.shippingCost ?? 0) > 0 && (
             <div className="flex justify-between text-gray-600">
               <span>{t('order.tracking.summary.shipping')}</span>
-              <span>{formatPrice(order.shippingCost!)}</span>
+              <span>{formatOrderAmount(order, 'shippingCost')}</span>
             </div>
           )}
           {(order.tax ?? 0) > 0 && (
             <div className="flex justify-between text-gray-600">
               <span>{t('order.tracking.summary.tax')}</span>
-              <span>{formatPrice(order.tax!)}</span>
+              <span>{formatOrderAmount(order, 'tax')}</span>
             </div>
           )}
           <div className="flex justify-between text-base font-bold pt-2 mt-2 border-t">
             <span>{t('order.tracking.summary.total')}</span>
-            <span>{formatPrice(order.totalAmount)}</span>
+            <span>{formatOrderAmount(order, 'totalAmount')}</span>
           </div>
         </div>
 

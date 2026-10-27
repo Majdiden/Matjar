@@ -38,6 +38,8 @@ import {
   setFxTable,
 } from "../../services/platform/billing/index.js";
 
+import { refreshAutoRates } from "../../services/autoRates.js";
+
 const CommissionPolicy = () => mongoose.model("CommissionPolicy");
 const PricingOverride = () => mongoose.model("PricingOverride");
 const SubscriptionPlan = () => mongoose.model("SubscriptionPlan");
@@ -79,6 +81,10 @@ export const getFx = asyncHandler(async (_req, res) => {
 export const updateFx = asyncHandler(async (req, res) => {
   const { before, after } = await setFxTable(req.body, req.platformUser?.id);
   await recordPlatformAudit(req, { action: "billing.fx.update", resourceType: "PlatformFx", resourceId: "fx", before, after });
+  // Stores with automatic rates follow the new table.
+  await refreshAutoRates(after).catch((err) =>
+    logger.warn("billing: automatic store rates not refreshed", { error: err?.message })
+  );
   res.json({ success: true, data: after });
 });
 

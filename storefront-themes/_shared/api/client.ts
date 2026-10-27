@@ -24,6 +24,19 @@ function priceFilterToBase(params?: Record<string, string | number>) {
   return out;
 }
 
+/**
+ * The shopper's region and currency, sent with every request so the server
+ * returns product and cart prices as they pay them there (own prices per
+ * currency, rounding). StoreContext sets them.
+ */
+const pricingHeaders: Record<string, string> = {};
+export function setPricingHeaders(marketCode: string | null, currency: string | null) {
+  if (marketCode) pricingHeaders['X-Matjar-Market'] = marketCode;
+  else delete pricingHeaders['X-Matjar-Market'];
+  if (currency) pricingHeaders['X-Matjar-Currency'] = currency;
+  else delete pricingHeaders['X-Matjar-Currency'];
+}
+
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 const STOREFRONT_BASE = import.meta.env.VITE_STOREFRONT_URL || '/storefront';
 
@@ -85,6 +98,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('customer_token');
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    ...pricingHeaders,
     ...(options.headers as Record<string, string>),
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -425,6 +439,8 @@ export const ordersApi = {
     acceptsMarketing?: boolean;
     saveAddress?: boolean;
     idempotencyKey?: string;
+    /** The shopper's region, used until a shipping country decides it. */
+    marketCode?: string;
   }) =>
     // Use the guest-friendly storefront route (optionalAuth) so shoppers
     // without an account can place orders. /api/orders uses authenticate
@@ -566,7 +582,9 @@ export interface PaymentMethodPublic {
 }
 
 export const paymentMethodsApi = {
-  list: () => request<any>(`${STOREFRONT_BASE}/payment-methods`),
+  /** Methods offered; with a region code, only the ones that region offers. */
+  list: (marketCode?: string | null) =>
+    request<any>(`${STOREFRONT_BASE}/payment-methods${marketCode ? `?market=${encodeURIComponent(marketCode)}` : ''}`),
 };
 
 // ─── Markets ─────────────────────────────────────────────────────

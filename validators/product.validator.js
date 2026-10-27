@@ -24,6 +24,13 @@ const preorderSchema = z.object({
   chargePolicy: z.enum(["now", "on_ship"]).optional(),
 });
 
+// The merchant's own prices in other currencies: { SAR: 99 }. Up to 20.
+const ownPricesSchema = z
+  .record(z.string().regex(/^[A-Z]{3}$/, "Currency must be a 3-letter code"), z.number().min(0).max(1e9))
+  .refine((m) => Object.keys(m).length <= 20, "At most 20 currency prices")
+  .nullable()
+  .optional();
+
 // A concrete variant — one row in the option matrix.
 const variantSchema = z.object({
   _id: z.string().optional(),
@@ -40,6 +47,7 @@ const variantSchema = z.object({
   // Override of product price; undefined/null means inherit
   price: z.number().min(0).nullable().optional(),
   compareAtPrice: z.number().min(0).nullable().optional(),
+  prices: ownPricesSchema,
   stock: z.number().int().min(0, "Stock must be a non-negative integer"),
   image: z.string().optional(),
   weight: z.number().min(0).optional(),
@@ -148,6 +156,7 @@ export const createProductSchema = z.object({
     specifications: z.array(specSchema).optional(),
     contentSections: contentSectionsSchema.optional(),
     compareAtPrice: z.number().min(0).nullable().optional(),
+    prices: ownPricesSchema,
     sku: z.string().max(100).optional(),
     status: productStatusSchema.optional(),
     featured: z.boolean().optional(),
@@ -180,6 +189,7 @@ export const updateProductSchema = z.object({
     specifications: z.array(specSchema).optional(),
     contentSections: contentSectionsSchema.optional(),
     compareAtPrice: z.number().min(0).nullable().optional(),
+    prices: ownPricesSchema,
     sku: z.string().max(100).optional(),
     status: productStatusSchema.optional(),
     featured: z.boolean().optional(),
