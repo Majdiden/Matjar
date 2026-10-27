@@ -95,7 +95,7 @@ export const CurrencySettings: React.FC = () => {
   const load = async () => {
     try {
       setLoading(true);
-      const res = await api.settings.listMarketsSettings() as {
+      const res = await api.settings.getCurrencies() as {
         data?: { currencies?: CurrencyConfig; platformRates?: Record<string, number> };
       };
       setPlatformRates(res.data?.platformRates || {});
