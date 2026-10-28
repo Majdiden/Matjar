@@ -83,7 +83,7 @@ export const Settings: React.FC = () => {
   const tab: SettingsTab | null = urlTab && validTabs.includes(urlTab) ? urlTab : null;
   const [general, setGeneral] = useState<GeneralSettingsState>({
     storeName: '', storeDescription: '', logo: '', favicon: '',
-    currency: 'SDG', timezone: 'Africa/Khartoum', language: 'en',
+    currency: 'SDG', timezone: 'Africa/Khartoum', language: 'ar',
   });
   const [shippingType, setShippingType] = useState<ShippingType>('zone');
   const [flatRate, setFlatRate] = useState(0);
@@ -110,7 +110,8 @@ export const Settings: React.FC = () => {
           favicon: (s.favicon as string) || '',
           currency: (s.currency as string) || 'SDG',
           timezone: (s.timezone as string) || 'Africa/Khartoum',
-          language: (s.language as string) || 'en',
+          // A store without a language opens in Arabic (schemas/tenant.js).
+          language: (s.language as string) || 'ar',
         });
         setShippingType(s.shipping?.type || 'zone');
         setFlatRate(s.shipping?.rate || 0);

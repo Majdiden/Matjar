@@ -730,8 +730,9 @@ export const Register: React.FC = () => {
     // still applied at setup (installDefaultTheme), and the tenant records
     // themeSelected:false so the dashboard can nudge "choose a theme" later.
     const skipTheme = !!opts?.skipTheme;
-    // The store speaks the language the merchant signed up in.
-    const storeLanguage: 'ar' | 'en' = i18n.language?.startsWith('en') ? 'en' : 'ar';
+    // Every store's website opens in Arabic, whatever language the merchant
+    // signed up in; they can switch it in Settings → Regional.
+    const storeLanguage = 'ar' as const;
     if (!skipTheme) {
       const errs = validateStep('theme');
       setTouched(prev => ({ ...prev, themeSlug: true }));

@@ -71,3 +71,4 @@ This document lists all tasks associated with PBI 10.
 | 10-61 | [Markets as the one place for currencies and prices](./10-61.md) | Review | Currency setup too complicated for merchants |
 | 10-62 | [Checkout address: the store's countries only, city lists, delivery area from the country](./10-62.md) | Review | Delivery area asked although the country decides it |
 | 10-63 | [Delivery zone prices in the zone's currency](./10-63.md) | Review | Zone price read as USD and converted |
+| 10-64 | [Store websites open in Arabic by default](./10-64.md) | Review | Stores opened in English |
