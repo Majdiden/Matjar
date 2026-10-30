@@ -34,7 +34,7 @@ const Layout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafff5] pb-16 md:pb-0">
+    <div className="min-h-screen flex flex-col bg-[#fafff5]">
       {/* Top strip — the merchant's text from My Store, on every page */}
       {stripText && (
         <div data-section-id={TOP_STRIP_ANCHOR}>

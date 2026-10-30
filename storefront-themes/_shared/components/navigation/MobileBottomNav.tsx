@@ -97,6 +97,11 @@ const NAV_CSS = `
 @media (max-width: 767px) {
   :root { --mbn-space: calc(5.25rem + env(safe-area-inset-bottom, 0px)); }
   body { padding-bottom: var(--mbn-space); }
+  /* A page ending in a footer gets that room inside the footer (its own
+     colour) instead of a blank strip below it; the pill floats over the
+     footer's padding, never over its links. */
+  body:has(footer) { padding-bottom: 0; }
+  footer:last-of-type::after { content: ""; display: block; height: var(--mbn-space); }
 }
 .mbn-pill {
   background: var(--color-background, #ffffff);

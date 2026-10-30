@@ -52,15 +52,17 @@ const CategoryPage: React.FC = () => {
         <span className="text-gray-900">{category.name}</span>
       </nav>
 
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">{category.name}</h1>
+      {/* Title on its own line on phones (a long category name otherwise
+          wraps word by word beside the sort list), side by side from sm. */}
+      <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight">{category.name}</h1>
           {category.description && <p className="text-gray-500 mt-1">{category.description}</p>}
         </div>
         <select
           value={sort}
           onChange={(e) => updateParam('sort', e.target.value)}
-          className="px-4 py-2 border rounded-lg bg-white text-sm"
+          className="w-full sm:w-auto shrink-0 px-4 py-2 border rounded-lg bg-white text-sm"
         >
           <option value="newest">{t('theme.products.sort.newest')}</option>
           <option value="price_asc">{t('theme.products.sort.price_asc')}</option>

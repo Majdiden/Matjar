@@ -444,7 +444,7 @@ const Layout: React.FC = () => {
     standardFooter;
 
   return (
-    <div className="min-h-screen flex flex-col pb-16 md:pb-0">
+    <div className="min-h-screen flex flex-col">
       {/* Top strip — the merchant's announcement text (My Store), on every page */}
       {topStripText && (
         <SectionAnchor id={TOP_STRIP_ANCHOR} className="">

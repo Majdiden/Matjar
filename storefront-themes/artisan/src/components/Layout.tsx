@@ -35,7 +35,7 @@ const Layout: React.FC = () => {
   const footer = useStoreFooter();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-background)] pb-16 md:pb-0">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)]">
       {/* Top strip — the merchant's text from My Store, on every page */}
       {stripText && (
         <div data-section-id={TOP_STRIP_ANCHOR}>

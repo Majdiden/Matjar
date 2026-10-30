@@ -38,7 +38,7 @@ const CategoryPage: React.FC = () => {
           <span style={{ opacity: 1 }}>{category?.name || slug}</span>
         </div>
         <h1
-          className="font-serif text-5xl md:text-6xl"
+          className="font-serif text-3xl sm:text-5xl md:text-6xl leading-tight"
           style={{ fontFamily: 'var(--font-family-heading)', color: NAVY }}
         >
           {category?.name || slug}

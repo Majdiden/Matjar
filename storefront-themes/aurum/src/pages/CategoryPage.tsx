@@ -34,7 +34,7 @@ const CategoryPage: React.FC = () => {
           <span className="text-ink">{category?.name || slug}</span>
         </div>
         <h1
-          className="text-5xl md:text-6xl text-ink"
+          className="text-3xl sm:text-5xl md:text-6xl leading-tight text-ink"
           style={{ fontFamily: 'var(--font-family-heading)' }}
         >
           {category?.name || slug}
