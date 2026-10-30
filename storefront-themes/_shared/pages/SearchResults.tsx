@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
-import { ProductCard } from '../components/commerce/ProductCard';
+import ProductCard from '../components/ProductCard';
 import { Skeleton } from '../components/primitives/Skeleton';
 import { useThemeCard } from '../theme/ThemeCardProvider';
 import { TemplateSections } from '../theme/SectionRenderer';
@@ -72,7 +72,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         </h1>
         {!loading && (
           <p className="text-gray-500 text-sm">
-            {t('search.results_count_other', { count: products.length })}
+            {t('search.results_count', { count: products.length })}
           </p>
         )}
       </div>
@@ -102,17 +102,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             renderCard ? (
               renderCard(product)
             ) : (
-              <ProductCard key={product._id} product={product} onQuickView={onQuickView}>
-                <ProductCard.Image showBadge showQuickView={!!onQuickView} />
-                <ProductCard.Body>
-                  <ProductCard.Title />
-                  <ProductCard.Rating />
-                  <div className="flex items-center justify-between mt-2">
-                    <ProductCard.Price showCompareAt />
-                    <ProductCard.Actions addToCartText="Add" />
-                  </div>
-                </ProductCard.Body>
-              </ProductCard>
+              // The same card the category and product pages use, so a result
+              // looks (and adds to cart) exactly like it does everywhere else.
+              <ProductCard key={product._id} product={product as React.ComponentProps<typeof ProductCard>['product']} />
             )
           )}
         </div>
