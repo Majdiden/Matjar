@@ -33,7 +33,7 @@ const Layout: React.FC = () => {
   const footer = useStoreFooter();
 
   return (
-    <div className="min-h-screen flex flex-col pb-16 md:pb-0" style={{ fontFamily: 'var(--font-family, "Playfair Display", serif)' }}>
+    <div className="min-h-screen flex flex-col" style={{ fontFamily: 'var(--font-family, "Playfair Display", serif)' }}>
       {/* Top strip — the merchant's text from My Store, on every page */}
       {stripText && (
         <div data-section-id={TOP_STRIP_ANCHOR} className="bg-[var(--brand,#030712)] text-[var(--brand-contrast,#d1d5db)] text-xs text-center py-2 tracking-widest uppercase">

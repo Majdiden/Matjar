@@ -60,10 +60,11 @@ const CategoryPage: React.FC = () => {
         <span style={{ color: 'var(--color-foreground)' }}>{category.name}</span>
       </nav>
 
-      <div className="flex items-center justify-between mb-8">
-        <div>
+      {/* Title on its own line on phones, beside the sort list from sm. */}
+      <div className="flex flex-col gap-4 mb-8 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <h1
-            className="text-3xl font-bold"
+            className="text-2xl sm:text-3xl font-bold leading-tight"
             style={{
               color: 'var(--color-foreground)',
               fontFamily: 'var(--font-family-heading)',
@@ -76,7 +77,7 @@ const CategoryPage: React.FC = () => {
         <select
           value={sort}
           onChange={(e) => updateParam('sort', e.target.value)}
-          className="px-4 py-2 border rounded-lg bg-white text-sm"
+          className="w-full sm:w-auto shrink-0 px-4 py-2 border rounded-lg bg-white text-sm"
         >
           <option value="newest">{t('theme.category.sort_newest')}</option>
           <option value="price_asc">{t('theme.category.sort_price_asc')}</option>

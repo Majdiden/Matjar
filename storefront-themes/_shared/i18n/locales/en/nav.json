@@ -21,7 +21,7 @@
     "aria": "Pagination"
   },
   "search": {
-    "placeholder": "Search products, brands and more...",
+    "placeholder": "Search for a product",
     "button_aria": "Open search",
     "close_aria": "Close search",
     "empty": "Start typing to find products",
