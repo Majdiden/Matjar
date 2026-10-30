@@ -80,6 +80,7 @@
       "title": "No results found",
       "description": "Try adjusting your search or browse our collections.",
       "browse_all": "Browse All Products"
-    }
+    },
+    "back_home": "Home"
   }
 }
