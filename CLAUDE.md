@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **multitenant e-commerce SaaS platform** similar to Shopify, built with Node.js, Express, and MongoDB. Each tenant (store) has its own isolated database connection, providing strong data isolation while sharing the same application infrastructure.
 
+**Business context:** Matjar serves Sudanese merchants first (Gulf second): Arabic-first
+storefronts, SDG, cash on delivery and manual transfers (Bankak), WhatsApp-centred. The
+dashboard, platform admin (`/platform`) and storefront themes all exist; parts of this file
+predate them. See `docs/brand/brief.md` for the current product and business snapshot.
+
 ## Core Architecture
 
 ### Multitenancy Model
